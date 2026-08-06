@@ -965,27 +965,31 @@ export const SharedStockDetails = ({ rows, settings }) => {
     return (
         <div className="w-full border border-[var(--border-divider)] rounded-2xl overflow-hidden bg-[var(--surface-card)]">
             <div className="max-h-[30rem] overflow-y-auto overflow-x-auto">
-                <table className="cashflow-detail-table w-full table-auto">
+                {/* table-fixed with proportional widths: auto layout squeezed Material,
+                    stretched Warehouse and pushed Total out of view on wide screens. */}
+                <table className="cashflow-detail-table w-full table-fixed">
                     <thead>
                         <tr>
-                            <th className="text-left w-28 max-w-28">Material</th>
-                            <th className="text-left w-20">Warehouse</th>
-                            <th className="text-left w-14">Quantity</th>
-                            <th className="text-left w-20">Unit Price</th>
-                            <th className="text-left w-16">Financed by</th>
-                            <th className="text-right w-20">Total</th>
+                            <th className="text-left" style={{ width: '27%' }}>Material</th>
+                            <th className="text-left" style={{ width: '23%' }}>Warehouse</th>
+                            <th className="text-left" style={{ width: '11%' }}>Quantity</th>
+                            <th className="text-left" style={{ width: '13%' }}>Unit Price</th>
+                            <th className="text-left" style={{ width: '12%' }}>Financed by</th>
+                            <th className="text-right" style={{ width: '14%' }}>Total</th>
                         </tr>
                     </thead>
                     <tbody>
                         {(rows || []).map((r, i) => (
                             <tr key={r.id || i}>
-                                <td className="text-left w-28 max-w-28">
+                                <td className="text-left">
                                     <Tltip direction='top' tltpText={r.descriptionText || r.description || ''}>
                                         <span className="block truncate cursor-default">{r.descriptionText || r.description || '—'}</span>
                                     </Tltip>
                                 </td>
-                                <td className="text-left w-20">
-                                    <span className="block truncate cursor-default">{whName(r.stock)}</span>
+                                <td className="text-left">
+                                    <Tltip direction='top' tltpText={whName(r.stock)}>
+                                        <span className="block truncate cursor-default">{whName(r.stock)}</span>
+                                    </Tltip>
                                 </td>
                                 <td className="text-left">
                                     <NumericFormat value={r.qnty} displayType="text" thousandSeparator decimalScale='3' fixedDecimalScale />
