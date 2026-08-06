@@ -1,8 +1,9 @@
 import { useMemo } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/store/auth';
 import { useSettings } from '@/store/settings';
 import { loadData } from '@/data/firestore';
+import { saveSalesContract, deleteSalesContract, SALES_CONTRACT_REQUIRED } from '@/data/writes';
 import { num } from '@shared/finance';
 import { arr } from '@/lib/guard';
 
@@ -76,10 +77,45 @@ export function useSalesContracts() {
           pct: contractedQty > 0 ? Math.min(100, (shippedQty / contractedQty) * 100) : 0,
           products,
           date: c.dateRange?.startDate || c.date || '',
+          raw: c,
         };
       })
       .sort((a: any, b: any) => (b.date || '').localeCompare(a.date || ''));
   }, [query.data, settings]);
 
   return { rows, isLoading: query.isLoading, isError: query.isError, error: query.error, refetch: query.refetch };
+}
+
+// Create / update a sales contract — web parity (useSalesContractsState.saveData):
+// manual contract number, derived total, euroToUSD stamp, cross-year cleanup.
+export function useSaveSalesContract() {
+  const { uidCollection } = useAuth();
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ value, previousDate }: { value: any; previousDate?: string }) => {
+      if (!uidCollection) throw new Error('Not authenticated');
+      return saveSalesContract(uidCollection, value, previousDate);
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['sales-contracts'] }),
+  });
+}
+
+export function useDeleteSalesContract() {
+  const { uidCollection } = useAuth();
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (value: any) => {
+      if (!uidCollection) throw new Error('Not authenticated');
+      await deleteSalesContract(uidCollection, value);
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['sales-contracts'] }),
+  });
+}
+
+export function missingSalesContractFields(v: any): string[] {
+  return (SALES_CONTRACT_REQUIRED as readonly string[]).filter((k) => {
+    if (k === 'date') return !(v?.dateRange?.startDate || v?.date);
+    const val = v?.[k];
+    return val === undefined || val === null || String(val).trim() === '';
+  });
 }

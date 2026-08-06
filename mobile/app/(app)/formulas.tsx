@@ -7,6 +7,8 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Screen, Card, Text, TextField, Button, SegmentedControl, Badge, SectionHeader, LoadingState, EmptyState } from '@/components/ui';
 import { useTheme } from '@/theme/ThemeProvider';
 import { useAuth } from '@/store/auth';
+import { useMetalPrices } from '@/features/prices/useMetalPrices';
+import { getCur } from '@/data/writes';
 import { loadDataSettings } from '@/data/firestore';
 import { saveDataSettings } from '@/data/writes';
 import {
@@ -62,6 +64,34 @@ export default function Formulas() {
       setSeeded(true);
     }
   }, [data, seeded]);
+
+  // Web recomputes against LIVE inputs, not the last saved ones:
+  //  • Ni LME is auto-filled from /api/metal-prices (rounded to whole dollars)
+  //  • EUR rate is re-fetched for today on load
+  // Mobile used the stored values, so every figure on all three tabs could differ
+  // from the web page for the same document.
+  const { prices } = useMetalPrices();
+  const liveNi = prices.find((x) => x.key === 'LME-NI')?.price;
+  useEffect(() => {
+    if (seeded && liveNi != null) {
+      setValue((prev: any) => ({
+        ...prev,
+        general: { ...prev.general, nilme: String(Math.round(liveNi)) },
+      }));
+    }
+  }, [liveNi, seeded]);
+
+  useEffect(() => {
+    if (!seeded) return;
+    let cancelled = false;
+    getCur(new Date().toISOString().slice(0, 10))
+      .then((rate) => {
+        if (cancelled || !rate) return;
+        setValue((prev: any) => ({ ...prev, general: { ...prev.general, euroRate: rate } }));
+      })
+      .catch(() => {}); // keep the stored rate, exactly like web's catch
+    return () => { cancelled = true; };
+  }, [seeded]);
 
   const out = useMemo(() => {
     if (tab === 'fenicr') return computeFenicr(value);

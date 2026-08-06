@@ -185,9 +185,28 @@ export default function ContractDetail() {
         )}
       </Card>
 
+      {/* P&L / Shipments tab entry (web tab 3) */}
+      <Card style={{ marginBottom: 14 }} onPress={() => router.push(`/(app)/contracts/pnl?id=${contract.id}`)}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+            <Ionicons name="analytics-outline" size={17} color={colors.primary} />
+            <Text variant="bodyMedium">P&amp;L · Shipments tracking</Text>
+          </View>
+          <Ionicons name="chevron-forward" size={16} color={colors.textFaint} />
+        </View>
+      </Card>
+
       {/* Purchase payments + health bar */}
       <Card style={{ marginBottom: 14 }}>
-        <SectionHeader title="Purchase Payments" subtitle={`${poCount} payment record(s)`} />
+        <SectionHeader
+          title="Purchase Payments"
+          subtitle={`${poCount} payment record(s)`}
+          right={
+            <Pressable onPress={() => router.push(`/(app)/contracts/po-invoices?id=${contract.id}`)} hitSlop={8}>
+              <Text variant="caption" tone="primary">Edit invoices</Text>
+            </Pressable>
+          }
+        />
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 10 }}>
           <Text variant="body" tone="muted">Total paid to supplier</Text>
           <Text variant="h3" tone="positive">

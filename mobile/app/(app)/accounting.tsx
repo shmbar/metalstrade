@@ -1,13 +1,16 @@
 import { useMemo, useState } from 'react';
-import { View, Pressable, FlatList } from 'react-native';
+import { View, Pressable, FlatList, Modal, Alert } from 'react-native';
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Screen, Card, Text, Badge, TextField, BarChart, SectionHeader, SkeletonList, ErrorState, EmptyState } from '@/components/ui';
+import { Screen, Card, Text, Badge, TextField, Button, BarChart, SectionHeader, SkeletonList, ErrorState, EmptyState } from '@/components/ui';
 import { PeriodSelector } from '@/components/PeriodSelector';
 import { useTheme } from '@/theme/ThemeProvider';
 import { useAccounting, AccountingGroup } from '@/features/accounting/useAccounting';
-import { curSymbol, fmtMoney, fmtCurKM } from '@/lib/format';
+import { useAccountingEdit } from '@/features/accounting/useAccountingEdit';
+import { curSymbol, fmtMoney, fmtCurKM, dateLabel } from '@/lib/format';
+import { exportCsv } from '@/lib/export';
+import { useSettings } from '@/store/settings';
 
 const DAYS = ['Sat', 'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
 const dayIdx = (iso?: string) => {
@@ -23,6 +26,10 @@ export default function Accounting() {
   const insets = useSafeAreaInsets();
   const { data, isLoading, isError, error, refetch } = useAccounting();
   const [search, setSearch] = useState('');
+  const { dateSelect } = useSettings();
+  const { editExpense } = useAccountingEdit();
+  const [editLine, setEditLine] = useState<any | null>(null);
+  const [draft, setDraft] = useState<{ expInvoice: string; amountExp: string }>({ expInvoice: '', amountExp: '' });
 
   const groups: AccountingGroup[] = useMemo(() => {
     const q = search.trim().toLowerCase();
@@ -39,13 +46,57 @@ export default function Accounting() {
     const income = groups.reduce((s, g) => s + (g.amountInv || 0), 0);
     const expense = groups.reduce((s, g) => s + g.lines.reduce((t, l) => t + (l.amountExp || 0), 0), 0);
     const balance = income - expense;
+    // Web's transaction count is the MERGED ROW count (one row per invoice plus one
+    // per orphan expense/purchase), which is strictly larger than the group count.
+    const txCount = groups.reduce((s, g) => s + Math.max(1, g.lines?.length || 1), 0);
     return {
       income,
       expense,
       balance,
       marginPct: income > 0 ? (balance / income) * 100 : 0,
+      savings: balance > 0 ? balance * 0.2 : 0, // web: 20% of a positive balance
+      txCount,
+      avgTx: txCount > 0 ? (income + expense) / txCount : 0,
     };
   }, [data]);
+
+  // Excel export — web parity. One row per merged line (invoice row, then each of
+  // its expense/purchase lines), matching how web flattens the table.
+  const onExport = () => {
+    const rows: (string | number)[][] = [];
+    (data || []).forEach((g) => {
+      rows.push([
+        g.saleInvoice ?? g.invoice ?? '',
+        dateLabel(g.dateInv),
+        g.clientInvName || '',
+        g.curINV || '',
+        (g.amountInv || 0).toFixed(2),
+        '', '', '', '',
+      ]);
+      (g.lines || []).forEach((l) => {
+        rows.push([
+          g.saleInvoice ?? g.invoice ?? '',
+          '', '', '', '',
+          l.expInvoice || '',
+          dateLabel(l.dateExp),
+          l.supplierName || '',
+          (l.amountExp || 0).toFixed(2),
+        ]);
+      });
+    });
+    exportCsv(
+      `Accounting ${dateSelect.start.substring(0, 4)}`,
+      ['Sales Invoice', 'Date', 'Client', 'Currency', 'Amount', 'Expense/Purchase #', 'Exp date', 'Supplier', 'Exp amount'],
+      rows
+    );
+  };
+
+  // Web formatPercent: 2 decimals, with a +/-999% clamp.
+  const pct = (v: number) => {
+    if (!isFinite(v) || isNaN(v)) return '0%';
+    if (Math.abs(v) > 999) return v > 0 ? '>999%' : '<-999%';
+    return v.toFixed(2) + '%';
+  };
 
   // Debit (costs) vs Credit (sales) by weekday — parity with the web accounting chart.
   const chart = useMemo(() => {
@@ -70,7 +121,12 @@ export default function Accounting() {
           <Text variant="bodyMedium" tone="primary">Back</Text>
         </Pressable>
         <Text variant="h2">Accounting</Text>
-        <PeriodSelector />
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+          <Pressable onPress={onExport} hitSlop={8}>
+            <Ionicons name="download-outline" size={20} color={colors.primary} />
+          </Pressable>
+          <PeriodSelector />
+        </View>
       </View>
 
       <TextField
@@ -104,7 +160,7 @@ export default function Accounting() {
                   { k: 'Income', v: fmtCurKM('us', summary.income), tone: 'positive' as const },
                   { k: 'Costs', v: fmtCurKM('us', summary.expense), tone: 'negative' as const },
                   { k: 'Net', v: fmtCurKM('us', summary.balance), tone: summary.balance >= 0 ? ('positive' as const) : ('negative' as const) },
-                  { k: 'Margin', v: `${summary.marginPct.toFixed(1)}%`, tone: 'default' as const },
+                  { k: 'Margin', v: pct(summary.marginPct), tone: 'default' as const },
                 ].map((t) => (
                   <Card key={t.k} style={{ flex: 1 }}>
                     <Text variant="caption" tone="muted">{t.k}</Text>
@@ -114,6 +170,23 @@ export default function Accounting() {
                   </Card>
                 ))}
               </View>
+
+              {/* Web's second tile row: Savings, Total Transactions, Avg. Transaction. */}
+              <View style={{ flexDirection: 'row', gap: 10, marginBottom: 12 }}>
+                {[
+                  { k: 'Savings', v: fmtCurKM('us', summary.savings), tone: 'positive' as const },
+                  { k: 'Transactions', v: String(summary.txCount), tone: 'default' as const },
+                  { k: 'Avg. txn', v: fmtCurKM('us', summary.avgTx), tone: 'default' as const },
+                ].map((t) => (
+                  <Card key={t.k} style={{ flex: 1 }}>
+                    <Text variant="caption" tone="muted">{t.k}</Text>
+                    <Text variant="bodyMedium" tone={t.tone} numberOfLines={1} style={{ marginTop: 2, fontVariant: ['tabular-nums'] }}>
+                      {t.v}
+                    </Text>
+                  </Card>
+                ))}
+              </View>
+
               {chart.hasData ? (
                 <Card style={{ marginBottom: 12 }}>
                   <SectionHeader title="Debit vs Credit" subtitle="By weekday" />
@@ -147,7 +220,15 @@ export default function Accounting() {
                 {item.lines.length > 0 && (
                   <View style={{ marginTop: 10, borderTopWidth: 1, borderTopColor: colors.border, paddingTop: 8, gap: 6 }}>
                     {item.lines.map((l, i) => (
-                      <View key={i} style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <Pressable
+                        key={i}
+                        onPress={() => {
+                          if (l.expType === 'Purchase') return;
+                          setDraft({ expInvoice: String(l.expInvoice ?? ''), amountExp: String(l.amountExp ?? '') });
+                          setEditLine(l);
+                        }}
+                        style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}
+                      >
                         <View style={{ flex: 1, minWidth: 0 }}>
                           <Text variant="caption" numberOfLines={1}>{l.supplierName}</Text>
                           <Text variant="caption" tone="faint" numberOfLines={1}>
@@ -155,7 +236,10 @@ export default function Accounting() {
                           </Text>
                         </View>
                         <Text variant="caption" tone="negative">−{curSymbol(l.curEX)}{fmtMoney(l.amountExp)}</Text>
-                      </View>
+                        {l.expType !== 'Purchase' && (
+                          <Ionicons name="create-outline" size={13} color={colors.textFaint} style={{ marginLeft: 6 }} />
+                        )}
+                      </Pressable>
                     ))}
                     <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 4 }}>
                       <Text variant="caption" tone="muted">Costs</Text>
@@ -168,6 +252,34 @@ export default function Accounting() {
           }}
         />
       )}
+
+      {/* Inline edit — web's edit mode, restricted to non-Purchase rows. */}
+      <Modal visible={!!editLine} transparent animationType="slide" onRequestClose={() => setEditLine(null)}>
+        <Pressable style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.4)' }} onPress={() => setEditLine(null)} />
+        <View style={{ backgroundColor: colors.bgElevated, borderTopLeftRadius: 20, borderTopRightRadius: 20, padding: 20, paddingBottom: insets.bottom + 20, gap: 12 }}>
+          <Text variant="h2">Edit expense</Text>
+          <Text variant="caption" tone="muted">{editLine?.supplierName}</Text>
+          <TextField label="Expense invoice #" value={draft.expInvoice} onChangeText={(t) => setDraft((d) => ({ ...d, expInvoice: t }))} />
+          <TextField label="Amount" value={draft.amountExp} keyboardType="decimal-pad" onChangeText={(t) => setDraft((d) => ({ ...d, amountExp: t.replace(/[^0-9.-]/g, '') }))} />
+          <Button
+            title="Save"
+            loading={editExpense.isPending}
+            onPress={async () => {
+              if (!editLine) return;
+              try {
+                if (draft.expInvoice !== String(editLine.expInvoice ?? ''))
+                  await editExpense.mutateAsync({ line: editLine, field: 'expInvoice', value: draft.expInvoice });
+                if (draft.amountExp !== String(editLine.amountExp ?? ''))
+                  await editExpense.mutateAsync({ line: editLine, field: 'amountExp', value: draft.amountExp });
+                setEditLine(null);
+              } catch (e: any) {
+                Alert.alert('Save failed', e?.message || 'Could not save.');
+              }
+            }}
+          />
+          <Button title="Cancel" variant="secondary" onPress={() => setEditLine(null)} />
+        </View>
+      </Modal>
     </Screen>
   );
 }

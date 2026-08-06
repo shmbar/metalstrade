@@ -6,6 +6,7 @@ import { loadData, buildInvoiceIndex, contractInvoicesFromIndex, loadStockDataBy
 import { Contract, Invoice } from '@/data/types';
 import { num } from '@shared/finance';
 import { lotIsSold, computeLineSold, aggregateRollups, lineStatus } from '@shared/soldStatus';
+import { reviewFinancials, ReviewFinancials, ViewCur } from './reviewFinance';
 
 // Per-contract: keep, for each invoice number, only the highest-invType invoice id
 // (so an original isn't counted alongside its credit/final note). Port of getInvArray.
@@ -28,6 +29,28 @@ export interface ReviewRow {
   poWeight: number;
   shippedWeight: number;
   remaining: number;
+  statusKey: string;
+  statusLabel: string;
+  /** web's 11 money columns for this contract */
+  fin: ReviewFinancials;
+}
+
+export interface StatementLine {
+  key: string;
+  order: string;
+  supplierName: string;
+  date: string;
+  description: string;
+  unitPrc: number;
+  cur: string;
+  poWeight: number;
+  shippedWeight: number;
+  remaining: number;
+  qntyReceived: number;
+  consignees: string[];
+  destinations: string[];
+  invoiceNums: any[];
+  salesPos: string[];
   statusKey: string;
   statusLabel: string;
 }
@@ -55,6 +78,7 @@ export function useContractsReview() {
         contracts.map(async (c) => ({
           contract: c,
           invoicesData: contractInvoicesFromIndex(c, index, false) as Invoice[],
+          invoiceGroups: contractInvoicesFromIndex(c, index, true) as Invoice[][],
           stock: await loadStockDataByIds(uid, c.stock || []),
         }))
       );
@@ -63,9 +87,12 @@ export function useContractsReview() {
   });
 
   const data = useMemo(() => {
-    if (!query.data) return { rows: [] as ReviewRow[], statement: [] as StatementTotal[] };
+    if (!query.data) return { rows: [] as ReviewRow[], statement: [] as StatementTotal[], statementLines: [] as StatementLine[] };
 
-    const rows: ReviewRow[] = query.data.map(({ contract, invoicesData, stock }) => {
+    // View currency — web has a selector; mobile follows the contract's own currency
+    // so each row is shown in the currency it was traded in (no cross-currency sums).
+    const statementLines: StatementLine[] = [];
+    const rows: ReviewRow[] = query.data.map(({ contract, invoicesData, invoiceGroups, stock }) => {
       const invIds = getInvArray(contract);
       const products = contract.productsData || [];
       const materialIds = [...new Set(products.map((p) => p.id))];
@@ -73,6 +100,8 @@ export function useContractsReview() {
       let poWeight = 0;
       let shippedWeight = 0;
       const lineRollups: any[] = [];
+      const supplierName0 = settings?.Supplier?.Supplier?.find((s: any) => s.id === contract.supplier)?.nname || '—';
+      const conDate = (contract as any).dateRange?.startDate || (contract as any).date || '';
 
       materialIds.forEach((mid) => {
         const product = products.find((p) => p.id === mid);
@@ -87,9 +116,51 @@ export function useContractsReview() {
         const lots = (stock || [])
           .filter((c: any) => c.description === mid && num(c.qnty) !== 0)
           .map((l: any) => ({ qnty: num(l.qnty), sold: lotIsSold(l) }));
-        lineRollups.push(computeLineSold({ contractQty, shippedQty: shipped, lots }));
+        const lineRollup = computeLineSold({ contractQty, shippedQty: shipped, lots });
+        lineRollups.push(lineRollup);
         poWeight += contractQty;
         shippedWeight += shipped;
+
+        // Web renders ONE STATEMENT ROW PER MATERIAL LINE (16 columns). Mobile used
+        // to compute this loop and keep only the summed weights, so the statement
+        // table itself did not exist.
+        const consignees: string[] = [];
+        const destinations: string[] = [];
+        const invoiceNums: any[] = [];
+        invoicesData.forEach((z: any) => {
+          if (!invIds.includes(z.id)) return;
+          (z.productsDataInvoice || []).forEach((f: any) => {
+            if (f.descriptionId !== mid) return;
+            const clnt = z.final
+              ? z.client?.nname
+              : settings?.Client?.Client?.find((c: any) => c.id === z.client)?.nname;
+            const pod = z.final ? z.pod : settings?.POD?.POD?.find((c: any) => c.id === z.pod)?.pod;
+            if (clnt) consignees.push(clnt);
+            if (pod) destinations.push(pod);
+            if (z.invoice != null) invoiceNums.push(z.invoice);
+          });
+        });
+        const lotRows = (stock || []).filter((c: any) => c.description === mid && num(c.qnty) !== 0);
+        const st = lineStatus({ shipmentStatus: (contract as any).shipmentStatus, rollup: lineRollup });
+        statementLines.push({
+          key: contract.id + '|' + mid,
+          order: contract.order || '—',
+          supplierName: supplierName0,
+          date: conDate,
+          description: product?.description || '—',
+          unitPrc: num(product?.unitPrc),
+          cur: contract.cur === 'eu' ? 'eu' : 'us',
+          poWeight: contractQty,
+          shippedWeight: shipped,
+          remaining: contractQty - shipped,
+          qntyReceived: lotRows.reduce((t: number, o: any) => t + num(o.qnty), 0),
+          consignees: [...new Set(consignees)],
+          destinations: [...new Set(destinations)],
+          invoiceNums: [...new Set(invoiceNums)],
+          salesPos: [...new Set(lotRows.map((l: any) => String(l.salesPo || '').trim()).filter(Boolean))],
+          statusKey: st.key,
+          statusLabel: st.label,
+        });
       });
 
       const rollup = aggregateRollups(lineRollups);
@@ -105,6 +176,7 @@ export function useContractsReview() {
         remaining: poWeight - shippedWeight,
         statusKey: status.key,
         statusLabel: status.label,
+        fin: reviewFinancials(contract, invoiceGroups, { cur: (contract.cur === 'eu' ? 'eu' : 'us') } as ViewCur, settings),
       };
     });
 
@@ -119,7 +191,11 @@ export function useContractsReview() {
       map.set(key, e);
     });
 
-    return { rows: rows.sort((a, b) => a.order.localeCompare(b.order)), statement: [...map.values()] };
+    return {
+      rows: rows.sort((a, b) => a.order.localeCompare(b.order)),
+      statement: [...map.values()],
+      statementLines: statementLines.sort((a, b) => a.order.localeCompare(b.order)),
+    };
   }, [query.data, settings]);
 
   return { ...data, isLoading: query.isLoading, isError: query.isError, error: query.error, refetch: query.refetch };

@@ -627,6 +627,325 @@ export async function syncSpecialInvoicesPaidStatus(
   }
 }
 
+// Patch a field on an invoice doc by { id, date } — port of utils.js
+// updateInvoiceField, used by the Accounting page's inline editor.
+export async function updateInvoiceField(
+  uidCollection: string,
+  invoiceId: string,
+  invoiceDate: string,
+  patch: Record<string, unknown>
+): Promise<void> {
+  const year = (invoiceDate || '').substring(0, 4);
+  if (!year || !invoiceId) throw new Error('Invoice is missing id/date.');
+  await updateDoc(doc(db, uidCollection, 'data', `invoices_${year}`, invoiceId), patch);
+}
+
+// ── client partial payment (cashflow) ────────────────────────────────────────
+// Port of cashflow/page.js clientPartialPayment. Appends a payment to the invoice
+// and, when the row is a FINAL NOTE ('3333'), strips any payment it inherited from
+// the original invoice — a Final Note carries the original's payments forward, so
+// writing without this de-dup double-counts every earlier payment against the client.
+export async function clientPartialPayment(
+  uidCollection: string,
+  invoice: any,
+  payment: { pmnt: number; dateIso: string }
+): Promise<void> {
+  const year = String(
+    invoice.__yr || (invoice.dateRange?.startDate || invoice.date || '').substring(0, 4)
+  );
+  if (!year || !invoice.id) throw new Error('Invoice is missing id/year.');
+
+  const entry = {
+    id: newId(),
+    cur: invoice.cur ?? '',
+    date: { startDate: payment.dateIso, endDate: payment.dateIso },
+    pmnt: payment.pmnt,
+  };
+
+  let payments = [...(invoice.payments || []), entry];
+
+  if (invoice.invType === '3333' && invoice.originalInvoice?.id) {
+    const orig = await loadByRef<any>(uidCollection, 'invoices', invoice.originalInvoice);
+    const origIds = (orig?.payments || []).map((x: any) => x.id).filter(Boolean);
+    payments = payments.filter((x: any) => !origIds.includes(x.id));
+  }
+
+  await updateDoc(doc(db, uidCollection, 'data', `invoices_${year}`, invoice.id), { payments });
+}
+
+// ── margins ──────────────────────────────────────────────────────────────────
+// Port of utils.js saveMargins. Writes every surviving month doc AND deletes the
+// year's month docs that are no longer on screen — without that delete pass a
+// removed month's old doc stays in Firestore and "jumps back" on the next load.
+export async function saveMargins(uidCollection: string, data: any[], yr: string | number): Promise<boolean> {
+  const batch = writeBatch(db);
+  data.forEach((m) => batch.set(doc(db, uidCollection, 'margins', String(yr), m.month), m));
+
+  const keep = new Set(data.map((m) => String(m.month)));
+  const existing = await getDocs(collection(db, uidCollection, 'margins', String(yr)));
+  existing.docs.forEach((d) => {
+    if (!keep.has(d.id)) batch.delete(doc(db, uidCollection, 'margins', String(yr), d.id));
+  });
+
+  await batch.commit();
+  return true;
+}
+
+// ── material tables ──────────────────────────────────────────────────────────
+// Batch-write every material table doc — port of utils.js saveMaterials. Mobile
+// could only READ these; adding a table, adding a row and editing a cell all had
+// no persistence path.
+export async function saveMaterials(uidCollection: string, data: any[]): Promise<boolean> {
+  if (!data?.length) return true;
+  const batch = writeBatch(db);
+  data.forEach((t) => batch.set(doc(db, uidCollection, 'data', 'materialtables', t.id), t));
+  await batch.commit();
+  return true;
+}
+
+export async function deleteMaterialTable(uidCollection: string, id: string): Promise<void> {
+  if (!id) return;
+  await deleteDoc(doc(db, uidCollection, 'data', 'materialtables', id));
+}
+
+// ── sales contracts ──────────────────────────────────────────────────────────
+// Port of useSalesContractsState.saveData / delete. Mobile could only READ this
+// collection. The contract number is MANUAL (never auto-generated), `total` is
+// always derived from the product lines so it can't drift, and a changed year
+// drops the stale doc from the previous bucket.
+export const SALES_CONTRACT_REQUIRED = ['client', 'cur', 'contractNo', 'date'] as const;
+
+export function blankSalesContract() {
+  return {
+    id: '',
+    opDate: nowStamp(),
+    lstSaved: '',
+    contractNo: '',
+    dateRange: { startDate: null as string | null, endDate: null as string | null },
+    date: '',
+    client: '',
+    cur: '',
+    qTypeTable: '',
+    productsData: [] as any[],
+    total: 0,
+    remarks: [] as any[],
+    comments: '',
+    invoices: [] as any[],
+    file: null as any,
+  };
+}
+
+export async function saveSalesContract(
+  uidCollection: string,
+  value: any,
+  previousDate?: string
+): Promise<any> {
+  const startDate = value?.dateRange?.startDate || value?.date || '';
+  if (!startDate) throw new Error('Sales contract needs a date.');
+
+  // Total is always derived from the product lines (web parity).
+  const total = (value.productsData || []).reduce(
+    (s: number, r: any) => s + (parseFloat(r.qnty) || 0) * (parseFloat(r.unitPrc) || 0),
+    0
+  );
+  const euroToUSD = await getCur(startDate);
+  const isNew = !value.id;
+  const saved = {
+    ...value,
+    total,
+    id: value.id || newId(),
+    lstSaved: nowStamp(),
+    euroToUSD,
+  };
+
+  const y = startDate.substring(0, 4);
+  await setDoc(doc(db, uidCollection, 'data', `salescontracts_${y}`, saved.id), {
+    ...saved,
+    m: startDate.substring(5, 7),
+  });
+
+  const prevYear = (previousDate || '').substring(0, 4);
+  if (!isNew && prevYear && prevYear !== y) {
+    try {
+      await deleteDoc(doc(db, uidCollection, 'data', `salescontracts_${prevYear}`, saved.id));
+    } catch {
+      /* non-fatal */
+    }
+  }
+  return saved;
+}
+
+export async function deleteSalesContract(uidCollection: string, value: any): Promise<void> {
+  const startDate = value?.dateRange?.startDate || value?.date || '';
+  const y = startDate.substring(0, 4);
+  if (!y || !value?.id) throw new Error('Invalid sales contract.');
+  await deleteDoc(doc(db, uidCollection, 'data', `salescontracts_${y}`, value.id));
+}
+
+// ── expenses (supplier-linked + company) ─────────────────────────────────────
+// A supplier expense is referenced from THREE places: its own expenses_{YYYY} doc,
+// the linked invoice's `expenses[]` and the linked contract's `expenses[]`. Web
+// keeps all three in step on every save and delete (useExpensesState
+// saveData_ExpenseExpenses / deleteExpenseFromExpPage); a partial write leaves
+// orphan refs that then show as phantom costs on the contract.
+
+const expStamp = () => {
+  const d = new Date();
+  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return `${pad(d.getDate())}-${months[d.getMonth()]}-${d.getFullYear()}, ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+};
+
+// Read one doc from a year-bucketed path via a { id, date } ref.
+async function loadByRef<T = any>(uidCollection: string, path: string, ref: any): Promise<T | null> {
+  const y = (ref?.date || '').substring(0, 4);
+  if (!y || !ref?.id) return null;
+  const snap = await getDoc(doc(db, uidCollection, 'data', `${path}_${y}`, ref.id));
+  return snap.exists() ? (snap.data() as T) : null;
+}
+
+export interface SaveExpenseArgs {
+  expense: any;
+  /** the pre-edit doc, so a changed year can drop the stale bucket copy */
+  previousDate?: string;
+}
+
+// Save a supplier expense + fan out to its invoice and contract. Mobile had no
+// port of this at all — expenses were read-only.
+export async function saveExpense(uidCollection: string, { expense, previousDate }: SaveExpenseArgs): Promise<void> {
+  const value = { ...expense, lstSaved: expStamp() };
+  delete (value as any).poSupplierOrder; // table-only field, never persisted (web parity)
+
+  const startDate = value.dateRange?.startDate || value.date || '';
+  const y = startDate.substring(0, 4);
+  if (!y || !value.id) throw new Error('Expense is missing an id or date.');
+
+  await setDoc(doc(db, uidCollection, 'data', `expenses_${y}`, value.id), { ...value, m: startDate.substring(5, 7) });
+
+  // Keep the linked sales invoice's expense entry in step.
+  const inv = await loadByRef<any>(uidCollection, 'invoices', value.invData);
+  if (inv?.id) {
+    const expenses = (inv.expenses || []).map((k: any) =>
+      k.id === value.id
+        ? { ...k, expense: value.expense, date: startDate, cur: value.cur, amount: value.amount }
+        : k
+    );
+    const iy = (value.invData.date || '').substring(0, 4);
+    await updateDoc(doc(db, uidCollection, 'data', `invoices_${iy}`, inv.id), { expenses });
+  }
+
+  // Keep the linked contract's expense entry in step.
+  const con = await loadByRef<any>(uidCollection, 'contracts', value.poSupplier);
+  if (con?.id) {
+    const entry = { id: value.id, expense: value.expense, date: startDate, amount: value.amount, cur: value.cur };
+    const expenses = (con.expenses || []).map((x: any) => (x.id === entry.id ? entry : x));
+    const cy = (value.poSupplier.date || '').substring(0, 4);
+    await updateDoc(doc(db, uidCollection, 'data', `contracts_${cy}`, con.id), { expenses });
+  }
+
+  // Year changed → remove the stale doc in the old bucket.
+  const prevYear = (previousDate || '').substring(0, 4);
+  if (prevYear && prevYear !== y) {
+    try {
+      await deleteDoc(doc(db, uidCollection, 'data', `expenses_${prevYear}`, value.id));
+    } catch {
+      /* non-fatal */
+    }
+  }
+}
+
+// Delete a supplier expense and strip its ref from the invoice + contract.
+export async function deleteExpense(uidCollection: string, expense: any): Promise<void> {
+  if (!expense?.id) return;
+  const startDate = expense.dateRange?.startDate || expense.date || '';
+  const y = startDate.substring(0, 4);
+  if (!y) throw new Error('Expense is missing a date.');
+  await deleteDoc(doc(db, uidCollection, 'data', `expenses_${y}`, expense.id));
+
+  if (expense.invData?.id && expense.invData?.date) {
+    try {
+      const inv = await loadByRef<any>(uidCollection, 'invoices', expense.invData);
+      if (inv?.id) {
+        const expenses = (inv.expenses || []).filter((e: any) => e.id !== expense.id);
+        const iy = expense.invData.date.substring(0, 4);
+        await updateDoc(doc(db, uidCollection, 'data', `invoices_${iy}`, inv.id), { expenses });
+      }
+    } catch {
+      /* non-fatal, exactly like web */
+    }
+  }
+
+  if (expense.poSupplier?.id && expense.poSupplier?.date) {
+    try {
+      const con = await loadByRef<any>(uidCollection, 'contracts', expense.poSupplier);
+      if (con?.id) {
+        const expenses = (con.expenses || []).filter((e: any) => e.id !== expense.id);
+        const cy = expense.poSupplier.date.substring(0, 4);
+        await updateDoc(doc(db, uidCollection, 'data', `contracts_${cy}`, con.id), { expenses });
+      }
+    } catch {
+      /* non-fatal */
+    }
+  }
+}
+
+// Project the Misc-invoice row for a company expense — port of
+// useExpensesState.buildMiscFromExpense. Note the id is SHARED with the expense,
+// which is what lets the copy be re-synced (and never duplicated) later.
+export function buildMiscFromExpense(v: any, settings: any) {
+  const gQ = (z: any, y: string, x: string) => settings?.[y]?.[y]?.find((q: any) => q.id === z)?.[x] || '';
+  return {
+    compName: gQ(v.supplier, 'Supplier', 'nname'),
+    supplier: '-',
+    order: '-',
+    invoice: v?.expense,
+    id: v.id,
+    salesInvoice: '-',
+    description: gQ(v.expType, 'Expenses', 'expType'),
+    cur: v.cur,
+    qnty: '-',
+    unitPrc: 0,
+    total: v.amount,
+    paidNotPaid: v.paid === '111' ? 'Paid' : 'Not Paid',
+    date: v.dateRange?.startDate,
+  };
+}
+
+// Re-sync an existing Misc-invoice copy when its source expense changes — port of
+// utils.js syncMiscInvoiceIfExists. Create-if-absent is deliberately NOT done: only
+// an already-copied expense is kept in step, so saving never silently creates a
+// Misc row the user didn't ask for.
+export async function syncMiscInvoiceIfExists(uidCollection: string, miscObj: any): Promise<void> {
+  if (!miscObj?.id) return;
+  try {
+    const ref = doc(db, uidCollection, 'data', 'specialInvoices', miscObj.id);
+    const snap = await getDoc(ref);
+    if (snap.exists()) await setDoc(ref, miscObj, { merge: true });
+  } catch {
+    /* non-fatal */
+  }
+}
+
+// Company expenses live in the flat collection and have no invoice/contract links.
+// Saving one also re-syncs its Misc-invoice copy if the user made one (web 5e394eb).
+export async function saveCompanyExpense(uidCollection: string, expense: any, settings?: any): Promise<void> {
+  const value = { ...expense, lstSaved: expStamp() };
+  if (!value.id) throw new Error('Expense is missing an id.');
+  await setDoc(doc(db, uidCollection, 'data', 'companyExpenses', value.id), value);
+  if (settings) await syncMiscInvoiceIfExists(uidCollection, buildMiscFromExpense(value, settings));
+}
+
+// "Copy to misc invoices" — writes (or overwrites) the Misc row for this expense.
+export async function copyExpenseToMisc(uidCollection: string, expense: any, settings: any): Promise<void> {
+  if (!expense?.id) return;
+  await speciaInvoices(uidCollection, [buildMiscFromExpense(expense, settings)]);
+}
+
+export async function deleteCompanyExpense(uidCollection: string, id: string): Promise<void> {
+  if (!id) return;
+  await deleteDoc(doc(db, uidCollection, 'data', 'companyExpenses', id));
+}
+
 // Roll settled line totals up to each purchase invoice they belong to, so the
 // invoice's value (and therefore its balance) reflects the final settlement —
 // port of finalSettlmentModal.js settledByInv/newPoInvoices. Only runs when the

@@ -24,8 +24,14 @@ export interface AccountingLine {
   amountExp: number;
   expType: string;
   curEX: string;
+  /** write targets for inline editing — absent on Purchase rows, which web blocks */
+  expenseId?: string;
+  expenseDate?: string;
 }
 export interface AccountingGroup {
+  /** write targets for inline editing of the sales-invoice side */
+  invoiceId?: string;
+  invoiceDate?: string;
   invoice: string;
   saleInvoice: string;
   dateInv: string;
@@ -79,6 +85,8 @@ export function useAccounting() {
         invType: getprefixInv1(l),
         invoice: l.invoice,
         curINV: l.final ? l.cur?.cur : gQ(l.cur, 'Currency', 'cur'),
+        invoiceId: l.id,
+        invoiceDate: l.final ? l.date : l.dateRange?.startDate,
       }));
 
       // Purchase invoices from the linked contracts (poInvoices.invRef matching a sale#).
@@ -139,6 +147,8 @@ export function useAccounting() {
             amountInv: s.amountInv,
             curINV: s.curINV || '',
             invType: s.invType,
+            invoiceId: s.invoiceId,
+            invoiceDate: s.invoiceDate,
             lines: [],
           };
         } else {

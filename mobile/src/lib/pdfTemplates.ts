@@ -85,3 +85,55 @@ export function invoiceHtml(view: any, compData: any): string {
     </div></div>`;
   return shell(title, company, inner);
 }
+
+// Account Statement PDF — mirrors the web jsPDF layout
+// (app/(root)/contracts/modals/pdf/pdfAccountStatement.js): company block, debtor
+// block, 7-column table, then a USD/EUR × Amount/Paid/Unpaid totals grid.
+export function accountStatementHtml({
+  client, compData, gisAccount, rows, totals,
+}: {
+  client: any;
+  compData: any;
+  gisAccount: boolean;
+  rows: (string | number)[][];
+  totals: Record<'us' | 'eu', { amount: number; paid: number; notPaid: number }>;
+}): string {
+  const company = compData?.companyName || compData?.cmpnyName || (gisAccount ? 'GIS Metals' : 'IMS Metals');
+  const m = (n: number) =>
+    new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(n || 0);
+
+  const body =
+    rows
+      .map(
+        (r) =>
+          `<tr>${r
+            .map((c, i) => `<td class="${i >= 2 && i !== 3 && i !== 4 ? 'r' : ''}">${c ?? ''}</td>`)
+            .join('')}</tr>`
+      )
+      .join('') || '<tr><td colspan="7">No rows</td></tr>';
+
+  const totalsGrid = (['us', 'eu'] as const)
+    .map((c) => {
+      const t = totals[c];
+      const sym = c === 'eu' ? '€' : '$';
+      if (!t || (!t.amount && !t.paid && !t.notPaid)) return '';
+      return `<tr><td>${c === 'eu' ? 'EUR' : 'USD'}</td><td class="r">${sym}${m(t.amount)}</td><td class="r">${sym}${m(t.paid)}</td><td class="r">${sym}${m(t.notPaid)}</td></tr>`;
+    })
+    .join('');
+
+  const debtor = [client?.client || client?.nname, client?.street, client?.city, client?.country, client?.other1]
+    .filter(Boolean)
+    .join('<br/>');
+
+  const title = `<h1>Account Statement</h1><div class="muted">${new Date().toISOString().slice(0, 10)}</div>`;
+  const inner = `
+    <div class="row">
+      <div class="box"><div class="label">Debtor</div><div class="val">${debtor || '—'}</div></div>
+    </div>
+    <table>
+      <thead><tr><th>Invoice</th><th>Date</th><th class="r">Amount</th><th>Currency</th><th>Due Payment</th><th class="r">Paid</th><th class="r">Unpaid</th></tr></thead>
+      <tbody>${body}</tbody>
+    </table>
+    ${totalsGrid ? `<table style="margin-top:18px"><thead><tr><th>Currency</th><th class="r">Amount</th><th class="r">Paid</th><th class="r">Unpaid</th></tr></thead><tbody>${totalsGrid}</tbody></table>` : ''}`;
+  return shell(title, company, inner);
+}

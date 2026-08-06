@@ -44,6 +44,9 @@ export function computeFenicr(value: any) {
     costTurnings: cost * 0.92,
     costEuro: euro ? cost / euro : 0,
     sales,
+    // FeNiCr sales turnings is x0.90 (fenicr.js:1101) — deliberately NOT the same
+    // factor as the Stainless tab, which uses 0.92. Web is inconsistent between the
+    // two tabs and this mirrors it exactly.
     salesTurnings: sales * 0.9,
     salesEuro: euro ? sales / euro : 0,
   };
@@ -75,7 +78,10 @@ export function computeStainless(value: any) {
     costTurnings: cost * 0.92,
     costEuro: euro ? cost / euro : 0,
     sales,
-    salesTurnings: sales * 0.9,
+    // Stainless sales turnings is x0.92 on web (stainless.js:1028), NOT the 0.90
+    // the FeNiCr tab uses. Mobile applied 0.90 here, so every Stainless sales
+    // turnings figure read 2.174% low against the web page.
+    salesTurnings: sales * 0.92,
     salesEuro: euro ? sales / euro : 0,
   };
 }

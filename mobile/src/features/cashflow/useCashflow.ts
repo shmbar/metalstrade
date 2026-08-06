@@ -2,8 +2,9 @@ import { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '@/store/auth';
 import { useSettings } from '@/store/settings';
-import { loadData, loadFlatByDate } from '@/data/firestore';
+import { loadData, loadFlatByDate, loadMargins, loadDataSettings, loadInvoicesTagged } from '@/data/firestore';
 import { useAllStockLots } from '@/features/stocks/useAllStockLots';
+import { computeInventory } from '@/features/stocks/aggregate';
 import { Contract, Invoice } from '@/data/types';
 import { resolveClientName } from '@/features/invoices/useInvoices';
 import { num } from '@shared/finance';
@@ -34,6 +35,18 @@ export interface CashflowData {
   expenseSuppliers: Counterparty[];
   // Unsold stock value (capital tied up).
   unsoldByCur: Record<string, number>;
+  // Stocks split by whether their purchase invoice has been paid (web sections).
+  stocksPaid: { stock: string; total: number; count: number }[];
+  stocksUnpaid: { stock: string; total: number; count: number }[];
+  stocksPaidTotal: number;
+  stocksUnpaidTotal: number;
+  // Web bottom line: Total (Left) − Total (Right) = Balance.
+  incoming: number;
+  totalLeft: number;
+  totalRight: number;
+  balance: number;
+  // Manual entries kept on {uid}/cashflow — read-only on mobile.
+  manual: { initial: number; financedLeft: number; financedRight: number };
 }
 
 const addCur = (map: Record<string, number>, cur: string, v: number) => {
@@ -80,6 +93,60 @@ function computeReceivablesWeb(invoices: Invoice[]): any[] {
 
   // One-cent artifacts are settled; drafts excluded. NEGATIVE balances (credits) kept.
   return rows.filter((r) => Math.abs(r.debtBlnc) > 0.011).filter((r) => r.draft === undefined || r.draft === false);
+}
+
+// ── Stocks Paid / UnPaid — port of web runStocks' invoicesPaymentZero split ──
+// Every netted stock row belongs to a purchase invoice. When that invoice has had
+// NO payment (pmnt === '0' | 0) the row sits under "Stocks - UnPaid", otherwise
+// under "Stocks - Paid". Both are components of web's Total (Left), so without
+// them mobile's incoming figure could never reconcile with the web page.
+//
+// The poInvoice is resolved from the LIVE contract first: lots carry a snapshot of
+// poInvoices taken at breakdown-save time, and payments recorded later never
+// refreshed it — that snapshot is what kept paid stock showing as unpaid (ELG 010726).
+function splitStocksPaidUnpaid(inventoryRows: any[], contractsData: any[]) {
+  const paid: any[] = [];
+  const unpaid: any[] = [];
+
+  inventoryRows.forEach((row) => {
+    const child = (row.data || []).find((d: any) => d.id === row.id);
+    if (!child) {
+      paid.push(row);
+      return;
+    }
+    const live = contractsData.find((k: any) => k.id === child.contractData?.id)?.poInvoices;
+    const invoice =
+      live?.find((x: any) => x.id === child.poInvoice) ||
+      child.poInvoices?.find((x: any) => x.id === child.poInvoice);
+    if (!invoice) {
+      paid.push(row);
+      return;
+    }
+    if (invoice.pmnt === '0' || invoice.pmnt === 0) unpaid.push(row);
+    else paid.push(row);
+  });
+
+  const sumTotal = (rows: any[]) =>
+    rows.reduce((s, r) => s + (r.total === '-' ? 0 : parseFloat(r.total) || 0), 0);
+
+  // Per-warehouse roll-up for display.
+  const byWarehouse = (rows: any[]) => {
+    const m: Record<string, { stock: string; total: number; count: number }> = {};
+    rows.forEach((r) => {
+      const k = r.stock || '—';
+      (m[k] ||= { stock: k, total: 0, count: 0 });
+      m[k].total += r.total === '-' ? 0 : parseFloat(r.total) || 0;
+      m[k].count += 1;
+    });
+    return Object.values(m).sort((a, b) => b.total - a.total);
+  };
+
+  return {
+    paid: byWarehouse(paid),
+    unpaid: byWarehouse(unpaid),
+    paidTotal: sumTotal(paid),
+    unpaidTotal: sumTotal(unpaid),
+  };
 }
 
 // ── Unsold stocks: verbatim port of web runStocks unsold block (funcs.js:211-272) ──
@@ -185,17 +252,21 @@ export function useCashflow() {
     queryKey: ['cashflow', uidCollection, curYr],
     queryFn: async () => {
       const uid = uidCollection as string;
-      const [invoices, contracts4y, contracts2y, expenses, companyExpenses] = await Promise.all([
-        loadData<Invoice>(uid, 'invoices', range4y),
+      const [invoices, contracts4y, contracts2y, expenses, companyExpenses, margins, cashflowDoc] = await Promise.all([
+        // __yr-tagged so clientPartialPayment writes to the exact source bucket
+        // instead of re-deriving a year from a possibly non-ISO date field.
+        loadInvoicesTagged(uid, range4y),
         loadData<Contract>(uid, 'contracts', range4y),
         loadData<Contract>(uid, 'contracts', range2y),
         loadData<any>(uid, 'expenses', range2y),
         loadFlatByDate<any>(uid, 'companyExpenses', range2y),
+        loadMargins(uid, curYr).catch(() => []),
+        loadDataSettings<any>(uid, 'cashflow').catch(() => ({})),
       ]);
       // Stock lots come from the SHARED ledger query (see useAllStockLots) so the
       // Cashflow screen does not re-download the whole collection the Stocks tab
       // already has cached.
-      return { invoices, contracts4y, contracts2y, expenses, companyExpenses };
+      return { invoices, contracts4y, contracts2y, expenses, companyExpenses, margins, cashflowDoc };
     },
   });
 
@@ -203,7 +274,7 @@ export function useCashflow() {
 
   const data = useMemo<CashflowData | null>(() => {
     if (!query.data || !lotsQuery.data) return null;
-    const { invoices, contracts4y, contracts2y, expenses, companyExpenses } = query.data;
+    const { invoices, contracts4y, contracts2y, expenses, companyExpenses, margins, cashflowDoc } = query.data;
     const stocks = lotsQuery.data;
 
     // ── Receivables (clients) — web runInvoices pipeline ───────────────────
@@ -218,7 +289,21 @@ export function useCashflow() {
       addCur(c.byCur, cur, bal);
       c.usd += cur === 'us' ? bal : bal * (num(inv.euroToUSD) || EXP_EUR_USD);
       c.count += 1;
-      c.items.push({ kind: 'invoice', id: inv.id, number: inv.invoice, balance: bal, cur });
+      c.items.push({
+        kind: 'invoice',
+        id: inv.id,
+        number: inv.invoice,
+        balance: bal,
+        cur,
+        raw: inv,
+        order: inv.poSupplier?.order || '',
+        amount: num(inv.totalAmount),
+        paid: (inv.payments || []).reduce((t: number, p: any) => t + num(p?.pmnt), 0),
+        // Web marks the invoice number with FN / CN on final and credit notes.
+        marker: inv.invType === '3333' ? 'FN' : inv.invType === '2222' ? 'CN' : '',
+        etd: inv.shipData?.etd?.startDate || '',
+        eta: inv.shipData?.eta?.startDate || '',
+      });
       clientMap.set(name, c);
     });
 
@@ -247,6 +332,13 @@ export function useCashflow() {
           contractDate: con.dateRange?.startDate || con.date || '',
           poInvoiceId: inv.id,
           inv: inv.inv,
+          order: con.order || '',
+          invValue: num(inv.invValue),
+          paid: num(inv.pmnt),
+          etd: (con as any).shipmentEtd || '',
+          eta: (con as any).shipmentEta || '',
+          // Purchase invoices have no invType — an 'FN' suffix marks a final note.
+          isFinal: inv.fnlzing === '4568' || /fns*$/i.test(String(inv.inv || '').trim()),
           balance: blnc,
           cur,
         });
@@ -289,6 +381,37 @@ export function useCashflow() {
     const unsoldByCur: Record<string, number> = {};
     computeUnsoldWeb(contracts2y, stocks, settings).forEach((row) => addCur(unsoldByCur, row.cur === 'eu' ? 'eu' : 'us', row.total));
 
+    // ── Stocks Paid / UnPaid (web sections + Total-Left components) ────────
+    const inventoryRows = computeInventory(stocks, settings).rows;
+    const stockSplit = splitStocksPaidUnpaid(inventoryRows, contracts2y);
+
+    // 'Future' / incoming = Sigma margins rows' remaining (web cashflow incoming).
+    const incoming = (margins || []).reduce(
+      (s: number, m: any) => s + (m.items || []).reduce((a: number, it: any) => {
+        const r = parseFloat(it.remaining);
+        return a + (isNaN(r) ? 0 : r);
+      }, 0),
+      0
+    );
+
+    // Manual entries live on {uid}/cashflow — read-only here (web lets you edit them).
+    const fin = (cashflowDoc as any)?.financed || {};
+    const sumNum = (arr: any) => (Array.isArray(arr) ? arr.reduce((t: number, o: any) => t + (parseFloat(o?.num) || 0), 0) : 0);
+    const manual = {
+      initial: sumNum(fin.initial),
+      financedLeft: sumNum(fin.financedLeft),
+      financedRight: sumNum(fin.financedRight),
+    };
+
+    // Web bottom line (cashflow/page.js:285-329). Receivables are summed across
+    // currencies here because web's Total (Left) does exactly that — see the web
+    // bug noted in the report; this reproduces the page, it does not fix it.
+    const receivablesAll = Object.values(receivablesByCur).reduce((a, b) => a + b, 0);
+    const totalLeft =
+      incoming + manual.initial + stockSplit.paidTotal + stockSplit.unpaidTotal +
+      receivablesAll + manual.financedLeft;
+    const totalRight = payablesUsd + expensesUsd + manual.financedRight;
+
     const sortByUsd = (m: Map<string, Counterparty>) =>
       [...m.values()].sort((a, b) => b.usd - a.usd).slice(0, 8);
 
@@ -300,6 +423,15 @@ export function useCashflow() {
       expensesUsd,
       expenseSuppliers: sortByUsd(expMap),
       unsoldByCur,
+      stocksPaid: stockSplit.paid,
+      stocksUnpaid: stockSplit.unpaid,
+      stocksPaidTotal: stockSplit.paidTotal,
+      stocksUnpaidTotal: stockSplit.unpaidTotal,
+      incoming,
+      totalLeft,
+      totalRight,
+      balance: totalLeft - totalRight,
+      manual,
     };
   }, [query.data, lotsQuery.data, settings]);
 

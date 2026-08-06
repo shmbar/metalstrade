@@ -7,6 +7,7 @@ import { Card, Text, TextField, Badge, SkeletonList, FadeInItem, ErrorState, Emp
 import { useTheme } from '@/theme/ThemeProvider';
 import { useStocks } from './useStocks';
 import { GradeSummaryCard } from './GradeSummaryCard';
+import { LotSheet } from './LotSheet';
 import { curSymbol, fmtMoney } from '@/lib/format';
 
 const fmtQty = (n: number) => new Intl.NumberFormat('en-US', { minimumFractionDigits: 3 }).format(n || 0);
@@ -16,6 +17,8 @@ export function InventoryView() {
   const insets = useSafeAreaInsets();
   const { data, isLoading, isError, error, refetch } = useStocks();
   const [search, setSearch] = useState('');
+  // Tapping a row opens the Materials Breakdown sheet (web whModal).
+  const [lot, setLot] = useState<any | null>(null);
 
   const rows = useMemo(() => {
     const q = search.trim().toLowerCase();
@@ -127,7 +130,7 @@ export function InventoryView() {
           refreshing={isLoading}
           renderItem={({ item, index }) => (
             <FadeInItem index={index}>
-            <Card style={{ marginBottom: 12 }}>
+            <Card style={{ marginBottom: 12 }} onPress={() => setLot(item)}>
               <View style={{ flexDirection: 'row', justifyContent: 'space-between', gap: 12 }}>
                 <View style={{ flex: 1, minWidth: 0 }}>
                   <Text variant="h3" numberOfLines={2}>
@@ -160,6 +163,8 @@ export function InventoryView() {
         />
         );
       })()}
+
+      <LotSheet item={lot} onClose={() => setLot(null)} />
     </View>
   );
 }

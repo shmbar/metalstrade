@@ -6,6 +6,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Screen, Card, Text, Button, TextField, DateField, SectionHeader, ProgressBar, SkeletonList, ErrorState } from '@/components/ui';
 import { PeriodSelector } from '@/components/PeriodSelector';
 import { useTheme } from '@/theme/ThemeProvider';
+import { useSettings } from '@/store/settings';
 import { useCashflow, Counterparty } from '@/features/cashflow/useCashflow';
 import { useCashflowActions } from '@/features/cashflow/useCashflowActions';
 import { ForecastCard } from '@/features/cashflow/ForecastCard';
@@ -44,7 +45,11 @@ export default function Cashflow() {
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
   const { data, isLoading, isError, error, refetch } = useCashflow();
-  const { paySupplier, payExpense, partialPay } = useCashflowActions();
+  const { settings } = useSettings();
+  const whName = (id: string) =>
+    settings?.Stocks?.Stocks?.find((w: any) => w.id === id)?.nname ||
+    settings?.Stocks?.Stocks?.find((w: any) => w.id === id)?.stock || id || '—';
+  const { paySupplier, payExpense, partialPay, payClient } = useCashflowActions();
   const [detail, setDetail] = useState<{ kind: Kind; cp: Counterparty } | null>(null);
   // Partial-payment entry for a supplier purchase invoice.
   const [payItem, setPayItem] = useState<any | null>(null);
@@ -55,8 +60,11 @@ export default function Cashflow() {
 
   const onAction = (item: any) => {
     if (item.kind === 'invoice') {
-      setDetail(null);
-      router.push(`/(app)/invoices/${item.id}`);
+      // Record the payment in place (web parity) — the invoice page is still one
+      // tap away from the sheet.
+      setAmount('');
+      setPayDate(new Date().toISOString().slice(0, 10));
+      setPayItem(item);
       return;
     }
     if (item.kind === 'poInvoice') {
@@ -90,8 +98,14 @@ export default function Cashflow() {
       Alert.alert('Invalid amount', 'Enter a payment amount greater than zero.');
       return;
     }
-    const perc = payItem.balance > 0 ? Number(((amt / payItem.balance) * 100).toFixed(1)) : 0;
     try {
+      if (payItem.kind === 'invoice') {
+        await payClient.mutateAsync({ invoice: payItem.raw, amount: amt, dateIso: payDate });
+        setPayItem(null);
+        setDetail(null);
+        return;
+      }
+      const perc = payItem.balance > 0 ? Number(((amt / payItem.balance) * 100).toFixed(1)) : 0;
       await partialPay.mutateAsync({
         ref: { contractId: payItem.contractId, contractDate: payItem.contractDate, poInvoiceId: payItem.poInvoiceId },
         amount: amt,
@@ -108,6 +122,12 @@ export default function Cashflow() {
   const payFull = async () => {
     if (!payItem) return;
     try {
+      if (payItem.kind === 'invoice') {
+        await payClient.mutateAsync({ invoice: payItem.raw, amount: payItem.balance, dateIso: payDate });
+        setPayItem(null);
+        setDetail(null);
+        return;
+      }
       await paySupplier.mutateAsync({ contractId: payItem.contractId, contractDate: payItem.contractDate, poInvoiceId: payItem.poInvoiceId });
       setPayItem(null);
       setDetail(null);
@@ -162,6 +182,56 @@ export default function Cashflow() {
             </View>
           </Card>
 
+          {/* Stocks split by whether the purchase invoice has been paid — two of
+              web's sections and two components of its Total (Left). */}
+          {(data.stocksPaid.length > 0 || data.stocksUnpaid.length > 0) && (
+            <Card>
+              <SectionHeader
+                title="Stocks · paid"
+                subtitle={`${data.stocksPaid.length} warehouse(s)`}
+                right={<Text variant="h3" tone="primary">{fmtAutoKM(data.stocksPaidTotal)}</Text>}
+              />
+              {data.stocksPaid.map((w, i) => (
+                <WhRow key={w.stock} name={whName(w.stock)} total={w.total} count={w.count} first={i === 0} />
+              ))}
+
+              <View style={{ height: 12 }} />
+              <SectionHeader
+                title="Stocks · unpaid"
+                subtitle={`${data.stocksUnpaid.length} warehouse(s)`}
+                right={<Text variant="h3" color={colors.warn}>{fmtAutoKM(data.stocksUnpaidTotal)}</Text>}
+              />
+              {data.stocksUnpaid.map((w, i) => (
+                <WhRow key={w.stock} name={whName(w.stock)} total={w.total} count={w.count} first={i === 0} />
+              ))}
+            </Card>
+          )}
+
+          {/* Bottom line — web's Total (Left) / Balance / Total (Right) strip. */}
+          <Card>
+            <SectionHeader title="Bottom line" subtitle="Left − Right" />
+            <Line label="Future / incoming (margins)" v={data.incoming} />
+            <Line label="Initial entries" v={data.manual.initial} muted />
+            <Line label="Stocks paid" v={data.stocksPaidTotal} />
+            <Line label="Stocks unpaid" v={data.stocksUnpaidTotal} />
+            <Line label="Client receivables" v={Object.values(data.receivablesByCur).reduce((a, b) => a + b, 0)} />
+            <Line label="Financing (left)" v={data.manual.financedLeft} muted />
+            <Line label="Total (Left)" v={data.totalLeft} strong />
+
+            <View style={{ height: 10 }} />
+            <Line label="Supplier payables" v={data.payablesUsd} />
+            <Line label="Unpaid expenses" v={data.expensesUsd} />
+            <Line label="Financing (right)" v={data.manual.financedRight} muted />
+            <Line label="Total (Right)" v={data.totalRight} strong />
+
+            <View style={{ marginTop: 10, paddingTop: 10, borderTopWidth: 1, borderTopColor: colors.border }}>
+              <Line label="Balance" v={data.balance} strong tone={data.balance >= 0 ? 'positive' : 'negative'} />
+            </View>
+            <Text variant="caption" tone="faint" style={{ marginTop: 8 }}>
+              Initial and Financing entries are edited on the web page; shown here read-only.
+            </Text>
+          </Card>
+
           <ForecastCard />
 
           <Card>
@@ -199,13 +269,47 @@ export default function Cashflow() {
             renderItem={({ item }) => (
               <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 12, borderTopWidth: 1, borderTopColor: colors.border }}>
                 <View style={{ flex: 1, minWidth: 0 }}>
-                  <Text variant="bodyMedium" numberOfLines={1}>
-                    {item.kind === 'invoice' ? `Invoice #${item.number}` : item.kind === 'poInvoice' ? `Purchase inv ${item.inv ?? ''}` : (item.expense || 'Expense')}
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                    <Text variant="bodyMedium" numberOfLines={1}>
+                      {item.kind === 'invoice'
+                        ? `Invoice #${item.number}${item.marker ? item.marker : ''}`
+                        : item.kind === 'poInvoice'
+                          ? `Purchase inv ${item.inv ?? ''}`
+                          : (item.expense || 'Expense')}
+                    </Text>
+                    {/* Final badge — web shows it on both ledgers. */}
+                    {(item.isFinal || item.marker === 'FN') && (
+                      <View style={{ paddingHorizontal: 6, paddingVertical: 1, borderRadius: 999, backgroundColor: colors.surfaceAlt, borderWidth: 1, borderColor: colors.border }}>
+                        <Text variant="caption" tone="primary" style={{ fontSize: 10 }}>Final</Text>
+                      </View>
+                    )}
+                  </View>
+
+                  {/* Web's detail columns: PO#, value/amount, paid-to-date, ETD/ETA. */}
+                  {!!item.order && (
+                    <Text variant="caption" tone="muted" numberOfLines={1}>PO {item.order}</Text>
+                  )}
+                  <Text variant="caption" tone="faint" numberOfLines={1}>
+                    {item.kind === 'expense'
+                      ? `${curSymbol(item.cur)}${fmtMoney(item.amount ?? 0)}`
+                      : [
+                          `Value ${curSymbol(item.cur)}${fmtMoney(item.invValue ?? item.amount ?? 0)}`,
+                          `Paid ${curSymbol(item.cur)}${fmtMoney(item.paid ?? 0)}`,
+                          `Bal ${curSymbol(item.cur)}${fmtMoney(item.balance ?? 0)}`,
+                        ].join(' · ')}
                   </Text>
-                  <Text variant="caption" tone="faint">{curSymbol(item.cur)}{fmtMoney(item.balance ?? item.amount ?? 0)}{item.date ? ` · ${dateLabel(item.date)}` : ''}</Text>
+                  {(item.etd || item.eta || item.date) && (
+                    <Text variant="caption" tone="faint" numberOfLines={1}>
+                      {[
+                        item.etd ? `ETD ${dateLabel(item.etd)}` : '',
+                        item.eta ? `ETA ${dateLabel(item.eta)}` : '',
+                        !item.etd && !item.eta && item.date ? dateLabel(item.date) : '',
+                      ].filter(Boolean).join(' · ')}
+                    </Text>
+                  )}
                 </View>
                 <Button
-                  title={item.kind === 'invoice' ? 'View' : item.kind === 'poInvoice' ? 'Pay' : 'Mark paid'}
+                  title={item.kind === 'expense' ? 'Mark paid' : 'Pay'}
                   variant="secondary"
                   fullWidth={false}
                   loading={payExpense.isPending}
@@ -213,6 +317,29 @@ export default function Cashflow() {
                 />
               </View>
             )}
+            ListFooterComponent={
+              /* Footer TOTAL — web shows amount / payment / balance sums under both
+                 the client and supplier detail tables. */
+              detail?.cp.items?.length ? (
+                <View style={{ borderTopWidth: 1, borderTopColor: colors.borderStrong, paddingVertical: 12, gap: 3 }}>
+                  {(() => {
+                    const items = detail.cp.items;
+                    const sum = (k: string) => items.reduce((t: number, x: any) => t + (Number(x[k]) || 0), 0);
+                    const isExp = detail.kind === 'expense';
+                    return (
+                      <>
+                        <TotalLine
+                          label={isExp ? 'Total amount' : 'Total value'}
+                          v={isExp ? sum('amount') : sum('invValue') + sum('amount')}
+                        />
+                        {!isExp && <TotalLine label="Total paid" v={sum('paid')} />}
+                        {!isExp && <TotalLine label="Total balance" v={sum('balance')} strong />}
+                      </>
+                    );
+                  })()}
+                </View>
+              ) : null
+            }
           />
         </View>
       </Modal>
@@ -246,5 +373,61 @@ export default function Cashflow() {
         </View>
       </Modal>
     </Screen>
+  );
+}
+
+// One warehouse row inside the Stocks paid/unpaid sections.
+function WhRow({ name, total, count, first }: { name: string; total: number; count: number; first?: boolean }) {
+  const { colors } = useTheme();
+  return (
+    <View
+      style={{
+        flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
+        paddingVertical: 6, borderTopWidth: first ? 0 : 1, borderTopColor: colors.border,
+      }}
+    >
+      <View style={{ flex: 1, minWidth: 0 }}>
+        <Text variant="body" numberOfLines={1}>{name}</Text>
+        <Text variant="caption" tone="faint">{count} item{count === 1 ? '' : 's'}</Text>
+      </View>
+      <Text variant="bodyMedium" style={{ fontVariant: ['tabular-nums'] }}>{fmtAutoKM(total)}</Text>
+    </View>
+  );
+}
+
+// One line of the bottom-line strip.
+function Line({
+  label, v, strong, muted, tone,
+}: {
+  label: string;
+  v: number;
+  strong?: boolean;
+  muted?: boolean;
+  tone?: 'positive' | 'negative';
+}) {
+  const { colors } = useTheme();
+  const color = tone === 'positive' ? colors.positive : tone === 'negative' ? colors.negative : undefined;
+  return (
+    <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 3 }}>
+      <Text variant={strong ? 'bodyMedium' : 'caption'} tone={muted ? 'faint' : 'muted'}>{label}</Text>
+      <Text
+        variant={strong ? 'bodyMedium' : 'body'}
+        style={{ fontVariant: ['tabular-nums'], ...(color ? { color } : {}) }}
+      >
+        {fmtAutoKM(v)}
+      </Text>
+    </View>
+  );
+}
+
+// Footer total line inside a counterparty detail sheet.
+function TotalLine({ label, v, strong }: { label: string; v: number; strong?: boolean }) {
+  return (
+    <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: spacing.lg }}>
+      <Text variant={strong ? 'bodyMedium' : 'caption'} tone="muted">{label}</Text>
+      <Text variant={strong ? 'bodyMedium' : 'caption'} style={{ fontVariant: ['tabular-nums'] }}>
+        {fmtAutoKM(v)}
+      </Text>
+    </View>
   );
 }

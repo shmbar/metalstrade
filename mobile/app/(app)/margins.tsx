@@ -7,6 +7,7 @@ import { Screen, Card, Text, StatCard, Button, SectionHeader, SkeletonList, Erro
 import { PeriodSelector } from '@/components/PeriodSelector';
 import { useTheme } from '@/theme/ThemeProvider';
 import { useAuth } from '@/store/auth';
+import { MonthEditor } from '@/features/margins/MonthEditor';
 import { useMargins } from '@/features/margins/useMargins';
 import { streamSse, apiConfigured } from '@/lib/api';
 import { fmtAutoKM, fmtMoney } from '@/lib/format';
@@ -17,7 +18,7 @@ export default function Margins() {
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
   const { userTitle, gisAccount } = useAuth();
-  const { rows, totals, alertedItems, threshold, isLoading, isError, error, refetch } = useMargins();
+  const { totals, alertedItems, threshold, isLoading, isError, error, refetch } = useMargins();
   const [aiText, setAiText] = useState('');
   const [aiBusy, setAiBusy] = useState(false);
 
@@ -131,32 +132,8 @@ export default function Margins() {
             </Card>
           )}
 
-          {/* Per-month */}
-          <Card>
-            <SectionHeader title="By month" subtitle={String(totals.quantity > 0 ? '' : 'No margin data yet')} />
-            {rows.length === 0 ? (
-              <Text variant="body" tone="muted">No margin months for this year.</Text>
-            ) : (
-              <>
-                <View style={{ flexDirection: 'row', borderBottomWidth: 1, borderBottomColor: colors.borderStrong, paddingBottom: 6 }}>
-                  <Text variant="caption" tone="muted" style={{ width: 44, fontFamily: 'Inter_600SemiBold' }}>Mon</Text>
-                  <Text variant="caption" tone="muted" style={{ flex: 1, textAlign: 'right', fontFamily: 'Inter_600SemiBold' }}>Qty</Text>
-                  <Text variant="caption" tone="muted" style={{ flex: 1, textAlign: 'right', fontFamily: 'Inter_600SemiBold' }}>Shipped</Text>
-                  <Text variant="caption" tone="muted" style={{ flex: 1.2, textAlign: 'right', fontFamily: 'Inter_600SemiBold' }}>Profit</Text>
-                </View>
-                {rows.map((r, i) => (
-                  <View key={r.month + i} style={{ flexDirection: 'row', paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: colors.border }}>
-                    <Text variant="caption" style={{ width: 44 }}>{r.monthLabel}</Text>
-                    <Text variant="caption" style={{ flex: 1, textAlign: 'right' }}>{fmtMoney(r.purchase, 0)}</Text>
-                    <Text variant="caption" style={{ flex: 1, textAlign: 'right' }}>{fmtMoney(r.shipped, 0)}</Text>
-                    <Text variant="caption" tone={r.totalMargin >= 0 ? 'positive' : 'negative'} style={{ flex: 1.2, textAlign: 'right', fontFamily: 'Inter_500Medium' }}>
-                      {fmtAutoKM(r.totalMargin)}
-                    </Text>
-                  </View>
-                ))}
-              </>
-            )}
-          </Card>
+          {/* Per-month — expandable, editable item rows + batched save (web parity). */}
+          <MonthEditor />
         </View>
       )}
     </Screen>

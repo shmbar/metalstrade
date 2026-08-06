@@ -61,7 +61,7 @@ export default function SalesContracts() {
           onRefresh={refetch}
           refreshing={isLoading}
           renderItem={({ item }: any) => (
-            <Card style={{ marginBottom: 12 }}>
+            <Card style={{ marginBottom: 12 }} onPress={() => router.push(`/(app)/sales-contract-edit?id=${item.id}`)}>
               <View style={{ flexDirection: 'row', justifyContent: 'space-between', gap: 12 }}>
                 <View style={{ flex: 1, minWidth: 0 }}>
                   <Text variant="h3" numberOfLines={1}>{item.contractNo}</Text>
@@ -103,6 +103,17 @@ export default function SalesContracts() {
           )}
         />
       )}
+      {/* Create — web's 'New Sales Contract' button. */}
+      <Pressable
+        onPress={() => router.push('/(app)/sales-contract-edit?id=new')}
+        style={{
+          position: 'absolute', right: 18, bottom: insets.bottom + 88, zIndex: 10,
+          width: 52, height: 52, borderRadius: 26, alignItems: 'center', justifyContent: 'center',
+          backgroundColor: colors.primary,
+        }}
+      >
+        <Ionicons name="add" size={26} color="#fff" />
+      </Pressable>
     </Screen>
   );
 }

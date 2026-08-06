@@ -20,6 +20,8 @@ export default function ContractsLayout() {
       <Stack.Screen name="new-invoice" options={{ animation: 'slide_from_right' }} />
       <Stack.Screen name="files" options={{ animation: 'slide_from_right' }} />
       <Stack.Screen name="cert-checker" options={{ animation: 'slide_from_right' }} />
+      <Stack.Screen name="po-invoices" options={{ animation: 'slide_from_right' }} />
+      <Stack.Screen name="pnl" options={{ animation: 'slide_from_right' }} />
     </Stack>
   );
 }

@@ -3,7 +3,9 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/store/auth';
 import { useSettings } from '@/store/settings';
 import { loadData, loadFlatByDate } from '@/data/firestore';
-import { saveSplit } from '@/data/writes';
+import {
+  saveSplit, saveExpense, deleteExpense, saveCompanyExpense, deleteCompanyExpense, copyExpenseToMisc,
+} from '@/data/writes';
 import { num } from '@shared/finance';
 import { splitStatusOf } from '@shared/splitUtils';
 
@@ -22,6 +24,8 @@ export interface ExpenseRow {
   /** raw `split` object — drives the IMS/GIS SplitControl (web parity) */
   split?: any;
   splitStatus: 'none' | 'pending' | 'done';
+  /** the full Firestore doc — the edit form works on this */
+  raw: any;
 }
 
 function mapRows(list: any[], settings: any): ExpenseRow[] {
@@ -40,6 +44,7 @@ function mapRows(list: any[], settings: any): ExpenseRow[] {
     comments: z.comments || '',
     split: z.split,
     splitStatus: splitStatusOf(z),
+    raw: z,
   }));
 }
 
@@ -74,15 +79,113 @@ export function useExpenses() {
     if (!query.data) return null;
     const supplier = mapRows(query.data.supplier, settings).sort((a, b) => (b.date || '').localeCompare(a.date || ''));
     const company = mapRows(query.data.company, settings).sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+    // Per-VENDOR breakdown — web renders two summary tables under each expense
+    // page (all rows, and unpaid rows only), each with Total $ / Total EUR footers.
+    const byVendor = (list: ExpenseRow[], onlyUnpaid = false) => {
+      const m: Record<string, { vendor: string; byCur: Record<string, number> }> = {};
+      list.forEach((r) => {
+        if (onlyUnpaid && !r.unpaid) return;
+        const key = r.supplierName || '—';
+        (m[key] ||= { vendor: key, byCur: {} });
+        m[key].byCur[r.cur] = (m[key].byCur[r.cur] || 0) + r.amount;
+      });
+      return Object.values(m).sort((a, b) => a.vendor.localeCompare(b.vendor));
+    };
+
     return {
       supplier,
       company,
-      supplierTotals: { all: totalsByCur(supplier), unpaid: totalsByCur(supplier, true) },
-      companyTotals: { all: totalsByCur(company), unpaid: totalsByCur(company, true) },
+      supplierTotals: {
+        all: totalsByCur(supplier),
+        unpaid: totalsByCur(supplier, true),
+        byVendor: byVendor(supplier),
+        byVendorUnpaid: byVendor(supplier, true),
+      },
+      companyTotals: {
+        all: totalsByCur(company),
+        unpaid: totalsByCur(company, true),
+        byVendor: byVendor(company),
+        byVendorUnpaid: byVendor(company, true),
+      },
     };
   }, [query.data, settings]);
 
   return { data, isLoading: query.isLoading, isError: query.isError, error: query.error, refetch: query.refetch };
+}
+
+// Save / delete an expense. Supplier expenses fan out to their linked invoice and
+// contract (web parity); company expenses are self-contained.
+export function useSaveExpense() {
+  const { uidCollection } = useAuth();
+  const { settings } = useSettings();
+  const qc = useQueryClient();
+  const invalidate = () => {
+    qc.invalidateQueries({ queryKey: ['expenses-screen'] });
+    qc.invalidateQueries({ queryKey: ['cashflow'] });
+    qc.invalidateQueries({ queryKey: ['contracts'] });
+    qc.invalidateQueries({ queryKey: ['invoices'] });
+    qc.invalidateQueries({ queryKey: ['storage-expenses'] });
+  };
+  return useMutation({
+    mutationFn: async ({
+      expense,
+      kind,
+      previousDate,
+    }: {
+      expense: any;
+      kind: 'expense' | 'companyexpense';
+      previousDate?: string;
+    }) => {
+      if (!uidCollection) throw new Error('Not authenticated');
+      if (kind === 'companyexpense') await saveCompanyExpense(uidCollection, expense, settings);
+      else await saveExpense(uidCollection, { expense, previousDate });
+    },
+    onSuccess: invalidate,
+  });
+}
+
+// "Copy to misc invoices" — web action on the company-expense modal.
+export function useCopyExpenseToMisc() {
+  const { uidCollection } = useAuth();
+  const { settings } = useSettings();
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (expense: any) => {
+      if (!uidCollection) throw new Error('Not authenticated');
+      await copyExpenseToMisc(uidCollection, expense, settings);
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['misc-invoices'] }),
+  });
+}
+
+export function useDeleteExpense() {
+  const { uidCollection } = useAuth();
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ expense, kind }: { expense: any; kind: 'expense' | 'companyexpense' }) => {
+      if (!uidCollection) throw new Error('Not authenticated');
+      if (kind === 'companyexpense') await deleteCompanyExpense(uidCollection, expense.id);
+      else await deleteExpense(uidCollection, expense);
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['expenses-screen'] });
+      qc.invalidateQueries({ queryKey: ['cashflow'] });
+      qc.invalidateQueries({ queryKey: ['contracts'] });
+      qc.invalidateQueries({ queryKey: ['invoices'] });
+    },
+  });
+}
+
+// Fields web requires before an expense can be saved (validate(...) in
+// useExpensesState.saveData_ExpenseExpenses).
+export const EXPENSE_REQUIRED = ['expense', 'cur', 'supplier', 'expType', 'amount', 'date'] as const;
+
+export function missingExpenseFields(v: any): string[] {
+  return EXPENSE_REQUIRED.filter((k) => {
+    if (k === 'date') return !(v?.dateRange?.startDate || v?.date);
+    const val = v?.[k];
+    return val === undefined || val === null || String(val).trim() === '';
+  });
 }
 
 // Persist an IMS/GIS split on an expense row. Supplier expenses live in the

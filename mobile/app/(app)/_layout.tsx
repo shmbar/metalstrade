@@ -102,7 +102,9 @@ export default function AppLayout() {
       <Tabs.Screen name="settings" options={{ href: null }} />
       <Tabs.Screen name="shipment" options={{ href: null }} />
       <Tabs.Screen name="sales-contracts" options={{ href: null }} />
+      <Tabs.Screen name="sales-contract-edit" options={{ href: null }} />
       <Tabs.Screen name="expenses" options={{ href: null }} />
+      <Tabs.Screen name="expense-edit" options={{ href: null }} />
       <Tabs.Screen name="notifications" options={{ href: null }} />
       <Tabs.Screen name="acc-statement" options={{ href: null }} />
       <Tabs.Screen name="assistant" options={{ href: null }} />

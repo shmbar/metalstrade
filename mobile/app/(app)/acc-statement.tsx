@@ -9,6 +9,9 @@ import { useTheme } from '@/theme/ThemeProvider';
 import { useSettings } from '@/store/settings';
 import { useAccStatement, periodsForYear } from '@/features/accstatement/useAccStatement';
 import { curSymbol, fmtMoney, dateLabel } from '@/lib/format';
+import { exportCsv, exportPdf } from '@/lib/export';
+import { accountStatementHtml } from '@/lib/pdfTemplates';
+import { useAuth } from '@/store/auth';
 import { num } from '@shared/finance';
 
 const COLS = [
@@ -23,7 +26,8 @@ const COLS = [
 export default function AccStatement() {
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
-  const { settings, dateSelect } = useSettings();
+  const { settings, compData, dateSelect } = useSettings();
+  const { gisAccount } = useAuth();
   const year = dateSelect.start.substring(0, 4);
 
   const clientOptions = useMemo(
@@ -36,6 +40,43 @@ export default function AccStatement() {
   const [date1, setDate1] = useState('');
 
   const { data: rows, isLoading, isError, error, refetch } = useAccStatement(client, year, date1);
+
+  const clientObj = useMemo(
+    () => (settings?.Client?.Client || []).find((c: any) => c.id === client),
+    [settings, client]
+  );
+
+  // Web exports the statement two ways (accstatement/excel.js + pdfAccountStatement.js).
+  // Both were missing on mobile. Same 7 columns and the same per-currency totals block.
+  const exportRows = () =>
+    (rows || []).map((r) => [
+      String(r.invoice ?? ''),
+      dateLabel(r.date),
+      num(r.amount).toFixed(2),
+      settings?.Currency?.Currency?.find((c: any) => c.id === r.cur)?.cur || r.cur || '',
+      dateLabel(r.due),
+      num(r.paid).toFixed(2),
+      num(r.notPaid).toFixed(2),
+    ]);
+
+  const onExportCsv = () =>
+    exportCsv(
+      `Account Statement - ${clientObj?.nname || 'client'}`,
+      ['Invoice', 'Date', 'Amount', 'Currency', 'Due Payment', 'Paid', 'Unpaid'],
+      exportRows()
+    );
+
+  const onExportPdf = () =>
+    exportPdf(
+      accountStatementHtml({
+        client: clientObj,
+        compData,
+        gisAccount,
+        rows: exportRows(),
+        totals,
+      }),
+      `Debt_${clientObj?.nname || 'client'}`
+    );
 
   // Web parity (accstatement setTtl): totals are kept PER CURRENCY — never mixed.
   const totals = useMemo(() => {
@@ -65,6 +106,33 @@ export default function AccStatement() {
       <Card style={{ gap: 12, marginBottom: 14 }}>
         <Select label="Client" value={client} options={clientOptions} onChange={setClient} required />
         <Select label={`Period (${year})`} value={date1} options={periods} onChange={setDate1} required searchable={false} />
+        {/* Web offers both a branded PDF and an Excel export of this statement. */}
+        {!!rows?.length && (
+          <View style={{ flexDirection: 'row', gap: 10 }}>
+            <Pressable
+              onPress={onExportPdf}
+              style={{
+                flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6,
+                paddingVertical: 9, borderRadius: 999,
+                backgroundColor: colors.surfaceAlt, borderWidth: 1, borderColor: colors.border,
+              }}
+            >
+              <Ionicons name="document-text-outline" size={15} color={colors.primary} />
+              <Text variant="caption" tone="primary">PDF</Text>
+            </Pressable>
+            <Pressable
+              onPress={onExportCsv}
+              style={{
+                flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6,
+                paddingVertical: 9, borderRadius: 999,
+                backgroundColor: colors.surfaceAlt, borderWidth: 1, borderColor: colors.border,
+              }}
+            >
+              <Ionicons name="grid-outline" size={15} color={colors.primary} />
+              <Text variant="caption" tone="primary">Excel (CSV)</Text>
+            </Pressable>
+          </View>
+        )}
       </Card>
 
       {!ready ? (
