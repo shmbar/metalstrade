@@ -33,7 +33,9 @@ export default function MiscInvoices() {
     try {
       const res = await postJson<{ category?: string }>('/api/ai/categorize-expense', {
         description: `${row.description || ''} ${row.invoice || ''} ${row.supplierName}`.trim(),
-        categories: MISC_CATS.map((c) => c.id),
+        // The route renders `c.id` and `c.label` into its prompt — sending bare id
+        // strings left both undefined, so the model never got the category list.
+        categories: MISC_CATS.map((c) => ({ id: c.id, label: c.label })),
       });
       const cat = (MISC_CATS.find((c) => c.id === res.category)?.id || '') as MiscCat;
       if (cat) {

@@ -1,7 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { View, Pressable, Modal, ScrollView, Alert } from 'react-native';
 import { router } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Text, Select, TextField, Button } from '@/components/ui';
 import { useTheme } from '@/theme/ThemeProvider';

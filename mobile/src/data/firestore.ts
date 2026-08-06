@@ -141,6 +141,62 @@ export async function loadAllStockData(uidCollection: string): Promise<any[]> {
   return snap.docs.map((d) => d.data());
 }
 
+// Contracts in a date range filtered by one entity field (e.g. supplier) — port of
+// utils.js loadDataWeightAnalysis. Used by the Weight Analysis report, which is
+// scoped to a single supplier.
+export async function loadDataWeightAnalysis<T = any>(
+  uidCollection: string,
+  path: string,
+  dateSelect: DateSelect,
+  entity: string,
+  name: string
+): Promise<T[]> {
+  const startYr = parseInt(dateSelect.start?.substring(0, 4));
+  const endYr = parseInt(dateSelect.end?.substring(0, 4));
+  if (!startYr || !endYr) return [];
+  const years: number[] = [];
+  for (let i = startYr; i <= endYr; i++) years.push(i);
+
+  const snapshots = await Promise.all(
+    years.map((yr) =>
+      getDocs(
+        query(
+          collection(db, uidCollection, 'data', `${path}_${yr}`),
+          where('date', '>=', dateSelect.start),
+          where('date', '<=', dateSelect.end),
+          where(entity, '==', name)
+        )
+      )
+    )
+  );
+  return snapshots.flatMap((snap) => snap.docs.map((d) => d.data() as T));
+}
+
+// Load a contract's invoices by { yr, arrInv } batches — port of utils.js
+// getInvoices. Weight Analysis needs the RAW docs (original AND final note), not
+// the deduped set, because it pairs 1111 against 3333.
+export async function getInvoicesByNumbers<T = any>(
+  uidCollection: string,
+  path: string,
+  batches: { yr: string; arrInv: any[] }[]
+): Promise<T[]> {
+  const CHUNK = 30;
+  const entries: { yr: string; chunk: any[] }[] = [];
+  (batches || []).forEach(({ yr, arrInv }) => {
+    const uniq = [...new Set(arrInv)].filter((n) => n != null);
+    for (let i = 0; i < uniq.length; i += CHUNK) {
+      const chunk = uniq.slice(i, i + CHUNK);
+      if (chunk.length) entries.push({ yr, chunk });
+    }
+  });
+  const snaps = await Promise.all(
+    entries.map((e) =>
+      getDocs(query(collection(db, uidCollection, 'data', `${path}_${e.yr}`), where('invoice', 'in', e.chunk)))
+    )
+  );
+  return snaps.flatMap((snap) => snap.docs.map((d) => d.data() as T));
+}
+
 // Shared Stock (IMS + GIS) — inventory jointly held by the two companies. IMS and
 // GIS are separate account namespaces, so joint lots live in their own FIXED
 // namespace that BOTH accounts read; each account still only sees (a) its own

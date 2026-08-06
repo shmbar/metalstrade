@@ -7,6 +7,7 @@ import { Screen, Card, Text, SegmentedControl, ProgressBar, SectionHeader, Skele
 import { PeriodSelector } from '@/components/PeriodSelector';
 import { useTheme } from '@/theme/ThemeProvider';
 import { useAnalysis } from '@/features/analysis/useAnalysis';
+import { WeightAnalysisView } from '@/features/analysis/WeightAnalysisView';
 import { fmtMoney } from '@/lib/format';
 
 const mt = (n: number) => `${fmtMoney(n, 1)} MT`;
@@ -15,9 +16,11 @@ export default function Analysis() {
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
   const { byMaterial, byClient, isLoading, isError, error, refetch } = useAnalysis();
-  const [tab, setTab] = useState<'material' | 'client'>('material');
+  // Web's /analysis IS the weight report; the material/client bars are mobile-only
+  // extras, so weight leads and they become secondary tabs.
+  const [tab, setTab] = useState<'weight' | 'material' | 'client'>('weight');
 
-  const rows = tab === 'material' ? byMaterial : byClient;
+  const rows = tab === 'client' ? byClient : byMaterial;
   const total = rows.reduce((s, r) => s + r.weight, 0);
   const max = Math.max(...rows.map((r) => r.weight), 1);
 
@@ -36,11 +39,17 @@ export default function Analysis() {
         <SegmentedControl
           value={tab}
           onChange={(v) => setTab(v as any)}
-          options={[{ value: 'material', label: 'By Material' }, { value: 'client', label: 'By Client' }]}
+          options={[
+            { value: 'weight', label: 'Weight' },
+            { value: 'material', label: 'Material' },
+            { value: 'client', label: 'Client' },
+          ]}
         />
       </View>
 
-      {isLoading ? (
+      {tab === 'weight' ? (
+        <WeightAnalysisView />
+      ) : isLoading ? (
         <SkeletonList />
       ) : isError ? (
         <ErrorState message={(error as Error)?.message || 'Failed to load.'} onRetry={refetch} />

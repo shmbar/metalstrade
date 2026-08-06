@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '@/store/auth';
 import { useSettings } from '@/store/settings';
-import { loadData } from '@/data/firestore';
+import { loadData, loadMargins } from '@/data/firestore';
 import { useAllStockLots } from '@/features/stocks/useAllStockLots';
 import { groupInvoices, resolveInvoiceDate, effectiveDueDate, num } from '@shared/finance';
 // Net in-stock summary per warehouse+material — imported from the verbatim shared
@@ -10,6 +10,13 @@ import { groupInvoices, resolveInvoiceDate, effectiveDueDate, num } from '@share
 // re-implemented here, so the AI can never drift from the Stocks page math.
 import { computeStockNetSummary } from '@shared/pureHelpers';
 import { arr } from '@/lib/guard';
+
+// Web's conStatus ID -> label map (FloatingChat.js:336). Kept here verbatim so the
+// assistant and the web UI agree on wording.
+const CONTRACT_STATUS_LABELS: Record<string, string> = {
+  A1234: 'Shipped', B5678: 'Not Shipped', F7546: 'Partly Shipped',
+  C6567: 'Finished', D8456: 'Closed', E34656: 'Unsold',
+};
 
 // Builds the SAME slim, enriched context the web Assistant sends (FloatingChat
 // getCurrentDataContext). Two reasons this projection matters:
@@ -42,9 +49,13 @@ function buildContext(raw: any, settings: any, compData: any) {
     supplier: resolveSupplier(con.supplier),
     date: con.date,
     currency: resolveCurrency(con.cur),
-    status: con.conStatus || (con.completed ? 'Completed' : 'Open'),
-    products: con.productsData?.length || 0,
-    totalValue: (con.productsData || []).reduce((s: number, p: any) => s + num(p.unitPrc) * num(p.qnty), 0),
+    // conStatus stores an ID — resolve it to its label so the assistant never
+    // reports raw codes like 'E34656' as if they were statuses.
+    status: CONTRACT_STATUS_LABELS[con.conStatus] || con.conStatus || (con.completed ? 'Completed' : 'Open'),
+    // import-flagged products are breakdown helpers — counting them would double
+    // the contract's line count and value.
+    products: (con.productsData || []).filter((p: any) => !p.import).length,
+    totalValue: (con.productsData || []).filter((p: any) => !p.import).reduce((s: number, p: any) => s + num(p.unitPrc) * num(p.qnty), 0),
     shipmentEtd: con.shipmentEtd || null,
     shipmentEta: con.shipmentEta || null,
     shipmentStatus: con.shipmentStatus || null,
@@ -108,7 +119,7 @@ function buildContext(raw: any, settings: any, compData: any) {
     invoices,
     expenses,
     stocks,
-    margins: [] as any[],
+    margins: raw.margins || [],
     marginAlertThreshold: settings?.MarginAlert?.threshold != null ? num(settings.MarginAlert.threshold) : 5,
   };
 }
@@ -123,12 +134,16 @@ export function useAssistantContext() {
     staleTime: 1000 * 60 * 5,
     queryFn: async () => {
       const uid = uidCollection as string;
-      const [contracts, invoices, expenses] = await Promise.all([
+      // margins were hardcoded to [] here, so get_profit_info and
+      // get_margin_alerts always answered 'no data' no matter what the books said.
+      const yr = parseInt(dateSelect.start.substring(0, 4), 10) || new Date().getFullYear();
+      const [contracts, invoices, expenses, margins] = await Promise.all([
         loadData<any>(uid, 'contracts', dateSelect),
         loadData<any>(uid, 'invoices', dateSelect),
         loadData<any>(uid, 'expenses', dateSelect),
+        loadMargins(uid, yr).catch(() => []),
       ]);
-      return { contracts, invoices, expenses };
+      return { contracts, invoices, expenses, margins };
     },
   });
 

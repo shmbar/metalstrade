@@ -87,12 +87,20 @@ export default function ContractEdit() {
         : source === 'uri' && uri ? await extractFromUri(uri, settings)
         : await pickAndExtractContract(settings);
       if (!res) return;
-      const f = res.fields || {};
-      if (f.date) f.dateRange = { startDate: f.date, endDate: f.date };
+      // docImport now returns ONLY mapped form keys (plus __-prefixed quality
+      // signals), so this spread can no longer leak raw AI fields into the doc.
+      const { __lineCheckFailed, __confidence, ...f } = (res.fields || {}) as any;
       setValue((v) => ({ ...v, ...f }));
+      const warn = __lineCheckFailed
+        ? '\n\nThe line totals did not reconcile — check quantities and prices before saving.'
+        : __confidence === 'low'
+          ? '\n\nExtraction confidence was LOW — check every field before saving.'
+          : '';
       Alert.alert(
         res.appliedLabels.length ? 'Applied from document' : 'Nothing matched',
-        res.appliedLabels.length ? `Filled: ${res.appliedLabels.join(', ')}. Review, then Save.` : 'No fields could be extracted — fill them manually.'
+        (res.appliedLabels.length
+          ? `Filled: ${res.appliedLabels.join(', ')}. Review, then Save.`
+          : 'No fields could be extracted — fill them manually.') + warn
       );
     } catch (e: any) {
       Alert.alert('Autofill failed', e?.message || 'Could not read the document.');
