@@ -8,7 +8,7 @@ import { Button } from "../../../components/ui/button";
 import { filteredArray, groupedArrayInvoice, loadAllStockData, loadCompanyExpense, loadCompanyExpenses, loadData, loadInvoice } from "../../../utils/utils"
 import { lotIsSold } from "../contractsstatement/soldStatus"
 import dateFormat from 'dateformat';
-import { ContactRoundIcon, Eraser, Save } from "lucide-react";
+import { CircleMinus, CirclePlus, ContactRoundIcon, Eraser, Save } from "lucide-react";
 import { NumericFormat } from "react-number-format";
 import DoalogModal from "./dialogSupplier";
 import DoalogModalClient from "./dialogClient";
@@ -646,7 +646,11 @@ export const StoclToolTip = ({ stock, stockDataAll, settings, uidCollection, set
                                 out.push(
                                     <tr key={`grp-${z.order}`} className="cursor-pointer hover:bg-[var(--surface-pill)]"
                                         onClick={() => setOpenPOs(prev => ({ ...prev, [z.order]: !prev[z.order] }))}>
-                                        <td className="!py-1 px-1"></td>
+                                        <td className="!py-1 px-1">
+                                            {isOpen
+                                                ? <CircleMinus className="w-3.5 h-3.5 cursor-pointer" style={{ color: 'var(--endeavour)' }} />
+                                                : <CirclePlus className="w-3.5 h-3.5 cursor-pointer" style={{ color: 'var(--endeavour)' }} />}
+                                        </td>
                                         <td className="text-left text-[var(--endeavour)] max-w-20 truncate"
                                             onClick={(e) => { e.stopPropagation(); moveToContracts(z, 'stock', uidCollection, setDateSelect, setValueCon, setIsOpenCon, blankInvoice, router, setToast); }}>
                                             <span className="block truncate cursor-pointer hover:underline">{z.order}</span>
@@ -656,7 +660,6 @@ export const StoclToolTip = ({ stock, stockDataAll, settings, uidCollection, set
                                         </td>
                                         <td className="text-left w-28 max-w-28">
                                             <span className="flex items-center gap-1 font-medium" style={{ color: 'var(--chathams-blue)' }}>
-                                                <span className="inline-block transition-transform" style={{ transform: isOpen ? 'rotate(90deg)' : 'none' }}>›</span>
                                                 <span className="truncate">{z._groupDesc}</span>
                                                 <span style={{ color: 'var(--regent-gray)' }}>({grp.length})</span>
                                             </span>
@@ -821,14 +824,17 @@ export const StocksUnSold = ({ supplier, stockDataAllArray, settings, uidCollect
                                 out.push(
                                     <tr key={`grp-${z.order}`} className="cursor-pointer hover:bg-[var(--surface-pill)]"
                                         onClick={() => setOpenPOs(prev => ({ ...prev, [z.order]: !prev[z.order] }))}>
-                                        <td className="!py-1 px-1"></td>
+                                        <td className="!py-1 px-1">
+                                            {isOpen
+                                                ? <CircleMinus className="w-3.5 h-3.5 cursor-pointer" style={{ color: 'var(--endeavour)' }} />
+                                                : <CirclePlus className="w-3.5 h-3.5 cursor-pointer" style={{ color: 'var(--endeavour)' }} />}
+                                        </td>
                                         <td className="text-left text-[var(--endeavour)] max-w-20 truncate"
                                             onClick={(e) => { e.stopPropagation(); moveToContracts(z, 'order', uidCollection, setDateSelect, setValueCon, setIsOpenCon, blankInvoice, router, setToast); }}>
                                             <span className="block truncate cursor-pointer hover:underline">{z.order}</span>
                                         </td>
                                         <td className="text-left w-28 max-w-28">
                                             <span className="flex items-center gap-1 font-medium" style={{ color: 'var(--chathams-blue)' }}>
-                                                <span className="inline-block transition-transform" style={{ transform: isOpen ? 'rotate(90deg)' : 'none' }}>›</span>
                                                 <span className="truncate">{z.groupDesc || 'Materials'}</span>
                                                 <span style={{ color: 'var(--regent-gray)' }}>({grp.length})</span>
                                             </span>
