@@ -91,7 +91,9 @@ const FirstPart = ({ incoming, outStandingShip, purchase, totalMargin, shipped }
             `}</style>
 
             <div className="w-full flex justify-center">
-                <div className="w-full max-w-7xl rounded-2xl border border-[var(--border-divider)] shadow-xl p-3 sm:p-4">
+                {/* No max-width cap: the KPI strip must track the full page width like
+                    the tables below it (it stopped at 1280px on wide screens). */}
+                <div className="w-full rounded-2xl border border-[var(--border-divider)] shadow-xl p-3 sm:p-4">
                     {/* Desktop Layout */}
                     <div className="hidden md:grid grid-cols-5 gap-4 stats-cards w-full">
                         {cards.map((card, idx) => (
