@@ -5,14 +5,22 @@ import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Card, Text, EmptyState } from '@/components/ui';
 import { useTheme } from '@/theme/ThemeProvider';
-import { streamAssistant, isAssistantConfigured, ChatMessage } from '@/features/assistant/api';
+import { streamAssistant, isAssistantConfigured, ChatMessage, AssistantSource } from '@/features/assistant/api';
 import { useAssistantContext } from '@/features/assistant/useAssistantContext';
 import { radius, spacing } from '@/theme/tokens';
 
 interface UiMessage extends ChatMessage {
   id: string;
   streaming?: boolean;
+  /** citation chips from the final sources event */
+  sources?: AssistantSource[];
 }
+
+// The server's citation routes are WEB paths; map them to the mobile equivalents.
+const sourceHref = (s: AssistantSource) =>
+  s.type === 'invoice' ? (s.id ? `/(app)/invoices/${s.id}` : '/(app)/invoices')
+  : s.type === 'contract' ? (s.id ? `/(app)/contracts/${s.id}` : '/(app)/contracts')
+  : '/(app)/expenses';
 
 // Mirrors the web Assistant's suggestion chips for parity.
 const SUGGESTIONS = [
@@ -56,6 +64,11 @@ export default function Assistant() {
         dateRange,
         onText: (delta) => {
           setMessages((prev) => prev.map((m) => (m.id === botId ? { ...m, content: m.content + delta } : m)));
+          scrollEnd();
+        },
+        // Citations the server attaches to tool-backed answers.
+        onSources: (sources) => {
+          setMessages((prev) => prev.map((m) => (m.id === botId ? { ...m, sources } : m)));
           scrollEnd();
         },
       });
@@ -128,6 +141,36 @@ export default function Assistant() {
                         <Text variant="body" color={mine ? colors.primaryText : colors.text}>{item.content}</Text>
                       ) : (
                         <ActivityIndicator color={colors.primary} />
+                      )}
+
+                      {/* Citation chips — tap through to the record the answer came
+                          from. Web shows these; mobile was dropping the event. */}
+                      {!!item.sources?.length && (
+                        <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 10 }}>
+                          {item.sources.map((s: AssistantSource, i: number) => (
+                            <Pressable
+                              key={`${s.type}-${s.id}-${i}`}
+                              onPress={() => router.push(sourceHref(s) as any)}
+                              style={{
+                                flexDirection: 'row', alignItems: 'center', gap: 4,
+                                paddingHorizontal: 9, paddingVertical: 3, borderRadius: 999,
+                                backgroundColor: colors.surfaceAlt,
+                                borderWidth: 1, borderColor: colors.border,
+                              }}
+                            >
+                              <Ionicons
+                                name={
+                                  s.type === 'invoice' ? 'receipt-outline'
+                                  : s.type === 'contract' ? 'document-text-outline'
+                                  : 'card-outline'
+                                }
+                                size={11}
+                                color={colors.textMuted}
+                              />
+                              <Text variant="caption" tone="muted">{s.label}</Text>
+                            </Pressable>
+                          ))}
+                        </View>
                       )}
                     </Card>
                   </View>

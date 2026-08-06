@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { View, Pressable, Alert, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, Pressable, Alert, KeyboardAvoidingView, Platform, Modal } from 'react-native';
 import { useLocalSearchParams, router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -7,8 +7,11 @@ import { Screen, Card, Text, Select, TextField, DateField, Button, EmptyState } 
 import { useTheme } from '@/theme/ThemeProvider';
 import { useSettings } from '@/store/settings';
 import {
-  useExpenses, useSaveExpense, useDeleteExpense, useCopyExpenseToMisc, missingExpenseFields,
+  useExpenses, useSaveExpense, useDeleteExpense, useCopyExpenseToMisc, useMoveExpenseToShipment,
+  missingExpenseFields,
 } from '@/features/expenses/useExpenses';
+import { useAuth } from '@/store/auth';
+import { getInvoicesByNumbers } from '@/data/firestore';
 import { newId } from '@/data/writes';
 import { hapticSuccess } from '@/lib/haptics';
 
@@ -25,6 +28,12 @@ export default function ExpenseEdit() {
   const save = useSaveExpense();
   const del = useDeleteExpense();
   const copyMisc = useCopyExpenseToMisc();
+  const moveShip = useMoveExpenseToShipment();
+  const { uidCollection } = useAuth();
+  const [findOpen, setFindOpen] = useState(false);
+  const [findInv, setFindInv] = useState('');
+  const [findYr, setFindYr] = useState(String(new Date().getFullYear()));
+  const [finding, setFinding] = useState(false);
 
   const isCompany = kind === 'company';
   const row = useMemo(() => {
@@ -167,11 +176,82 @@ export default function ExpenseEdit() {
             }
           />
         )}
+        {isCompany && !isNew && (
+          <Button
+            title="Move to shipment"
+            variant="secondary"
+            style={{ marginTop: 10 }}
+            onPress={() => setFindOpen(true)}
+          />
+        )}
         {!isNew && (
           <Pressable onPress={onDelete} style={{ alignSelf: 'center', paddingVertical: 14 }}>
             <Text variant="bodyMedium" style={{ color: colors.negative }}>Delete expense</Text>
           </Pressable>
         )}
+
+        {/* Invoice finder — web's findInvoiceModal. Look the sales invoice up by
+            number + year, then migrate this expense onto it and its contract. */}
+        <Modal visible={findOpen} transparent animationType="slide" onRequestClose={() => setFindOpen(false)}>
+          <Pressable style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.4)' }} onPress={() => setFindOpen(false)} />
+          <View
+            style={{
+              backgroundColor: colors.bgElevated,
+              borderTopLeftRadius: 20,
+              borderTopRightRadius: 20,
+              padding: 20,
+              paddingBottom: insets.bottom + 20,
+              gap: 12,
+            }}
+          >
+            <Text variant="h2">Move to shipment</Text>
+            <Text variant="caption" tone="muted">
+              Appends this expense to the sales invoice and its contract, then removes the
+              company-expense copy. The company copy is deleted last, so a failure part-way
+              leaves it intact.
+            </Text>
+            <TextField
+              label="Invoice #"
+              value={findInv}
+              keyboardType="number-pad"
+              onChangeText={(t) => setFindInv(t.replace(/[^0-9]/g, ''))}
+            />
+            <TextField
+              label="Year"
+              value={findYr}
+              keyboardType="number-pad"
+              onChangeText={(t) => setFindYr(t.replace(/[^0-9]/g, ''))}
+            />
+            <Button
+              title="Find and move"
+              loading={finding || moveShip.isPending}
+              disabled={!findInv || findYr.length !== 4}
+              onPress={async () => {
+                setFinding(true);
+                try {
+                  const found = await getInvoicesByNumbers<any>(uidCollection as string, 'invoices', [
+                    { yr: findYr, arrInv: [Number(findInv)] },
+                  ]);
+                  // Prefer the ORIGINAL when a credit/final note shares the number.
+                  const inv = found.find((x: any) => x.invType === '1111') || found[0];
+                  if (!inv) {
+                    Alert.alert('Not found', `No invoice #${findInv} in ${findYr}.`);
+                    return;
+                  }
+                  await moveShip.mutateAsync({ expense: v, invoice: { ...inv, __yr: findYr } });
+                  hapticSuccess();
+                  setFindOpen(false);
+                  router.back();
+                } catch (e: any) {
+                  Alert.alert('Move failed', e?.message || 'Could not move the expense.');
+                } finally {
+                  setFinding(false);
+                }
+              }}
+            />
+            <Button title="Cancel" variant="secondary" onPress={() => setFindOpen(false)} />
+          </View>
+        </Modal>
       </Screen>
     </KeyboardAvoidingView>
   );

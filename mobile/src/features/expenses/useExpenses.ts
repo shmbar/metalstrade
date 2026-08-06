@@ -5,6 +5,7 @@ import { useSettings } from '@/store/settings';
 import { loadData, loadFlatByDate } from '@/data/firestore';
 import {
   saveSplit, saveExpense, deleteExpense, saveCompanyExpense, deleteCompanyExpense, copyExpenseToMisc,
+  moveCompanyExpenseToShipment,
 } from '@/data/writes';
 import { num } from '@shared/finance';
 import { splitStatusOf } from '@shared/splitUtils';
@@ -155,6 +156,25 @@ export function useCopyExpenseToMisc() {
       await copyExpenseToMisc(uidCollection, expense, settings);
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ['misc-invoices'] }),
+  });
+}
+
+// "Move to shipment" — migrates a company expense onto a sales invoice + its
+// contract, then removes the companyExpenses original.
+export function useMoveExpenseToShipment() {
+  const { uidCollection } = useAuth();
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ expense, invoice }: { expense: any; invoice: any }) => {
+      if (!uidCollection) throw new Error('Not authenticated');
+      await moveCompanyExpenseToShipment(uidCollection, expense, invoice);
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['expenses-screen'] });
+      qc.invalidateQueries({ queryKey: ['invoices'] });
+      qc.invalidateQueries({ queryKey: ['contracts'] });
+      qc.invalidateQueries({ queryKey: ['cashflow'] });
+    },
   });
 }
 

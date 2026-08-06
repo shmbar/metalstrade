@@ -9,12 +9,23 @@ export interface ChatMessage {
   content: string;
 }
 
+// Citation chip the server attaches to a tool-backed answer (route.js srcInvoice /
+// srcContract / srcExpense). `route` is the web path; mobile maps it to its own.
+export interface AssistantSource {
+  type: 'invoice' | 'contract' | 'expense' | string;
+  id: string;
+  label: string;
+  route: string;
+}
+
 interface StreamArgs {
   messages: ChatMessage[];
   currentData?: any;
   currentPage?: string;
   dateRange?: { startDate?: string; endDate?: string };
   onText: (delta: string) => void;
+  /** final citations event, emitted once before [DONE] */
+  onSources?: (sources: AssistantSource[]) => void;
   signal?: AbortSignal;
 }
 
@@ -23,7 +34,7 @@ export const isAssistantConfigured = () => !!apiBaseUrl();
 
 // Streams the assistant reply, invoking onText with each text delta. Mirrors the
 // web client's SSE parsing (data: {text|error}\n\n, terminated by [DONE]).
-export async function streamAssistant({ messages, currentData, currentPage, dateRange, onText, signal }: StreamArgs): Promise<void> {
+export async function streamAssistant({ messages, currentData, currentPage, dateRange, onText, onSources, signal }: StreamArgs): Promise<void> {
   const base = apiBaseUrl();
   if (!base) throw new Error('Set EXPO_PUBLIC_API_BASE_URL to your deployed web app to use the Assistant.');
 
@@ -54,7 +65,7 @@ export async function streamAssistant({ messages, currentData, currentPage, date
   if (!reader) {
     // Fallback: no stream reader — read the whole body and parse all chunks.
     const text = await response.text();
-    parseSse(text, onText);
+    parseSse(text, onText, onSources);
     return;
   }
 
@@ -66,24 +77,35 @@ export async function streamAssistant({ messages, currentData, currentPage, date
     buffer += decoder.decode(value, { stream: true });
     const lines = buffer.split('\n\n');
     buffer = lines.pop() || '';
-    for (const line of lines) handleLine(line, onText);
+    for (const line of lines) handleLine(line, onText, onSources);
   }
-  if (buffer.trim()) handleLine(buffer.trim(), onText);
+  if (buffer.trim()) handleLine(buffer.trim(), onText, onSources);
 }
 
-function handleLine(line: string, onText: (s: string) => void) {
+function handleLine(
+  line: string,
+  onText: (s: string) => void,
+  onSources?: (s: AssistantSource[]) => void
+) {
   if (!line.startsWith('data: ')) return;
   const payload = line.slice(6).trim();
   if (payload === '[DONE]') return;
   try {
-    const { text, error } = JSON.parse(payload);
+    const { text, error, sources } = JSON.parse(payload);
     if (error) throw new Error(error);
     if (text) onText(text);
+    // The server emits one final {sources:[…]} event before [DONE]. Mobile used to
+    // drop it, so tool-backed answers arrived with no citations to tap through to.
+    if (Array.isArray(sources) && sources.length) onSources?.(sources);
   } catch (e: any) {
     if (e?.message && e.message !== 'Unexpected end of JSON input') throw e;
   }
 }
 
-function parseSse(body: string, onText: (s: string) => void) {
-  body.split('\n\n').forEach((line) => handleLine(line.trim(), onText));
+function parseSse(
+  body: string,
+  onText: (s: string) => void,
+  onSources?: (s: AssistantSource[]) => void
+) {
+  body.split('\n\n').forEach((line) => handleLine(line.trim(), onText, onSources));
 }

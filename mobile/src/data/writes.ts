@@ -935,6 +935,61 @@ export async function saveCompanyExpense(uidCollection: string, expense: any, se
   if (settings) await syncMiscInvoiceIfExists(uidCollection, buildMiscFromExpense(value, settings));
 }
 
+// "Move to shipment" — port of companyexpenses/modals/findInvoiceModal.
+//
+// A company expense that actually belongs to a shipment is MIGRATED: the same doc
+// id moves out of the flat companyExpenses collection into the year-bucketed
+// expenses_{YYYY}, and a reference is appended to both the sales invoice and its
+// contract. Web writes all four in sequence; the delete is last so a failure
+// mid-way leaves the source row intact rather than losing it.
+export async function moveCompanyExpenseToShipment(
+  uidCollection: string,
+  expense: any,
+  invoice: any
+): Promise<void> {
+  if (!expense?.id || !invoice?.id) throw new Error('Missing expense or invoice.');
+
+  const ref = {
+    amount: expense.amount,
+    cur: expense.cur,
+    date: expense.date,
+    expense: expense.expense,
+    id: expense.id,
+    expType: expense.expType,
+  };
+
+  // Append to the invoice's and the contract's expense arrays.
+  const invYear = String(invoice.__yr || (invoice.dateRange?.startDate || invoice.date || '').substring(0, 4));
+  if (!invYear) throw new Error('Invoice is missing a date.');
+  await updateDoc(doc(db, uidCollection, 'data', `invoices_${invYear}`, invoice.id), {
+    expenses: [...(invoice.expenses || []), ref],
+  });
+
+  const con = await loadByRef<any>(uidCollection, 'contracts', invoice.poSupplier);
+  if (con?.id) {
+    const conYear = (invoice.poSupplier?.date || '').substring(0, 4);
+    await updateDoc(doc(db, uidCollection, 'data', `contracts_${conYear}`, con.id), {
+      expenses: [...(con.expenses || []), ref],
+    });
+  }
+
+  // Write the expense into the year-bucketed collection, now linked.
+  const date = String(expense.date || '');
+  const y = date.substring(0, 4);
+  const m = date.split('-')[1];
+  if (!y) throw new Error('Expense is missing a date.');
+  await setDoc(doc(db, uidCollection, 'data', `expenses_${y}`, expense.id), {
+    ...expense,
+    invData: { date: invoice.date, id: invoice.id },
+    m,
+    poSupplier: invoice.poSupplier,
+    salesInv: invoice.invoice,
+  });
+
+  // Only once everything above landed: drop the company-expense original.
+  await deleteDoc(doc(db, uidCollection, 'data', 'companyExpenses', expense.id));
+}
+
 // "Copy to misc invoices" — writes (or overwrites) the Misc row for this expense.
 export async function copyExpenseToMisc(uidCollection: string, expense: any, settings: any): Promise<void> {
   if (!expense?.id) return;
