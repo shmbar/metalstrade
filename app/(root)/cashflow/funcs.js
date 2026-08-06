@@ -1962,17 +1962,16 @@ export const ExpensesToolTip = ({ supplier, expensesAll, settings, uidCollection
                         <th></th>
                         <th></th>
                         <th className="text-left">
+                            {/* Per-currency sums, NO conversion: "Total $" used to be the whole
+                                list converted at 1.08 (EUR folded in), which read as a wrong USD
+                                figure — $ now sums only the $ rows, € only the € rows. */}
                             {!allEur && <div>{
-                                showAmount(filteredArr.reduce((sum, item) => {
-                                    const amt = parseFloat(item.amount) || 0;
-                                    return sum + (item.cur === 'us' ? amt : amt * 1.08);
-                                }, 0), 'usd')
+                                showAmount(filteredArr.reduce((sum, item) =>
+                                    sum + (item.cur === 'us' ? (parseFloat(item.amount) || 0) : 0), 0), 'usd')
                             }</div>}
                             {!allUsd && <div className={!allEur ? 'pt-0.5' : ''}>{
-                                showAmount(filteredArr.reduce((sum, item) => {
-                                    const amt = parseFloat(item.amount) || 0;
-                                    return sum + (item.cur === 'eu' ? amt : amt / 1.08);
-                                }, 0), 'eur')
+                                showAmount(filteredArr.reduce((sum, item) =>
+                                    sum + (item.cur !== 'us' ? (parseFloat(item.amount) || 0) : 0), 0), 'eur')
                             }</div>}
                         </th>
                         <th></th>
