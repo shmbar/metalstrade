@@ -88,15 +88,30 @@ export default function MiscInvoices() {
           onRefresh={refetch}
           refreshing={isLoading}
           ListHeaderComponent={
-            <Card style={{ marginBottom: 12 }}>
-              <SectionHeader title="Totals" subtitle={`${rows.length} invoice(s)`} right={<Text variant="h3" tone="primary">{curLine(totals.all)}</Text>} />
-              {catRows.map((c, i) => (
-                <View key={c.id} style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 5, borderTopWidth: i === 0 ? 0 : 1, borderTopColor: colors.border }}>
-                  <Badge label={catLabel(c.id === 'uncategorized' ? '' : (c.id as MiscCat))} tone={CAT_TONE[c.id]} />
-                  <Text variant="bodyMedium">{curLine(c.byCur)}</Text>
-                </View>
-              ))}
-            </Card>
+            <View>
+              <Card style={{ marginBottom: 12 }}>
+                <SectionHeader title="Totals" subtitle={`${rows.length} invoice(s)`} />
+                {/* Web renders BOTH currency rows explicitly, always — with the
+                    weight sum beside the amount, at 2 decimals (not $K/$M). */}
+                <TotalRow label="Total $" qnty={totals.usd.qnty} amount={totals.usd.amount} sym="$" first />
+                <TotalRow label="Total €" qnty={totals.eur.qnty} amount={totals.eur.amount} sym="€" />
+                {catRows.map((c) => (
+                  <View key={c.id} style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 5, borderTopWidth: 1, borderTopColor: colors.border }}>
+                    <Badge label={catLabel(c.id === 'uncategorized' ? '' : (c.id as MiscCat))} tone={CAT_TONE[c.id]} />
+                    <Text variant="bodyMedium">{curLine(c.byCur)}</Text>
+                  </View>
+                ))}
+              </Card>
+
+              {/* Summary — unpaid invoices, per supplier (web's first summary card). */}
+              {totals.bySupplierUnpaid.length > 0 && (
+                <SupplierSummary title="Unpaid invoices" groups={totals.bySupplierUnpaid} totals={totals.unpaid} />
+              )}
+              {/* Summary — all invoices, per supplier (web's second summary card). */}
+              {totals.bySupplier.length > 0 && (
+                <SupplierSummary title="Summary — all" groups={totals.bySupplier} totals={totals.all} />
+              )}
+            </View>
           }
           renderItem={({ item }) => (
             <Card style={{ marginBottom: 10 }} onPress={() => setEditing(item)}>
@@ -154,5 +169,66 @@ export default function MiscInvoices() {
         </View>
       </Modal>
     </Screen>
+  );
+}
+
+// Explicit per-currency total row — web shows amount at 2 decimals (never $K/$M)
+// alongside the weight sum for that currency.
+function TotalRow({ label, qnty, amount, sym, first }: { label: string; qnty: number; amount: number; sym: string; first?: boolean }) {
+  const { colors } = useTheme();
+  return (
+    <View
+      style={{
+        flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
+        paddingVertical: 6, borderTopWidth: first ? 0 : 1, borderTopColor: colors.border,
+      }}
+    >
+      <Text variant="bodyMedium">{label}</Text>
+      <View style={{ flexDirection: 'row', gap: 14 }}>
+        <Text variant="body" tone="muted" style={{ fontVariant: ['tabular-nums'] }}>
+          {new Intl.NumberFormat('en-US', { maximumFractionDigits: 3 }).format(qnty || 0)}
+        </Text>
+        <Text variant="bodyMedium" tone="primary" style={{ fontVariant: ['tabular-nums'] }}>
+          {sym}{fmtMoney(amount)}
+        </Text>
+      </View>
+    </View>
+  );
+}
+
+// Per-supplier × currency summary card (web's two "Summary" tables).
+function SupplierSummary({
+  title, groups, totals,
+}: {
+  title: string;
+  groups: { supplier: string; byCur: Record<string, number> }[];
+  totals: Record<string, number>;
+}) {
+  const { colors } = useTheme();
+  const line = (byCur: Record<string, number>) =>
+    Object.entries(byCur)
+      .filter(([, v]) => Math.abs(v) > 0.005)
+      .map(([c, v]) => `${curSymbol(c)}${fmtMoney(v)}`)
+      .join('  ') || '$0.00';
+  return (
+    <Card style={{ marginBottom: 12 }}>
+      <Text variant="label" tone="muted" style={{ marginBottom: 8 }}>{title}</Text>
+      {groups.map((g, i) => (
+        <View
+          key={g.supplier}
+          style={{
+            flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
+            paddingVertical: 6, borderTopWidth: i === 0 ? 0 : 1, borderTopColor: colors.border,
+          }}
+        >
+          <Text variant="body" numberOfLines={1} style={{ flex: 1 }}>{g.supplier}</Text>
+          <Text variant="bodyMedium" style={{ fontVariant: ['tabular-nums'] }}>{line(g.byCur)}</Text>
+        </View>
+      ))}
+      <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingTop: 8, marginTop: 4, borderTopWidth: 1, borderTopColor: colors.border }}>
+        <Text variant="bodyMedium">Total</Text>
+        <Text variant="bodyMedium" tone="primary" style={{ fontVariant: ['tabular-nums'] }}>{line(totals)}</Text>
+      </View>
+    </Card>
   );
 }
