@@ -964,18 +964,21 @@ export const SharedStockDetails = ({ rows, settings }) => {
     });
     return (
         <div className="w-full border border-[var(--border-divider)] rounded-2xl overflow-hidden bg-[var(--surface-card)]">
-            {/* No overflow-x: the fixed proportional layout always fits the card, long
-                text truncates with the hover popup instead — no horizontal slider. */}
-            <div className="max-h-[30rem] overflow-y-auto overflow-x-hidden">
-                <table className="cashflow-detail-table w-full table-fixed">
+            {/* overflow-x-auto + a min table width: on normal screens the proportional
+                layout fits the card (no slider); on small screens the table keeps a
+                readable minimum and a horizontal scroller appears only then. */}
+            <div className="max-h-[30rem] overflow-y-auto overflow-x-auto">
+                <table className="cashflow-detail-table w-full table-fixed min-w-[640px]">
                     <thead>
                         <tr>
-                            <th className="text-left" style={{ width: '30%' }}>Material</th>
-                            <th className="text-left" style={{ width: '20%' }}>Warehouse</th>
-                            <th className="text-left" style={{ width: '11%' }}>Quantity</th>
-                            <th className="text-left" style={{ width: '13%' }}>Unit Price</th>
-                            <th className="text-left" style={{ width: '11%' }}>Financed by</th>
-                            <th className="text-right" style={{ width: '15%' }}>Total</th>
+                            {/* Text columns kept tight per client — the hover popup shows the
+                                full material/warehouse name, so truncation costs nothing. */}
+                            <th className="text-left" style={{ width: '22%' }}>Material</th>
+                            <th className="text-left" style={{ width: '15%' }}>Warehouse</th>
+                            <th className="text-left" style={{ width: '13%' }}>Quantity</th>
+                            <th className="text-left" style={{ width: '15%' }}>Unit Price</th>
+                            <th className="text-left" style={{ width: '15%' }}>Financed by</th>
+                            <th className="text-right" style={{ width: '20%' }}>Total</th>
                         </tr>
                     </thead>
                     <tbody>
