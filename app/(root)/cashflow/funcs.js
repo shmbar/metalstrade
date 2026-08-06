@@ -964,18 +964,18 @@ export const SharedStockDetails = ({ rows, settings }) => {
     });
     return (
         <div className="w-full border border-[var(--border-divider)] rounded-2xl overflow-hidden bg-[var(--surface-card)]">
-            <div className="max-h-[30rem] overflow-y-auto overflow-x-auto">
-                {/* table-fixed with proportional widths: auto layout squeezed Material,
-                    stretched Warehouse and pushed Total out of view on wide screens. */}
+            {/* No overflow-x: the fixed proportional layout always fits the card, long
+                text truncates with the hover popup instead — no horizontal slider. */}
+            <div className="max-h-[30rem] overflow-y-auto overflow-x-hidden">
                 <table className="cashflow-detail-table w-full table-fixed">
                     <thead>
                         <tr>
-                            <th className="text-left" style={{ width: '27%' }}>Material</th>
-                            <th className="text-left" style={{ width: '23%' }}>Warehouse</th>
+                            <th className="text-left" style={{ width: '30%' }}>Material</th>
+                            <th className="text-left" style={{ width: '20%' }}>Warehouse</th>
                             <th className="text-left" style={{ width: '11%' }}>Quantity</th>
                             <th className="text-left" style={{ width: '13%' }}>Unit Price</th>
-                            <th className="text-left" style={{ width: '12%' }}>Financed by</th>
-                            <th className="text-right" style={{ width: '14%' }}>Total</th>
+                            <th className="text-left" style={{ width: '11%' }}>Financed by</th>
+                            <th className="text-right" style={{ width: '15%' }}>Total</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -1014,9 +1014,9 @@ export const SharedStockDetails = ({ rows, settings }) => {
                                 <NumericFormat value={(rows || []).reduce((s, r) => s + (parseFloat(r.qnty) || 0), 0)}
                                     displayType="text" thousandSeparator decimalScale='3' fixedDecimalScale />
                             </th>
-                            <th></th>
-                            <th className="text-left whitespace-nowrap">
-                                IMS {showAmount(fin.IMS, 'usd')} · GIS {showAmount(fin.GIS, 'usd')}
+                            <th className="text-left whitespace-nowrap leading-4" colSpan={2}>
+                                <div>IMS {showAmount(fin.IMS, 'usd')}</div>
+                                <div>GIS {showAmount(fin.GIS, 'usd')}</div>
                             </th>
                             <th className="text-right">
                                 {showAmount((rows || []).reduce((s, r) => s + valOf(r), 0), 'usd')}
