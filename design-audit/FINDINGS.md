@@ -1319,3 +1319,55 @@ wearing three hats: **a z-index chosen without asking which stacking context it
 lands in.** Gate 6 cannot see any of them — it forbids `z-[123]` but says
 nothing about `z-sticky` on the wrong element, and nothing about the 46 raw
 Tailwind `z-10`/`z-20` classes still in the tree. The sweep is still open.
+
+---
+
+## Batch 23 — the calendar, and a theme that existed twice
+
+Zak: *"font size of calender is not match to rest app theme… do we need
+improvement here"*. Yes — a small but real one.
+
+| ID | Cat | Where | What's wrong | Sev | Status |
+|----|-----|-------|--------------|-----|--------|
+| 110 | C2 | `globals.css` + `dateRangePicker.js` | The calendar's day cells and shortcut list were `--fs-input` (13px) while its own weekday row, month nav **and the input that opens it** were all `--fs-body` (12px). The surface disagreed with itself and with its trigger. | Low | Fixed |
+| 111 | — | `components/dateRangePicker.js` | The **entire datepicker theme exists twice** — once in `globals.css` and once as a `<style jsx global>` block in the wrapper. The inline copy is injected later, so it wins. | Medium | Documented |
+
+### Measured
+
+```
+BEFORE   trigger 12px · weekday row 12/600 · month nav 12/400 · days + shortcuts 13/400
+AFTER    contracts / invoices / expenses   12/400 x48, 12/600 x7   card radius 20px
+         accstatement                      12/400 x44, 12/600 x7   card radius 20px
+```
+
+12px rather than the 10–11px used by toolbars and table cells: a date grid is a
+target you click, and matching the trigger is the meaningful consistency here.
+
+### 111 — why the first fix only worked on one page
+
+Fixing `globals.css` alone moved **accstatement** to 12px and left contracts and
+invoices at 13px, on identical CSS. The reason took a CDP query to pin down —
+Chrome reported *two* matching `!important` rules on the same day cell:
+
+```
+!  var(--fs-body)!important     .flex.items-center.justify-center…   (globals.css, minified)
+!  var(--fs-input) !important   .flex.items-center.justify-center…   (styled-jsx, NOT minified)
+```
+
+The unminified one gave it away: it comes from a `<style jsx global>` block
+inside `components/dateRangePicker.js`, which duplicates the whole datepicker
+theme. `accstatement` renders a raw `<Datepicker>` and never loads that wrapper,
+so it saw only `globals.css` — which is exactly why the two pages diverged.
+
+Both copies are now on `--fs-body`, **but the duplication itself is still there**
+and is a trap: any future datepicker change made in one place will silently fail
+on half the app. Worth collapsing to one source — not done here, because it is a
+refactor rather than a visual fix.
+
+### Method note
+
+Three rounds of "the rule is in the CSS, the element matches the selector, and
+it still computes 13px" were resolved not by reading more CSS but by asking the
+browser directly (`CSS.getMatchedStylesForNode` over CDP). When a rule provably
+matches and provably loses, stop reading source and get the cascade from the
+engine.

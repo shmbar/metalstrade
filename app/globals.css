@@ -795,6 +795,13 @@ div.relative.w-full.text-gray-700 > div.absolute.z-10:not(.right-0) > div.absolu
   z-index: 9999 !important;
 }
 
+/* One rung for the whole calendar — the shortcut list ("Today", "This month").
+   The day cells and weekday row are handled by the class-pinned rules further
+   down, which is where the library's own sizes have to be overridden. */
+.z-page-popover > div[class*="absolute"] li {
+  font-size: var(--fs-body) !important;
+}
+
 /* Hide the last row (6th week) in the calendar grid — only shows next-month dates */
 .grid.grid-cols-7.gap-y-0\.5.my-1 > div:nth-child(n+36) {
   display: none !important;
@@ -832,7 +839,12 @@ div.relative.w-full.text-gray-700 > div.absolute.z-10:not(.right-0) > div.absolu
 .flex.items-center.justify-center.w-10.h-10,
 .flex.items-center.justify-center.lg\:w-10.lg\:h-10 {
   border-radius: 999px !important;
-  font-size: var(--fs-input) !important;
+  /* --fs-body, not --fs-input. The day numbers were the one part of the calendar
+     a rung above the rest: the weekday row above them is already --fs-body, and
+     so is the input that opens the picker. A date grid stays legible at 12px, so
+     matching the trigger is the right resolution rather than raising everything
+     else to 13. */
+  font-size: var(--fs-body) !important;
 }
 .flex.items-center.justify-center.w-12.h-12:hover,
 .flex.items-center.justify-center.lg\:w-10.lg\:h-10:hover {

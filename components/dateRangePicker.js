@@ -128,7 +128,12 @@ const DateRangePicker = ({ displayLabel }) => {
             .flex.items-center.justify-center.w-10.h-10,
             .flex.items-center.justify-center.lg\\:w-10.lg\\:h-10 {
                 border-radius: 999px !important;
-                font-size: var(--fs-input) !important;
+                /* --fs-body, matching the weekday row above and the input that opens
+                   the picker. This block is a styled-jsx copy of the datepicker theme
+                   in globals.css; because it is injected later it WINS, so fixing only
+                   globals.css changed the raw <Datepicker> on accstatement and left
+                   every page using this wrapper still on 13px. */
+                font-size: var(--fs-body) !important;
             }
             .flex.items-center.justify-center.w-12.h-12:hover,
             .flex.items-center.justify-center.lg\\:w-10.lg\\:h-10:hover {
@@ -151,7 +156,7 @@ const DateRangePicker = ({ displayLabel }) => {
             .whitespace-nowrap.lg\\:w-auto.transition-all.duration-300.hover\\:bg-gray-100.p-2.rounded {
                 border-radius: 999px !important;
                 color: var(--endeavour) !important;
-                font-size: var(--fs-input) !important;
+                font-size: var(--fs-body) !important;   /* one rung for the whole calendar */
             }
             .whitespace-nowrap.w-1\\/2.transition-all.duration-300.hover\\:bg-gray-100.p-2.rounded:hover,
             .whitespace-nowrap.lg\\:w-auto.transition-all.duration-300.hover\\:bg-gray-100.p-2.rounded:hover {
