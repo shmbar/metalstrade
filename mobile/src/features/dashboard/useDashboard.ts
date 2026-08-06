@@ -51,6 +51,18 @@ export interface DashboardData {
   cogsByMonth: number[];
   expensesByMonth: number[];
   profitByMonth: number[];
+  /** deal-basis sales revenue — the basis Net Profit uses (web Capital Breakdown) */
+  dealRevenue: number;
+  dealRevenueByMonth: number[];
+  pendingMT: number;
+  avgCostPerMT: number;
+  avgExpensePerMT: number;
+  avgFreightPerMT: number;
+  materialSold: { name: string; value: number }[];
+  miscByCat: { name: string; amount: number; count: number }[];
+  dueCount: number;
+  balanceCount: number;
+  consignees: { name: string; value: number }[];
   expByType: { name: string; value: number }[];
 }
 
@@ -108,9 +120,12 @@ export function useDashboard() {
     enriched.forEach((c) => {
       const pv = contractPurchaseValue(c, { base: 'us' });
       Object.entries(pv.byCur).forEach(([cur, v]) => (purchaseByCur[cur] = (purchaseByCur[cur] || 0) + v));
-      // import-flagged rows are breakdown/merge helpers, not PO lines — web excludes
-      // them from every quantity roll-up, so counting them doubled the dashboard MT.
-      (c.productsData || []).filter((p: any) => !p?.import).forEach((p) => {
+      // Web's DASHBOARD counts EVERY productsData row — its contracts page filters
+      // import-flagged breakdown helpers, the dashboard does not. Mobile filtered
+      // them, so MT Purchased read 2,407 against web's 3,178 and, worse, the smaller
+      // soldFrac denominator inflated COGS and shrank Unsold Stock. Matching web so
+      // the whole dashboard ties out; the inconsistency is web's own (recorded).
+      (c.productsData || []).forEach((p) => {
         totalMT += toMT(num(p.qnty), c, settings);
       });
       const supName =
@@ -156,6 +171,9 @@ export function useDashboard() {
     const recv = financeReceivables(recvInvoices, { asOf: new Date(), termDays });
     const aging = agingBuckets(recvInvoices, { asOf: new Date() });
 
+    // Misc invoices by CATEGORY — web shows shipments/personal/random/uncategorized
+    // amounts, counts and share.
+    const miscByCat: Record<string, { amount: number; count: number }> = {};
     const miscByCur: Record<string, number> = {};
     misc.forEach((r: any) => {
       const cur = r.cur || 'us';
@@ -200,6 +218,27 @@ export function useDashboard() {
       cogsByMonth: pnl.cogsByMonth,
       expensesByMonth: pnl.expensesByMonth,
       profitByMonth,
+      dealRevenue: pnl.dealRevenue,
+      dealRevenueByMonth: pnl.dealRevenueByMonth,
+      pendingMT: Math.max(0, pnl.totalMT - pnl.shippedMT),
+      avgCostPerMT: pnl.totalMT > 0 ? pnl.purchaseByMonth.reduce((a, b) => a + b, 0) / pnl.totalMT : 0,
+      avgExpensePerMT: pnl.totalMT > 0 ? pnl.expensesTotal / pnl.totalMT : 0,
+      avgFreightPerMT: pnl.totalMT > 0 ? pnl.freightTotal / pnl.totalMT : 0,
+      miscByCat: Object.entries(miscByCat)
+        .map(([name, v]) => ({ name, ...v }))
+        .sort((a, b) => b.amount - a.amount),
+      // Live alerts — web pills. Counts come straight off the receivables slots.
+      dueCount: Object.values(recv.byCur).reduce((s2, x) => s2 + (x.dueCount || 0), 0),
+      balanceCount: Object.values(recv.byCur).reduce((s2, x) => s2 + (x.balanceCount || 0), 0),
+      consignees: Object.entries(pnl.clientTotals)
+        .map(([name, value]) => ({ name, value }))
+        .sort((a, b) => b.value - a.value)
+        .slice(0, 8),
+      materialSold: Object.entries(pnl.materialSold)
+        .map(([name, value]) => ({ name, value }))
+        .filter((r) => r.value > 0.0005)
+        .sort((a, b) => b.value - a.value)
+        .slice(0, 8),
       expByType: Object.entries(pnl.expByType)
         .map(([name, value]) => ({ name, value }))
         .sort((a, b) => b.value - a.value)

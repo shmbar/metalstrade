@@ -51,9 +51,36 @@ export function sumInvProductsMT(invoicesData: any[]): number {
   return mt;
 }
 
+// DEAL-BASIS revenue for one contract — port of web dashboard/funcs.js Total().
+// This is the series web's Net Profit is built from, and it is NOT the same as the
+// invoice-dated Sales Revenue KPI on the same page:
+//   • attributed to the CONTRACT's month, at the CONTRACT's rate
+//   • drafts AND canceled excluded (unlike sumInvProductsMT, which drops only canceled)
+//   • a group of ONE counts whatever it is — a lone Credit/Final note means the
+//     original was issued in a previous period, and skipping it used to drop every
+//     deal that finalized this year.
+export function dealRevenue(invoicesData: any[], mult: number, settings: any): number {
+  let acc = 0;
+  (invoicesData || []).forEach((group) => {
+    if (!Array.isArray(group)) return;
+    group.forEach((obj: any) => {
+      if (!obj || isNaN(obj.totalAmount)) return;
+      const currentCur = !obj.final
+        ? obj.cur
+        : settings?.Currency?.Currency?.find((x: any) => x.cur === obj.cur?.cur)?.id;
+      const mltTmp = currentCur === 'us' ? 1 : mult;
+      const val = obj.canceled || obj.draft === true ? 0 : obj.totalAmount * 1 * mltTmp;
+      const isOriginal = ['1111', 'Invoice'].includes(obj.invType);
+      acc += group.length === 1 || !isOriginal ? val : 0;
+    });
+  });
+  return acc;
+}
+
 export interface PnlResult {
-  /** Σ contractPurchase — deal-basis, by contract month */
-  revenueByMonth: number[];
+  /** deal-basis SALES revenue by contract month — the series Net Profit uses */
+  dealRevenueByMonth: number[];
+  dealRevenue: number;
   purchaseByMonth: number[];
   cogsByMonth: number[];
   expensesByMonth: number[];
@@ -70,17 +97,21 @@ export interface PnlResult {
   expByType: Record<string, number>;
   materialSold: Record<string, number>;
   supplierTotals: Record<string, number>;
+  /** consignee (client) ranking — web accumulatedTop5Cus */
+  clientTotals: Record<string, number>;
 }
 
 // `contracts` must already be enriched with grouped `invoicesData`.
 export function computePnl(contracts: any[], settings: any, companyRate: number): PnlResult {
   const z12 = () => Array(12).fill(0);
   const purchaseByMonth = z12();
+  const dealRevenueByMonth = z12();
   const cogsByMonth = z12();
   const expensesByMonth = z12();
   const storageByMonth = z12();
 
   const supplierTotals: Record<string, number> = {};
+  const clientTotals: Record<string, number> = {};
   const expByType: Record<string, number> = {};
   const materialSold: Record<string, number> = {};
 
@@ -118,16 +149,43 @@ export function computePnl(contracts: any[], settings: any, companyRate: number)
     const supName = settings?.Supplier?.Supplier?.find((s: any) => s.id === x.supplier)?.nname || x.supplier || '—';
     supplierTotals[supName] = (supplierTotals[supName] || 0) + contractPurchase;
 
-    // Contract tonnage, unit-converted. NOTE: web's dashboard does not exclude
-    // import-flagged rows here (its contracts page does) — mobile excludes them for
-    // consistency with the rest of the app; see the tonnage note in the commit log.
+    // Contract tonnage, unit-converted. Web's DASHBOARD counts every productsData
+    // row, including import-flagged breakdown helpers that its contracts page
+    // excludes. Mobile used to filter them, which made MT Purchased read low AND
+    // shrank the soldFrac denominator — inflating COGS and shrinking Unsold Stock.
+    // Matching web here so every dashboard figure ties out; the inconsistency is
+    // web's and is recorded as a web bug rather than silently diverged from.
     const qUnit = settings?.Quantity?.Quantity?.find((q: any) => q.id === x.qTypeTable)?.qTypeTable;
     const mtFactor = qUnit === 'KGS' ? 0.001 : qUnit === 'LB' ? 0.0005 : 1;
     let contractTotalMT = 0;
-    (x.productsData || []).filter((p: any) => !p?.import).forEach((p: any) => {
+    (x.productsData || []).forEach((p: any) => {
       contractTotalMT += num(p.qnty) * mtFactor;
     });
     totalMT += contractTotalMT;
+
+    dealRevenueByMonth[m] += dealRevenue(x.invoicesData, mult, settings);
+
+    // Consignee ranking: same counting rule as dealRevenue, attributed per group
+    // to the client the invoice was billed to.
+    (x.invoicesData || []).forEach((group: any[]) => {
+      if (!Array.isArray(group)) return;
+      let acc = 0;
+      let clnt = '';
+      group.forEach((obj: any) => {
+        if (!obj || isNaN(obj.totalAmount)) return;
+        const currentCur = !obj.final
+          ? obj.cur
+          : settings?.Currency?.Currency?.find((c: any) => c.cur === obj.cur?.cur)?.id;
+        clnt = !obj.final
+          ? settings?.Client?.Client?.find((c: any) => c.id === obj.client)?.nname
+          : obj.client?.nname;
+        const mltTmp = currentCur === 'us' ? 1 : mult;
+        const val = obj.canceled || obj.draft === true ? 0 : obj.totalAmount * 1 * mltTmp;
+        const isOriginal = ['1111', 'Invoice'].includes(obj.invType);
+        acc += group.length === 1 || !isOriginal ? val : 0;
+      });
+      if (clnt) clientTotals[clnt] = (clientTotals[clnt] || 0) + acc;
+    });
 
     const contractShipped = sumInvProductsMT(x.invoicesData);
     shippedMT += contractShipped;
@@ -163,7 +221,8 @@ export function computePnl(contracts: any[], settings: any, companyRate: number)
   });
 
   return {
-    revenueByMonth: purchaseByMonth, // alias kept for callers reading deal-basis value
+    dealRevenueByMonth,
+    dealRevenue: dealRevenueByMonth.reduce((s2, v) => s2 + v, 0),
     purchaseByMonth,
     cogsByMonth,
     expensesByMonth,
@@ -179,5 +238,6 @@ export function computePnl(contracts: any[], settings: any, companyRate: number)
     expByType,
     materialSold,
     supplierTotals,
+    clientTotals,
   };
 }

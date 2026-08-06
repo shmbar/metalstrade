@@ -4,7 +4,7 @@ import { router, Redirect } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { StatCard, Text, Card, AreaChart, SectionHeader, SkeletonList, ErrorState } from '@/components/ui';
+import { StatCard, Text, Card, AreaChart, ProgressBar, SectionHeader, SkeletonList, ErrorState } from '@/components/ui';
 import { PeriodSelector } from '@/components/PeriodSelector';
 import { useTheme } from '@/theme/ThemeProvider';
 import { useAuth } from '@/store/auth';
@@ -236,6 +236,103 @@ export default function Dashboard() {
                 </View>
               </View>
 
+              {/* Live alerts — web's pill row. Counts come off the receivables slots. */}
+              {(data.dueCount > 0 || data.balanceCount > 0) && (
+                <View style={{ flexDirection: 'row', gap: 8, flexWrap: 'wrap' }}>
+                  {data.dueCount > 0 && (
+                    <Pressable
+                      onPress={() => router.push('/(app)/invoices?filter=Unpaid')}
+                      style={{ flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 12, paddingVertical: 7, borderRadius: 999, backgroundColor: colors.surfaceAlt, borderWidth: 1, borderColor: colors.negative }}
+                    >
+                      <Ionicons name="alert-circle-outline" size={14} color={colors.negative} />
+                      <Text variant="caption" style={{ color: colors.negative }}>Due invoices {data.dueCount}</Text>
+                    </Pressable>
+                  )}
+                  {data.balanceCount > 0 && (
+                    <Pressable
+                      onPress={() => router.push('/(app)/invoices?filter=Unpaid')}
+                      style={{ flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 12, paddingVertical: 7, borderRadius: 999, backgroundColor: colors.surfaceAlt, borderWidth: 1, borderColor: colors.warn }}
+                    >
+                      <Ionicons name="time-outline" size={14} color={colors.warn} />
+                      <Text variant="caption" style={{ color: colors.warn }}>Balance invoices {data.balanceCount}</Text>
+                    </Pressable>
+                  )}
+                </View>
+              )}
+
+              {/* Tonnage — purchased vs shipped vs pending (web's Tonnage card). */}
+              <Card>
+                <SectionHeader
+                  title="Tonnage — purchased vs shipped"
+                  subtitle={`${data.totalMT > 0 ? Math.round((data.shippedMT / data.totalMT) * 100) : 0}% shipped`}
+                />
+                <View style={{ flexDirection: 'row', gap: 10 }}>
+                  {[
+                    { k: 'Purchased', v: data.totalMT, c: colors.primary },
+                    { k: 'Shipped', v: data.shippedMT, c: colors.positive },
+                    { k: 'Pending', v: data.pendingMT, c: colors.warn },
+                  ].map((t) => (
+                    <View key={t.k} style={{ flex: 1, borderRadius: radius.lg, borderWidth: 1, borderColor: colors.border, padding: 10 }}>
+                      <Text variant="caption" tone="muted">{t.k}</Text>
+                      <Text variant="bodyMedium" numberOfLines={1} style={{ marginTop: 2, color: t.c, fontVariant: ['tabular-nums'] }}>
+                        {fmtMT(t.v)}
+                      </Text>
+                    </View>
+                  ))}
+                </View>
+              </Card>
+
+              {/* Capital breakdown — how deal-basis revenue was allocated. */}
+              <Card>
+                <SectionHeader title="Capital breakdown" subtitle={`Revenue ${fmtAutoKM(data.dealRevenue)} · sold basis`} />
+                {[
+                  { k: 'Cost of Goods Sold', v: data.cogs, c: colors.primary },
+                  { k: 'Other Expenses', v: data.expensesTotal, c: colors.warn },
+                  { k: 'Net Profit', v: data.netProfit, c: data.netProfit >= 0 ? colors.positive : colors.negative },
+                ].map((r, i) => {
+                  const pct = data.dealRevenue > 0 ? (r.v / data.dealRevenue) * 100 : 0;
+                  return (
+                    <View key={r.k} style={{ paddingVertical: 6, borderTopWidth: i === 0 ? 0 : 1, borderTopColor: colors.border, gap: 4 }}>
+                      <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                        <Text variant="body" tone="muted">{r.k}</Text>
+                        <Text variant="bodyMedium" style={{ color: r.c, fontVariant: ['tabular-nums'] }}>{fmtAutoKM(r.v)}</Text>
+                      </View>
+                      <ProgressBar pct={Math.max(0, Math.min(100, pct))} color={r.c} height={7} />
+                    </View>
+                  );
+                })}
+              </Card>
+
+              {/* Per-MT unit economics (web's Per-MT Metrics strip). */}
+              <Card>
+                <SectionHeader title="Per-MT metrics" subtitle="Unit economics for the period" />
+                {[
+                  { k: 'Total MT purchased', v: fmtMT(data.totalMT) },
+                  { k: 'Avg cost / MT', v: fmtAutoKM(data.avgCostPerMT) },
+                  { k: 'Avg expense / MT', v: fmtAutoKM(data.avgExpensePerMT) },
+                  { k: 'Avg freight / MT', v: fmtAutoKM(data.avgFreightPerMT) },
+                  { k: 'Avg profit / MT', v: fmtAutoKM(data.avgProfitPerMT) },
+                ].map((r, i) => (
+                  <View
+                    key={r.k}
+                    style={{ flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 6, borderTopWidth: i === 0 ? 0 : 1, borderTopColor: colors.border }}
+                  >
+                    <Text variant="body" tone="muted">{r.k}</Text>
+                    <Text variant="bodyMedium" style={{ fontVariant: ['tabular-nums'] }}>{r.v}</Text>
+                  </View>
+                ))}
+              </Card>
+
+              {/* Most-sold material — tonnage attributed by each contract's sold fraction. */}
+              {data.materialSold.length > 0 && (
+                <RankingCard
+                  title="Most-sold material"
+                  subtitle="By tonnage sold this period"
+                  rows={data.materialSold.map((r) => ({ name: r.name, value: r.value }))}
+                  format={(v: number) => fmtMT(v)}
+                />
+              )}
+
               {/* Expenses by type — web's breakdown card. */}
               {data.expByType.length > 0 && (
                 <Card>
@@ -262,7 +359,32 @@ export default function Dashboard() {
                 <StatCard label="Misc Invoices · not linked to contracts" value={curLine(data.miscByCur)} accent="#db2777" icon={<Ionicons name="receipt" size={16} color="#db2777" />} sub={`${data.miscCount} invoice${data.miscCount === 1 ? '' : 's'} in period`} onPress={() => router.push('/(app)/misc-invoices')} />
               )}
 
+              {/* Misc invoices by category — web's 4-way breakdown. */}
+              {data.miscByCat.length > 0 && (
+                <Card>
+                  <SectionHeader title="Misc invoices by category" subtitle={`${data.miscCount} invoice(s) in period`} />
+                  {data.miscByCat.map((c, i) => {
+                    const total = data.miscByCat.reduce((a, b) => a + b.amount, 0);
+                    const share = total > 0 ? (c.amount / total) * 100 : 0;
+                    return (
+                      <View key={c.name} style={{ paddingVertical: 6, borderTopWidth: i === 0 ? 0 : 1, borderTopColor: colors.border }}>
+                        <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                          <Text variant="body" style={{ textTransform: 'capitalize' }}>{c.name}</Text>
+                          <Text variant="bodyMedium" style={{ fontVariant: ['tabular-nums'] }}>{fmtAutoKM(c.amount)}</Text>
+                        </View>
+                        <Text variant="caption" tone="faint">{c.count} inv · {share.toFixed(0)}%</Text>
+                      </View>
+                    );
+                  })}
+                </Card>
+              )}
+
               <RankingCard title="Top Suppliers" subtitle="By purchase value (USD basis)" rows={data.topSuppliers} onPress={() => router.push('/(app)/contracts')} />
+
+              {/* Consignees — web's second ranking list, by client sales volume. */}
+              {data.consignees.length > 0 && (
+                <RankingCard title="Consignees" subtitle="By client sales volume" rows={data.consignees} onPress={() => router.push('/(app)/invoices')} />
+              )}
             </View>
           ) : null}
         </View>

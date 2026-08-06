@@ -141,11 +141,14 @@ export function RankingCard({
   subtitle,
   rows,
   onPress,
+  format,
 }: {
   title: string;
   subtitle?: string;
   rows: { name: string; value: number }[];
   onPress?: () => void;
+  /** value renderer — defaults to compact USD */
+  format?: (v: number) => string;
 }) {
   const palette = ['#38BDF8', '#4F46E5', '#1477C0', '#7C6FE0', '#0A5EA8', '#6366F1'];
   const max = Math.max(...rows.map((r) => r.value), 1);
@@ -183,7 +186,7 @@ export function RankingCard({
                 <ProgressBar pct={(r.value / max) * 100} color={color} height={12} />
               </View>
               <Text variant="caption" style={{ fontFamily: 'Inter_600SemiBold', width: 64, textAlign: 'right' }}>
-                {fmtAutoKM(r.value)}
+                {format ? format(r.value) : fmtAutoKM(r.value)}
               </Text>
             </View>
           );
