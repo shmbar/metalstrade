@@ -971,3 +971,19 @@ div.relative.w-full.text-gray-700 > div.absolute.z-10:not(.right-0) > div.absolu
 }
 
 /******************************************/
+
+/* ========== Command palette group headings ========== */
+/* These styles used to sit on <Command.Group>, which wraps the ITEMS — and
+   text-transform and font-weight inherit, so every entry in the palette
+   rendered UPPERCASE SEMIBOLD at 14px when the source only ever set a
+   sentence-case label. Moving them here scopes them to the heading alone.
+   A plain rule rather than a Tailwind arbitrary variant: `[&_...]:` variants
+   only compose real utilities, so `[&_[cmdk-group-heading]]:responsiveTextTableTitle`
+   silently generated nothing and left the heading at the 16px default. */
+[cmdk-group-heading] {
+  font-size: var(--fs-caption);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+  color: var(--regent-gray);
+}
