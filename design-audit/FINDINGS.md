@@ -1285,3 +1285,37 @@ it did before.
 20 sticky · 50 page-popover · 80 appbar · 100 modal · 200 modal-nested
 250 dropdown · 260 popover · 300 toast · 400 tooltip · 500 command
 ```
+
+---
+
+## Batch 22 — the marketing hero painting over its own navbar
+
+Zak, on the public site: *"see text on nabar why?"* — the hero headline and the
+dashboard mockup were drawn straight across the nav bar.
+
+| ID | Cat | Where | What's wrong | Sev | Status |
+|----|-----|-------|--------------|-----|--------|
+| 109 | C5 | `components/Navbar/navbar.jsx` | The marketing nav was `fixed … z-sticky` (20). The hero's own container is `relative z-20`. A tie — and the hero, later in the DOM, won, so page content painted over the fixed chrome. | **High** | Fixed |
+
+The identical mistake to finding 108, on the other half of the app and found one
+message later: chrome parked on `--z-sticky`, which is the rung for *page*
+furniture, not for the bar that floats above it. Fixed the same way —
+`--z-appbar` (80).
+
+```
+Home      navZ=80  covered 0/5
+About     navZ=80  covered 0/5
+Features  navZ=80  covered 0/5
+Blog      navZ=80  covered 0/5
+```
+
+Both halves of the app now agree: the fixed bar is `--z-appbar`, everything the
+page scrolls is at or below `--z-sticky`.
+
+### This is the third stacking report in a row
+
+108 (app bar), 109 (marketing bar) and 092 (datepicker wrapper) are one defect
+wearing three hats: **a z-index chosen without asking which stacking context it
+lands in.** Gate 6 cannot see any of them — it forbids `z-[123]` but says
+nothing about `z-sticky` on the wrong element, and nothing about the 46 raw
+Tailwind `z-10`/`z-20` classes still in the tree. The sweep is still open.
