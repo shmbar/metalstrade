@@ -33,6 +33,7 @@ export default function InvoiceEdit() {
   const [shpType, setShpType] = useState<string>(view?.raw.shpType || '');
   const [delDate, setDelDate] = useState<string | null>((view?.raw.delDate as any)?.startDate || null);
   const [lines, setLines] = useState<any[]>(() => (view?.raw.productsDataInvoice || []).map((p: any) => ({ ...p })));
+  const [removedIds, setRemovedIds] = useState<string[]>([]);
 
   if (!view) {
     return (
@@ -56,7 +57,14 @@ export default function InvoiceEdit() {
       return arr;
     });
   const addLine = () => setLines((p) => [...p, { id: newId(), description: '', descriptionId: '', qnty: '', unitPrc: '', total: 0 }]);
-  const removeLine = (i: number) => setLines((p) => p.filter((_, k) => k !== i));
+  // Removing a line must also delete its stock doc on save (web delStock), so track
+  // the ids that were present when the form opened and have since gone.
+  const removeLine = (i: number) =>
+    setLines((p) => {
+      const gone = p[i];
+      if (gone?.id) setRemovedIds((r) => (r.includes(gone.id) ? r : [...r, gone.id]));
+      return p.filter((_, k) => k !== i);
+    });
   const total = lines.reduce((s, p) => s + num(p.total), 0);
 
   const round2 = (n: number) => Math.round((Number(n) || 0) * 100) / 100;
@@ -103,6 +111,8 @@ export default function InvoiceEdit() {
           totalPrepayment,
           balanceDue,
         },
+        raw,
+        removedLineIds: removedIds,
       });
       hapticSuccess();
       router.back();

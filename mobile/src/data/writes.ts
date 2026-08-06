@@ -627,6 +627,24 @@ export async function syncSpecialInvoicesPaidStatus(
   }
 }
 
+// Roll settled line totals up to each purchase invoice they belong to, so the
+// invoice's value (and therefore its balance) reflects the final settlement —
+// port of finalSettlmentModal.js settledByInv/newPoInvoices. Only runs when the
+// settlement is CONFIRMED (draft off); a draft must not move supplier balances.
+export function buildSettledPoInvoices(valueCon: Contract, data: any[]): any[] {
+  const settledByInv: Record<string, number> = {};
+  data.forEach((x: any) => {
+    if (!x.poInvoice) return;
+    settledByInv[x.poInvoice] = (settledByInv[x.poInvoice] || 0) + (parseFloat(x.finaltotal) || 0);
+  });
+  return (valueCon.poInvoices || []).map((pi: any) => {
+    if (settledByInv[pi.id] == null) return pi;
+    const invValue = Math.round(settledByInv[pi.id] * 100) / 100;
+    const pmnt = parseFloat(pi.pmnt) || 0;
+    return { ...pi, invValue, blnc: Math.round((invValue - pmnt) * 100) / 100 };
+  });
+}
+
 // Patch fields on a contract doc — port of utils.js updateContractField. Year from
 // the contract's date. Used for shipment status / ETD / ETA edits.
 export async function updateContractField(
@@ -697,7 +715,11 @@ export async function speciaInvoices(uidCollection: string, data: any[]): Promis
 export async function saveContractStocks(
   uidCollection: string,
   valueCon: Contract,
-  data: any[]
+  data: any[],
+  /** Final settlement (draft OFF) passes the rolled-up purchase invoices — see
+   *  buildSettledPoInvoices. Without it a settlement never reaches the supplier
+   *  balances, so Cashflow keeps showing the pre-settlement figures. */
+  poInvoicesOverride?: any[]
 ): Promise<Contract> {
   if (data.length === 0 && (valueCon.stock?.length || 0) === 0) return valueCon;
 
@@ -723,7 +745,11 @@ export async function saveContractStocks(
 
   await saveStockIn(uidCollection, tmpdata);
 
-  const tmp: Contract = { ...valueCon, stock: keepIds };
+  const tmp: Contract = {
+    ...valueCon,
+    stock: keepIds,
+    ...(poInvoicesOverride ? { poInvoices: poInvoicesOverride } : {}),
+  };
   await writeContractDoc(uidCollection, tmp);
 
   // Regenerate Misc-invoice rows for lots flagged for special invoicing.

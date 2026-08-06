@@ -60,7 +60,10 @@ export default function FinalSettlement() {
     if (!contract) return;
     try {
       const payload = buildPayload(built.rows, working, isDraft);
-      await save.mutateAsync({ contract, payload });
+      // Confirming a settlement (draft OFF) must also roll the settled line totals
+      // up into each purchase invoice's invValue/blnc — otherwise the supplier
+      // balances on Cashflow stay at the pre-settlement figures. Web parity.
+      await save.mutateAsync({ contract, payload, applyToPoInvoices: !isDraft });
       Alert.alert(
         isDraft ? 'Saved as draft' : 'Settlement applied',
         isDraft

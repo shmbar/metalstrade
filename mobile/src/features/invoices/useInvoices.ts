@@ -33,6 +33,9 @@ export interface InvoiceView {
   balance: number;
   totalLabel: string;
   balanceLabel: string;
+  /** stored balanceDue = total − prepayment (web's "Balance" column). null when unset. */
+  prepayBalance: number | null;
+  prepayBalanceLabel: string | null;
   dateIso: string | null;
   finalized: boolean;
   issued: boolean;
@@ -46,7 +49,15 @@ export function deriveInvoice(inv: Invoice, settings: any): InvoiceView {
   const paid = invoicePaid(inv);
   const balance = invoiceBalance(inv);
   const status: InvoiceView['status'] = balance <= 0.01 ? 'Paid' : paid > 0.01 ? 'Partial' : 'Unpaid';
+  // Web's grid has a "Balance" COLUMN that is the stored balanceDue —
+  // round2(totalAmount) − round2(totalPrepayment), i.e. a PREPAYMENT balance — which
+  // is a different quantity from the receivable (totalAmount − Σpayments) shown here.
+  // Both are surfaced under distinct labels so a mobile figure is never compared
+  // against the web column of the same name.
+  const prepayBalance = (inv as any).balanceDue != null ? num((inv as any).balanceDue) : null;
   return {
+    prepayBalance,
+    prepayBalanceLabel: prepayBalance == null ? null : `${curSymbol(cur)}${fmtMoney(prepayBalance)}`,
     id: inv.id,
     year: String((inv as any).__yr || (resolveInvoiceDate(inv) || '').substring(0, 4) || ''),
     number: inv.invoice,

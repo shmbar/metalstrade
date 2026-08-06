@@ -8,7 +8,10 @@ import { useTheme } from '@/theme/ThemeProvider';
 import { useSettings } from '@/store/settings';
 import { useInvoices, deriveInvoice } from '@/features/invoices/useInvoices';
 import { useAddPayment } from '@/features/invoices/usePayments';
+import { useSaveInvoiceSplit } from '@/features/invoices/useEditInvoice';
+import { SplitControl } from '@/components/SplitControl';
 import { useGenerateReminder, useSendReminder } from '@/features/invoices/useReminder';
+import { reminderState } from '@/features/invoices/reminderState';
 import { apiConfigured } from '@/lib/api';
 import { exportPdf } from '@/lib/export';
 import { invoiceHtml } from '@/lib/pdfTemplates';
@@ -24,6 +27,7 @@ export default function InvoiceDetail() {
   const { settings, compData } = useSettings();
   const { data: invoices, isLoading: invoicesLoading } = useInvoices();
   const addPayment = useAddPayment();
+  const saveSplit = useSaveInvoiceSplit();
   const genReminder = useGenerateReminder();
   const sendReminder = useSendReminder();
 
@@ -67,6 +71,7 @@ export default function InvoiceDetail() {
   }
 
   const sym = curSymbol(view.cur);
+  const reminder = reminderState(view.raw, settings);
   const products = Array.isArray(view.raw.productsDataInvoice) ? view.raw.productsDataInvoice : [];
   const payments = Array.isArray(view.raw.payments) ? view.raw.payments : [];
 
@@ -178,7 +183,10 @@ export default function InvoiceDetail() {
           </Text>
         </Card>
         <Card style={{ flex: 1 }}>
-          <Text variant="label" tone="muted">Balance</Text>
+          {/* "Outstanding", not "Balance": this is total − payments (the receivable).
+              Web's Balance COLUMN is the stored balanceDue (total − prepayment),
+              shown separately below so the two are never confused. */}
+          <Text variant="label" tone="muted">Outstanding</Text>
           <Text variant="h2" tone={view.balance > 0.01 ? 'negative' : 'positive'} style={{ marginTop: 6, fontVariant: ['tabular-nums'] }} numberOfLines={1}>
             {fmtCurKM(view.cur, view.balance)}
           </Text>
@@ -187,6 +195,24 @@ export default function InvoiceDetail() {
           </Text>
         </Card>
       </View>
+
+      {/* Prepayment balance (web's "Balance" column) + IMS/GIS split */}
+      <Card style={{ marginBottom: 14 }}>
+        {view.prepayBalanceLabel != null && (
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 10 }}>
+            <Text variant="body" tone="muted">Balance (after prepayment)</Text>
+            <Text variant="bodyMedium" style={{ fontVariant: ['tabular-nums'] }}>{view.prepayBalanceLabel}</Text>
+          </View>
+        )}
+        <SplitControl
+          row={view.raw}
+          entityType="invoice"
+          entityLabel={`Invoice #${view.number}`}
+          amount={view.total}
+          currency={view.cur}
+          onPersist={(split) => saveSplit.mutateAsync({ id: view.id, year: view.year, split })}
+        />
+      </Card>
 
       {/* Products */}
       <Card style={{ marginBottom: 14 }}>
@@ -262,16 +288,32 @@ export default function InvoiceDetail() {
         onPress={() => exportPdf(invoiceHtml(view, compData), `Invoice-${view.number}`)}
       />
 
-      {/* AI payment reminder */}
-      {apiConfigured() && view.balance > 0.01 && (
-        <Button
-          title="Send payment reminder"
-          variant="secondary"
-          style={{ marginTop: 10 }}
-          loading={genReminder.isPending}
-          leftIcon={<Ionicons name="mail-outline" size={18} color={colors.primary} />}
-          onPress={openReminder}
-        />
+      {/* AI payment reminder — same gate web applies: issued (not draft, not
+          canceled) AND still owing, with the 24h cooldown and follow-up cadence. */}
+      {apiConfigured() && reminder.visible && (
+        <>
+          <Button
+            title={
+              reminder.onCooldown
+                ? `Reminder sent — available in ${reminder.cooldownHoursLeft}h`
+                : 'Send payment reminder'
+            }
+            variant="secondary"
+            style={{ marginTop: 10 }}
+            loading={genReminder.isPending}
+            disabled={reminder.onCooldown}
+            leftIcon={<Ionicons name="mail-outline" size={18} color={colors.primary} />}
+            onPress={openReminder}
+          />
+          {reminder.showFollowupDot && (
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 6 }}>
+              <View style={{ width: 7, height: 7, borderRadius: 4, backgroundColor: colors.warn }} />
+              <Text variant="caption" tone="muted">
+                {reminder.isOverdue ? 'Overdue and not yet reminded' : 'Due for follow-up'}
+              </Text>
+            </View>
+          )}
+        </>
       )}
 
       {/* Reminder sheet */}

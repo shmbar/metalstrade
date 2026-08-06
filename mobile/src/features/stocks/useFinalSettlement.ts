@@ -2,7 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { STOCK_LOTS_KEY } from './useAllStockLots';
 import { useAuth } from '@/store/auth';
 import { loadStockDataByIds } from '@/data/firestore';
-import { saveContractStocks } from '@/data/writes';
+import { saveContractStocks, buildSettledPoInvoices } from '@/data/writes';
 import { Contract } from '@/data/types';
 
 // One settlement row's editable + confirmed (live) values. Mirrors the web
@@ -103,15 +103,28 @@ export function useSaveFinalSettlement() {
   const { uidCollection } = useAuth();
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async ({ contract, payload }: { contract: Contract; payload: any[] }) => {
+    mutationFn: async ({
+      contract,
+      payload,
+      applyToPoInvoices,
+    }: {
+      contract: Contract;
+      payload: any[];
+      /** true only when the settlement is CONFIRMED (draft off) */
+      applyToPoInvoices?: boolean;
+    }) => {
       if (!uidCollection) throw new Error('Not authenticated');
-      return saveContractStocks(uidCollection, contract, payload);
+      const poInvoices = applyToPoInvoices ? buildSettledPoInvoices(contract, payload) : undefined;
+      return saveContractStocks(uidCollection, contract, payload, poInvoices);
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: [STOCK_LOTS_KEY] });
       qc.invalidateQueries({ queryKey: ['contracts'] });
       qc.invalidateQueries({ queryKey: ['dashboard'] });
       qc.invalidateQueries({ queryKey: ['settlement-lots'] });
+      // Supplier balances move with the settlement — refresh the money screens too.
+      qc.invalidateQueries({ queryKey: ['cashflow'] });
+      qc.invalidateQueries({ queryKey: ['contract-invoices'] });
     },
   });
 }
