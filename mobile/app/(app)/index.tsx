@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { View, ScrollView, RefreshControl, Pressable } from 'react-native';
 import { router, Redirect } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -41,12 +42,33 @@ export default function Dashboard() {
 
   const firstName = currentUser.name.split(' ')[0] || 'there';
 
-  // Month-over-month delta on invoiced revenue (current vs previous calendar month).
-  const m = new Date().getMonth();
-  const curM = data?.revenueByMonth[m] ?? 0;
-  const prevM = m > 0 ? data?.revenueByMonth[m - 1] ?? 0 : 0;
-  const deltaPct = prevM > 0 ? ((curM - prevM) / prevM) * 100 : null;
   const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+  // Month-over-month delta — port of web's computeTrend (dashboard/page.js:98).
+  // Walks back to the LAST month that actually has data, then to the most recent
+  // month before it with a finite value. Mobile used to pin the comparison to the
+  // CURRENT calendar month, so viewing a past year compared against a month that
+  // is almost always zero and the badge simply never appeared.
+  const trend = useMemo(() => {
+    const series = data?.revenueByMonth;
+    if (!Array.isArray(series) || series.length < 2) return null;
+    let last = -1;
+    for (let i = series.length - 1; i >= 0; i--) {
+      if (Number.isFinite(series[i]) && series[i] !== 0) { last = i; break; }
+    }
+    if (last <= 0) return null;
+    let prev = -1;
+    for (let i = last - 1; i >= 0; i--) {
+      if (Number.isFinite(series[i])) { prev = i; break; }
+    }
+    if (prev < 0) return null;
+    const before = series[prev];
+    if (!before) return null;
+    // Divide by |before| so a negative prior month still yields a signed delta.
+    const pct = ((series[last] - before) / Math.abs(before)) * 100;
+    if (!Number.isFinite(pct)) return null;
+    return { pct, last, prev };
+  }, [data?.revenueByMonth]);
 
   return (
     <View style={{ flex: 1, backgroundColor: colors.bg }}>
@@ -72,14 +94,21 @@ export default function Dashboard() {
 
           <Pressable onPress={() => router.push('/(app)/invoices')} style={{ marginTop: 20 }}>
             <Text variant="caption" color="rgba(255,255,255,0.7)">Revenue · this period</Text>
+            {/* ONE USD figure, like web's Sales Revenue KPI — the per-currency
+                breakdown moves to the caption beneath so nothing is lost. */}
             <Text variant="display" color="#ffffff" style={{ fontSize: 36, lineHeight: 42, marginTop: 2, fontVariant: ['tabular-nums'] }} numberOfLines={1} adjustsFontSizeToFit>
-              {data ? curLine(data.revenueByCur) : '—'}
+              {data ? fmtAutoKM(data.revenueUsd) : '—'}
             </Text>
-            {deltaPct != null && Math.abs(deltaPct) >= 0.5 && (
+            {data && Object.keys(data.revenueByCur).length > 0 && (
+              <Text variant="caption" color="rgba(255,255,255,0.7)" style={{ marginTop: 2 }} numberOfLines={1}>
+                {curLine(data.revenueByCur)}
+              </Text>
+            )}
+            {trend && (
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 6, alignSelf: 'flex-start', backgroundColor: 'rgba(255,255,255,0.16)', borderRadius: 999, paddingHorizontal: 10, paddingVertical: 3 }}>
-                <Ionicons name={deltaPct >= 0 ? 'trending-up' : 'trending-down'} size={13} color={deltaPct >= 0 ? '#7ce3a8' : '#ffb3ab'} />
-                <Text variant="caption" color={deltaPct >= 0 ? '#7ce3a8' : '#ffb3ab'} style={{ fontFamily: 'Inter_600SemiBold' }}>
-                  {deltaPct >= 0 ? '+' : ''}{deltaPct.toFixed(0)}% {MONTHS[m]} vs {MONTHS[m - 1]}
+                <Ionicons name={trend.pct >= 0 ? 'trending-up' : 'trending-down'} size={13} color={trend.pct >= 0 ? '#7ce3a8' : '#ffb3ab'} />
+                <Text variant="caption" color={trend.pct >= 0 ? '#7ce3a8' : '#ffb3ab'} style={{ fontFamily: 'Inter_600SemiBold' }}>
+                  {trend.pct >= 0 ? '+' : ''}{trend.pct.toFixed(1)}% {MONTHS[trend.last]} vs {MONTHS[trend.prev]}
                 </Text>
               </View>
             )}

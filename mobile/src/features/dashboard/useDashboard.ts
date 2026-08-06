@@ -24,6 +24,8 @@ export interface DashboardData {
   purchaseByCur: Record<string, number>;
   totalMT: number;
   revenueByCur: Record<string, number>;
+  /** web parity: the single USD Sales Revenue figure (company-rate aware) */
+  revenueUsd: number;
   revenueByMonth: number[]; // 12 months, converted to a USD basis (web's companyRate rule)
   receivables: Record<string, ReceivablesSlot>;
   aging: AgingBucket[];
@@ -93,7 +95,15 @@ export function useDashboard() {
       });
       const supName =
         settings.Supplier?.Supplier?.find((s) => s.id === c.supplier)?.nname || c.supplier || '—';
-      supplierTotals[supName] = (supplierTotals[supName] || 0) + pv.base;
+      // Supplier ranking value — web's rule (dashboard/funcs.js): a EUR contract
+      // converts at the COMPANY standard rate when one is set, else its own
+      // euroToUSD, else 1:1. contractPurchaseValue().base routes through fx(), which
+      // never consults the company rate — so on a EUR-heavy book both the values and
+      // the ranking ORDER drifted from web.
+      const cCur = c.cur === 'eu' ? 'eu' : 'us';
+      const cRate = num((c as any).euroToUSD);
+      const cMult = cCur === 'us' ? 1 : companyRate > 0 ? companyRate : cRate > 0 ? cRate : 1;
+      supplierTotals[supName] = (supplierTotals[supName] || 0) + (pv.byCur[cCur] || 0) * cMult;
     });
 
     const revenue = invoiceRevenue(periodInvoices, { base: 'us' });
@@ -115,6 +125,14 @@ export function useDashboard() {
         const mult = companyRate > 0 ? companyRate : rate > 0 ? rate : 1;
         revenueByMonth[m] += resolveCur(inv) === 'us' ? amt : amt * mult;
       });
+
+    // Web's Sales Revenue KPI is ONE USD figure, accumulated in the same pass as
+    // its monthly series — so the total is exactly the sum of the months. Mobile
+    // showed per-currency raw sums instead, and threw away the USD figure the
+    // shared module computes (invoiceRevenue().base is unusable here anyway: its
+    // fx() ignores the company standard rate).
+    const revenueUsd = revenueByMonth.reduce((s, v) => s + v, 0);
+
     const recv = financeReceivables(recvInvoices, { asOf: new Date(), termDays });
     const aging = agingBuckets(recvInvoices, { asOf: new Date() });
 
@@ -134,6 +152,7 @@ export function useDashboard() {
       purchaseByCur,
       totalMT,
       revenueByCur: revenue.byCur,
+      revenueUsd,
       revenueByMonth,
       receivables: recv.byCur,
       aging,
