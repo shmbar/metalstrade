@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '@/store/auth';
-import { useSettings, selectTermDays } from '@/store/settings';
+import { useSettings, selectTermDays, selectCompanyRate } from '@/store/settings';
 import { loadData, loadFlatByDate, buildInvoiceIndex, contractInvoicesFromIndex } from '@/data/firestore';
 import { Contract, Invoice } from '@/data/types';
 import {
@@ -14,6 +14,7 @@ import {
   groupInvoices,
   isIssued,
   resolveInvoiceDate,
+  resolveCur,
   ReceivablesSlot,
   AgingBucket,
 } from '@shared/finance';
@@ -23,7 +24,7 @@ export interface DashboardData {
   purchaseByCur: Record<string, number>;
   totalMT: number;
   revenueByCur: Record<string, number>;
-  revenueByMonth: number[]; // 12 months, base USD-ish (raw totalAmount sum)
+  revenueByMonth: number[]; // 12 months, converted to a USD basis (web's companyRate rule)
   receivables: Record<string, ReceivablesSlot>;
   aging: AgingBucket[];
   miscByCur: Record<string, number>;
@@ -38,6 +39,7 @@ export function useDashboard() {
   const { uidCollection } = useAuth();
   const { settings, dateSelect, loaded } = useSettings();
   const termDays = useSettings(selectTermDays);
+  const companyRate = useSettings(selectCompanyRate);
 
   const enabled = !!uidCollection && loaded;
 
@@ -84,7 +86,9 @@ export function useDashboard() {
     enriched.forEach((c) => {
       const pv = contractPurchaseValue(c, { base: 'us' });
       Object.entries(pv.byCur).forEach(([cur, v]) => (purchaseByCur[cur] = (purchaseByCur[cur] || 0) + v));
-      (c.productsData || []).forEach((p) => {
+      // import-flagged rows are breakdown/merge helpers, not PO lines — web excludes
+      // them from every quantity roll-up, so counting them doubled the dashboard MT.
+      (c.productsData || []).filter((p: any) => !p?.import).forEach((p) => {
         totalMT += toMT(num(p.qnty), c, settings);
       });
       const supName =
@@ -95,13 +99,21 @@ export function useDashboard() {
     const revenue = invoiceRevenue(periodInvoices, { base: 'us' });
 
     // Monthly revenue series (issued invoices, by invoice month) for the trend chart.
+    // Converted to a single USD basis with web's exact rule (dashboard/page.js:986):
+    // the company's standard rate when set, else the invoice's own euroToUSD, else
+    // 1:1. Summing raw totalAmount added EUR invoices at face value into a
+    // USD-labelled series, so the chart and its total read low for EUR-heavy months.
     const revenueByMonth = Array(12).fill(0);
     groupInvoices(periodInvoices)
       .filter(isIssued)
       .forEach((inv) => {
         const iso = resolveInvoiceDate(inv);
         const m = iso ? parseInt(iso.substring(5, 7), 10) - 1 : -1;
-        if (m >= 0 && m < 12) revenueByMonth[m] += num(inv.totalAmount);
+        if (m < 0 || m > 11) return;
+        const amt = num(inv.totalAmount);
+        const rate = num((inv as any).euroToUSD);
+        const mult = companyRate > 0 ? companyRate : rate > 0 ? rate : 1;
+        revenueByMonth[m] += resolveCur(inv) === 'us' ? amt : amt * mult;
       });
     const recv = financeReceivables(recvInvoices, { asOf: new Date(), termDays });
     const aging = agingBuckets(recvInvoices, { asOf: new Date() });
@@ -129,7 +141,7 @@ export function useDashboard() {
       miscCount: misc.length,
       topSuppliers,
     };
-  }, [query.data, settings, termDays]);
+  }, [query.data, settings, termDays, companyRate]);
 
   return { data, isLoading: query.isLoading, isError: query.isError, error: query.error, refetch: query.refetch, enabled };
 }

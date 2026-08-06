@@ -6,11 +6,13 @@ import { PeriodSelector } from '@/components/PeriodSelector';
 import { InventoryView } from '@/features/stocks/InventoryView';
 import { StorageView } from '@/features/stocks/StorageView';
 import { AgingView } from '@/features/stocks/AgingView';
+import { SharedStockView } from '@/features/stocks/SharedStockView';
 
-type Tab = 'inventory' | 'storage' | 'aging';
+type Tab = 'inventory' | 'shared' | 'storage' | 'aging';
 
 const SUBTITLE: Record<Tab, string> = {
   inventory: 'On-hand inventory',
+  shared: 'Shared stock (IMS + GIS)',
   storage: 'Storage costs',
   aging: 'Storage aging by terminal',
 };
@@ -32,13 +34,22 @@ export default function StocksScreen() {
           onChange={setTab}
           options={[
             { value: 'inventory', label: 'Inventory' },
+            { value: 'shared', label: 'Shared' },
             { value: 'storage', label: 'Storage' },
             { value: 'aging', label: 'Aging' },
           ]}
         />
       </View>
 
-      {tab === 'inventory' ? <InventoryView /> : tab === 'storage' ? <StorageView /> : <AgingView />}
+      {tab === 'inventory' ? (
+        <InventoryView />
+      ) : tab === 'shared' ? (
+        <SharedStockView />
+      ) : tab === 'storage' ? (
+        <StorageView />
+      ) : (
+        <AgingView />
+      )}
     </Screen>
   );
 }

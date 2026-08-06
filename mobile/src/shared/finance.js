@@ -56,7 +56,10 @@ export const invoiceBalance = (inv) => num(inv?.totalAmount) - invoicePaid(inv);
 // Issued = not a draft and not canceled. DECISION #2: confirm draft === true semantics.
 export const isIssued = (inv) => inv?.draft !== true && !inv?.canceled;
 
-export const isFinalized = (inv) => inv?.shipData?.fnlzing === FINALIZED_FLAG;
+// A Final Note IS the final invoice — issuing one finalizes the shipment even when
+// the manual Finalizing flag was never switched (rows like "0018FN" showed Final: No).
+export const isFinalNote = (inv) => inv?.invType === '3333' || inv?.invType === 'Final Note';
+export const isFinalized = (inv) => inv?.shipData?.fnlzing === FINALIZED_FLAG || isFinalNote(inv);
 
 // Effective due date: the explicit delivery/due date if present, otherwise invoice date +
 // DEFAULT_TERM_DAYS. So overdue detection works even when no due date was entered.

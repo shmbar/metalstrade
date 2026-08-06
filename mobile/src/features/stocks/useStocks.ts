@@ -1,21 +1,14 @@
 import { useMemo } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { useAuth } from '@/store/auth';
 import { useSettings } from '@/store/settings';
-import { loadAllStockData } from '@/data/firestore';
 import { computeInventory, formatInventoryRow } from './aggregate';
+import { useAllStockLots } from './useAllStockLots';
 
 // All current inventory, aggregated (net in − out per warehouse|description) with
-// finance-faithful parity to the web Stocks page.
+// finance-faithful parity to the web Stocks page. Reads the SHARED stock-ledger
+// query so Inventory/Shared/Storage/Aging/Audit don't each re-download it.
 export function useStocks() {
-  const { uidCollection } = useAuth();
-  const { settings, loaded } = useSettings();
-
-  const query = useQuery({
-    enabled: !!uidCollection && loaded,
-    queryKey: ['stocks', uidCollection],
-    queryFn: async () => loadAllStockData(uidCollection as string),
-  });
+  const { settings } = useSettings();
+  const query = useAllStockLots();
 
   const data = useMemo(() => {
     if (!query.data) return null;

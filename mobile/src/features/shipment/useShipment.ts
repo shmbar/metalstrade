@@ -3,7 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/store/auth';
 import { useSettings } from '@/store/settings';
 import { loadData } from '@/data/firestore';
-import { updateContractField } from '@/data/writes';
+import { updateContractField, logEvent } from '@/data/writes';
 import { Contract, Invoice } from '@/data/types';
 import { normalizeStatus } from '@shared/shipmentStatus';
 
@@ -78,17 +78,41 @@ export function useShipment() {
 }
 
 export function useSetShipmentStatus() {
-  const { uidCollection } = useAuth();
+  const { uidCollection, currentUser } = useAuth();
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async ({ contract, status }: { contract: Contract; status: string }) => {
       if (!uidCollection) throw new Error('Not authenticated');
       const date = contract.dateRange?.startDate || contract.date || '';
-      await updateContractField(uidCollection, contract.id, date, { shipmentStatus: status });
+      // shipmentUpdatedAt is what web's "Last Update" column shows AND its default
+      // sort key — omitting it left a mobile-changed status looking stale on web.
+      const ts = Date.now();
+      await updateContractField(uidCollection, contract.id, date, {
+        shipmentStatus: status,
+        shipmentUpdatedAt: ts,
+      });
+      // Notify the team when cargo moves through the pipeline (skip when cleared) —
+      // identical payload to web so both apps produce the same feed entry.
+      if (status) {
+        await logEvent(uidCollection, {
+          type: 'shipment.status',
+          entityType: 'contract',
+          entityId: contract.id || '',
+          entityLabel: `PO ${contract.order ?? ''}`,
+          action: 'status',
+          message: `Cargo (PO ${contract.order ?? ''}) marked "${status}"`,
+          notify: true,
+          severity: status === 'Completed' ? 'success' : status === 'On Hold' ? 'warning' : 'info',
+          actorUid: currentUser?.uid,
+          actorName: currentUser?.name,
+        });
+      }
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['shipment'] });
       qc.invalidateQueries({ queryKey: ['contracts'] });
+      qc.invalidateQueries({ queryKey: ['notifications'] });
+      qc.invalidateQueries({ queryKey: ['activity'] });
     },
   });
 }

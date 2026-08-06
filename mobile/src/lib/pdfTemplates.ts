@@ -38,9 +38,14 @@ const shell = (title: string, company: string, inner: string) => `
 export function contractPoHtml(contract: any, v: any, compData: any): string {
   const company = compData?.companyName || compData?.cmpnyName || 'IMS';
   const sym = v.currency === 'eu' ? '€' : '$';
-  const rows = (contract.productsData || [])
+  // import-flagged rows are breakdown/merge helpers, not PO lines (web excludes
+  // them everywhere) — printing them would double the PO on paper.
+  const lines = (contract.productsData || []).filter((p: any) => !p?.import);
+  let lineTotal = 0;
+  const rows = lines
     .map((p: any) => {
       const total = (Number(p.qnty) || 0) * (Number(p.unitPrc) || 0);
+      lineTotal += total;
       return `<tr><td>${p.description || '—'}</td><td class="r">${qty(p.qnty)}</td><td class="r">${money(p.unitPrc, sym)}</td><td class="r">${money(total, sym)}</td></tr>`;
     })
     .join('');
@@ -52,7 +57,7 @@ export function contractPoHtml(contract: any, v: any, compData: any): string {
       <div class="box"><div class="label">Quantity</div><div class="val">${v.mtLabel}</div></div>
     </div>
     <table><thead><tr><th>Description</th><th class="r">Qty</th><th class="r">Unit Price</th><th class="r">Total</th></tr></thead><tbody>${rows || '<tr><td colspan="4">No products</td></tr>'}</tbody></table>
-    <div class="totals"><div class="t"><div class="line grand"><span>Total</span><span>${v.valueLabel}</span></div></div></div>
+    <div class="totals"><div class="t"><div class="line grand"><span>Total</span><span>${money(lineTotal, sym)}</span></div></div></div>
     ${contract.termPmnt ? `<div class="box" style="margin-top:20px"><div class="label">Payment terms</div><div class="val">${contract.termPmnt}</div></div>` : ''}`;
   return shell(title, company, inner);
 }

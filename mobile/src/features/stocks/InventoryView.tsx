@@ -6,6 +6,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Card, Text, TextField, Badge, SkeletonList, FadeInItem, ErrorState, EmptyState } from '@/components/ui';
 import { useTheme } from '@/theme/ThemeProvider';
 import { useStocks } from './useStocks';
+import { GradeSummaryCard } from './GradeSummaryCard';
 import { curSymbol, fmtMoney } from '@/lib/format';
 
 const fmtQty = (n: number) => new Intl.NumberFormat('en-US', { minimumFractionDigits: 3 }).format(n || 0);
@@ -86,7 +87,12 @@ export function InventoryView() {
                 ))}
               </Card>
             )}
-            <Text variant="caption" tone="muted" style={{ marginTop: 12, marginBottom: 8 }}>
+            {/* Avg cost price per grade — web parity (stocks page GradeTable), fed
+                the SEARCH-FILTERED rows exactly like web feeds it filteredData. */}
+            <View style={{ marginTop: 12 }}>
+              <GradeSummaryCard dataTable={rows} />
+            </View>
+            <Text variant="caption" tone="muted" style={{ marginBottom: 8 }}>
               {rows.length} item{rows.length === 1 ? '' : 's'} on hand
             </Text>
           </View>

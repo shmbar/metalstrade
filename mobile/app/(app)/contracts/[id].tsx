@@ -6,7 +6,7 @@ import { Screen, Card, Text, Badge, Button, ProgressBar, SectionHeader, EmptySta
 import { useTheme } from '@/theme/ThemeProvider';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useSettings } from '@/store/settings';
-import { useContracts, deriveContract } from '@/features/contracts/useContracts';
+import { useContracts, deriveContract, ownProducts } from '@/features/contracts/useContracts';
 import { useDuplicateContract } from '@/features/contracts/useDuplicateContract';
 import { Invoice } from '@/data/types';
 import { groupInvoices, invoiceBalance, num, resolveCur, isFinalized } from '@shared/finance';
@@ -74,7 +74,9 @@ export default function ContractDetail() {
 
   const v = deriveContract(contract, settings);
 
-  const productsData = Array.isArray(contract.productsData) ? contract.productsData : [];
+  // import-flagged rows are breakdown/merge helpers, not PO lines — web hides them
+  // from the products list and every quantity roll-up.
+  const productsData = ownProducts(contract);
   const poInvoices = Array.isArray(contract.poInvoices) ? contract.poInvoices : [];
 
   // Payments recorded against the PO (purchase side).
@@ -193,14 +195,22 @@ export default function ContractDetail() {
           </Text>
         </View>
         {(() => {
-          const pct = v.totalValue > 0 ? Math.min(100, (poPaid / v.totalValue) * 100) : 0;
+          // Progress = paid (Σ poInvoices.pmnt) against BILLED (Σ poInvoices.invValue,
+          // falling back to the contract line value). Comparing paid against
+          // v.totalValue was comparing Σpmnt with itself, so the bar was always
+          // 0% or 100% and always read "Settled".
+          const billed = v.invoicedValue;
+          const outstanding = billed - poPaid;
+          const pct = billed > 0 ? Math.min(100, (poPaid / billed) * 100) : 0;
           return (
             <>
               <ProgressBar pct={pct} color={pct >= 99.9 ? colors.positive : colors.primary} height={8} />
               <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 6 }}>
-                <Text variant="caption" tone="faint">{pct.toFixed(0)}% paid of {v.valueLabel}</Text>
-                <Text variant="caption" tone={v.totalValue - poPaid > 0.01 ? 'warn' : 'positive'}>
-                  {v.totalValue - poPaid > 0.01 ? `${curSymbol(v.currency)}${fmtMoney(v.totalValue - poPaid)} left` : 'Settled'}
+                <Text variant="caption" tone="faint">
+                  {pct.toFixed(0)}% paid of {curSymbol(v.currency)}{fmtMoney(billed)}
+                </Text>
+                <Text variant="caption" tone={outstanding > 0.01 ? 'warn' : 'positive'}>
+                  {outstanding > 0.01 ? `${curSymbol(v.currency)}${fmtMoney(outstanding)} left` : 'Settled'}
                 </Text>
               </View>
             </>

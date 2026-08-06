@@ -18,6 +18,17 @@ interface DateFieldProps {
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 const toIso = (d: Date) =>
   `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+
+// Parse a stored 'YYYY-MM-DD' as a LOCAL calendar date. `new Date('2026-06-01')`
+// is specified to parse a date-ONLY string as UTC midnight, but toIso() reads the
+// local getters — so west of UTC the picker opened on the previous day and saving
+// without touching the wheel silently shifted every date back one day.
+const fromIso = (iso?: string | null): Date => {
+  if (!iso) return new Date();
+  const [y, m, d] = String(iso).slice(0, 10).split('-').map(Number);
+  if (!y || !m || !d) return new Date();
+  return new Date(y, m - 1, d);
+};
 const display = (iso?: string | null) => {
   if (!iso) return '';
   const [y, m, d] = iso.split('-').map(Number);
@@ -30,10 +41,10 @@ const display = (iso?: string | null) => {
 export function DateField({ label, value, onChange, required, error }: DateFieldProps) {
   const { colors } = useTheme();
   const [open, setOpen] = useState(false);
-  const [temp, setTemp] = useState<Date>(value ? new Date(value) : new Date());
+  const [temp, setTemp] = useState<Date>(fromIso(value));
 
   const openPicker = () => {
-    setTemp(value ? new Date(value) : new Date());
+    setTemp(fromIso(value));
     setOpen(true);
   };
 

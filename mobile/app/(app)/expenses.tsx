@@ -6,8 +6,9 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Screen, Card, Text, Badge, SegmentedControl, SectionHeader, SkeletonList, ErrorState, EmptyState } from '@/components/ui';
 import { PeriodSelector } from '@/components/PeriodSelector';
 import { useTheme } from '@/theme/ThemeProvider';
-import { useExpenses, ExpenseRow } from '@/features/expenses/useExpenses';
-import { curSymbol, fmtMoney, fmtCurKM } from '@/lib/format';
+import { useExpenses, useSaveExpenseSplit, ExpenseRow } from '@/features/expenses/useExpenses';
+import { SplitControl } from '@/components/SplitControl';
+import { curSymbol, fmtMoney, fmtCurKM, dateLabel } from '@/lib/format';
 
 const curLine = (byCur: Record<string, number>) => {
   const ents = Object.entries(byCur).filter(([, v]) => Math.abs(v) > 0.005);
@@ -19,8 +20,12 @@ export default function Expenses() {
   const insets = useSafeAreaInsets();
   const { data, isLoading, isError, error, refetch } = useExpenses();
   const [tab, setTab] = useState<'supplier' | 'company'>('supplier');
+  // Web parity: companyexpenses/expenses have an "unsplit only" filter.
+  const [onlyUnsplit, setOnlyUnsplit] = useState(false);
+  const saveSplit = useSaveExpenseSplit();
 
-  const rows: ExpenseRow[] = data ? (tab === 'supplier' ? data.supplier : data.company) : [];
+  const allRows: ExpenseRow[] = data ? (tab === 'supplier' ? data.supplier : data.company) : [];
+  const rows = onlyUnsplit ? allRows.filter((r) => r.splitStatus !== 'done') : allRows;
   const totals = data ? (tab === 'supplier' ? data.supplierTotals : data.companyTotals) : { all: {}, unpaid: {} };
 
   return (
@@ -34,7 +39,7 @@ export default function Expenses() {
         <PeriodSelector />
       </View>
 
-      <View style={{ marginBottom: 14 }}>
+      <View style={{ marginBottom: 12 }}>
         <SegmentedControl
           value={tab}
           onChange={(v) => setTab(v as any)}
@@ -44,6 +49,25 @@ export default function Expenses() {
           ]}
         />
       </View>
+
+      {/* "Unsplit only" filter — web parity (companyexpenses onlyUnsplit toggle). */}
+      <Pressable
+        onPress={() => setOnlyUnsplit((v) => !v)}
+        style={{
+          alignSelf: 'flex-start',
+          flexDirection: 'row', alignItems: 'center', gap: 6,
+          paddingHorizontal: 12, paddingVertical: 6, borderRadius: 999, marginBottom: 12,
+          backgroundColor: onlyUnsplit ? colors.primary : colors.surfaceAlt,
+          borderWidth: 1, borderColor: onlyUnsplit ? colors.primary : colors.border,
+        }}
+      >
+        <Ionicons
+          name={onlyUnsplit ? 'checkbox' : 'square-outline'}
+          size={14}
+          color={onlyUnsplit ? '#fff' : colors.textFaint}
+        />
+        <Text variant="caption" color={onlyUnsplit ? '#fff' : colors.textMuted}>Unsplit only</Text>
+      </Pressable>
 
       {isLoading ? (
         <SkeletonList />
@@ -74,13 +98,35 @@ export default function Expenses() {
                 <View style={{ flex: 1, minWidth: 0 }}>
                   <Text variant="bodyMedium" numberOfLines={1}>{item.supplierName}</Text>
                   <Text variant="caption" tone="muted" numberOfLines={1}>
-                    {[item.expTypeLabel, item.invoice, item.order].filter(Boolean).join(' · ') || '—'}
+                    {[item.expTypeLabel, item.invoice, item.order, dateLabel(item.date)].filter(Boolean).join(' · ') || '—'}
                   </Text>
+                  {!!item.comments && (
+                    <Text variant="caption" tone="faint" numberOfLines={2} style={{ marginTop: 2 }}>
+                      {item.comments}
+                    </Text>
+                  )}
                 </View>
                 <View style={{ alignItems: 'flex-end' }}>
                   <Text variant="bodyMedium" tone="primary">{curSymbol(item.cur)}{fmtMoney(item.amount)}</Text>
                   <Badge label={item.paid ? 'Paid' : 'Unpaid'} tone={item.paid ? 'positive' : 'negative'} />
                 </View>
+              </View>
+              {/* IMS/GIS split — web has this column on both expenses pages. */}
+              <View style={{ marginTop: 10 }}>
+                <SplitControl
+                  row={item}
+                  entityType={tab === 'supplier' ? 'expense' : 'companyexpense'}
+                  entityLabel={[item.supplierName, item.invoice].filter(Boolean).join(' · ')}
+                  amount={item.amount}
+                  currency={item.cur}
+                  onPersist={(split) =>
+                    saveSplit.mutateAsync({
+                      row: item,
+                      kind: tab === 'supplier' ? 'expense' : 'companyexpense',
+                      split,
+                    })
+                  }
+                />
               </View>
             </Card>
           )}

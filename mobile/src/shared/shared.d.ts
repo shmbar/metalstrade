@@ -8,6 +8,13 @@ declare module '@shared/pureHelpers' {
   export function resolveDueDate(inv: any): string | null;
   export function resolveInvoiceDate(inv: any): string | null;
   export function groupInvoicesByNumber(invoices: any[]): any[];
+  export interface StockNetRow {
+    description: string;
+    qnty: number;
+    unit: string;
+    warehouse: string;
+  }
+  export function computeStockNetSummary(stockDocs: any[], settings: any): StockNetRow[];
 }
 
 declare module '@shared/finance' {
@@ -19,6 +26,7 @@ declare module '@shared/finance' {
   export function invoicePaid(inv: any): number;
   export function invoiceBalance(inv: any): number;
   export function isIssued(inv: any): boolean;
+  export function isFinalNote(inv: any): boolean;
   export function isFinalized(inv: any): boolean;
   export function effectiveDueDate(inv: any, termDays?: number): string | null;
   export function isOverdue(inv: any, asOf?: Date, termDays?: number): boolean;
@@ -91,6 +99,26 @@ declare module '@shared/languages' {
   export function getTtl(key: string, ln?: string): string;
   const _default: any;
   export default _default;
+}
+
+declare module '@shared/notificationPriority' {
+  export interface PriorityToken {
+    key: string;
+    rank: number;
+    label: string;
+    color: string;
+    bg: string;
+    border: string;
+  }
+  export const PRIORITY: Record<'high' | 'medium' | 'low', PriorityToken>;
+  export const PRIORITY_ORDER: ('high' | 'medium' | 'low')[];
+  export function priorityOf(n?: any): 'high' | 'medium' | 'low';
+  export function priorityRank(n: any): number;
+  export function sortByPriority<T>(arr?: T[]): T[];
+}
+
+declare module '@shared/notificationRouting' {
+  export function routeFor(entityType: string, entityId: string): string;
 }
 
 declare module '@shared/shipmentStatus' {

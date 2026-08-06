@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { STOCK_LOTS_KEY } from '@/features/stocks/useAllStockLots';
 import { useAuth } from '@/store/auth';
 import { createInvoiceForContract } from '@/data/writes';
 import { Contract, Invoice } from '@/data/types';
@@ -41,7 +42,7 @@ export function useCreateInvoice() {
       qc.invalidateQueries({ queryKey: ['invoices'] });
       qc.invalidateQueries({ queryKey: ['contracts'] });
       qc.invalidateQueries({ queryKey: ['contract-invoices'] });
-      qc.invalidateQueries({ queryKey: ['stocks'] });
+      qc.invalidateQueries({ queryKey: [STOCK_LOTS_KEY] });
       qc.invalidateQueries({ queryKey: ['dashboard'] });
     },
   });

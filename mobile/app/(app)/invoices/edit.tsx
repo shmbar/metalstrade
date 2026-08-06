@@ -59,12 +59,38 @@ export default function InvoiceEdit() {
   const removeLine = (i: number) => setLines((p) => p.filter((_, k) => k !== i));
   const total = lines.reduce((s, p) => s + num(p.total), 0);
 
+  const round2 = (n: number) => Math.round((Number(n) || 0) * 100) / 100;
+
   const onSave = async () => {
+    // Web blocks editing a finalized invoice outright (invoiceDetails renders
+    // read-only when valueInv.final, and onCellUpdate returns early on row.final).
+    // Mobile used to let a user overwrite a legally issued document.
+    if ((view.raw as any).final) {
+      Alert.alert('Finalized invoice', 'This invoice has been finalized and can no longer be edited.');
+      return;
+    }
     if (!client || !shpType) {
       Alert.alert('Missing fields', 'Client and shipment are required.');
       return;
     }
     try {
+      // Recompute the stored prepayment fields exactly as web's productsTableInvoice
+      // does whenever a line changes. The web Balance column and the Cashflow page
+      // read these STORED values, so patching totalAmount alone left them stale.
+      const raw = view.raw as any;
+      const invType = raw.invType;
+      const pct = raw.percentage;
+      const totalPrepayment =
+        invType === '1111'
+          ? pct !== '' && pct != null
+            ? round2((Number(pct) / 100) * total)
+            : ''
+          : raw.totalPrepayment;
+      const balanceDue =
+        invType === '2222' || invType === '3333'
+          ? round2(round2(total) - round2(Number(raw.totalPrepayment) || 0))
+          : round2(round2(total) - round2(Number(totalPrepayment) || 0));
+
       await edit.mutateAsync({
         id: view.id,
         year: view.year,
@@ -73,7 +99,9 @@ export default function InvoiceEdit() {
           shpType,
           delDate: delDate ? { startDate: delDate, endDate: delDate } : { startDate: null, endDate: null },
           productsDataInvoice: lines,
-          totalAmount: total,
+          totalAmount: round2(total),
+          totalPrepayment,
+          balanceDue,
         },
       });
       hapticSuccess();

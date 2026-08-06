@@ -3,8 +3,14 @@
 // behavior: year-bucketed doc id, `m`/`euroToUSD` stamping, poSupplier sync on
 // linked invoices/expenses, and old-doc cleanup when a contract's year changes.
 
-import { doc, getDoc, setDoc, deleteDoc, updateDoc, writeBatch, arrayUnion, increment } from 'firebase/firestore';
+import {
+  doc, getDoc, getDocs, setDoc, deleteDoc, updateDoc, writeBatch,
+  arrayUnion, increment, collection, query, where,
+} from 'firebase/firestore';
 import { db } from '@/lib/firebase';
+import { loadStockDataByIds } from './firestore';
+import { splitNotifId } from '@shared/splitUtils';
+import { priorityOf } from '@shared/notificationPriority';
 import { Contract, Invoice, Payment } from './types';
 
 // RN-safe id generator — mirrors utils.js newId() (crypto.randomUUID when present,
@@ -35,13 +41,27 @@ export async function getCur(date: string | null | undefined): Promise<number> {
   }
 }
 
+// Client-only enrichment that must NEVER reach Firestore. `invoicesData` is the
+// invoice index joined onto a contract for display (useContracts) and is an ARRAY
+// OF ARRAYS — Firestore rejects nested arrays outright, so any contract with a
+// linked sales invoice failed to save from mobile (edit, stock-in and final
+// settlement all funnel through here). Web never puts it on the doc in the first
+// place; stripping it at the write layer covers every current and future path.
+const CLIENT_ONLY_CONTRACT_KEYS = ['invoicesData'] as const;
+
+function stripClientOnly(obj: Contract): Contract {
+  const clean = { ...obj } as Record<string, unknown>;
+  CLIENT_ONLY_CONTRACT_KEYS.forEach((k) => delete clean[k]);
+  return clean as Contract;
+}
+
 // Low-level contract write — mirrors utils.js saveData(): doc id in contracts_{YYYY}
 // (year from dateRange.startDate), with `m` (month) stamped on the record.
 async function writeContractDoc(uidCollection: string, obj: Contract): Promise<boolean> {
   const start = obj.dateRange?.startDate || obj.date || '';
   const m = start.substring(5, 7);
   const y = start.substring(0, 4);
-  await setDoc(doc(db, uidCollection, 'data', `contracts_${y}`, obj.id), { ...obj, m });
+  await setDoc(doc(db, uidCollection, 'data', `contracts_${y}`, obj.id), { ...stripClientOnly(obj), m });
   return true;
 }
 
@@ -271,6 +291,186 @@ export async function markAllNotificationsRead(
   }
 }
 
+// ── activity log ─────────────────────────────────────────────────────────────
+// Fire-and-forget event logger — port of utils.js logEvent. Appends to the
+// append-only activity feed and, when notify is set, ALSO creates the mutable
+// notification (same id links the two) so teammates see the change in their bell.
+// Never throws; never blocks the caller's save. Mobile previously wrote NOTHING to
+// the activity feed, so actions taken on the phone were invisible on web.
+export interface ActivityEvent {
+  id?: string;
+  type?: string;
+  entityType?: string;
+  entityId?: string;
+  entityLabel?: string;
+  action?: string;
+  message?: string;
+  actorUid?: string;
+  actorName?: string;
+  notify?: boolean;
+  audience?: string | string[];
+  severity?: string;
+  priority?: string;
+  meta?: Record<string, unknown>;
+}
+
+export async function logEvent(uidCollection: string, evt: ActivityEvent = {}): Promise<any> {
+  if (!uidCollection) return null;
+  try {
+    const id = evt.id || newId();
+    const now = new Date();
+    const record = {
+      id,
+      type: evt.type || 'activity',
+      entityType: evt.entityType || '',
+      entityId: evt.entityId || '',
+      entityLabel: evt.entityLabel || '',
+      action: evt.action || '',
+      message: evt.message || '',
+      actorUid: evt.actorUid || '',
+      actorName: evt.actorName || 'Unknown',
+      createdAt: now.toISOString(),
+      createdAtMs: now.getTime(),
+      notify: !!evt.notify,
+      audience: evt.audience || 'all',
+      meta: evt.meta || {},
+    };
+    await setDoc(doc(db, uidCollection, 'data', 'activity', id), record);
+    if (evt.notify) {
+      await setDoc(doc(db, uidCollection, 'data', 'notifications', id), {
+        ...record,
+        severity: evt.severity || 'info',
+        priority: evt.priority || priorityOf(record),
+        readBy: [],
+        readReceipts: {},
+        snoozedBy: {},
+      });
+    }
+    return record;
+  } catch {
+    return null; // non-fatal, exactly like web
+  }
+}
+
+// ── IMS/GIS expense split ────────────────────────────────────────────────────
+// "Put an invoice under control" workflow. A pending split raises a standing,
+// IDEMPOTENT notification (stable id, create-if-absent so read/snooze state
+// survives a rescan); calculating the split clears it. Ports of utils.js
+// ensureNotification / ensureSplitNotification / clearSplitNotification.
+export async function ensureNotification(
+  uidCollection: string,
+  id: string,
+  payload: Record<string, unknown> = {}
+): Promise<void> {
+  if (!uidCollection || !id) return;
+  try {
+    const ref = doc(db, uidCollection, 'data', 'notifications', id);
+    const snap = await getDoc(ref);
+    if (snap.exists()) return; // already raised — don't reset readBy/snoozedBy
+    const now = new Date();
+    await setDoc(ref, {
+      id,
+      createdAt: now.toISOString(),
+      createdAtMs: now.getTime(),
+      actorUid: 'system',
+      actorName: 'System',
+      audience: 'all',
+      readBy: [],
+      readReceipts: {},
+      snoozedBy: {},
+      severity: 'info',
+      notify: true,
+      priority: priorityOf(payload),
+      ...payload,
+    });
+  } catch {
+    /* non-fatal */
+  }
+}
+
+export async function deleteNotification(uidCollection: string, id: string): Promise<void> {
+  if (!uidCollection || !id) return;
+  try {
+    await deleteDoc(doc(db, uidCollection, 'data', 'notifications', id));
+  } catch {
+    /* non-fatal */
+  }
+}
+
+export interface SplitEvent {
+  entityType?: 'expense' | 'companyexpense' | 'invoice';
+  entityId: string;
+  entityLabel?: string;
+  amount?: number | null;
+  currency?: string;
+  actorUid?: string;
+  actorName?: string;
+}
+
+export async function ensureSplitNotification(uidCollection: string, evt: SplitEvent): Promise<void> {
+  const { entityType = 'expense', entityId, entityLabel, amount, currency, actorUid, actorName } = evt;
+  if (!uidCollection || !entityId) return;
+  const noun = entityType === 'invoice' ? 'Invoice' : 'Expense';
+  await ensureNotification(uidCollection, splitNotifId(entityType, entityId), {
+    type: `${entityType}.splitPending`,
+    entityType,
+    entityId,
+    entityLabel: entityLabel || '',
+    action: 'splitPending',
+    severity: 'warning',
+    notify: true,
+    actorUid: actorUid || 'system',
+    actorName: actorName || 'System',
+    message: `${entityLabel || noun} — awaiting IMS/GIS split`,
+    meta: { amount: amount ?? null, currency: currency || '' },
+  });
+}
+
+export async function clearSplitNotification(
+  uidCollection: string,
+  entityType: string,
+  entityId: string
+): Promise<void> {
+  if (!uidCollection || !entityId) return;
+  await deleteNotification(uidCollection, splitNotifId(entityType, entityId));
+}
+
+// Persist the `split` object on a row. Each collection keeps its own write path,
+// exactly like the three web pages do (expenses_{year} / companyExpenses / invoices_{year}).
+export async function saveSplit(
+  uidCollection: string,
+  target: { kind: 'expense' | 'companyexpense' | 'invoice'; id: string; date?: string; year?: string },
+  split: Record<string, unknown> | null
+): Promise<void> {
+  const patch = { split: split ?? null };
+  if (target.kind === 'companyexpense') {
+    await updateDoc(doc(db, uidCollection, 'data', 'companyExpenses', target.id), patch);
+    return;
+  }
+  const y = target.year || (target.date || '').substring(0, 4);
+  if (!y) throw new Error('Missing year for split write.');
+  const path = target.kind === 'invoice' ? `invoices_${y}` : `expenses_${y}`;
+  await updateDoc(doc(db, uidCollection, 'data', path, target.id), patch);
+}
+
+// Snooze one notification for a user until `untilMs` — port of utils.js
+// snoozeNotification. The reader hides it while snoozedBy[uid] is in the future.
+export async function snoozeNotification(
+  uidCollection: string,
+  id: string,
+  uid: string,
+  untilMs: number
+): Promise<void> {
+  if (!uidCollection || !id || !uid) return;
+  try {
+    await updateDoc(doc(db, uidCollection, 'data', 'notifications', id), {
+      [`snoozedBy.${uid}`]: untilMs,
+    });
+  } catch {
+    /* non-fatal */
+  }
+}
+
 // Mark expenses paid (paid='111') — port of utils.js updateExpPayments. Supplier
 // expenses live in expenses_{year}; company expenses in the flat companyExpenses.
 export async function markExpensesPaid(uidCollection: string, items: any[]): Promise<void> {
@@ -316,6 +516,11 @@ export async function markPoInvoicePaid(
     };
   });
   await updateDoc(cRef, { poInvoices });
+  // Web parity: every supplier-payment save fans out to the stock-lot snapshot and
+  // the Misc Invoices paid flags.
+  const updated = { ...con, poInvoices } as any;
+  await syncStockPoInvoices(uidCollection, [updated]);
+  await syncSpecialInvoicesPaidStatus(uidCollection, updated);
 }
 
 // Record a partial payment on a contract purchase invoice — port of the Cashflow
@@ -345,6 +550,81 @@ export async function partialPayPoInvoice(
     };
   });
   await updateDoc(cRef, { poInvoices });
+  const updated = { ...con, poInvoices } as any;
+  await syncStockPoInvoices(uidCollection, [updated]);
+  await syncSpecialInvoicesPaidStatus(uidCollection, updated);
+}
+
+// ── post-payment fan-out (web parity) ────────────────────────────────────────
+// After ANY supplier-payment write, web runs two syncs. Skipping them is what left
+// a mobile-paid PO's lots stuck under "Stocks - UnPaid" on web forever, and its
+// Misc Invoices rows showing "Not Paid".
+
+// Refresh the poInvoices snapshot cached on every stock lot of a contract —
+// port of cashflow/page.js syncStockPoInvoices. Best-effort, like web.
+export async function syncStockPoInvoices(uidCollection: string, contracts: Contract[]): Promise<void> {
+  await Promise.all(
+    (contracts || []).map(async (c: any) => {
+      if (!Array.isArray(c?.stock) || c.stock.length === 0) return;
+      try {
+        const lots = await loadStockDataByIds(uidCollection, c.stock);
+        if (lots.length) await saveStockIn(uidCollection, lots.map((l: any) => ({ ...l, poInvoices: c.poInvoices })));
+      } catch {
+        /* non-fatal */
+      }
+    })
+  );
+}
+
+// Re-derive paidNotPaid / invoice on the contract's specialInvoices rows —
+// port of utils.js syncSpecialInvoicesPaidStatus (same canonical match order:
+// doc id → stock.poInvoice → contract.poInvoices.id, then the legacy inv fallback).
+export async function syncSpecialInvoicesPaidStatus(
+  uidCollection: string,
+  contract: any
+): Promise<void> {
+  if (!contract?.order || !Array.isArray(contract?.poInvoices)) return;
+  try {
+    const snap = await getDocs(
+      query(collection(db, uidCollection, 'data', 'specialInvoices'), where('order', '==', contract.order))
+    );
+    if (snap.empty) return;
+
+    const stockIds = Array.isArray(contract.stock) ? contract.stock : [];
+    const stockItems = stockIds.length > 0 ? await loadStockDataByIds(uidCollection, stockIds) : [];
+    const poInvoiceByStockId = new Map<string, string>();
+    stockItems.forEach((s: any) => {
+      if (s?.id && s?.poInvoice) poInvoiceByStockId.set(s.id, s.poInvoice);
+    });
+
+    const batch = writeBatch(db);
+    let hasUpdate = false;
+
+    snap.docs.forEach((d) => {
+      const data = d.data() as any;
+      let p: any = null;
+      const poInvId = poInvoiceByStockId.get(d.id);
+      if (poInvId) p = contract.poInvoices.find((x: any) => x.id === poInvId);
+      if (!p && data.invoice) p = contract.poInvoices.find((x: any) => x.inv === data.invoice);
+      if (!p) return;
+
+      const invValue = parseFloat(p.invValue);
+      const ratio = invValue > 0 ? parseFloat(p.pmnt) / invValue : 0;
+      const paidNotPaid = ratio > 0.95 ? 'Paid' : 'Not Paid';
+
+      const update: Record<string, any> = {};
+      if (data.paidNotPaid !== paidNotPaid) update.paidNotPaid = paidNotPaid;
+      if ((data.invoice ?? '') !== (p.inv ?? '')) update.invoice = p.inv ?? '';
+      if (Object.keys(update).length > 0) {
+        batch.update(d.ref, update);
+        hasUpdate = true;
+      }
+    });
+
+    if (hasUpdate) await batch.commit();
+  } catch {
+    /* non-fatal */
+  }
 }
 
 // Patch fields on a contract doc — port of utils.js updateContractField. Year from
@@ -376,6 +656,20 @@ export async function saveStockIn(uidCollection: string, stockArr: any[]): Promi
   stockArr.forEach((s) => batch.set(doc(db, uidCollection, 'data', 'stocks', s.id), s));
   await batch.commit();
   return true;
+}
+
+// Shared Stock (IMS + GIS) writes — the joint pool lives in its own fixed
+// namespace both accounts read/write. Ports of utils.js saveSharedStock /
+// deleteSharedStock.
+export const SHARED_STOCK_UID = 'SHARED_STOCK';
+export const saveSharedStock = (stockArr: any[]) => saveStockIn(SHARED_STOCK_UID, stockArr);
+export async function deleteSharedStock(id: string): Promise<void> {
+  if (!id) return;
+  try {
+    await deleteDoc(doc(db, SHARED_STOCK_UID, 'data', 'stocks', id));
+  } catch {
+    /* non-fatal — web logs and continues too */
+  }
 }
 
 // Batch-delete stock lot docs by id — port of utils.js delStock.

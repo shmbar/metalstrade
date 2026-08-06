@@ -1,9 +1,11 @@
 import { useMemo } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/store/auth';
 import { useSettings } from '@/store/settings';
 import { loadData, loadFlatByDate } from '@/data/firestore';
+import { saveSplit } from '@/data/writes';
 import { num } from '@shared/finance';
+import { splitStatusOf } from '@shared/splitUtils';
 
 export interface ExpenseRow {
   unpaid: boolean;
@@ -16,6 +18,10 @@ export interface ExpenseRow {
   invoice?: string;
   order?: string;
   date?: string;
+  comments?: string;
+  /** raw `split` object — drives the IMS/GIS SplitControl (web parity) */
+  split?: any;
+  splitStatus: 'none' | 'pending' | 'done';
 }
 
 function mapRows(list: any[], settings: any): ExpenseRow[] {
@@ -31,6 +37,9 @@ function mapRows(list: any[], settings: any): ExpenseRow[] {
     invoice: z.expense,
     order: z.poSupplier?.order,
     date: z.date,
+    comments: z.comments || '',
+    split: z.split,
+    splitStatus: splitStatusOf(z),
   }));
 }
 
@@ -74,4 +83,30 @@ export function useExpenses() {
   }, [query.data, settings]);
 
   return { data, isLoading: query.isLoading, isError: query.isError, error: query.error, refetch: query.refetch };
+}
+
+// Persist an IMS/GIS split on an expense row. Supplier expenses live in the
+// year-bucketed expenses_{year}; company expenses in the flat companyExpenses —
+// the same two write paths the web pages use.
+export function useSaveExpenseSplit() {
+  const { uidCollection } = useAuth();
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({
+      row,
+      kind,
+      split,
+    }: {
+      row: ExpenseRow;
+      kind: 'expense' | 'companyexpense';
+      split: Record<string, unknown> | null;
+    }) => {
+      if (!uidCollection) throw new Error('Not authenticated');
+      await saveSplit(uidCollection, { kind, id: row.id, date: row.date }, split);
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['expenses-screen'] });
+      qc.invalidateQueries({ queryKey: ['notifications'] });
+    },
+  });
 }

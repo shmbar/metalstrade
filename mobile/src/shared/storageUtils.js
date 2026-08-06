@@ -1,8 +1,5 @@
 // Pure helpers for the Storage Costs page (no React / Firebase) so the rate math can
 // be unit-tested in isolation — same pattern as agingUtils / soldStatus / splitUtils.
-// Path adjusted for the shared/ folder layout (was '../contractsstatement/soldStatus'
-// in the web app). Logic is otherwise verbatim so the rate math stays identical.
-import { lotIsSold } from './soldStatus';
 
 // Expense-type labels that are true ongoing storage cost (demurrage = delay penalty,
 // stuffing/freight = one-time handling → deliberately excluded from the per-MT rate).
@@ -17,14 +14,19 @@ export const UNIT = [
 ];
 
 export const toUsd = (amt, cur) => (cur === 'us' || cur === 'USD' ? amt : (Number(amt) || 0) * EUR_USD);
-export const ym = (s) => (s || '').substring(0, 7); // YYYY-MM
+// YYYY-MM — non-string-safe (a date can come through as a number/Timestamp/object, which would
+// otherwise blow up on .substring and white-screen the page).
+export const ym = (s) => (typeof s === 'string' ? s : '').substring(0, 7);
 
-// Arrival date string for a lot (mirrors agingUtils): indDate, else contract date.
+// Arrival date string for a lot (mirrors agingUtils): indDate, else contract date. Always
+// returns a string — a non-string date (Timestamp/number/object) collapses to '' rather than
+// flowing into ym() and crashing.
 export const arrivalStr = (lot) => {
+    const str = (v) => (typeof v === 'string' ? v : '');
     const d = lot?.indDate;
     if (typeof d === 'string' && d) return d;
-    if (d && typeof d === 'object') return d.startDate || d.endDate || lot?.contractData?.date || '';
-    return lot?.contractData?.date || '';
+    if (d && typeof d === 'object') return str(d.startDate) || str(d.endDate) || str(lot?.contractData?.date);
+    return str(lot?.contractData?.date);
 };
 
 // Whether an expense is a storage/warehouse type, resolved via the settings list.
@@ -33,16 +35,21 @@ export const isStorageType = (exp, expTypes = []) => {
     return STORAGE_LABELS.includes(label.toLowerCase());
 };
 
-// MT stored in a warehouse as of a given month: unsold inbound lots that had arrived
-// by month-end (exit dates aren't tracked, so current sold status is the proxy).
-export const mtInWh = (lots, whId, month) => (lots || []).reduce((sum, l) => {
-    if (l.stock !== whId) return sum;
-    if (l.type && l.type !== 'in') return sum;
-    if (lotIsSold(l)) return sum;
-    const arr = ym(arrivalStr(l));
-    if (month && arr && arr > month) return sum; // arrived after this month
-    return sum + Math.max(0, parseFloat(l.qnty) || 0);
-}, 0);
+// MT physically stored in a warehouse, net of shipments/transfers out — matching the main
+// Stocks page (Σ in − Σ out) so the two views agree. Material that is sold but not yet shipped
+// still counts: it physically occupies the warehouse and incurs storage until it actually
+// leaves (an "out" record is created on shipment/transfer). With a `month`, counts what was on
+// hand by that month-end; a record dated after the month isn't applied yet.
+export const mtInWh = (lots, whId, month) => {
+    const net = (lots || []).reduce((sum, l) => {
+        if (l.stock !== whId) return sum;
+        const arr = ym(arrivalStr(l));
+        if (month && arr && arr > month) return sum; // not yet on hand as of this month
+        const q = Math.max(0, parseFloat(l.qnty) || 0);
+        return sum + (l.type === 'out' ? -q : q);     // "in" (or untyped) adds, "out" subtracts
+    }, 0);
+    return Math.max(0, net);
+};
 
 // Aggregate tagged storage expenses into per-warehouse cost, MT-months and a monthly
 // $/MT rate, plus an overall (cost-weighted) rate.

@@ -6,12 +6,13 @@ import { radius, spacing, getShadow, Elevation } from '@/theme/tokens';
 export interface CardProps extends ViewProps {
   padded?: boolean;
   onPress?: () => void;
+  onLongPress?: () => void;
   elevation?: Elevation | 'none';
 }
 
 // Flat-by-default surface: white on the neutral canvas + hairline border does
 // the separation (modern fintech). Pass `elevation` only for things that float.
-export function Card({ padded = true, style, children, onPress, elevation = 'none', ...rest }: CardProps) {
+export function Card({ padded = true, style, children, onPress, onLongPress, elevation = 'none', ...rest }: CardProps) {
   const { colors, scheme } = useTheme();
 
   const cardStyle = [
@@ -26,10 +27,11 @@ export function Card({ padded = true, style, children, onPress, elevation = 'non
     style,
   ];
 
-  if (onPress) {
+  if (onPress || onLongPress) {
     return (
       <Pressable
         onPress={onPress}
+        onLongPress={onLongPress}
         style={({ pressed }) => [...cardStyle, pressed && { opacity: 0.85, transform: [{ scale: 0.995 }] }]}
         {...rest}
       >

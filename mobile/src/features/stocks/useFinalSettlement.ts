@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { STOCK_LOTS_KEY } from './useAllStockLots';
 import { useAuth } from '@/store/auth';
 import { loadStockDataByIds } from '@/data/firestore';
 import { saveContractStocks } from '@/data/writes';
@@ -107,7 +108,7 @@ export function useSaveFinalSettlement() {
       return saveContractStocks(uidCollection, contract, payload);
     },
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ['stocks'] });
+      qc.invalidateQueries({ queryKey: [STOCK_LOTS_KEY] });
       qc.invalidateQueries({ queryKey: ['contracts'] });
       qc.invalidateQueries({ queryKey: ['dashboard'] });
       qc.invalidateQueries({ queryKey: ['settlement-lots'] });

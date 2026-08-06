@@ -1,75 +1,15 @@
+import { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '@/store/auth';
 import { useSettings } from '@/store/settings';
-import { loadData, loadAllStockData } from '@/data/firestore';
+import { loadData } from '@/data/firestore';
+import { useAllStockLots } from '@/features/stocks/useAllStockLots';
 import { groupInvoices, resolveInvoiceDate, effectiveDueDate, num } from '@shared/finance';
+// Net in-stock summary per warehouse+material — imported from the verbatim shared
+// copy of the web helper (utils/pureHelpers.computeStockNetSummary) rather than
+// re-implemented here, so the AI can never drift from the Stocks page math.
+import { computeStockNetSummary } from '@shared/pureHelpers';
 import { arr } from '@/lib/guard';
-
-// Net in-stock summary per warehouse+material — TS port of the web helper
-// utils/pureHelpers.computeStockNetSummary (same math as the Stocks page):
-// 'in' lots add |qnty| with final-settlement corrections, 'out' lots subtract,
-// original-vs-final invoice rows dedup per invoice number, resolved unit labels.
-function computeStockNetSummary(stockDocs: any[], settings: any) {
-  const lots = (Array.isArray(stockDocs) ? stockDocs : []).filter(Boolean)
-    .filter((s: any) => s.stock);
-
-  const dedupeFinals = (group: any[]) => {
-    const byInvoice: Record<string, any[]> = {};
-    group.forEach(l => { (byInvoice[l.invoice] ||= []).push(l); });
-    return Object.values(byInvoice).flatMap(g => {
-      const distinct = new Set(g.map(l => parseInt(l.invType, 10)));
-      if (distinct.size <= 1) return g;
-      const maxType = Math.max(...distinct);
-      return g.filter(l => parseInt(l.invType, 10) === maxType);
-    });
-  };
-
-  const quantityList = settings?.Quantity?.Quantity || [];
-  const warehouseList = settings?.Stocks?.Stocks || [];
-
-  const groups: Record<string, any[]> = {};
-  lots.forEach((s: any) => {
-    const matKey = s.description || s.descriptionId;
-    if (!matKey) return;
-    (groups[`${s.stock}|${matKey}`] ||= []).push(s);
-  });
-
-  const rows: any[] = [];
-  Object.values(groups).forEach(groupLots => {
-    const filtered = dedupeFinals(groupLots);
-    let qty = 0;
-    filtered.forEach((l: any) => {
-      const q = parseFloat(l.qnty) || 0;
-      if (l.type === 'in') {
-        qty += Math.abs(q) +
-          ((l.finalqnty && l.finalqnty * 1 !== l.qnty * 1) ? (l.qnty * 1 - l.finalqnty * 1) * -1 : 0);
-      } else {
-        qty -= q;
-      }
-    });
-    if (qty <= 0.1) return;
-
-    const first: any = filtered[0] || groupLots[0];
-    const resolvedDesc =
-      (first.type === 'in' && first.description
-        ? first.productsData?.find((y: any) => y.id === first.description)?.description
-        : (first.mtrlStatus === 'select' || first.isSelection)
-          ? first.productsData?.find((y: any) => y.id === first.descriptionId)?.description
-          : (first.type === 'out' && first.moveType === 'out')
-            ? first.descriptionName
-            : first.descriptionText) || first.descriptionName || 'Unknown';
-
-    rows.push({
-      description: resolvedDesc,
-      qnty: Math.round(qty * 1000) / 1000,
-      unit: quantityList.find((u: any) => u.id === first.qTypeTable)?.qTypeTable || '',
-      warehouse: warehouseList.find((w: any) => w.id === first.stock)?.nname
-        || warehouseList.find((w: any) => w.id === first.stock)?.stock || '',
-    });
-  });
-
-  return rows.sort((a, b) => b.qnty - a.qnty);
-}
 
 // Builds the SAME slim, enriched context the web Assistant sends (FloatingChat
 // getCurrentDataContext). Two reasons this projection matters:
@@ -183,19 +123,29 @@ export function useAssistantContext() {
     staleTime: 1000 * 60 * 5,
     queryFn: async () => {
       const uid = uidCollection as string;
-      const [contracts, invoices, expenses, stocks] = await Promise.all([
+      const [contracts, invoices, expenses] = await Promise.all([
         loadData<any>(uid, 'contracts', dateSelect),
         loadData<any>(uid, 'invoices', dateSelect),
         loadData<any>(uid, 'expenses', dateSelect),
-        loadAllStockData(uid),
       ]);
-      return buildContext({ contracts, invoices, expenses, stocks }, settings, compData);
+      return { contracts, invoices, expenses };
     },
   });
 
+  // Stock lots come from the SHARED ledger query — the assistant used to trigger a
+  // sixth full download of the collection every time it was opened.
+  const lotsQuery = useAllStockLots();
+
+  const currentData = useMemo(() => {
+    if (!query.data) {
+      return { contracts: [], invoices: [], expenses: [], stocks: [], margins: [] as any[], marginAlertThreshold: 5 };
+    }
+    return buildContext({ ...query.data, stocks: lotsQuery.data || [] }, settings, compData);
+  }, [query.data, lotsQuery.data, settings, compData]);
+
   return {
-    currentData: query.data || { contracts: [], invoices: [], expenses: [], stocks: [], margins: [], marginAlertThreshold: 5 },
+    currentData,
     dateRange: { startDate: dateSelect.start, endDate: dateSelect.end },
-    isLoading: query.isLoading,
+    isLoading: query.isLoading || lotsQuery.isLoading,
   };
 }

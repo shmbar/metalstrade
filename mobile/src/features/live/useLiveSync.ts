@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react';
 import { collection, onSnapshot } from 'firebase/firestore';
 import { useQueryClient } from '@tanstack/react-query';
 import { db } from '@/lib/firebase';
+import { STOCK_LOTS_KEY } from '@/features/stocks/useAllStockLots';
 
 // Live multi-user sync: watch this year's contract/invoice buckets (plus stocks)
 // and refresh the query cache whenever ANOTHER session writes. Screens keep
@@ -19,9 +20,12 @@ export function useLiveSync(uidCollection: string | null) {
     const refresh = () => {
       if (timer.current) clearTimeout(timer.current);
       timer.current = setTimeout(() => {
-        ['invoices', 'contracts', 'dashboard', 'contract-invoices', 'cashflow', 'expenses', 'stocks', 'briefing'].forEach((key) =>
-          qc.invalidateQueries({ queryKey: [key] })
-        );
+        [
+          'invoices', 'contracts', 'dashboard', 'contract-invoices', 'cashflow',
+          'expenses-screen', 'briefing', 'notifications', 'activity',
+          'shared-stock', 'storage-expenses',
+          STOCK_LOTS_KEY, // the shared stock ledger every stock screen now reads
+        ].forEach((key) => qc.invalidateQueries({ queryKey: [key] }));
       }, 600);
     };
 

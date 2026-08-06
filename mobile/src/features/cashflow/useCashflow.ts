@@ -2,7 +2,8 @@ import { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '@/store/auth';
 import { useSettings } from '@/store/settings';
-import { loadData, loadFlatByDate, loadAllStockData } from '@/data/firestore';
+import { loadData, loadFlatByDate } from '@/data/firestore';
+import { useAllStockLots } from '@/features/stocks/useAllStockLots';
 import { Contract, Invoice } from '@/data/types';
 import { resolveClientName } from '@/features/invoices/useInvoices';
 import { num } from '@shared/finance';
@@ -85,22 +86,75 @@ function computeReceivablesWeb(invoices: Invoice[]): any[] {
 // Driven by the manual Sold/Unsold lot status; fully-sold contracts (and their
 // duplicated phantoms) drop out; not-yet-received products fall back to contract qty.
 function computeUnsoldWeb(contractsData: any[], stockData: any[], settings: any) {
-  const inLotById = new Map(stockData.filter((l) => l.type === 'in').map((l) => [l.id, l]));
+  // Port of utils.js filteredArray — an invoice superseded by its Credit/Final note
+  // must not write off the same line twice.
+  const filteredArray = (arr: any[]): any[] => {
+    const byInvoice: Record<string, any[]> = {};
+    arr.forEach((o) => {
+      (byInvoice[String(o.invoice)] ||= []).push(o);
+    });
+    return Object.values(byInvoice).flatMap((group) => {
+      const distinct = new Set(group.map((o) => parseInt(o.invType, 10)));
+      if (distinct.size === 1) return group;
+      const max = Math.max(...distinct);
+      return group.filter((o) => parseInt(o.invType, 10) === max);
+    });
+  };
+
+  // Web's runStocks filters the ledger BEFORE any of this: zero-value settlement
+  // rows and draft lots must not pollute the fully-sold test or the out-netting.
+  const lots = (stockData || []).filter((z: any) => z.total !== 0).filter((x: any) => x.draft === undefined || x.draft === false);
+
+  const inLotById = new Map(lots.filter((l: any) => l.type === 'in').map((l: any) => [l.id, l]));
   const unSoldAll = (contractsData || []).flatMap((con: any) => {
     const ownLots = (con.stock || []).map((id: string) => inLotById.get(id)).filter(Boolean) as any[];
     const contractFullySold = ownLots.length > 0 && ownLots.every(lotIsSold);
     if (contractFullySold) return [];
     const rows: any[] = [];
-    for (const prod of con.productsData || []) {
-      if (prod.import) continue;
+
+    // import-flagged products (per-alloy breakdown lines) participate via their LOTS
+    // only — they have no contract quantity of their own. And when a single-line PO's
+    // material was received under such per-alloy lines, the generic PO line must not
+    // ALSO show its full contract quantity: the alloys already represent it.
+    const prods = con.productsData || [];
+    const importIds = new Set(prods.filter((p: any) => p.import).map((p: any) => p.id));
+    const hasImportLots = ownLots.some((l) => importIds.has(l.description || l.descriptionId));
+    const singleOwnLine = prods.filter((p: any) => !p.import).length === 1;
+
+    for (const prod of prods) {
       const prodLots = ownLots.filter((l) => l.description === prod.id || l.descriptionId === prod.id);
+      if (prod.import && prodLots.length === 0) continue;
       if (prodLots.length > 0 && prodLots.every(lotIsSold)) continue;
       const unsoldLots = prodLots.filter((l) => !lotIsSold(l));
-      const qnty = prodLots.length > 0
-        ? unsoldLots.reduce((s, l) => s + (Number(l.qnty) || 0), 0)
-        : Number(prod.qnty) || 0;
+
+      // Net out partial sales: 'out' write-offs (shipments/sales — NOT warehouse
+      // transfers, whose material is still owned and unsold) reduce what's left.
+      // Outs are attributed to sold-marked lots first, so a lot that is both marked
+      // sold and shipped isn't subtracted twice; only the excess hits the unsold
+      // balance. This is what keeps e.g. Ta Discs at 2.790 when 0.250 had shipped.
+      const prodOuts = lots.filter(
+        (l) => l.type === 'out' && l.moveType !== 'out' && (l.descriptionId === prod.id || l.description === prod.id)
+      );
+      const hasInv = (l: any) => l.invoice !== undefined && l.invoice !== null && l.invoice !== '';
+      const outQty = [...filteredArray(prodOuts.filter(hasInv)), ...prodOuts.filter((l) => !hasInv(l))].reduce(
+        (s, l) => s + Math.abs(Number(l.qnty) || 0),
+        0
+      );
+      const soldQty = prodLots.filter(lotIsSold).reduce((s, l) => s + (Number(l.qnty) || 0), 0);
+
+      const qnty =
+        prodLots.length > 0
+          ? Math.max(
+              0,
+              unsoldLots.reduce((s, l) => s + (Number(l.qnty) || 0), 0) - Math.max(0, outQty - soldQty)
+            )
+          : singleOwnLine && !prod.import && hasImportLots
+            ? 0
+            : Number(prod.qnty) || 0;
+      if (qnty <= 0.0005) continue; // nothing left (or represented by the per-alloy lines)
+
       const unitPrc = Number(prod.unitPrc) || 0;
-      rows.push({ order: con.order, supplier: con.supplier, total: qnty * unitPrc, cur: con.cur });
+      rows.push({ order: con.order, supplier: con.supplier, qnty, unitPrc, total: qnty * unitPrc, cur: con.cur });
     }
     return rows;
   });
@@ -131,21 +185,26 @@ export function useCashflow() {
     queryKey: ['cashflow', uidCollection, curYr],
     queryFn: async () => {
       const uid = uidCollection as string;
-      const [invoices, contracts4y, contracts2y, expenses, companyExpenses, stocks] = await Promise.all([
+      const [invoices, contracts4y, contracts2y, expenses, companyExpenses] = await Promise.all([
         loadData<Invoice>(uid, 'invoices', range4y),
         loadData<Contract>(uid, 'contracts', range4y),
         loadData<Contract>(uid, 'contracts', range2y),
         loadData<any>(uid, 'expenses', range2y),
         loadFlatByDate<any>(uid, 'companyExpenses', range2y),
-        loadAllStockData(uid),
       ]);
-      return { invoices, contracts4y, contracts2y, expenses, companyExpenses, stocks };
+      // Stock lots come from the SHARED ledger query (see useAllStockLots) so the
+      // Cashflow screen does not re-download the whole collection the Stocks tab
+      // already has cached.
+      return { invoices, contracts4y, contracts2y, expenses, companyExpenses };
     },
   });
 
+  const lotsQuery = useAllStockLots();
+
   const data = useMemo<CashflowData | null>(() => {
-    if (!query.data) return null;
-    const { invoices, contracts4y, contracts2y, expenses, companyExpenses, stocks } = query.data;
+    if (!query.data || !lotsQuery.data) return null;
+    const { invoices, contracts4y, contracts2y, expenses, companyExpenses } = query.data;
+    const stocks = lotsQuery.data;
 
     // ── Receivables (clients) — web runInvoices pipeline ───────────────────
     const receivablesByCur: Record<string, number> = {};
@@ -196,9 +255,21 @@ export function useCashflow() {
     });
 
     // ── Unpaid expenses (paid === '222'); web: anything non-'us' converts ×1.08 ──
+    // Same record must never count twice: an expense that exists in BOTH the
+    // supplier-expenses and company-expenses collections (copy flows) — or any
+    // double-load — would duplicate its row and its minus in the totals.
+    // Dedup by id after the merge, exactly like web runExpenses.
+    const seenExp = new Set<string>();
+    const mergedExpenses = [...expenses, ...companyExpenses].filter((z: any) => {
+      if (!z?.id) return true;
+      if (seenExp.has(z.id)) return false;
+      seenExp.add(z.id);
+      return true;
+    });
+
     const expMap = new Map<string, Counterparty>();
     let expensesUsd = 0;
-    [...expenses, ...companyExpenses]
+    mergedExpenses
       .filter((z) => z && z.paid === '222')
       .forEach((e) => {
         const isUs = e.cur === 'us';
@@ -230,7 +301,16 @@ export function useCashflow() {
       expenseSuppliers: sortByUsd(expMap),
       unsoldByCur,
     };
-  }, [query.data, settings]);
+  }, [query.data, lotsQuery.data, settings]);
 
-  return { data, isLoading: query.isLoading, isError: query.isError, error: query.error, refetch: query.refetch };
+  return {
+    data,
+    isLoading: query.isLoading || lotsQuery.isLoading,
+    isError: query.isError || lotsQuery.isError,
+    error: query.error || lotsQuery.error,
+    refetch: () => {
+      query.refetch();
+      lotsQuery.refetch();
+    },
+  };
 }

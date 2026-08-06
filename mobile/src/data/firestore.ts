@@ -115,7 +115,11 @@ export async function loadAcntStatement(
   return snap.exists() ? snap.data() : [];
 }
 
-// Notification center — {uid}/data/notifications, newest first (sorted client-side).
+// Notification center — {uid}/data/notifications. Web subscribes with
+// orderBy('createdAtMs','desc').limit(100); we read the same window and sort
+// client-side (no composite index needed, and legacy docs may lack the field).
+// Priority ordering + audience/snooze filtering happen in the reader, exactly as
+// useNotificationContext does on web.
 export async function loadNotifications(uidCollection: string, max = 100): Promise<any[]> {
   const snap = await getDocs(collection(db, uidCollection, 'data', 'notifications'));
   return snap.docs
@@ -136,6 +140,13 @@ export async function loadAllStockData(uidCollection: string): Promise<any[]> {
   const snap = await getDocs(collection(db, uidCollection, 'data', 'stocks'));
   return snap.docs.map((d) => d.data());
 }
+
+// Shared Stock (IMS + GIS) — inventory jointly held by the two companies. IMS and
+// GIS are separate account namespaces, so joint lots live in their own FIXED
+// namespace that BOTH accounts read; each account still only sees (a) its own
+// private stock and (b) this shared pool. Port of utils.js SHARED_STOCK_UID.
+export const SHARED_STOCK_UID = 'SHARED_STOCK';
+export const loadSharedStock = () => loadAllStockData(SHARED_STOCK_UID);
 
 // Stock lots by id (chunked `in` at 30) — port of utils.js loadStockData('id', …).
 export async function loadStockDataByIds(uidCollection: string, ids: string[]): Promise<any[]> {
@@ -218,36 +229,97 @@ async function getInvoicesBatched(
   return byYear;
 }
 
+// Batched sibling of loadDocByIdDate: given { id, date } refs, load all referenced
+// docs in one chunked pass (≤30-id `in` queries per year) → { [id]: data }.
+// Port of utils.js loadDocsByIdBatched.
+export async function loadDocsByIdBatched<T = any>(
+  uidCollection: string,
+  path: string,
+  refs: { id?: string; date?: string }[]
+): Promise<Record<string, T>> {
+  const CHUNK = 30;
+  const byYear: Record<string, Set<string>> = {};
+  (refs || []).forEach((r) => {
+    if (r?.id && r?.date) (byYear[r.date.substring(0, 4)] ||= new Set()).add(r.id);
+  });
+  const entries: { yr: string; chunk: string[] }[] = [];
+  for (const [yr, ids] of Object.entries(byYear)) {
+    const list = [...ids];
+    for (let i = 0; i < list.length; i += CHUNK) {
+      const chunk = list.slice(i, i + CHUNK);
+      if (chunk.length) entries.push({ yr, chunk });
+    }
+  }
+  const snaps = await Promise.all(
+    entries.map((e) =>
+      getDocs(query(collection(db, uidCollection, 'data', `${path}_${e.yr}`), where('id', 'in', e.chunk)))
+    )
+  );
+  const index: Record<string, T> = {};
+  snaps.forEach((snap) =>
+    snap.docs.forEach((d) => {
+      const data = d.data() as any;
+      if (data?.id) index[data.id] = data as T;
+    })
+  );
+  return index;
+}
+
+// year → invoiceNumber → docs[], plus __byId for legacy refs. Port of utils.js
+// buildInvoiceIndex.
+export type InvoiceIndex = Record<string, Record<number, Invoice[]>> & {
+  __byId?: Record<string, Invoice>;
+};
+
 export async function buildInvoiceIndex(
   uidCollection: string,
   contracts: Contract[]
-): Promise<Record<string, Record<number, Invoice[]>>> {
+): Promise<InvoiceIndex> {
   const needByYear: Record<string, number[]> = {};
+  // Legacy contract refs are just { id, date } (no invoice number). Number-keyed
+  // batching silently dropped them, so every sale on such a contract vanished from
+  // the contract's invoice set while id-based readers still counted it — a
+  // five-figure-to-millions revenue mismatch on web before this was fixed.
+  const legacyRefs: { id?: string; date?: string }[] = [];
   (contracts || []).forEach((con) =>
-    (con.invoices || []).forEach((ref) => {
-      if (ref?.date && ref.invoice != null) (needByYear[ref.date.substring(0, 4)] ||= []).push(ref.invoice);
+    (con.invoices || []).forEach((ref: any) => {
+      if (!ref?.date) return;
+      if (ref.invoice != null) (needByYear[ref.date.substring(0, 4)] ||= []).push(ref.invoice);
+      else if (ref.id) legacyRefs.push(ref);
     })
   );
   const invByYear = await getInvoicesBatched(uidCollection, 'invoices', needByYear);
-  const index: Record<string, Record<number, Invoice[]>> = {};
+  const index: InvoiceIndex = {};
   Object.entries(invByYear).forEach(([yr, docs]) => {
     const m = (index[yr] = {} as Record<number, Invoice[]>);
     docs.forEach((d) => ((m[d.invoice as number] ||= []).push(d)));
   });
+  index.__byId = legacyRefs.length
+    ? await loadDocsByIdBatched<Invoice>(uidCollection, 'invoices', legacyRefs)
+    : {};
   return index;
 }
 
 export function contractInvoicesFromIndex(
   con: Contract,
-  index: Record<string, Record<number, Invoice[]>>,
+  index: InvoiceIndex,
   grouped = true
 ): Invoice[] | Invoice[][] {
   const refs = con?.invoices || [];
-  const yrs = [...new Set(refs.map((x) => x.date.substring(0, 4)))];
   const collected: Invoice[] = [];
-  yrs.forEach((yr) => {
-    const nums = [...new Set(refs.filter((x) => x.date.substring(0, 4) === yr).map((y) => y.invoice))];
-    nums.forEach((n) => (index[yr]?.[n] || []).forEach((d) => collected.push({ ...d })));
+  const seen = new Set<string>();
+  const push = (d?: Invoice) => {
+    if (d && !seen.has(d.id)) {
+      seen.add(d.id);
+      collected.push({ ...d });
+    }
+  };
+  // Guard every ref: a ref without a date must be skipped, not dereferenced —
+  // one such contract used to throw a TypeError and kill the whole fetch.
+  refs.forEach((ref: any) => {
+    if (!ref?.date) return;
+    if (ref.invoice != null) (index[ref.date.substring(0, 4)]?.[ref.invoice] || []).forEach(push);
+    else if (ref.id) push(index.__byId?.[ref.id]); // legacy { id, date } ref
   });
   return grouped ? groupedArrayInvoice(collected) : collected;
 }
