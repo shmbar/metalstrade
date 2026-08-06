@@ -91,8 +91,8 @@ export default function SumBasket({ items = [], onRemove, onClear }) {
                     <span className="grid place-items-center w-6 h-6 rounded-lg bg-[var(--on-brand-soft)] shrink-0">
                         <Sigma className="w-3.5 h-3.5" />
                     </span>
-                    <span className="font-semibold responsiveTextInput truncate">Selected invoices</span>
-                    <span className="shrink-0 responsiveTextTable font-bold px-1.5 py-0.5 rounded-full bg-[var(--on-brand-soft-strong)]">
+                    <span className="font-medium responsiveTextInput truncate">Selected invoices</span>
+                    <span className="shrink-0 responsiveTextTable font-semibold px-1.5 py-0.5 rounded-full bg-[var(--on-brand-soft-strong)]">
                         {items.length}
                     </span>
                 </div>
@@ -116,7 +116,7 @@ export default function SumBasket({ items = [], onRemove, onClear }) {
             <div className="flex items-center gap-1 px-2 py-1.5 bg-[var(--surface-card)] border-b border-[var(--selago)]">
                 {METRICS.map(m => (
                     <button key={m} onClick={() => setMetric(m)}
-                        className={`flex-1 responsiveTextTable font-semibold py-1 rounded-lg transition-colors ${metric === m
+                        className={`flex-1 responsiveTextTable font-medium py-1 rounded-lg transition-colors ${metric === m
                             ? 'bg-[var(--endeavour)] text-[var(--on-brand)] shadow-sm'
                             : 'text-[var(--chathams-blue)] hover:bg-[var(--surface-header)]'}`}>
                         {metricLabel[m]}
@@ -128,24 +128,24 @@ export default function SumBasket({ items = [], onRemove, onClear }) {
             <div className="px-3 py-2.5 flex flex-col gap-1.5 bg-[var(--surface-card)]">
                 {hasUsd &&
                     <div className="flex items-center justify-between rounded-2xl px-2.5 py-1.5 bg-[var(--surface-header)] border border-[var(--border-cell)]">
-                        <span className="flex items-center gap-1.5 responsiveTextTable font-semibold tracking-wide uppercase text-[var(--regent-gray)]">
-                            <span className="grid place-items-center w-4 h-4 rounded-full bg-[var(--endeavour)] text-[var(--on-brand)] responsiveTextTable font-bold leading-none">$</span>
+                        <span className="flex items-center gap-1.5 responsiveTextTable font-medium tracking-wide uppercase text-[var(--regent-gray)]">
+                            <span className="grid place-items-center w-4 h-4 rounded-full bg-[var(--endeavour)] text-[var(--on-brand)] responsiveTextTable font-semibold leading-none">$</span>
                             {metricLabel[metric]}
                         </span>
                         <NumericFormat value={usd} displayType="text" thousandSeparator prefix="$"
                             decimalScale={2} fixedDecimalScale
-                            className="tabular-nums responsiveTextPage font-bold text-[var(--chathams-blue)] leading-none" />
+                            className="tabular-nums responsiveTextTitle font-semibold text-[var(--chathams-blue)] leading-none" />
                     </div>
                 }
                 {hasEur &&
                     <div className="flex items-center justify-between rounded-2xl px-2.5 py-1.5 bg-[var(--surface-header)] border border-[var(--border-cell)]">
-                        <span className="flex items-center gap-1.5 responsiveTextTable font-semibold tracking-wide uppercase text-[var(--regent-gray)]">
-                            <span className="grid place-items-center w-4 h-4 rounded-full bg-[var(--brand-deep)] text-[var(--on-brand)] responsiveTextTable font-bold leading-none">€</span>
+                        <span className="flex items-center gap-1.5 responsiveTextTable font-medium tracking-wide uppercase text-[var(--regent-gray)]">
+                            <span className="grid place-items-center w-4 h-4 rounded-full bg-[var(--brand-deep)] text-[var(--on-brand)] responsiveTextTable font-semibold leading-none">€</span>
                             {metricLabel[metric]}
                         </span>
                         <NumericFormat value={eur} displayType="text" thousandSeparator prefix="€"
                             decimalScale={2} fixedDecimalScale
-                            className="tabular-nums responsiveTextPage font-bold text-[var(--chathams-blue)] leading-none" />
+                            className="tabular-nums responsiveTextTitle font-semibold text-[var(--chathams-blue)] leading-none" />
                     </div>
                 }
                 {naCount > 0 &&
