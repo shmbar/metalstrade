@@ -9,7 +9,18 @@ const n = (v: any) => {
 
 // The web rounds Fe to 2dp via toFixed(2) BEFORE using it in the price math —
 // match that exactly so results agree to the cent even on >2dp inputs.
-const feOf = (rest: number) => Number((100 - rest).toFixed(2));
+//
+// SUBTRACTION ORDER IS LOAD-BEARING. Web writes `(100 - ni - cr - mo).toFixed(2)`
+// (fenicr.js:899, stainless.js:588, supperalloys.js:638) — it subtracts each element
+// from 100 one at a time. Summing the elements first and taking 100 − sum is the same
+// number in real arithmetic but a DIFFERENT double: with ni/cr/mo = 8.505/18.005/0.505,
+// the sequential form is 72.98500000000001 (→ 72.99) and the summed form is exactly
+// 72.985 (→ 72.98, because toFixed rounds the tie down at that binary value). That cent
+// then flows into the Fe term of both the cost and the sales price. The formulas page
+// strips input to /[^0-9.]/ with no decimal cap (formulas/page.js:87), so 3dp assays are
+// typeable and this is reachable. Reduce with `-`, never sum-then-subtract.
+const feOf = (elements: number[]) =>
+  Number(elements.reduce((acc, e) => acc - e, 100).toFixed(2));
 
 export interface Field {
   key: string;
@@ -23,7 +34,7 @@ export function computeFenicr(value: any) {
   const f = value?.fenicr || {};
   const g = value?.general || {};
   const ni = n(f.ni), cr = n(f.cr), mo = n(f.mo);
-  const fe = feOf(ni + cr + mo);
+  const fe = feOf([ni, cr, mo]);
 
   const cost =
     (ni * n(g.nilme) * n(f.formulaNiCost)) / 10000 +
@@ -31,9 +42,12 @@ export function computeFenicr(value: any) {
     (mo * n(f.moPrice)) / 100 +
     (fe * n(f.fePrice)) / 100;
 
+  // Division grouping is web's, left to right (fenicr.js:906-909). `a/100*b/100`
+  // and `(a/100)*(b/100)` agree mathematically but not in the last floating-point
+  // bits, and these figures are read against the web page to the cent.
   const sales =
-    ((ni * n(g.nilme)) / 100) * (n(f.formulaNiPrice) / 100) +
-    (cr / 100) * n(g.chargeCrLb) * n(g.mt) * (n(f.crPriceArgus) / 100) +
+    (((ni * n(g.nilme)) / 100) * n(f.formulaNiPrice)) / 100 +
+    (((cr / 100) * n(g.chargeCrLb) * n(g.mt) * n(f.crPriceArgus)) / 100) +
     (mo / 100) * ((n(g.MoOxideLb) * n(f.moPriceArgus) * n(g.mt)) / 100) +
     (fe * n(f.fePrice1)) / 100;
 
@@ -57,7 +71,7 @@ export function computeStainless(value: any) {
   const s = value?.stainless || {};
   const g = value?.general || {};
   const ni = n(s.ni), cr = n(s.cr), mo = n(s.mo);
-  const fe = feOf(ni + cr + mo);
+  const fe = feOf([ni, cr, mo]);
 
   const cost =
     (ni * n(g.nilme) * n(s.formulaNiCost)) / 10000 +
@@ -65,9 +79,10 @@ export function computeStainless(value: any) {
     (mo * n(s.moPrice)) / 100 +
     (fe * n(s.fePrice)) / 100;
 
+  // Same left-to-right division grouping as web (stainless.js:595-598).
   const sales =
-    ((ni * n(g.nilme)) / 100) * (n(s.formulaNiPrice) / 100) +
-    (cr / 100) * n(g.chargeCrLb) * n(g.mt) * (n(s.crPriceArgus) / 100) +
+    (((ni * n(g.nilme)) / 100) * n(s.formulaNiPrice)) / 100 +
+    (((cr / 100) * n(g.chargeCrLb) * n(g.mt) * n(s.crPriceArgus)) / 100) +
     (mo / 100) * ((n(g.MoOxideLb) * n(s.moPriceArgus) * n(g.mt)) / 100) +
     (fe * n(s.fePrice1)) / 100;
 
@@ -93,7 +108,8 @@ export function computeSuperalloys(value: any) {
   const g = value?.general || {};
   const el: Record<string, number> = {};
   SA_ELEMENTS.forEach((e) => (el[e] = n(s[e])));
-  const fe = feOf(SA_ELEMENTS.reduce((sum, e) => sum + el[e], 0));
+  // SA_ELEMENTS is in web's own subtraction order (supperalloys.js:638-640).
+  const fe = feOf(SA_ELEMENTS.map((e) => el[e]));
 
   const mt = n(g.mt);
   const base =
