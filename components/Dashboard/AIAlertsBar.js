@@ -7,6 +7,11 @@ import { UserAuth } from '@contexts/useAuthContext';
 import { loadData, loadMarginsRange, ensureNotificationsBatch, reconcileSystemNotifications } from '@utils/utils';
 import { receivables as financeReceivables, groupInvoices, isOverdue, invoiceBalance, isIssued, resolveInvoiceDate, effectiveDueDate } from '@utils/finance';
 
+// Bell messages show amounts the way the rest of the app does — with thousand
+// separators ("USD 10,747.47", not "USD 10747.47"). The batch self-heal rewrites
+// stored messages when the text changes, so old bell items reformat themselves.
+const fmtAmt = (n) => new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Number(n) || 0);
+
 // Compact pill button used for each alert chip
 function AlertPill({ icon: Icon, label, count, severity, onClick }) {
     const palette = {
@@ -110,7 +115,7 @@ const AIAlertsBar = () => {
                         payload: {
                             type: 'settlement.overdue', entityType: 'invoice', entityId: inv.id || '',
                             entityLabel: `Invoice #${inv.invoice ?? ''}`, action: 'overdue', severity: 'warning', priority: 'high',
-                            message: `Invoice #${inv.invoice ?? ''} overdue${days != null ? ` ${days}d` : ''} — ${cur} ${Number(inv._balanceDue || 0).toFixed(2)} (${clientName})`,
+                            message: `Invoice #${inv.invoice ?? ''} overdue${days != null ? ` ${days}d` : ''} — ${cur} ${fmtAmt(inv._balanceDue)} (${clientName})`,
                         },
                     });
                 });
@@ -130,7 +135,7 @@ const AIAlertsBar = () => {
                         payload: {
                             type: 'invoice.unpaid', entityType: 'invoice', entityId: inv.id || '',
                             entityLabel: `Invoice #${inv.invoice ?? ''}`, action: 'unpaid', severity: 'warning',
-                            message: `Invoice #${inv.invoice ?? ''} unpaid ${ageDays}d after issue — ${cur} ${bal.toFixed(2)} (${clientName})`,
+                            message: `Invoice #${inv.invoice ?? ''} unpaid ${ageDays}d after issue — ${cur} ${fmtAmt(bal)} (${clientName})`,
                         },
                     });
                 });
