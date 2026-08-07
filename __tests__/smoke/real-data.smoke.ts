@@ -138,6 +138,26 @@ function checkNonNegative(surface: string, docId: string, field: string, v: unkn
 let db: any;
 let uidCollection: string;
 
+/**
+ * Users type a bare USERNAME; both apps expand it to an address before Firebase sees
+ * it. Verbatim from actions/validations.js:19-25, and mirrored in mobile's
+ * src/store/auth.ts — so `sharonims` becomes `sharonims@ims-metals.com`. Without
+ * this the smoke check could only be run with an address, which is not what anyone
+ * actually logs in with.
+ */
+function completeUserEmail(userName: string): string {
+  const u = String(userName || '');
+  return u.includes('@')
+    ? u
+    : u === 'isims'
+      ? 'isims@is.is'
+      : u === 'isgis'
+        ? 'isgis@is.is'
+        : u.slice(-3) === 'ims'
+          ? u + '@ims-metals.com'
+          : u + '@gismetals.com';
+}
+
 async function connect() {
   const { initializeApp } = await import('firebase/app');
   const { getAuth, signInWithEmailAndPassword } = await import('firebase/auth');
@@ -175,17 +195,18 @@ async function connect() {
   const app = initializeApp(cfg as any, 'smoke');
 
   const auth = getAuth(app);
+  const loginEmail = completeUserEmail(EMAIL!);
   let cred;
   try {
-    cred = await signInWithEmailAndPassword(auth, EMAIL!, PASSWORD!);
+    cred = await signInWithEmailAndPassword(auth, loginEmail, PASSWORD!);
   } catch (e: any) {
     const code = String(e?.code || e?.message || e);
     const hint = code.includes('invalid-email')
-      ? `"${EMAIL}" is not an email address. Firebase signs in by EMAIL — the app passes it ` +
+      ? `"${loginEmail}" is not an email address. Firebase signs in by EMAIL — the app passes it ` +
         'straight through, with no username mapping. IMS_TEST_EMAIL in .env.local is a username, ' +
         'not a login.'
       : code.includes('invalid-credential') || code.includes('wrong-password') || code.includes('user-not-found')
-        ? `Wrong email or password for "${EMAIL}".`
+        ? `Wrong email or password for "${loginEmail}" (from "${EMAIL}").`
         : code.includes('too-many-requests')
           ? 'Firebase has temporarily blocked sign-in after repeated failures. Wait a few minutes.'
           : code;
@@ -246,11 +267,18 @@ describe.skipIf(!enabled)('real-data smoke', () => {
     } else {
       await connect();
 
-      // Settings live one doc per category, the way useSettingsState loads them.
-      const CATEGORIES = ['Supplier', 'Client', 'Currency', 'Quantity', 'Stocks', 'Expenses', 'POL', 'POD', 'General'];
-      for (const cat of CATEGORIES) {
-        const d = await readDocData(cat);
-        if (d) settings[cat] = d;
+      // ALL settings live in ONE document called `settings` — mobile's
+      // loadSettings() is loadDataSettings(uid, 'settings'), and the categories
+      // (Supplier, Client, Currency, …) are keys inside it. Reading a doc per
+      // category silently yields {}, which makes every name resolve to '—' and every
+      // currency look unknown — the first thing this script got wrong about real data.
+      settings = (await readDocData('settings')) || {};
+      const cats = Object.keys(settings);
+      if (!cats.length) {
+        throw new Error(
+          `The "settings" document under ${uidCollection} is empty or unreadable — every ` +
+            'downstream check would be meaningless, so this is a hard failure rather than a clean run.'
+        );
       }
 
       contracts = await readCollection('data', `contracts_${YEAR}`);
@@ -279,6 +307,7 @@ describe.skipIf(!enabled)('real-data smoke', () => {
     // eslint-disable-next-line no-console
     console.log(
       `\n  connected · uidCollection=${uidCollection} · year=${YEAR}\n` +
+        `  settings categories: ${Object.keys(settings).join(', ') || '(NONE — checks would be meaningless)'}\n` +
         `  contracts=${contracts.length} invoices=${invoices.length} stock lots=${stocks.length}\n`
     );
   }, 120_000);
@@ -396,7 +425,7 @@ describe.skipIf(!enabled)('real-data smoke', () => {
     const c = computeShipmentCounts(rows);
     expect(c.all).toBe(rows.length);
     // Every row lands in exactly one status bucket — a stray legacy token would break this.
-    expect(Object.values(c.byStatus).reduce((a, b) => a + b, 0)).toBe(rows.length);
+    expect(Object.values(c.byStatus).reduce((a: number, b: number) => a + b, 0)).toBe(rows.length);
   });
 
   it('no currency id in the data is unknown to Settings', () => {
