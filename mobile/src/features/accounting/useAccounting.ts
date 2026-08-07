@@ -7,53 +7,24 @@ import {
   loadExpensesForAccounting,
   loadAdditionalCNFN,
 } from '@/data/firestore';
-import { num } from '@shared/finance';
+import {
+  AccountingGroup,
+  buildExpenseLines,
+  buildInvoiceRows,
+  buildPurchaseLines,
+  dropOrphanNotes,
+  groupAccounting,
+  makeGQ,
+  selectCnFnRefs,
+  sortBy,
+} from '@/features/accounting/accountingCore';
 
-const getprefixInv = (x: any) =>
-  x.invType === '1111' || x.invType === 'Invoice' ? '' : x.invType === '2222' || x.invType === 'Credit Note' ? 'CN' : 'FN';
-const getprefixInv1 = (x: any) =>
-  x.invType === '1111' || x.invType === 'Invoice' ? 'Sales Invoice' : x.invType === '2222' || x.invType === 'Credit Note' ? 'Credit Note' : 'Final Note';
-
-const sortBy = (arr: any[], key: string) =>
-  [...arr].sort((a, b) => String(a[key] ?? '').localeCompare(String(b[key] ?? ''), undefined, { numeric: true }));
-
-export interface AccountingLine {
-  dateExp: string;
-  expInvoice: string;
-  supplierName: string;
-  amountExp: number;
-  expType: string;
-  curEX: string;
-  /** write targets for inline editing — absent on Purchase rows, which web blocks */
-  expenseId?: string;
-  expenseDate?: string;
-}
-export interface AccountingGroup {
-  /** write targets for inline editing of the sales-invoice side */
-  invoiceId?: string;
-  invoiceDate?: string;
-  invoice: string;
-  saleInvoice: string;
-  dateInv: string;
-  clientInvName: string;
-  amountInv: number;
-  curINV: string;
-  invType: string;
-  /**
-   * Every sales-invoice DOCUMENT folded into this number — the original plus each
-   * Credit/Final Note. Web emits one merged table row per document (page.js:59
-   * `invArr.map`), each carrying its own date, amount and suffixed number, so the
-   * transaction count, the avg-transaction denominator and the by-weekday credit
-   * bars all have to see the documents rather than the netted group.
-   */
-  invDocs: { saleInvoice: string; dateInv: string; amountInv: number }[];
-  lines: AccountingLine[];
-}
+export type { AccountingGroup, AccountingLine } from '@/features/accounting/accountingCore';
 
 export function useAccounting() {
   const { uidCollection } = useAuth();
   const { settings, dateSelect, loaded } = useSettings();
-  const gQ = (id: string, cat: string, field: string) => settings?.[cat]?.[cat]?.find((q: any) => q.id === id)?.[field] || '';
+  const gQ = makeGQ(settings);
 
   const query = useQuery({
     enabled: !!uidCollection && loaded,
@@ -63,131 +34,43 @@ export function useAccounting() {
       let dt = await loadData<any>(uid, 'invoices', dateSelect);
 
       // CN/FN whose original sits in this period but the note may be elsewhere.
-      const cnOrfn = dt
-        .filter(
-          ({ invoice, invType, cnORfl }: any) =>
-            dt.filter((item: any) => item.invoice === invoice).length === 1 &&
-            ['1111', 'invoice'].includes(invType) &&
-            cnORfl !== undefined &&
-            cnORfl !== null
-        )
-        .map((z: any) => z.cnORfl);
+      const cnOrfn = selectCnFnRefs(dt);
 
       // Drop standalone CN/FN with no original in the period.
-      dt = dt.filter(
-        (z: any) =>
-          dt.find((x: any) => x.invoice === z.invoice && x.invType === '1111') ||
-          z.invType === '1111' ||
-          z.invType === 'Invoice'
-      );
+      dt = dropOrphanNotes(dt);
 
       const cnfnData = await loadAdditionalCNFN(uid, cnOrfn);
       dt = sortBy([...dt, ...cnfnData], 'invoice');
 
       // Sales-invoice rows.
-      const invArr = dt.map((l: any) => ({
-        dateInv: l.final ? l.date : l.dateRange?.endDate,
-        saleInvoice: l.invoice + getprefixInv(l),
-        clientInvName: l.final ? l.client?.nname : gQ(l.client, 'Client', 'nname'),
-        amountInv: num(l.totalAmount),
-        invType: getprefixInv1(l),
-        invoice: l.invoice,
-        curINV: l.final ? l.cur?.cur : gQ(l.cur, 'Currency', 'cur'),
-        invoiceId: l.id,
-        invoiceDate: l.final ? l.date : l.dateRange?.startDate,
-      }));
+      const invArr = buildInvoiceRows(dt, gQ);
 
       // Purchase invoices from the linked contracts (poInvoices.invRef matching a sale#).
       const poRefs = dt
         .map((z: any) => z.poSupplier)
-        .filter((item: any, i: number, self: any[]) => item && i === self.findIndex((t: any) => t?.id === item.id && t?.order === item.order && t?.date === item.date));
-      const contracts = await Promise.all(poRefs.map((ref: any) => loadDocByIdDate<any>(uid, 'contracts', ref)));
+        .filter(
+          (item: any, i: number, self: any[]) =>
+            item &&
+            i ===
+              self.findIndex(
+                (t: any) => t?.id === item.id && t?.order === item.order && t?.date === item.date
+              )
+        );
+      const contracts = await Promise.all(
+        poRefs.map((ref: any) => loadDocByIdDate<any>(uid, 'contracts', ref))
+      );
 
       const saleNumbers = new Set(invArr.map((z: any) => z.saleInvoice));
-      const consArr: any[] = [];
-      contracts.forEach((contract: any) => {
-        if (!contract || !Array.isArray(contract.poInvoices)) return;
-        contract.poInvoices.forEach((po: any) => {
-          if (!po || !Array.isArray(po.invRef)) return;
-          po.invRef.forEach((ref: any) => {
-            if (saleNumbers.has(ref)) {
-              consArr.push({
-                dateExp: contract.dateRange?.endDate,
-                expInvoice: po.inv,
-                supplierName: gQ(contract.supplier, 'Supplier', 'nname'),
-                amountExp: num(po.invValue),
-                expType: 'Purchase',
-                invoice: ref,
-                curEX: gQ(contract.cur, 'Currency', 'cur'),
-              });
-            }
-          });
-        });
-      });
+      const consArr = buildPurchaseLines(contracts, saleNumbers, gQ);
 
       // Linked expenses.
-      const expRefs = dt.filter((x: any) => Array.isArray(x.expenses) && x.expenses.length).flatMap((x: any) => x.expenses);
+      const expRefs = dt
+        .filter((x: any) => Array.isArray(x.expenses) && x.expenses.length)
+        .flatMap((x: any) => x.expenses);
       const expData = await loadExpensesForAccounting(uid, expRefs);
-      const expArr = expData.map((l: any) => ({
-        dateExp: l.dateRange?.endDate,
-        expInvoice: l.expense,
-        supplierName: gQ(l.supplier, 'Supplier', 'nname'),
-        amountExp: num(l.amount),
-        expType: gQ(l.expType, 'Expenses', 'expType') || l.expType,
-        invoice: String(l.salesInv || '').replace(/\D/g, ''),
-        curEX: gQ(l.cur, 'Currency', 'cur'),
-      }));
+      const expArr = buildExpenseLines(expData, gQ);
 
-      const allLines = [...expArr, ...consArr];
-
-      // Group sales invoices by number, attaching their purchase/expense lines.
-      // Credit/Final notes share the original's invoice NUMBER — their amounts must
-      // ACCUMULATE into the group (web sums every row), not be dropped.
-      const byInvoice: Record<string, AccountingGroup> = {};
-      invArr.forEach((s: any) => {
-        const key = String(s.invoice);
-        if (!byInvoice[key]) {
-          byInvoice[key] = {
-            invoice: key,
-            saleInvoice: s.saleInvoice,
-            dateInv: s.dateInv || '',
-            clientInvName: s.clientInvName || '—',
-            amountInv: s.amountInv,
-            curINV: s.curINV || '',
-            invType: s.invType,
-            invoiceId: s.invoiceId,
-            invoiceDate: s.invoiceDate,
-            invDocs: [{ saleInvoice: s.saleInvoice || String(s.invoice), dateInv: s.dateInv || '', amountInv: s.amountInv }],
-            lines: [],
-          };
-        } else {
-          byInvoice[key].amountInv += s.amountInv; // net CN/FN into the group
-          byInvoice[key].invDocs.push({ saleInvoice: s.saleInvoice || String(s.invoice), dateInv: s.dateInv || '', amountInv: s.amountInv });
-        }
-      });
-      allLines.forEach((e) => {
-        const key = String(e.invoice);
-        (byInvoice[key] ||= {
-          invoice: key,
-          saleInvoice: '',
-          dateInv: '',
-          clientInvName: '—',
-          amountInv: 0,
-          curINV: '',
-          invType: '',
-          invDocs: [],
-          lines: [],
-        }).lines.push({
-          dateExp: e.dateExp || '',
-          expInvoice: String(e.expInvoice ?? ''),
-          supplierName: e.supplierName || '—',
-          amountExp: e.amountExp,
-          expType: e.expType || '',
-          curEX: e.curEX || '',
-        });
-      });
-
-      return Object.values(byInvoice).sort((a, b) => String(a.invoice).localeCompare(String(b.invoice), undefined, { numeric: true }));
+      return groupAccounting(invArr, [...expArr, ...consArr]);
     },
   });
 

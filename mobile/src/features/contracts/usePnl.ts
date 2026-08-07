@@ -3,16 +3,12 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/store/auth';
 import { useSettings } from '@/store/settings';
 import { updateContractField, updateInvoiceDoc, logEvent } from '@/data/writes';
-import { contractsValue, total as invTotal, totalArrsExp, ViewCur } from '@/features/review/reviewFinance';
-import { ownProducts } from './useContracts';
+import { contractPnl, ShipmentRow } from './pnlModel';
 import { num } from '@shared/finance';
 
 // Contract P&L / Shipments Tracking — the tab mobile had no counterpart for.
-//
-// Purchase Value − Expenses against the sale value gives Profit; Freight/MT
-// allocates the contract's FREIGHT-type expenses over its contracted tonnage.
-// Freight detection and currency conversion match the rest of the web tab exactly,
-// so the figure lines up with the Expenses total shown beside it.
+// All of the arithmetic lives in ./pnlModel.ts so it can be tested without a React
+// tree; this hook only wires settings in and memoises.
 
 export const CONTRACT_STATUSES = [
   { id: 'A1234', label: 'In Progress' },
@@ -22,91 +18,11 @@ export const CONTRACT_STATUSES = [
   { id: 'E34656', label: 'Unsold' },
 ] as const;
 
-export interface ShipmentRow {
-  id: string;
-  invoice: any;
-  year: string;
-  rcvd: any;
-  outrnamnt: any;
-  fnlzing: any;
-  status: any;
-  etd: any;
-  eta: any;
-}
+export type { ShipmentRow } from './pnlModel';
 
 export function usePnl(contract: any, viewCur: 'us' | 'eu') {
   const { settings } = useSettings();
-
-  return useMemo(() => {
-    if (!contract) return null;
-    const val: ViewCur = { cur: viewCur };
-    const mult = parseFloat(contract.euroToUSD) || 1;
-
-    const purchaseValue = contractsValue(contract, 'pmnt', val, mult);
-
-    // Sale value uses the SAME supersede rule as everywhere else: within an invoice
-    // number, notes replace the original.
-    const groups: any[][] = Array.isArray(contract.invoicesData) ? contract.invoicesData : [];
-
-    // Web's P&L reads the expense arrays stored on the SALES-INVOICE docs
-    // (pnl.js:65-85 TotalArrsExp, called with the fetched invoice groups), NOT the
-    // contract's own `expenses` field. The two drift — the contract copy is what
-    // the Contracts Review page uses — so mobile was showing a different Expenses
-    // figure, and a different Profit, than web for the same contract.
-    const expenses = groups.reduce(
-      (s, g) =>
-        s +
-        (g || []).reduce(
-          (s2, inv: any) => s2 + totalArrsExp(Array.isArray(inv?.expenses) ? inv.expenses : [], val, mult),
-          0
-        ),
-      0
-    );
-    const saleValue = invTotal(groups, 'totalAmount', val, mult, settings).accumuLastInv;
-
-    // Freight allocation — expense types whose label contains "freight".
-    const freightIds = new Set(
-      (settings?.Expenses?.Expenses || [])
-        .filter((e: any) => String(e.expType || '').toLowerCase().includes('freight'))
-        .map((e: any) => e.id)
-    );
-    // import-flagged products are breakdown helpers — excluded from the tonnage.
-    const contractMT = ownProducts(contract).reduce((s, p: any) => s + (parseFloat(p.qnty) || 0), 0);
-    const freightTotal = (contract.expenses || []).reduce((s: number, exp: any) => {
-      if (!exp || !freightIds.has(exp.expType)) return s;
-      const amt = parseFloat(exp.amount);
-      if (isNaN(amt)) return s;
-      const m = exp.cur === val.cur ? 1 : exp.cur === 'us' && val.cur === 'eu' ? 1 / mult : mult;
-      return s + amt * m;
-    }, 0);
-    const freightPerMT = contractMT > 0 ? freightTotal / contractMT : 0;
-
-    // One row per linked sales invoice (the shipment grid).
-    const shipments: ShipmentRow[] = groups.flatMap((g) =>
-      (g || []).map((inv: any) => ({
-        id: inv.id,
-        invoice: inv.invoice,
-        year: String(inv.__yr || (inv.dateRange?.startDate || inv.date || '').substring(0, 4)),
-        rcvd: inv.shipData?.rcvd ?? '',
-        outrnamnt: inv.shipData?.outrnamnt ?? '',
-        fnlzing: inv.shipData?.fnlzing ?? '',
-        status: inv.shipData?.status ?? '',
-        etd: inv.shipData?.etd ?? null,
-        eta: inv.shipData?.eta ?? null,
-      }))
-    );
-
-    return {
-      purchaseValue,
-      expenses,
-      saleValue,
-      profit: saleValue - purchaseValue - expenses,
-      contractMT,
-      freightTotal,
-      freightPerMT,
-      shipments,
-    };
-  }, [contract, viewCur, settings]);
+  return useMemo(() => contractPnl(contract, viewCur, settings), [contract, viewCur, settings]);
 }
 
 // Save the contract status (web has this editor on the same tab).

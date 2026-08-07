@@ -54,11 +54,17 @@ export const dateLabel = (d: any): string => {
   return '—';
 };
 
+// Avatar initials. Verbatim port of web's one canonical implementation
+// (components/CommentThread.js:16, identical in components/ActivityLog.js:30):
+// split on whitespace/@/., drop empty tokens, take the first letter of the first
+// two, and fall back to '?' so an avatar is never blank. Mobile previously split
+// on a single space only — which produced 'A' for 'Acme  Metals' (double space),
+// 'Z' for an email address, and '' for an empty name.
 export const initials = (name = ''): string =>
   name
     .toString()
-    .split(' ')
-    .map((s) => s[0] || '')
+    .split(/[\s@.]+/)
+    .filter(Boolean)
     .slice(0, 2)
-    .join('')
-    .toUpperCase();
+    .map((s) => s[0]?.toUpperCase() || '')
+    .join('') || '?';

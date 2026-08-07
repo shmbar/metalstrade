@@ -8,7 +8,7 @@ type Lot = any;
 
 // Port of utils.js filteredArray: within each invoice-number group, when invType
 // values differ, keep only the highest invType (final/credit supersedes original).
-function filteredArray(arr: Lot[]): Lot[] {
+export function filteredArray(arr: Lot[]): Lot[] {
   const groupedByInvoice = arr.reduce((acc: Record<string, Lot[]>, obj) => {
     const invoiceNumber = obj.invoice;
     (acc[invoiceNumber] ||= []).push(obj);
@@ -23,6 +23,27 @@ function filteredArray(arr: Lot[]): Lot[] {
 }
 
 const f = (v: any) => parseFloat(v);
+
+// Verbatim port of web cashflow/funcs.js isNumber (:314). Deliberately STRICT:
+// a non-string is not a number, and the whole trimmed string must be numeric.
+// runStocks gates its contract-line unit-price override on exactly this, so a
+// looser check (e.g. !isNaN(parseFloat(x))) silently accepts a numeric literal,
+// or accepts '1,200' as 1, where web rejects both and keeps the lot's own price.
+function isNumber(str: any): boolean {
+  if (typeof str !== 'string') return false;
+  return /^[+-]?(\d+(\.\d*)?|\.\d+)$/.test(str.trim());
+}
+
+/**
+ * Web's runStocks pre-filters the raw ledger before aggregating anything
+ * (cashflow/funcs.js:189-190): zero-value settlement rows and draft lots never
+ * reach the cashflow paid/unpaid split. The STOCKS page has no such filter, so
+ * this is applied by the cashflow caller only, never inside computeInventory.
+ */
+export const cashflowStockLots = (lots: Lot[]): Lot[] =>
+  (lots || [])
+    .filter((z: any) => z.total !== 0)
+    .filter((x: any) => x.draft === undefined || x.draft === false);
 
 // Normalize a date field (string or { startDate }) to a string, mirroring web agingUtils.dStr.
 const dStr = (d: any): string | null => {
@@ -136,9 +157,13 @@ export function computeInventory(
     descriptionName: resolveDescriptionName(x),
   }));
 
-  // Unique (warehouse | description) keys among lots with a warehouse assigned.
+  // Unique (warehouse | description) keys. The STOCKS page skips lots with no
+  // warehouse assigned (page.js:157 `q.stock !== ''`), but runStocks keys off
+  // EVERY distinct stock value including '' (funcs.js:314), so on the cashflow
+  // side an unassigned lot still contributes to the paid/unpaid split. Dropping
+  // it there made mobile's Stocks (Paid/UnPaid) totals lower than web's.
   let tempArr = stockData
-    .filter((q) => q.stock !== '')
+    .filter((q) => cashflow || q.stock !== '')
     .map((x) => ({ stock: x.stock, description: x.description || x.descriptionId }));
   tempArr = Array.from(
     new Map(tempArr.map((item) => [`${item.stock}|${item.description}`, item])).values()
@@ -186,7 +211,9 @@ export function computeInventory(
       const untPrc = first?.productsData?.find(
         (z: any) => z.id === (first.descriptionId || first.description)
       )?.unitPrc;
-      if (untPrc !== undefined && untPrc !== null && !isNaN(parseFloat(untPrc))) {
+      // funcs.js:354 — `isNumber(untPrc) ? untPrc : totalObj.unitPrc`, not a
+      // parseFloat check. See isNumber above for why the difference is material.
+      if (isNumber(untPrc)) {
         totalObj.unitPrc = untPrc;
       }
       totalObj.total = f(totalObj.qnty) * f(totalObj.unitPrc);

@@ -9,6 +9,7 @@ import { useTheme } from '@/theme/ThemeProvider';
 import { useAuth } from '@/store/auth';
 import { MonthEditor } from '@/features/margins/MonthEditor';
 import { useMargins } from '@/features/margins/useMargins';
+import { gisPurchasedDecimals, GIS_OUTSTANDING_DECIMALS } from '@/features/margins/derive';
 import { streamSse, apiConfigured } from '@/lib/api';
 import { fmtAutoKM, fmtMoney } from '@/lib/format';
 
@@ -89,13 +90,13 @@ export default function Margins() {
               <View style={{ flexDirection: 'row', gap: 14, marginTop: 8 }}>
                 <View style={{ flex: 1 }}>
                   <Text variant="caption" tone="muted">Purchased</Text>
-                  {/* web thirdpart.js:335-342 — no decimals on a whole number, otherwise 2 */}
-                  <Text variant="bodyMedium" style={{ fontVariant: ['tabular-nums'] }}>{fmtMoney(totals.purchaseGIS, Number.isInteger(totals.purchaseGIS) ? 0 : 2)} MT</Text>
+                  {/* web thirdpart.js:340 — no decimals on a whole number, otherwise 2 */}
+                  <Text variant="bodyMedium" style={{ fontVariant: ['tabular-nums'] }}>{fmtMoney(totals.purchaseGIS, gisPurchasedDecimals(totals.purchaseGIS))} MT</Text>
                 </View>
                 <View style={{ flex: 1 }}>
                   <Text variant="caption" tone="muted">Outstanding ship</Text>
-                  {/* web thirdpart.js:399-407 — always 2 */}
-                  <Text variant="bodyMedium" style={{ fontVariant: ['tabular-nums'] }}>{fmtMoney(totals.openShipGIS, 2)} MT</Text>
+                  {/* web thirdpart.js:404 — always 2, whole number or not */}
+                  <Text variant="bodyMedium" style={{ fontVariant: ['tabular-nums'] }}>{fmtMoney(totals.openShipGIS, GIS_OUTSTANDING_DECIMALS)} MT</Text>
                 </View>
                 <View style={{ flex: 1 }}>
                   <Text variant="caption" tone="muted">Remaining</Text>

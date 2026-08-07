@@ -7,6 +7,15 @@ import { useAllStockLots, STOCK_LOTS_KEY } from './useAllStockLots';
 import { updateExpenseField } from '@/data/writes';
 import { isStorageType, toUsd, mtInWh, computeStorageMetric, ym } from '@shared/storageUtils';
 
+/**
+ * The year a storage invoice belongs to — its COVERED month when tagged, else its
+ * own date. Verbatim port of web app/(root)/storagecosts/page.js:142 expYear
+ * (`storageMonth` is string-guarded there; `ym` already coerces non-strings).
+ * Exported so the parity suite can check it without running the hook.
+ */
+export const expenseYear = (e: any): string =>
+  ((typeof e?.storageMonth === 'string' ? e.storageMonth : '') || ym(e?.date) || '').slice(0, 4);
+
 export interface PerYearRow {
   year: string;
   spend: number;
@@ -14,6 +23,71 @@ export interface PerYearRow {
   taggedCount: number;
   mtMonths: number;
   rate: number | null;
+}
+
+/**
+ * Warehouse display label. Verbatim port of web app/(root)/storagecosts/page.js:117
+ * — `stock` is the terminal's own name and wins over the generic `nname`, so the
+ * per-warehouse rate table reads the same on both platforms.
+ */
+export const makeWhName = (warehouses: any[]) => (id: string): string => {
+  const w = (warehouses || []).find((k: any) => k.id === id);
+  return w?.stock || w?.nname || '';
+};
+
+/**
+ * Per-year roll-up. Verbatim port of web app/(root)/storagecosts/page.js:157-167.
+ * Years descend; `spend` is every storage invoice of that year converted to USD;
+ * `mtMonths`/`rate` come from the TAGGED subset only, because an invoice with no
+ * warehouse+month cannot be attributed to any tonnage.
+ * Exported (rather than left inline in the hook) so the parity suite runs THIS code
+ * instead of a re-transcription of it.
+ */
+export function computePerYear(allExpenses: any[], lots: any[], whName: (id: string) => string): PerYearRow[] {
+  const byYear: Record<string, any[]> = {};
+  (allExpenses || []).forEach((e: any) => {
+    const y = expenseYear(e);
+    if (y) (byYear[y] ||= []).push(e);
+  });
+  return Object.entries(byYear)
+    .sort((a, b) => b[0].localeCompare(a[0]))
+    .map(([y, list]) => {
+      const taggedY = list.filter((e: any) => e.storageWh && e.storageMonth);
+      const m = computeStorageMetric({ tagged: taggedY, lots, whName });
+      const spend = list.reduce((s: number, e: any) => s + toUsd(parseFloat(e.amount) || 0, e.cur), 0);
+      return { year: y, spend, count: list.length, taggedCount: taggedY.length, mtMonths: m.totalMt, rate: m.overall };
+    });
+}
+
+export interface ActualsRow {
+  totalSpend: number;
+  count: number;
+  taggedCount: number;
+  whMt: { id: string; name: string; mt: number }[];
+  totalMt: number;
+}
+
+/**
+ * The untagged "real actuals" card. Verbatim port of web
+ * app/(root)/storagecosts/page.js:179-187 — spend needs no tagging at all, and the
+ * warehouse list drops terminals holding less than 0.01 MT so an emptied warehouse
+ * does not linger at 0.
+ */
+export function computeActuals(
+  expenses: any[],
+  lots: any[],
+  warehouses: any[],
+  whName: (id: string) => string
+): ActualsRow {
+  const list = expenses || [];
+  const tagged = list.filter((e: any) => e.storageWh && e.storageMonth);
+  const totalSpend = list.reduce((s: number, e: any) => s + toUsd(parseFloat(e.amount) || 0, e.cur), 0);
+  const whMt = (warehouses || [])
+    .map((w: any) => ({ id: w.id, name: whName(w.id), mt: mtInWh(lots, w.id, '') }))
+    .filter((x: any) => x.mt > 0.01)
+    .sort((a: any, b: any) => b.mt - a.mt);
+  const totalMt = whMt.reduce((s: number, x: any) => s + x.mt, 0);
+  return { totalSpend, count: list.length, taggedCount: tagged.length, whMt, totalMt };
 }
 
 // Storage-cost data — same load window and scoping as the web page
@@ -30,10 +104,7 @@ export function useStorage() {
 
   const expTypes = settings?.Expenses?.Expenses || [];
   const warehouses = settings?.Stocks?.Stocks || [];
-  const whName = (id: string) => {
-    const w = warehouses.find((k: any) => k.id === id);
-    return w?.stock || w?.nname || '';
-  };
+  const whName = makeWhName(warehouses);
 
   // Page-local period filter: 'all' or a 'YYYY' present in the data (web parity).
   const [year, setYear] = useState<string>('all');
@@ -61,8 +132,7 @@ export function useStorage() {
 
     // The year a storage invoice belongs to = its covered month if tagged, else its
     // date. (storageMonth is string-guarded; ym already coerces non-strings.)
-    const expYear = (e: any) =>
-      ((typeof e?.storageMonth === 'string' ? e.storageMonth : '') || ym(e?.date) || '').slice(0, 4);
+    const expYear = expenseYear;
 
     const years: string[] = [...new Set(allExpenses.map(expYear).filter(Boolean) as string[])].sort(
       (a, b) => b.localeCompare(a)
@@ -71,30 +141,13 @@ export function useStorage() {
     const expenses = year === 'all' ? allExpenses : allExpenses.filter((e: any) => expYear(e) === year);
 
     // Per-year roll-up: spend, MT-months and the average $/MT rate for each year.
-    const byYear: Record<string, any[]> = {};
-    allExpenses.forEach((e: any) => {
-      const y = expYear(e);
-      if (y) (byYear[y] ||= []).push(e);
-    });
-    const perYear: PerYearRow[] = Object.entries(byYear)
-      .sort((a, b) => b[0].localeCompare(a[0]))
-      .map(([y, list]) => {
-        const taggedY = list.filter((e: any) => e.storageWh && e.storageMonth);
-        const m = computeStorageMetric({ tagged: taggedY, lots, whName });
-        const spend = list.reduce((s: number, e: any) => s + toUsd(parseFloat(e.amount) || 0, e.cur), 0);
-        return { year: y, spend, count: list.length, taggedCount: taggedY.length, mtMonths: m.totalMt, rate: m.overall };
-      });
+    const perYear: PerYearRow[] = computePerYear(allExpenses, lots, whName);
 
     const tagged = expenses.filter((e: any) => e.storageWh && e.storageMonth);
     const untagged = expenses.filter((e: any) => !(e.storageWh && e.storageMonth));
     const metric = computeStorageMetric({ tagged, lots, whName });
 
-    const totalSpend = expenses.reduce((s: number, e: any) => s + toUsd(parseFloat(e.amount) || 0, e.cur), 0);
-    const whMt = warehouses
-      .map((w: any) => ({ id: w.id, name: whName(w.id), mt: mtInWh(lots, w.id, '') }))
-      .filter((x: any) => x.mt > 0.01)
-      .sort((a: any, b: any) => b.mt - a.mt);
-    const totalMt = whMt.reduce((s: number, x: any) => s + x.mt, 0);
+    const actuals = computeActuals(expenses, lots, warehouses, whName);
 
     return {
       metric,
@@ -108,7 +161,7 @@ export function useStorage() {
       expenses,
       years,
       perYear,
-      actuals: { totalSpend, count: expenses.length, taggedCount: tagged.length, whMt, totalMt },
+      actuals,
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [query.data, lotsQuery.data, settings, year]);

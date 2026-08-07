@@ -160,3 +160,48 @@ export function reviewFinancials(
     profit: totalInvoices - conValue - expenses1,
   };
 }
+
+/**
+ * The totals row — web's setTtl (page.js:469-500).
+ *
+ * ONE row, not a per-currency map: every contract has already been converted into
+ * the single view currency by reviewFinancials, so they sum in the same scalar and
+ * bucketing them by the contract's own currency would be wrong.
+ *
+ * prepaidPer is RE-DERIVED from the summed prepayment and the summed sale — it is
+ * not an average of the per-row percentages — and stays null when there is no sale
+ * to divide by, which web renders as '-'. Note web formats this row to TWO decimals
+ * where the per-contract rows use one.
+ */
+export function sumReviewFinancials(rows: { fin: ReviewFinancials }[] | ReviewFinancials[]): ReviewFinancials {
+  const fins: ReviewFinancials[] = (rows || []).map((r: any) => (r && 'fin' in r ? r.fin : r));
+
+  const t: ReviewFinancials = {
+    conValue: 0,
+    totalInvoices: 0,
+    originalInvoices: 0,
+    deviation: 0,
+    totalPrepayment1: 0,
+    prepaidPer: 0,
+    inDebt: 0,
+    payments: 0,
+    debtaftr: 0,
+    debtBlnc: 0,
+    expenses1: 0,
+    profit: 0,
+  };
+
+  fins.forEach((f) => {
+    if (!f) return;
+    (Object.keys(t) as (keyof ReviewFinancials)[]).forEach((k) => {
+      if (k === 'prepaidPer') return; // re-derived below, never summed
+      (t[k] as number) += (f[k] as number) || 0;
+    });
+  });
+
+  t.prepaidPer = Number.isFinite(t.totalPrepayment1 / t.totalInvoices)
+    ? (t.totalPrepayment1 / t.totalInvoices) * 100
+    : null;
+
+  return t;
+}

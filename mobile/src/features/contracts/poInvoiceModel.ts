@@ -29,11 +29,33 @@ export interface PoInvoice {
   draft?: boolean;
 }
 
-export const removeNonNumeric = (n: any) => (n ?? '').toString().replace(/[^0-9.\-]/g, '');
+// Verbatim port of web poInvModal.js:99 removeNonNumeric. This is the STRICT form
+// used by the PO-invoice modal: as well as dropping non-numeric characters it
+// removes any minus sign that is not leading and every dot after the first. Mobile
+// used to carry the LOOSE one-liner from web's margins/funcs.js instead, so
+// '1.2.3' stayed '1.2.3' (web: '1.2') and '1-2' stayed '1-2' (web: '12') —
+// parseFloat then read a different number on each app for the same keystrokes.
+export const removeNonNumeric = (n: any) =>
+  (n ?? '')
+    .toString()
+    .replace(/[^0-9.-]/g, '') // Keep digits, dot, and minus
+    .replace(/(?!^)-/g, '') // Remove any minus signs that aren't at the start
+    .replace(/(\..*?)\..*/g, '$1'); // Remove all but the first dot
+
+// Verbatim port of web poInvModal.js:24 countDecimalDigits (byte-identical to the
+// one exported from app/(root)/margins/funcs.js). Note the two quirks that are the
+// whole point of copying it rather than writing the obvious version: it counts the
+// EXPONENT digits too, and it strips LEADING ZEROS from the decimal part — so
+// '1.005' has ONE decimal digit by this rule, not three. Mobile's old naive
+// implementation returned 3 and therefore rejected keystrokes web accepts.
 export const countDecimalDigits = (v: any) => {
-  const s = String(v ?? '');
-  const i = s.indexOf('.');
-  return i === -1 ? 0 : s.length - i - 1;
+  const match = String(v ?? '').match(/(?:\.(\d+))?(?:[eE]([+-]?\d+))?$/);
+  if (!match) return 0;
+  const decimalPart = match[1] || '';
+  const exponentPart = match[2] || '';
+  const combinedPart = decimalPart + exponentPart;
+  const trimmedPart = combinedPart.replace(/^0+/, '');
+  return trimmedPart.length;
 };
 const round2 = (n: number) => Math.round((Number(n) || 0) * 100) / 100;
 const sumPayments = (payments: PoPayment[]) =>
@@ -90,7 +112,14 @@ export function setInvoiceField(list: PoInvoice[], id: string, name: 'inv' | 'in
 }
 
 // Editing a payment's PERCENTAGE derives its amount from invValue.
-export function setPaymentPerc(list: PoInvoice[], id: string, pmntId: string, raw: string): PoInvoice[] {
+// Web (poInvModal.js:149 handleValuePerc) REJECTS the keystroke outright when the
+// text is not a plain number with at most one dot, or is longer than 4 characters
+// — it returns before touching state. Mobile accepted anything, so '12.34.5' or
+// '1000.5' produced a percentage web would never have stored. `null` means
+// "rejected"; the screen's apply() already ignores it, same as setPaymentAmount.
+export function setPaymentPerc(list: PoInvoice[], id: string, pmntId: string, raw: string): PoInvoice[] | null {
+  if (!/^[0-9]*\.?[0-9]*$/.test(raw)) return null;
+  if (raw.length > 4) return null;
   return list.map((item) => {
     if (item.id !== id) return item;
     const payments = item.payments.map((z) =>

@@ -7,19 +7,15 @@ import { Screen, Card, Text, Badge, TextField, Button, BarChart, SectionHeader, 
 import { PeriodSelector } from '@/components/PeriodSelector';
 import { useTheme } from '@/theme/ThemeProvider';
 import { useAccounting, AccountingGroup } from '@/features/accounting/useAccounting';
+import {
+  ACC_DAYS as DAYS,
+  accountingSummary,
+  accountingWeekdayChart,
+} from '@/features/accounting/accountingCore';
 import { useAccountingEdit } from '@/features/accounting/useAccountingEdit';
 import { curSymbol, fmtMoney, fmtCurKM, dateLabel } from '@/lib/format';
 import { exportCsv } from '@/lib/export';
 import { useSettings } from '@/store/settings';
-
-const DAYS = ['Sat', 'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
-const dayIdx = (iso?: string) => {
-  if (!iso) return -1;
-  const d = new Date(iso);
-  if (isNaN(d.getTime())) return -1;
-  const day = d.getDay(); // 0=Sun … 6=Sat
-  return day === 6 ? 0 : day + 1; // Sat→0, Sun→1 … Fri→6
-};
 
 export default function Accounting() {
   const { colors } = useTheme();
@@ -40,25 +36,9 @@ export default function Accounting() {
     );
   }, [data, search]);
 
-  // Financial summary — web accounting tiles (totalIncome/expense/balance/margin).
-  const summary = useMemo(() => {
-    const groups = data || [];
-    const income = groups.reduce((s, g) => s + (g.amountInv || 0), 0);
-    const expense = groups.reduce((s, g) => s + g.lines.reduce((t, l) => t + (l.amountExp || 0), 0), 0);
-    const balance = income - expense;
-    // Web's transaction count is the MERGED ROW count (one row per invoice plus one
-    // per orphan expense/purchase), which is strictly larger than the group count.
-    const txCount = groups.reduce((s, g) => s + Math.max(1, g.lines?.length || 1), 0);
-    return {
-      income,
-      expense,
-      balance,
-      marginPct: income > 0 ? (balance / income) * 100 : 0,
-      savings: balance > 0 ? balance * 0.2 : 0, // web: 20% of a positive balance
-      txCount,
-      avgTx: txCount > 0 ? (income + expense) / txCount : 0,
-    };
-  }, [data]);
+  // Financial summary — web accounting tiles (totalIncome/expense/balance/margin),
+  // including the MERGED-ROW transaction count. See accountingCore.accountingSummary.
+  const summary = useMemo(() => accountingSummary(data), [data]);
 
   // Excel export — web parity. One row per merged line (invoice row, then each of
   // its expense/purchase lines), matching how web flattens the table.
@@ -98,25 +78,9 @@ export default function Accounting() {
     return v.toFixed(2) + '%';
   };
 
-  // Debit (costs) vs Credit (sales) by weekday — parity with the web accounting chart.
-  const chart = useMemo(() => {
-    const debit = new Array(7).fill(0);
-    const credit = new Array(7).fill(0);
-    (data || []).forEach((g) => {
-      // Each invoice DOCUMENT carries its OWN date — a credit note raised weeks after
-      // the original belongs to the note's weekday, not the original's. Bucketing the
-      // netted group total put the whole net on one bar and left the other empty.
-      (g.invDocs || []).forEach((d) => {
-        const ci = dayIdx(d.dateInv);
-        if (ci >= 0) credit[ci] += d.amountInv || 0;
-      });
-      g.lines.forEach((l) => {
-        const di = dayIdx(l.dateExp);
-        if (di >= 0) debit[di] += l.amountExp || 0;
-      });
-    });
-    return { debit, credit, hasData: debit.some((v) => v) || credit.some((v) => v) };
-  }, [data]);
+  // Debit (costs) vs Credit (sales) by weekday — parity with the web accounting
+  // chart. See accountingCore.accountingWeekdayChart.
+  const chart = useMemo(() => accountingWeekdayChart(data), [data]);
 
   return (
     <Screen scroll={false} flush contentContainerStyle={{ paddingTop: insets.top + 8 }} edges={false}>

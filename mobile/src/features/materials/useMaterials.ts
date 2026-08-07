@@ -36,10 +36,14 @@ export function blankRow(elements: any[]) {
 }
 
 // Web's element-cell guard: at most 2 decimals; kgs is stripped to digits/-/.
+// Transcribed from app/(root)/materialtables/page.js:19-24 — the leading-zero strip
+// means web counts "12.500" as ONE decimal, so it accepts keystrokes the naive
+// `length - indexOf('.') - 1` mobile used to run would have rejected.
 export const countDecimalDigits = (v: string) => {
-  const s = String(v ?? '');
-  const i = s.indexOf('.');
-  return i === -1 ? 0 : s.length - i - 1;
+  const match = String(v ?? '').match(/(?:\.(\d+))?(?:[eE]([+-]?\d+))?$/);
+  if (!match) return 0;
+  const combined = (match[1] || '') + (match[2] || '');
+  return combined.replace(/^0+/, '').length;
 };
 export const cleanElement = (v: string) => (countDecimalDigits(v) > 2 ? null : v.replace(/[^0-9.\-]/g, ''));
 export const cleanKgs = (v: string) => String(v ?? '').replace(/[^0-9.\-]/g, '');

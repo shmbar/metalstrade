@@ -29,6 +29,87 @@ export interface MiscRow {
   raw: any;
 }
 
+/**
+ * Raw specialInvoices docs → display rows. Extracted from the hook so it can be
+ * parity-tested against web's getFormatted (app/(root)/specialinvoices/page.js:211).
+ * `cur` keeps the raw id ('us'/'eu'/…) exactly as web stores it.
+ */
+export function deriveMiscRows(raw: any[] | undefined, settings: any): MiscRow[] {
+  return (raw || []).filter(Boolean).map((r: any) => ({
+    id: r.id,
+    supplier: r.supplier,
+    supplierName: settings?.Supplier?.Supplier?.find((s: any) => s.id === r.supplier)?.nname || r.compName || '—',
+    cur: r.cur || 'us',
+    total: num(r.total),
+    paidNotPaid: r.paidNotPaid,
+    category: (['personal', 'random', 'shipments'].includes(r.category) ? r.category : '') as MiscCat,
+    invoice: r.invoice,
+    description: r.description,
+    order: r.order,
+    date: r.date,
+    raw: r,
+  }));
+}
+
+/**
+ * Per-currency totals (unpaid and all), mirroring the web page's grouping
+ * (app/(root)/specialinvoices/page.js:71-115 `groupedTotals` / `groupedTotalsAll`).
+ *
+ * Web buckets strictly by currency and ALWAYS renders both a "Total $" and a
+ * "Total EUR" row (even at zero), plus a weight sum per currency. It also shows two
+ * per-SUPPLIER summary cards: one over all rows, one over unpaid rows only. Mobile
+ * computed `unpaid` but never displayed it, and had no supplier grouping.
+ *
+ * Web's UNPAID gate is `paidNotPaid !== 'Paid'` — anything that is not the literal
+ * string 'Paid' (including a blank) counts as unpaid.
+ */
+export function miscTotals(rows: MiscRow[]) {
+  const all: Record<string, number> = {};
+  const unpaid: Record<string, number> = {};
+  // Web's currency test accepts both the id ('us'/'eu') and the code ('USD'/'EUR').
+  const isUsd = (c: string) => c === 'us' || String(c).toUpperCase() === 'USD';
+  const isEur = (c: string) => c === 'eu' || String(c).toUpperCase() === 'EUR';
+
+  let usdAmount = 0, usdQnty = 0, eurAmount = 0, eurQnty = 0;
+
+  rows.forEach((r) => {
+    all[r.cur] = (all[r.cur] || 0) + r.total;
+    if (r.paidNotPaid !== 'Paid') unpaid[r.cur] = (unpaid[r.cur] || 0) + r.total;
+    const q = num(r.raw?.qnty);
+    if (isUsd(r.cur)) { usdAmount += r.total; usdQnty += q; }
+    else if (isEur(r.cur)) { eurAmount += r.total; eurQnty += q; }
+  });
+
+  const byCat: Record<string, Record<string, number>> = {};
+  rows.forEach((r) => {
+    const cat = r.category || 'uncategorized';
+    (byCat[cat] ||= {});
+    byCat[cat][r.cur] = (byCat[cat][r.cur] || 0) + r.total;
+  });
+
+  // Per-supplier × currency breakdown — web's two "Summary" tables.
+  const groupBySupplier = (list: MiscRow[]) => {
+    const m: Record<string, { supplier: string; byCur: Record<string, number> }> = {};
+    list.forEach((r) => {
+      const key = r.supplierName || '—';
+      (m[key] ||= { supplier: key, byCur: {} });
+      m[key].byCur[r.cur] = (m[key].byCur[r.cur] || 0) + r.total;
+    });
+    return Object.values(m).sort((a, b) => a.supplier.localeCompare(b.supplier));
+  };
+
+  return {
+    all,
+    unpaid,
+    byCat,
+    // Always-shown currency rows (web renders both even when zero).
+    usd: { amount: usdAmount, qnty: usdQnty },
+    eur: { amount: eurAmount, qnty: eurQnty },
+    bySupplier: groupBySupplier(rows),
+    bySupplierUnpaid: groupBySupplier(rows.filter((r) => r.paidNotPaid !== 'Paid')),
+  };
+}
+
 export function useMiscInvoices() {
   const { uidCollection } = useAuth();
   const { settings, dateSelect, loaded } = useSettings();
@@ -39,77 +120,8 @@ export function useMiscInvoices() {
     queryFn: async () => loadFlatByDate<any>(uidCollection as string, 'specialInvoices', dateSelect),
   });
 
-  const rows: MiscRow[] = useMemo(
-    () =>
-      (query.data || []).filter(Boolean).map((r: any) => ({
-        id: r.id,
-        supplier: r.supplier,
-        supplierName: settings?.Supplier?.Supplier?.find((s: any) => s.id === r.supplier)?.nname || r.compName || '—',
-        cur: r.cur || 'us',
-        total: num(r.total),
-        paidNotPaid: r.paidNotPaid,
-        category: (['personal', 'random', 'shipments'].includes(r.category) ? r.category : '') as MiscCat,
-        invoice: r.invoice,
-        description: r.description,
-        order: r.order,
-        date: r.date,
-        raw: r,
-      })),
-    [query.data, settings]
-  );
-
-  // Per-currency totals (unpaid and all), mirroring the web page's grouping.
-  //
-  // Web buckets strictly by currency and ALWAYS renders both a "Total $" and a
-  // "Total EUR" row (even at zero), plus a weight sum per currency. It also shows
-  // two per-SUPPLIER summary cards: one over all rows, one over unpaid rows only.
-  // Mobile computed `unpaid` but never displayed it, and had no supplier grouping.
-  const totals = useMemo(() => {
-    const all: Record<string, number> = {};
-    const unpaid: Record<string, number> = {};
-    // Web's currency test accepts both the id ('us'/'eu') and the code ('USD'/'EUR').
-    const isUsd = (c: string) => c === 'us' || String(c).toUpperCase() === 'USD';
-    const isEur = (c: string) => c === 'eu' || String(c).toUpperCase() === 'EUR';
-
-    let usdAmount = 0, usdQnty = 0, eurAmount = 0, eurQnty = 0;
-
-    rows.forEach((r) => {
-      all[r.cur] = (all[r.cur] || 0) + r.total;
-      if (r.paidNotPaid !== 'Paid') unpaid[r.cur] = (unpaid[r.cur] || 0) + r.total;
-      const q = num(r.raw?.qnty);
-      if (isUsd(r.cur)) { usdAmount += r.total; usdQnty += q; }
-      else if (isEur(r.cur)) { eurAmount += r.total; eurQnty += q; }
-    });
-
-    const byCat: Record<string, Record<string, number>> = {};
-    rows.forEach((r) => {
-      const cat = r.category || 'uncategorized';
-      (byCat[cat] ||= {});
-      byCat[cat][r.cur] = (byCat[cat][r.cur] || 0) + r.total;
-    });
-
-    // Per-supplier × currency breakdown — web's two "Summary" tables.
-    const groupBySupplier = (list: MiscRow[]) => {
-      const m: Record<string, { supplier: string; byCur: Record<string, number> }> = {};
-      list.forEach((r) => {
-        const key = r.supplierName || '—';
-        (m[key] ||= { supplier: key, byCur: {} });
-        m[key].byCur[r.cur] = (m[key].byCur[r.cur] || 0) + r.total;
-      });
-      return Object.values(m).sort((a, b) => a.supplier.localeCompare(b.supplier));
-    };
-
-    return {
-      all,
-      unpaid,
-      byCat,
-      // Always-shown currency rows (web renders both even when zero).
-      usd: { amount: usdAmount, qnty: usdQnty },
-      eur: { amount: eurAmount, qnty: eurQnty },
-      bySupplier: groupBySupplier(rows),
-      bySupplierUnpaid: groupBySupplier(rows.filter((r) => r.paidNotPaid !== 'Paid')),
-    };
-  }, [rows]);
+  const rows: MiscRow[] = useMemo(() => deriveMiscRows(query.data, settings), [query.data, settings]);
+  const totals = useMemo(() => miscTotals(rows), [rows]);
 
   return { rows, totals, isLoading: query.isLoading, isError: query.isError, error: query.error, refetch: query.refetch };
 }

@@ -4,7 +4,7 @@ import { useAuth } from '@/store/auth';
 import { useSettings } from '@/store/settings';
 import { loadData, loadFlatByDate, loadMargins, loadDataSettings, loadInvoicesTagged } from '@/data/firestore';
 import { useAllStockLots } from '@/features/stocks/useAllStockLots';
-import { computeInventory } from '@/features/stocks/aggregate';
+import { computeInventory, cashflowStockLots } from '@/features/stocks/aggregate';
 import { Contract, Invoice } from '@/data/types';
 import { resolveClientName } from '@/features/invoices/useInvoices';
 import { num } from '@shared/finance';
@@ -236,16 +236,243 @@ function computeUnsoldWeb(contractsData: any[], stockData: any[], settings: any)
   return Object.values(bySupplier);
 }
 
+/**
+ * Web parity: cashflow figures are RUNNING BALANCES anchored on the real current
+ * year — independent of the selected period. Receivables/payables look back 4
+ * years, expenses / unsold-stock contracts 2 (cashflow/page.js:83 `yr` +
+ * runInvoices/runSupPayments/runExpenses in funcs.js).
+ */
+export function cashflowYearRanges(curYr: number) {
+  return {
+    range4y: { start: `${curYr - 3}-01-01`, end: `${curYr}-12-31` },
+    range2y: { start: `${curYr - 1}-01-01`, end: `${curYr}-12-31` },
+  };
+}
+
+/**
+ * 'Future' / incoming = Σ the margins MONTH docs' own `remaining`
+ * (web cashflow page.js:215-219, guarded with !isNaN).
+ *
+ * The month-level field is written ALREADY GIS-HALVED by the margins editor
+ * (web margins/page.js:484 — `cur.gis ? cur.remaining / 2 : cur.remaining`).
+ * Summing m.items[].remaining raw instead counts every GIS row at DOUBLE its
+ * intended contribution, inflating incoming, Total (Left) and the Balance.
+ */
+export function sumMarginsRemaining(margins: any[]): number {
+  return (margins || [])
+    .filter((m: any) => !isNaN(m?.remaining))
+    .reduce((s: number, m: any) => s + (parseFloat(m.remaining) || 0), 0);
+}
+
+/** Σ of a manual cashflow entry list's `num` fields (web reduces `parseFloat(obj.num) || 0`). */
+export const sumManualEntries = (arr: any): number =>
+  Array.isArray(arr) ? arr.reduce((t: number, o: any) => t + (parseFloat(o?.num) || 0), 0) : 0;
+
+export interface CashflowInputs {
+  invoices: any[];
+  /** 4-year window: receivables + supplier payables */
+  contracts4y: any[];
+  /** 2-year window: unsold stock + the paid/unpaid stock split */
+  contracts2y: any[];
+  expenses: any[];
+  companyExpenses: any[];
+  margins: any[];
+  cashflowDoc: any;
+  stocks: any[];
+  settings: any;
+}
+
+/**
+ * The whole Cashflow screen as one pure function. The hook below is a thin wrapper;
+ * everything that produces a NUMBER lives here so it can be exercised directly.
+ */
+export function computeCashflow(input: CashflowInputs): CashflowData {
+  const { invoices, contracts4y, contracts2y, expenses, companyExpenses, margins, cashflowDoc, stocks, settings } =
+    input;
+
+  // ── Receivables (clients) — web runInvoices pipeline ───────────────────
+  const receivablesByCur: Record<string, number> = {};
+  const clientMap = new Map<string, Counterparty>();
+  computeReceivablesWeb(invoices).forEach((inv: any) => {
+    // Web parity (funcs.js:1131-1132): a row with NO client is skipped entirely —
+    // it reaches neither the per-client list nor Total (Left). Tested on the RAW
+    // value, because resolveClientName falls back to a placeholder and so would
+    // never surface the empty case.
+    const rawClient = inv?.client;
+    const hasClient =
+      rawClient && typeof rawClient === 'object' ? !!rawClient.id || !!rawClient.nname : !!rawClient;
+    if (!hasClient) return;
+    const bal = inv.debtBlnc;
+    const cur = inv.cur === 'eu' ? 'eu' : 'us';
+    addCur(receivablesByCur, cur, bal);
+    const name = resolveClientName(inv.client, settings) || '—';
+    const c = clientMap.get(name) || { name, byCur: {}, usd: 0, count: 0, items: [] };
+    addCur(c.byCur, cur, bal);
+    c.usd += cur === 'us' ? bal : bal * (num(inv.euroToUSD) || EXP_EUR_USD);
+    c.count += 1;
+    c.items.push({
+      kind: 'invoice',
+      id: inv.id,
+      number: inv.invoice,
+      balance: bal,
+      cur,
+      raw: inv,
+      order: inv.poSupplier?.order || '',
+      amount: num(inv.totalAmount),
+      paid: (inv.payments || []).reduce((t: number, p: any) => t + num(p?.pmnt), 0),
+      // Web marks the invoice number with FN / CN on final and credit notes.
+      marker: inv.invType === '3333' ? 'FN' : inv.invType === '2222' ? 'CN' : '',
+      etd: inv.shipData?.etd?.startDate || '',
+      eta: inv.shipData?.eta?.startDate || '',
+    });
+    clientMap.set(name, c);
+  });
+
+  // ── Payables (suppliers) — poInvoices, drafts excluded, 1¢ artifacts dropped ──
+  const supMap = new Map<string, Counterparty>();
+  let payablesUsd = 0;
+  (contracts4y || []).forEach((con: any) => {
+    const cur = con.cur === 'eu' ? 'eu' : 'us';
+    // Web has no rate fallback (NaN poisons its total on missing euroToUSD) —
+    // the 1.08 fallback here is a deliberate hardening, matching the expenses rate.
+    const rate = num(con.euroToUSD) || EXP_EUR_USD;
+    (con.poInvoices || []).forEach((inv: any) => {
+      if (inv.draft) return; // web: draft purchase invoices excluded
+      const blnc = num(inv.blnc);
+      if (Math.abs(blnc) <= 0.011) return; // web: ≤1¢ residues are settled
+      const usd = cur === 'us' ? blnc : blnc * rate;
+      payablesUsd += usd;
+      const name = settings?.Supplier?.Supplier?.find((s: any) => s.id === con.supplier)?.nname || '—';
+      const c: Counterparty = supMap.get(name) || { name, byCur: {}, usd: 0, count: 0, items: [] };
+      addCur(c.byCur, cur, blnc);
+      c.usd += usd;
+      c.count += 1;
+      c.items.push({
+        kind: 'poInvoice',
+        contractId: con.id,
+        contractDate: con.dateRange?.startDate || con.date || '',
+        poInvoiceId: inv.id,
+        inv: inv.inv,
+        order: con.order || '',
+        invValue: num(inv.invValue),
+        paid: num(inv.pmnt),
+        etd: (con as any).shipmentEtd || '',
+        eta: (con as any).shipmentEta || '',
+        // Purchase invoices have no invType — an 'FN' suffix marks a final note.
+        isFinal: inv.fnlzing === '4568' || /fns*$/i.test(String(inv.inv || '').trim()),
+        balance: blnc,
+        cur,
+      });
+      supMap.set(name, c);
+    });
+  });
+
+  // ── Unpaid expenses (paid === '222'); web: anything non-'us' converts ×1.08 ──
+  // Same record must never count twice: an expense that exists in BOTH the
+  // supplier-expenses and company-expenses collections (copy flows) — or any
+  // double-load — would duplicate its row and its minus in the totals.
+  // Dedup by id after the merge, exactly like web runExpenses.
+  const seenExp = new Set<string>();
+  const mergedExpenses = [...(expenses || []), ...(companyExpenses || [])].filter((z: any) => {
+    if (!z?.id) return true;
+    if (seenExp.has(z.id)) return false;
+    seenExp.add(z.id);
+    return true;
+  });
+
+  const expMap = new Map<string, Counterparty>();
+  let expensesUsd = 0;
+  mergedExpenses
+    .filter((z) => z && z.paid === '222')
+    .forEach((e) => {
+      const isUs = e.cur === 'us';
+      const amt = num(e.amount);
+      const usd = amt * (isUs ? 1 : EXP_EUR_USD);
+      expensesUsd += usd;
+      const name = settings?.Supplier?.Supplier?.find((s: any) => s.id === e.supplier)?.nname || 'Expense';
+      const c: Counterparty = expMap.get(name) || { name, byCur: {}, usd: 0, count: 0, items: [] };
+      addCur(c.byCur, isUs ? 'us' : 'eu', amt);
+      c.usd += usd;
+      c.count += 1;
+      c.items.push({
+        kind: 'expense',
+        id: e.id,
+        date: e.date,
+        amount: amt,
+        cur: isUs ? 'us' : 'eu',
+        expense: e.expense,
+        poSupplier: e.poSupplier,
+      });
+      expMap.set(name, c);
+    });
+
+  // ── Unsold stock value — web Sold/Unsold lot-status algorithm ──────────
+  const unsoldByCur: Record<string, number> = {};
+  computeUnsoldWeb(contracts2y, stocks, settings).forEach((row) =>
+    addCur(unsoldByCur, row.cur === 'eu' ? 'eu' : 'us', row.total)
+  );
+
+  // ── Stocks Paid / UnPaid (web sections + Total-Left components) ────────
+  // Web runStocks filters the ledger BEFORE aggregating (funcs.js:192-193):
+  // zero-value settlement rows and draft lots must not reach the paid/unpaid
+  // split. The same predicate is already used by the unsold block above.
+  // NOTE: filtering here and not inside computeInventory — that function is
+  // shared with Inventory, Shared Stock, Storage, Aging and Stock Audit, all of
+  // which correctly mirror web stocks/page.js, which has no such filter.
+  // The predicate itself lives beside computeInventory (cashflowStockLots) so the
+  // parity suite can check it against web's runStocks directly.
+  const inventoryRows = computeInventory(cashflowStockLots(stocks), settings, { minQnty: 0, cashflow: true }).rows;
+  const stockSplit = splitStocksPaidUnpaid(inventoryRows, contracts2y || []);
+
+  const incoming = sumMarginsRemaining(margins);
+
+  // Manual entries live on {uid}/cashflow — read-only here (web lets you edit them).
+  const fin = (cashflowDoc as any)?.financed || {};
+  const manual = {
+    initial: sumManualEntries(fin.initial),
+    financedLeft: sumManualEntries(fin.financedLeft),
+    financedRight: sumManualEntries(fin.financedRight),
+  };
+
+  // Web bottom line (cashflow/page.js:285-329). Receivables are summed across
+  // currencies here because web's Total (Left) does exactly that — see the web
+  // bug noted in the report; this reproduces the page, it does not fix it.
+  const receivablesAll = Object.values(receivablesByCur).reduce((a, b) => a + b, 0);
+  const totalLeft =
+    incoming + manual.initial + stockSplit.paidTotal + stockSplit.unpaidTotal + receivablesAll + manual.financedLeft;
+  const totalRight = payablesUsd + expensesUsd + manual.financedRight;
+
+  // No cap. Web renders EVERY counterparty row, and each section's Total is the
+  // reduce over that same array — so truncating to 8 made the visible rows
+  // disagree with the header total sitting above them.
+  const sortByUsd = (m: Map<string, Counterparty>) => [...m.values()].sort((a, b) => b.usd - a.usd);
+
+  return {
+    receivablesByCur,
+    receivableClients: sortByUsd(clientMap),
+    payablesUsd,
+    payableSuppliers: sortByUsd(supMap),
+    expensesUsd,
+    expenseSuppliers: sortByUsd(expMap),
+    unsoldByCur,
+    stocksPaid: stockSplit.paid,
+    stocksUnpaid: stockSplit.unpaid,
+    stocksPaidTotal: stockSplit.paidTotal,
+    stocksUnpaidTotal: stockSplit.unpaidTotal,
+    incoming,
+    totalLeft,
+    totalRight,
+    balance: totalLeft - totalRight,
+    manual,
+  };
+}
+
 export function useCashflow() {
   const { uidCollection } = useAuth();
   const { settings, loaded } = useSettings();
 
-  // Web parity: cashflow figures are RUNNING BALANCES anchored on the real current
-  // year — independent of the selected period. Receivables/payables look back 4
-  // years, expenses 2, unsold-stock contracts 2 (cashflow/page.js + funcs.js).
   const curYr = new Date().getFullYear();
-  const range4y = { start: `${curYr - 3}-01-01`, end: `${curYr}-12-31` };
-  const range2y = { start: `${curYr - 1}-01-01`, end: `${curYr}-12-31` };
+  const { range4y, range2y } = cashflowYearRanges(curYr);
 
   const query = useQuery({
     enabled: !!uidCollection && loaded,
@@ -276,187 +503,17 @@ export function useCashflow() {
   const data = useMemo<CashflowData | null>(() => {
     if (!query.data || !lotsQuery.data) return null;
     const { invoices, contracts4y, contracts2y, expenses, companyExpenses, margins, cashflowDoc } = query.data;
-    const stocks = lotsQuery.data;
-
-    // ── Receivables (clients) — web runInvoices pipeline ───────────────────
-    const receivablesByCur: Record<string, number> = {};
-    const clientMap = new Map<string, Counterparty>();
-    computeReceivablesWeb(invoices).forEach((inv: any) => {
-      // Web parity (funcs.js:1131-1132): a row with NO client is skipped entirely —
-      // it reaches neither the per-client list nor Total (Left). Tested on the RAW
-      // value, because resolveClientName falls back to a placeholder and so would
-      // never surface the empty case.
-      const rawClient = inv?.client;
-      const hasClient =
-        rawClient && typeof rawClient === 'object' ? !!rawClient.id || !!rawClient.nname : !!rawClient;
-      if (!hasClient) return;
-      const bal = inv.debtBlnc;
-      const cur = inv.cur === 'eu' ? 'eu' : 'us';
-      addCur(receivablesByCur, cur, bal);
-      const name = resolveClientName(inv.client, settings) || '—';
-      const c = clientMap.get(name) || { name, byCur: {}, usd: 0, count: 0, items: [] };
-      addCur(c.byCur, cur, bal);
-      c.usd += cur === 'us' ? bal : bal * (num(inv.euroToUSD) || EXP_EUR_USD);
-      c.count += 1;
-      c.items.push({
-        kind: 'invoice',
-        id: inv.id,
-        number: inv.invoice,
-        balance: bal,
-        cur,
-        raw: inv,
-        order: inv.poSupplier?.order || '',
-        amount: num(inv.totalAmount),
-        paid: (inv.payments || []).reduce((t: number, p: any) => t + num(p?.pmnt), 0),
-        // Web marks the invoice number with FN / CN on final and credit notes.
-        marker: inv.invType === '3333' ? 'FN' : inv.invType === '2222' ? 'CN' : '',
-        etd: inv.shipData?.etd?.startDate || '',
-        eta: inv.shipData?.eta?.startDate || '',
-      });
-      clientMap.set(name, c);
+    return computeCashflow({
+      invoices,
+      contracts4y,
+      contracts2y,
+      expenses,
+      companyExpenses,
+      margins,
+      cashflowDoc,
+      stocks: lotsQuery.data,
+      settings,
     });
-
-    // ── Payables (suppliers) — poInvoices, drafts excluded, 1¢ artifacts dropped ──
-    const supMap = new Map<string, Counterparty>();
-    let payablesUsd = 0;
-    contracts4y.forEach((con) => {
-      const cur = con.cur === 'eu' ? 'eu' : 'us';
-      // Web has no rate fallback (NaN poisons its total on missing euroToUSD) —
-      // the 1.08 fallback here is a deliberate hardening, matching the expenses rate.
-      const rate = num(con.euroToUSD) || EXP_EUR_USD;
-      (con.poInvoices || []).forEach((inv: any) => {
-        if (inv.draft) return; // web: draft purchase invoices excluded
-        const blnc = num(inv.blnc);
-        if (Math.abs(blnc) <= 0.011) return; // web: ≤1¢ residues are settled
-        const usd = cur === 'us' ? blnc : blnc * rate;
-        payablesUsd += usd;
-        const name = settings?.Supplier?.Supplier?.find((s: any) => s.id === con.supplier)?.nname || '—';
-        const c = supMap.get(name) || { name, byCur: {}, usd: 0, count: 0, items: [] };
-        addCur(c.byCur, cur, blnc);
-        c.usd += usd;
-        c.count += 1;
-        c.items.push({
-          kind: 'poInvoice',
-          contractId: con.id,
-          contractDate: con.dateRange?.startDate || con.date || '',
-          poInvoiceId: inv.id,
-          inv: inv.inv,
-          order: con.order || '',
-          invValue: num(inv.invValue),
-          paid: num(inv.pmnt),
-          etd: (con as any).shipmentEtd || '',
-          eta: (con as any).shipmentEta || '',
-          // Purchase invoices have no invType — an 'FN' suffix marks a final note.
-          isFinal: inv.fnlzing === '4568' || /fns*$/i.test(String(inv.inv || '').trim()),
-          balance: blnc,
-          cur,
-        });
-        supMap.set(name, c);
-      });
-    });
-
-    // ── Unpaid expenses (paid === '222'); web: anything non-'us' converts ×1.08 ──
-    // Same record must never count twice: an expense that exists in BOTH the
-    // supplier-expenses and company-expenses collections (copy flows) — or any
-    // double-load — would duplicate its row and its minus in the totals.
-    // Dedup by id after the merge, exactly like web runExpenses.
-    const seenExp = new Set<string>();
-    const mergedExpenses = [...expenses, ...companyExpenses].filter((z: any) => {
-      if (!z?.id) return true;
-      if (seenExp.has(z.id)) return false;
-      seenExp.add(z.id);
-      return true;
-    });
-
-    const expMap = new Map<string, Counterparty>();
-    let expensesUsd = 0;
-    mergedExpenses
-      .filter((z) => z && z.paid === '222')
-      .forEach((e) => {
-        const isUs = e.cur === 'us';
-        const amt = num(e.amount);
-        const usd = amt * (isUs ? 1 : EXP_EUR_USD);
-        expensesUsd += usd;
-        const name = settings?.Supplier?.Supplier?.find((s: any) => s.id === e.supplier)?.nname || 'Expense';
-        const c = expMap.get(name) || { name, byCur: {}, usd: 0, count: 0, items: [] };
-        addCur(c.byCur, isUs ? 'us' : 'eu', amt);
-        c.usd += usd;
-        c.count += 1;
-        c.items.push({ kind: 'expense', id: e.id, date: e.date, amount: amt, cur: isUs ? 'us' : 'eu', expense: e.expense, poSupplier: e.poSupplier });
-        expMap.set(name, c);
-      });
-
-    // ── Unsold stock value — web Sold/Unsold lot-status algorithm ──────────
-    const unsoldByCur: Record<string, number> = {};
-    computeUnsoldWeb(contracts2y, stocks, settings).forEach((row) => addCur(unsoldByCur, row.cur === 'eu' ? 'eu' : 'us', row.total));
-
-    // ── Stocks Paid / UnPaid (web sections + Total-Left components) ────────
-    // Web runStocks filters the ledger BEFORE aggregating (funcs.js:192-193):
-    // zero-value settlement rows and draft lots must not reach the paid/unpaid
-    // split. The same predicate is already used by the unsold block below.
-    // NOTE: filtering here and not inside computeInventory — that function is
-    // shared with Inventory, Shared Stock, Storage, Aging and Stock Audit, all of
-    // which correctly mirror web stocks/page.js, which has no such filter.
-    const cashflowLots = (stocks || [])
-      .filter((z: any) => z.total !== 0)
-      .filter((x: any) => x.draft === undefined || x.draft === false);
-    const inventoryRows = computeInventory(cashflowLots, settings, { minQnty: 0, cashflow: true }).rows;
-    const stockSplit = splitStocksPaidUnpaid(inventoryRows, contracts2y);
-
-    // 'Future' / incoming = Σ the margins MONTH docs' own `remaining`
-    // (web cashflow page.js:214-219, guarded with !isNaN).
-    //
-    // The month-level field is written ALREADY GIS-HALVED by the margins editor
-    // (web margins/page.js:484 — `cur.gis ? cur.remaining / 2 : cur.remaining`).
-    // Mobile was summing m.items[].remaining raw instead, so every GIS row counted
-    // at DOUBLE its intended contribution, inflating incoming, Total (Left) and
-    // the Balance.
-    const incoming = (margins || [])
-      .filter((m: any) => !isNaN(m?.remaining))
-      .reduce((s: number, m: any) => s + (parseFloat(m.remaining) || 0), 0);
-
-    // Manual entries live on {uid}/cashflow — read-only here (web lets you edit them).
-    const fin = (cashflowDoc as any)?.financed || {};
-    const sumNum = (arr: any) => (Array.isArray(arr) ? arr.reduce((t: number, o: any) => t + (parseFloat(o?.num) || 0), 0) : 0);
-    const manual = {
-      initial: sumNum(fin.initial),
-      financedLeft: sumNum(fin.financedLeft),
-      financedRight: sumNum(fin.financedRight),
-    };
-
-    // Web bottom line (cashflow/page.js:285-329). Receivables are summed across
-    // currencies here because web's Total (Left) does exactly that — see the web
-    // bug noted in the report; this reproduces the page, it does not fix it.
-    const receivablesAll = Object.values(receivablesByCur).reduce((a, b) => a + b, 0);
-    const totalLeft =
-      incoming + manual.initial + stockSplit.paidTotal + stockSplit.unpaidTotal +
-      receivablesAll + manual.financedLeft;
-    const totalRight = payablesUsd + expensesUsd + manual.financedRight;
-
-    // No cap. Web renders EVERY counterparty row, and each section's Total is the
-    // reduce over that same array — so truncating to 8 made the visible rows
-    // disagree with the header total sitting above them.
-    const sortByUsd = (m: Map<string, Counterparty>) =>
-      [...m.values()].sort((a, b) => b.usd - a.usd);
-
-    return {
-      receivablesByCur,
-      receivableClients: sortByUsd(clientMap),
-      payablesUsd,
-      payableSuppliers: sortByUsd(supMap),
-      expensesUsd,
-      expenseSuppliers: sortByUsd(expMap),
-      unsoldByCur,
-      stocksPaid: stockSplit.paid,
-      stocksUnpaid: stockSplit.unpaid,
-      stocksPaidTotal: stockSplit.paidTotal,
-      stocksUnpaidTotal: stockSplit.unpaidTotal,
-      incoming,
-      totalLeft,
-      totalRight,
-      balance: totalLeft - totalRight,
-      manual,
-    };
   }, [query.data, lotsQuery.data, settings]);
 
   return {

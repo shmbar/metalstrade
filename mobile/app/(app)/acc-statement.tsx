@@ -7,23 +7,14 @@ import { Screen, Card, Text, Select, SkeletonList, ErrorState, EmptyState } from
 import { PeriodSelector } from '@/components/PeriodSelector';
 import { useTheme } from '@/theme/ThemeProvider';
 import { useSettings } from '@/store/settings';
-import { useAccStatement, periodsForYear } from '@/features/accstatement/useAccStatement';
-import { fmtMoney, dateLabel } from '@/lib/format';
-
-// Web renders every statement figure through Intl with a HARD ternary,
-// `row.cur === 'us' ? USD : EUR` — so a blank or unknown currency shows a euro
-// sign, not the '$' / '<id> ' the shared curSymbol falls back to. Intl also puts
-// the minus OUTSIDE the symbol, which matters because an overpayment produces a
-// negative Unpaid.
-const stmtMoney = (v: number, cur?: string) =>
-  `${v < 0 ? '-' : ''}${cur === 'us' ? '$' : '€'}${fmtMoney(Math.abs(v))}`;
-
-// Web prints dd.mm.yy on screen. Mobile showed the raw ISO string, which made a
-// screenshot impossible to line up against the PDF the client receives.
-const stmtDate = (v: any) => {
-  const [y, m, d] = String(v ?? '').slice(0, 10).split('-');
-  return y && m && d ? `${d}.${m}.${y.slice(2)}` : String(v || '—');
-};
+import {
+  useAccStatement,
+  periodsForYear,
+  statementTotals,
+  stmtMoney,
+  stmtDate,
+} from '@/features/accstatement/useAccStatement';
+import { dateLabel } from '@/lib/format';
 import { exportCsv, exportPdf } from '@/lib/export';
 import { accountStatementHtml } from '@/lib/pdfTemplates';
 import { useAuth } from '@/store/auth';
@@ -61,6 +52,10 @@ export default function AccStatement() {
     [settings, client]
   );
 
+  // Web parity (accstatement setTtl): totals are kept PER CURRENCY — never mixed,
+  // and a third currency lands in NEITHER bucket. See statementTotals.
+  const totals = useMemo(() => statementTotals(rows), [rows]);
+
   // Web exports the statement two ways (accstatement/excel.js + pdfAccountStatement.js).
   // Both were missing on mobile. Same 7 columns and the same per-currency totals block.
   const exportRows = () =>
@@ -93,22 +88,6 @@ export default function AccStatement() {
       `Debt_${clientObj?.nname || 'client'}`
     );
 
-  // Web parity (accstatement setTtl): totals are kept PER CURRENCY — never mixed.
-  const totals = useMemo(() => {
-    const mk = () => ({ amount: 0, paid: 0, notPaid: 0 });
-    const t: Record<'us' | 'eu', ReturnType<typeof mk>> = { us: mk(), eu: mk() };
-    (rows || []).forEach((r) => {
-      // Web tests EQUALITY against 'us' and 'eu' (Numcur), so a row whose currency
-      // is blank or some third id contributes to NEITHER total. Mobile's else-branch
-      // was a catch-all that swept those rows into USD, inflating it by their sum.
-      const cur = r.cur === 'eu' ? 'eu' : r.cur === 'us' ? 'us' : null;
-      if (!cur) return;
-      t[cur].amount += num(r.amount);
-      t[cur].paid += num(r.paid);
-      t[cur].notPaid += num(r.notPaid);
-    });
-    return t;
-  }, [rows]);
   const ready = client && date1;
 
   return (

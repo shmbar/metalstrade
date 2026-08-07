@@ -8,7 +8,7 @@ import { PeriodSelector } from '@/components/PeriodSelector';
 import { useTheme } from '@/theme/ThemeProvider';
 import { useContractsReview, statusTone } from '@/features/review/useContractsReview';
 import { fmtMoney, curSymbol } from '@/lib/format';
-import { ReviewFinancials } from '@/features/review/reviewFinance';
+import { sumReviewFinancials } from '@/features/review/reviewFinance';
 
 const wt = (n: number) => `${fmtMoney(n, 3)}`; // web showWeight — fixed 3 dp
 // web fmtMT (page.js:38) — max 2 dp, no minimum. Used ONLY for the progress-bar
@@ -35,19 +35,7 @@ export default function ContractsReview() {
   // Totals recomputed from the FILTERED rows — a SINGLE row in the view currency,
   // exactly like web's setTtl(), which sums every contract regardless of its own
   // currency because reviewFinancials has already converted each one into viewCur.
-  const reviewTotals = useMemo(() => {
-    const t: ReviewFinancials = { conValue: 0, totalInvoices: 0, originalInvoices: 0, deviation: 0, totalPrepayment1: 0, prepaidPer: 0, inDebt: 0, payments: 0, debtaftr: 0, debtBlnc: 0, expenses1: 0, profit: 0 };
-    filtered.forEach((r) => {
-      (Object.keys(t) as (keyof ReviewFinancials)[]).forEach((k) => {
-        if (k !== 'prepaidPer') (t[k] as number) += r.fin[k] as number;
-      });
-    });
-    // web: isNaN(prepay/inv) ? '-' : ((prepay/inv)*100).toFixed(2)+'%'
-    t.prepaidPer = Number.isFinite(t.totalPrepayment1 / t.totalInvoices)
-      ? (t.totalPrepayment1 / t.totalInvoices) * 100
-      : null;
-    return t;
-  }, [filtered]);
+  const reviewTotals = useMemo(() => sumReviewFinancials(filtered.map((r) => r.fin)), [filtered]);
 
   return (
     <Screen scroll={false} flush contentContainerStyle={{ paddingTop: insets.top + 8 }} edges={false}>

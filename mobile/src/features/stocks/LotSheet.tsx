@@ -8,6 +8,7 @@ import { radius, spacing } from '@/theme/tokens';
 import { useSettings } from '@/store/settings';
 import { useMoveStock } from './useMoveStock';
 import { curSymbol, fmtMoney } from '@/lib/format';
+import { fmtLotPrice } from './display';
 
 const fmtQ = (n: any) => new Intl.NumberFormat('en-US', { minimumFractionDigits: 3, maximumFractionDigits: 3 }).format(Number(n) || 0);
 
@@ -16,11 +17,7 @@ const fmtQ = (n: any) => new Intl.NumberFormat('en-US', { minimumFractionDigits:
 // fmtMoney rounds to 2 and pads, so 1234.5678 read "$1,234.57" on mobile against
 // web's "$1,234.567", and a flat 1200 read "$1,200.00" against web's "$1,200".
 // fmtMoney stays untouched — the Total row and many other screens need its 2 dp.
-const fmtLotPrice = (v: any) => {
-  const [int = '', dec] = String(v ?? '').split('.');
-  const grouped = int.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-  return dec ? `${grouped}.${dec.slice(0, 3)}` : grouped;
-};
+// The rule lives in ./display so the parity suite can check it directly.
 
 // Materials Breakdown sheet — the mobile twin of web's whModal, opened by tapping
 // an inventory row. Web opens this on a double-click; mobile's rows had no tap

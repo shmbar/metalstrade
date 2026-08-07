@@ -5,6 +5,7 @@ import { Card, Text, Button } from '@/components/ui';
 import { useTheme } from '@/theme/ThemeProvider';
 import { useSettings } from '@/store/settings';
 import { useMarginsEditor } from './useMargins';
+import { monthPurchase, monthMargin } from './derive';
 import { fmtMoney } from '@/lib/format';
 
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
@@ -17,20 +18,10 @@ const n2 = (v: any) => fmtMoney(Number(v) || 0);
 // fixedDecimalScale (marginTable.js:92-98).
 const n3 = (v: any) => fmtMoney(Number(v) || 0, 3);
 
-// Web re-derives the collapsed month header from the VISIBLE item rows on every
-// render (marginTable.js:19-22) — it never reads the persisted month aggregate.
-// Mobile read the stored field, so a row added or deleted in the editor left the
-// header stale until the next save, and gis rows were not halved in Total Margin.
-// Deriving here rather than rolling up on add/delete is deliberate: web does not
-// roll up either, and unilaterally changing what mobile PERSISTS would make the
-// saved month doc — and the Profits KPI that sums it — diverge from web.
-const monthPurchase = (items: any[]) =>
-  (items || []).reduce((sum, r: any) => sum + (Number(r.purchase) || 0), 0);
-const monthMargin = (items: any[]) =>
-  (items || []).reduce(
-    (sum, r: any) => sum + (r?.gis ? Number(r?.totalMargin) / 2 || 0 : Number(r?.totalMargin) || 0),
-    0
-  );
+// The collapsed month header is DERIVED from the visible rows (never the persisted
+// month aggregate) and halves gis rows — see ./derive.ts for the rule and its web
+// citation (marginTable.js:19-22). Mobile used to read the stored field, so a row
+// added or deleted in the editor left the header stale until the next save.
 
 // Editable per-month item table — the mobile twin of web's Disclosure + 13-column
 // margins grid. Mobile previously showed month aggregates only, with no way to see

@@ -9,6 +9,7 @@
     "lint": "next lint",
     "test": "vitest run",
     "test:watch": "vitest",
+    "test:parity": "vitest run __tests__/parity",
     "test:assistant": "node tests/assistant-golden.mjs",
     "design:check": "node design-audit/tools/gates.js --scan",
     "design:metrics": "node design-audit/tools/metrics.js design-audit/tools/in-scope-files.txt",

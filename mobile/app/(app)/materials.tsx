@@ -6,29 +6,26 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Screen, Card, Text, Button, SkeletonList, ErrorState, EmptyState } from '@/components/ui';
 import { useTheme } from '@/theme/ThemeProvider';
 import { useMaterials, cleanElement, cleanKgs } from '@/features/materials/useMaterials';
-import { DEFAULT_ELEMENTS, UNIT_LABELS, UNIT_TO_MT } from '@/features/materials/constants';
-
-// Web blanks a cell it cannot parse (page.js:47-50); mobile echoed the raw text,
-// so legacy junk in an element field showed up as text on one platform only.
-const fmt = (v: any) => {
-  if (v == null || v === '') return '';
-  const n = parseFloat(v);
-  return isNaN(n) ? '' : new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(n);
-};
-
-// Weights follow the TABLE's unit: MT keeps 3 decimals, kgs/lbs round to whole
-// units (newTable.js:212-215). Mobile forced 2 decimals on every unit, dropping
-// the third decimal from MT tables and inventing '.00' on kgs ones.
-const fmtWeight = (v: any, unit: string) => {
-  const n = parseFloat(v);
-  if (isNaN(n)) return '';
-  return unit === 'mt'
-    ? new Intl.NumberFormat('en-US', { minimumFractionDigits: 3, maximumFractionDigits: 3 }).format(n)
-    : new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 }).format(Math.round(n));
-};
-
-const money = (n: number) =>
-  '$' + new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(n);
+import { DEFAULT_ELEMENTS, UNIT_LABELS } from '@/features/materials/constants';
+// The footer filter, the weighted averages, the cost maths and the cross-table
+// total all live in ./tableMath so they can be diffed against web in
+// __tests__/parity/margins-materials-formulas.test.ts. Each carries its web citation.
+import {
+  fmtCell as fmt,
+  fmtWeight,
+  fmtAvg,
+  money,
+  footerRows,
+  totalWeight,
+  weightedAvg,
+  hasPrices as hasPricesOf,
+  niMultiplier,
+  costPmt as costPmtOf,
+  costTotal as costTotalOf,
+  footerCostPmt,
+  footerCostTotal,
+  grandTotals,
+} from '@/features/materials/tableMath';
 
 const COL = 56; // element column width
 const COST_COL = 76;
@@ -83,37 +80,21 @@ export default function Materials() {
             // element is empty or zero (newTable.js:200-209). Mobile summed those
             // placeholder rows, so a blank row carrying a weight shifted both the
             // total and every weighted average — and inflated the item count.
-            const rows = allRows.filter((r: any) => {
-              if (r.material && String(r.material).trim() !== '') return true;
-              return elements.some((el) => {
-                const v = parseFloat(r[el.key]);
-                return !isNaN(v) && v !== 0;
-              });
-            });
-
-            const totalKgs = rows.reduce((s: number, r: any) => s + (parseFloat(r.kgs) || 0), 0);
-            const weighted = (key: string) =>
-              totalKgs > 0 ? rows.reduce((s: number, r: any) => s + (parseFloat(r[key]) || 0) * (parseFloat(r.kgs) || 0), 0) / totalKgs : 0;
+            const rows = footerRows(allRows, elements);
+            const totalKgs = totalWeight(rows);
+            const weighted = (key: string) => weightedAvg(rows, key, totalKgs);
 
             // Cost columns — shown only when the table has prices AND cost display is
-            // on, exactly as web gates them (newTable.js:100-102). The Ni price is
-            // scaled by the table's payable percentage.
+            // on, exactly as web gates them (newTable.js:93-102). An Fe-only price does
+            // NOT count, a price of "0" does, and the Ni price is scaled by the table's
+            // payable percentage (which falls back to 100% when blank).
             const prices = table.prices || {};
-            const niMult = (table.niPercent != null ? table.niPercent : 100) / 100;
-            const hasPrices = elements.some((el) => parseFloat(prices[el.key]) > 0);
-            const showCosts = !!table.showCosts && hasPrices;
-            const costPmt = (r: any) =>
-              elements.reduce((sum, el) => {
-                const price = parseFloat(prices[el.key]) || 0;
-                if (!price) return sum;
-                const mult = el.key === 'ni' ? niMult : 1;
-                return sum + ((parseFloat(r[el.key]) || 0) / 100) * price * mult;
-              }, 0);
-            const toMT = UNIT_TO_MT[unitKey] || 0.001;
-            const costTotal = (r: any) => costPmt(r) * (parseFloat(r.kgs) || 0) * toMT;
-            const footCostPmt =
-              totalKgs > 0 ? rows.reduce((s: number, r: any) => s + costPmt(r) * (parseFloat(r.kgs) || 0), 0) / totalKgs : 0;
-            const footCostTotal = rows.reduce((s: number, r: any) => s + costTotal(r), 0);
+            const niMult = niMultiplier(table.niPercent);
+            const showCosts = !!table.showCosts && hasPricesOf(elements, prices);
+            const costPmt = (r: any) => costPmtOf(r, elements, prices, niMult);
+            const costTotal = (r: any) => costTotalOf(r, elements, prices, niMult, unitKey);
+            const footCostPmt = footerCostPmt(rows, elements, prices, niMult, totalKgs);
+            const footCostTotal = footerCostTotal(rows, elements, prices, niMult, unitKey);
 
             return (
               <Card key={table.id || ti} padded={false}>
@@ -187,7 +168,7 @@ export default function Materials() {
                           <Text key={el.key} variant="caption" tone="primary" style={{ width: COL, textAlign: 'right', fontFamily: 'Inter_600SemiBold' }}>
                             {/* Web leaves the cell EMPTY when the average is zero, so
                                 an element with no data doesn't read as a measured 0. */}
-                            {weighted(el.key) === 0 ? '' : fmt(weighted(el.key))}
+                            {fmtAvg(weighted(el.key))}
                           </Text>
                         ))}
                         {showCosts && (
@@ -237,29 +218,8 @@ export default function Materials() {
 // to one table is never rolled up. The whole row is hidden if any value is NaN.
 function GrandTotals({ tables }: { tables: any[] }) {
   const { colors } = useTheme();
-  if (!tables || tables.length === 0) return null;
-
-  const per = tables.map((table: any) => {
-    const elems = table.elements && table.elements.length ? table.elements : DEFAULT_ELEMENTS;
-    const rows = table.data || [];
-    const totalKgs = rows.reduce((s: number, r: any) => s + Number(r.kgs), 0);
-    const obj: any = { kgs: totalKgs };
-    elems.forEach((el: any) => {
-      const ws = rows.reduce((s: number, r: any) => s + (parseFloat(r[el.key] || 0) * Number(r.kgs)), 0);
-      obj[el.key] = totalKgs > 0 ? (ws / totalKgs).toFixed(2) : '0.00';
-    });
-    return obj;
-  });
-
-  const totalKgs = per.reduce((s: number, t: any) => s + Number(t.kgs), 0);
-  const result: any = { kgs: totalKgs.toFixed(2) };
-  DEFAULT_ELEMENTS.forEach((el) => {
-    const valid = per.filter((t: any) => !isNaN(parseFloat(t[el.key])));
-    const sum = valid.reduce((acc: number, t: any) => acc + parseFloat(t[el.key] || 0), 0);
-    result[el.key] = valid.length > 0 ? (sum / valid.length).toFixed(2) : '0.00';
-  });
-
-  if (Object.values(result).some((v: any) => isNaN(parseFloat(v)))) return null;
+  const result = grandTotals(tables);
+  if (!result) return null;
 
   return (
     <Card padded={false}>

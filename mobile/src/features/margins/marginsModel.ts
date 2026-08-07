@@ -48,10 +48,17 @@ export const blankItem = (id: string): MarginItem => ({
 // Web's input guards: numeric fields strip everything but digits/-/., and any
 // value with more than 3 decimals is REJECTED outright (the keystroke is dropped).
 export const removeNonNumeric = (n: any) => (n ?? '').toString().replace(/[^0-9.\-]/g, '');
+
+// Transcribed from app/(root)/margins/funcs.js:6-21. The regex tail and the
+// LEADING-ZERO STRIP are the whole point: web counts "1.0000" as ZERO decimals
+// (the significant digits after stripping zeros) and folds an exponent in, so
+// values a naive `length - indexOf('.') - 1` would reject are perfectly legal on
+// web. Mobile used the naive version and silently dropped those keystrokes.
 export const countDecimalDigits = (v: any) => {
-  const s = String(v ?? '');
-  const i = s.indexOf('.');
-  return i === -1 ? 0 : s.length - i - 1;
+  const match = String(v ?? '').match(/(?:\.(\d+))?(?:[eE]([+-]?\d+))?$/);
+  if (!match) return 0;
+  const combined = (match[1] || '') + (match[2] || '');
+  return combined.replace(/^0+/, '').length;
 };
 
 // Recompute a month's totals from its items — the exact reducer web runs after

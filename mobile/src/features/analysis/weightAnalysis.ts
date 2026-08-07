@@ -67,8 +67,12 @@ export function mergeObj(data: any[]): any[] {
   return merged;
 }
 
-// Group by invoice number — port of utils.js groupedArrayInvoice.
-function groupedArrayInvoice(arr: any[]): any[][] {
+// Group by invoice number — port of utils.js groupedArrayInvoice (utils/utils.js:123).
+// Exported so the parity suite can compare it against web's own copy directly.
+// Two deliberate hardenings vs web: the input is COPIED before sorting (web sorts
+// the caller's array in place) and a missing `invoice` coerces to 0 instead of
+// producing a NaN comparator result.
+export function groupedArrayInvoice(arr: any[]): any[][] {
   return [...arr]
     .sort((a, b) => (a.invoice ?? 0) - (b.invoice ?? 0))
     .reduce<any[][]>((result, obj) => {
