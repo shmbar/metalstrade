@@ -107,10 +107,30 @@ const FIELD_KEYS = [
   'sType',
 ];
 
+export interface InventoryOpts {
+  /**
+   * Rows below this net quantity are dropped. The STOCKS page hides sub-0.1
+   * residual lots (web stocks/page.js:224); the CASHFLOW page keeps everything
+   * above zero (web cashflow/funcs.js:364). Default is the stocks behaviour, so
+   * the five screens already sharing this function are untouched.
+   */
+  minQnty?: number;
+  /**
+   * Cashflow mode. Web's runStocks differs from its stocks page in two ways that
+   * change money: it copies the representative in-lot's fields with NO qnty>0
+   * guard, and it overrides unitPrc from the contract's productsData when that
+   * line has one (funcs.js:342, 352-356). Applying either on the stocks page
+   * would break a currently-correct screen, so both are opt-in.
+   */
+  cashflow?: boolean;
+}
+
 export function computeInventory(
   rawStockData: Lot[],
-  settings: any
+  settings: any,
+  opts: InventoryOpts = {}
 ): { rows: InventoryRow[]; totals: InventoryTotal[] } {
+  const { minQnty = 0.1, cashflow = false } = opts;
   const stockData: Lot[] = (rawStockData || []).map((x) => ({
     ...x,
     descriptionName: resolveDescriptionName(x),
@@ -146,7 +166,12 @@ export function computeInventory(
                   ? (f(currentObj.qnty) - f(currentObj.finalqnty)) * -1
                   : 0)
               : f(currentObj[k]) * -1 || 0);
-        } else if (currentObj.type === 'in' && currentObj.description && f(currentObj.qnty) > 0) {
+        } else if (
+          currentObj.type === 'in' &&
+          currentObj.description &&
+          // web's stocks page guards on qnty>0 here; runStocks does not.
+          (cashflow || f(currentObj.qnty) > 0)
+        ) {
           totalObj[k] = currentObj[k];
         }
       });
@@ -154,10 +179,23 @@ export function computeInventory(
       totalObj.qTypeTable = currentObj.qTypeTable || '';
     });
 
-    totalObj.total =
-      totalObj.qnty === 0 && !group.some((it) => 'finalqnty' in it && it.type === 'in')
-        ? totalObj.unitPrc
-        : f(totalObj.qnty) * f(totalObj.unitPrc);
+    if (cashflow) {
+      // web funcs.js:352-356 — prefer the contract product line's unit price, and
+      // compute total from the RAW qnty (before the toFixed(3) below).
+      const first: any = group[0];
+      const untPrc = first?.productsData?.find(
+        (z: any) => z.id === (first.descriptionId || first.description)
+      )?.unitPrc;
+      if (untPrc !== undefined && untPrc !== null && !isNaN(parseFloat(untPrc))) {
+        totalObj.unitPrc = untPrc;
+      }
+      totalObj.total = f(totalObj.qnty) * f(totalObj.unitPrc);
+    } else {
+      totalObj.total =
+        totalObj.qnty === 0 && !group.some((it) => 'finalqnty' in it && it.type === 'in')
+          ? totalObj.unitPrc
+          : f(totalObj.qnty) * f(totalObj.unitPrc);
+    }
     totalObj.data = group; // web parity: kept for supplier-less description fallback
     totalObj.date = fmtDateDDMMYY(group.find((z) => z.contractData)?.contractData?.date);
     totalObj.arrivalIso = arrivalIsoOf(group);
@@ -168,7 +206,7 @@ export function computeInventory(
     newArr.push(totalObj as InventoryRow);
   });
 
-  let rows = newArr.filter((x) => Number(x.qnty) > 0.1);
+  let rows = newArr.filter((x) => Number(x.qnty) > minQnty);
 
   // Fill missing supplier so rows still render (page.js parity).
   rows = rows.map((r) => {

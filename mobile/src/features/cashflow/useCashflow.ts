@@ -260,7 +260,8 @@ export function useCashflow() {
         loadData<Contract>(uid, 'contracts', range2y),
         loadData<any>(uid, 'expenses', range2y),
         loadFlatByDate<any>(uid, 'companyExpenses', range2y),
-        loadMargins(uid, curYr).catch(() => []),
+        // Web loads TWO years for the incoming figure (page.js:83 yr = [curYr-1, curYr]).
+        Promise.all([curYr - 1, curYr].map((y) => loadMargins(uid, y).catch(() => []))).then((a) => a.flat()),
         loadDataSettings<any>(uid, 'cashflow').catch(() => ({})),
       ]);
       // Stock lots come from the SHARED ledger query (see useAllStockLots) so the
@@ -281,6 +282,14 @@ export function useCashflow() {
     const receivablesByCur: Record<string, number> = {};
     const clientMap = new Map<string, Counterparty>();
     computeReceivablesWeb(invoices).forEach((inv: any) => {
+      // Web parity (funcs.js:1131-1132): a row with NO client is skipped entirely —
+      // it reaches neither the per-client list nor Total (Left). Tested on the RAW
+      // value, because resolveClientName falls back to a placeholder and so would
+      // never surface the empty case.
+      const rawClient = inv?.client;
+      const hasClient =
+        rawClient && typeof rawClient === 'object' ? !!rawClient.id || !!rawClient.nname : !!rawClient;
+      if (!hasClient) return;
       const bal = inv.debtBlnc;
       const cur = inv.cur === 'eu' ? 'eu' : 'us';
       addCur(receivablesByCur, cur, bal);
@@ -382,17 +391,29 @@ export function useCashflow() {
     computeUnsoldWeb(contracts2y, stocks, settings).forEach((row) => addCur(unsoldByCur, row.cur === 'eu' ? 'eu' : 'us', row.total));
 
     // ── Stocks Paid / UnPaid (web sections + Total-Left components) ────────
-    const inventoryRows = computeInventory(stocks, settings).rows;
+    // Web runStocks filters the ledger BEFORE aggregating (funcs.js:192-193):
+    // zero-value settlement rows and draft lots must not reach the paid/unpaid
+    // split. The same predicate is already used by the unsold block below.
+    // NOTE: filtering here and not inside computeInventory — that function is
+    // shared with Inventory, Shared Stock, Storage, Aging and Stock Audit, all of
+    // which correctly mirror web stocks/page.js, which has no such filter.
+    const cashflowLots = (stocks || [])
+      .filter((z: any) => z.total !== 0)
+      .filter((x: any) => x.draft === undefined || x.draft === false);
+    const inventoryRows = computeInventory(cashflowLots, settings, { minQnty: 0, cashflow: true }).rows;
     const stockSplit = splitStocksPaidUnpaid(inventoryRows, contracts2y);
 
-    // 'Future' / incoming = Sigma margins rows' remaining (web cashflow incoming).
-    const incoming = (margins || []).reduce(
-      (s: number, m: any) => s + (m.items || []).reduce((a: number, it: any) => {
-        const r = parseFloat(it.remaining);
-        return a + (isNaN(r) ? 0 : r);
-      }, 0),
-      0
-    );
+    // 'Future' / incoming = Σ the margins MONTH docs' own `remaining`
+    // (web cashflow page.js:214-219, guarded with !isNaN).
+    //
+    // The month-level field is written ALREADY GIS-HALVED by the margins editor
+    // (web margins/page.js:484 — `cur.gis ? cur.remaining / 2 : cur.remaining`).
+    // Mobile was summing m.items[].remaining raw instead, so every GIS row counted
+    // at DOUBLE its intended contribution, inflating incoming, Total (Left) and
+    // the Balance.
+    const incoming = (margins || [])
+      .filter((m: any) => !isNaN(m?.remaining))
+      .reduce((s: number, m: any) => s + (parseFloat(m.remaining) || 0), 0);
 
     // Manual entries live on {uid}/cashflow — read-only here (web lets you edit them).
     const fin = (cashflowDoc as any)?.financed || {};
@@ -412,8 +433,11 @@ export function useCashflow() {
       receivablesAll + manual.financedLeft;
     const totalRight = payablesUsd + expensesUsd + manual.financedRight;
 
+    // No cap. Web renders EVERY counterparty row, and each section's Total is the
+    // reduce over that same array — so truncating to 8 made the visible rows
+    // disagree with the header total sitting above them.
     const sortByUsd = (m: Map<string, Counterparty>) =>
-      [...m.values()].sort((a, b) => b.usd - a.usd).slice(0, 8);
+      [...m.values()].sort((a, b) => b.usd - a.usd);
 
     return {
       receivablesByCur,
