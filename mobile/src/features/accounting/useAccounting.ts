@@ -39,6 +39,14 @@ export interface AccountingGroup {
   amountInv: number;
   curINV: string;
   invType: string;
+  /**
+   * Every sales-invoice DOCUMENT folded into this number — the original plus each
+   * Credit/Final Note. Web emits one merged table row per document (page.js:59
+   * `invArr.map`), each carrying its own date, amount and suffixed number, so the
+   * transaction count, the avg-transaction denominator and the by-weekday credit
+   * bars all have to see the documents rather than the netted group.
+   */
+  invDocs: { saleInvoice: string; dateInv: string; amountInv: number }[];
   lines: AccountingLine[];
 }
 
@@ -149,10 +157,12 @@ export function useAccounting() {
             invType: s.invType,
             invoiceId: s.invoiceId,
             invoiceDate: s.invoiceDate,
+            invDocs: [{ saleInvoice: s.saleInvoice || String(s.invoice), dateInv: s.dateInv || '', amountInv: s.amountInv }],
             lines: [],
           };
         } else {
           byInvoice[key].amountInv += s.amountInv; // net CN/FN into the group
+          byInvoice[key].invDocs.push({ saleInvoice: s.saleInvoice || String(s.invoice), dateInv: s.dateInv || '', amountInv: s.amountInv });
         }
       });
       allLines.forEach((e) => {
@@ -165,6 +175,7 @@ export function useAccounting() {
           amountInv: 0,
           curINV: '',
           invType: '',
+          invDocs: [],
           lines: [],
         }).lines.push({
           dateExp: e.dateExp || '',

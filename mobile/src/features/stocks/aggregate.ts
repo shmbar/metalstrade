@@ -255,6 +255,9 @@ export function formatInventoryRow(row: InventoryRow, settings: any) {
   return {
     ...row,
     supplierName: row.supplier !== '-' ? gQ(row.supplier, 'Supplier', 'nname') : '-',
+    // web page.js:321 resolves this too — it is a hidden column, but a hidden column
+    // still participates in the global filter, so the search has to see the name.
+    originSupplierName: gQ(row.originSupplier, 'Supplier', 'nname'),
     warehouseName: gQ(row.stock, 'Stocks', 'nname'),
     curLabel: gQ(row.cur, 'Currency', 'cur'),
     qTypeLabel: gQ(row.qTypeTable, 'Quantity', 'qTypeTable'),

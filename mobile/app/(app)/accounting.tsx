@@ -103,8 +103,13 @@ export default function Accounting() {
     const debit = new Array(7).fill(0);
     const credit = new Array(7).fill(0);
     (data || []).forEach((g) => {
-      const ci = dayIdx(g.dateInv);
-      if (ci >= 0) credit[ci] += g.amountInv || 0;
+      // Each invoice DOCUMENT carries its OWN date — a credit note raised weeks after
+      // the original belongs to the note's weekday, not the original's. Bucketing the
+      // netted group total put the whole net on one bar and left the other empty.
+      (g.invDocs || []).forEach((d) => {
+        const ci = dayIdx(d.dateInv);
+        if (ci >= 0) credit[ci] += d.amountInv || 0;
+      });
       g.lines.forEach((l) => {
         const di = dayIdx(l.dateExp);
         if (di >= 0) debit[di] += l.amountExp || 0;
@@ -216,6 +221,26 @@ export default function Accounting() {
                     {item.invType ? <Badge label={item.invType} tone="info" /> : null}
                   </View>
                 </View>
+
+                {/* Web renders one Amount row per invoice DOCUMENT — "12345", then
+                    "12345CN", then "12345FN", each with its own figure and date
+                    (page.js:175-191 + the amountInv column at :408). Mobile's headline
+                    is the netted group, which never appears on web, so the documents
+                    are listed underneath whenever a note exists. */}
+                {item.invDocs.length > 1 && (
+                  <View style={{ marginTop: 10, borderTopWidth: 1, borderTopColor: colors.border, paddingTop: 8, gap: 4 }}>
+                    {item.invDocs.map((d, i) => (
+                      <View key={i} style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <Text variant="caption" tone="faint" numberOfLines={1}>
+                          #{d.saleInvoice}{d.dateInv ? ` · ${d.dateInv}` : ''}
+                        </Text>
+                        <Text variant="caption" tone={d.amountInv < 0 ? 'negative' : 'muted'}>
+                          {symS}{fmtMoney(d.amountInv)}
+                        </Text>
+                      </View>
+                    ))}
+                  </View>
+                )}
 
                 {item.lines.length > 0 && (
                   <View style={{ marginTop: 10, borderTopWidth: 1, borderTopColor: colors.border, paddingTop: 8, gap: 6 }}>

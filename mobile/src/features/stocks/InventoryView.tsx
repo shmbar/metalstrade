@@ -24,13 +24,29 @@ export function InventoryView() {
     const q = search.trim().toLowerCase();
     const all = data?.rows || [];
     if (!q) return all;
-    return all.filter(
-      (r) =>
-        (r.descriptionName || '').toLowerCase().includes(q) ||
-        (r.warehouseName || '').toLowerCase().includes(q) ||
-        (r.supplierName || '').toLowerCase().includes(q) ||
-        (r.order || '').toLowerCase().includes(q)
-    );
+    // Web's global filter runs over EVERY column whose first value is a string or a
+    // number — including the two hidden ones (date, originSupplier) — and it matches
+    // the values the table is fed, not the raw record (page.js:91-129, :321;
+    // newTable.js:109). Mobile searched four fields, so a search on a PO date, a
+    // warehouse type, an original supplier or a unit price found nothing, and the
+    // count, the grade card and the totals below it all disagreed with web.
+    const hay = (r: any) =>
+      [
+        r.order,
+        r.date,
+        r.supplierName,
+        r.originSupplierName,
+        r.warehouseName,
+        r.descriptionName,
+        Number(r.qnty).toFixed(3),
+        r.qTypeLabel,
+        String(r.unitPrc ?? ''),
+        r.total === '-' ? '-' : String(r.total ?? ''),
+        r.sType,
+      ]
+        .map((v) => String(v ?? '').toLowerCase())
+        .join(' ');
+    return all.filter((r) => hay(r).includes(q));
   }, [data, search]);
 
   // Web parity: the Summary-Stocks card is recomputed from the FILTERED row model
