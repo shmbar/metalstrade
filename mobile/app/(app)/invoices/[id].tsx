@@ -235,7 +235,7 @@ export default function InvoiceDetail() {
               <View style={{ flex: 1, minWidth: 0 }}>
                 <Text variant="bodyMedium" numberOfLines={1}>{p.description || (p.qnty === 's' ? 'Settlement' : '—')}</Text>
                 <Text variant="caption" tone="faint">
-                  {p.qnty === 's' ? 'Lump-sum amount' : `${fmtMoney(num(p.qnty), 0)} × ${sym}${fmtMoney(num(p.unitPrc))}`}
+                  {p.qnty === 's' ? 'Lump-sum amount' : `${fmtMoney(num(p.qnty), 3)} × ${sym}${fmtMoney(num(p.unitPrc))}`}
                 </Text>
               </View>
               <Text variant="bodyMedium" tone="primary" style={{ fontVariant: ['tabular-nums'] }}>

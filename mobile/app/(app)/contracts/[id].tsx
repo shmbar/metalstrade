@@ -172,7 +172,7 @@ export default function ContractDetail() {
                   {p.description || '—'}
                 </Text>
                 <Text variant="caption" tone="faint">
-                  {fmtMoney(num(p.qnty), 0)} × {curSymbol(v.currency)}
+                  {fmtMoney(num(p.qnty), 3)} × {curSymbol(v.currency)}
                   {fmtMoney(num(p.unitPrc))}
                 </Text>
               </View>
