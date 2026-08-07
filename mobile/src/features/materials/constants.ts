@@ -12,3 +12,6 @@ export const DEFAULT_ELEMENTS = [
 ] as const;
 
 export const UNIT_LABELS: Record<string, string> = { mt: 'MT', kgs: 'Kgs', lbs: 'Lbs' };
+
+// Multiply a stored weight by this to get metric tons (used by the cost columns).
+export const UNIT_TO_MT: Record<string, number> = { mt: 1, kgs: 0.001, lbs: 0.000453592 };
