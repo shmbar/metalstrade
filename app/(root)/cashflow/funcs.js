@@ -953,7 +953,10 @@ export const StocksUnSold = ({ supplier, stockDataAllArray, settings, uidCollect
 // back to sole ownership for legacy lots) — informational: not part of any
 // paid/unpaid totals, since the pool is not tied to purchase invoices.
 export const SharedStockDetails = ({ rows, settings }) => {
-    const whName = (id) => { const w = settings?.Stocks?.Stocks?.find(k => k.id === id); return w?.stock || w?.nname || '—'; };
+    const { sortKey, sortDir, handleSort } = useSortState();
+    // Nickname first — the full company name ("ACCESS WORLD TERMINALS B.V.") is
+    // what made the column huge; every other cashflow table shows the nickname.
+    const whName = (id) => { const w = settings?.Stocks?.Stocks?.find(k => k.id === id); return w?.nname || w?.stock || '—'; };
     const finOf = (x) => x?.financedBy && ['IMS', 'GIS', 'BOTH'].includes(x.financedBy) ? x.financedBy
         : (Array.isArray(x?.owners) && x.owners.length === 1 ? x.owners[0] : 'BOTH');
     const valOf = (r) => (parseFloat(r.qnty) || 0) * (parseFloat(r.unitPrc) || 0);
@@ -962,6 +965,17 @@ export const SharedStockDetails = ({ rows, settings }) => {
         const f = finOf(r); const v = valOf(r);
         if (f === 'BOTH') { fin.IMS += v / 2; fin.GIS += v / 2; } else fin[f] += v;
     });
+    // Sortable copies of the derived display fields, same pattern as the other
+    // cashflow detail tables (useSortState + SortTh + sortRows).
+    const base = (rows || []).map(r => ({
+        ...r,
+        _po: r.sourcePo || '',
+        _mat: r.descriptionText || r.description || '',
+        _wh: whName(r.stock),
+        _fin: finOf(r) === 'BOTH' ? 'IMS + GIS' : finOf(r),
+        _total: valOf(r),
+    }));
+    const filteredArr = sortKey ? sortRows(base, sortKey, sortDir) : base;
     return (
         <div className="w-full border border-[var(--border-divider)] rounded-2xl overflow-hidden bg-[var(--surface-card)]">
             {/* Same recipe as the other cashflow detail tables (StocksUnSold etc.):
@@ -973,25 +987,31 @@ export const SharedStockDetails = ({ rows, settings }) => {
                 <table className="cashflow-detail-table w-full table-auto">
                     <thead>
                         <tr>
-                            <th className="text-left">Material</th>
-                            <th className="text-left">Warehouse</th>
-                            <th className="text-left w-14">Quantity</th>
-                            <th className="text-left w-20">Unit Price</th>
-                            <th className="text-left w-16">Financed</th>
-                            <th className="text-right w-20">Total</th>
+                            <SortTh colKey="_po" label="PO#" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left w-14" />
+                            <SortTh colKey="_mat" label="Material" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left" />
+                            <SortTh colKey="_wh" label="Warehouse" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left" />
+                            <SortTh colKey="qnty" label="Quantity" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left w-14" />
+                            <SortTh colKey="unitPrc" label="Unit Price" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left w-20" />
+                            <SortTh colKey="_fin" label="Financed" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left w-16" />
+                            <SortTh colKey="_total" label="Total" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-right w-20" />
                         </tr>
                     </thead>
                     <tbody>
-                        {(rows || []).map((r, i) => (
+                        {filteredArr.map((r, i) => (
                             <tr key={r.id || i}>
                                 <td className="text-left">
-                                    <Tltip direction='top' tltpText={r.descriptionText || r.description || ''}>
-                                        <span className="block truncate cursor-default max-w-44">{r.descriptionText || r.description || '—'}</span>
+                                    <Tltip direction='top' tltpText={r._po}>
+                                        <span className="block truncate cursor-default max-w-20">{r._po || '—'}</span>
                                     </Tltip>
                                 </td>
                                 <td className="text-left">
-                                    <Tltip direction='top' tltpText={whName(r.stock)}>
-                                        <span className="block truncate cursor-default max-w-32">{whName(r.stock)}</span>
+                                    <Tltip direction='top' tltpText={r._mat}>
+                                        <span className="block truncate cursor-default max-w-44">{r._mat || '—'}</span>
+                                    </Tltip>
+                                </td>
+                                <td className="text-left">
+                                    <Tltip direction='top' tltpText={r._wh}>
+                                        <span className="block truncate cursor-default max-w-32">{r._wh}</span>
                                     </Tltip>
                                 </td>
                                 <td className="text-left">
@@ -1001,9 +1021,9 @@ export const SharedStockDetails = ({ rows, settings }) => {
                                     <NumericFormat value={r.unitPrc} displayType="text" thousandSeparator
                                         prefix={r.cur === 'eu' ? '€' : '$'} decimalScale='2' fixedDecimalScale />
                                 </td>
-                                <td className="text-left">{finOf(r) === 'BOTH' ? 'IMS + GIS' : finOf(r)}</td>
+                                <td className="text-left">{r._fin}</td>
                                 <td className="text-right">
-                                    <NumericFormat value={valOf(r)} displayType="text" thousandSeparator
+                                    <NumericFormat value={r._total} displayType="text" thousandSeparator
                                         prefix={r.cur === 'eu' ? '€' : '$'} decimalScale='2' fixedDecimalScale />
                                 </td>
                             </tr>
@@ -1012,6 +1032,7 @@ export const SharedStockDetails = ({ rows, settings }) => {
                     <tfoot>
                         <tr className="bg-[var(--surface-header)]">
                             <th className="text-left">Total</th>
+                            <th></th>
                             <th></th>
                             <th className="text-left">
                                 <NumericFormat value={(rows || []).reduce((s, r) => s + (parseFloat(r.qnty) || 0), 0)}
