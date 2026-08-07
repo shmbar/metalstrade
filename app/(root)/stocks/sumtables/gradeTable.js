@@ -153,7 +153,9 @@ const GradeTable = ({ dataTable, loading, settings }) => {
                         fixedDecimalScale
                       />
                     </td>
-                    <td className="responsiveTextTable" style={{ ...tdStyle, fontWeight: 600 }}>
+                    {/* Regular weight — the Summary table's money cells are not bold,
+                        and the two cards must read as one set. */}
+                    <td className="responsiveTextTable" style={tdStyle}>
                       <NumericFormat
                         value={r.totalValue}
                         displayType="text"

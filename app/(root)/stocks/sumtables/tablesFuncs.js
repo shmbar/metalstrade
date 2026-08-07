@@ -24,8 +24,9 @@ export const detailsToolTip = (row, data, settings, dataTable,) => {
             fontFamily: "var(--font-poppins), 'Poppins', sans-serif",
             minWidth: '400px',
         }}>
-            {/* Title bar */}
-            <div style={{ background: 'var(--surface-header)', padding: '7px 14px', fontWeight: 500, fontSize: 'var(--fs-title)', color: 'var(--chathams-blue)', borderBottom: '1px solid var(--border-divider)' }}>
+            {/* Title bar — same size/weight as the summary cards' titles
+                ("Summary - Stocks" / "Avg Cost Price per Grade"): table rung, 500. */}
+            <div className="responsiveTextTable font-medium" style={{ background: 'var(--surface-header)', padding: '8px 16px', fontWeight: 500, color: 'var(--chathams-blue)', borderBottom: '1px solid var(--border-divider)' }}>
                 Stock Details
             </div>
             <table style={{ fontFamily: 'inherit', fontSize: 'var(--fs-table)', width: '100%', borderCollapse: 'collapse', tableLayout: 'auto' }}>
