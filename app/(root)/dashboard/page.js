@@ -1211,10 +1211,17 @@ const Dash = () => {
     }],
   };
 
+  // True while the cursor is over a donut slice (its tooltip is showing).
+  const [donutHover, setDonutHover] = useState(false);
+
   const donutOptions = {
     responsive: true,
     maintainAspectRatio: false,
     cutout: '72%',
+    // The center "Revenue $X" label is a DOM overlay ABOVE the canvas, and the
+    // chart tooltip is drawn ON the canvas — hovering a slice made the two
+    // overlap into unreadable soup. Hide the center label while hovering.
+    onHover: (e, els) => setDonutHover(els.length > 0),
     plugins: {
       legend: { display: false },
       tooltip: {
@@ -1414,7 +1421,8 @@ const Dash = () => {
                 <SectionHeader title="Capital Breakdown" subtitle="How revenue was allocated" />
                 <div className="relative" style={{ height: 200 }}>
                   <Doughnut data={donutData} options={donutOptions} />
-                  <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                  <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none"
+                    style={{ opacity: donutHover ? 0 : 1, transition: 'opacity 120ms ease' }}>
                     <span className="responsiveTextTable text-[var(--regent-gray)]">Revenue</span>
                     <span className="font-semibold text-[var(--port-gore)]" style={{ fontSize: 'var(--fs-stat)' }}>
                       {fmtAutoKM(totalInvoices)}
