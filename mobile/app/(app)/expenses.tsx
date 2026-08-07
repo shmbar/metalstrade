@@ -8,12 +8,32 @@ import { PeriodSelector } from '@/components/PeriodSelector';
 import { useTheme } from '@/theme/ThemeProvider';
 import { useExpenses, useSaveExpenseSplit, ExpenseRow } from '@/features/expenses/useExpenses';
 import { SplitControl } from '@/components/SplitControl';
-import { curSymbol, fmtMoney, fmtCurKM, dateLabel } from '@/lib/format';
+import { curSymbol, fmtMoney, dateLabel } from '@/lib/format';
 
-// Web prints these at FULL precision (two decimals), never compact $K/$M.
-const curLine = (byCur: Record<string, number>) => {
+// Web's footer hard-codes exactly two buckets and always renders both, showing
+// $0.00 / €0.00 for an empty one (sumtables footer, expenses/page.js). Mobile
+// dropped near-zero lines, so a currency whose expenses netted out disappeared
+// entirely, and it emitted a line for any third currency web silently ignores.
+// Amounts print at FULL precision here — never the compact $K/$M form.
+const curLine = (byCur: Record<string, number>) =>
+  [
+    ['us', '$'],
+    ['eu', '€'],
+  ]
+    .map(([id, sym]) => `${sym}${money(byCur[id] || 0)}`)
+    .join('  ');
+
+// en-US Intl puts the minus OUTSIDE the symbol ('-$1,234.56'); fmtMoney alone
+// yields '$-1,234.56'. Web renders every expense amount through Intl.
+const money = (v: number) => `${v < 0 ? '-' : ''}${fmtMoney(Math.abs(v))}`;
+const signedCur = (cur: string | undefined, v: number) =>
+  `${v < 0 ? '-' : ''}${curSymbol(cur)}${fmtMoney(Math.abs(v))}`;
+
+// Per-vendor subtotal — only the currencies that vendor actually billed in. Web's
+// always-render-both rule belongs to the FOOTER totals, not to these rows.
+const vendorLine = (byCur: Record<string, number>) => {
   const ents = Object.entries(byCur).filter(([, v]) => Math.abs(v) > 0.005);
-  return ents.length ? ents.map(([c, v]) => `${curSymbol(c)}${fmtMoney(v)}`).join('  ') : '$0.00';
+  return ents.length ? ents.map(([c, v]) => signedCur(c, v)).join('  ') : '$0.00';
 };
 
 export default function Expenses() {
@@ -134,7 +154,7 @@ export default function Expenses() {
                   )}
                 </View>
                 <View style={{ alignItems: 'flex-end' }}>
-                  <Text variant="bodyMedium" tone="primary">{curSymbol(item.cur)}{fmtMoney(item.amount)}</Text>
+                  <Text variant="bodyMedium" tone="primary">{signedCur(item.cur, item.amount)}</Text>
                   {/* Only '111' is Paid and only '222' is Unpaid — a blank status is
                       neither, and labelling it "Unpaid" overstated what is owed. */}
                   <Badge
@@ -190,7 +210,9 @@ function VendorSummary({
           }}
         >
           <Text variant="body" numberOfLines={1} style={{ flex: 1 }}>{r.vendor}</Text>
-          <Text variant="bodyMedium" style={{ fontVariant: ['tabular-nums'] }}>{curLine(r.byCur)}</Text>
+          {/* A vendor row shows only the currencies it actually billed in — web's
+              always-both rule applies to the FOOTER totals, not these rows. */}
+          <Text variant="bodyMedium" style={{ fontVariant: ['tabular-nums'] }}>{vendorLine(r.byCur)}</Text>
         </View>
       ))}
       <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingTop: 8, marginTop: 4, borderTopWidth: 1, borderTopColor: colors.border }}>

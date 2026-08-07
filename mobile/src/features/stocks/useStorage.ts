@@ -100,6 +100,12 @@ export function useStorage() {
       metric,
       tagged,
       untagged,
+      // The full year-scoped list. suggestWh has to search THIS, not just the
+      // untagged slice — by construction an untagged row has no storageWh, so
+      // searching it could only ever match a half-tagged row and the suggestion
+      // came back empty every time, where web pre-fills the warehouse from the
+      // terminal's previous invoice.
+      expenses,
       years,
       perYear,
       actuals: { totalSpend, count: expenses.length, taggedCount: tagged.length, whMt, totalMt },

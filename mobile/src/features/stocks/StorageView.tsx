@@ -111,13 +111,13 @@ export function StorageView() {
   if (isError) return <ErrorState message={(error as Error)?.message || 'Failed to load.'} onRetry={refetch} />;
   if (!derived) return null;
 
-  const { metric, actuals, untagged, years, perYear } = derived;
+  const { metric, actuals, untagged, years, perYear, expenses } = derived;
   const unitMeta = UNIT.find((u) => u.key === unit)!;
   const rateStr = (monthly: number | null) => (monthly == null ? '—' : `${fmtUsd(monthly * unitMeta.factor)}/MT`);
 
   const openTag = (e: any) => {
     setTagging(e);
-    setTagWh(e.storageWh || suggestWh(e, untagged));
+    setTagWh(e.storageWh || suggestWh(e, expenses));
     setTagMonth(defaultMonth(e));
   };
 

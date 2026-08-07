@@ -101,15 +101,45 @@ export function InventoryView() {
                     <Text variant="body" numberOfLines={1} style={{ flex: 1 }}>
                       {t.warehouseName}
                     </Text>
+                    {/* Web prints whatever the lot's weight type resolves to and
+                        leaves it BLANK when there is none — it never assumes MT. */}
                     <Text variant="bodyMedium" style={{ marginHorizontal: 10, fontVariant: ['tabular-nums'] }}>
-                      {fmtQty(t.qnty)} {t.qTypeLabel || 'MT'}
+                      {fmtQty(t.qnty)} {t.qTypeLabel}
                     </Text>
                     <Text variant="bodyMedium" tone="primary" style={{ fontVariant: ['tabular-nums'] }}>
-                      {curSymbol(t.cur)}
-                      {fmtMoney(t.total)}
+                      {/* web sumTable showAmount: a total of exactly 0 renders bare */}
+                      {t.total ? `${curSymbol(t.cur)}${fmtMoney(t.total)}` : '0'}
                     </Text>
                   </View>
                 ))}
+
+                {/* Portfolio grand totals — web's "Total $" / "Total €" footer rows
+                    (sumtables/tableTotals.js:43-53), which mobile had no equivalent
+                    of at all: there was no way to see total USD vs EUR inventory
+                    value without adding the warehouse rows by hand. */}
+                {(['USD', 'EUR'] as const).map((iso) => {
+                  const slice = totals.filter((t) => String(t.curLabel).toUpperCase() === iso);
+                  if (slice.length === 0) return null;
+                  const quantity = slice.reduce((s, t) => s + (t.qnty || 0), 0);
+                  const total = slice.reduce((s, t) => s + (t.total || 0), 0);
+                  return (
+                    <View
+                      key={iso}
+                      style={{
+                        flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
+                        paddingTop: 8, marginTop: 6, borderTopWidth: 1, borderTopColor: colors.borderStrong,
+                      }}
+                    >
+                      <Text variant="label" style={{ flex: 1 }}>Total {iso === 'EUR' ? '€' : '$'}</Text>
+                      <Text variant="bodyMedium" style={{ marginHorizontal: 10, fontVariant: ['tabular-nums'] }}>
+                        {fmtQty(quantity)}
+                      </Text>
+                      <Text variant="bodyMedium" tone="primary" style={{ fontVariant: ['tabular-nums'] }}>
+                        {iso === 'EUR' ? '€' : '$'}{fmtMoney(total)}
+                      </Text>
+                    </View>
+                  );
+                })}
               </Card>
             )}
             {/* Avg cost price per grade — web parity (stocks page GradeTable), fed
@@ -166,8 +196,10 @@ export function InventoryView() {
                   <Text variant="h3">
                     {fmtQty(Number(item.qnty))}
                   </Text>
+                  {/* Web leaves this blank when the lot has no weight type rather
+                      than asserting MT, which mislabels non-MT lots. */}
                   <Text variant="caption" tone="faint">
-                    {item.qTypeLabel || 'MT'}
+                    {item.qTypeLabel}
                   </Text>
                 </View>
               </View>
@@ -175,6 +207,14 @@ export function InventoryView() {
                 {item.order ? <Badge label={item.order} tone="neutral" /> : null}
                 {item.sType ? <Badge label={item.sType} tone="info" /> : null}
                 <View style={{ flex: 1 }} />
+                {/* Web shows the unit price the line total was derived from
+                    (page.js:113 showAmount); mobile carried it but never rendered
+                    it, so the total could not be checked against a price. */}
+                {Number(item.unitPrc) > 0 && (
+                  <Text variant="caption" tone="faint" style={{ marginRight: 8 }}>
+                    {curSymbol(item.cur)}{fmtMoney(item.unitPrc as number)}/unit
+                  </Text>
+                )}
                 <Text variant="bodyMedium" tone="primary">
                   {item.total === '-' ? '—' : `${curSymbol(item.cur)}${fmtMoney(item.total as number)}`}
                 </Text>

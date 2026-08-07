@@ -7,7 +7,13 @@ import { Screen, Card, Text, Badge, TextField, ProgressBar, SkeletonList, ErrorS
 import { PeriodSelector } from '@/components/PeriodSelector';
 import { useTheme } from '@/theme/ThemeProvider';
 import { useSalesContracts } from '@/features/salescontracts/useSalesContracts';
-import { fmtMoney, curSymbol } from '@/lib/format';
+import { fmtMoney } from '@/lib/format';
+
+// Web's Total Amount prefix (page.js:103) is '$' for 'us', '€' for 'eu' and NOTHING
+// for anything else. The shared curSymbol falls back to '$' on an empty currency and
+// to "<id> " on an unknown one, so a contract saved without a currency read
+// "$1,234.00" here against web's bare "1,234.00".
+const salesCur = (cur?: string) => (cur === 'us' ? '$' : cur === 'eu' ? '€' : '');
 
 export default function SalesContracts() {
   const { colors } = useTheme();
@@ -69,9 +75,12 @@ export default function SalesContracts() {
                 </View>
                 <View style={{ alignItems: 'flex-end' }}>
                   <Text variant="bodyMedium" style={{ fontVariant: ['tabular-nums'] }}>
-                    {curSymbol(item.cur)}{fmtMoney(item.totalAmount)}
+                    {salesCur(item.cur)}{fmtMoney(item.totalAmount)}
                   </Text>
-                  <Text variant="caption" tone="faint">{fmtMoney(item.contractedQty, 0)} MT contracted</Text>
+                  {/* Web renders every quantity on this page at 3 fixed decimals
+                      (page.js:97, :108, :116). Mobile rounded to whole tonnes, so a
+                      25.5 MT contract read "26". */}
+                  <Text variant="caption" tone="faint">{fmtMoney(item.contractedQty, 3)} MT contracted</Text>
                 </View>
               </View>
 
@@ -83,11 +92,11 @@ export default function SalesContracts() {
 
               <View style={{ marginTop: 10, gap: 4 }}>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                  <Text variant="caption" tone="faint">Shipped {fmtMoney(item.shippedQty, 0)} / {fmtMoney(item.contractedQty, 0)} MT</Text>
+                  <Text variant="caption" tone="faint">Shipped {fmtMoney(item.shippedQty, 3)} / {fmtMoney(item.contractedQty, 3)} MT</Text>
                   <Text variant="caption" tone={item.remaining < -0.0001 ? 'warn' : item.status === 'Fully shipped' ? 'positive' : 'muted'}>
                     {item.remaining < -0.0001
-                      ? `Over-shipped ${fmtMoney(Math.abs(item.remaining), 1)} MT`
-                      : `${fmtMoney(item.remaining, 1)} MT left`}
+                      ? `Over-shipped ${fmtMoney(Math.abs(item.remaining), 3)} MT`
+                      : `${fmtMoney(item.remaining, 3)} MT left`}
                   </Text>
                 </View>
                 <ProgressBar pct={item.pct} color={item.pct >= 99.9 ? colors.positive : colors.primary} height={8} />

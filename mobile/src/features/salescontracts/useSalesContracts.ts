@@ -73,7 +73,9 @@ export function useSalesContracts() {
           remaining,
           status,
           totalAmount,
-          cur: c.cur || 'us',
+          // No 'us' default — web reads c.cur raw and prints no symbol when it is
+          // missing (page.js:103). Defaulting here labelled unpriced contracts '$'.
+          cur: c.cur || '',
           pct: contractedQty > 0 ? Math.min(100, (shippedQty / contractedQty) * 100) : 0,
           products,
           date: c.dateRange?.startDate || c.date || '',
