@@ -54,7 +54,9 @@ export function contractPoHtml(contract: any, v: any, compData: any): string {
     <div class="row">
       <div class="box"><div class="label">Supplier</div><div class="val">${v.supplierName}</div></div>
       <div class="box"><div class="label">Currency</div><div class="val">${sym === '€' ? 'EUR' : 'USD'}</div></div>
-      <div class="box"><div class="label">Quantity</div><div class="val">${v.mtLabel}</div></div>
+      <!-- the PDF ships an outbound document, so it uses the ACCURATE unit-converted
+           tonnage, not the truncated web-parity screen label. -->
+      <div class="box"><div class="label">Quantity</div><div class="val">${qty(v.totalMT)} MT</div></div>
     </div>
     <table><thead><tr><th>Description</th><th class="r">Qty</th><th class="r">Unit Price</th><th class="r">Total</th></tr></thead><tbody>${rows || '<tr><td colspan="4">No products</td></tr>'}</tbody></table>
     <div class="totals"><div class="t"><div class="line grand"><span>Total</span><span>${money(lineTotal, sym)}</span></div></div></div>

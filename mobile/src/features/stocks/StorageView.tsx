@@ -11,6 +11,9 @@ import { fmtMoney, dateLabel } from '@/lib/format';
 import { radius, spacing } from '@/theme/tokens';
 
 const fmtUsd = (v: number) => `$${fmtMoney(v || 0)}`;
+// For raw, unconverted document amounts. Web renders these in the DOCUMENT's own
+// currency (storagecosts/page.js:402-404) — anything not 'us' falls back to '€'.
+const fmtDoc = (v: number, cur?: string) => `${cur === 'us' ? '$' : '€'}${fmtMoney(v || 0)}`;
 const fmtMt = (v: number) => new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 }).format(v || 0);
 const MONTHS_FULL = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 const monthLabel = (ym: string) => {
@@ -305,7 +308,7 @@ export function StorageView() {
                   {settings?.Supplier?.Supplier?.find((s: any) => s.id === e.supplier)?.nname || 'Expense'}
                 </Text>
                 <Text variant="caption" tone="faint">
-                  {dateLabel(e.date)} · {fmtUsd(parseFloat(e.amount) || 0)}
+                  {dateLabel(e.date)} · {fmtDoc(parseFloat(e.amount) || 0, e.cur)}
                 </Text>
               </View>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>

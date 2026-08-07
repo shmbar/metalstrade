@@ -289,10 +289,22 @@ export default function ContractEdit() {
           </Card>
 
           {/* Products */}
+          {/* Web's PO products table renders only `!import` rows (productsTable.js:312),
+              and every roll-up — the contracts-table QTY column, the Excel export, the
+              PO PDF and the P&L — filters identically. The import-flagged rows are
+              breakdown/merge helpers that cashflow and stock still read, so they are
+              hidden from the editor and re-appended on write rather than dropped. */}
           <ProductsEditor
-            products={(value.productsData as Product[]) || []}
+            products={((value.productsData as Product[]) || []).filter((p: any) => !p.import)}
             currency={value.cur || ''}
-            onChange={(productsData) => set({ productsData })}
+            onChange={(productsData) =>
+              set({
+                productsData: [
+                  ...productsData,
+                  ...(((value.productsData as Product[]) || []).filter((p: any) => p.import)),
+                ],
+              })
+            }
           />
 
           {/* Comments + completed */}

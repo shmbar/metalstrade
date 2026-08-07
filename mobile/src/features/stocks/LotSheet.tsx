@@ -11,6 +11,17 @@ import { curSymbol, fmtMoney } from '@/lib/format';
 
 const fmtQ = (n: any) => new Intl.NumberFormat('en-US', { minimumFractionDigits: 3, maximumFractionDigits: 3 }).format(Number(n) || 0);
 
+// Web parity for the Price row only: whModal.js addComma groups the integer part
+// and keeps AT MOST 3 decimals by TRUNCATION — it never rounds and never pads.
+// fmtMoney rounds to 2 and pads, so 1234.5678 read "$1,234.57" on mobile against
+// web's "$1,234.567", and a flat 1200 read "$1,200.00" against web's "$1,200".
+// fmtMoney stays untouched — the Total row and many other screens need its 2 dp.
+const fmtLotPrice = (v: any) => {
+  const [int = '', dec] = String(v ?? '').split('.');
+  const grouped = int.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  return dec ? `${grouped}.${dec.slice(0, 3)}` : grouped;
+};
+
 // Materials Breakdown sheet — the mobile twin of web's whModal, opened by tapping
 // an inventory row. Web opens this on a double-click; mobile's rows had no tap
 // target at all, so moving stock between warehouses was impossible on the phone.
@@ -65,7 +76,7 @@ export function LotSheet({ item, onClose }: { item: any | null; onClose: () => v
           {/* Read-only summary, matching web's top block. */}
           <View style={{ gap: 4 }}>
             <Row label="Weight" v={`${fmtQ(item.qnty)} ${item.qTypeLabel || 'MT'}`} />
-            <Row label="Unit price" v={`${sym}${fmtMoney(item.unitPrc)}`} />
+            <Row label="Unit price" v={item.unitPrc ? `${sym}${fmtLotPrice(item.unitPrc)}` : '-'} />
             <Row label="Total" v={item.total === '-' ? '—' : `${sym}${fmtMoney(item.total)}`} />
             <Row label="Warehouse" v={item.warehouseName || '—'} />
             {!!item.supplierName && <Row label="Supplier" v={item.supplierName} />}

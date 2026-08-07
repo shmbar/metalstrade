@@ -15,7 +15,7 @@ const fmtQty = (n: number) => new Intl.NumberFormat('en-US', { minimumFractionDi
 export function InventoryView() {
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
-  const { data, isLoading, isError, error, refetch } = useStocks();
+  const { data, labelTotals, setTotals, isLoading, isError, error, refetch } = useStocks();
   const [search, setSearch] = useState('');
   // Tapping a row opens the Materials Breakdown sheet (web whModal).
   const [lot, setLot] = useState<any | null>(null);
@@ -32,6 +32,12 @@ export function InventoryView() {
         (r.order || '').toLowerCase().includes(q)
     );
   }, [data, search]);
+
+  // Web parity: the Summary-Stocks card is recomputed from the FILTERED row model
+  // (newTable.js:119-123 -> page.js:255-260), so it narrows with the search box.
+  // Mobile was rendering the unfiltered totals beside a filtered list, which read
+  // as "these 3 lots are worth $2.4m".
+  const totals = useMemo(() => labelTotals(setTotals(rows as any)), [rows, labelTotals, setTotals]);
 
   if (isLoading) return <View style={{ flex: 1 }}><SkeletonList /></View>;
   if (isError) return <ErrorState message={(error as Error)?.message || 'Failed to load stock.'} onRetry={refetch} />;
@@ -59,12 +65,12 @@ export function InventoryView() {
       {(() => {
         const header = (
           <View>
-            {(data?.totals.length || 0) > 0 && (
+            {(totals.length) > 0 && (
               <Card style={{ marginTop: 12 }}>
                 <Text variant="label" tone="muted" style={{ marginBottom: 8 }}>
                   On-hand totals
                 </Text>
-                {data!.totals.map((t, i) => (
+                {totals.map((t, i) => (
                   <View
                     key={i}
                     style={{

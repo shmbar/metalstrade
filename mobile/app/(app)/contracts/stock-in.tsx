@@ -63,8 +63,23 @@ export default function StockIn() {
         const p = contract?.productsData?.find((q: any) => q.id === patch.description);
         if (p?.unitPrc != null) row.unitPrc = p.unitPrc;
       }
-      if ('qnty' in patch || 'unitPrc' in patch || patch.description !== undefined) {
-        row.total = num(row.qnty) === 0 ? num(row.unitPrc) : Math.round(num(row.qnty) * num(row.unitPrc) * 100) / 100;
+      // Web has THREE separate recompute paths (whModal.js handleValueQnty :121-126,
+      // handleValuePmnt :101-107, and the description branch :396-398). Each guards
+      // on the OTHER field being non-empty, and only two of them carry the "qnty is
+      // zero → total is the unit price" shortcut. Collapsing them into one rule
+      // zeroed totals web leaves alone, and applied the shortcut where web doesn't.
+      if ('qnty' in patch) {
+        // handleValueQnty — no zero shortcut
+        if (String(row.unitPrc ?? '') !== '')
+          row.total = Math.round(num(row.qnty) * num(row.unitPrc) * 100) / 100;
+      } else if ('unitPrc' in patch) {
+        // handleValuePmnt — zero shortcut on the numeric-stripped qnty
+        if (String(row.qnty ?? '') !== '')
+          row.total = num(row.qnty) === 0 ? num(row.unitPrc) : Math.round(num(row.qnty) * num(row.unitPrc) * 100) / 100;
+      } else if (patch.description !== undefined) {
+        // handleChange description branch — needs BOTH fields populated
+        if (String(row.unitPrc ?? '') !== '' && String(row.qnty ?? '') !== '')
+          row.total = String(row.qnty) === '0' ? num(row.unitPrc) : num(row.unitPrc) * Number(row.qnty);
       }
       next[i] = row;
       return next;

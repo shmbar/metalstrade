@@ -43,11 +43,25 @@ export function usePnl(contract: any, viewCur: 'us' | 'eu') {
     const mult = parseFloat(contract.euroToUSD) || 1;
 
     const purchaseValue = contractsValue(contract, 'pmnt', val, mult);
-    const expenses = totalArrsExp(contract.expenses || [], val, mult);
 
     // Sale value uses the SAME supersede rule as everywhere else: within an invoice
     // number, notes replace the original.
     const groups: any[][] = Array.isArray(contract.invoicesData) ? contract.invoicesData : [];
+
+    // Web's P&L reads the expense arrays stored on the SALES-INVOICE docs
+    // (pnl.js:65-85 TotalArrsExp, called with the fetched invoice groups), NOT the
+    // contract's own `expenses` field. The two drift — the contract copy is what
+    // the Contracts Review page uses — so mobile was showing a different Expenses
+    // figure, and a different Profit, than web for the same contract.
+    const expenses = groups.reduce(
+      (s, g) =>
+        s +
+        (g || []).reduce(
+          (s2, inv: any) => s2 + totalArrsExp(Array.isArray(inv?.expenses) ? inv.expenses : [], val, mult),
+          0
+        ),
+      0
+    );
     const saleValue = invTotal(groups, 'totalAmount', val, mult, settings).accumuLastInv;
 
     // Freight allocation — expense types whose label contains "freight".

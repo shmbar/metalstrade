@@ -223,7 +223,10 @@ export function computeInventory(
 }
 
 // Per (warehouse, qTypeTable, currency) sum of qnty + total. Port of page.js setTotals.
-function setTotals(rows: InventoryRow[]): InventoryTotal[] {
+// Exported so a screen can recompute it from its own FILTERED rows — web recomputes
+// the Summary-Stocks table on every globalFilter/columnFilter change (newTable.js:119-123
+// -> page.js:255-260), so the card must track the search box.
+export function setTotals(rows: InventoryRow[]): InventoryTotal[] {
   const tmp = rows.map((x) => ({
     cur: x.cur,
     qTypeTable: x.qTypeTable,

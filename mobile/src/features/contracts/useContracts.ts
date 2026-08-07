@@ -5,7 +5,7 @@ import { loadData, buildInvoiceIndex, contractInvoicesFromIndex } from '@/data/f
 import { Contract, Invoice } from '@/data/types';
 import { qk } from '@/query/client';
 import { contractPurchaseValue, toMT, num } from '@shared/finance';
-import { curSymbol, fmtMoney, fmtMT } from '@/lib/format';
+import { curSymbol, fmtMoney } from '@/lib/format';
 import { arr } from '@/lib/guard';
 
 // All contracts in the active period, enriched with their linked invoices.
@@ -35,7 +35,9 @@ export interface ContractView {
   valueLabel: string;
   /** Σ poInvoices.invValue — what the supplier BILLED; the denominator for progress. */
   invoicedValue: number;
+  /** unit-converted tonnage — used for sorting, CSV/PDF and any math */
   totalMT: number;
+  /** what web's contracts-table QTY column renders, quirks included (see below) */
   mtLabel: string;
   productNames: string[];
   status: string;
@@ -64,6 +66,25 @@ export function deriveContract(c: Contract, settings: any): ContractView {
   const invoicedValue = billed > 0 ? billed : lineValue;
 
   const totalMT = own.reduce((s, p) => s + toMT(num(p.qnty), c, settings), 0);
+
+  // The on-screen quantity label mirrors web's contracts-table QTY column
+  // (contracts/page.js:154-162), which differs from `totalMT` three ways:
+  //   • it does NOT unit-convert — it sums the raw qnty and appends the contract's
+  //     own quantity-type label, so a KGS contract reads "1,500.0 KGS", not "1.5 MT";
+  //   • it renders '-' when the contract has no non-import lines;
+  //   • it sums with parseInt(qnty, 10), TRUNCATING every fractional quantity.
+  // That last one is a genuine web defect (12.5 MT reads "12.0", and a blank qnty
+  // makes the whole cell "NaN") and it is reported rather than fixed there, but the
+  // label reproduces it so the two screens agree. `totalMT` above stays accurate and
+  // is what the sort, the CSV export and the PDF use.
+  const qLabel =
+    settings?.Quantity?.Quantity?.find((q: any) => q.id === c.qTypeTable)?.qTypeTable || '';
+  const mtLabel =
+    own.length === 0
+      ? '-'
+      : new Intl.NumberFormat('en-US', { minimumFractionDigits: 1 }).format(
+          own.reduce((s, p: any) => s + parseInt(p.qnty, 10), 0)
+        ) + (qLabel ? ` ${qLabel}` : '');
   const productNames = [...new Set(own.map((p) => p.description).filter(Boolean))] as string[];
   const invoiceCount = (c.invoicesData || []).length;
 
@@ -74,7 +95,7 @@ export function deriveContract(c: Contract, settings: any): ContractView {
     valueLabel: `${curSymbol(cur)}${fmtMoney(totalValue)}`,
     invoicedValue,
     totalMT,
-    mtLabel: fmtMT(totalMT),
+    mtLabel,
     productNames,
     status: c.conStatus || '',
     invoiceCount,
