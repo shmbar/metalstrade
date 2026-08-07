@@ -47,6 +47,16 @@ const NotificationProvider = ({ children }) => {
     const primed = useRef(false);
     const popupSeq = useRef(0);
 
+    // Pop-ups (and the chime) only fire while the authenticated app shell has a
+    // NotificationPopupsHost mounted. The provider wraps EVERY route — including
+    // the public marketing pages — and a persisted Firebase session used to make
+    // live business alerts (PO numbers, staff names) pop up on the landing page.
+    const popupHostMounted = useRef(false);
+    const _setPopupHostMounted = useCallback((v) => {
+        popupHostMounted.current = v;
+        if (!v) setPopups([]); // leaving the app shell (sign-out) drops pending cards
+    }, []);
+
     // Load mute preference once.
     useEffect(() => {
         try { const m = localStorage.getItem(MUTE_KEY) === '1'; setMuted(m); mutedRef.current = m; } catch { /* ignore */ }
@@ -64,7 +74,7 @@ const NotificationProvider = ({ children }) => {
                 const fresh = rows.filter(r =>
                     !seenIds.current.has(r.id) && r.actorUid !== uid &&
                     (!Array.isArray(r.audience) || !uid || r.audience.includes(uid)));
-                if (fresh.length) {
+                if (fresh.length && popupHostMounted.current) {
                     if (!mutedRef.current) chime();
                     setPopups(prev => [
                         ...fresh.map(r => ({ ...r, popupId: `${r.id}:${++popupSeq.current}` })),
@@ -146,15 +156,13 @@ const NotificationProvider = ({ children }) => {
     // Memoized: consumers (the bell) only re-render when the notification data or
     // callbacks actually change.
     const value = useMemo(
-        () => ({ notifications, unread, unreadCount, markRead, markAllRead, markManyRead, snooze, muted, toggleMute }),
-        [notifications, unread, unreadCount, markRead, markAllRead, markManyRead, snooze, muted, toggleMute]
+        () => ({ notifications, unread, unreadCount, markRead, markAllRead, markManyRead, snooze, muted, toggleMute, popups, dismissPopup, _setPopupHostMounted }),
+        [notifications, unread, unreadCount, markRead, markAllRead, markManyRead, snooze, muted, toggleMute, popups, dismissPopup, _setPopupHostMounted]
     );
 
     return (
         <NotificationContext.Provider value={value}>
             {children}
-            {/* Arrival pop-ups render globally (top-right) alongside whatever page is open */}
-            <NotificationPopups popups={popups} dismissPopup={dismissPopup} markRead={markRead} />
         </NotificationContext.Provider>
     );
 };
@@ -162,3 +170,18 @@ const NotificationProvider = ({ children }) => {
 export default NotificationProvider;
 
 export const useNotifications = () => useContext(NotificationContext);
+
+// Renders the arrival pop-up cards (top-right) and arms the chime. Mounted ONLY
+// in the authenticated app shell (app/(root)/layout.js) — never on the public
+// marketing pages, which share the same provider tree.
+export const NotificationPopupsHost = () => {
+    const ctx = useContext(NotificationContext);
+    const setMounted = ctx?._setPopupHostMounted;
+    useEffect(() => {
+        if (!setMounted) return undefined;
+        setMounted(true);
+        return () => setMounted(false);
+    }, [setMounted]);
+    if (!ctx) return null;
+    return <NotificationPopups popups={ctx.popups} dismissPopup={ctx.dismissPopup} markRead={ctx.markRead} />;
+};

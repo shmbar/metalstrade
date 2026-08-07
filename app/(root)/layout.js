@@ -10,6 +10,7 @@ import { Analytics } from "@vercel/analytics/next"
 import FloatingChat from '../../components/FloatingChat';
 import GlobalSearchLoader from '../../utils/globalSearch/GlobalSearchLoader'
 import CommandPalette from '../../components/CommandPalette';
+import { NotificationPopupsHost } from '../../contexts/useNotificationContext';
 
 
 export default function MyLayout({
@@ -55,6 +56,9 @@ export default function MyLayout({
 
 			{/* AI-Powered Floating Chat */}
 			<FloatingChat />
+
+			{/* Arrival notification pop-ups — app shell only, never on marketing pages */}
+			<NotificationPopupsHost />
 
 			{/* Cmd/Ctrl+K command palette — global navigation + record search */}
 			<CommandPalette />
