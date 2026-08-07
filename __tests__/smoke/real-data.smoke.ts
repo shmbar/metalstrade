@@ -18,27 +18,24 @@
  * not break the maths.
  *
  * ── HOW TO RUN ───────────────────────────────────────────────────────────────
- * Try the dry run first — no credentials, no network, proves the script works:
+ *   npm run test:smoke
  *
- *   PowerShell:  $env:SMOKE_DRYRUN='1'; npm run test:smoke
- *   bash:        SMOKE_DRYRUN=1 npm run test:smoke
+ * That is all. The Firebase config is read from mobile/.env (or the web app's .env),
+ * and the login from IMS_TEST_EMAIL / IMS_TEST_PASSWORD in .env.local — all already
+ * in the repo. Nothing to type and no password left sitting in your shell history.
  *
- * Then against your real data:
- *
- *   PowerShell:  $env:SMOKE_EMAIL='you@example.com'; $env:SMOKE_PASSWORD='…'
+ * To read a DIFFERENT account, override on the command line:
+ *   PowerShell:  $env:SMOKE_EMAIL='other@example.com'; $env:SMOKE_PASSWORD='…'
  *                npm run test:smoke
- *   bash:        SMOKE_EMAIL=you@example.com SMOKE_PASSWORD='…' npm run test:smoke
+ *                Remove-Item Env:SMOKE_PASSWORD
  *
  * Optional:
  *   SMOKE_YEAR=2026     which year bucket to read (default: current year)
  *   SMOKE_VERBOSE=1     list every anomaly instead of the first 15 per surface
- *   SMOKE_DRYRUN=1      fixtures instead of Firestore (see below)
+ *   SMOKE_DRYRUN=1      fixtures instead of Firestore, no network (see below)
  *
- * Clear the vars afterwards so your password does not linger in the shell:
- *   PowerShell:  Remove-Item Env:SMOKE_PASSWORD
- *
- * With no SMOKE_EMAIL/SMOKE_PASSWORD and no SMOKE_DRYRUN the whole file skips, so a
- * stray run in CI is a no-op rather than a failure.
+ * With no credentials available anywhere and no SMOKE_DRYRUN the whole file skips, so
+ * a stray run in CI is a no-op rather than a failure.
  *
  * ── WHY IT OPENS ITS OWN FIREBASE CONNECTION ─────────────────────────────────
  * It does NOT import mobile/src/lib/firebase.ts. Under vitest that module resolves
@@ -47,7 +44,38 @@
  * the same collection paths mobile uses (mobile/src/data/firestore.ts).
  */
 
+import { readFileSync, existsSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
 import { describe, it, expect, beforeAll } from 'vitest';
+
+// ── env loading ──────────────────────────────────────────────────────────────
+// Vitest does not populate process.env from .env files (Vite only exposes VITE_*
+// to client code), so the config the apps keep on disk has to be read explicitly.
+// Later files do NOT overwrite what is already set, so a real environment variable
+// always wins over a file, and the shell stays the escape hatch.
+const root = (p: string) => fileURLToPath(new URL(`../../${p}`, import.meta.url));
+
+function loadEnvFile(rel: string) {
+  const path = root(rel);
+  if (!existsSync(path)) return;
+  for (const raw of readFileSync(path, 'utf8').split('\n')) {
+    const line = raw.trim();
+    if (!line || line.startsWith('#')) continue;
+    const eq = line.indexOf('=');
+    if (eq < 1) continue;
+    const key = line.slice(0, eq).trim();
+    let val = line.slice(eq + 1).trim();
+    if ((val.startsWith('"') && val.endsWith('"')) || (val.startsWith("'") && val.endsWith("'"))) {
+      val = val.slice(1, -1);
+    }
+    if (process.env[key] === undefined) process.env[key] = val;
+  }
+}
+
+['mobile/.env', 'mobile/.env.local', '.env', '.env.local'].forEach(loadEnvFile);
+
+/** First defined value among the given env keys. */
+const env = (...keys: string[]) => keys.map((k) => process.env[k]).find((v) => v !== undefined && v !== '');
 
 // ── mobile modules under observation (all pure) ──────────────────────────────
 import { deriveContract, ownProducts } from '@/features/contracts/useContracts';
@@ -58,8 +86,11 @@ import { statementTotals } from '@/features/accstatement/useAccStatement';
 import { buildShipmentInvoiceMap, buildShipmentRows, computeShipmentCounts } from '@/features/shipment/useShipment';
 import { num } from '@shared/finance';
 
-const EMAIL = process.env.SMOKE_EMAIL;
-const PASSWORD = process.env.SMOKE_PASSWORD;
+// The repo already carries a test login in .env.local, so the usual case needs no
+// arguments at all: `npm run test:smoke`. SMOKE_* overrides it when you want to read
+// a different account's data.
+const EMAIL = env('SMOKE_EMAIL', 'IMS_TEST_EMAIL');
+const PASSWORD = env('SMOKE_PASSWORD', 'IMS_TEST_PASSWORD');
 const YEAR = process.env.SMOKE_YEAR || String(new Date().getFullYear());
 const VERBOSE = !!process.env.SMOKE_VERBOSE;
 
@@ -115,18 +146,59 @@ async function connect() {
   // Same project the mobile app points at (mobile/eas.json EXPO_PUBLIC_* / .env).
   // These are client-side Firebase keys, not secrets — the security boundary is
   // your Firestore rules, and this script only ever reads.
-  const app = initializeApp({
-    apiKey: process.env.EXPO_PUBLIC_FIREBASE_API_KEY || process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
-    authDomain: process.env.EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN || process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
-    projectId: process.env.EXPO_PUBLIC_FIREBASE_PROJECT_ID || process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-    storageBucket: process.env.EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET || process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
-    messagingSenderId:
-      process.env.EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID || process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
-    appId: process.env.EXPO_PUBLIC_FIREBASE_APP_ID || process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
-  } as any);
+  // Mobile's EXPO_PUBLIC_* names first, then web's NEXT_PUBLIC_* — which are NOT
+  // simply the same names with a different prefix (web has NEXT_PUBLIC_API_KEY, not
+  // NEXT_PUBLIC_FIREBASE_API_KEY), and getting that wrong is what made the first run
+  // fail with auth/api-key-not-valid.
+  const cfg = {
+    apiKey: env('EXPO_PUBLIC_FIREBASE_API_KEY', 'NEXT_PUBLIC_API_KEY'),
+    authDomain: env('EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN', 'NEXT_PUBLIC_AUTH_DOMAIN'),
+    projectId: env('EXPO_PUBLIC_FIREBASE_PROJECT_ID', 'NEXT_PUBLIC_PROJECT_ID'),
+    storageBucket: env('EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET', 'NEXT_PUBLIC_STORAGE_BUCKET'),
+    messagingSenderId: env('EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID', 'NEXT_PUBLIC_MESSAGING_SENDER_ID'),
+    appId: env('EXPO_PUBLIC_FIREBASE_APP_ID', 'NEXT_PUBLIC_APP_ID'),
+  };
+
+  const missing = Object.entries(cfg)
+    .filter(([, v]) => !v)
+    .map(([k]) => k);
+  if (missing.length) {
+    throw new Error(
+      `Firebase config incomplete — missing: ${missing.join(', ')}.\n` +
+        'Expected mobile/.env (EXPO_PUBLIC_FIREBASE_*) or .env (NEXT_PUBLIC_*) at the repo root.'
+    );
+  }
+
+  // A NAMED app: if any imported module already created the default one, initializing
+  // the default again throws "already exists". This also makes it unmistakable in a
+  // stack trace which connection is the smoke check's.
+  const app = initializeApp(cfg as any, 'smoke');
 
   const auth = getAuth(app);
-  const cred = await signInWithEmailAndPassword(auth, EMAIL!, PASSWORD!);
+  let cred;
+  try {
+    cred = await signInWithEmailAndPassword(auth, EMAIL!, PASSWORD!);
+  } catch (e: any) {
+    const code = String(e?.code || e?.message || e);
+    const hint = code.includes('invalid-email')
+      ? `"${EMAIL}" is not an email address. Firebase signs in by EMAIL — the app passes it ` +
+        'straight through, with no username mapping. IMS_TEST_EMAIL in .env.local is a username, ' +
+        'not a login.'
+      : code.includes('invalid-credential') || code.includes('wrong-password') || code.includes('user-not-found')
+        ? `Wrong email or password for "${EMAIL}".`
+        : code.includes('too-many-requests')
+          ? 'Firebase has temporarily blocked sign-in after repeated failures. Wait a few minutes.'
+          : code;
+    throw new Error(
+      `Sign-in failed: ${hint}\n\n` +
+        'Set a real login and re-run:\n' +
+        "  PowerShell:  $env:SMOKE_EMAIL='you@example.com'; $env:SMOKE_PASSWORD='your-real-password'\n" +
+        '               npm run test:smoke\n' +
+        '               Remove-Item Env:SMOKE_PASSWORD\n\n' +
+        'Type the password literally — quoting the placeholder from the instructions sends the\n' +
+        'placeholder. To check the script itself without any credentials, use SMOKE_DRYRUN=1.'
+    );
+  }
   const token = await cred.user.getIdTokenResult();
   uidCollection = (token.claims as any).uidCollection;
   if (!uidCollection) {
