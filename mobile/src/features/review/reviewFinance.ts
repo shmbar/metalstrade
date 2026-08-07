@@ -101,7 +101,8 @@ export interface ReviewFinancials {
   /** Prepaid Amount */
   totalPrepayment1: number;
   /** Prepaid % of the sale */
-  prepaidPer: number;
+  /** null when undefined (0/0 or no sale) — web renders nothing, not "0%" */
+  prepaidPer: number | null;
   /** Initial Debt = sale − prepayment */
   inDebt: number;
   /** Actual Payment — Σ all payments across all docs */
@@ -143,10 +144,17 @@ export function reviewFinancials(
     originalInvoices,
     deviation: totalInvoices - originalInvoices,
     totalPrepayment1,
-    prepaidPer: totalInvoices > 0 ? (totalPrepayment1 / totalInvoices) * 100 : 0,
+    // null (not 0) when undefined — web renders nothing rather than "0%", and a
+    // credit note can legitimately drive this negative, which a `> 0` guard hid.
+    prepaidPer: Number.isFinite(totalPrepayment1 / totalInvoices)
+      ? (totalPrepayment1 / totalInvoices) * 100
+      : null,
     inDebt,
     payments,
-    debtaftr: inDebt - Math.max(0, payments - totalPrepayment1),
+    // web page.js:354 verbatim: prepayment MINUS payments. Mobile's
+    // `inDebt - max(0, payments - prepayment)` clamped at zero, so an
+    // over-prepaid contract never showed its credit.
+    debtaftr: totalPrepayment1 - payments,
     debtBlnc: totalInvoices - payments,
     expenses1,
     profit: totalInvoices - conValue - expenses1,

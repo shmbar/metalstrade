@@ -31,7 +31,9 @@ export interface ReviewRow {
   remaining: number;
   statusKey: string;
   statusLabel: string;
-  /** web's 11 money columns for this contract */
+  /** the VIEW currency the money columns are expressed in (web's valCur) */
+  finCur: string;
+  /** web's 11 money columns for this contract, converted into finCur */
   fin: ReviewFinancials;
 }
 
@@ -63,7 +65,7 @@ export interface StatementTotal {
   remaining: number;
 }
 
-export function useContractsReview() {
+export function useContractsReview(viewCur: 'us' | 'eu' = 'us') {
   const { uidCollection } = useAuth();
   const { settings, dateSelect, loaded } = useSettings();
 
@@ -176,7 +178,13 @@ export function useContractsReview() {
         remaining: poWeight - shippedWeight,
         statusKey: status.key,
         statusLabel: status.label,
-        fin: reviewFinancials(contract, invoiceGroups, { cur: (contract.cur === 'eu' ? 'eu' : 'us') } as ViewCur, settings),
+        // Web has ONE global currency selector (page.js:215 valCur, default 'us')
+        // and converts every contract into it at that contract's own euroToUSD.
+        // Mobile was passing each contract's OWN currency, so a EUR contract's
+        // money columns stayed in EUR and never converted — and the totals were
+        // bucketed per currency instead of summing into one view currency.
+        finCur: viewCur,
+        fin: reviewFinancials(contract, invoiceGroups, { cur: viewCur } as ViewCur, settings),
       };
     });
 
@@ -196,7 +204,7 @@ export function useContractsReview() {
       statement: [...map.values()],
       statementLines: statementLines.sort((a, b) => a.order.localeCompare(b.order)),
     };
-  }, [query.data, settings]);
+  }, [query.data, settings, viewCur]);
 
   return { ...data, isLoading: query.isLoading, isError: query.isError, error: query.error, refetch: query.refetch };
 }

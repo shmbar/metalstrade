@@ -10,12 +10,19 @@ import { useContractsReview, statusTone } from '@/features/review/useContractsRe
 import { fmtMoney, curSymbol } from '@/lib/format';
 import { ReviewFinancials } from '@/features/review/reviewFinance';
 
-const wt = (n: number) => `${fmtMoney(n, 3)}`; // web shows MT to 3 decimals
+const wt = (n: number) => `${fmtMoney(n, 3)}`; // web showWeight — fixed 3 dp
+// web fmtMT (page.js:38) — max 2 dp, no minimum. Used ONLY for the progress-bar
+// caption; the table cells keep showWeight's 3 dp.
+const wtCap = (n: number) =>
+  new Intl.NumberFormat('en-US', { maximumFractionDigits: 2 }).format(n || 0);
 
 export default function ContractsReview() {
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
-  const { rows, statement, statementLines, isLoading, isError, error, refetch } = useContractsReview();
+  // Web's currency selector (page.js:200-207 CB → valCur), default USD. Every
+  // contract's money converts into it; nothing is bucketed per contract currency.
+  const [viewCur, setViewCur] = useState<'us' | 'eu'>('us');
+  const { rows, statement, statementLines, isLoading, isError, error, refetch } = useContractsReview(viewCur);
   const [tab, setTab] = useState<'review' | 'statement'>('review');
   const [search, setSearch] = useState('');
 
@@ -25,16 +32,21 @@ export default function ContractsReview() {
     return rows.filter((r) => r.order.toLowerCase().includes(q) || r.supplierName.toLowerCase().includes(q));
   }, [rows, search]);
 
-  // Totals recomputed from the FILTERED rows, bucketed strictly by currency —
-  // never summed across $ and € (web parity).
+  // Totals recomputed from the FILTERED rows — a SINGLE row in the view currency,
+  // exactly like web's setTtl(), which sums every contract regardless of its own
+  // currency because reviewFinancials has already converted each one into viewCur.
   const reviewTotals = useMemo(() => {
-    const m: Record<string, ReviewFinancials> = {};
+    const t: ReviewFinancials = { conValue: 0, totalInvoices: 0, originalInvoices: 0, deviation: 0, totalPrepayment1: 0, prepaidPer: 0, inDebt: 0, payments: 0, debtaftr: 0, debtBlnc: 0, expenses1: 0, profit: 0 };
     filtered.forEach((r) => {
-      const t = (m[r.cur] ||= { conValue: 0, totalInvoices: 0, originalInvoices: 0, deviation: 0, totalPrepayment1: 0, prepaidPer: 0, inDebt: 0, payments: 0, debtaftr: 0, debtBlnc: 0, expenses1: 0, profit: 0 });
-      (Object.keys(t) as (keyof ReviewFinancials)[]).forEach((k) => { if (k !== 'prepaidPer') t[k] += r.fin[k]; });
+      (Object.keys(t) as (keyof ReviewFinancials)[]).forEach((k) => {
+        if (k !== 'prepaidPer') (t[k] as number) += r.fin[k] as number;
+      });
     });
-    Object.values(m).forEach((t) => { t.prepaidPer = t.totalInvoices > 0 ? (t.totalPrepayment1 / t.totalInvoices) * 100 : 0; });
-    return m;
+    // web: isNaN(prepay/inv) ? '-' : ((prepay/inv)*100).toFixed(2)+'%'
+    t.prepaidPer = Number.isFinite(t.totalPrepayment1 / t.totalInvoices)
+      ? (t.totalPrepayment1 / t.totalInvoices) * 100
+      : null;
+    return t;
   }, [filtered]);
 
   return (
@@ -61,7 +73,19 @@ export default function ContractsReview() {
 
       {tab === 'review' && (
         <>
-          <TextField value={search} onChangeText={setSearch} placeholder="Search PO or supplier…" autoCapitalize="none" rightElement={<Ionicons name="search" size={18} color={colors.textFaint} />} />
+          <View style={{ flexDirection: 'row', gap: 10, alignItems: 'center' }}>
+            <View style={{ flex: 1 }}>
+              <TextField value={search} onChangeText={setSearch} placeholder="Search PO or supplier…" autoCapitalize="none" rightElement={<Ionicons name="search" size={18} color={colors.textFaint} />} />
+            </View>
+            {/* Web's currency dropdown — one view currency for the whole table. */}
+            <Pressable
+              onPress={() => setViewCur((c) => (c === 'us' ? 'eu' : 'us'))}
+              hitSlop={8}
+              style={{ paddingHorizontal: 14, paddingVertical: 10, borderRadius: 10, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surfaceAlt }}
+            >
+              <Text variant="bodyMedium" tone="primary">{viewCur === 'eu' ? 'EUR €' : 'USD $'}</Text>
+            </Pressable>
+          </View>
           <View style={{ height: 12 }} />
         </>
       )}
@@ -94,7 +118,7 @@ export default function ContractsReview() {
                   </View>
                   <View style={{ marginTop: 10, gap: 4 }}>
                     <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                      <Text variant="caption" tone="faint">Shipped {wt(item.shippedWeight)} / {wt(item.poWeight)} MT</Text>
+                      <Text variant="caption" tone="faint">Shipped {wtCap(item.shippedWeight)} / {wtCap(item.poWeight)} MT</Text>
                       <Text variant="caption" tone={pct >= 99.9 ? 'positive' : 'muted'}>{pct.toFixed(0)}%</Text>
                     </View>
                     <ProgressBar pct={pct} color={pct >= 99.9 ? colors.positive : colors.primary} height={8} />
@@ -103,22 +127,22 @@ export default function ContractsReview() {
 
                   {/* Web's 11 financial columns, per contract, in its own currency. */}
                   <View style={{ marginTop: 12, borderTopWidth: 1, borderTopColor: colors.border, paddingTop: 10 }}>
-                    <Money label="Purchase Value" v={item.fin.conValue} cur={item.cur} />
-                    <Money label="Inv Value Sales" v={item.fin.totalInvoices} cur={item.cur} />
+                    <Money label="Purchase Value" v={item.fin.conValue} cur={item.finCur} />
+                    <Money label="Inv Value Sales" v={item.fin.totalInvoices} cur={item.finCur} />
                     {Math.abs(item.fin.deviation) > 0.005 && (
-                      <Money label="Deviation" v={item.fin.deviation} cur={item.cur} tone="warn" />
+                      <Money label="Deviation" v={item.fin.deviation} cur={item.finCur} tone="warn" />
                     )}
                     <Money
-                      label={`Prepaid (${item.fin.prepaidPer.toFixed(0)}%)`}
+                      label={item.fin.prepaidPer == null ? 'Prepaid' : `Prepaid (${item.fin.prepaidPer.toFixed(0)}%)`}
                       v={item.fin.totalPrepayment1}
-                      cur={item.cur}
+                      cur={item.finCur}
                     />
-                    <Money label="Initial Debt" v={item.fin.inDebt} cur={item.cur} />
-                    <Money label="Actual Payment" v={item.fin.payments} cur={item.cur} tone="positive" />
-                    <Money label="Debt After Prepayment" v={item.fin.debtaftr} cur={item.cur} />
-                    <Money label="Debt Balance" v={item.fin.debtBlnc} cur={item.cur} tone={item.fin.debtBlnc > 0.01 ? 'negative' : 'positive'} />
-                    <Money label="Expenses" v={item.fin.expenses1} cur={item.cur} />
-                    <Money label="Profit" v={item.fin.profit} cur={item.cur} tone={item.fin.profit >= 0 ? 'positive' : 'negative'} strong />
+                    <Money label="Initial Debt" v={item.fin.inDebt} cur={item.finCur} />
+                    <Money label="Actual Payment" v={item.fin.payments} cur={item.finCur} tone="positive" />
+                    <Money label="Debt After Prepayment" v={item.fin.debtaftr} cur={item.finCur} />
+                    <Money label="Debt Balance" v={item.fin.debtBlnc} cur={item.finCur} tone={item.fin.debtBlnc > 0.01 ? 'negative' : 'positive'} />
+                    <Money label="Expenses" v={item.fin.expenses1} cur={item.finCur} />
+                    <Money label="Profit" v={item.fin.profit} cur={item.finCur} tone={item.fin.profit >= 0 ? 'positive' : 'negative'} strong />
                   </View>
                 </Card>
               );
@@ -130,16 +154,17 @@ export default function ContractsReview() {
                 <Text variant="label" tone="muted" style={{ marginBottom: 8 }}>
                   Totals · {filtered.length} contract(s)
                 </Text>
-                {Object.entries(reviewTotals).map(([cur, t], i) => (
-                  <View key={cur} style={{ paddingTop: i === 0 ? 0 : 8, borderTopWidth: i === 0 ? 0 : 1, borderTopColor: colors.border }}>
-                    <Money label="Purchase Value" v={t.conValue} cur={cur} />
-                    <Money label="Inv Value Sales" v={t.totalInvoices} cur={cur} />
-                    <Money label="Actual Payment" v={t.payments} cur={cur} tone="positive" />
-                    <Money label="Debt Balance" v={t.debtBlnc} cur={cur} tone={t.debtBlnc > 0.01 ? 'negative' : 'positive'} />
-                    <Money label="Expenses" v={t.expenses1} cur={cur} />
-                    <Money label="Profit" v={t.profit} cur={cur} tone={t.profit >= 0 ? 'positive' : 'negative'} strong />
-                  </View>
-                ))}
+                <Money label="Purchase Value" v={reviewTotals.conValue} cur={viewCur} />
+                <Money label="Inv Value Sales" v={reviewTotals.totalInvoices} cur={viewCur} />
+                <Money
+                  label={reviewTotals.prepaidPer == null ? 'Prepaid' : `Prepaid (${reviewTotals.prepaidPer.toFixed(2)}%)`}
+                  v={reviewTotals.totalPrepayment1}
+                  cur={viewCur}
+                />
+                <Money label="Actual Payment" v={reviewTotals.payments} cur={viewCur} tone="positive" />
+                <Money label="Debt Balance" v={reviewTotals.debtBlnc} cur={viewCur} tone={reviewTotals.debtBlnc > 0.01 ? 'negative' : 'positive'} />
+                <Money label="Expenses" v={reviewTotals.expenses1} cur={viewCur} />
+                <Money label="Profit" v={reviewTotals.profit} cur={viewCur} tone={reviewTotals.profit >= 0 ? 'positive' : 'negative'} strong />
               </Card>
             }
           />
@@ -190,11 +215,16 @@ export default function ContractsReview() {
               <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 10 }}>
                 <View><Text variant="caption" tone="faint">Quantity</Text><Text variant="bodyMedium">{wt(item.poWeight)}</Text></View>
                 <View><Text variant="caption" tone="faint">Shipped</Text><Text variant="bodyMedium" tone="positive">{wt(item.shippedWeight)}</Text></View>
-                <View><Text variant="caption" tone="faint">Remaining</Text><Text variant="bodyMedium" tone={item.remaining > 0.01 ? 'warn' : 'positive'}>{wt(item.remaining)}</Text></View>
+                {/* Web prints the MAGNITUDE and conveys an over-ship by colour only
+                    (page.js:661-663), so a negative remaining showed as "-12.000" on
+                    mobile where web shows "12.000" in red. */}
+                <View><Text variant="caption" tone="faint">Remaining</Text><Text variant="bodyMedium" tone={item.remaining < -0.0005 ? 'negative' : item.remaining > 0.01 ? 'warn' : 'positive'}>{wt(Math.abs(item.remaining))}</Text></View>
                 <View><Text variant="caption" tone="faint">Received</Text><Text variant="bodyMedium">{wt(item.qntyReceived)}</Text></View>
               </View>
 
               <View style={{ marginTop: 10, borderTopWidth: 1, borderTopColor: colors.border, paddingTop: 8 }}>
+                {/* Statement lines show the RAW contract unit price, which is never
+                    FX-converted — so this one keeps the contract's own currency. */}
                 <Money label="Purchase value" v={item.unitPrc} cur={item.cur} />
                 {item.consignees.length > 0 && <Meta label="Consignee" v={item.consignees.join(', ')} />}
                 {item.destinations.length > 0 && <Meta label="Destination" v={item.destinations.join(', ')} />}
