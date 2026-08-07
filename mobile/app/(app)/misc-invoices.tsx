@@ -6,9 +6,10 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Screen, Card, Text, Badge, SectionHeader, SkeletonList, ErrorState, EmptyState } from '@/components/ui';
 import { PeriodSelector } from '@/components/PeriodSelector';
 import { useTheme } from '@/theme/ThemeProvider';
+import { useSettings } from '@/store/settings';
 import { useMiscInvoices, useSetMiscCategory, MISC_CATS, MiscRow, MiscCat } from '@/features/misc/useMiscInvoices';
 import { apiConfigured, postJson } from '@/lib/api';
-import { curSymbol, fmtMoney, fmtCurKM } from '@/lib/format';
+import { curSymbol, fmtMoney } from '@/lib/format';
 import { radius, spacing } from '@/theme/tokens';
 
 const CAT_TONE: Record<string, 'info' | 'warn' | 'positive' | 'neutral'> = {
@@ -22,6 +23,7 @@ const catLabel = (c: MiscCat) => MISC_CATS.find((x) => x.id === c)?.label || 'Un
 export default function MiscInvoices() {
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
+  const { settings } = useSettings();
   const { rows, totals, isLoading, isError, error, refetch } = useMiscInvoices();
   const setCat = useSetMiscCategory();
   const [editing, setEditing] = useState<MiscRow | null>(null);
@@ -51,9 +53,19 @@ export default function MiscInvoices() {
     }
   };
 
+  // Web prints these at full 2-decimal precision through Intl. fmtCurKM collapses
+  // to $K/$M, so $1,234,567.89 read as "$1.23M" — up to ~$5,000 of hidden
+  // difference on a single line. The symbol resolves through the tenant's own
+  // Currency settings the way web's getD does, so a third currency shows its ISO
+  // code rather than the raw stored id.
+  const symFor = (cur: string) => {
+    const iso = settings?.Currency?.Currency?.find((c: any) => c.id === cur)?.cur;
+    if (iso) return iso.toUpperCase() === 'EUR' ? '€' : iso.toUpperCase() === 'USD' ? '$' : `${iso} `;
+    return curSymbol(cur);
+  };
   const curLine = (byCur: Record<string, number>) => {
     const ents = Object.entries(byCur).filter(([, v]) => Math.abs(v) > 0.005);
-    return ents.length ? ents.map(([c, v]) => fmtCurKM(c, v)).join('  ') : '$0';
+    return ents.length ? ents.map(([c, v]) => `${symFor(c)}${fmtMoney(v)}`).join('  ') : '$0.00';
   };
 
   const catRows = useMemo(
@@ -123,7 +135,9 @@ export default function MiscInvoices() {
                   <Text variant="caption" tone="muted" numberOfLines={1}>{item.supplierName}{item.order ? ` · ${item.order}` : ''}</Text>
                 </View>
                 <View style={{ alignItems: 'flex-end' }}>
-                  <Text variant="bodyMedium" tone="primary">{curSymbol(item.cur)}{fmtMoney(item.total)}</Text>
+                  {/* Row amounts resolve the symbol through the tenant Currency
+                      list, like web (getD), rather than a hardcoded map. */}
+                  <Text variant="bodyMedium" tone="primary">{symFor(item.cur)}{fmtMoney(item.total)}</Text>
                   {item.paidNotPaid ? (
                     <Text variant="caption" tone={item.paidNotPaid === 'Paid' ? 'positive' : 'negative'}>{item.paidNotPaid}</Text>
                   ) : null}

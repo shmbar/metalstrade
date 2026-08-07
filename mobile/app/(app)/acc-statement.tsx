@@ -8,7 +8,22 @@ import { PeriodSelector } from '@/components/PeriodSelector';
 import { useTheme } from '@/theme/ThemeProvider';
 import { useSettings } from '@/store/settings';
 import { useAccStatement, periodsForYear } from '@/features/accstatement/useAccStatement';
-import { curSymbol, fmtMoney, dateLabel } from '@/lib/format';
+import { fmtMoney, dateLabel } from '@/lib/format';
+
+// Web renders every statement figure through Intl with a HARD ternary,
+// `row.cur === 'us' ? USD : EUR` — so a blank or unknown currency shows a euro
+// sign, not the '$' / '<id> ' the shared curSymbol falls back to. Intl also puts
+// the minus OUTSIDE the symbol, which matters because an overpayment produces a
+// negative Unpaid.
+const stmtMoney = (v: number, cur?: string) =>
+  `${v < 0 ? '-' : ''}${cur === 'us' ? '$' : '€'}${fmtMoney(Math.abs(v))}`;
+
+// Web prints dd.mm.yy on screen. Mobile showed the raw ISO string, which made a
+// screenshot impossible to line up against the PDF the client receives.
+const stmtDate = (v: any) => {
+  const [y, m, d] = String(v ?? '').slice(0, 10).split('-');
+  return y && m && d ? `${d}.${m}.${y.slice(2)}` : String(v || '—');
+};
 import { exportCsv, exportPdf } from '@/lib/export';
 import { accountStatementHtml } from '@/lib/pdfTemplates';
 import { useAuth } from '@/store/auth';
@@ -83,7 +98,11 @@ export default function AccStatement() {
     const mk = () => ({ amount: 0, paid: 0, notPaid: 0 });
     const t: Record<'us' | 'eu', ReturnType<typeof mk>> = { us: mk(), eu: mk() };
     (rows || []).forEach((r) => {
-      const cur = r.cur === 'eu' ? 'eu' : 'us';
+      // Web tests EQUALITY against 'us' and 'eu' (Numcur), so a row whose currency
+      // is blank or some third id contributes to NEITHER total. Mobile's else-branch
+      // was a catch-all that swept those rows into USD, inflating it by their sum.
+      const cur = r.cur === 'eu' ? 'eu' : r.cur === 'us' ? 'us' : null;
+      if (!cur) return;
       t[cur].amount += num(r.amount);
       t[cur].paid += num(r.paid);
       t[cur].notPaid += num(r.notPaid);
@@ -160,31 +179,36 @@ export default function AccStatement() {
                 <View key={i} style={{ flexDirection: 'row', paddingVertical: 7, borderBottomWidth: 1, borderBottomColor: colors.border }}>
                   {COLS.map((c) => (
                     <Text key={c.key} variant="caption" style={{ width: c.w, textAlign: c.money ? 'right' : 'left' }} numberOfLines={1}>
-                      {c.money ? `${curSymbol(r.cur)}${fmtMoney(num((r as any)[c.key]))}` : c.key === 'due' ? dateLabel((r as any).due) : String((r as any)[c.key] || '—')}
+                      {c.money
+                        ? stmtMoney(num((r as any)[c.key]), r.cur)
+                        : c.key === 'due' || c.key === 'date'
+                          ? stmtDate((r as any)[c.key])
+                          : String((r as any)[c.key] || '—')}
                     </Text>
                   ))}
                 </View>
               ))}
               {/* Totals — one row per currency (web keeps $ and € separate) */}
-              {(['us', 'eu'] as const)
-                .filter((cur) => totals[cur].amount || totals[cur].paid || totals[cur].notPaid)
-                .map((cur) => (
-                  <View key={cur} style={{ flexDirection: 'row', paddingVertical: 8 }}>
-                    <Text variant="caption" tone="primary" style={{ width: COLS[0].w + COLS[1].w, fontFamily: 'Inter_600SemiBold' }}>
-                      Total {cur === 'us' ? 'USD' : 'EUR'}
-                    </Text>
-                    <Text variant="caption" tone="primary" style={{ width: 90, textAlign: 'right', fontFamily: 'Inter_600SemiBold', fontVariant: ['tabular-nums'] }}>
-                      {curSymbol(cur)}{fmtMoney(totals[cur].amount)}
-                    </Text>
-                    <Text variant="caption" tone="faint" style={{ width: 90, textAlign: 'right' }}>—</Text>
-                    <Text variant="caption" tone="primary" style={{ width: 90, textAlign: 'right', fontFamily: 'Inter_600SemiBold', fontVariant: ['tabular-nums'] }}>
-                      {curSymbol(cur)}{fmtMoney(totals[cur].paid)}
-                    </Text>
-                    <Text variant="caption" tone="primary" style={{ width: 90, textAlign: 'right', fontFamily: 'Inter_600SemiBold', fontVariant: ['tabular-nums'] }}>
-                      {curSymbol(cur)}{fmtMoney(totals[cur].notPaid)}
-                    </Text>
-                  </View>
-                ))}
+              {/* Web's statement PDF always prints BOTH the USD and the EUR line,
+                  so a single-currency statement showed two totals on the document
+                  the client receives and only one here. */}
+              {(['us', 'eu'] as const).map((cur) => (
+                <View key={cur} style={{ flexDirection: 'row', paddingVertical: 8 }}>
+                  <Text variant="caption" tone="primary" style={{ width: COLS[0].w + COLS[1].w, fontFamily: 'Inter_600SemiBold' }}>
+                    Total {cur === 'us' ? 'USD' : 'EUR'}
+                  </Text>
+                  <Text variant="caption" tone="primary" style={{ width: 90, textAlign: 'right', fontFamily: 'Inter_600SemiBold', fontVariant: ['tabular-nums'] }}>
+                    {stmtMoney(totals[cur].amount, cur)}
+                  </Text>
+                  <Text variant="caption" tone="faint" style={{ width: 90, textAlign: 'right' }}>—</Text>
+                  <Text variant="caption" tone="primary" style={{ width: 90, textAlign: 'right', fontFamily: 'Inter_600SemiBold', fontVariant: ['tabular-nums'] }}>
+                    {stmtMoney(totals[cur].paid, cur)}
+                  </Text>
+                  <Text variant="caption" tone="primary" style={{ width: 90, textAlign: 'right', fontFamily: 'Inter_600SemiBold', fontVariant: ['tabular-nums'] }}>
+                    {stmtMoney(totals[cur].notPaid, cur)}
+                  </Text>
+                </View>
+              ))}
             </View>
           </ScrollView>
         </Card>
