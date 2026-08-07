@@ -13,6 +13,24 @@ const monthName = (m: any) => {
   return n >= 1 && n <= 12 ? MONTHS[n - 1] : String(m);
 };
 const n2 = (v: any) => fmtMoney(Number(v) || 0);
+// Web renders the month header Qty with NumericFormat decimalScale={3}
+// fixedDecimalScale (marginTable.js:92-98).
+const n3 = (v: any) => fmtMoney(Number(v) || 0, 3);
+
+// Web re-derives the collapsed month header from the VISIBLE item rows on every
+// render (marginTable.js:19-22) — it never reads the persisted month aggregate.
+// Mobile read the stored field, so a row added or deleted in the editor left the
+// header stale until the next save, and gis rows were not halved in Total Margin.
+// Deriving here rather than rolling up on add/delete is deliberate: web does not
+// roll up either, and unilaterally changing what mobile PERSISTS would make the
+// saved month doc — and the Profits KPI that sums it — diverge from web.
+const monthPurchase = (items: any[]) =>
+  (items || []).reduce((sum, r: any) => sum + (Number(r.purchase) || 0), 0);
+const monthMargin = (items: any[]) =>
+  (items || []).reduce(
+    (sum, r: any) => sum + (r?.gis ? Number(r?.totalMargin) / 2 || 0 : Number(r?.totalMargin) || 0),
+    0
+  );
 
 // Editable per-month item table — the mobile twin of web's Disclosure + 13-column
 // margins grid. Mobile previously showed month aggregates only, with no way to see
@@ -63,13 +81,13 @@ export function MonthEditor() {
                   {m.items.length} row{m.items.length === 1 ? '' : 's'}
                 </Text>
                 <Text variant="caption" tone="muted" style={{ fontVariant: ['tabular-nums'] }}>
-                  {n2(m.purchase)} MT
+                  {n3(monthPurchase(m.items))} MT
                 </Text>
                 <Text
                   variant="bodyMedium"
-                  style={{ marginLeft: 12, fontVariant: ['tabular-nums'], color: Number(m.totalMargin) >= 0 ? colors.positive : colors.negative }}
+                  style={{ marginLeft: 12, fontVariant: ['tabular-nums'], color: monthMargin(m.items) >= 0 ? colors.positive : colors.negative }}
                 >
-                  ${n2(m.totalMargin)}
+                  ${n2(monthMargin(m.items))}
                 </Text>
               </Pressable>
 

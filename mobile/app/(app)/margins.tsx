@@ -89,11 +89,13 @@ export default function Margins() {
               <View style={{ flexDirection: 'row', gap: 14, marginTop: 8 }}>
                 <View style={{ flex: 1 }}>
                   <Text variant="caption" tone="muted">Purchased</Text>
-                  <Text variant="bodyMedium" style={{ fontVariant: ['tabular-nums'] }}>{fmtMoney(totals.purchaseGIS, 1)} MT</Text>
+                  {/* web thirdpart.js:335-342 — no decimals on a whole number, otherwise 2 */}
+                  <Text variant="bodyMedium" style={{ fontVariant: ['tabular-nums'] }}>{fmtMoney(totals.purchaseGIS, Number.isInteger(totals.purchaseGIS) ? 0 : 2)} MT</Text>
                 </View>
                 <View style={{ flex: 1 }}>
                   <Text variant="caption" tone="muted">Outstanding ship</Text>
-                  <Text variant="bodyMedium" style={{ fontVariant: ['tabular-nums'] }}>{fmtMoney(totals.openShipGIS, 1)} MT</Text>
+                  {/* web thirdpart.js:399-407 — always 2 */}
+                  <Text variant="bodyMedium" style={{ fontVariant: ['tabular-nums'] }}>{fmtMoney(totals.openShipGIS, 2)} MT</Text>
                 </View>
                 <View style={{ flex: 1 }}>
                   <Text variant="caption" tone="muted">Remaining</Text>
