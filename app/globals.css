@@ -271,44 +271,57 @@
 }
 
 /* The type ladder stepping up at the same 4 breakpoints the .responsiveText*
-   classes use (xl 1280 / 2xl 1536 / 3xl 1920). Keep in sync with @layer app. */
+   classes use (xl 1280 / 2xl 1536 / 3xl 1920).
+
+   Each rung is now CAPPED at the reference implementation's fixed size for that
+   role, so the app never renders text larger than the reference does. Below the
+   cap the ladder still climbs — nothing was made bigger, only the top end that
+   overshot on 1920+ screens was pulled back:
+
+     caption 12->11   table 13->12   body 14->13
+     input   15->13   page  20->16   stat  26->24
+
+   --fs-display and --fs-hero are NOT capped: they drive the marketing headlines,
+   where the reference ramps with Tailwind's text-3xl/4xl/5xl and ends up LARGER
+   than this ladder. The app's page headings no longer use --fs-display at all —
+   .text-display is a fixed 22px (see the type scale block further down). */
 @media (min-width: 1280px) {
   :root {
     --fs-caption: 0.625rem;  /* 10 */
     --fs-table:   0.6875rem; /* 11 */
     --fs-body:    0.75rem;   /* 12 */
-    --fs-input:   0.8125rem; /* 13 */
+    --fs-input:   0.8125rem; /* 13 — reference cap reached */
     --fs-title:   0.875rem;  /* 14 */
-    --fs-page:    1.0625rem; /* 17 */
+    --fs-page:    1rem;      /* 16 — reference cap reached */
     --fs-stat:    1.375rem;  /* 22 */
-    --fs-display: 1.5625rem; /* 25 */
-    --fs-hero:    2.25rem;   /* 36 */
+    --fs-display: 1.5625rem; /* 25 — marketing only */
+    --fs-hero:    2.25rem;   /* 36 — marketing only */
   }
 }
 @media (min-width: 1536px) {
   :root {
-    --fs-caption: 0.6875rem; /* 11 */
-    --fs-table:   0.75rem;   /* 12 */
-    --fs-body:    0.8125rem; /* 13 */
-    --fs-input:   0.875rem;  /* 14 */
+    --fs-caption: 0.6875rem; /* 11 — reference cap reached */
+    --fs-table:   0.75rem;   /* 12 — reference cap reached */
+    --fs-body:    0.8125rem; /* 13 — reference cap reached */
+    --fs-input:   0.8125rem; /* 13 — held at cap */
     --fs-title:   0.9375rem; /* 15 */
-    --fs-page:    1.125rem;  /* 18 */
-    --fs-stat:    1.5rem;    /* 24 */
-    --fs-display: 1.75rem;   /* 28 */
-    --fs-hero:    2.625rem;  /* 42 */
+    --fs-page:    1rem;      /* 16 — held at cap */
+    --fs-stat:    1.5rem;    /* 24 — reference cap reached */
+    --fs-display: 1.75rem;   /* 28 — marketing only */
+    --fs-hero:    2.625rem;  /* 42 — marketing only */
   }
 }
 @media (min-width: 1920px) {
   :root {
-    --fs-caption: 0.75rem;   /* 12 */
-    --fs-table:   0.8125rem; /* 13 */
-    --fs-body:    0.875rem;  /* 14 */
-    --fs-input:   0.9375rem; /* 15 */
-    --fs-title:   1rem;      /* 16 */
-    --fs-page:    1.25rem;   /* 20 */
-    --fs-stat:    1.625rem;  /* 26 */
-    --fs-display: 2rem;      /* 32 */
-    --fs-hero:    3rem;      /* 48 */
+    --fs-caption: 0.6875rem; /* 11 — held at cap */
+    --fs-table:   0.75rem;   /* 12 — held at cap */
+    --fs-body:    0.8125rem; /* 13 — held at cap */
+    --fs-input:   0.8125rem; /* 13 — held at cap */
+    --fs-title:   1rem;      /* 16 — reference cap reached */
+    --fs-page:    1rem;      /* 16 — held at cap */
+    --fs-stat:    1.5rem;    /* 24 — held at cap */
+    --fs-display: 2rem;      /* 32 — marketing only */
+    --fs-hero:    3rem;      /* 48 — marketing only */
   }
 }
 
@@ -510,25 +523,26 @@ thead th {
      pill-shaped, nothing bespoke — a button and the field beside it line up.  */
   .blackButton {
     @apply bg-[var(--brand)] hover:bg-[var(--brand-strong)] text-[var(--on-brand)] flex items-center gap-2 justify-center rounded-control border-0 px-3 h-8 font-medium focus:outline-none transition-colors disabled:opacity-50 disabled:cursor-not-allowed;
-    font-size: var(--fs-input);
+    font-size: 0.75rem; /* 12px fixed — the reference uses text-xs on buttons,
+                           one rung below its 13px inputs */
     box-shadow: var(--shadow-xs);
   }
 
   .whiteButton {
     @apply bg-[var(--bg-card)] border-[var(--line-strong)] hover:bg-[var(--bg-subtle)] text-[var(--ink)] flex items-center gap-2 justify-center rounded-control border px-3 h-8 font-medium focus:outline-none transition-colors disabled:opacity-50 disabled:cursor-not-allowed;
-    font-size: var(--fs-input);
+    font-size: 0.75rem; /* 12px fixed — matches the reference */
     box-shadow: var(--shadow-xs);
   }
 
   .supplierButton {
     @apply bg-[var(--brand-soft)] hover:bg-[var(--bg-sunken)] text-[var(--brand)] flex items-center gap-2 justify-center rounded-control border-0 px-3 h-8 font-medium focus:outline-none transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed;
-    font-size: var(--fs-input);
+    font-size: 0.75rem; /* 12px fixed — matches the reference */
     box-shadow: var(--shadow-xs);
   }
 
   .supplierAddButton {
     @apply bg-[var(--brand)] hover:bg-[var(--brand-strong)] text-[var(--on-brand)] flex items-center gap-2 justify-center rounded-control border-0 px-3 h-8 font-medium focus:outline-none transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed;
-    font-size: var(--fs-input);
+    font-size: 0.75rem; /* 12px fixed — matches the reference */
     box-shadow: var(--shadow-xs);
   }
 
@@ -1096,23 +1110,32 @@ div.relative.w-full.text-gray-700 > div.absolute.z-10:not(.right-0) > div.absolu
    the same 4 breakpoints as every other size in the app.
    ══════════════════════════════════════════════════════════════════════════ */
 
-/* ── Type scale ──────────────────────────────────────────────────────────── */
+/* ── Type scale ──────────────────────────────────────────────────────────────
+   These five are APP CHROME (page headings, section titles, KPI figures, table
+   column headers, chips) and are deliberately FIXED, not on the --fs-* ladder.
+
+   The ladder ramps with viewport width, which on a 1920+ screen pushed a page
+   heading to 32px against the reference's 22px and a column header to 14px
+   against its 11px. Reading side by side, the reference is the better call: page
+   furniture should not grow just because the monitor did. Sizes below are its
+   exact values. The ladder still drives the data-density classes further down,
+   where scaling with the viewport does earn its keep. */
 .text-display {
-  font-size: var(--fs-display);
+  font-size: 1.375rem;   /* 22px */
   font-weight: 700;
   color: var(--ink);
   letter-spacing: -0.01em;
 }
 
 .text-title {
-  font-size: var(--fs-page);
+  font-size: 1rem;       /* 16px */
   font-weight: 600;
   color: var(--ink);
   letter-spacing: -0.01em;
 }
 
 .text-stat {
-  font-size: var(--fs-stat);
+  font-size: 1.5rem;     /* 24px */
   font-weight: 700;
   color: var(--ink);
   font-variant-numeric: tabular-nums;
@@ -1121,7 +1144,7 @@ div.relative.w-full.text-gray-700 > div.absolute.z-10:not(.right-0) > div.absolu
 
 /* Table column headers / field labels — 11px uppercase muted */
 .text-caption {
-  font-size: var(--fs-body);
+  font-size: 0.6875rem;  /* 11px */
   font-weight: 600;
   text-transform: uppercase;
   color: var(--ink-secondary);
@@ -1130,7 +1153,7 @@ div.relative.w-full.text-gray-700 > div.absolute.z-10:not(.right-0) > div.absolu
 
 /* Chips / timestamps */
 .text-micro {
-  font-size: var(--fs-caption);
+  font-size: 0.65625rem; /* 10.5px */
   font-weight: 500;
 }
 
