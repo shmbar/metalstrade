@@ -12,7 +12,7 @@ const ActivityPage = () => {
             <div className="mx-auto w-full max-w-5xl px-1 md:px-2 pb-4 mt-[72px]">
                 <div className="page-card rounded-2xl p-3 sm:p-5 mt-8 border border-[var(--line)] shadow-card w-full bg-[var(--bg-card)]">
                     <div className="pb-2">
-                        <h1 className="text-[var(--ink)] responsiveTextTitle">
+                        <h1 className="text-display">
                             {getTtl('Activity Log', ln) || 'Activity Log'}
                         </h1>
                         <p className="responsiveText text-[var(--regent-gray)] pl-3 mt-0.5">

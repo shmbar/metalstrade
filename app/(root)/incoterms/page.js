@@ -172,7 +172,7 @@ const Incoterms = () => {
             <div className="page-card rounded-2xl p-3 sm:p-5 mt-8 border border-[var(--line)] shadow-card w-full bg-[var(--bg-card)]">
                 {/* Header */}
                 <div className="flex flex-col gap-1 mb-4">
-                    <h1 className="text-[var(--ink)] responsiveTextTitle">
+                    <h1 className="text-display">
                         Incoterms® 2020
                     </h1>
                     <p className="responsiveTextTable text-[var(--regent-gray)] pl-3">

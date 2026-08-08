@@ -169,7 +169,7 @@ const SalesContracts = () => {
                         <Toast />
                         <div className="page-card rounded-2xl p-3 sm:p-5 mt-8 border border-[var(--line)] shadow-card w-full bg-[var(--bg-card)]">
                             <div className='flex items-center justify-between flex-wrap gap-2 pb-2'>
-                                <h1 className="text-[var(--ink)] responsiveTextTitle">
+                                <h1 className="text-display">
                                     Sales Contracts
                                 </h1>
                             </div>
