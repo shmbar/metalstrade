@@ -14,6 +14,14 @@ if ! command -v node >/dev/null 2>&1; then
   exit 0
 fi
 
+# The gate script is optional. Without this guard, deleting design-audit/ makes
+# node exit non-zero and the check below reads that as "gates failed", blocking
+# EVERY commit with a message that points at the wrong problem.
+if [ ! -f design-audit/tools/gates.js ]; then
+  echo "design gates: design-audit/tools/gates.js not present, skipping" >&2
+  exit 0
+fi
+
 OUT=$(node design-audit/tools/gates.js --staged 2>&1)
 STATUS=$?
 
