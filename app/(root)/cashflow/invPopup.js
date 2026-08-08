@@ -1,6 +1,7 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogTitle } from '../../../components/ui/dialog';
+import { TONES } from '../../../components/statusUtils';
 import dateFormat from 'dateformat';
 import { getD, reOrderTableInv, getAllfiles, uploadFile } from '../../../utils/utils';
 import { Pdf as InvoicePdf } from '../contracts/modals/pdf/pdfInvoice';
@@ -99,8 +100,9 @@ function SupplierDocPreview({ inv, onClose, settings, gisAccount }) {
     const watermark = gisAccount ? '/logo/gisBlur.jpg' : '/logo/imsblur1.jpeg';
 
     const status = balance === 0 ? 'PAID' : paid > 0 ? 'PARTIALLY PAID' : 'UNPAID';
-    const statusBg = balance === 0 ? 'var(--ok-bg)' : paid > 0 ? 'var(--warn-bg)' : 'var(--danger-bg)';
-    const statusFg = balance === 0 ? 'var(--ok-text)' : paid > 0 ? 'var(--warn-text)' : 'var(--danger-text)';
+    const sTone = balance === 0 ? TONES.green : paid > 0 ? TONES.amber : TONES.red;
+    const statusBg = sTone.bg;
+    const statusFg = sTone.text;
 
     return (
         <Dialog open={!!inv} onOpenChange={onClose}>
@@ -108,15 +110,15 @@ function SupplierDocPreview({ inv, onClose, settings, gisAccount }) {
                 maxWidth: 'min(95vw, 860px)',
                 maxHeight: '92vh',
                 borderRadius: '16px',
-                border: '1px solid var(--border-cell)',
-                boxShadow: '0 24px 80px rgba(var(--endeavour-rgb),0.18)',
+                border: '1px solid var(--line)',
+                boxShadow: 'var(--shadow-md)',
                 fontFamily: "var(--font-poppins), 'Poppins', sans-serif",
             }}>
                 <DialogTitle className="sr-only">Supplier Invoice {invNo}</DialogTitle>
                 {/* Status ribbon — sits OUTSIDE the document */}
                 <div style={{
-                    background: 'var(--surface-pill)',
-                    borderBottom: '1px solid var(--border-cell)',
+                    background: 'var(--bg-subtle)',
+                    borderBottom: '1px solid var(--line-strong)',
                     padding: '8px 16px 8px 16px',
                     paddingRight: '44px',
                     display: 'flex', justifyContent: 'flex-start', gap: '6px', alignItems: 'center',
@@ -138,7 +140,7 @@ function SupplierDocPreview({ inv, onClose, settings, gisAccount }) {
                     }}>{status}</span>
                 </div>
 
-                <div className="overflow-y-auto flex-1" style={{ background: 'var(--selago)' }}>
+                <div className="overflow-y-auto flex-1" style={{ background: 'var(--bg-subtle)' }}>
                     <div className="mx-auto my-4" style={{
                         background: 'var(--surface-card)',
                         width: 'calc(100% - 32px)',
@@ -316,11 +318,12 @@ function ClientDocPreview({ inv, onClose, settings, compData, gisAccount }) {
     const totalPaid = (inv.payments || []).reduce((s, p) => s + (p.pmnt * 1 || 0), 0);
     const dbBalance = inv.debtBlnc != null ? (inv.debtBlnc * 1) : (totalAmt - totalPaid);
     const cStatus = dbBalance === 0 ? 'PAID' : totalPaid > 0 ? 'PARTIALLY PAID' : 'UNPAID';
-    const cStatusBg = dbBalance === 0 ? 'var(--ok-bg)' : totalPaid > 0 ? 'var(--warn-bg)' : 'var(--danger-bg)';
-    const cStatusFg = dbBalance === 0 ? 'var(--ok-text)' : totalPaid > 0 ? 'var(--warn-text)' : 'var(--danger-text)';
+    const cTone = dbBalance === 0 ? TONES.green : totalPaid > 0 ? TONES.amber : TONES.red;
+    const cStatusBg = cTone.bg;
+    const cStatusFg = cTone.text;
 
-    const TH = 'text-left responsiveTextTable font-semibold py-2 px-2 text-white';
-    const TH_R = 'text-right responsiveTextTable font-semibold py-2 px-2 text-white';
+    const TH = 'text-left responsiveTextTable font-semibold py-2 px-2 text-[var(--on-brand)]';
+    const TH_R = 'text-right responsiveTextTable font-semibold py-2 px-2 text-[var(--on-brand)]';
     const TD = 'text-left responsiveTextTable py-1 px-2 align-top';
     const TD_R = 'text-right responsiveTextTable py-1 px-2 align-top';
     const TD_C = 'text-center responsiveTextTable py-1 px-2 align-top';
@@ -354,15 +357,15 @@ function ClientDocPreview({ inv, onClose, settings, compData, gisAccount }) {
                 maxWidth: 'min(95vw, 860px)',
                 maxHeight: '92vh',
                 borderRadius: '16px',
-                border: '1px solid var(--border-cell)',
-                boxShadow: '0 24px 80px rgba(var(--endeavour-rgb),0.18)',
+                border: '1px solid var(--line)',
+                boxShadow: 'var(--shadow-md)',
                 fontFamily: "var(--font-poppins), 'Poppins', sans-serif",
             }}>
                 <DialogTitle className="sr-only">{getInvTypeLabel(inv).replace(':', '')} {invNo}</DialogTitle>
                 {/* Status ribbon — sits OUTSIDE the document */}
                 <div style={{
-                    background: 'var(--surface-pill)',
-                    borderBottom: '1px solid var(--border-cell)',
+                    background: 'var(--bg-subtle)',
+                    borderBottom: '1px solid var(--line-strong)',
                     padding: '8px 16px 8px 16px',
                     paddingRight: '44px',
                     display: 'flex', justifyContent: 'flex-start', gap: '6px', alignItems: 'center',
@@ -401,7 +404,7 @@ function ClientDocPreview({ inv, onClose, settings, compData, gisAccount }) {
                 </div>
 
                 {/* Scrollable document area */}
-                <div className="overflow-y-auto flex-1" style={{ background: 'var(--selago)' }}>
+                <div className="overflow-y-auto flex-1" style={{ background: 'var(--bg-subtle)' }}>
                     <div className="mx-auto my-4" style={{
                         background: 'var(--surface-card)',
                         width: 'calc(100% - 32px)',
@@ -496,7 +499,7 @@ function ClientDocPreview({ inv, onClose, settings, compData, gisAccount }) {
                         {/* ── Products table ── */}
                         <table className="inv-preview-table" style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '4px', fontSize: 'var(--fs-table)' }}>
                             <thead>
-                                <tr style={{ background: 'var(--endeavour)', color: 'var(--on-brand)' }}>
+                                <tr style={{ background: 'var(--brand)', color: 'var(--on-brand)' }}>
                                     <th className={TH} style={{ width: '4%' }}>#</th>
                                     <th className={TH} style={{ width: '13%' }}>PO#</th>
                                     <th className={TH} style={{ width: '38%' }}>Description</th>

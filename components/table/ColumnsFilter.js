@@ -86,14 +86,14 @@ const ColFilter = ({ table }) => {
 	}, [open])
 
 	const DropdownContent = (
-		<div ref={dropdownRef} style={dropdownStyle} className="w-64 rounded-2xl shadow-xl border border-[var(--surface-header)] overflow-hidden" aria-hidden={open ? 'false' : 'true'}>
-			<div className='py-2 px-4 responsiveTextTitle font-semibold' style={{ background: 'var(--surface-header)', color: 'var(--chathams-blue)' }}>{getTtl('Columns', ln)}</div>
-			<div className='overflow-y-auto bg-[var(--surface-card)]' style={{ maxHeight: '60vh', scrollbarWidth: 'thin', scrollbarColor: 'var(--rock-blue) var(--selago)' }}>
-				<style>{`#columns-filter-portal ::-webkit-scrollbar { width: 6px; } #columns-filter-portal ::-webkit-scrollbar-track { background: var(--selago); } #columns-filter-portal ::-webkit-scrollbar-thumb { background: var(--rock-blue); border-radius: 6px; }`}</style>
+		<div ref={dropdownRef} style={dropdownStyle} className="w-64 rounded-2xl shadow-xl border border-[var(--bg-subtle)] overflow-hidden" aria-hidden={open ? 'false' : 'true'}>
+			<div className='py-2 px-4 responsiveTextTitle font-semibold' style={{ background: 'var(--bg-subtle)', color: 'var(--chathams-blue)' }}>{getTtl('Columns', ln)}</div>
+			<div className='overflow-y-auto bg-[var(--bg-card)]' style={{ maxHeight: '60vh', scrollbarWidth: 'thin', scrollbarColor: 'var(--line-strong) var(--bg-subtle)' }}>
+				<style>{`#columns-filter-portal ::-webkit-scrollbar { width: 6px; } #columns-filter-portal ::-webkit-scrollbar-track { background: var(--bg-subtle); } #columns-filter-portal ::-webkit-scrollbar-thumb { background: var(--line-strong); border-radius: 6px; }`}</style>
 				{table.getAllColumns().filter(column => column.getCanHide()).map(col => (
 					<div key={col.id}
 						onClick={col.columnDef.accessorKey !== 'expander' ? col.getToggleVisibilityHandler() : () => { }}
-						className='whitespace-nowrap text-left py-1.5 items-center flex w-full px-3 cursor-pointer transition-colors hover:bg-[var(--selago)]'>
+						className='whitespace-nowrap text-left py-1.5 items-center flex w-full px-3 cursor-pointer transition-colors hover:bg-[var(--bg-subtle)]'>
 						<ChkBox checked={col.getIsVisible()} size='h-4 w-4'
 							onChange={col.columnDef.accessorKey !== 'expander' ? col.getToggleVisibilityHandler() : () => { }} />
 						<span className='ml-2 responsiveTextInput' style={{ color: 'var(--chathams-blue)' }}>{col.columnDef.header}</span>

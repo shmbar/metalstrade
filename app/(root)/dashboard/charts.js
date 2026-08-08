@@ -470,14 +470,14 @@ export const HorizontalBar = (arr, text) => {
         arrNames = []
     }
 
-    // Generate gradient colors based on site color palette
+    // Generate gradient colors based on the chart palette (see design tokens)
     const generateGradientColors = (length) => {
         const colors = [
-            '#0ea5e9', // Sky blue
-            '#38bdf8', // Light sky blue  
-            '#7dd3fc', // Very light sky blue
-            '#6366f1', // Indigo
-            '#818cf8', // Light indigo
+            '#6D5CE0', // blue
+            '#0E9888', // teal
+            '#7A6FE3', // violet
+            '#E8A23D', // amber
+            '#D9557B', // rose
         ];
         return Array.from({ length }, (_, i) => colors[i % colors.length]);
     };

@@ -65,18 +65,21 @@ const GradeTable = ({ dataTable, loading, settings }) => {
   const toggle = (k) => setExpanded(prev => ({ ...prev, [k]: !prev[k] }))
 
   const thStyle = {
-    color: 'var(--chathams-blue)',
-    background: 'var(--surface-header)',
+    color: 'var(--ink-muted)',
+    background: 'var(--bg-subtle)',
     padding: '6px 10px',
-    borderBottom: '1px solid var(--border-divider)',
+    borderBottom: '1px solid var(--line)',
     whiteSpace: 'nowrap',
     fontWeight: 500,
+    fontSize: 'var(--fs-body)',
+    textTransform: 'uppercase',
+    letterSpacing: '0.04em',
   }
 
   const tdStyle = {
-    color: 'var(--chathams-blue)',
+    color: 'var(--ink)',
     padding: '6px 10px',
-    borderBottom: '1px solid var(--border-divider)',
+    borderBottom: '1px solid var(--line)',
     whiteSpace: 'nowrap',
     textAlign: 'center',
   }
@@ -86,8 +89,8 @@ const GradeTable = ({ dataTable, loading, settings }) => {
       <div
         style={{
           borderRadius: '16px',
-          border: '1px solid var(--border-divider)',
-          boxShadow: '0 2px 8px rgba(var(--shadow-rgb), 0.08)',
+          border: '1px solid var(--line)',
+          boxShadow: 'var(--shadow-xs)',
           overflow: 'hidden',
         }}
       >
@@ -95,10 +98,10 @@ const GradeTable = ({ dataTable, loading, settings }) => {
         <div
           className="responsiveTextTable font-medium text-center"
           style={{
-            background: 'var(--surface-header)',
+            background: 'var(--bg-subtle)',
             padding: '8px 16px',
-            borderBottom: '1px solid var(--border-divider)',
-            color: 'var(--chathams-blue)',
+            borderBottom: '1px solid var(--line)',
+            color: 'var(--ink)',
             fontWeight: '500'
           }}
         >
@@ -123,7 +126,7 @@ const GradeTable = ({ dataTable, loading, settings }) => {
                 const isOpen = !!expanded[key]
                 return (
                   <React.Fragment key={i}>
-                  <tr style={{ background: 'var(--surface-card)', cursor: canExpand ? 'pointer' : 'default' }}
+                  <tr style={{ background: 'var(--bg-card)', cursor: canExpand ? 'pointer' : 'default' }}
                     onClick={() => canExpand && toggle(key)}>
                     <td className="responsiveTextTable" style={{ ...tdStyle, textAlign: 'left', paddingLeft: '14px' }}>
                       <span className='inline-flex items-center gap-1'>

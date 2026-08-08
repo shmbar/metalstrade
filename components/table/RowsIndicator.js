@@ -37,14 +37,14 @@ const RowsIndicator = ({ table }) => {
 					leaveTo="transform opacity-0 scale-95"
 				>
 					<MenuItems className={`absolute right-0 bottom-10 w-[4.2rem] origin-top-right rounded-lg 
-					bg-[var(--surface-card)] shadow-lg ring-1 ring-[var(--selago)] focus:outline-none z-dropdown`}>
+					bg-[var(--bg-card)] shadow-lg ring-1 ring-[var(--selago)] focus:outline-none z-50`}>
 						<div className="px-1 py-1 ">
 							{[5, 10, 20, 30, 50, 100, 500].map((x, i) => {
 								return (
 									<MenuItem key={i}>
 										<button
 											className={`${table.getState().pagination.pageSize === x
-												? 'bg-[var(--surface-header)] text-[var(--endeavour)] font-semibold'
+												? 'bg-[var(--bg-subtle)] text-[var(--endeavour)] font-semibold'
 												: 'text-[var(--port-gore)]'
 												} flex w-full items-center rounded-lg px-2 py-1.5 responsiveTextInput mt-0.5 justify-center
 														${table.getState().pagination.pageSize !== x ? ' hover:bg-[var(--selago)]' : null}`}

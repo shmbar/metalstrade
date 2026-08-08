@@ -1,10 +1,14 @@
 import { NumericFormat } from "react-number-format";
 import React from 'react'
+import { ArrowDownToLine, Ship, Scale, TrendingUp, PackageCheck } from 'lucide-react';
+import { TONES } from '../../../components/statusUtils';
 
 const FirstPart = ({ incoming, outStandingShip, purchase, totalMargin, shipped }) => {
     const cards = [
         {
-            label: "Incoming:",
+            label: "Incoming",
+            icon: ArrowDownToLine,
+            tone: TONES.blue,
             value: <NumericFormat
                 value={incoming}
                 displayType="text"
@@ -13,12 +17,12 @@ const FirstPart = ({ incoming, outStandingShip, purchase, totalMargin, shipped }
                 prefix={'$'}
                 decimalScale={2}
                 fixedDecimalScale
-                style={{ fontWeight: '500', color: 'var(--chathams-blue)' }}
             />,
-            bg: 'var(--surface-header)', border: 'var(--border-divider)', color: 'var(--chathams-blue)'
         },
         {
-            label: "Outstanding shipment:",
+            label: "Outstanding shipment",
+            icon: Ship,
+            tone: TONES.amber,
             value: <NumericFormat
                 value={outStandingShip}
                 displayType="text"
@@ -27,12 +31,12 @@ const FirstPart = ({ incoming, outStandingShip, purchase, totalMargin, shipped }
                 prefix={'$'}
                 decimalScale={0}
                 fixedDecimalScale={false}
-                style={{ fontWeight: '500', color: 'var(--warn-strong)' }}
             />,
-            bg: 'var(--warn-bg)', border: 'var(--warn-border)', color: 'var(--warn-strong)'
         },
         {
-            label: "Quantity (MT):",
+            label: "Quantity (MT)",
+            icon: Scale,
+            tone: TONES.gray,
             value: <NumericFormat
                 value={purchase}
                 displayType="text"
@@ -40,12 +44,12 @@ const FirstPart = ({ incoming, outStandingShip, purchase, totalMargin, shipped }
                 allowNegative
                 decimalScale={0}
                 fixedDecimalScale={false}
-                style={{ fontWeight: '500', color: 'var(--violet-text)' }}
             />,
-            bg: 'var(--violet-bg)', border: 'var(--violet-border)', color: 'var(--violet-text)'
         },
         {
-            label: "Profits:",
+            label: "Profits",
+            icon: TrendingUp,
+            tone: TONES.green,
             value: <NumericFormat
                 value={totalMargin}
                 displayType="text"
@@ -54,12 +58,12 @@ const FirstPart = ({ incoming, outStandingShip, purchase, totalMargin, shipped }
                 prefix={'$'}
                 decimalScale={0}
                 fixedDecimalScale={false}
-                style={{ fontWeight: '500', color: 'var(--ok-strong)' }}
             />,
-            bg: 'var(--ok-bg)', border: 'var(--ok-border)', color: 'var(--ok-strong)'
         },
         {
-            label: "Shipped:",
+            label: "Shipped",
+            icon: PackageCheck,
+            tone: TONES.gray,
             value: <NumericFormat
                 value={shipped}
                 displayType="text"
@@ -67,76 +71,37 @@ const FirstPart = ({ incoming, outStandingShip, purchase, totalMargin, shipped }
                 allowNegative
                 decimalScale={0}
                 fixedDecimalScale={false}
-                style={{ fontWeight: '500', color: 'var(--pink-text)' }}
             />,
-            bg: 'var(--pink-bg)', border: 'var(--pink-bg)', color: 'var(--pink-text)'
         },
     ];
 
     return (
         <div className="w-full mb-3">
-            {/* Import Poppins font and apply consistent styling exactly like newTable */}
-            <style jsx global>{`
-                .stats-cards, .stats-cards * {
-                    font-family: var(--font-poppins), 'Poppins', sans-serif;
-                    transition-property: color, background-color, border-color, box-shadow, transform !important;
-                    transition-duration: 150ms !important;
-                    transition-timing-function: ease-in-out !important;
-                }
-
-                .stats-card:hover {
-                    transform: translateY(-2px);
-                    box-shadow: 0 12px 28px rgba(var(--shadow-rgb), 0.15);
-                }
-            `}</style>
-
-            <div className="w-full flex justify-center">
-                {/* No max-width cap: the KPI strip must track the full page width like
-                    the tables below it (it stopped at 1280px on wide screens). */}
-                <div className="w-full rounded-2xl border border-[var(--border-divider)] shadow-xl p-3 sm:p-4">
-                    {/* Desktop Layout */}
-                    <div className="hidden md:grid grid-cols-5 gap-4 stats-cards w-full">
-                        {cards.map((card, idx) => (
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-3 w-full">
+                {cards.map((card, idx) => {
+                    const Icon = card.icon;
+                    return (
+                        <div
+                            key={idx}
+                            className="min-w-0 flex items-center gap-3 bg-[var(--bg-card)] rounded-2xl border border-[var(--line)] shadow-card p-4 transition-shadow hover:shadow-raised"
+                        >
                             <div
-                                key={idx}
-                                className="stats-card min-w-0 flex flex-col items-center justify-center rounded-full shadow-lg backdrop-blur-sm py-1 px-2"
-                                style={{
-                                    backgroundColor: card.bg,
-                                    border: `1px solid ${card.border}`,
-                                    boxShadow: '0 8px 25px rgba(var(--shadow-rgb), 0.1), 0 0 1px rgba(var(--surface-card-rgb), 0.2) inset',
-                                }}
+                                className="w-8 h-8 rounded-control flex items-center justify-center flex-shrink-0"
+                                style={{ background: card.tone.bg, color: card.tone.text }}
                             >
-                                <span className="font-medium text-center responsiveTextInput px-1" style={{ color: card.color }}>
+                                <Icon className="w-4 h-4" />
+                            </div>
+                            <div className="min-w-0">
+                                <div className="responsiveText uppercase tracking-[0.04em] font-medium text-[var(--ink-muted)] truncate">
                                     {card.label}
-                                </span>
-                                <div className="font-medium text-center responsiveTextInput" style={{ color: card.color }}>
+                                </div>
+                                <div className="font-display font-bold text-lg xl:text-xl text-[var(--ink)] tabular-nums truncate">
                                     {card.value}
                                 </div>
-
                             </div>
-                        ))}
-                    </div>
-
-                    {/* Mobile Layout */}
-                    <div className="block md:hidden stats-cards">
-                        <div className="grid grid-cols-2 gap-2">
-                            {cards.map((card, idx) => (
-                                <div
-                                    key={idx}
-                                    className="stats-card flex flex-col items-center justify-center rounded-full py-1 px-1 shadow-lg"
-                                    style={{ backgroundColor: card.bg, border: `1px solid ${card.border}`, boxShadow: '0 8px 25px rgba(var(--shadow-rgb), 0.1)' }}
-                                >
-                                    <span className="font-medium text-center responsiveTextInput px-1" style={{ color: card.color }}>
-                                        {card.label}
-                                    </span>
-                                    <div className="font-medium text-center responsiveTextInput" style={{ color: card.color }}>
-                                        {card.value}
-                                    </div>
-                                </div>
-                            ))}
                         </div>
-                    </div>
-                </div>
+                    );
+                })}
             </div>
         </div>
     );

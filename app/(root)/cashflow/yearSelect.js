@@ -21,19 +21,19 @@ const YearSelect = ({ yr, setYr }) => {
 
     return (
         <Menu>
-            <MenuButton className="border border-slate-400 rounded-full p-2 text-[var(--port-gore)] responsiveTextInput px-3">
+            <MenuButton className="border border-[var(--line-strong)] rounded-control p-2 text-[var(--ink)] responsiveTextInput px-3">
                 {yr.length > 1 ? yr.sort((a, b) => a - b).map((z, i) => {
                     return i === yr.length - 1 ? z : z + ', '
                 }) : yr.length === 1 ? yr[0] : 'Select Year'}
             </MenuButton>
-            <MenuItems anchor="bottom" className="z-dropdown border border-slate-400 rounded-2xl p-2 mt-1 bg-[var(--surface-card)]">
+            <MenuItems anchor="bottom" className="z-50 border border-[var(--line)] rounded-2xl p-2 mt-1 bg-[var(--bg-card)]" style={{ boxShadow: 'var(--shadow-md)' }}>
                 {yrArr.map((z) => (
-                    <MenuItem as="div" key={z} className="text-[var(--port-gore)] responsiveTextTitle">
+                    <MenuItem as="div" key={z} className="text-[var(--ink)] responsiveTextTitle">
                         <div className='flex items-center gap-2'>
                             <CheckBox checked={yr.includes(z)} size='h-4 w-4'
                                 onChange={() => checkItem(z)} />
                             <div
-                                className={`hover:bg-slate-200 flex w-full items-center gap-2 rounded-lg py-0.5 my-0 px-1 ${yr === z ? 'bg-slate-500 text-white' : ''
+                                className={`hover:bg-[var(--bg-subtle)] flex w-full items-center gap-2 rounded-lg py-0.5 my-0 px-1 ${yr === z ? 'bg-slate-500 text-[var(--on-brand)]' : ''
                                     }`}
                             //    onClick={() => setYr(z)}
                             >

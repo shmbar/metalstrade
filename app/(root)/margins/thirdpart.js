@@ -15,26 +15,32 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                     transition-timing-function: ease-in-out !important;
                 }
 
-                /* Add border, background, and text alignment styles for table cells */
                 .margins-table th, .margins-table td {
-                    background-color: var(--surface-pill);
                     text-align: center;
                     vertical-align: middle;
-                    font-family: var(--font-poppins), 'Poppins', sans-serif;
                     padding: 6px;
-                    border-radius: 4px;
                 }
 
                 .margins-table th {
-                    background-color: var(--surface-header);
-                    color: var(--chathams-blue);
-                    font-weight: 500;
+                    background-color: var(--bg-subtle);
+                    color: var(--ink-secondary);
+                    font-weight: 600;
+                    font-size: 0.6875rem;
+                    text-transform: uppercase;
+                    letter-spacing: 0.04em;
                 }
 
                 .margins-table td {
-                    background-color: var(--surface-card);
-                    border: 1px solid var(--selago);
-                    color: var(--chathams-blue);
+                    background-color: var(--bg-card);
+                    border-bottom: 1px solid var(--line);
+                    color: var(--ink);
+                    font-size: 0.75rem;
+                }
+
+                /* Totals row — footer treatment */
+                .margins-table tbody tr:last-child td {
+                    border-top: 1px solid var(--line-strong);
+                    border-bottom: none;
                 }
             `}</style>
 
@@ -42,7 +48,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
             <h1
                 className="mb-2 margins-table responsiveText"
                 style={{
-                    color: 'var(--chathams-blue)',
+                    color: 'var(--ink)',
                     fontWeight: '400'
                 }}
             >
@@ -50,11 +56,9 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
             </h1>
 
             {/* Main container with consistent styling matching newTable */}
-            <div 
-                className="w-full margins-table"
+            <div
+                className="w-full margins-table rounded-2xl border border-[var(--line)] shadow-card"
                 style={{
-                    borderRadius: '24px',
-                    boxShadow: '0 20px 60px rgba(var(--shadow-rgb), 0.08), 0 0 1px rgba(var(--shadow-rgb), 0.1) inset',
                     overflow: 'hidden'
                 }}
             >
@@ -62,10 +66,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                 <div
                     className="flex-shrink-0"
                     style={{
-                        borderBottom: '2px solid var(--border-divider)',
-                        background: 'var(--selago)',
-                        borderTopLeftRadius: '24px',
-                        borderTopRightRadius: '24px'
+                        background: "var(--bg-card)"
                     }}
                 >
                     {/* Desktop table container matching newTable exactly */}
@@ -74,66 +75,51 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                             className="overflow-auto"
                            
                         >
-                            <table className="w-full rounded-2xl" style={{ tableLayout: 'auto', borderSpacing: '6px' }}>
+                            <table className="w-full rounded-2xl" style={{ tableLayout: 'auto', borderSpacing: '0' }}>
                                 {/* THEAD - matching newTable header exactly */}
-                                <thead className="sticky top-0 z-sticky">
+                                <thead className="sticky top-0 z-10">
                                     <tr>
                                         <th
-                                            className="px-2 py-2 text-center responsiveTextInput"
+                                            className="px-2 py-2 text-center responsiveTextInput "
                                             style={{
-                                                color: 'var(--chathams-blue)',
                                                 minWidth: '45px',
-                                                textAlign: 'center',
-                                                borderRadius: '12px',
-                                                border: '1px solid var(--border-divider)'
+                                                textAlign: 'center'
                                             }}
                                         >
                                             Months
                                         </th>
                                         <th
-                                            className="px-2 py-2 text-center responsiveTextInput"
+                                            className="px-2 py-2 text-center responsiveTextInput "
                                             style={{
-                                                color: 'var(--chathams-blue)',
                                                 minWidth: '40px',
-                                                textAlign: 'center',
-                                                borderRadius: '12px',
-                                                border: '1px solid var(--border-divider)'
+                                                textAlign: 'center'
                                             }}
                                         >
                                             Purchased quantity (MT)
                                         </th>
                                         <th
-                                            className="px-2 py-2 text-center responsiveTextInput"
+                                            className="px-2 py-2 text-center responsiveTextInput "
                                             style={{
-                                                color: 'var(--chathams-blue)',
                                                 minWidth: '105px',
-                                                textAlign: 'center',
-                                                borderRadius: '12px',
-                                                border: '1px solid var(--border-divider)'
+                                                textAlign: 'center'
                                             }}
                                         >
                                             Profit
                                         </th>
                                         <th
-                                            className="px-2 py-2 text-center responsiveTextInput"
+                                            className="px-2 py-2 text-center responsiveTextInput "
                                             style={{
-                                                color: 'var(--chathams-blue)',
                                                 minWidth: '45px',
-                                                textAlign: 'center',
-                                                borderRadius: '12px',
-                                                border: '1px solid var(--border-divider)'
+                                                textAlign: 'center'
                                             }}
                                         >
                                             Outstanding shipment
                                         </th>
                                         <th
-                                            className="px-2 py-2 text-center responsiveTextInput"
+                                            className="px-2 py-2 text-center responsiveTextInput "
                                             style={{
-                                                color: 'var(--chathams-blue)',
                                                 minWidth: '60px',
-                                                                                                textAlign: 'center',
-                                                borderRadius: '12px',
-                                                border: '1px solid var(--border-divider)'
+                                                textAlign: 'center'
                                             }}
                                         >
                                             Remaining
@@ -151,7 +137,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                             <td
                                                 className="px-2 py-2 transition-colors duration-150 group/cell relative"
                                                 style={{
-                                                    color: 'var(--chathams-blue)',
+                                                    color: 'var(--ink)',
                                                     minWidth: '60px',
                                                     maxWidth: '110px',
                                                     fontWeight: '400',
@@ -159,7 +145,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                                     willChange: 'background-color, color',
                                                 }}
                                             >
-                                                <div className="px-2 py-1 responsiveTextTable font-normal flex items-center justify-center min-w-[50px] text-center whitespace-nowrap border border-[var(--border-cell)] rounded-lg transition-all duration-200 ease-in-out bg-[var(--surface-header)] text-[var(--chathams-blue)] fade-in">
+                                                <div className="px-2 py-1 responsiveTextTable font-medium flex items-center justify-center min-w-[50px] text-center whitespace-nowrap text-[var(--ink)] fade-in">
                                                     {z.month + "-" + yr}
                                                 </div>
                                             </td>
@@ -167,7 +153,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                             <td
                                                 className="px-2 py-2 transition-colors duration-150 group/cell relative"
                                                 style={{
-                                                    color: 'var(--chathams-blue)',
+                                                    color: 'var(--ink)',
                                                     minWidth: '60px',
                                                     maxWidth: '110px',
                                                     fontWeight: '400',
@@ -175,7 +161,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                                     willChange: 'background-color, color',
                                                 }}
                                             >
-                                                <div className="px-2 py-1 responsiveTextTable font-normal flex items-center justify-center min-w-[40px] text-center whitespace-nowrap border rounded-lg border-[var(--border-cell)] transition-all duration-200 ease-in-out bg-[var(--surface-pill)] fade-in">
+                                                <div className="px-2 py-1 responsiveTextTable font-medium flex items-center justify-center min-w-[40px] text-center whitespace-nowrap fade-in">
                                                     <NumericFormat
                                                         value={z.purchase}
                                                         displayType="text"
@@ -191,7 +177,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                             <td
                                                 className="px-2 py-2 transition-colors duration-150 group/cell relative"
                                                 style={{
-                                                    color: 'var(--chathams-blue)',
+                                                    color: 'var(--ink)',
                                                     minWidth: '105px',
                                                     fontWeight: '400',
                                                     zIndex: 1,
@@ -200,7 +186,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                             >
                                                 {isGIS ? (
                                                 <Tltip direction="top" tltpText={"IMS: " + addComma(z.totalMargin / 2)}>
-                                                <div className="px-2 py-1 responsiveTextTable font-normal flex items-center justify-center min-w-[105px] text-center whitespace-nowrap border rounded-lg border-[var(--border-cell)] transition-all duration-200 ease-in-out bg-[var(--surface-pill)]  hover:shadow-[inset_0_0_0_1px_var(--border-neutral-strong)]  fade-in">
+                                                <div className="px-2 py-1 responsiveTextTable font-medium flex items-center justify-center min-w-[105px] text-center whitespace-nowrap fade-in">
                                                     <NumericFormat
                                                         value={z.totalMargin}
                                                         displayType="text"
@@ -214,7 +200,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                                 </div>
                                                 </Tltip>
                                                 ) : (
-                                                <div className="px-2 py-1 responsiveTextTable font-normal flex items-center justify-center min-w-[105px] text-center whitespace-nowrap border rounded-lg border-[var(--border-cell)] transition-all duration-200 ease-in-out bg-[var(--surface-pill)]  hover:shadow-[inset_0_0_0_1px_var(--border-neutral-strong)]  fade-in">
+                                                <div className="px-2 py-1 responsiveTextTable font-medium flex items-center justify-center min-w-[105px] text-center whitespace-nowrap fade-in">
                                                     <NumericFormat
                                                         value={z.totalMargin}
                                                         displayType="text"
@@ -232,7 +218,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                             <td
                                                 className="px-2 py-2 transition-colors duration-150 group/cell relative"
                                                 style={{
-                                                    color: 'var(--chathams-blue)',
+                                                    color: 'var(--ink)',
                                                     minWidth: '60px',
                                                     maxWidth: '110px',
                                                     fontWeight: '400',
@@ -240,7 +226,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                                     willChange: 'background-color, color',
                                                 }}
                                             >
-                                                <div className="px-2 py-1 responsiveTextTable font-normal flex items-center justify-center min-w-[50px] text-center whitespace-nowrap border rounded-lg border-[var(--border-cell)] transition-all duration-200 ease-in-out bg-[var(--surface-pill)] fade-in">
+                                                <div className="px-2 py-1 responsiveTextTable font-medium flex items-center justify-center min-w-[50px] text-center whitespace-nowrap fade-in">
                                                     <NumericFormat
                                                         value={z.openShip}
                                                         displayType="text"
@@ -249,7 +235,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                                         decimalScale={!Number.isInteger(z.openShip) && '2'}
                                                         fixedDecimalScale
                                                         className="responsiveTextTable"
-                                                        style={{ color: Number(z.openShip) > 0 ? 'var(--danger-text)' : undefined }}
+                                                        style={{ color: Number(z.openShip) > 0 ? 'var(--bad-text)' : undefined }}
                                                     />
                                                 </div>
                                             </td>
@@ -257,7 +243,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                             <td
                                                 className="px-2 py-2 transition-colors duration-150 group/cell relative"
                                                 style={{
-                                                    color: 'var(--chathams-blue)',
+                                                    color: 'var(--ink)',
                                                     minWidth: '60px',
                                                     maxWidth: '110px',
                                                     fontWeight: '400',
@@ -267,7 +253,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                             >
                                                 {isGIS ? (
                                                 <Tltip direction="top" tltpText={"IMS: " + addComma(z.remaining / 2)}>
-                                                <div className="px-2 py-1 responsiveTextTable font-normal flex items-center justify-center min-w-[70px] text-center whitespace-nowrap border rounded-lg border-[var(--border-cell)] transition-all duration-200 ease-in-out bg-[var(--surface-pill)] fade-in">
+                                                <div className="px-2 py-1 responsiveTextTable font-medium flex items-center justify-center min-w-[70px] text-center whitespace-nowrap fade-in">
                                                     <NumericFormat
                                                         value={z.remaining}
                                                         displayType="text"
@@ -277,12 +263,12 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                                         decimalScale="2"
                                                         fixedDecimalScale
                                                         className="responsiveTextTable"
-                                                        style={{ color: Number(z.remaining) > 0 ? 'var(--danger-text)' : undefined }}
+                                                        style={{ color: Number(z.remaining) > 0 ? 'var(--bad-text)' : undefined }}
                                                     />
                                                 </div>
                                                 </Tltip>
                                                 ) : (
-                                                <div className="px-2 py-1 responsiveTextTable font-normal flex items-center justify-center min-w-[70px] text-center whitespace-nowrap border rounded-lg border-[var(--border-cell)] transition-all duration-200 ease-in-out bg-[var(--surface-pill)] fade-in">
+                                                <div className="px-2 py-1 responsiveTextTable font-medium flex items-center justify-center min-w-[70px] text-center whitespace-nowrap fade-in">
                                                     <NumericFormat
                                                         value={z.remaining}
                                                         displayType="text"
@@ -292,7 +278,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                                         decimalScale="2"
                                                         fixedDecimalScale
                                                         className="responsiveTextTable"
-                                                        style={{ color: Number(z.remaining) > 0 ? 'var(--danger-text)' : undefined }}
+                                                        style={{ color: Number(z.remaining) > 0 ? 'var(--bad-text)' : undefined }}
                                                     />
                                                 </div>
                                                 )}
@@ -305,16 +291,16 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                         <td
                                             className="px-2 py-2 transition-colors duration-150 group/cell relative"
                                             style={{
-                                                color: 'var(--chathams-blue)',
+                                                color: 'var(--ink)',
                                                 minWidth: '60px',
                                                 maxWidth: '110px',
                                                 fontWeight: '600',
                                                 zIndex: 1,
                                                 willChange: 'background-color, color',
-                                                background: 'var(--surface-header)'
+                                                background: 'var(--bg-subtle)'
                                             }}
                                         >
-                                            <div className="px-2 py-1 font-medium flex items-center justify-center min-w-[50px] text-center whitespace-nowrap border rounded-lg border-[var(--border-cell)] responsiveTextInput">
+                                            <div className="px-2 py-1 font-medium flex items-center justify-center min-w-[50px] text-center whitespace-nowrap responsiveTextTitle tabular-nums">
                                                 Total
                                             </div>
                                         </td>
@@ -322,16 +308,16 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                         <td
                                             className="px-2 py-2 transition-colors duration-150 group/cell relative"
                                             style={{
-                                                color: 'var(--chathams-blue)',
+                                                color: 'var(--ink)',
                                                 minWidth: '60px',
                                                 maxWidth: '110px',
                                                 fontWeight: '500',
                                                 zIndex: 1,
                                                 willChange: 'background-color, color',
-                                                background: 'var(--surface-header)'
+                                                background: 'var(--bg-subtle)'
                                             }}
                                         >
-                                            <div className="px-2 py-1 font-medium flex items-center justify-center min-w-[40px] text-center whitespace-nowrap border rounded-lg border-[var(--border-cell)] responsiveTextInput">
+                                            <div className="px-2 py-1 font-medium flex items-center justify-center min-w-[40px] text-center whitespace-nowrap responsiveTextTitle tabular-nums">
                                                 <NumericFormat
                                                     value={purchase}
                                                     displayType="text"
@@ -346,17 +332,17 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                         <td
                                             className="px-2 py-2 transition-colors duration-150 group/cell relative"
                                             style={{
-                                                color: 'var(--chathams-blue)',
+                                                color: 'var(--ink)',
                                                 minWidth: '105px',
                                                 fontWeight: '500',
                                                 zIndex: 1,
                                                 willChange: 'background-color, color',
-                                                background: 'var(--surface-header)'
+                                                background: 'var(--bg-subtle)'
                                             }}
                                         >
                                             {isGIS ? (
                                             <Tltip direction="top" tltpText={"IMS: " + addComma(totalMargin / 2)}>
-                                            <div className="px-2 py-1 font-medium flex items-center justify-center min-w-[105px] text-center whitespace-nowrap border rounded-lg border-[var(--border-cell)] responsiveTextInput">
+                                            <div className="px-2 py-1 font-medium flex items-center justify-center min-w-[105px] text-center whitespace-nowrap responsiveTextTitle tabular-nums">
                                                 <NumericFormat
                                                     value={totalMargin}
                                                     displayType="text"
@@ -369,7 +355,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                             </div>
                                             </Tltip>
                                             ) : (
-                                            <div className="px-2 py-1 font-medium flex items-center justify-center min-w-[105px] text-center whitespace-nowrap border rounded-lg border-[var(--border-cell)] responsiveTextInput">
+                                            <div className="px-2 py-1 font-medium flex items-center justify-center min-w-[105px] text-center whitespace-nowrap responsiveTextTitle tabular-nums">
                                                 <NumericFormat
                                                     value={totalMargin}
                                                     displayType="text"
@@ -386,16 +372,16 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                         <td
                                             className="px-2 py-2 transition-colors duration-150 group/cell relative"
                                             style={{
-                                                color: 'var(--chathams-blue)',
+                                                color: 'var(--ink)',
                                                 minWidth: '60px',
                                                 maxWidth: '110px',
                                                 fontWeight: '500',
                                                 zIndex: 1,
                                                 willChange: 'background-color, color',
-                                                background: 'var(--surface-header)'
+                                                background: 'var(--bg-subtle)'
                                             }}
                                         >
-                                            <div className="px-2 py-1 font-medium flex items-center justify-center min-w-[50px] text-center whitespace-nowrap border rounded-lg border-[var(--border-cell)] responsiveTextInput">
+                                            <div className="px-2 py-1 font-medium flex items-center justify-center min-w-[50px] text-center whitespace-nowrap responsiveTextTitle tabular-nums">
                                                 <NumericFormat
                                                     value={outStandingShip}
                                                     displayType="text"
@@ -403,7 +389,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                                     allowNegative={true}
                                                     decimalScale="2"
                                                     fixedDecimalScale
-                                                    style={{ color: Number(outStandingShip) > 0 ? 'var(--danger-text)' : undefined }}
+                                                    style={{ color: Number(outStandingShip) > 0 ? 'var(--bad-text)' : undefined }}
                                                 />
                                             </div>
                                         </td>
@@ -411,18 +397,18 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                         <td
                                             className="px-2 py-2 transition-colors duration-150 group/cell relative"
                                             style={{
-                                                color: 'var(--chathams-blue)',
+                                                color: 'var(--ink)',
                                                 minWidth: '60px',
                                                 maxWidth: '110px',
                                                 fontWeight: '500',
                                                 zIndex: 1,
                                                 willChange: 'background-color, color',
-                                                background: 'var(--surface-header)'
+                                                background: 'var(--bg-subtle)'
                                             }}
                                         >
                                             {isGIS ? (
                                             <Tltip direction="top" tltpText={"IMS: " + addComma(remaining / 2)}>
-                                            <div className="px-2 py-1 font-medium flex items-center justify-center min-w-[70px] text-center whitespace-nowrap border rounded-lg border-[var(--border-cell)] responsiveTextInput">
+                                            <div className="px-2 py-1 font-medium flex items-center justify-center min-w-[70px] text-center whitespace-nowrap responsiveTextTitle tabular-nums">
                                                 <NumericFormat
                                                     value={remaining}
                                                     displayType="text"
@@ -431,12 +417,12 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                                     prefix={'$'}
                                                     decimalScale="2"
                                                     fixedDecimalScale
-                                                    style={{ color: Number(remaining) > 0 ? 'var(--danger-text)' : undefined }}
+                                                    style={{ color: Number(remaining) > 0 ? 'var(--bad-text)' : undefined }}
                                                 />
                                             </div>
                                             </Tltip>
                                             ) : (
-                                            <div className="px-2 py-1 font-medium flex items-center justify-center min-w-[70px] text-center whitespace-nowrap border rounded-lg border-[var(--border-cell)] responsiveTextInput">
+                                            <div className="px-2 py-1 font-medium flex items-center justify-center min-w-[70px] text-center whitespace-nowrap responsiveTextTitle tabular-nums">
                                                 <NumericFormat
                                                     value={remaining}
                                                     displayType="text"
@@ -445,7 +431,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                                     prefix={'$'}
                                                     decimalScale="2"
                                                     fixedDecimalScale
-                                                    style={{ color: Number(remaining) > 0 ? 'var(--danger-text)' : undefined }}
+                                                    style={{ color: Number(remaining) > 0 ? 'var(--bad-text)' : undefined }}
                                                 />
                                             </div>
                                             )}
@@ -462,25 +448,25 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                             {data.map((z, i) => (
                                 <div
                                     key={i}
-                                    className="rounded-2xl overflow-hidden shadow-lg transition-colors duration-200"
+                                    className="rounded-2xl overflow-hidden shadow-card transition-colors duration-200"
                                     style={{
-                                        backgroundColor: 'var(--surface-card)',
-                                        border: '1px solid var(--border-divider)',
-                                        boxShadow: '0 4px 12px rgba(var(--shadow-rgb), 0.06)'
+                                        backgroundColor: "var(--bg-card)",
+                                        border: '1px solid var(--line)',
+                                        boxShadow: 'var(--shadow-xs)'
                                     }}
                                 >
                                     {/* Card Header */}
                                     <div
                                         className="px-3 py-2 flex items-center justify-between"
                                         style={{
-                                            background: 'var(--surface-header)',
+                                            background: 'var(--bg-subtle)',
                                         }}
                                     >
                                         <span 
                                             className="font-normal"
-                                            style={{ 
+                                            style={{
                                                 fontSize: 'var(--fs-table)',
-                                                textShadow: '0 1px 2px rgba(var(--shadow-rgb), 0.2)'
+                                                color: 'var(--ink)'
                                             }}
                                         >
                                             Row {i + 1}
@@ -491,12 +477,12 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                     <div className="p-4 space-y-2.5">
                                         <div 
                                             className="flex flex-col space-y-1.5 pb-2.5"
-                                            style={{ borderBottom: '1px solid var(--border-divider)' }}
+                                            style={{ borderBottom: '1px solid var(--line)' }}
                                         >
                                             <div 
                                                 className="font-medium" 
                                                 style={{ 
-                                                    color: 'var(--regent-gray)',
+                                                    color: 'var(--ink-muted)',
                                                     fontSize: 'var(--fs-caption)' 
                                                 }}
                                             >
@@ -505,10 +491,10 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                             <div
                                                 className="font-normal break-words px-2 py-1 rounded-2xl leading-relaxed min-h-7 flex items-center shadow-sm"
                                                 style={{
-                                                    color: 'var(--endeavour)',
-                                                    background: 'var(--surface-header)',
+                                                    color: 'var(--brand)',
+                                                    background: 'var(--bg-subtle)',
                                                     fontSize: 'var(--fs-table)',
-                                                    border: '1px solid var(--border-divider)'
+                                                    border: '1px solid var(--line)'
                                                 }}
                                             >
                                                 {z.month + "-" + yr}
@@ -517,12 +503,12 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
 
                                         <div 
                                             className="flex flex-col space-y-1.5 pb-2.5"
-                                            style={{ borderBottom: '1px solid var(--border-divider)' }}
+                                            style={{ borderBottom: '1px solid var(--line)' }}
                                         >
                                             <div 
                                                 className="font-medium" 
                                                 style={{ 
-                                                    color: 'var(--regent-gray)',
+                                                    color: 'var(--ink-muted)',
                                                     fontSize: 'var(--fs-caption)' 
                                                 }}
                                             >
@@ -531,10 +517,10 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                             <div 
                                                 className="font-normal break-words px-2 py-1 rounded-2xl leading-relaxed min-h-7 flex items-center shadow-sm" 
                                                 style={{ 
-                                                    color: 'var(--chathams-blue)',
-                                                    background: 'linear-gradient(135deg, var(--surface-base), var(--surface-muted))',
+                                                    color: 'var(--ink)',
+                                                    background: 'var(--bg-subtle)',
                                                     fontSize: 'var(--fs-table)',
-                                                    border: '1px solid var(--border-divider)'
+                                                    border: '1px solid var(--line)'
                                                 }}
                                             >
                                                 <NumericFormat
@@ -550,12 +536,12 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
 
                                         <div 
                                             className="flex flex-col space-y-1.5 pb-2.5"
-                                            style={{ borderBottom: '1px solid var(--border-divider)' }}
+                                            style={{ borderBottom: '1px solid var(--line)' }}
                                         >
                                             <div 
                                                 className="font-medium" 
                                                 style={{ 
-                                                    color: 'var(--regent-gray)',
+                                                    color: 'var(--ink-muted)',
                                                     fontSize: 'var(--fs-caption)' 
                                                 }}
                                             >
@@ -564,10 +550,10 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                             <div 
                                                 className="font-normal break-words px-2 py-1 rounded-2xl leading-relaxed min-h-7 flex items-center shadow-sm" 
                                                 style={{ 
-                                                    color: 'var(--chathams-blue)',
-                                                    background: 'linear-gradient(135deg, var(--surface-base), var(--surface-muted))',
+                                                    color: 'var(--ink)',
+                                                    background: 'var(--bg-subtle)',
                                                     fontSize: 'var(--fs-table)',
-                                                    border: '1px solid var(--border-divider)'
+                                                    border: '1px solid var(--line)'
                                                 }}
                                             >
                                                 <NumericFormat
@@ -587,25 +573,25 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
 
                             {/* Mobile Totals Card */}
                             <div
-                                className="rounded-2xl overflow-hidden shadow-lg transition-colors duration-200"
+                                className="rounded-2xl overflow-hidden shadow-card transition-colors duration-200"
                                 style={{
-                                    backgroundColor: 'var(--surface-card)',
-                                    border: '2px solid var(--chathams-blue)',
-                                    boxShadow: '0 8px 24px rgba(var(--chathams-blue-rgb), 0.15)'
+                                    backgroundColor: "var(--bg-card)",
+                                    border: '1px solid var(--line-strong)',
+                                    boxShadow: 'var(--shadow-sm)'
                                 }}
                             >
                                 {/* Totals Card Header */}
                                 <div 
                                     className="px-3 py-2 flex items-center justify-center"
                                     style={{ 
-                                        background: 'var(--surface-header)',
+                                        background: 'var(--bg-subtle)',
                                     }}
                                 >
                                     <span 
                                         className="font-medium"
                                         style={{ 
                                             fontSize: 'var(--fs-table)',
-                                            color: 'var(--chathams-blue)'
+                                            color: 'var(--ink)'
                                         }}
                                     >
                                         TOTALS
@@ -616,12 +602,12 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                 <div className="p-4 space-y-2.5">
                                     <div 
                                         className="flex flex-col space-y-1.5 pb-2.5"
-                                        style={{ borderBottom: '1px solid var(--border-divider)' }}
+                                        style={{ borderBottom: '1px solid var(--line)' }}
                                     >
                                         <div 
                                             className="font-medium" 
                                             style={{ 
-                                                color: 'var(--regent-gray)',
+                                                color: 'var(--ink-muted)',
                                                 fontSize: 'var(--fs-caption)' 
                                             }}
                                         >
@@ -630,10 +616,10 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                         <div 
                                             className="font-medium break-words px-2 py-1 rounded-2xl leading-relaxed min-h-7 flex items-center shadow-sm" 
                                             style={{ 
-                                                color: 'var(--chathams-blue)',
-                                                background: 'linear-gradient(135deg, var(--surface-base), var(--surface-muted))',
+                                                color: 'var(--ink)',
+                                                background: 'var(--bg-subtle)',
                                                 fontSize: 'var(--fs-table)',
-                                                border: '1px solid var(--border-divider)'
+                                                border: '1px solid var(--line)'
                                             }}
                                         >
                                             <NumericFormat
@@ -649,12 +635,12 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
 
                                     <div 
                                         className="flex flex-col space-y-1.5 pb-2.5"
-                                        style={{ borderBottom: '1px solid var(--border-divider)' }}
+                                        style={{ borderBottom: '1px solid var(--line)' }}
                                     >
                                         <div 
                                             className="font-medium" 
                                             style={{ 
-                                                color: 'var(--regent-gray)',
+                                                color: 'var(--ink-muted)',
                                                 fontSize: 'var(--fs-caption)' 
                                             }}
                                         >
@@ -663,10 +649,10 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                         <div 
                                             className="font-medium break-words px-2 py-1 rounded-2xl leading-relaxed min-h-7 flex items-center shadow-sm" 
                                             style={{ 
-                                                color: 'var(--chathams-blue)',
-                                                background: 'linear-gradient(135deg, var(--surface-base), var(--surface-muted))',
+                                                color: 'var(--ink)',
+                                                background: 'var(--bg-subtle)',
                                                 fontSize: 'var(--fs-table)',
-                                                border: '1px solid var(--border-divider)'
+                                                border: '1px solid var(--line)'
                                             }}
                                         >
                                             <NumericFormat
@@ -683,12 +669,12 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
 
                                     <div 
                                         className="flex flex-col space-y-1.5 pb-2.5"
-                                        style={{ borderBottom: '1px solid var(--border-divider)' }}
+                                        style={{ borderBottom: '1px solid var(--line)' }}
                                     >
                                         <div 
                                             className="font-medium" 
                                             style={{ 
-                                                color: 'var(--regent-gray)',
+                                                color: 'var(--ink-muted)',
                                                 fontSize: 'var(--fs-caption)' 
                                             }}
                                         >
@@ -697,10 +683,10 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                         <div 
                                             className="font-medium break-words px-2 py-1 rounded-2xl leading-relaxed min-h-7 flex items-center shadow-sm" 
                                             style={{ 
-                                                color: 'var(--chathams-blue)',
-                                                background: 'linear-gradient(135deg, var(--surface-base), var(--surface-muted))',
+                                                color: 'var(--ink)',
+                                                background: 'var(--bg-subtle)',
                                                 fontSize: 'var(--fs-table)',
-                                                border: '1px solid var(--border-divider)'
+                                                border: '1px solid var(--line)'
                                             }}
                                         >
                                             <NumericFormat
@@ -720,7 +706,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                         <div 
                                             className="font-medium" 
                                             style={{ 
-                                                color: 'var(--regent-gray)',
+                                                color: 'var(--ink-muted)',
                                                 fontSize: 'var(--fs-caption)' 
                                             }}
                                         >
@@ -729,10 +715,10 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                         <div 
                                             className="font-medium break-words px-2 py-1 rounded-2xl leading-relaxed min-h-7 flex items-center shadow-sm" 
                                             style={{ 
-                                                color: 'var(--chathams-blue)',
-                                                background: 'linear-gradient(135deg, var(--surface-base), var(--surface-muted))',
+                                                color: 'var(--ink)',
+                                                background: 'var(--bg-subtle)',
                                                 fontSize: 'var(--fs-table)',
-                                                border: '1px solid var(--border-divider)'
+                                                border: '1px solid var(--line)'
                                             }}
                                         >
                                             <NumericFormat
@@ -743,7 +729,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                                 prefix={'$'}
                                                 decimalScale="2"
                                                 fixedDecimalScale
-                                                style={{ color: Number(remaining) > 0 ? 'var(--danger-text)' : undefined }}
+                                                style={{ color: Number(remaining) > 0 ? 'var(--bad-text)' : undefined }}
                                             />
                                         </div>
                                     </div>

@@ -32,7 +32,9 @@ import dynamic from 'next/dynamic';
 // this page's first-load bundle. It only renders when the user opens a reminder.
 const ReminderModal = dynamic(() => import('../../../components/invoices/ReminderModal'), { ssr: false });
 import StatusBadge from '../../../components/StatusBadge';
-import { Bell, Split } from 'lucide-react';
+import { Bell, Split, Receipt, FileCheck2, FilePen, FileX2 } from 'lucide-react';
+import KpiStrip from '../../../components/KpiStrip';
+import ProgressBar from '../../../components/ProgressBar';
 import SplitControl from '../../../components/SplitControl';
 import { splitStatusOf } from '../../../utils/splitUtils';
 
@@ -248,6 +250,7 @@ const Invoices = () => {
 			header: getTtl('Consignee', ln),
 			cell: EditableSelectCell,
 			meta: {
+				avatar: true,
 				filterVariant: 'selectClient',
 				options: settings.Client?.Client?.map(c => ({
 					value: c.id,
@@ -322,9 +325,9 @@ const Invoices = () => {
 				const isUSD = cur === 'USD' || cur === '$' || cur.toLowerCase() === 'us';
 				const isEUR = cur === 'EUR' || cur === '€' || cur.toLowerCase() === 'eu';
 				const symbol = isUSD ? '$' : isEUR ? '€' : cur;
-				const bg = isUSD ? 'var(--ok-bg)' : isEUR ? 'var(--surface-header)' : 'var(--border-neutral)';
-				const border = isUSD ? '1px solid var(--ok-border)' : isEUR ? '1px solid var(--border-divider)' : '1px solid var(--border-neutral-strong)';
-				const color = isUSD ? 'var(--ok-strong)' : 'var(--chathams-blue)';
+				const bg = isUSD ? 'var(--ok-bg)' : isEUR ? 'var(--brand-soft)' : 'var(--neutral-bg)';
+				const border = isUSD ? '1px solid var(--ok-border)' : isEUR ? '1px solid var(--brand-border)' : '1px solid var(--neutral-border)';
+				const color = isUSD ? 'var(--ok-text)' : isEUR ? 'var(--brand-strong)' : 'var(--ink-secondary)';
 				return (
 					<span
 						style={{
@@ -389,9 +392,25 @@ const Invoices = () => {
 			},
 		},
 		{
+			// Prepayment % — rendered as a slim progress bar (reference style)
 			accessorKey: 'percentage',
 			header: getTtl('Prepayment', ln),
-			cell: (props) => <span className="whitespace-nowrap">{percent(props)}</span>,
+			cell: (props) => {
+				const txt = percent(props);
+				const pct = parseFloat(props.getValue());
+				if (txt === '-' || txt === '' || !Number.isFinite(pct)) {
+					return <span className="whitespace-nowrap">{txt}</span>;
+				}
+				return (
+					<ProgressBar
+						value={pct / 100}
+						tone={pct >= 100 ? 'green' : 'brand'}
+						width="90px"
+						label={`${pct}%`}
+						className="mx-auto"
+					/>
+				);
+			},
 			meta: { excludeFromQuickSum: true },
 			size: 120
 		},
@@ -446,8 +465,8 @@ const Invoices = () => {
 				// Same status-indicator language as the Cashflow finalized chips:
 				// soft tint + 1px inset ring + matching status dot.
 				const tone = yes
-					? { dot: 'var(--ok-text)', text: 'var(--ok-strong)', bg: 'var(--ok-soft)', ring: 'var(--ok-border)' }
-					: { dot: 'var(--warn-text)', text: 'var(--warn-strong)', bg: 'var(--warn-soft)', ring: 'var(--warn-border)' };
+					? { dot: 'var(--ok-text)', text: 'var(--ok-text)', bg: 'var(--ok-bg)', ring: 'var(--ok-border)' }
+					: { dot: 'var(--warn-text)', text: 'var(--warn-text)', bg: 'var(--warn-bg)', ring: 'var(--warn-border)' };
 				return (
 					<span
 						className="inline-flex items-center gap-1.5 rounded-full responsiveTextTable font-semibold leading-none whitespace-nowrap"
@@ -475,11 +494,11 @@ const Invoices = () => {
 				return (
 					<div className="flex justify-center">
 						<div
-							className="px-3 py-1 rounded-2xl responsiveTextTable font-normal"
+							className="px-3 py-1 rounded-2xl responsiveTextTable font-medium"
 							style={{
-								backgroundColor: value ? 'var(--ok-bg)' : 'var(--pink-bg)',
-								color: value ? 'var(--ok-strong)' : 'var(--pink-text)',
-								border: `1px solid ${value ? 'var(--ok-border)' : 'var(--pink-bg)'}`
+								backgroundColor: value ? 'var(--ok-bg)' : 'var(--warn-bg)',
+								color: value ? 'var(--ok-text)' : 'var(--warn-text)',
+								border: `1px solid ${value ? 'var(--ok-border)' : 'var(--warn-border)'}`
 							}}
 						>
 							{value ? 'Completed' : 'Incompleted'}
@@ -563,7 +582,7 @@ const Invoices = () => {
 						aria-label={titleText}
 						className='relative p-1 rounded-full transition-colors hover:opacity-80 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-[var(--endeavour)]/30'
 						style={{
-							color: onCooldown ? 'var(--text-faint)' : isOverdue ? 'var(--danger-text)' : 'var(--warn-text)',
+							color: onCooldown ? 'var(--ink-muted)' : isOverdue ? 'var(--bad-text)' : 'var(--warn-text)',
 							opacity: onCooldown ? 0.4 : 1,
 						}}
 					>
@@ -575,7 +594,7 @@ const Invoices = () => {
 								style={{
 									width: '6px',
 									height: '6px',
-									background: 'var(--danger-text)',
+									background: 'var(--bad-text)',
 									boxShadow: '0 0 0 1.5px white',
 								}}
 							/>
@@ -702,19 +721,34 @@ const Invoices = () => {
 	};
 
 	return (
-		<div className="w-full " style={{ background: "var(--surface-pill)" }}>
+		<div className="w-full" style={{ background: "var(--bg-page)" }}>
 			<div className="mx-auto w-full max-w-full px-1 md:px-2 pb-4 mt-[72px]">
 				{Object.keys(settings).length === 0 ? <TableSkeleton /> :
 					<>
 						<Toast />
+						{/* Page header */}
+						<div className="page-header flex items-end justify-between flex-wrap gap-2 mt-6 mb-3 px-1">
+							<div>
+								<h1 className="text-display">{getTtl('Invoices', ln)}</h1>
+								<p className="responsiveTextInput text-[var(--ink-muted)] mt-0.5">
+									{invoicesData.length ? `${invoicesData.length} invoices in the selected period` : 'Client sales invoices'}
+								</p>
+							</div>
+						</div>
+
+						{/* KPI strip */}
+						<KpiStrip items={[
+							{ label: getTtl('Invoices', ln) || 'Invoices', value: invoicesData.length, icon: Receipt, tone: 'blue' },
+							{ label: 'Final', value: invoicesData.filter(x => x.final && !x.canceled).length, icon: FileCheck2, tone: 'green' },
+							{ label: 'Draft', value: invoicesData.filter(x => !x.final).length, icon: FilePen, tone: 'amber' },
+							{ label: 'Canceled', value: invoicesData.filter(x => x.final && x.canceled).length, icon: FileX2, tone: 'red' },
+						]} />
+
 						{/* Main Card */}
-						<div className="rounded-2xl p-3 sm:p-5 mt-8 border border-[var(--border-divider)] w-full bg-[var(--surface-pill)]">
+						<div className="page-card rounded-2xl p-3 sm:p-5 border border-[var(--line)] w-full bg-[var(--bg-card)] shadow-card">
 
 							{/* Header Section */}
-							<div className='flex items-center justify-between flex-wrap gap-2 pb-2'>
-								<h1 className="text-[var(--chathams-blue)] font-poppins responsiveTextPage font-medium border-l-4 border-[var(--chathams-blue)] pl-2">
-									{getTtl('Invoices', ln)}
-								</h1>
+							<div className='flex items-center justify-end flex-wrap gap-2 pb-2'>
 								{(() => {
 									const pendingCount = invoicesData.filter(x => splitStatusOf(x) === 'pending').length;
 									return (
@@ -725,14 +759,14 @@ const Invoices = () => {
 											className='inline-flex items-center gap-1.5 rounded-full transition-colors'
 											style={{
 												fontSize: 'var(--fs-body)', padding: '4px 12px',
-												color: onlyUnsplit ? 'var(--on-brand)' : 'var(--chathams-blue)',
-												background: onlyUnsplit ? 'var(--endeavour)' : 'var(--surface-pill)',
-												border: '1px solid var(--border-divider)',
+												color: onlyUnsplit ? 'var(--on-brand)' : 'var(--ink-secondary)',
+												background: onlyUnsplit ? 'var(--brand)' : 'var(--bg-subtle)',
+												border: onlyUnsplit ? '1px solid var(--brand)' : '1px solid var(--line)',
 											}}
 										>
 											<Split className='w-3.5 h-3.5' />
 											Needs IMS/GIS split
-											<span className='rounded-full px-1.5' style={{ fontSize: 'var(--fs-table)', background: onlyUnsplit ? 'rgba(var(--surface-card-rgb), 0.25)' : 'var(--surface-header)', color: onlyUnsplit ? 'var(--on-brand)' : 'var(--endeavour)' }}>
+											<span className='rounded-full px-1.5' style={{ fontSize: 'var(--fs-table)', background: onlyUnsplit ? 'var(--on-brand-soft-strong)' : 'var(--bg-sunken)', color: onlyUnsplit ? 'var(--on-brand)' : 'var(--brand)' }}>
 												{pendingCount}
 											</span>
 										</button>
@@ -756,9 +790,9 @@ const Invoices = () => {
 						{/* Alert Section */}
 						{alertArr.length > 0 && (
 							<div className='mt-4 px-2 sm:px-3'>
-								<div className="responsiveText font-medium border border-[var(--border-divider)] p-4 rounded-2xl shadow-sm bg-[var(--surface-card)] w-full max-w-2xl">
+								<div className="responsiveText font-medium border border-[var(--line)] p-4 rounded-2xl shadow-sm bg-[var(--bg-card)] w-full max-w-2xl">
 									<div style={{ color: 'var(--chathams-blue)' }}>
-										<span className='responsiveText border-l-4 border-[var(--chathams-blue)] pl-2'>Notification for delayed response</span>
+										<span className='responsiveText font-semibold'>Notification for delayed response</span>
 										<DlayedResponse alertArr={alertArr} setAlertArr={setAlertArr} />
 									</div>
 								</div>

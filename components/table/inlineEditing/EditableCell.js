@@ -24,7 +24,7 @@
 //         }
 //       }}
 //       className="w-full bg-transparent px-1 py-0.5 border border-transparent rounded
-//                  focus:bg-[var(--surface-card)] focus:border-gray-400 outline-none"
+//                  focus:bg-[var(--bg-card)] focus:border-gray-400 outline-none"
 //     />
 //   );
 // }
@@ -61,7 +61,7 @@ export default function EditableCell({ getValue, row, column, table }) {
           e.currentTarget.blur();
         }
       }}
-      className="w-full bg-transparent px-1 py-0.5 outline-none focus:bg-[var(--surface-card)] focus:ring-1 focus:ring-[var(--endeavour)] rounded-lg"
+      className="w-full bg-transparent px-1 py-0.5 outline-none focus:bg-[var(--bg-card)] focus:ring-1 focus:ring-[var(--endeavour)] rounded-lg"
     />
   );
 }

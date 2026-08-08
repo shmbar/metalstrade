@@ -25,6 +25,7 @@ import { UserAuth } from '@contexts/useAuthContext';
 import { loadSharedStock, saveSharedStock, deleteSharedStock, loadAllStockData, filteredArray } from '@utils/utils';
 import { getTtl } from '@utils/languages';
 import { TableSkeleton } from "@components/skeletons";
+import { TONES } from '@components/statusUtils';
 
 const OWNERS = ['IMS', 'GIS'];
 // financedBy = who PAID for the lot ('IMS' | 'GIS' | 'BOTH') — distinct from
@@ -150,7 +151,7 @@ const SharedStock = () => {
             accessorKey: 'ownersLabel', header: 'Owners',
             cell: p => (
                 <span className='inline-flex items-center gap-1 px-2 py-0.5 rounded-full font-semibold whitespace-nowrap'
-                    style={{ fontSize: 'var(--fs-table)', background: 'var(--violet-soft)', color: 'var(--violet-strong)', border: '1px solid var(--violet-border)' }}>
+                    style={{ fontSize: 'var(--fs-table)', background: TONES.blue.bg, color: TONES.blue.text, border: `1px solid ${TONES.blue.border}` }}>
                     <Share2 className='w-2.5 h-2.5' />{p.getValue()}
                 </span>
             ),
@@ -261,8 +262,8 @@ const SharedStock = () => {
     return (
         <div>
             <div className='flex items-center justify-between flex-wrap gap-2 mb-3'>
-                <div className='flex items-center gap-2 responsiveTextTable text-[var(--regent-gray)]'>
-                    <Share2 className='w-4 h-4 text-[var(--endeavour)]' />
+                <div className='flex items-center gap-2 responsiveTextTable text-[var(--ink-muted)]'>
+                    <Share2 className='w-4 h-4 text-[var(--brand)]' />
                     <span>Inventory shared between IMS &amp; GIS · {rows.length} lot{rows.length !== 1 ? 's' : ''} · {new Intl.NumberFormat('en-US', { maximumFractionDigits: 3 }).format(totalMt)} MT</span>
                 </div>
                 <button onClick={openAdd} className='blackButton flex items-center gap-1 responsiveTextInput'>
@@ -271,7 +272,7 @@ const SharedStock = () => {
             </div>
 
             {rows.length === 0 ? (
-                <div className='rounded-2xl border border-dashed border-[var(--border-divider)] bg-[var(--surface-card)] p-8 text-center responsiveTextTable text-[var(--regent-gray)]'>
+                <div className='rounded-2xl border border-dashed border-[var(--line)] bg-[var(--bg-card)] p-8 text-center responsiveTextTable text-[var(--ink-muted)]'>
                     No shared stock yet. Use <b>Add shared stock</b> to record inventory jointly held by IMS &amp; GIS —
                     no contract or invoice needed. It appears here for both accounts.
                 </div>
@@ -303,7 +304,7 @@ const SharedStock = () => {
             <Modal isOpen={open} setIsOpen={setOpen} title={lot.id ? 'Edit shared stock' : 'Add shared stock'} w='max-w-2xl'>
                 <div className='p-3'>
                     <div className='grid grid-cols-1 sm:grid-cols-2 gap-3'>
-                        <div className='sm:col-span-2 rounded-2xl border border-[var(--border-divider)] bg-[var(--surface-pill)] p-2.5'>
+                        <div className='sm:col-span-2 rounded-2xl border border-[var(--line)] bg-[var(--bg-subtle)] p-2.5'>
                             <label className={labelCls}>Pick from my current stock</label>
                             <Selector
                                 arr={pickOptions}
@@ -313,7 +314,7 @@ const SharedStock = () => {
                                 secondaryName='_label'
                                 clear={() => setLot(prev => ({ ...prev, sourceId: '', sourceAccount: '', sourcePo: '' }))}
                             />
-                            <p className='responsiveTextTable text-[var(--regent-gray)] mt-1'>
+                            <p className='responsiveTextTable text-[var(--ink-muted)] mt-1'>
                                 Selecting a lot fills everything in from your inventory ({accountName}) — lower the quantity if you&apos;re sharing only part of it. The lot also stays in your own stock list.
                             </p>
                         </div>

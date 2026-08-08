@@ -3,6 +3,8 @@ import { useContext, useEffect, useState, useCallback, useMemo } from 'react';
 import Customtable from './newTable';
 import { TbLayoutGridAdd } from 'react-icons/tb';
 import { IoAnalyticsOutline } from "react-icons/io5";
+import KpiStrip from '../../../components/KpiStrip';
+import { FileText, CheckCircle2, CircleDashed, Factory } from 'lucide-react';
 import MyDetailsModal from './modals/dataModal.js'
 import { SettingsContext } from "../../../contexts/useSettingsContext";
 import { ContractsContext } from "../../../contexts/useContractsContext";
@@ -178,6 +180,7 @@ const Contracts = () => {
 			header: getTtl('Supplier', ln),
 			cell: EditableSelectCell,
 			meta: {
+				avatar: true,
 				filterVariant: 'selectSupplier',
 				options: (settings.Supplier?.Supplier ?? [])
 					.filter(s => !s.deleted)
@@ -346,29 +349,33 @@ const Contracts = () => {
 	};
 
 	return (
-		<div className="w-full " style={{ background: "var(--surface-pill)" }}>
+		<div className="w-full" style={{ background: "var(--bg-page)" }}>
 			<div className="mx-auto w-full max-w-full px-1 md:px-2 pb-4 mt-[72px]">
 				{Object.keys(settings).length === 0 ? <TableSkeleton /> :
 					<>
 						<Toast />
 						<ModalCopyInvoice />
 
-						{/* Main Card */}
-						<div className="rounded-2xl p-3 sm:p-5 mt-8 border border-[var(--border-divider)] w-full bg-[var(--surface-pill)]">
-
-							{/* Header Section */}
-							<div className='flex items-center justify-between flex-wrap gap-2 pb-2'>
-								<h1 className="text-[var(--chathams-blue)] responsiveTextPage font-medium border-l-4 border-[var(--chathams-blue)] pl-2">
-									{getTtl('Contracts', ln)}
-								</h1>
-
-								{/* <div className='flex items-center gap-2 group'>
-								<div className="relative">
-									<DateRangePicker />
-								</div>
-								<Tooltip txt='Select Dates Range' />
-							</div> */}
+						{/* Page header */}
+						<div className="page-header flex items-end justify-between flex-wrap gap-2 mt-6 mb-3 px-1">
+							<div>
+								<h1 className="text-display">{getTtl('Contracts', ln)}</h1>
+								<p className="responsiveTextInput text-[var(--ink-muted)] mt-0.5">
+									{tableData.length ? `${tableData.length} contracts in the selected period` : 'Purchase orders & supplier contracts'}
+								</p>
 							</div>
+						</div>
+
+						{/* KPI strip */}
+						<KpiStrip items={[
+							{ label: getTtl('Contracts', ln) || 'Contracts', value: tableData.length, icon: FileText, tone: 'blue' },
+							{ label: 'Completed', value: tableData.filter(x => x.completed).length, icon: CheckCircle2, tone: 'green' },
+							{ label: 'In progress', value: tableData.filter(x => !x.completed).length, icon: CircleDashed, tone: 'amber' },
+							{ label: 'Suppliers', value: new Set(tableData.map(x => x.supplier).filter(Boolean)).size, icon: Factory, tone: 'gray' },
+						]} />
+
+						{/* Main Card */}
+						<div className="page-card rounded-2xl p-3 sm:p-5 border border-[var(--line)] w-full bg-[var(--bg-card)] shadow-card">
 
 							{/* Table Component */}
 
@@ -413,9 +420,9 @@ const Contracts = () => {
 						{/* Alert Section */}
 						{alertArr.length > 0 && (
 							<div className='mt-4 px-2 sm:px-3'>
-								<div className="responsiveText font-medium border border-[var(--border-divider)] p-4 rounded-2xl shadow-sm bg-[var(--surface-card)] w-full max-w-2xl">
-									<div style={{ color: 'var(--chathams-blue)' }}>
-										<span className='responsiveText border-l-4 border-[var(--chathams-blue)] pl-2'>Notification for delayed response</span>
+								<div className="responsiveText font-medium border border-[var(--line)] p-4 rounded-2xl shadow-card bg-[var(--bg-card)] w-full max-w-2xl">
+									<div style={{ color: 'var(--ink)' }}>
+										<span className='responsiveText font-semibold'>Notification for delayed response</span>
 										<DlayedResponse alertArr={alertArr} setAlertArr={setAlertArr} />
 									</div>
 								</div>

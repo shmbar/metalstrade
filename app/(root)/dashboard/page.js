@@ -69,11 +69,11 @@ const sumObj = (obj) => Object.values(obj || {}).reduce((a, v) => a + (Number(v)
 function CardShell({ className = "", children }) {
   return (
     <m.div
-      className={`bg-[var(--surface-card)] rounded-2xl border border-[var(--selago)] shadow-sm ${className}`}
+      className={`bg-[var(--bg-card)] rounded-2xl border border-[var(--line)] shadow-card ${className}`}
       initial={{ opacity: 0, y: 18 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, ease: 'easeOut' }}
-      whileHover={{ boxShadow: '0 10px 30px rgba(var(--chathams-blue-rgb), 0.08)' }}
+      whileHover={{ boxShadow: 'var(--shadow-sm)' }}
     >
       {children}
     </m.div>
@@ -131,7 +131,7 @@ function StatKpiCard({
   title,
   value,
   chartData,
-  accent = 'var(--primary-bright)',
+  accent = 'var(--brand)',
   icon,
   goodWhenUp = true,
 }) {
@@ -141,16 +141,16 @@ function StatKpiCard({
   );
   const trend = useMemo(() => computeTrend(series), [series]);
   const good = trend ? trend.up === goodWhenUp : true;
-  const deltaColor = good ? 'var(--ok-text)' : 'var(--danger-text)';
-  const deltaBg = good ? 'var(--ok-bg)' : 'var(--danger-bg)';
+  const deltaColor = good ? 'var(--ok-text)' : 'var(--bad-text)';
+  const deltaBg = good ? 'var(--ok-bg)' : 'var(--bad-bg)';
 
   return (
     <m.div
-      className="relative h-full min-h-[140px] rounded-2xl bg-[var(--surface-card)] border border-[var(--selago)] shadow-sm flex flex-col overflow-hidden"
+      className="relative h-full min-h-[140px] rounded-2xl bg-[var(--bg-card)] border border-[var(--line)] shadow-card flex flex-col overflow-hidden"
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.35, ease: 'easeOut' }}
-      whileHover={{ y: -3, boxShadow: '0 10px 30px rgba(var(--chathams-blue-rgb), 0.10)' }}
+      whileHover={{ y: -3, boxShadow: 'var(--shadow-sm)' }}
     >
       <div className="p-3 flex flex-col h-full">
         {/* Icon tile + title */}
@@ -171,7 +171,7 @@ function StatKpiCard({
         {/* Hero number */}
         <div
           className="mt-2 font-semibold text-[var(--port-gore)] leading-none"
-          style={{ fontSize: 'var(--fs-stat)' }}
+          style={{ fontSize: 'clamp(1.15rem, 0.9rem + 0.7vw, 1.6rem)', fontFamily: 'var(--font-jakarta), Manrope, sans-serif', fontVariantNumeric: 'tabular-nums' }}
         >
           {value}
         </div>
@@ -261,54 +261,54 @@ function ReceivablesSplitCard({ byCur = {} }) {
 
   return (
     <m.div
-      className="relative rounded-2xl bg-[var(--surface-card)] border border-[var(--selago)] shadow-sm overflow-hidden"
+      className="relative rounded-2xl bg-[var(--bg-card)] border border-[var(--line)] shadow-card overflow-hidden"
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.35, ease: 'easeOut' }}
-      whileHover={{ y: -3, boxShadow: '0 10px 30px rgba(var(--chathams-blue-rgb), 0.10)' }}
+      whileHover={{ y: -3, boxShadow: 'var(--shadow-sm)' }}
     >
       <div className="p-4 flex flex-col gap-3">
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-2 min-w-0">
             <span className="inline-flex items-center justify-center rounded-lg flex-shrink-0"
-              style={{ background: 'rgba(var(--primary-bright-rgb),0.1)', color: 'var(--primary-bright)', width: 30, height: 30 }}>
+              style={{ background: 'color-mix(in srgb, var(--brand) 10%, transparent)', color: 'var(--brand)', width: 30, height: 30 }}>
               <svg width="16" height="16" fill="none" viewBox="0 0 24 24"><path d="M3 7h18v10H3z" stroke="currentColor" strokeWidth="2" /><path d="M3 11h18" stroke="currentColor" strokeWidth="2" /></svg>
             </span>
             <span className="responsiveTextTable font-medium text-[var(--regent-gray)] leading-tight">Outstanding Receivables</span>
           </div>
           <div className="text-right flex-shrink-0">
             {totalsLine.map((t, i) => (
-              <div key={i} className="font-semibold text-[var(--port-gore)] leading-tight" style={{ fontSize: 'var(--fs-stat)' }}>{t}</div>
+              <div key={i} className="font-semibold text-[var(--port-gore)] leading-tight" style={{ fontSize: 'clamp(0.95rem, 0.8rem + 0.5vw, 1.35rem)', fontFamily: 'var(--font-jakarta), Manrope, sans-serif', fontVariantNumeric: 'tabular-nums' }}>{t}</div>
             ))}
           </div>
         </div>
 
-        {/* Proportion bar by invoice count — emerald (finalized) over amber (provisional) */}
+        {/* Proportion bar by invoice count — green (finalized) over amber (provisional) */}
         <div className="w-full h-2 rounded-full overflow-hidden" style={{ backgroundColor: 'var(--warn-border)' }}>
           <div className="h-full rounded-full transition-all" style={{ width: `${pctFinal}%`, backgroundColor: 'var(--ok-text)' }} />
         </div>
 
         <div className="grid grid-cols-2 gap-3">
-          <div className="rounded-lg p-2.5" style={{ backgroundColor: 'var(--ok-soft)', boxShadow: 'inset 0 0 0 1px var(--ok-border)' }}>
+          <div className="rounded-lg p-2.5" style={{ backgroundColor: 'var(--ok-bg)', boxShadow: 'inset 0 0 0 1px var(--ok-border)' }}>
             <div className="flex items-center gap-1.5">
               <span className="rounded-full shrink-0" style={{ width: 8, height: 8, backgroundColor: 'var(--ok-text)' }} />
-              <span className="responsiveTextTable font-semibold tracking-wide" style={{ color: 'var(--ok-strong)' }}>FINALIZED</span>
+              <span className="responsiveTextTable font-semibold tracking-wide" style={{ color: 'var(--ok-text)' }}>FINALIZED</span>
             </div>
-            <div className="mt-1 leading-tight" style={{ color: 'var(--ok-strong)' }}>
+            <div className="mt-1 leading-tight" style={{ color: 'var(--ok-text)' }}>
               {amountsFor('finalized').map((a, i) => (
-                <div key={i} className="font-semibold" style={{ fontSize: 'var(--fs-page)' }}>{a}</div>
+                <div key={i} className="font-semibold" style={{ fontSize: 'clamp(0.9rem, 0.78rem + 0.4vw, 1.15rem)', fontFamily: 'var(--font-jakarta), Manrope, sans-serif', fontVariantNumeric: 'tabular-nums' }}>{a}</div>
               ))}
             </div>
             <div className="responsiveTextTableTitle text-[var(--regent-gray)] mt-1">{finCount} invoice{finCount === 1 ? '' : 's'} · after final invoice</div>
           </div>
-          <div className="rounded-lg p-2.5" style={{ backgroundColor: 'var(--warn-soft)', boxShadow: 'inset 0 0 0 1px var(--warn-border)' }}>
+          <div className="rounded-lg p-2.5" style={{ backgroundColor: 'var(--warn-bg)', boxShadow: 'inset 0 0 0 1px var(--warn-border)' }}>
             <div className="flex items-center gap-1.5">
               <span className="rounded-full shrink-0" style={{ width: 8, height: 8, backgroundColor: 'var(--warn-text)' }} />
-              <span className="responsiveTextTable font-semibold tracking-wide" style={{ color: 'var(--warn-strong)' }}>PROVISIONAL</span>
+              <span className="responsiveTextTable font-semibold tracking-wide" style={{ color: 'var(--warn-text)' }}>PROVISIONAL</span>
             </div>
-            <div className="mt-1 leading-tight" style={{ color: 'var(--warn-strong)' }}>
+            <div className="mt-1 leading-tight" style={{ color: 'var(--warn-text)' }}>
               {amountsFor('provisional').map((a, i) => (
-                <div key={i} className="font-semibold" style={{ fontSize: 'var(--fs-page)' }}>{a}</div>
+                <div key={i} className="font-semibold" style={{ fontSize: 'clamp(0.9rem, 0.78rem + 0.4vw, 1.15rem)', fontFamily: 'var(--font-jakarta), Manrope, sans-serif', fontVariantNumeric: 'tabular-nums' }}>{a}</div>
               ))}
             </div>
             <div className="responsiveTextTableTitle text-[var(--regent-gray)] mt-1">{provCount} invoice{provCount === 1 ? '' : 's'} · before final invoice</div>
@@ -367,7 +367,7 @@ function RankingList({ labels = [], data = [], title, subtitle, totalValue }) {
               >
                 {/* Avatar */}
                 <m.div
-                  className="flex items-center justify-center rounded-full font-medium text-white flex-shrink-0"
+                  className="flex items-center justify-center rounded-full font-medium text-[var(--on-brand)] flex-shrink-0"
                   style={{ fontSize: 'var(--fs-table)', width: avatarSize, height: avatarSize, background: color }}
                   whileHover={{ scale: 1.1 }}
                   transition={{ type: 'spring', stiffness: 300 }}
@@ -380,7 +380,7 @@ function RankingList({ labels = [], data = [], title, subtitle, totalValue }) {
 
                 {/* Bar */}
                 <div className="flex-1 min-w-0">
-                  <div className="w-full bg-[var(--selago)] rounded-full overflow-hidden" style={{ height: `${barHeight}px` }}>
+                  <div className="w-full bg-[var(--line)] rounded-full overflow-hidden" style={{ height: `${barHeight}px` }}>
                     <m.div
                       className="h-full flex items-center pl-2"
                       style={{ width: `${pct}%`, background: color, minWidth: '42px', borderRadius: '0 9999px 9999px 0', transformOrigin: 'left' }}
@@ -388,7 +388,7 @@ function RankingList({ labels = [], data = [], title, subtitle, totalValue }) {
                       animate={{ scaleX: 1 }}
                       transition={{ duration: 0.5, delay: idx * 0.04, ease: 'easeOut' }}
                     >
-                      <span className="font-medium text-white/95 leading-none" style={{ fontSize: 'var(--fs-caption)' }}>
+                      <span className="font-medium text-[var(--on-brand)]/95 leading-none" style={{ fontSize: 'var(--fs-caption)' }}>
                         {(max > 0 ? value / max : 0).toFixed(2)}
                       </span>
                     </m.div>
@@ -424,6 +424,7 @@ function PerMtStrip({ totalMT, avgCostPerMT, avgExpensePerMT, avgProfitPerMT, av
       value: `${new Intl.NumberFormat('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(totalMT)} MT`,
       label: 'Total MT Purchased',
       sub: 'for selected period',
+      valueColor: 'var(--ok-text)',
     },
     {
       accent: 'var(--warn-text)',
@@ -436,39 +437,42 @@ function PerMtStrip({ totalMT, avgCostPerMT, avgExpensePerMT, avgProfitPerMT, av
       value: fmtAutoKM(avgCostPerMT),
       label: 'Avg Cost / MT',
       sub: 'purchase cost per MT',
+      valueColor: 'var(--warn-text)',
     },
     {
       accent: 'var(--primary-bright)',
       icon: (
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-          <rect x="3" y="6" width="18" height="13" rx="2" stroke="currentColor" strokeWidth="2" />
-          <path d="M3 10.5h18" stroke="currentColor" strokeWidth="2" />
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+          <rect x="2" y="7" width="20" height="14" rx="2" stroke="var(--brand)" strokeWidth="2" fill="var(--brand-soft)" />
+          <path d="M16 7V5a2 2 0 0 0-4 0v2" stroke="var(--brand)" strokeWidth="2" />
+          <circle cx="12" cy="14" r="2" fill="var(--brand)" />
         </svg>
       ),
       value: fmtAutoKM(avgExpensePerMT),
       label: 'Avg Expense / MT',
       sub: 'expenses per MT',
+      valueColor: 'var(--brand)',
     },
     {
       accent: 'var(--violet-text)',
       icon: (
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-          <path d="M2 7h11v9H2z" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" />
-          <path d="M13 10h4l3 3v3h-7v-6z" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" />
-          <circle cx="6" cy="18.5" r="1.5" stroke="currentColor" strokeWidth="2" />
-          <circle cx="16.5" cy="18.5" r="1.5" stroke="currentColor" strokeWidth="2" />
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+          <rect x="1" y="6" width="13" height="10" rx="1.5" stroke="var(--brand)" strokeWidth="2" fill="color-mix(in srgb, var(--brand) 10%, transparent)" />
+          <path d="M14 9h4l3 3v4h-7V9z" stroke="var(--brand)" strokeWidth="2" strokeLinejoin="round" fill="color-mix(in srgb, var(--brand) 10%, transparent)" />
+          <circle cx="6" cy="18" r="1.6" fill="var(--brand)" /><circle cx="17.5" cy="18" r="1.6" fill="var(--brand)" />
         </svg>
       ),
       value: fmtAutoKM(avgFreightPerMT),
       label: 'Avg Freight / MT',
       sub: 'freight cost per MT',
+      valueColor: 'var(--brand)',
     },
     {
       accent: profitAccent,
       icon: (
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-          <path d={avgProfitPerMT >= 0 ? 'M3 16l5-5 3.5 3.5L18 8' : 'M3 8l5 5 3.5-3.5L18 16'} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-          <path d={avgProfitPerMT >= 0 ? 'M14 8h4v4' : 'M14 16h4v-4'} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+          <circle cx="12" cy="12" r="10" stroke={profitColor} strokeWidth="2" fill={avgProfitPerMT >= 0 ? 'var(--ok-bg)' : 'var(--bad-bg)'} />
+          <path d={avgProfitPerMT >= 0 ? 'M8 12l3 3 5-5' : 'M8 12l3-3 5 5'} stroke={profitColor} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
       ),
       value: fmtAutoKM(avgProfitPerMT),
@@ -485,11 +489,11 @@ function PerMtStrip({ totalMT, avgCostPerMT, avgExpensePerMT, avgProfitPerMT, av
           {metrics.map((metric, i) => (
             <m.div
               key={i}
-              className="p-3 rounded-2xl border border-[var(--selago)] bg-[var(--surface-pill)] flex flex-col"
+              className="p-3 rounded-2xl border border-[var(--line)] bg-[var(--bg-subtle)]"
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.35, delay: i * 0.06 }}
-              whileHover={{ y: -2, boxShadow: '0 6px 18px rgba(var(--chathams-blue-rgb), 0.07)' }}
+              whileHover={{ y: -2, boxShadow: 'var(--shadow-sm)' }}
             >
               <div className="flex items-center gap-2">
                 <span
@@ -500,7 +504,7 @@ function PerMtStrip({ totalMT, avgCostPerMT, avgExpensePerMT, avgProfitPerMT, av
                 </span>
                 <span className="responsiveTextTable font-medium text-[var(--regent-gray)] leading-tight">{metric.label}</span>
               </div>
-              <div className="mt-2 font-semibold text-[var(--port-gore)] leading-none" style={{ fontSize: 'var(--fs-stat)' }}>
+              <div className="font-semibold leading-none" style={{ color: metric.valueColor, fontSize: 'clamp(1.05rem, 0.85rem + 0.6vw, 1.45rem)', fontFamily: 'var(--font-jakarta), Manrope, sans-serif', fontVariantNumeric: 'tabular-nums' }}>
                 {metric.value}
               </div>
               <div className="mt-1.5 text-[var(--regent-gray)] leading-tight" style={{ fontSize: 'var(--fs-caption)' }}>{metric.sub}</div>
@@ -530,9 +534,9 @@ function FilterSelect({ label, icon, value, onChange, options }) {
         className="group h-8 w-auto min-w-[122px] max-w-[210px] gap-1.5 rounded-full pl-2.5 pr-1.5 shadow-sm focus:ring-0 focus:ring-offset-0"
         style={{
           fontSize: 'var(--fs-body)',
-          background: active ? 'var(--selago)' : 'var(--surface-pill)',
-          borderColor: active ? 'var(--endeavour)' : 'var(--border-cell)',
-          boxShadow: active ? '0 1px 8px rgba(var(--endeavour-rgb), 0.16)' : undefined,
+          background: active ? 'var(--brand-soft)' : 'var(--bg-subtle)',
+          borderColor: active ? 'var(--endeavour)' : 'var(--line-strong)',
+          boxShadow: active ? 'var(--shadow-md)' : undefined,
         }}
       >
         <span className="flex items-center gap-1.5 min-w-0">
@@ -542,16 +546,16 @@ function FilterSelect({ label, icon, value, onChange, options }) {
             style={{ fontSize: 'var(--fs-body)', color: active ? 'var(--endeavour)' : 'var(--chathams-blue)' }} />
         </span>
       </SelectTrigger>
-      <SelectContent className="rounded-2xl border border-[var(--surface-header)] shadow-md max-h-72 min-w-[var(--radix-select-trigger-width)]">
+      <SelectContent className="rounded-2xl border border-[var(--bg-subtle)] shadow-md max-h-72 min-w-[var(--radix-select-trigger-width)]">
         {options.length > 7 && (
-          <div className="sticky top-0 z-sticky bg-[var(--surface-card)] p-1.5 border-b border-[var(--selago)]">
+          <div className="sticky top-0 z-10 bg-[var(--bg-card)] p-1.5 border-b border-[var(--line)]">
             <input
               value={q}
               onChange={(e) => setQ(e.target.value)}
               onKeyDown={(e) => e.stopPropagation()}
               onPointerDown={(e) => e.stopPropagation()}
               placeholder="Search…"
-              className="w-full h-7 px-2 rounded-lg border border-[var(--border-cell)] bg-[var(--surface-pill)] focus:outline-none focus:border-[var(--endeavour)]"
+              className="w-full h-7 px-2 rounded-lg border border-[var(--line-strong)] bg-[var(--bg-subtle)] focus:outline-none focus:border-[var(--endeavour)]"
               style={{ fontSize: 'var(--fs-body)', color: 'var(--chathams-blue)' }}
             />
           </div>
@@ -575,32 +579,32 @@ function TonnageCard({ purchased = 0, shipped = 0, pending = 0 }) {
   const pctShipped = purchased > 0 ? Math.min(100, (shipped / purchased) * 100) : 0;
   const fmtMT = (n) => `${new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 }).format(n || 0)} MT`;
   const pills = [
-    { label: 'PURCHASED', value: purchased, bg: 'var(--selago)', ring: 'var(--border-divider)', dot: 'var(--primary-bright)', color: 'var(--chathams-blue)' },
-    { label: 'SHIPPED', value: shipped, bg: 'var(--ok-soft)', ring: 'var(--ok-border)', dot: 'var(--ok-text)', color: 'var(--ok-strong)' },
-    { label: 'PENDING', value: pending, bg: 'var(--warn-soft)', ring: 'var(--warn-border)', dot: 'var(--warn-text)', color: 'var(--warn-strong)' },
+    { label: 'PURCHASED', value: purchased, bg: 'var(--brand-soft)', ring: 'var(--brand-border)', dot: 'var(--brand)', color: 'var(--brand-strong)' },
+    { label: 'SHIPPED', value: shipped, bg: 'var(--ok-bg)', ring: 'var(--ok-border)', dot: 'var(--ok-text)', color: 'var(--ok-text)' },
+    { label: 'PENDING', value: pending, bg: 'var(--warn-bg)', ring: 'var(--warn-border)', dot: 'var(--warn-text)', color: 'var(--warn-text)' },
   ];
   return (
     <m.div
-      className="relative rounded-2xl bg-[var(--surface-card)] border border-[var(--selago)] shadow-sm overflow-hidden"
+      className="relative rounded-2xl bg-[var(--bg-card)] border border-[var(--line)] shadow-card overflow-hidden"
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.35, ease: 'easeOut' }}
-      whileHover={{ y: -3, boxShadow: '0 10px 30px rgba(var(--chathams-blue-rgb), 0.10)' }}
+      whileHover={{ y: -3, boxShadow: 'var(--shadow-sm)' }}
     >
       <div className="p-4 flex flex-col gap-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <span className="inline-flex items-center justify-center rounded-lg flex-shrink-0"
-              style={{ background: 'rgba(var(--primary-bright-rgb),0.1)', color: 'var(--primary-bright)', width: 30, height: 30 }}>
+              style={{ background: 'color-mix(in srgb, var(--brand) 10%, transparent)', color: 'var(--brand)', width: 30, height: 30 }}>
               <svg width="16" height="16" fill="none" viewBox="0 0 24 24"><path d="M3 7l9-4 9 4-9 4-9-4z" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" /><path d="M3 7v10l9 4 9-4V7" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" /></svg>
             </span>
             <span className="responsiveTextTable font-medium text-[var(--regent-gray)] leading-tight">Tonnage — Purchased vs Shipped</span>
           </div>
-          <span className="responsiveTextTable font-medium" style={{ color: 'var(--ok-strong)' }}>{pctShipped.toFixed(0)}% shipped</span>
+          <span className="responsiveTextTable font-medium" style={{ color: 'var(--ok-text)' }}>{pctShipped.toFixed(0)}% shipped</span>
         </div>
 
-        {/* Shipped proportion bar — blue track (purchased) with emerald fill (shipped) */}
-        <div className="w-full h-2 rounded-full overflow-hidden" style={{ backgroundColor: 'var(--border-cell)' }}>
+        {/* Shipped proportion bar — blue track (purchased) with green fill (shipped) */}
+        <div className="w-full h-2 rounded-full overflow-hidden" style={{ backgroundColor: 'var(--brand-border)' }}>
           <div className="h-full rounded-full transition-all" style={{ width: `${pctShipped}%`, backgroundColor: 'var(--ok-text)' }} />
         </div>
 
@@ -611,7 +615,7 @@ function TonnageCard({ purchased = 0, shipped = 0, pending = 0 }) {
                 <span className="rounded-full shrink-0" style={{ width: 8, height: 8, backgroundColor: p.dot }} />
                 <span className="responsiveTextTable font-semibold tracking-wide" style={{ color: p.color }}>{p.label}</span>
               </div>
-              <div className="font-semibold mt-1 leading-none" style={{ color: p.color, fontSize: 'var(--fs-page)' }}>{fmtMT(p.value)}</div>
+              <div className="font-semibold mt-1 leading-none" style={{ color: p.color, fontSize: 'clamp(0.95rem, 0.8rem + 0.5vw, 1.25rem)', fontFamily: 'var(--font-jakarta), Manrope, sans-serif', fontVariantNumeric: 'tabular-nums' }}>{fmtMT(p.value)}</div>
             </div>
           ))}
         </div>
@@ -626,10 +630,10 @@ function MiscInvoicesCard({ byCur = {}, byCat = {}, count = 0 }) {
   const entries = Object.entries(byCur).filter(([, v]) => Math.abs(v) > 0.005);
 
   const CAT_META = [
-    { id: 'shipments', label: 'Shipments', bg: 'var(--selago)', ring: 'var(--border-divider)', dot: 'var(--primary-bright)', color: 'var(--chathams-blue)' },
-    { id: 'personal', label: 'Personal', bg: 'var(--violet-soft)', ring: 'var(--violet-border)', dot: 'var(--violet-text)', color: 'var(--violet-strong)' },
-    { id: 'random', label: 'Random', bg: 'var(--warn-soft)', ring: 'var(--warn-border)', dot: 'var(--warn-text)', color: 'var(--warn-strong)' },
-    { id: 'uncategorized', label: 'Uncategorized', bg: 'var(--surface-muted)', ring: 'var(--border-neutral-strong)', dot: 'var(--text-mid)', color: 'var(--text-mid)' },
+    { id: 'shipments', label: 'Shipments', bg: 'var(--brand-soft)', ring: 'var(--brand-border)', dot: 'var(--brand)', color: 'var(--brand-strong)' },
+    { id: 'personal', label: 'Personal', bg: 'color-mix(in srgb, var(--brand) 10%, transparent)', ring: 'color-mix(in srgb, var(--brand) 20%, transparent)', dot: 'var(--brand)', color: 'var(--brand)' },
+    { id: 'random', label: 'Random', bg: 'var(--warn-bg)', ring: 'var(--warn-border)', dot: 'var(--warn-text)', color: 'var(--warn-text)' },
+    { id: 'uncategorized', label: 'Uncategorized', bg: 'var(--neutral-bg)', ring: 'var(--neutral-border)', dot: 'var(--ink-muted)', color: 'var(--ink-secondary)' },
   ];
   const catRows = CAT_META
     .map(c => ({ ...c, byCur: byCat[c.id]?.byCur || {}, count: byCat[c.id]?.count || 0 }))
@@ -643,11 +647,11 @@ function MiscInvoicesCard({ byCur = {}, byCat = {}, count = 0 }) {
 
   return (
     <m.div
-      className="relative rounded-2xl bg-[var(--surface-card)] border border-[var(--selago)] shadow-sm overflow-hidden h-full flex flex-col"
+      className="relative rounded-2xl bg-[var(--bg-card)] border border-[var(--line)] shadow-card overflow-hidden h-full flex flex-col"
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.35, ease: 'easeOut' }}
-      whileHover={{ y: -3, boxShadow: '0 10px 30px rgba(var(--chathams-blue-rgb), 0.10)' }}
+      whileHover={{ y: -3, boxShadow: 'var(--shadow-sm)' }}
     >
       <div className="p-4 flex flex-col gap-3 flex-1">
         <div className="flex items-center justify-between gap-3 flex-wrap">
@@ -665,7 +669,7 @@ function MiscInvoicesCard({ byCur = {}, byCat = {}, count = 0 }) {
               ? <span className="responsiveTextTable text-[var(--regent-gray)]">None in this period</span>
               : entries.map(([cur, v]) => (
                 <span key={cur} className="rounded-full px-3 py-1 font-semibold"
-                  style={{ background: 'var(--pink-soft)', boxShadow: 'inset 0 0 0 1px var(--pink-bg)', color: 'var(--pink-strong)', fontSize: 'var(--fs-title)' }}>
+                  style={{ background: 'color-mix(in srgb, var(--pink-text) 10%, transparent)', boxShadow: 'inset 0 0 0 1px color-mix(in srgb, var(--pink-text) 20%, transparent)', color: 'var(--pink-text)', fontSize: 'var(--fs-title)', fontFamily: 'var(--font-jakarta), Manrope, sans-serif', fontVariantNumeric: 'tabular-nums' }}>
                   {fmtCur(cur, v)}
                 </span>
               ))}
@@ -675,7 +679,7 @@ function MiscInvoicesCard({ byCur = {}, byCat = {}, count = 0 }) {
         {catRows.length > 0 ? (
           <>
             {/* Category mix — share of invoice count per category */}
-            <div className="w-full h-2 rounded-full overflow-hidden flex" style={{ backgroundColor: 'var(--surface-muted)' }}>
+            <div className="w-full h-2 rounded-full overflow-hidden flex" style={{ backgroundColor: 'var(--neutral-bg)' }}>
               {catRows.map(c => (
                 <div key={c.id} style={{ width: `${c.sharePct}%`, backgroundColor: c.dot }} title={`${c.label} · ${c.sharePct.toFixed(0)}%`} />
               ))}
@@ -690,7 +694,7 @@ function MiscInvoicesCard({ byCur = {}, byCat = {}, count = 0 }) {
                       <span className="rounded-full shrink-0" style={{ width: 8, height: 8, backgroundColor: c.dot }} />
                       <span className="responsiveTextTable font-semibold tracking-wide truncate" style={{ color: c.color }}>{c.label.toUpperCase()}</span>
                     </div>
-                    <div className="font-semibold mt-1 leading-none truncate" style={{ color: c.color, fontSize: 'var(--fs-title)' }}>
+                    <div className="font-semibold mt-1 leading-none truncate" style={{ color: c.color, fontSize: 'clamp(0.8rem, 0.65rem + 0.4vw, 1rem)', fontFamily: 'var(--font-jakarta), Manrope, sans-serif', fontVariantNumeric: 'tabular-nums' }}>
                       {ents.length === 0 ? '—' : ents.map(([cur, v]) => fmtCur(cur, v)).join(' / ')}
                     </div>
                     <div className="leading-none mt-1" style={{ fontSize: 'var(--fs-caption)', color: 'var(--regent-gray)' }}>{c.count} inv · {c.sharePct.toFixed(0)}%</div>
@@ -700,7 +704,7 @@ function MiscInvoicesCard({ byCur = {}, byCat = {}, count = 0 }) {
             </div>
 
             {avgPerInvoice != null && (
-              <div className="flex items-center justify-between border-t border-[var(--selago)] pt-2 mt-auto">
+              <div className="flex items-center justify-between border-t border-[var(--line)] pt-2 mt-auto">
                 <span className="responsiveTextTable text-[var(--regent-gray)]">Avg / invoice</span>
                 <span className="responsiveTextTable font-semibold" style={{ color: 'var(--port-gore)' }}>{fmtCur(single[0], avgPerInvoice)}</span>
               </div>
@@ -720,20 +724,20 @@ function UnsoldStockCard({ value = 0, mt = 0 }) {
   const fmtMT = (n) => `${new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 }).format(n || 0)} MT`;
   return (
     <m.div
-      className="relative rounded-2xl bg-[var(--surface-card)] border border-[var(--selago)] shadow-sm overflow-hidden"
+      className="relative rounded-2xl bg-[var(--bg-card)] border border-[var(--line)] shadow-card overflow-hidden"
       initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35, ease: 'easeOut' }}
-      whileHover={{ y: -3, boxShadow: '0 10px 30px rgba(var(--chathams-blue-rgb), 0.10)' }}
+      whileHover={{ y: -3, boxShadow: 'var(--shadow-sm)' }}
     >
       <div className="p-4 flex flex-col gap-2 h-full">
         <div className="flex items-center gap-2">
-          <span className="inline-flex items-center justify-center rounded-lg flex-shrink-0" style={{ background: 'color-mix(in srgb, var(--warn-text) 10%, transparent)', color: 'var(--warn-strong)', width: 30, height: 30 }}>
+          <span className="inline-flex items-center justify-center rounded-lg flex-shrink-0" style={{ background: 'color-mix(in srgb, var(--warn-text) 10%, transparent)', color: 'var(--warn-text)', width: 30, height: 30 }}>
             <svg width="16" height="16" fill="none" viewBox="0 0 24 24"><path d="M3 7l9-4 9 4-9 4-9-4z" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" /><path d="M3 7v10l9 4 9-4V7" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" /></svg>
           </span>
           <span className="responsiveTextTable font-medium text-[var(--regent-gray)] leading-tight">Unsold Stock · not a cost</span>
         </div>
-        <div className="font-semibold text-[var(--port-gore)] leading-none mt-1" style={{ fontSize: 'var(--fs-stat)' }}>{fmtAutoKM(value)}</div>
-        <div className="rounded-lg p-2.5 mt-auto" style={{ backgroundColor: 'var(--warn-soft)', boxShadow: 'inset 0 0 0 1px var(--warn-border)' }}>
-          <div className="font-semibold leading-none" style={{ color: 'var(--warn-strong)', fontSize: 'var(--fs-page)' }}>{fmtMT(mt)}</div>
+        <div className="font-semibold text-[var(--port-gore)] leading-none mt-1" style={{ fontSize: 'clamp(1.15rem, 0.9rem + 0.7vw, 1.6rem)', fontFamily: 'var(--font-jakarta), Manrope, sans-serif', fontVariantNumeric: 'tabular-nums' }}>{fmtAutoKM(value)}</div>
+        <div className="rounded-lg p-2.5 mt-auto" style={{ backgroundColor: 'var(--warn-bg)', boxShadow: 'inset 0 0 0 1px var(--warn-border)' }}>
+          <div className="font-semibold leading-none" style={{ color: 'var(--warn-text)', fontSize: 'clamp(0.95rem, 0.8rem + 0.5vw, 1.25rem)', fontFamily: 'var(--font-jakarta), Manrope, sans-serif', fontVariantNumeric: 'tabular-nums' }}>{fmtMT(mt)}</div>
           <div className="responsiveTextTableTitle text-[var(--regent-gray)] mt-1">in stock · capital tied up, excluded from profit</div>
         </div>
       </div>
@@ -744,7 +748,7 @@ function UnsoldStockCard({ value = 0, mt = 0 }) {
 // Receivables aging — outstanding split by invoice age (0–30 / 31–60 / 61–90 / 90+),
 // per currency, colored green→red as it ages. Shows how overdue money is at a glance.
 function AgingCard({ buckets = [] }) {
-  const colors = ['var(--ok-text)', 'var(--warn-text)', 'var(--warn-text)', 'var(--danger-text)'];
+  const colors = ['var(--ok-text)', 'var(--warn-text)', 'var(--warn-text)', 'var(--bad-text)'];
   const fmtCurKM = (cur, n) => {
     const s = cur === 'us' ? '$' : cur === 'eu' ? '€' : '';
     const v = Number(n) || 0, a = Math.abs(v);
@@ -771,7 +775,7 @@ function AgingCard({ buckets = [] }) {
                   <span className="responsiveTextTable text-[var(--port-gore)] font-medium">{b.label} d</span>
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="w-full bg-[var(--selago)] rounded-full overflow-hidden" style={{ height: 16 }}>
+                  <div className="w-full bg-[var(--line)] rounded-full overflow-hidden" style={{ height: 16 }}>
                     <div className="h-full rounded-full" style={{ width: `${max > 0 ? (tot / max) * 100 : 0}%`, minWidth: tot > 0 ? 4 : 0, background: colors[i], borderRadius: '0 9999px 9999px 0' }} />
                   </div>
                 </div>
@@ -790,7 +794,7 @@ function AgingCard({ buckets = [] }) {
 }
 
 // Horizontal-bar breakdown card (expenses by type, materials by tonnage, etc.).
-function BreakdownCard({ title, subtitle, entries = [], total, fmtVal, accent = 'var(--primary-bright)' }) {
+function BreakdownCard({ title, subtitle, entries = [], total, fmtVal, accent = 'var(--brand)' }) {
   const max = Math.max(...entries.map(([, v]) => v), 1);
   return (
     <CardShell>
@@ -806,7 +810,7 @@ function BreakdownCard({ title, subtitle, entries = [], total, fmtVal, accent = 
             <div key={label} className="flex items-center gap-2 mb-1.5">
               <div className="w-28 responsiveTextTable text-[var(--port-gore)] truncate flex-shrink-0" title={label}>{label}</div>
               <div className="flex-1 min-w-0">
-                <div className="w-full bg-[var(--selago)] rounded-full overflow-hidden" style={{ height: 16 }}>
+                <div className="w-full bg-[var(--line)] rounded-full overflow-hidden" style={{ height: 16 }}>
                   <div className="h-full rounded-full" style={{ width: `${max > 0 ? (value / max) * 100 : 0}%`, minWidth: 4, background: accent, borderRadius: '0 9999px 9999px 0' }} />
                 </div>
               </div>
@@ -825,9 +829,8 @@ const Dash = () => {
   const companyRate = parseFloat(compData?.eurUsdRate) || 0;
   // Default payment term in days (Settings → General) — used to flag overdue invoices.
   const termDays = parseInt(compData?.defaultTermDays, 10) > 0 ? parseInt(compData.defaultTermDays, 10) : 30;
-  const { uidCollection } = UserAuth();
-  // Re-render on theme/mode switch so chart configs rebuild with fresh token values
-  useTheme();
+  const { uidCollection, user } = UserAuth();
+  const { theme } = useTheme();
   const settingsLoaded = Object.keys(settings).length > 0;
   const clientCount = settings.Client?.Client?.length || 0;
   const supplierCount = settings.Supplier?.Supplier?.length || 0;
@@ -1091,6 +1094,11 @@ const Dash = () => {
   );
   const profitSeries = useMemo(() => dataPL.map(Number), [dataPL]);
 
+  // Canvas cannot resolve CSS variables, so charts read their colours through
+  // cssVar()/cssVarRgba() (utils/chartTheme.js): each resolves the live computed
+  // token and falls back to a literal. That follows every colour preset AND dark
+  // mode, which a hardcoded light/dark pair cannot do.
+
   const heroData = {
     labels: revLabels,
     datasets: [
@@ -1246,7 +1254,7 @@ const Dash = () => {
   };
 
   const donutLegend = [
-    { label: 'Cost of Goods Sold', value: cogs, color: 'var(--primary-bright)' },
+    { label: 'Cost of Goods Sold', value: cogs, color: 'var(--brand)' },
     { label: 'Other Expenses', value: totalExpenses, color: 'var(--pink-text)' },
     { label: 'Net Profit', value: totalPL, color: 'var(--ok-text)' },
   ];
@@ -1278,12 +1286,17 @@ const Dash = () => {
           <m.div className="mb-5 flex flex-wrap items-center justify-between gap-3"
             initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.05 }}>
             <div>
-              <h1 className="text-[var(--chathams-blue)] font-poppins responsiveTextPage font-semibold border-l-4 border-[var(--chathams-blue)] pl-2">
-                {getTtl('Dashboard', ln)}
+              <h1 className="text-display">
+                {(() => {
+                  const h = new Date().getHours();
+                  const greet = h < 12 ? 'Good morning' : h < 18 ? 'Good afternoon' : 'Good evening';
+                  const name = user?.displayName || user?.email?.split('@')[0] || '';
+                  return name ? `${greet}, ${name.charAt(0).toUpperCase() + name.slice(1)}` : getTtl('Dashboard', ln);
+                })()}
               </h1>
-              <p className="responsiveText text-[var(--regent-gray)] pl-3 mt-0.5">
-                Financial overview · {currentYear}
-                {filtersActive && <span className="text-[var(--endeavour)] font-medium"> · filtered</span>}
+              <p className="responsiveText text-[var(--ink-muted)] mt-0.5">
+                {new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' })} · Financial overview {currentYear}
+                {filtersActive && <span className="text-[var(--brand)] font-medium"> · filtered</span>}
               </p>
             </div>
             <div className="flex items-center gap-1">
@@ -1294,15 +1307,14 @@ const Dash = () => {
 
           {/* FILTER BAR — Supplier / Client / Material (date range lives in the header) */}
           <m.div className="mb-5" initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.08 }}>
-            <div className="flex flex-wrap items-center gap-2 rounded-2xl border border-[var(--selago)] px-3 py-2.5 shadow-sm"
-              style={{ background: 'linear-gradient(180deg,var(--surface-card),var(--surface-pill))' }}>
-              <span className="inline-flex items-center gap-1.5 pr-2 mr-0.5 border-r border-[var(--selago)]">
+            <div className="flex flex-wrap items-center gap-2 bg-[var(--bg-card)] border border-[var(--line)] rounded-2xl px-3 py-2.5 shadow-card">
+              <span className="inline-flex items-center gap-1.5 pr-2 mr-0.5 border-r border-[var(--line)]">
                 <span className="inline-flex items-center justify-center rounded-lg" style={{ background: 'var(--endeavour)', color: 'var(--on-brand)', width: 22, height: 22 }}>
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M3 5h18M6 12h12M10 19h4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" /></svg>
                 </span>
                 <span className="font-semibold" style={{ fontSize: 'var(--fs-body)', color: 'var(--chathams-blue)' }}>Filters</span>
                 {filtersActive && (
-                  <span className="inline-flex items-center justify-center rounded-full text-white font-semibold"
+                  <span className="inline-flex items-center justify-center rounded-full text-[var(--on-brand)] font-semibold"
                     style={{ background: 'var(--endeavour)', minWidth: 15, height: 15, fontSize: 'var(--fs-caption)', padding: '0 4px' }}>
                     {[fSupplier, fClient, fMaterial].filter(Boolean).length}
                   </span>
@@ -1320,9 +1332,7 @@ const Dash = () => {
                 options={materialOptions.map(o => ({ value: o, label: o }))} />
 
               {filtersActive && (
-                <button onClick={clearFilters}
-                  className="ml-auto inline-flex items-center gap-1 rounded-full px-2.5 h-7 font-semibold transition-colors hover:brightness-95"
-                  style={{ fontSize: 'var(--fs-body)', color: 'var(--endeavour)', background: 'var(--selago)', border: '1px solid var(--border-cell)' }}>
+                <button onClick={clearFilters} className="ml-auto whiteButton">
                   <svg width="10" height="10" viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" /></svg>
                   Clear all
                 </button>
@@ -1332,9 +1342,9 @@ const Dash = () => {
 
           {/* FX data-gap warning — a missing rate is counted at 1:1, not silently zeroed */}
           {missingRate > 0 && (
-            <div className="mb-4 flex items-center gap-2 rounded-2xl px-3 py-2" style={{ background: 'var(--warn-soft)', border: '1px solid var(--warn-bg)' }}>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" className="flex-shrink-0" style={{ color: 'var(--warn-strong)' }}><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" /><path d="M12 9v4m0 4h.01" stroke="currentColor" strokeWidth="2" strokeLinecap="round" /></svg>
-              <span className="responsiveTextTable" style={{ color: 'var(--warn-strong)' }}>
+            <div className="mb-4 flex items-center gap-2 rounded-2xl px-3 py-2" style={{ background: 'var(--warn-bg)', border: '1px solid var(--warn-border)' }}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" className="flex-shrink-0" style={{ color: 'var(--warn-text)' }}><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" /><path d="M12 9v4m0 4h.01" stroke="currentColor" strokeWidth="2" strokeLinecap="round" /></svg>
+              <span className="responsiveTextTable" style={{ color: 'var(--warn-text)' }}>
                 {missingRate} EUR contract{missingRate === 1 ? '' : 's'} missing an FX rate — counted at 1:1, so USD totals may be understated. Set the EUR→USD rate on those contracts for accurate figures.
               </span>
             </div>
@@ -1346,7 +1356,7 @@ const Dash = () => {
               title="Net Profit (Sold)"
               value={fmtAutoKM(totalPL)}
               chartData={dataPL}
-              accent="var(--violet-text)"
+              accent="var(--brand)"
               icon={<svg width="16" height="16" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8" stroke="currentColor" strokeWidth="2" /><path d="M12 8v4l2 2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" /></svg>}
             />
             <StatKpiCard
@@ -1360,7 +1370,7 @@ const Dash = () => {
               title="Cost of Goods Sold"
               value={fmtAutoKM(cogs)}
               chartData={cogsByMonth}
-              accent="var(--danger-text)"
+              accent="var(--bad-text)"
               goodWhenUp={false}
               icon={<svg width="16" height="16" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8" stroke="currentColor" strokeWidth="2" /><path d="M12 8v4l2 2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" /></svg>}
             />
@@ -1368,7 +1378,7 @@ const Dash = () => {
               title="MT Purchased"
               value={`${new Intl.NumberFormat('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(totalMT)} MT`}
               chartData={dataContracts}
-              accent="var(--primary-bright)"
+              accent="var(--brand)"
               icon={<svg width="16" height="16" fill="none" viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="12" rx="2" stroke="currentColor" strokeWidth="2" /><path d="M7 10h10M7 14h6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" /></svg>}
             />
             <StatKpiCard
@@ -1440,7 +1450,7 @@ const Dash = () => {
                   <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none"
                     style={{ opacity: donutHover ? 0 : 1, transition: 'opacity 120ms ease' }}>
                     <span className="responsiveTextTable text-[var(--regent-gray)]">Revenue</span>
-                    <span className="font-semibold text-[var(--port-gore)]" style={{ fontSize: 'var(--fs-stat)' }}>
+                    <span className="font-semibold text-[var(--port-gore)]" style={{ fontSize: 'clamp(1rem, 0.8rem + 0.6vw, 1.35rem)', fontFamily: 'var(--font-jakarta), Manrope, sans-serif', fontVariantNumeric: 'tabular-nums' }}>
                       {fmtAutoKM(totalInvoices)}
                     </span>
                   </div>
@@ -1494,7 +1504,7 @@ const Dash = () => {
               entries={Object.entries(materialSold).filter(([, v]) => v > 0.01).sort((a, b) => b[1] - a[1]).slice(0, 8)}
               total={shippedMT}
               fmtVal={(v) => `${new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 }).format(v || 0)} MT`}
-              accent="var(--primary-bright)"
+              accent="var(--brand)"
             />
           </div>
 

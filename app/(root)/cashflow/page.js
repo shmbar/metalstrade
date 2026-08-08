@@ -33,6 +33,9 @@ import ForecastPanel from "./ForecastPanel";
 import SumBasket from "./sumBasket";
 import { exportCashflowToExcel } from "./excel";
 import { FiDownload } from "react-icons/fi";
+import KpiStrip from "../../../components/KpiStrip";
+import Avatar from "../../../components/Avatar";
+import { Boxes, Users, Factory, Wallet, Banknote } from "lucide-react";
 
 function countDecimalDigits(inputString) {
     const match = inputString.match(/(?:\.(\d+))?(?:[eE]([+-]?\d+))?$/);
@@ -49,6 +52,20 @@ function countDecimalDigits(inputString) {
 
     return trimmedPart.length;
 }
+
+// Mini-stat section header: 28px brand-soft icon tile + section name, with any
+// trailing controls (sort toggles / Add button) passed as children. Style only.
+const SectionHeader = ({ icon: Icon, title, className = '', children }) => (
+    <div className={`flex items-center justify-between mb-1 rounded-2xl px-1 py-1 hover:bg-[var(--bg-subtle)] transition-colors ${className}`}>
+        <div className="flex items-center gap-2 min-w-0">
+            <span className="w-7 h-7 rounded-control bg-[var(--brand-soft)] text-[var(--brand)] flex items-center justify-center shrink-0">
+                {Icon && <Icon size={15} strokeWidth={1.75} />}
+            </span>
+            <span className="responsiveTextTitle font-display font-semibold text-[var(--ink)] truncate">{title}</span>
+        </div>
+        {children ? <div className="flex items-center gap-2 shrink-0">{children}</div> : null}
+    </div>
+);
 
 
 const Cashflow = () => {
@@ -1088,8 +1105,27 @@ const Cashflow = () => {
         });
     };
 
+    // KPI summary — pure reuse of the same aggregates the section totals below
+    // already render (no new computation beyond re-running the identical reduces).
+    const clientsDueKpi = [...clientInvoices1, ...clientInvoices2].reduce((t, o) => t + (parseFloat(o.debtBlnc) || 0), 0);
+    const suppliersDueKpi = [...(supPayments1 || []), ...(supPayments2 || [])].reduce((t, o) => t + (parseFloat(o.blnc) || 0), 0);
+    const expensesKpi = (expenses || []).reduce((t, o) => t + (parseFloat(o.amount) || 0), 0);
+    const fmtUsd = (n) => '$' + Number(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const kpiItems = [
+        ...(userTitle === 'Admin' ? [{
+            label: 'Total Balance',
+            value: (totalLeft || 0) - (totalRight || 0),
+            format: fmtUsd, icon: Banknote,
+            tone: ((totalLeft || 0) - (totalRight || 0)) >= 0 ? 'green' : 'red',
+            sub: 'Left − right totals',
+        }] : []),
+        { label: 'Clients due', value: clientsDueKpi, format: fmtUsd, icon: Users, tone: 'blue' },
+        { label: 'Suppliers due', value: suppliersDueKpi, format: fmtUsd, icon: Factory, tone: 'amber' },
+        { label: 'Expenses', value: expensesKpi, format: fmtUsd, icon: Wallet, tone: 'red' },
+    ];
+
     return (
-        <div className="w-full" style={{ background: "var(--surface-pill)" }}>
+        <div className="w-full" style={{ background: "var(--bg-page)" }}>
             <div className="cf-uniform mx-auto max-w-full px-1 md:px-2 pb-4 mt-[72px]">
                 {Object.keys(settings).length === 0 ? <CardsSkeleton /> :
                     <>
@@ -1104,17 +1140,18 @@ const Cashflow = () => {
                             onCancel={() => setAutoCancelled(true)}
                         />
                         <VideoLoader loading={loading} fullScreen={true} />
-                        <div className="rounded-2xl p-3 sm:p-5 mt-8 border border-[var(--border-divider)] shadow-lg w-full bg-[var(--surface-card)]">
+                        <div className="page-card rounded-2xl p-3 sm:p-5 mt-8 border border-[var(--line)] shadow-card w-full bg-[var(--bg-card)]">
                             <div className='flex items-center justify-between flex-wrap gap-2 pb-2'>
-                                <h1 className="text-[var(--chathams-blue)] font-poppins responsiveTextPage font-medium border-l-4 border-[var(--chathams-blue)] pl-2">
-                                    {getTtl('Cashflow', ln)}
-                                </h1>
+                                <div>
+                                    <h1 className="text-display">{getTtl('Cashflow', ln)}</h1>
+                                    <p className="responsiveTextInput text-[var(--ink-muted)] mt-0.5">Cash position across stocks, clients, suppliers & expenses</p>
+                                </div>
                                 <div className="flex items-center gap-2 group">
                                     <Tltip direction='bottom' tltpText='Export the current cashflow tables to Excel'>
                                         <button
                                             type="button"
                                             onClick={handleExportCashflow}
-                                            className="flex items-center gap-1.5 border border-[var(--border-cell)] text-[var(--endeavour)] px-3 h-8 responsiveTextInput font-medium rounded-full bg-[var(--surface-header)] hover:bg-[var(--surface-header)] transition-all"
+                                            className="whiteButton"
                                         >
                                             <FiDownload className="scale-110" /> Export
                                         </button>
@@ -1127,46 +1164,46 @@ const Cashflow = () => {
                             <ForecastPanel />
 
                             {/* Tabs */}
-                            <div className="inline-flex gap-1 mb-2 bg-[var(--surface-header)] border border-[var(--border-divider)] rounded-full p-0">
+                            <div className="inline-flex gap-1 mb-2 bg-[var(--bg-subtle)] border border-[var(--line)] rounded-full p-0.5">
                                 <button
                                     onClick={() => setActiveTab('general')}
-                                    className={`px-4 py-1 responsiveTextInput rounded-full transition-all font-medium ${activeTab === 'general' ? 'bg-[var(--brand-deep)] text-white' : 'text-[var(--chathams-blue)] hover:bg-[var(--surface-header)]'}`}
+                                    className={`px-4 py-1 responsiveTextInput rounded-full transition-all ${activeTab === 'general' ? 'bg-[var(--bg-card)] text-[var(--ink)] font-medium shadow-card' : 'text-[var(--ink-secondary)]'}`}
                                 >
                                     General Cashflow
                                 </button>
                                 <button
                                     onClick={() => setActiveTab('unsold')}
-                                    className={`px-4 py-1 responsiveTextInput rounded-full transition-all font-medium ${activeTab === 'unsold' ? 'bg-[var(--brand-deep)] text-white' : 'text-[var(--chathams-blue)] hover:bg-[var(--surface-header)]'}`}
+                                    className={`px-4 py-1 responsiveTextInput rounded-full transition-all ${activeTab === 'unsold' ? 'bg-[var(--bg-card)] text-[var(--ink)] font-medium shadow-card' : 'text-[var(--ink-secondary)]'}`}
                                 >
                                     Unsold Stocks
                                 </button>
                             </div>
 
+                            {/* KPI summary strip (same values as the section totals below) */}
+                            {activeTab === 'general' && <KpiStrip items={kpiItems} />}
 
                             {activeTab === 'unsold' ? (
-                                <div className="w-full max-w-2xl border border-[var(--border-divider)] rounded-2xl overflow-hidden bg-[var(--surface-card)] p-4">
-                                    <div className="flex items-center justify-between mb-2">
-                                        <div className="text-[var(--chathams-blue)] responsiveText font-semibold">Unsold Stocks</div>
-                                        <div className="flex items-center gap-2">
-                                            {stocksSortName2 ?
-                                                <FaSortAmountDown className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortStocksName2()} />
-                                                :
-                                                <FaSortAmountUpAlt className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortStocksName2()} />}
-                                            {stocksSort2 ?
-                                                <FaSortAmountDown className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortStocks2()} />
-                                                :
-                                                <FaSortAmountUpAlt className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortStocks2()} />}
-                                        </div>
-                                    </div>
+                                <div className="w-full max-w-2xl border border-[var(--line)] rounded-2xl overflow-hidden bg-[var(--bg-card)] p-4">
+                                    <SectionHeader icon={Boxes} title="Unsold Stocks" className="mb-2">
+                                        {stocksSortName2 ?
+                                            <FaSortAmountDown className="scale-[0.9] text-[var(--ink-muted)] hover:text-[var(--ink)] cursor-pointer" onClick={() => sortStocksName2()} />
+                                            :
+                                            <FaSortAmountUpAlt className="scale-[0.9] text-[var(--ink-muted)] hover:text-[var(--ink)] cursor-pointer" onClick={() => sortStocksName2()} />}
+                                        {stocksSort2 ?
+                                            <FaSortAmountDown className="scale-[0.9] text-[var(--ink-muted)] hover:text-[var(--ink)] cursor-pointer" onClick={() => sortStocks2()} />
+                                            :
+                                            <FaSortAmountUpAlt className="scale-[0.9] text-[var(--ink-muted)] hover:text-[var(--ink)] cursor-pointer" onClick={() => sortStocks2()} />}
+                                    </SectionHeader>
                                     {stockDataNoSold.length === 0 ? (
-                                        <div className="text-[var(--regent-gray)] responsiveText py-4 text-center">No unsold stocks</div>
+                                        <div className="text-[var(--ink-muted)] responsiveText py-4 text-center">No unsold stocks</div>
                                     ) : (
                                         <>
                                             {stockDataNoSold.map((x, i) => (
-                                                <div className="bg-[var(--surface-card)] py-0.5 px-0 hover:bg-[var(--surface-header)] transition-colors" key={i}>
+                                                <div className="bg-[var(--bg-card)] py-0.5 px-0 rounded-2xl hover:bg-[var(--bg-subtle)] transition-colors" key={i}>
                                                     <MyAccordion title={
                                                         <div className="flex w-full justify-between">
-                                                            <div className="responsiveText font-medium text-[var(--port-gore)] items-center flex outline-none whitespace-normal break-words min-w-0">
+                                                            <div className="responsiveText font-medium text-[var(--ink)] items-center flex gap-1.5 outline-none whitespace-normal break-words min-w-0">
+                                                                <Avatar name={x.supplierName} size={18} />
                                                                 {x.supplierName}
                                                             </div>
                                                             <div className="leading-4 2xl:leading-6">
@@ -1178,7 +1215,7 @@ const Cashflow = () => {
                                                                     prefix={x.cur === 'us' ? '$' : '€'}
                                                                     decimalScale='2'
                                                                     fixedDecimalScale
-                                                                    className='responsiveText font-medium text-[var(--port-gore)]'
+                                                                    className='responsiveText font-semibold text-[var(--ink)] tabular-nums'
                                                                 />
                                                             </div>
                                                         </div>
@@ -1189,7 +1226,7 @@ const Cashflow = () => {
                                             ))}
 
                                             <div className="rounded-lg py-1 px-0 mt-1 flex items-center justify-between">
-                                                <div className="responsiveTextTotal text-[var(--chathams-blue)] font-medium border-t border-[var(--chathams-blue)] pt-0.5">Total</div>
+                                                <div className="responsiveTextTotal text-[var(--ink)] font-medium border-t border-[var(--line-strong)] pt-0.5">Total</div>
                                                 <NumericFormat
                                                     value={stockDataNoSold.reduce((sum, item) => sum + (parseFloat(item.total) || 0), 0)}
                                                     displayType="text"
@@ -1198,7 +1235,7 @@ const Cashflow = () => {
                                                     prefix={'$'}
                                                     decimalScale='2'
                                                     fixedDecimalScale
-                                                    className='responsiveTextTotal text-[var(--chathams-blue)] font-medium border-t border-[var(--chathams-blue)] pt-0.5'
+                                                    className='responsiveTextTotal text-[var(--ink)] font-medium border-t border-[var(--line-strong)] pt-0.5'
                                                 />
                                             </div>
                                         </>
@@ -1238,32 +1275,29 @@ const Cashflow = () => {
                                                 })}
                                             <div className="flex gap-2 my-1">
                                                 <Tltip direction='bottom' tltpText='Save added data'>
-                                                    <button type="button" className="bg-[var(--endeavour)] border border-[var(--border-cell)] text-white px-5 h-7 responsiveTextInput font-medium rounded-full hover:opacity-90 transition-all" onClick={saveInitData}>Save</button>
+                                                    <button type="button" className="blackButton" onClick={saveInitData}>Save</button>
                                                 </Tltip>
                                                 <Tltip direction='bottom' tltpText='Add new item'>
-                                                    <button type="button" className="border border-[var(--border-cell)] text-[var(--endeavour)] px-5 h-7 responsiveTextInput font-medium rounded-full bg-[var(--surface-header)] hover:bg-[var(--surface-header)] transition-all" onClick={addItem}>Add</button>
+                                                    <button type="button" className="whiteButton" onClick={addItem}>Add</button>
                                                 </Tltip>
                                             </div>
                                         </div>
 
                                     }
-                                    <div className="w-full border border-[var(--border-divider)] rounded-2xl overflow-hidden bg-[var(--surface-card)]">
+                                    <div className="w-full border border-[var(--line)] rounded-2xl overflow-hidden bg-[var(--bg-card)]">
                                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-2 w-full">
                                             <div className="w-full">
-                                                <div className="p-2 bg-[var(--surface-card)] mb-3 flex flex-col cf-card">
-                                                    <div className="flex items-center justify-between mb-1">
-                                                        <span className="text-[var(--chathams-blue)] responsiveText font-semibold">Stocks - Paid</span>
-                                                        <div className="flex items-center gap-2">
-                                                            {stocksSortName ? <FaSortAmountDown className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortStocksName()} /> : <FaSortAmountUpAlt className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortStocksName()} />}
-                                                            {stocksSort ? <FaSortAmountDown className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortStocks()} /> : <FaSortAmountUpAlt className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortStocks()} />}
-                                                        </div>
-                                                    </div>
+                                                <div className="p-2 bg-[var(--bg-card)] mb-3 flex flex-col cf-card">
+                                                    <SectionHeader icon={Boxes} title="Stocks - Paid">
+                                                        {stocksSortName ? <FaSortAmountDown className="scale-[0.9] text-[var(--ink-muted)] hover:text-[var(--ink)] cursor-pointer" onClick={() => sortStocksName()} /> : <FaSortAmountUpAlt className="scale-[0.9] text-[var(--ink-muted)] hover:text-[var(--ink)] cursor-pointer" onClick={() => sortStocksName()} />}
+                                                        {stocksSort ? <FaSortAmountDown className="scale-[0.9] text-[var(--ink-muted)] hover:text-[var(--ink)] cursor-pointer" onClick={() => sortStocks()} /> : <FaSortAmountUpAlt className="scale-[0.9] text-[var(--ink-muted)] hover:text-[var(--ink)] cursor-pointer" onClick={() => sortStocks()} />}
+                                                    </SectionHeader>
                                                     {stockData1.map((x, i) => {
                                                         return (
-                                                            <div className="bg-[var(--surface-card)] py-0.5 px-0 hover:bg-[var(--surface-header)] transition-colors" key={i}>
+                                                            <div className="bg-[var(--bg-card)] py-0.5 px-0 rounded-2xl hover:bg-[var(--bg-subtle)] transition-colors" key={i}>
                                                                 <MyAccordion title={
                                                                     <div className="flex w-full justify-between">
-                                                                        <div className="responsiveText items-center font-medium text-[var(--port-gore)] flex outline-none whitespace-normal break-words min-w-0"
+                                                                        <div className="responsiveText items-center font-medium text-[var(--ink)] flex outline-none whitespace-normal break-words min-w-0"
                                                                         >
                                                                             {settings.Stocks.Stocks.find(z => z.id === x.stock)?.nname}
                                                                         </div>
@@ -1277,7 +1311,7 @@ const Cashflow = () => {
                                                                                 prefix={x.cur === 'us' ? '$' : '€'}
                                                                                 decimalScale='2'
                                                                                 fixedDecimalScale
-                                                                                className='responsiveText font-medium text-[var(--port-gore)] '
+                                                                                className='responsiveText font-semibold text-[var(--ink)] tabular-nums'
                                                                             />
                                                                         </div>
                                                                     </div>
@@ -1292,7 +1326,7 @@ const Cashflow = () => {
                                                         )
                                                     })}
                                                     <div className="rounded-lg py-1 px-0 mt-1 flex items-center justify-between">
-                                                        <div className="responsiveTextTotal text-[var(--chathams-blue)] font-medium border-t border-[var(--chathams-blue)] pt-0.5">
+                                                        <div className="responsiveTextTotal text-[var(--ink)] font-medium border-t border-[var(--line-strong)] pt-0.5">
                                                             Total
                                                         </div>
                                                         <NumericFormat
@@ -1305,7 +1339,7 @@ const Cashflow = () => {
                                                             prefix='$'
                                                             decimalScale='2'
                                                             fixedDecimalScale
-                                                            className='responsiveTextTotal text-[var(--chathams-blue)] font-medium border-t border-[var(--chathams-blue)] pt-0.5'
+                                                            className='responsiveTextTotal text-[var(--ink)] font-medium border-t border-[var(--line-strong)] pt-0.5'
                                                         />
                                                     </div>
 
@@ -1313,21 +1347,18 @@ const Cashflow = () => {
 
 
 
-                                                {stockData2.length > 0 && <div className="p-2 bg-[var(--surface-card)] mb-3 flex flex-col cf-card">
-                                                    <div className="flex items-center justify-between mb-1">
-                                                        <span className="text-[var(--chathams-blue)] responsiveText font-semibold">Stocks - UnPaid</span>
-                                                        <div className="flex items-center gap-2">
-                                                            {stocksSortName1 ? <FaSortAmountDown className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortStocksName1()} /> : <FaSortAmountUpAlt className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortStocksName1()} />}
-                                                            {stocksSort1 ? <FaSortAmountDown className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortStocks1()} /> : <FaSortAmountUpAlt className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortStocks1()} />}
-                                                        </div>
-                                                    </div>
+                                                {stockData2.length > 0 && <div className="p-2 bg-[var(--bg-card)] mb-3 flex flex-col cf-card">
+                                                    <SectionHeader icon={Boxes} title="Stocks - UnPaid">
+                                                        {stocksSortName1 ? <FaSortAmountDown className="scale-[0.9] text-[var(--ink-muted)] hover:text-[var(--ink)] cursor-pointer" onClick={() => sortStocksName1()} /> : <FaSortAmountUpAlt className="scale-[0.9] text-[var(--ink-muted)] hover:text-[var(--ink)] cursor-pointer" onClick={() => sortStocksName1()} />}
+                                                        {stocksSort1 ? <FaSortAmountDown className="scale-[0.9] text-[var(--ink-muted)] hover:text-[var(--ink)] cursor-pointer" onClick={() => sortStocks1()} /> : <FaSortAmountUpAlt className="scale-[0.9] text-[var(--ink-muted)] hover:text-[var(--ink)] cursor-pointer" onClick={() => sortStocks1()} />}
+                                                    </SectionHeader>
 
                                                     {stockData2.map((x, i) => {
                                                         return (
-                                                            <div className="bg-[var(--surface-card)] py-0.5 px-0 hover:bg-[var(--surface-header)] transition-colors" key={i}>
+                                                            <div className="bg-[var(--bg-card)] py-0.5 px-0 rounded-2xl hover:bg-[var(--bg-subtle)] transition-colors" key={i}>
                                                                 <MyAccordion title={
                                                                     <div className="flex w-full justify-between">
-                                                                        <div className="responsiveText font-medium text-[var(--port-gore)] items-center flex outline-none whitespace-normal break-words min-w-0"
+                                                                        <div className="responsiveText font-medium text-[var(--ink)] items-center flex outline-none whitespace-normal break-words min-w-0"
                                                                         >
                                                                             {settings.Stocks.Stocks.find(z => z.id === x.stock)?.nname}
                                                                         </div>
@@ -1341,7 +1372,7 @@ const Cashflow = () => {
                                                                                 prefix={x.cur === 'us' ? '$' : '€'}
                                                                                 decimalScale='2'
                                                                                 fixedDecimalScale
-                                                                                className='responsiveText font-medium text-[var(--port-gore)]'
+                                                                                className='responsiveText font-semibold text-[var(--ink)] tabular-nums'
                                                                             />
                                                                         </div>
                                                                     </div>
@@ -1354,7 +1385,7 @@ const Cashflow = () => {
                                                         )
                                                     })}
                                                     <div className="rounded-lg py-1 px-0 mt-1 flex items-center justify-between">
-                                                        <div className="responsiveTextTotal text-[var(--chathams-blue)] font-medium border-t border-[var(--chathams-blue)] pt-0.5">
+                                                        <div className="responsiveTextTotal text-[var(--ink)] font-medium border-t border-[var(--line-strong)] pt-0.5">
                                                             Total
                                                         </div>
                                                         <NumericFormat
@@ -1367,7 +1398,7 @@ const Cashflow = () => {
                                                             prefix='$'
                                                             decimalScale='2'
                                                             fixedDecimalScale
-                                                            className='responsiveTextTotal text-[var(--chathams-blue)] font-medium border-t border-[var(--chathams-blue)] pt-0.5'
+                                                            className='responsiveTextTotal text-[var(--ink)] font-medium border-t border-[var(--line-strong)] pt-0.5'
                                                         />
                                                     </div>
                                                 </div>}
@@ -1418,7 +1449,8 @@ const Cashflow = () => {
                                                                 <MyAccordion title={
                                                                     <div className="flex w-full justify-between">
                                                                         <div className="flex items-center gap-1.5 min-w-0">
-                                                                            <div className="responsiveText text-[var(--port-gore)] font-medium items-center flex outline-none whitespace-normal break-words min-w-0">
+                                                                            <div className="responsiveText text-[var(--ink)] font-medium items-center flex gap-1.5 outline-none whitespace-normal break-words min-w-0">
+                                                                                <Avatar name={settings.Client.Client.find(z => z.id === x.client)?.nname} size={18} />
                                                                                 {settings.Client.Client.find(z => z.id === x.client)?.nname}
                                                                             </div>
                                                                             <FinalSummaryBadge finalized={x._finCount} total={x._finTotal} />
@@ -1432,7 +1464,7 @@ const Cashflow = () => {
                                                                                 prefix={x.cur === 'us' ? '$' : '€'}
                                                                                 decimalScale='2'
                                                                                 fixedDecimalScale
-                                                                                className='responsiveText font-medium text-[var(--port-gore)]'
+                                                                                className='responsiveText font-semibold text-[var(--ink)] tabular-nums'
                                                                             />
 
                                                                         </div>
@@ -1443,7 +1475,7 @@ const Cashflow = () => {
                                                         )
                                                     })}
                                                     <div className="rounded-lg py-1 px-0 mt-1 flex items-center justify-between">
-                                                        <div className="responsiveTextTotal text-[var(--chathams-blue)] font-medium border-t border-[var(--chathams-blue)] pt-0.5">
+                                                        <div className="responsiveTextTotal text-[var(--ink)] font-medium border-t border-[var(--line-strong)] pt-0.5">
                                                             Total
                                                         </div>
                                                         <NumericFormat
@@ -1456,28 +1488,26 @@ const Cashflow = () => {
                                                             prefix='$'
                                                             decimalScale='2'
                                                             fixedDecimalScale
-                                                            className='responsiveTextTotal text-[var(--chathams-blue)] font-medium border-t border-[var(--chathams-blue)] pt-0.5'
+                                                            className='responsiveTextTotal text-[var(--ink)] font-medium border-t border-[var(--line-strong)] pt-0.5'
                                                         />
                                                     </div>
                                                 </div>
 
 
-                                                <div className="p-2 bg-[var(--surface-card)] mb-3 flex flex-col cf-card">
-                                                    <div className="flex items-center justify-between mb-1">
-                                                        <span className="text-[var(--chathams-blue)] responsiveText font-semibold">Clients - Balances</span>
-                                                        <div className="flex items-center gap-2">
-                                                            {clientSortName ? <FaSortAmountDown className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortClientsName(0)} /> : <FaSortAmountUpAlt className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortClientsName(0)} />}
-                                                            {clientSort ? <FaSortAmountDown className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortClients(0)} /> : <FaSortAmountUpAlt className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortClients(0)} />}
-                                                        </div>
-                                                    </div>
+                                                <div className="p-2 bg-[var(--bg-card)] mb-3 flex flex-col cf-card">
+                                                    <SectionHeader icon={Users} title="Clients - Balances">
+                                                        {clientSortName ? <FaSortAmountDown className="scale-[0.9] text-[var(--ink-muted)] hover:text-[var(--ink)] cursor-pointer" onClick={() => sortClientsName(0)} /> : <FaSortAmountUpAlt className="scale-[0.9] text-[var(--ink-muted)] hover:text-[var(--ink)] cursor-pointer" onClick={() => sortClientsName(0)} />}
+                                                        {clientSort ? <FaSortAmountDown className="scale-[0.9] text-[var(--ink-muted)] hover:text-[var(--ink)] cursor-pointer" onClick={() => sortClients(0)} /> : <FaSortAmountUpAlt className="scale-[0.9] text-[var(--ink-muted)] hover:text-[var(--ink)] cursor-pointer" onClick={() => sortClients(0)} />}
+                                                    </SectionHeader>
 
                                                     {clientInvoices1.map((x, i) => {
                                                         return (
-                                                            <div className="bg-[var(--surface-card)] py-0.5 px-0 hover:bg-[var(--surface-header)] transition-colors" key={i}>
+                                                            <div className="bg-[var(--bg-card)] py-0.5 px-0 rounded-2xl hover:bg-[var(--bg-subtle)] transition-colors" key={i}>
                                                                 <MyAccordion title={
                                                                     <div className="flex w-full justify-between">
                                                                         <div className="flex items-center gap-1.5 min-w-0">
-                                                                            <div className="responsiveText font-medium text-[var(--port-gore)] items-center flex outline-none whitespace-normal break-words min-w-0">
+                                                                            <div className="responsiveText font-medium text-[var(--ink)] items-center flex gap-1.5 outline-none whitespace-normal break-words min-w-0">
+                                                                                <Avatar name={settings.Client.Client.find(z => z.id === x.client)?.nname} size={18} />
                                                                                 {settings.Client.Client.find(z => z.id === x.client)?.nname}
                                                                             </div>
                                                                             <FinalSummaryBadge finalized={x._finCount} total={x._finTotal} />
@@ -1491,7 +1521,7 @@ const Cashflow = () => {
                                                                                 prefix={x.cur === 'us' ? '$' : '€'}
                                                                                 decimalScale='2'
                                                                                 fixedDecimalScale
-                                                                                className='responsiveText font-medium text-[var(--port-gore)]'
+                                                                                className='responsiveText font-semibold text-[var(--ink)] tabular-nums'
                                                                             />
 
                                                                         </div>
@@ -1503,7 +1533,7 @@ const Cashflow = () => {
                                                     })}
 
                                                     <div className="rounded-lg py-1 px-0 mt-1 flex items-center justify-between">
-                                                        <div className="responsiveTextTotal text-[var(--chathams-blue)] font-medium border-t border-[var(--chathams-blue)] pt-0.5">
+                                                        <div className="responsiveTextTotal text-[var(--ink)] font-medium border-t border-[var(--line-strong)] pt-0.5">
                                                             Total
                                                         </div>
                                                         <NumericFormat
@@ -1516,7 +1546,7 @@ const Cashflow = () => {
                                                             prefix='$'
                                                             decimalScale='2'
                                                             fixedDecimalScale
-                                                            className='responsiveTextTotal text-[var(--chathams-blue)] font-medium border-t border-[var(--chathams-blue)] pt-0.5'
+                                                            className='responsiveTextTotal text-[var(--ink)] font-medium border-t border-[var(--line-strong)] pt-0.5'
                                                         />
                                                     </div>
                                                 </div>
@@ -1526,21 +1556,20 @@ const Cashflow = () => {
                                                     {
                                                         userTitle === 'Admin' &&
                                                         <div className='mt-1 p-1'>
-                                                            <div className='flex justify-between p-2'>
-                                                                <span className="text-[var(--chathams-blue)] responsiveText font-semibold">Financing</span>
+                                                            <SectionHeader icon={Banknote} title="Financing">
                                                                 <button
                                                                     type="button"
-                                                                    className="bg-[var(--endeavour)] border border-[var(--rock-blue)] text-white px-3 py-1 responsiveTextInput rounded-full hover:opacity-90 transition-all"
+                                                                    className="blackButton"
                                                                     onClick={() => setFinancedLeft([...financedLeft, { title: '', num: '' }])}
                                                                 >
                                                                     Add
                                                                 </button>
-                                                            </div>
+                                                            </SectionHeader>
                                                             <div className="py-0 px-0 mb-1 ">
                                                                 {
                                                                     financedLeft?.map((z, i) => {
                                                                         return (
-                                                                            <div className="flex items-center justify-between rounded-2xl px-0 responsiveTextInput hover:bg-[var(--surface-header)] transition-colors" key={i}>
+                                                                            <div className="flex items-center justify-between rounded-2xl px-0 responsiveTextInput hover:bg-[var(--bg-subtle)] transition-colors" key={i}>
                                                                                 <div className="flex items-center gap-1 min-w-0 flex-1">
                                                                                     <button onClick={() => setFinancedLeft(financedLeft.filter((z, k) => k !== i))}><MdOutlineClose className="scale-110" /></button>
                                                                                     <input className={cn('flex-1 min-w-0 outline-none h-6 bg-transparent text-[var(--chathams-blue)]',
@@ -1558,7 +1587,7 @@ const Cashflow = () => {
                                                             </div>
 
                                                             <div className="rounded-lg py-1 px-0 mt-1 flex items-center justify-between">
-                                                                <div className="responsiveTextTotal text-[var(--chathams-blue)] font-medium border-t border-[var(--chathams-blue)] pt-0.5">
+                                                                <div className="responsiveTextTotal text-[var(--ink)] font-medium border-t border-[var(--line-strong)] pt-0.5">
                                                                     Total
                                                                 </div>
                                                                 <NumericFormat
@@ -1569,7 +1598,7 @@ const Cashflow = () => {
                                                                     prefix='$'
                                                                     decimalScale='2'
                                                                     fixedDecimalScale
-                                                                    className='responsiveTextTotal text-[var(--chathams-blue)] font-medium border-t border-[var(--chathams-blue)] pt-0.5'
+                                                                    className='responsiveTextTotal text-[var(--ink)] font-medium border-t border-[var(--line-strong)] pt-0.5'
                                                                 />
                                                             </div>
                                                         </div>
@@ -1579,26 +1608,24 @@ const Cashflow = () => {
                                             </div>
 
 
-                                            <div className="w-full border-l border-[var(--border-divider)] pt-0">
+                                            <div className="w-full border-l border-[var(--line)] pt-0">
 
-                                                <div className="p-2 bg-[var(--surface-card)] mb-3 flex flex-col cf-card">
-                                                    <div className="flex items-center justify-between mb-1">
-                                                        <span className="text-[var(--chathams-blue)] responsiveText font-semibold">Supplier - Payment</span>
-                                                        <div className="flex items-center gap-2">
-                                                            {supPmntssSortName1 ? <FaSortAmountDown className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortSupPmntsName(1)} /> : <FaSortAmountUpAlt className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortSupPmntsName(1)} />}
-                                                            {supPmntssSort1 ? <FaSortAmountDown className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortSupPmnts(1)} /> : <FaSortAmountUpAlt className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortSupPmnts(1)} />}
-                                                        </div>
-                                                    </div>
+                                                <div className="p-2 bg-[var(--bg-card)] mb-3 flex flex-col cf-card">
+                                                    <SectionHeader icon={Factory} title="Supplier - Payment">
+                                                        {supPmntssSortName1 ? <FaSortAmountDown className="scale-[0.9] text-[var(--ink-muted)] hover:text-[var(--ink)] cursor-pointer" onClick={() => sortSupPmntsName(1)} /> : <FaSortAmountUpAlt className="scale-[0.9] text-[var(--ink-muted)] hover:text-[var(--ink)] cursor-pointer" onClick={() => sortSupPmntsName(1)} />}
+                                                        {supPmntssSort1 ? <FaSortAmountDown className="scale-[0.9] text-[var(--ink-muted)] hover:text-[var(--ink)] cursor-pointer" onClick={() => sortSupPmnts(1)} /> : <FaSortAmountUpAlt className="scale-[0.9] text-[var(--ink-muted)] hover:text-[var(--ink)] cursor-pointer" onClick={() => sortSupPmnts(1)} />}
+                                                    </SectionHeader>
 
 
 
                                                     {supPayments2.map((x, i) => {
                                                         return (
-                                                            <div className="bg-[var(--surface-card)] py-0.5 px-0 hover:bg-[var(--surface-header)] transition-colors" key={i}>
+                                                            <div className="bg-[var(--bg-card)] py-0.5 px-0 rounded-2xl hover:bg-[var(--bg-subtle)] transition-colors" key={i}>
                                                                 <MyAccordion title={
                                                                     <div className="flex w-full justify-between leading-4 2xl:leading-6">
                                                                         <div className="flex items-center gap-1.5 w-full min-w-0">
-                                                                            <span className="responsiveText font-medium text-[var(--port-gore)] items-center flex outline-none whitespace-normal break-words min-w-0">
+                                                                            <span className="responsiveText font-medium text-[var(--ink)] items-center flex gap-1.5 outline-none whitespace-normal break-words min-w-0">
+                                                                                <Avatar name={settings.Supplier.Supplier.find(z => z.id === x.supplier)?.nname} size={18} />
                                                                                 {settings.Supplier.Supplier.find(z => z.id === x.supplier)?.nname}
                                                                             </span>
                                                                             <FinalSummaryBadge finalized={x._finCount} total={x._finTotal} />
@@ -1612,7 +1639,7 @@ const Cashflow = () => {
                                                                                 prefix={'$'}
                                                                                 decimalScale='2'
                                                                                 fixedDecimalScale
-                                                                                className='responsiveText font-medium text-[var(--port-gore)]'
+                                                                                className='responsiveText font-semibold text-[var(--ink)] tabular-nums'
                                                                             />
                                                                         </div>
                                                                     </div>
@@ -1624,7 +1651,7 @@ const Cashflow = () => {
                                                         )
                                                     })}
                                                     <div className="rounded-lg py-1 px-0 mt-1 flex items-center justify-between">
-                                                        <div className="responsiveTextTotal text-[var(--chathams-blue)] font-medium border-t border-[var(--chathams-blue)] pt-0.5">
+                                                        <div className="responsiveTextTotal text-[var(--ink)] font-medium border-t border-[var(--line-strong)] pt-0.5">
                                                             Total
                                                         </div>
                                                         <NumericFormat
@@ -1637,30 +1664,28 @@ const Cashflow = () => {
                                                             prefix='$'
                                                             decimalScale='2'
                                                             fixedDecimalScale
-                                                            className='responsiveTextTotal text-[var(--chathams-blue)] font-medium border-t border-[var(--chathams-blue)] pt-0.5'
+                                                            className='responsiveTextTotal text-[var(--ink)] font-medium border-t border-[var(--line-strong)] pt-0.5'
                                                         />
                                                     </div>
                                                 </div>
 
 
-                                                <div className="p-2 bg-[var(--surface-card)] mb-3 flex flex-col cf-card">
-                                                    <div className="flex items-center justify-between mb-1">
-                                                        <span className="text-[var(--chathams-blue)] responsiveText font-semibold">Supplier - Balances</span>
-                                                        <div className="flex items-center gap-2">
-                                                            {supPmntssSortName ? <FaSortAmountDown className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortSupPmntsName(0)} /> : <FaSortAmountUpAlt className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortSupPmntsName(0)} />}
-                                                            {supPmntssSort ? <FaSortAmountDown className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortSupPmnts(0)} /> : <FaSortAmountUpAlt className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortSupPmnts(0)} />}
-                                                        </div>
-                                                    </div>
+                                                <div className="p-2 bg-[var(--bg-card)] mb-3 flex flex-col cf-card">
+                                                    <SectionHeader icon={Factory} title="Supplier - Balances">
+                                                        {supPmntssSortName ? <FaSortAmountDown className="scale-[0.9] text-[var(--ink-muted)] hover:text-[var(--ink)] cursor-pointer" onClick={() => sortSupPmntsName(0)} /> : <FaSortAmountUpAlt className="scale-[0.9] text-[var(--ink-muted)] hover:text-[var(--ink)] cursor-pointer" onClick={() => sortSupPmntsName(0)} />}
+                                                        {supPmntssSort ? <FaSortAmountDown className="scale-[0.9] text-[var(--ink-muted)] hover:text-[var(--ink)] cursor-pointer" onClick={() => sortSupPmnts(0)} /> : <FaSortAmountUpAlt className="scale-[0.9] text-[var(--ink-muted)] hover:text-[var(--ink)] cursor-pointer" onClick={() => sortSupPmnts(0)} />}
+                                                    </SectionHeader>
 
 
 
                                                     {supPayments1.map((x, i) => {
                                                         return (
-                                                            <div className="bg-[var(--surface-card)] py-0.5 px-0 hover:bg-[var(--surface-header)] transition-colors" key={i}>
+                                                            <div className="bg-[var(--bg-card)] py-0.5 px-0 rounded-2xl hover:bg-[var(--bg-subtle)] transition-colors" key={i}>
                                                                 <MyAccordion title={
                                                                     <div className="flex w-full justify-between leading-4 2xl:leading-6">
                                                                         <div className="flex items-center gap-1.5 w-full min-w-0">
-                                                                            <span className="responsiveText items-center font-medium text-[var(--port-gore)] flex outline-none whitespace-normal break-words min-w-0">
+                                                                            <span className="responsiveText items-center font-medium text-[var(--ink)] flex gap-1.5 outline-none whitespace-normal break-words min-w-0">
+                                                                                <Avatar name={settings.Supplier.Supplier.find(z => z.id === x.supplier)?.nname} size={18} />
                                                                                 {settings.Supplier.Supplier.find(z => z.id === x.supplier)?.nname}
                                                                             </span>
                                                                             <FinalSummaryBadge finalized={x._finCount} total={x._finTotal} />
@@ -1674,7 +1699,7 @@ const Cashflow = () => {
                                                                                 prefix={'$'}
                                                                                 decimalScale='2'
                                                                                 fixedDecimalScale
-                                                                                className='responsiveText font-medium text-[var(--port-gore)]'
+                                                                                className='responsiveText font-semibold text-[var(--ink)] tabular-nums'
                                                                             />
                                                                         </div>
                                                                     </div>
@@ -1686,7 +1711,7 @@ const Cashflow = () => {
                                                     })}
 
                                                     <div className="rounded-lg py-1 px-0 mt-1 flex items-center justify-between">
-                                                        <div className="responsiveTextTotal text-[var(--chathams-blue)] font-medium border-t border-[var(--chathams-blue)] pt-0.5">
+                                                        <div className="responsiveTextTotal text-[var(--ink)] font-medium border-t border-[var(--line-strong)] pt-0.5">
                                                             Total
                                                         </div>
                                                         <NumericFormat
@@ -1699,26 +1724,24 @@ const Cashflow = () => {
                                                             prefix='$'
                                                             decimalScale='2'
                                                             fixedDecimalScale
-                                                            className='responsiveTextTotal text-[var(--chathams-blue)] font-medium border-t border-[var(--chathams-blue)] pt-0.5'
+                                                            className='responsiveTextTotal text-[var(--ink)] font-medium border-t border-[var(--line-strong)] pt-0.5'
                                                         />
                                                     </div>
                                                 </div>
 
-                                                <div className="p-2 bg-[var(--surface-card)] mb-3 flex flex-col cf-card">
-                                                    <div className="flex items-center justify-between mb-1">
-                                                        <span className="text-[var(--chathams-blue)] responsiveText font-semibold">Expenses</span>
-                                                        <div className="flex items-center gap-2">
-                                                            {expensesSortName ? <FaSortAmountDown className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortExpensesName()} /> : <FaSortAmountUpAlt className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortExpensesName()} />}
-                                                            {expensesSort ? <FaSortAmountDown className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortExpenses()} /> : <FaSortAmountUpAlt className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortExpenses()} />}
-                                                        </div>
-                                                    </div>
+                                                <div className="p-2 bg-[var(--bg-card)] mb-3 flex flex-col cf-card">
+                                                    <SectionHeader icon={Wallet} title="Expenses">
+                                                        {expensesSortName ? <FaSortAmountDown className="scale-[0.9] text-[var(--ink-muted)] hover:text-[var(--ink)] cursor-pointer" onClick={() => sortExpensesName()} /> : <FaSortAmountUpAlt className="scale-[0.9] text-[var(--ink-muted)] hover:text-[var(--ink)] cursor-pointer" onClick={() => sortExpensesName()} />}
+                                                        {expensesSort ? <FaSortAmountDown className="scale-[0.9] text-[var(--ink-muted)] hover:text-[var(--ink)] cursor-pointer" onClick={() => sortExpenses()} /> : <FaSortAmountUpAlt className="scale-[0.9] text-[var(--ink-muted)] hover:text-[var(--ink)] cursor-pointer" onClick={() => sortExpenses()} />}
+                                                    </SectionHeader>
 
                                                     {expenses.map((x, i) => {
                                                         return (
-                                                            <div className="bg-[var(--surface-card)] py-0.5 px-0 hover:bg-[var(--surface-header)] transition-colors" key={i}>
+                                                            <div className="bg-[var(--bg-card)] py-0.5 px-0 rounded-2xl hover:bg-[var(--bg-subtle)] transition-colors" key={i}>
                                                                 <MyAccordion title={
                                                                     <div className="flex justify-between leading-4 2xl:leading-6 w-full">
-                                                                        <div className="responsiveText font-medium text-[var(--port-gore)] items-center flex outline-none whitespace-normal break-words min-w-0"              >
+                                                                        <div className="responsiveText font-medium text-[var(--ink)] items-center flex gap-1.5 outline-none whitespace-normal break-words min-w-0">
+                                                                            <Avatar name={settings.Supplier.Supplier.find(z => z.id === x.supplier)?.nname} size={18} />
                                                                             {settings.Supplier.Supplier.find(z => z.id === x.supplier)?.nname}
                                                                         </div>
 
@@ -1731,7 +1754,7 @@ const Cashflow = () => {
                                                                                 prefix={'$'}
                                                                                 decimalScale='2'
                                                                                 fixedDecimalScale
-                                                                                className='responsiveText font-medium text-[var(--port-gore)]'
+                                                                                className='responsiveText font-semibold text-[var(--ink)] tabular-nums'
                                                                             />
                                                                         </div>
                                                                     </div>
@@ -1743,7 +1766,7 @@ const Cashflow = () => {
                                                         )
                                                     })}
                                                     <div className="rounded-lg py-1 px-0 mt-1 flex items-center justify-between">
-                                                        <div className="responsiveTextTotal text-[var(--chathams-blue)] font-medium border-t border-[var(--chathams-blue)] pt-0.5">
+                                                        <div className="responsiveTextTotal text-[var(--ink)] font-medium border-t border-[var(--line-strong)] pt-0.5">
                                                             Total
                                                         </div>
                                                         <NumericFormat
@@ -1756,30 +1779,29 @@ const Cashflow = () => {
                                                             prefix='$'
                                                             decimalScale='2'
                                                             fixedDecimalScale
-                                                            className='responsiveTextTotal text-[var(--chathams-blue)] font-medium border-t border-[var(--chathams-blue)] pt-0.5'
+                                                            className='responsiveTextTotal text-[var(--ink)] font-medium border-t border-[var(--line-strong)] pt-0.5'
                                                         />
                                                     </div>
                                                 </div>
 
-                                                <div className="p-2 bg-[var(--surface-card)] mb-3 flex flex-col cf-card">
+                                                <div className="p-2 bg-[var(--bg-card)] mb-3 flex flex-col cf-card">
                                                     {
                                                         userTitle === 'Admin' &&
                                                         <div className='mt-1 p-1'>
-                                                            <div className='flex justify-between'>
-                                                                <span className="text-[var(--chathams-blue)] responsiveText font-semibold">Financing</span>
+                                                            <SectionHeader icon={Banknote} title="Financing">
                                                                 <button
                                                                     type="button"
-                                                                    className="bg-[var(--endeavour)] border border-[var(--rock-blue)] text-white px-3 py-1 responsiveTextInput rounded-full hover:opacity-90 transition-all"
+                                                                    className="blackButton"
                                                                     onClick={() => setFinancedRight([...financedRight, { title: '', num: '' }])}
                                                                 >
                                                                     Add
                                                                 </button>
-                                                            </div>
+                                                            </SectionHeader>
                                                             <div className="flex gap-1 mt-1 pt-2 flex-col" >
                                                                 {
                                                                     financedRight?.map((z, i) => {
                                                                         return (
-                                                                            <div className="flex items-center justify-between rounded-2xl px-0 responsiveTextInput hover:bg-[var(--surface-header)] transition-colors" key={i}>
+                                                                            <div className="flex items-center justify-between rounded-2xl px-0 responsiveTextInput hover:bg-[var(--bg-subtle)] transition-colors" key={i}>
                                                                                 <div className="flex items-center gap-1 min-w-0 flex-1">
                                                                                     <button onClick={() => setFinancedRight(financedRight.filter((z, k) => k !== i))}><MdOutlineClose className="scale-110" /></button>
                                                                                     <input className={cn('flex-1 min-w-0 outline-none h-6 text-[var(--chathams-blue)] bg-transparent',
@@ -1796,7 +1818,7 @@ const Cashflow = () => {
                                                             </div>
 
                                                             <div className="rounded-lg py-1 px-0 mt-1 flex items-center justify-between">
-                                                                <div className="responsiveTextTotal text-[var(--chathams-blue)] font-medium border-t border-[var(--chathams-blue)] pt-0.5">
+                                                                <div className="responsiveTextTotal text-[var(--ink)] font-medium border-t border-[var(--line-strong)] pt-0.5">
                                                                     Total
                                                                 </div>
                                                                 <NumericFormat
@@ -1807,7 +1829,7 @@ const Cashflow = () => {
                                                                     prefix='$'
                                                                     decimalScale='2'
                                                                     fixedDecimalScale
-                                                                    className='responsiveTextTotal text-[var(--chathams-blue)] font-medium border-t border-[var(--chathams-blue)] pt-0.5'
+                                                                    className='responsiveTextTotal text-[var(--ink)] font-medium border-t border-[var(--line-strong)] pt-0.5'
                                                                 />
                                                             </div>
 
@@ -1820,13 +1842,13 @@ const Cashflow = () => {
                                         </div>
 
                                         {userTitle === 'Admin' && (
-                                            <div className="mt-1 w-full border border-[var(--border-divider)] rounded-2xl p-2">
+                                            <div className="mt-1 w-full border border-[var(--line)] rounded-2xl p-2">
 
                                                 {/* TOTALS AND BALANCE IN ONE ROW */}
                                                 <div className="grid grid-cols-[2fr_1fr_2fr] gap-1 responsiveTextTotal">
 
-                                                    <div className="flex justify-between items-center bg-[var(--border-cell)] rounded-full px-3 py-0.5">
-                                                        <span className="font-medium text-[var(--chathams-blue)] responsiveText whitespace-nowrap">
+                                                    <div className="flex justify-between items-center bg-[var(--brand-soft)] rounded-full px-3 py-0.5">
+                                                        <span className="font-medium text-[var(--ink)] responsiveText whitespace-nowrap">
                                                             Total (Left)
                                                         </span>
                                                         <NumericFormat
@@ -1837,11 +1859,11 @@ const Cashflow = () => {
                                                             prefix="$"
                                                             decimalScale={2}
                                                             fixedDecimalScale
-                                                            className="font-semibold text-[var(--chathams-blue)] responsiveText whitespace-nowrap"
+                                                            className="font-semibold text-[var(--ink)] responsiveText whitespace-nowrap"
                                                         />
                                                     </div>
 
-                                                    <div className="flex justify-between items-center bg-[var(--brand-deep)] text-white border-2 border-[var(--chathams-blue)] rounded-full px-3 py-0.5">
+                                                    <div className="flex justify-between items-center bg-[var(--brand)] text-[var(--on-brand)] border-0 rounded-full px-3 py-0.5">
                                                         <span className="font-medium responsiveText whitespace-nowrap">
                                                             Balance
                                                         </span>
@@ -1857,8 +1879,8 @@ const Cashflow = () => {
                                                         />
                                                     </div>
 
-                                                    <div className="flex justify-between items-center bg-[var(--border-cell)] rounded-full px-3 py-0.5">
-                                                        <span className="font-medium text-[var(--chathams-blue)] responsiveText whitespace-nowrap">
+                                                    <div className="flex justify-between items-center bg-[var(--brand-soft)] rounded-full px-3 py-0.5">
+                                                        <span className="font-medium text-[var(--ink)] responsiveText whitespace-nowrap">
                                                             Total (Right)
                                                         </span>
                                                         <NumericFormat
@@ -1869,7 +1891,7 @@ const Cashflow = () => {
                                                             prefix="$"
                                                             decimalScale={2}
                                                             fixedDecimalScale
-                                                            className="font-semibold text-[var(--chathams-blue)] responsiveText whitespace-nowrap"
+                                                            className="font-semibold text-[var(--ink)] responsiveText whitespace-nowrap"
                                                         />
                                                     </div>
 
@@ -1883,7 +1905,7 @@ const Cashflow = () => {
                                                             <div className="flex gap-2 my-1" key={z}>
                                                                 <span className="responsiveText items-center flex w-28 text-[var(--chathams-blue)] whitespace-nowrap font-medium">Total for {z}</span>
                                                                 <NumericFormat
-                                                                    className='input w-44 h-6 responsiveText font-medium text-[var(--chathams-blue)] text-right px-3 bg-[var(--surface-pill)] border-[var(--border-cell)] rounded-full'
+                                                                    className='input w-44 h-6 responsiveText font-medium text-[var(--ink)] text-right px-3 bg-[var(--bg-subtle)] border-[var(--line-strong)] rounded-full'
                                                                     value={totalYrs.find(obj => obj.hasOwnProperty(key))?.[key] || ''}
                                                                     thousandSeparator allowNegative={false} decimalScale={2} prefix='$'
                                                                     onValueChange={values => handleChange({ target: { value: values.value } }, z)}

@@ -72,7 +72,7 @@ const DoalogModalClient = ({ obj, clientPartialPayment }) => {
                 </button>
             </PopoverTrigger>
 
-              <PopoverContent className="w-full max-w-xs md:max-w-sm bg-[var(--surface-card)] p-4 border border-slate-300 shadow-lg rounded-2xl z-dropdown
+              <PopoverContent style={{ boxShadow: 'var(--shadow-md)' }} className="w-full max-w-xs md:max-w-sm bg-[var(--bg-card)] p-4 border border-[var(--line)] rounded-2xl z-50
                  data-[state=open]:animate-fade-zoom-in
                  data-[state=closed]:animate-fade-zoom-out
 ">
@@ -99,7 +99,7 @@ const DoalogModalClient = ({ obj, clientPartialPayment }) => {
                                     popoverDirection="down"
                                     onChange={(val) => setDate(val)}
                                     displayFormat={"DD-MMM-YYYY"}
-                                    inputClassName="input w-full shadow-lg h-7 rounded-full"
+                                    inputClassName="input w-full shadow-sm h-7 rounded-full"
                                 />
                             )}
                         </div>
@@ -118,7 +118,7 @@ const DoalogModalClient = ({ obj, clientPartialPayment }) => {
                 </div>
 
                 <div className="flex justify-end pt-3">
-                    <Button className="px-2 h-7 bg-[var(--border-cell)] hover:bg-[var(--border-divider)] text-[var(--endeavour)] border-0 shadow-none rounded-full" onClick={handleSave}>
+                    <Button className="px-2 h-7 bg-[var(--brand-soft)] hover:bg-[var(--bg-sunken)] text-[var(--brand)] border-0 shadow-none rounded-control" onClick={handleSave}>
                         Save
                     </Button>
                 </div>

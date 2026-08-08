@@ -89,7 +89,7 @@ const DoalogModal = ({ obj, supplierPartialPayment }) => {
                 </button>
             </PopoverTrigger>
 
-              <PopoverContent className="w-full max-w-xs md:max-w-md bg-[var(--surface-card)] p-4 border border-slate-300 shadow-lg rounded-2xl z-dropdown
+              <PopoverContent style={{ boxShadow: 'var(--shadow-md)' }} className="w-full max-w-xs md:max-w-md bg-[var(--bg-card)] p-4 border border-[var(--line)] rounded-2xl z-50
                  data-[state=open]:animate-fade-zoom-in
                  data-[state=closed]:animate-fade-zoom-out
 ">
@@ -97,7 +97,7 @@ const DoalogModal = ({ obj, supplierPartialPayment }) => {
                     <div className="flex justify-end">
                         <button
                             onClick={() => setOpen(false)}
-                            className="w-6 h-6 flex items-center justify-center rounded-full bg-[var(--selago)] hover:bg-[var(--surface-header)] text-[var(--endeavour)] transition-colors"
+                            className="w-6 h-6 flex items-center justify-center rounded-full bg-[var(--bg-subtle)] hover:bg-[var(--bg-sunken)] text-[var(--brand)] transition-colors"
                         >
                             <MdClose className="w-3.5 h-3.5" />
                         </button>
@@ -147,7 +147,7 @@ const DoalogModal = ({ obj, supplierPartialPayment }) => {
                 </div>
 
                 <div className="flex justify-end pt-3">
-                    <Button className="px-2 h-7 bg-[var(--border-cell)] hover:bg-[var(--border-divider)] text-[var(--endeavour)] border-0 shadow-none rounded-full" onClick={handleSave}>
+                    <Button className="px-2 h-7 bg-[var(--brand-soft)] hover:bg-[var(--bg-sunken)] text-[var(--brand)] border-0 shadow-none rounded-control" onClick={handleSave}>
                         Save
                     </Button>
                 </div>

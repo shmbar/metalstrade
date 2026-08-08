@@ -15,23 +15,28 @@ const showAmount = (nStr) => {
   return x1 + x2;
 };
 
+// Flat at rest (matches read-only tables app-wide); the input box only appears
+// on hover/focus so the grid doesn't read as a wall of boxes.
 const INPUT_CLASS = `
   w-full
-  bg-[var(--surface-pill)]
-  rounded-lg
+  bg-transparent
+  rounded-control
   px-2
-  responsiveText
-  !text-[var(--port-gore)]
-  border border-[var(--border-cell)]
+  responsiveTextInput
+  !text-[var(--ink)]
+  border border-transparent
   outline-none
-  focus:ring-1
-  focus:ring-[var(--endeavour)]
-  focus:border-[var(--endeavour)]
+  hover:border-[var(--line-strong)]
+  hover:bg-[var(--bg-card)]
+  focus:ring-2
+  focus:ring-[var(--brand-soft)]
+  focus:border-[var(--brand)]
+  focus:bg-[var(--bg-card)]
   shadow-none
-  transition
+  transition-colors
 `;
 
-const INPUT_STYLE = { minHeight: '26px', fontFamily: "var(--font-poppins), 'Poppins', sans-serif" };
+const INPUT_STYLE = { minHeight: '26px', fontVariantNumeric: 'tabular-nums' };
 
 export const Input = function Input({ props, handleChange, month, name, styles, addCur }) {
   const inputRef = useRef(null);

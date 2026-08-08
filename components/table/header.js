@@ -58,7 +58,7 @@ const Header = ({
   );
 
   return (
-    <div style={{ background: 'var(--surface-card)' }}>
+    <div style={{ background: "var(--bg-card)" }}>
 
       {/* Material Tables: special single-row layout matching Canva */}
       {type === 'mTable' ? (
@@ -66,9 +66,9 @@ const Header = ({
           {/* LEFT: Search + Add Tables + Save + Delete */}
           <div className="flex items-center gap-2 flex-wrap">
             {/* Search */}
-            <div className="flex items-center relative w-[160px] h-7 border border-[var(--border-divider)] rounded-full bg-[var(--surface-card)] focus-within:ring-1 focus-within:ring-[var(--border-divider)] shadow-sm transition-all duration-200">
+            <div className="flex items-center relative w-[160px] h-7 border border-[var(--line)] rounded-full bg-[var(--bg-card)] focus-within:ring-1 focus-within:ring-[var(--line)] shadow-sm transition-all duration-200">
               <input
-                className="bg-[var(--surface-card)] border-0 shadow-none pr-8 pl-3 focus:outline-none focus:ring-0 w-full text-[var(--chathams-blue)] placeholder:text-[var(--chathams-blue)] h-full responsiveTextTableTitle font-medium rounded-full"
+                className="bg-[var(--bg-card)] border-0 shadow-none pr-8 pl-3 focus:outline-none focus:ring-0 w-full text-[var(--chathams-blue)] placeholder:text-[var(--chathams-blue)] h-full responsiveTextTableTitle font-medium rounded-full"
                 placeholder={getTtl('Search', ln)}
                 value={globalFilter ?? ''}
                 onChange={e => setGlobalFilter(e.target.value)}
@@ -88,7 +88,7 @@ const Header = ({
             {addTable && (
             <button
               onClick={addTable}
-              className="flex items-center gap-1 bg-[var(--endeavour)] text-white responsiveText font-medium px-3 h-7 rounded-full hover:opacity-90 transition-all"
+              className="flex items-center gap-1 bg-[var(--endeavour)] text-[var(--on-brand)] responsiveText font-medium px-3 h-7 rounded-full hover:opacity-90 transition-all"
             >
               <GrAddCircle style={{ fontSize: 13 }} />
               Add Tables
@@ -159,9 +159,9 @@ const Header = ({
 
           {/* Search Box */}
           {pathname !== '/accounting' && (
-            <div className="flex items-center relative w-[120px] sm:w-[140px] h-7 border border-[var(--border-divider)] rounded-full bg-[var(--surface-card)] focus-within:ring-1 focus-within:ring-[var(--border-divider)] shadow-sm transition-all duration-200">
+            <div className="flex items-center relative w-[120px] sm:w-[140px] h-7 border border-[var(--line)] rounded-full bg-[var(--bg-card)] focus-within:ring-1 focus-within:ring-[var(--line)] shadow-sm transition-all duration-200">
               <input
-                className="bg-[var(--surface-card)] border-0 shadow-none pr-8 pl-3 focus:outline-none focus:ring-0 w-full text-[var(--chathams-blue)] placeholder:text-[var(--chathams-blue)] h-full responsiveTextTableTitle font-medium rounded-full"
+                className="bg-[var(--bg-card)] border-0 shadow-none pr-8 pl-3 focus:outline-none focus:ring-0 w-full text-[var(--chathams-blue)] placeholder:text-[var(--chathams-blue)] h-full responsiveTextTableTitle font-medium rounded-full"
                 placeholder={getTtl('Search', ln)}
                 value={globalFilter ?? ''}
                 onChange={e => setGlobalFilter(e.target.value)}

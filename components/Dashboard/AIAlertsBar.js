@@ -6,6 +6,7 @@ import { SettingsContext } from '@contexts/useSettingsContext';
 import { UserAuth } from '@contexts/useAuthContext';
 import { loadData, loadMarginsRange, ensureNotificationsBatch, reconcileSystemNotifications } from '@utils/utils';
 import { receivables as financeReceivables, groupInvoices, isOverdue, invoiceBalance, isIssued, resolveInvoiceDate, effectiveDueDate } from '@utils/finance';
+import { TONES } from '../statusUtils';
 
 // Bell messages show amounts the way the rest of the app does — with thousand
 // separators ("USD 10,747.47", not "USD 10747.47"). The batch self-heal rewrites
@@ -15,16 +16,16 @@ const fmtAmt = (n) => new Intl.NumberFormat('en-US', { minimumFractionDigits: 2,
 // Compact pill button used for each alert chip
 function AlertPill({ icon: Icon, label, count, severity, onClick }) {
     const palette = {
-        red: { bg: 'var(--danger-bg)', border: 'var(--danger-border)', text: 'var(--danger-strong)' },
-        amber: { bg: 'var(--warn-soft)', border: 'var(--warn-text)', text: 'var(--warn-strong)' },
-        green: { bg: 'var(--ok-bg)', border: 'var(--ok-border)', text: 'var(--ok-strong)' },
-        blue: { bg: 'var(--surface-header)', border: 'var(--border-divider)', text: 'var(--chathams-blue)' },
+        red: TONES.red,
+        amber: TONES.amber,
+        green: TONES.green,
+        blue: TONES.blue,
     }[severity];
     return (
         <button
             onClick={onClick}
             aria-label={`${label}: ${count}`}
-            className='flex items-center gap-1.5 px-3 py-1.5 rounded-full transition-all hover:shadow-sm focus:outline-none focus:ring-2 focus:ring-[var(--endeavour)]/30'
+            className='flex items-center gap-1.5 px-3 py-1.5 rounded-full transition-all hover:shadow-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30'
             style={{
                 background: palette.bg,
                 border: `1px solid ${palette.border}`,
@@ -37,7 +38,7 @@ function AlertPill({ icon: Icon, label, count, severity, onClick }) {
             <span>{label}</span>
             <span
                 className='px-1.5 py-0.5 rounded-full'
-                style={{ background: 'var(--surface-card)', fontSize: 'var(--fs-caption)', minWidth: '18px', textAlign: 'center' }}
+                style={{ background: "var(--bg-card)", fontSize: 'var(--fs-caption)', minWidth: '18px', textAlign: 'center' }}
             >
                 {count}
             </span>
@@ -180,9 +181,9 @@ const AIAlertsBar = () => {
 
     if (loading) {
         return (
-            <div className='flex items-center gap-2 px-3 py-2.5 rounded-2xl mb-3 shadow-sm' style={{ border: '1px solid var(--selago)', background: 'var(--surface-card)' }}>
-                <Loader2 className='w-3.5 h-3.5 animate-spin' style={{ color: 'var(--endeavour)' }} />
-                <span style={{ fontSize: 'var(--fs-table)', color: 'var(--regent-gray)' }}>Checking alerts…</span>
+            <div className='flex items-center gap-2 px-3 py-2.5 rounded-2xl mb-3 shadow-sm' style={{ border: '1px solid var(--line)', background: "var(--bg-card)" }}>
+                <Loader2 className='w-3.5 h-3.5 animate-spin' style={{ color: 'var(--brand)' }} />
+                <span style={{ fontSize: 'var(--fs-table)', color: 'var(--ink-muted)' }}>Checking alerts…</span>
             </div>
         );
     }
@@ -190,9 +191,9 @@ const AIAlertsBar = () => {
     const hasAny = counts.balance > 0 || counts.due > 0 || counts.marginAlerts > 0 || counts.recentReminders > 0;
     if (!hasAny) {
         return (
-            <div className='flex items-center gap-2 px-3 py-2 rounded-2xl mb-3' style={{ border: '1px solid var(--ok-border)', background: 'var(--ok-soft)' }}>
-                <AlertTriangle className='w-3.5 h-3.5' style={{ color: 'var(--ok-text)' }} />
-                <span style={{ fontSize: 'var(--fs-table)', color: 'var(--ok-strong)', fontWeight: 600 }}>
+            <div className='flex items-center gap-2 px-3 py-2 rounded-2xl mb-3' style={{ border: `1px solid ${TONES.green.border}`, background: TONES.green.bg }}>
+                <AlertTriangle className='w-3.5 h-3.5' style={{ color: TONES.green.text }} />
+                <span style={{ fontSize: 'var(--fs-table)', color: TONES.green.text, fontWeight: 600 }}>
                     All clear — no outstanding receivables or margin alerts.
                 </span>
             </div>
@@ -202,11 +203,11 @@ const AIAlertsBar = () => {
     return (
         <div
             className='flex flex-wrap items-center gap-2 px-3 py-2.5 rounded-2xl mb-3 shadow-sm'
-            style={{ border: '1px solid var(--selago)', background: 'var(--surface-card)' }}
+            style={{ border: '1px solid var(--line)', background: "var(--bg-card)" }}
             role='region'
             aria-label='AI alerts summary'
         >
-            <span className='flex items-center gap-1.5' style={{ fontSize: 'var(--fs-table)', color: 'var(--chathams-blue)', fontWeight: 600 }}>
+            <span className='flex items-center gap-1.5' style={{ fontSize: 'var(--fs-table)', color: 'var(--ink)', fontWeight: 600 }}>
                 <span className='relative flex h-2 w-2'>
                     <span className='absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75 animate-ping' />
                     <span className='relative inline-flex rounded-full h-2 w-2 bg-emerald-500' />

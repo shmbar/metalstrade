@@ -2,6 +2,9 @@
 import { useContext, useEffect, useMemo, useState } from 'react';
 import Customtable from './newTable';
 import SharedStock from './SharedStock';
+import KpiStrip from '../../../components/KpiStrip';
+import Avatar from '../../../components/Avatar';
+import { Boxes, Warehouse, Factory, Layers } from 'lucide-react';
 import MyDetailsModal from './whModal.js'
 import { SettingsContext } from "../../../contexts/useSettingsContext";
 import { ContractsContext } from "../../../contexts/useContractsContext";
@@ -100,6 +103,16 @@ const Stocks = () => {
     },
     {
       accessorKey: 'supplier', header: getTtl('Supplier', ln),
+      cell: (props) => {
+        const name = props.getValue();
+        if (!name) return <p>{''}</p>;
+        return (
+          <span className="inline-flex items-center gap-1.5 max-w-[160px]">
+            <Avatar name={String(name)} size={18} />
+            <span className="truncate">{name}</span>
+          </span>
+        );
+      },
       meta: {
         filterVariant: 'selectSupplier',
       },
@@ -345,7 +358,7 @@ const Stocks = () => {
   );
 
   return (
-    <div className="w-full " style={{ background: "var(--surface-pill)" }}>
+    <div className="w-full " style={{ background: "var(--bg-page)" }}>
       <div className="mx-auto w-full max-w-full px-1 md:px-2 pb-4 mt-[72px]">
         {Object.keys(settings).length === 0 ? <TableSkeleton /> :
           <>
@@ -354,37 +367,46 @@ const Stocks = () => {
             {/* Warehouse fetches used the old bare gray spinner (Spin) — use the same
                 light overlay as every other loading state. */}
             <VideoLoader loading={isLoadingStock} fullScreen={true} />
-            {/* Main Card */}
-            <div className="rounded-2xl p-3 sm:p-5 mt-8 border border-[var(--border-divider)] shadow-xl w-full bg-[var(--surface-pill)]">
-              {/* Header Section */}
-              <div className='flex items-center justify-between flex-wrap gap-2'>
-                <h1 className="text-[var(--chathams-blue)] font-poppins responsiveTextPage font-medium border-l-4 border-[var(--chathams-blue)] pl-2">
-                  {getTtl('Stocks', ln)}
-                </h1>
-                <button
-                  type="button"
-                  onClick={() => setAuditOpen(true)}
-                  className="whiteButton whitespace-nowrap"
-                  title="Stock Audit"
-                >
-                  Stock Audit
-                </button>
+            {/* Page header */}
+            <div className="page-header flex items-end justify-between flex-wrap gap-2 mt-6 mb-3 px-1">
+              <div>
+                <h1 className="text-display">{getTtl('Stocks', ln)}</h1>
+                <p className="responsiveTextInput text-[var(--ink-muted)] mt-0.5">Inventory across warehouses</p>
               </div>
+              <button
+                type="button"
+                onClick={() => setAuditOpen(true)}
+                className="whiteButton whitespace-nowrap"
+                title="Stock Audit"
+              >
+                Stock Audit
+              </button>
+            </div>
+
+            {/* KPI strip */}
+            <KpiStrip items={[
+              { label: 'Stock lines', value: data.length, icon: Boxes, tone: 'blue' },
+              { label: 'Warehouses', value: new Set(data.map(x => x.stock).filter(Boolean)).size, icon: Warehouse, tone: 'gray' },
+              { label: 'Suppliers', value: new Set(data.map(x => x.supplier).filter(Boolean)).size, icon: Factory, tone: 'green' },
+              { label: 'Descriptions', value: new Set(data.map(x => x.descriptionName).filter(Boolean)).size, icon: Layers, tone: 'amber' },
+            ]} />
+
+            {/* Main Card */}
+            <div className="page-card rounded-2xl p-3 sm:p-5 border border-[var(--line)] shadow-card w-full bg-[var(--bg-card)]">
 
               {/* Tabs: this account's stock vs the IMS+GIS shared pool */}
-              <div className='flex items-center gap-1.5 mt-3'>
-                {[['mine', 'My Stock'], ['shared', 'Shared (IMS + GIS)']].map(([key, label]) => (
-                  <button key={key} type='button' onClick={() => setActiveTab(key)}
-                    className='rounded-full font-medium transition-colors'
-                    style={{
-                      fontSize: 'var(--fs-input)', padding: '5px 14px',
-                      background: activeTab === key ? 'var(--endeavour)' : 'var(--surface-card)',
-                      color: activeTab === key ? 'var(--on-brand)' : 'var(--chathams-blue)',
-                      border: `1px solid ${activeTab === key ? 'var(--endeavour)' : 'var(--border-cell)'}`,
-                    }}>
-                    {label}
-                  </button>
-                ))}
+              <div className='mt-3 flex'>
+                <div className='flex items-center bg-[var(--bg-subtle)] border border-[var(--line)] rounded-full p-0.5'>
+                  {[['mine', 'My Stock'], ['shared', 'Shared (IMS + GIS)']].map(([key, label]) => (
+                    <button key={key} type='button' onClick={() => setActiveTab(key)}
+                      className={`rounded-full transition-colors ${activeTab === key
+                        ? 'bg-[var(--bg-card)] text-[var(--ink)] font-medium shadow-card'
+                        : 'text-[var(--ink-secondary)]'}`}
+                      style={{ fontSize: 'var(--fs-input)', padding: '5px 14px' }}>
+                      {label}
+                    </button>
+                  ))}
+                </div>
               </div>
 
               {activeTab === 'shared' ? (

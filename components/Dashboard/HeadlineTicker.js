@@ -34,15 +34,15 @@ export default function HeadlineTicker({
   // ── theme ──────────────────────────────────────────────────────────────────
   const theme = useMemo(() => {
     const t = {
-      shell:         'border border-[var(--selago)] bg-[var(--surface-card)] shadow-sm',
-      headerIconWrap:'bg-[var(--endeavour)] text-white',
+      shell:         'border border-[var(--line)] bg-[var(--bg-card)] shadow-sm',
+      headerIconWrap:'bg-[var(--endeavour)] text-[var(--on-brand)]',
       titleText:     'text-[var(--chathams-blue)]',
       subText:       'text-[var(--endeavour)] responsiveTextInput',
-      tickerDot:     'bg-[var(--border-divider)]',
+      tickerDot:     'bg-[var(--line)]',
       itemLabel:     'text-[var(--regent-gray)] responsiveTextTable',
       itemValue:     'text-[var(--port-gore)] responsiveTextTable font-bold',
       itemSub:       'text-[var(--regent-gray)] responsiveTextTable',
-      itemPill:      'bg-[var(--surface-pill)] border border-[var(--selago)] rounded-full',
+      itemPill:      'bg-[var(--bg-subtle)] border border-[var(--line)] rounded-full',
       itemIcon:      'text-[var(--endeavour)]/70',
       hover:         'hover:shadow-md',
       mask:          'linear-gradient(to right, transparent, black 8%, black 92%, transparent)',
@@ -194,15 +194,15 @@ export default function HeadlineTicker({
         top: '50%', [side]: 6,
         transform: 'translateY(-50%)',
         zIndex: 10,
-        background: 'rgba(var(--surface-card-rgb),0.92)',
-        border: '1px solid var(--border-divider)',
+        background: 'color-mix(in srgb, var(--bg-card) 92%, transparent)',
+        border: '1px solid var(--line)',
         borderRadius: '50%',
         width: 22, height: 22,
         display: 'flex', alignItems: 'center', justifyContent: 'center',
         cursor: 'pointer',
         fontSize: 9,
         color: 'var(--endeavour)',
-        boxShadow: '0 2px 8px rgba(var(--shadow-rgb), 0.10)',
+        boxShadow: 'var(--shadow-md)',
         lineHeight: 1,
       }}
     >
@@ -277,8 +277,8 @@ export default function HeadlineTicker({
                       const c = it.change > 0
                         ? { bg: 'var(--ok-bg)', fg: 'var(--ok-text)', arrow: '▲' }
                         : it.change < 0
-                          ? { bg: 'var(--danger-bg)', fg: 'var(--danger-text)', arrow: '▼' }
-                          : { bg: 'var(--selago)', fg: 'var(--text-mid)', arrow: '•' };
+                          ? { bg: 'var(--bad-bg)', fg: 'var(--bad-text)', arrow: '▼' }
+                          : { bg: 'var(--line)', fg: 'var(--ink-secondary)', arrow: '•' };
                       const pct = it.change_pct != null
                         ? `${Math.abs(it.change_pct).toFixed(2)}%`
                         : Math.abs(it.change).toFixed(2);
@@ -308,7 +308,7 @@ export default function HeadlineTicker({
         <div
           onClick={handleScrollbarClick}
           style={{
-            height: 4, background: 'var(--border-cell)',
+            height: 4, background: 'var(--line-strong)',
             margin: '0 16px 8px', borderRadius: 2,
             cursor: 'pointer', position: 'relative',
           }}

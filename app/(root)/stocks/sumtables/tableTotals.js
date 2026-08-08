@@ -64,8 +64,8 @@ const Customtable = ({ data, columns, ln, ttl, settings, dataTable, rmrk }) => {
             key={`${currency}-${index}`}
             className="responsiveTextTable font-medium text-center"
             style={{
-              color: 'var(--chathams-blue)',
-              background: 'var(--surface-header)',
+              color: 'var(--ink)',
+              background: 'var(--bg-subtle)',
               padding: '6px 10px',
               whiteSpace: 'nowrap',
             }}
@@ -83,8 +83,8 @@ const Customtable = ({ data, columns, ln, ttl, settings, dataTable, rmrk }) => {
         className="w-full"
         style={{
           borderRadius: '16px',
-          border: '1px solid var(--border-divider)',
-          boxShadow: '0 2px 8px rgba(var(--shadow-rgb), 0.08)',
+          border: '1px solid var(--line)',
+          boxShadow: 'var(--shadow-xs)',
           overflow: 'hidden'
         }}
       >
@@ -92,10 +92,10 @@ const Customtable = ({ data, columns, ln, ttl, settings, dataTable, rmrk }) => {
         <div
           className="responsiveTextTable font-medium text-center"
           style={{
-            background: 'var(--surface-header)',
+            background: 'var(--bg-subtle)',
             padding: '8px 16px',
-            borderBottom: '1px solid var(--border-divider)',
-            color: 'var(--chathams-blue)',
+            borderBottom: '1px solid var(--line)',
+            color: 'var(--ink)',
             fontWeight: '500'
           }}
         >
@@ -109,20 +109,24 @@ const Customtable = ({ data, columns, ln, ttl, settings, dataTable, rmrk }) => {
                   {hdGroup.headers.map(header => (
                     <th
                       key={header.id}
-                      className="responsiveTextTable font-medium text-center"
+                      className="font-medium text-center"
                       style={{
-                        color: 'var(--chathams-blue)',
-                        background: 'var(--surface-header)',
+                        color: 'var(--ink-muted)',
+                        background: 'var(--bg-subtle)',
                         padding: '6px 10px',
-                        borderBottom: '1px solid var(--border-divider)',
+                        borderBottom: '1px solid var(--line)',
                         whiteSpace: 'nowrap',
+                        fontSize: 'var(--fs-body)',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.04em',
+                        fontWeight: 500,
                       }}
                     >
                       {header.column.getCanSort() ? (
                         <div onClick={header.column.getToggleSortingHandler()} className="flex cursor-pointer items-center gap-1 justify-center">
                           {header.column.columnDef.header}
-                          {header.column.getIsSorted() === 'asc' && <TbSortAscending className="text-[var(--endeavour)] scale-110" />}
-                          {header.column.getIsSorted() === 'desc' && <TbSortDescending className="text-[var(--endeavour)] scale-110" />}
+                          {header.column.getIsSorted() === 'asc' && <TbSortAscending className="text-[var(--brand)] scale-110" />}
+                          {header.column.getIsSorted() === 'desc' && <TbSortDescending className="text-[var(--brand)] scale-110" />}
                         </div>
                       ) : (
                         <span>{header.column.columnDef.header}</span>
@@ -135,15 +139,15 @@ const Customtable = ({ data, columns, ln, ttl, settings, dataTable, rmrk }) => {
             <tbody>
               {table.getRowModel().rows.length > 0 ? (
                 table.getRowModel().rows.map(row => (
-                  <tr key={row.id} className="cursor-pointer hover:bg-[var(--selago)]">
+                  <tr key={row.id} className="cursor-pointer hover:bg-[var(--bg-subtle)]">
                     {row.getVisibleCells().map(cell => (
                       <td
                         key={cell.id}
                         className="responsiveTextTable text-center"
                         style={{
-                          color: 'var(--chathams-blue)',
+                          color: 'var(--ink)',
                           padding: '6px 10px',
-                          borderBottom: '1px solid var(--border-divider)',
+                          borderBottom: '1px solid var(--line)',
                           whiteSpace: 'nowrap',
                         }}
                       >
@@ -156,7 +160,7 @@ const Customtable = ({ data, columns, ln, ttl, settings, dataTable, rmrk }) => {
                 ))
               ) : (
                 <tr>
-                  <td colSpan={columns.length} className="responsiveTextTable text-center py-8" style={{ color: 'var(--regent-gray)' }}>
+                  <td colSpan={columns.length} className="responsiveTextTable text-center py-8" style={{ color: 'var(--ink-muted)' }}>
                     No data available
                   </td>
                 </tr>

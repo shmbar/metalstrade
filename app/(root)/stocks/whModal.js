@@ -15,7 +15,7 @@ import Tltip from '@components/tlTip';
 import { InvoiceContext } from '@contexts/useInvoiceContext';
 import { Selector } from '@components/selectors/selectShad';
 import { FilePen, Archive, FileText   } from "lucide-react"
-import { Button } from '@components/ui/button.jsx';
+import { Button } from '@components/ui/button';
 
 
 
@@ -210,14 +210,14 @@ const WHvModal = ({ isOpen, setIsOpen, item, setItem, data, setData }) => {
         }))
     }
 
-    const labelCls = 'responsiveText font-medium text-[var(--chathams-blue)] whitespace-nowrap mb-0.5'
-    const inputCls = 'w-full rounded-full border border-[var(--border-divider)] bg-[var(--surface-pill)] text-[var(--chathams-blue)] responsiveTextInput h-7 px-2 focus:outline-none focus:ring-1 focus:ring-[var(--endeavour)] disabled:opacity-70'
+    const labelCls = 'responsiveText font-medium text-[var(--ink-secondary)] whitespace-nowrap mb-0.5'
+    const inputCls = 'w-full rounded-control border border-[var(--line-strong)] bg-[var(--bg-card)] text-[var(--ink)] responsiveTextInput h-7 px-2 focus:outline-none focus:ring-1 focus:ring-[var(--brand)] focus:border-[var(--brand)] disabled:opacity-70'
 
     return (
         <Modal isOpen={isOpen} setIsOpen={setIsOpen} title={getTtl('Materials Breakdown', ln)} w='max-w-4xl'>
 
             {/* Info fields */}
-            <div className='grid grid-cols-12 gap-3 p-3 m-3 rounded-2xl border border-[var(--border-divider)]' style={{ background: 'var(--surface-pill)' }}>
+            <div className='grid grid-cols-12 gap-3 p-3 m-3 rounded-2xl border border-[var(--line)]' style={{ background: 'var(--bg-subtle)' }}>
                 <div className='col-span-12 md:col-span-5 flex flex-col'>
                     <p className={labelCls}>{getTtl('Description', ln)}:</p>
                     <input type='text' disabled value={item.descriptionName} name='descriptionName' className={inputCls} />
@@ -241,10 +241,10 @@ const WHvModal = ({ isOpen, setIsOpen, item, setItem, data, setData }) => {
             </div>
 
             {/* Change Stock section */}
-            <div className={`${showBlock ? 'flex' : 'hidden'} gap-4 px-3 pb-2 mx-3 mb-2 rounded-2xl border border-[var(--border-divider)] p-3`} style={{ background: 'var(--surface-pill)' }}>
+            <div className={`${showBlock ? 'flex' : 'hidden'} gap-4 px-3 pb-2 mx-3 mb-2 rounded-2xl border border-[var(--line)] p-3`} style={{ background: 'var(--bg-subtle)' }}>
                 <div className='flex flex-col'>
                     <p className={labelCls}>{getTtl('Weight', ln)}</p>
-                    <input type='text' className={inputCls + ' w-24 !bg-[var(--surface-card)]'} name='qnty' value={addComma(newItemStock.qnty, false)} onChange={e => handleValueQnty1(e)} />
+                    <input type='text' className={inputCls + ' w-24 !bg-[var(--bg-card)]'} name='qnty' value={addComma(newItemStock.qnty, false)} onChange={e => handleValueQnty1(e)} />
                 </div>
                 <div className='flex flex-col w-48'>
                     <p className={labelCls}>{getTtl('Stock', ln)}:</p>
@@ -259,7 +259,7 @@ const WHvModal = ({ isOpen, setIsOpen, item, setItem, data, setData }) => {
             </div>
 
             {/* Action buttons */}
-            <div className='flex gap-3 px-3 py-2 border-t border-[var(--selago)]'>
+            <div className='flex gap-3 px-3 py-2 border-t border-[var(--line)]'>
                 <Tltip direction='top' tltpText='Move item to a different stock'>
                     <Button className="h-8 responsiveTextInput rounded-full" onClick={moveItems}>
                         <Archive />
@@ -276,7 +276,7 @@ const WHvModal = ({ isOpen, setIsOpen, item, setItem, data, setData }) => {
 
             {/* Show Shipments toggle */}
             <div className='flex items-center px-3 py-2 gap-2'>
-                <p className='responsiveTextInput text-[var(--chathams-blue)]'>{!enabledSwitch ? getTtl('Hide Shipments', ln) : getTtl('Show Shipments', ln)}</p>
+                <p className='responsiveTextInput text-[var(--ink)]'>{!enabledSwitch ? getTtl('Hide Shipments', ln) : getTtl('Show Shipments', ln)}</p>
                 <Switch enabled={enabledSwitch} setEnabled={setEnabledSwitch} />
             </div>
 

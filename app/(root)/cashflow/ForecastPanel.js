@@ -5,6 +5,8 @@ import { SettingsContext } from '../../../contexts/useSettingsContext';
 import { loadData, resolveDueDate } from '../../../utils/utils';
 import { authedFetch } from '../../../utils/aiClient';
 import { Loader2, RefreshCw, TrendingUp, TrendingDown, Minus, AlertTriangle, Info, Clock } from 'lucide-react';
+import { TONES } from '../../../components/statusUtils';
+import CountUp from '../../../components/CountUp';
 
 const HORIZONS = [30, 60, 90];
 
@@ -30,9 +32,9 @@ function CurrencyRows({ label, data, colorClass }) {
 
 function ConfidenceBadge({ confidence }) {
     const map = {
-        high: { bg: 'var(--ok-bg)', text: 'var(--ok-strong)', label: 'High confidence' },
-        medium: { bg: 'var(--warn-bg)', text: 'var(--warn-strong)', label: 'Medium confidence' },
-        low: { bg: 'var(--danger-bg)', text: 'var(--danger-strong)', label: 'Low confidence' },
+        high: { bg: TONES.green.bg, text: TONES.green.text, label: 'High confidence' },
+        medium: { bg: TONES.amber.bg, text: TONES.amber.text, label: 'Medium confidence' },
+        low: { bg: TONES.red.bg, text: TONES.red.text, label: 'Low confidence' },
     };
     const s = map[confidence] || map.medium;
     return (
@@ -147,7 +149,7 @@ const ForecastPanel = () => {
     const result = results[activeHorizon];
 
     return (
-        <section className='mb-3 rounded-2xl overflow-hidden' style={{ border: '1px solid var(--border-divider)' }} aria-labelledby='forecast-panel-title'>
+        <section className='mb-3 rounded-2xl overflow-hidden' style={{ border: '1px solid var(--line)' }} aria-labelledby='forecast-panel-title'>
             {/* Header / toggle — div+role rather than <button> so the inner
                 Refresh <button> can be a real nested interactive element
                 (nested <button> inside <button> is invalid HTML and hard-errors
@@ -159,12 +161,12 @@ const ForecastPanel = () => {
                 tabIndex={0}
                 aria-expanded={opened}
                 aria-controls='forecast-panel-body'
-                className='w-full flex items-center justify-between px-4 py-2.5 transition-colors cursor-pointer focus:outline-none focus:ring-2 focus:ring-[var(--endeavour)]/30'
-                style={{ background: 'var(--surface-header)' }}
+                className='w-full flex items-center justify-between px-4 py-2.5 transition-colors cursor-pointer focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30'
+                style={{ background: 'var(--bg-subtle)' }}
             >
                 <div className='flex items-center gap-2'>
-                    <TrendingUp className='w-3.5 h-3.5' style={{ color: 'var(--endeavour)' }} />
-                    <span id='forecast-panel-title' className='font-semibold' style={{ fontSize: 'var(--fs-input)', color: 'var(--chathams-blue)' }}>
+                    <TrendingUp className='w-3.5 h-3.5' style={{ color: 'var(--brand)' }} />
+                    <span id='forecast-panel-title' className='font-semibold' style={{ fontSize: 'var(--fs-input)', color: 'var(--ink)' }}>
                         AI Cash Forecast
                     </span>
                     {result && <ConfidenceBadge confidence={result.confidence} />}
@@ -174,21 +176,21 @@ const ForecastPanel = () => {
                         <button
                             onClick={e => { e.stopPropagation(); handleRefresh(); }}
                             aria-label='Refresh cash forecast'
-                            className='p-1 rounded-full hover:bg-[var(--border-divider)] transition-colors focus:outline-none focus:ring-2 focus:ring-[var(--endeavour)]/30'
+                            className='p-1 rounded-full hover:bg-[var(--bg-sunken)] transition-colors focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30'
                         >
-                            <RefreshCw className='w-3 h-3' style={{ color: 'var(--endeavour)' }} aria-hidden='true' />
+                            <RefreshCw className='w-3 h-3' style={{ color: 'var(--brand)' }} aria-hidden='true' />
                         </button>
                     )}
-                    <span style={{ fontSize: 'var(--fs-table)', color: 'var(--chathams-blue)' }}>
+                    <span style={{ fontSize: 'var(--fs-table)', color: 'var(--ink-secondary)' }}>
                         {opened ? '▲' : '▼'}
                     </span>
                 </div>
             </div>
 
             {opened && (
-                <div className='p-3 bg-[var(--surface-card)]'>
+                <div className='p-3 bg-[var(--bg-card)]'>
                     {/* Horizon tabs */}
-                    <div className='flex gap-1.5 mb-3'>
+                    <div className='inline-flex gap-1 mb-3 bg-[var(--bg-subtle)] border border-[var(--line)] rounded-full p-0.5'>
                         {HORIZONS.map(h => (
                             <button
                                 key={h}
@@ -217,9 +219,9 @@ const ForecastPanel = () => {
 
                     {/* Error state */}
                     {!loading && error && (
-                        <div className='flex items-center gap-2 py-2 px-3 rounded-lg' style={{ background: 'var(--danger-bg)', border: '1px solid var(--danger-border)' }}>
-                            <AlertTriangle className='w-3.5 h-3.5 flex-shrink-0' style={{ color: 'var(--danger-strong)' }} />
-                            <span style={{ fontSize: 'var(--fs-table)', color: 'var(--danger-strong)' }}>{error}</span>
+                        <div className='flex items-center gap-2 py-2 px-3 rounded-lg' style={{ background: TONES.red.bg, border: `1px solid ${TONES.red.border}` }}>
+                            <AlertTriangle className='w-3.5 h-3.5 flex-shrink-0' style={{ color: TONES.red.text }} />
+                            <span style={{ fontSize: 'var(--fs-table)', color: TONES.red.text }}>{error}</span>
                         </div>
                     )}
 
@@ -229,54 +231,55 @@ const ForecastPanel = () => {
                             {/* Unified base-currency total (includes overdue) */}
                             {result.baseTotals && result.baseCurrency && (
                                 <div className='rounded-2xl p-3 mb-3 flex items-center justify-between flex-wrap gap-2'
-                                    style={{ background: 'linear-gradient(135deg, var(--surface-header) 0%, var(--selago) 100%)', border: '1px solid var(--rock-blue)' }}>
+                                    style={{ background: 'var(--bg-subtle)', border: '1px solid var(--line)' }}>
                                     <div>
-                                        <p style={{ fontSize: 'var(--fs-caption)', color: 'var(--regent-gray)' }}>
+                                        <p style={{ fontSize: 'var(--fs-caption)', color: 'var(--ink-muted)' }}>
                                             Effective net (projected + overdue, all currencies → {result.baseCurrency} @ ECB rates)
                                         </p>
-                                        <p className='font-semibold' style={{
+                                        <p className='font-semibold font-display tabular-nums' style={{
                                             fontSize: 'var(--fs-page)',
-                                            color: result.baseTotals.net >= 0 ? 'var(--ok-strong)' : 'var(--danger-text)'
+                                            color: result.baseTotals.net >= 0 ? TONES.green.text : TONES.red.text
                                         }}>
-                                            {result.baseTotals.net >= 0 ? '+' : ''}{result.baseCurrency} {Number(result.baseTotals.net).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                            {result.baseTotals.net >= 0 ? '+' : ''}{result.baseCurrency}{' '}
+                                            <CountUp value={result.baseTotals.net} format={(n) => Number(n).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} />
                                         </p>
                                     </div>
-                                    <div className='text-right' style={{ fontSize: 'var(--fs-table)', color: 'var(--chathams-blue)' }}>
-                                        <div>Inflow (proj+overdue): <span style={{ color: 'var(--ok-strong)', fontWeight: 600 }}>{result.baseCurrency} {Number((result.baseTotals.inflow || 0) + (result.baseTotals.overdueInflow || 0)).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</span></div>
-                                        <div>Outflow (proj+overdue): <span style={{ color: 'var(--danger-text)', fontWeight: 600 }}>{result.baseCurrency} {Number((result.baseTotals.outflow || 0) + (result.baseTotals.overdueOutflow || 0)).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</span></div>
+                                    <div className='text-right' style={{ fontSize: 'var(--fs-table)', color: 'var(--ink-secondary)' }}>
+                                        <div>Inflow (proj+overdue): <span style={{ color: TONES.green.text, fontWeight: 600 }}>{result.baseCurrency} {Number((result.baseTotals.inflow || 0) + (result.baseTotals.overdueInflow || 0)).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</span></div>
+                                        <div>Outflow (proj+overdue): <span style={{ color: TONES.red.text, fontWeight: 600 }}>{result.baseCurrency} {Number((result.baseTotals.outflow || 0) + (result.baseTotals.overdueOutflow || 0)).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</span></div>
                                     </div>
                                 </div>
                             )}
 
                             {/* Three stat boxes */}
                             <div className='grid grid-cols-3 gap-3 mb-3'>
-                                <div className='rounded-2xl p-3' style={{ background: 'var(--ok-soft)', border: '1px solid var(--ok-border)' }}>
+                                <div className='rounded-2xl p-3' style={{ background: TONES.green.bg, border: `1px solid ${TONES.green.border}` }}>
                                     <div className='flex items-center gap-1 mb-1'>
-                                        <TrendingUp className='w-3 h-3' style={{ color: 'var(--ok-text)' }} />
-                                        <span className='font-semibold' style={{ fontSize: 'var(--fs-table)', color: 'var(--ok-strong)' }}>Projected Inflow</span>
+                                        <TrendingUp className='w-3 h-3' style={{ color: TONES.green.text }} />
+                                        <span className='font-semibold' style={{ fontSize: 'var(--fs-table)', color: TONES.green.text }}>Projected Inflow</span>
                                     </div>
-                                    <CurrencyRows data={result.inflow} colorClass='text-[var(--ok-strong)]' />
-                                    <p style={{ fontSize: 'var(--fs-caption)', color: 'var(--ok-border)', marginTop: '2px' }}>
+                                    <CurrencyRows data={result.inflow} colorClass='text-[var(--ok-text)]' />
+                                    <p style={{ fontSize: 'var(--fs-caption)', color: TONES.green.border, marginTop: '2px' }}>
                                         {result.sources.invoiceCount} invoice{result.sources.invoiceCount !== 1 ? 's' : ''}
                                     </p>
                                 </div>
-                                <div className='rounded-2xl p-3' style={{ background: 'var(--danger-soft)', border: '1px solid var(--danger-border)' }}>
+                                <div className='rounded-2xl p-3' style={{ background: TONES.red.bg, border: `1px solid ${TONES.red.border}` }}>
                                     <div className='flex items-center gap-1 mb-1'>
-                                        <TrendingDown className='w-3 h-3' style={{ color: 'var(--danger-text)' }} />
-                                        <span className='font-semibold' style={{ fontSize: 'var(--fs-table)', color: 'var(--danger-text)' }}>Projected Outflow</span>
+                                        <TrendingDown className='w-3 h-3' style={{ color: TONES.red.text }} />
+                                        <span className='font-semibold' style={{ fontSize: 'var(--fs-table)', color: TONES.red.text }}>Projected Outflow</span>
                                     </div>
-                                    <CurrencyRows data={result.outflow} colorClass='text-[var(--danger-text)]' />
-                                    <p style={{ fontSize: 'var(--fs-caption)', color: 'var(--danger-border)', marginTop: '2px' }}>
+                                    <CurrencyRows data={result.outflow} colorClass='text-[var(--bad-text)]' />
+                                    <p style={{ fontSize: 'var(--fs-caption)', color: TONES.red.border, marginTop: '2px' }}>
                                         {result.sources.expenseCount} expense{result.sources.expenseCount !== 1 ? 's' : ''}
                                     </p>
                                 </div>
-                                <div className='rounded-2xl p-3' style={{ background: 'var(--selago)', border: '1px solid var(--rock-blue)' }}>
+                                <div className='rounded-2xl p-3' style={{ background: TONES.blue.bg, border: `1px solid ${TONES.blue.border}` }}>
                                     <div className='flex items-center gap-1 mb-1' title='Net = projected + already-overdue (the cash that needs to move regardless of when it was originally due)'>
-                                        <Minus className='w-3 h-3' style={{ color: 'var(--endeavour)' }} />
-                                        <span className='font-semibold' style={{ fontSize: 'var(--fs-table)', color: 'var(--chathams-blue)' }}>Net Position (incl. overdue)</span>
+                                        <Minus className='w-3 h-3' style={{ color: TONES.blue.text }} />
+                                        <span className='font-semibold' style={{ fontSize: 'var(--fs-table)', color: TONES.blue.text }}>Net Position (incl. overdue)</span>
                                     </div>
                                     {Object.entries(result.net || {}).map(([cur, val]) => (
-                                        <p key={cur} className='font-semibold' style={{ fontSize: 'var(--fs-input)', color: val >= 0 ? 'var(--ok-strong)' : 'var(--danger-text)' }}>
+                                        <p key={cur} className='font-semibold' style={{ fontSize: 'var(--fs-input)', color: val >= 0 ? TONES.green.text : TONES.red.text }}>
                                             {val >= 0 ? '+' : ''}{cur} {Number(val).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                                         </p>
                                     ))}
@@ -288,13 +291,13 @@ const ForecastPanel = () => {
 
                             {/* Already-overdue strip */}
                             {(Object.keys(result.overdueInflow || {}).length > 0 || Object.keys(result.overdueOutflow || {}).length > 0) && (
-                                <div className='rounded-lg p-2.5 mb-3 flex items-start gap-2' style={{ background: 'var(--danger-soft)', border: '1px solid var(--danger-border)' }}>
-                                    <Clock className='w-3.5 h-3.5 flex-shrink-0 mt-0.5' style={{ color: 'var(--danger-text)' }} />
+                                <div className='rounded-lg p-2.5 mb-3 flex items-start gap-2' style={{ background: TONES.red.bg, border: `1px solid ${TONES.red.border}` }}>
+                                    <Clock className='w-3.5 h-3.5 flex-shrink-0 mt-0.5' style={{ color: TONES.red.text }} />
                                     <div className='flex-1 min-w-0'>
-                                        <p className='font-semibold mb-0.5' style={{ fontSize: 'var(--fs-table)', color: 'var(--danger-strong)' }}>
+                                        <p className='font-semibold mb-0.5' style={{ fontSize: 'var(--fs-table)', color: TONES.red.text }}>
                                             Already overdue (not in horizon — still uncollected/unpaid)
                                         </p>
-                                        <div className='flex flex-wrap gap-x-3 gap-y-0.5' style={{ fontSize: 'var(--fs-table)', color: 'var(--danger-strong)' }}>
+                                        <div className='flex flex-wrap gap-x-3 gap-y-0.5' style={{ fontSize: 'var(--fs-table)', color: TONES.red.text }}>
                                             {Object.entries(result.overdueInflow || {}).map(([cur, val]) => (
                                                 <span key={'oi-' + cur}>Receivable: {cur} {Number(val).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ({result.sources.overdueInvoiceCount} inv)</span>
                                             ))}
@@ -309,30 +312,30 @@ const ForecastPanel = () => {
                             {/* AI insights: assumptions + risks */}
                             <div className='grid grid-cols-2 gap-3'>
                                 {result.assumptions?.length > 0 && (
-                                    <div className='rounded-lg p-2.5' style={{ background: 'var(--surface-pill)', border: '1px solid var(--surface-header)' }}>
+                                    <div className='rounded-lg p-2.5' style={{ background: 'var(--bg-subtle)', border: '1px solid var(--line)' }}>
                                         <div className='flex items-center gap-1 mb-1.5'>
-                                            <Info className='w-3 h-3' style={{ color: 'var(--endeavour)' }} />
-                                            <span className='font-semibold' style={{ fontSize: 'var(--fs-table)', color: 'var(--chathams-blue)' }}>Key Assumptions</span>
+                                            <Info className='w-3 h-3' style={{ color: 'var(--brand)' }} />
+                                            <span className='font-semibold' style={{ fontSize: 'var(--fs-table)', color: 'var(--ink)' }}>Key Assumptions</span>
                                         </div>
                                         <ul className='space-y-0.5'>
                                             {result.assumptions.map((a, i) => (
-                                                <li key={i} className='flex items-start gap-1' style={{ fontSize: 'var(--fs-table)', color: 'var(--port-gore)' }}>
-                                                    <span style={{ color: 'var(--endeavour)' }}>•</span> {a}
+                                                <li key={i} className='flex items-start gap-1' style={{ fontSize: 'var(--fs-table)', color: 'var(--ink)' }}>
+                                                    <span style={{ color: 'var(--brand)' }}>•</span> {a}
                                                 </li>
                                             ))}
                                         </ul>
                                     </div>
                                 )}
                                 {result.risks?.length > 0 && (
-                                    <div className='rounded-lg p-2.5' style={{ background: 'var(--warn-soft)', border: '1px solid var(--warn-border)' }}>
+                                    <div className='rounded-lg p-2.5' style={{ background: TONES.amber.bg, border: `1px solid ${TONES.amber.border}` }}>
                                         <div className='flex items-center gap-1 mb-1.5'>
-                                            <AlertTriangle className='w-3 h-3' style={{ color: 'var(--warn-text)' }} />
-                                            <span className='font-semibold' style={{ fontSize: 'var(--fs-table)', color: 'var(--warn-strong)' }}>Risks</span>
+                                            <AlertTriangle className='w-3 h-3' style={{ color: TONES.amber.text }} />
+                                            <span className='font-semibold' style={{ fontSize: 'var(--fs-table)', color: TONES.amber.text }}>Risks</span>
                                         </div>
                                         <ul className='space-y-0.5'>
                                             {result.risks.map((r, i) => (
-                                                <li key={i} className='flex items-start gap-1' style={{ fontSize: 'var(--fs-table)', color: 'var(--warn-strong)' }}>
-                                                    <span style={{ color: 'var(--warn-text)' }}>•</span> {r}
+                                                <li key={i} className='flex items-start gap-1' style={{ fontSize: 'var(--fs-table)', color: TONES.amber.text }}>
+                                                    <span style={{ color: TONES.amber.text }}>•</span> {r}
                                                 </li>
                                             ))}
                                         </ul>

@@ -158,10 +158,10 @@ const fmtDate = (d) => {
 }
 
 const cellTh = {
-  background: 'var(--surface-header)',
+  background: 'var(--bg-subtle)',
   color: 'var(--chathams-blue)',
   padding: '6px 10px',
-  borderBottom: '1px solid var(--border-divider)',
+  borderBottom: '1px solid var(--line)',
   fontWeight: 500,
   textAlign: 'left',
   whiteSpace: 'nowrap',
@@ -169,7 +169,7 @@ const cellTh = {
 const cellTd = {
   color: 'var(--port-gore)',
   padding: '6px 10px',
-  borderBottom: '1px solid var(--selago)',
+  borderBottom: '1px solid var(--line)',
   whiteSpace: 'nowrap',
 }
 
@@ -275,7 +275,7 @@ const StockAudit = ({ isOpen, setIsOpen, stockData, settings, onDataChanged }) =
                 type="button"
                 onClick={() => setTab(t.id)}
                 className={active
-                  ? 'whiteButton whitespace-nowrap !bg-[var(--brand-deep)] !text-white !border-[var(--border-divider)]'
+                  ? 'whiteButton whitespace-nowrap !bg-[var(--brand)] !text-[var(--on-brand)] !border-[var(--brand)]'
                   : 'whiteButton whitespace-nowrap'}
               >
                 {t.label}
@@ -297,8 +297,8 @@ const StockAudit = ({ isOpen, setIsOpen, stockData, settings, onDataChanged }) =
                 onClick={writeOffSelected}
                 className="whiteButton whitespace-nowrap"
                 style={armed
-                  ? { background: 'var(--danger-text)', color: 'var(--on-brand)', borderColor: 'var(--danger-text)' }
-                  : { background: 'var(--brand-deep)', color: 'var(--on-brand)', borderColor: 'var(--border-divider)' }}
+                  ? { background: 'var(--bad-text)', color: 'var(--on-brand)', borderColor: 'var(--bad-text)' }
+                  : { background: "var(--brand)", color: "var(--on-brand)", borderColor: "var(--brand)" }}
               >
                 {writing ? 'Writing off…'
                   : armed ? `Confirm — write off ${sel.length} item${sel.length > 1 ? 's' : ''} (OUT dated today)`
@@ -308,7 +308,7 @@ const StockAudit = ({ isOpen, setIsOpen, stockData, settings, onDataChanged }) =
           </div>
         )}
 
-        <div className="rounded-2xl border border-[var(--border-divider)] overflow-hidden">
+        <div className="rounded-2xl border border-[var(--line)] overflow-hidden">
           <div className="overflow-auto" style={{ maxHeight: '60vh' }}>
             {tab === 'left' && (
               <table className="w-full responsiveTextTable" style={{ borderCollapse: 'collapse' }}>
@@ -335,7 +335,7 @@ const StockAudit = ({ isOpen, setIsOpen, stockData, settings, onDataChanged }) =
                   {audit.left.map(g => {
                     const k = keyOf(g)
                     return (
-                      <tr key={k} style={sel.includes(k) ? { background: 'var(--warn-soft)' } : undefined}>
+                      <tr key={k} style={sel.includes(k) ? { background: 'var(--brand-soft)' } : undefined}>
                         <td style={cellTd}>
                           <input type="checkbox" className="w-3.5 h-3.5 accent-[var(--endeavour)] align-middle"
                             checked={sel.includes(k)} onChange={() => toggleSel(k)} />
@@ -415,7 +415,7 @@ const StockAudit = ({ isOpen, setIsOpen, stockData, settings, onDataChanged }) =
                       <td style={cellTd}>{g.stockNm}</td>
                       <td style={cellTd}>{fmtQ(g.inQty)}</td>
                       <td style={cellTd}>{fmtQ(g.outQty)}</td>
-                      <td style={{ ...cellTd, color: 'var(--danger-text)', fontWeight: 500 }}>{fmtQ(g.outQty - g.inQty)}</td>
+                      <td style={{ ...cellTd, color: 'var(--bad-text)', fontWeight: 500 }}>{fmtQ(g.outQty - g.inQty)}</td>
                       <td style={cellTd}>{g.inRows}</td>
                       <td style={cellTd}>{g.outRows}</td>
                       <td style={cellTd}><ShortId id={g.descId} /></td>

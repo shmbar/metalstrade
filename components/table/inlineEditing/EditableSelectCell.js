@@ -4,6 +4,7 @@ import { Listbox, Transition } from "@headlessui/react";
 import { createPortal } from "react-dom";
 import { HiSelector, HiCheck } from "react-icons/hi";
 import Tltip from "../../tlTip";
+import Avatar from "../../Avatar";
 import { delTimeList } from "../../const";
 
 // Simple event bus for dropdown open/close
@@ -93,12 +94,17 @@ export default function EditableSelectCell({ getValue, row, column, table }) {
       typeof rawLabel === "string" || typeof rawLabel === "number"
         ? rawLabel
         : (rawLabel?.nname ?? rawLabel?.name ?? JSON.stringify(rawLabel));
+    // Opt-in initial-avatar chip (suppliers/clients): column meta { avatar: true }
+    const withAvatar = !!column.columnDef?.meta?.avatar && String(safeLabel).trim() !== "";
     return (
       <Tltip direction="top" tltpText={String(safeLabel)}>
-        <span
-          style={{ display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '140px', cursor: 'default' }}
-        >
-          {safeLabel}
+        <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', maxWidth: '160px', cursor: 'default' }}>
+          {withAvatar && <Avatar name={String(safeLabel)} size={18} />}
+          <span
+            style={{ display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '140px' }}
+          >
+            {safeLabel}
+          </span>
         </span>
       </Tltip>
     );
@@ -151,7 +157,7 @@ export default function EditableSelectCell({ getValue, row, column, table }) {
     >
       <Listbox.Options
         static
-        className="z-dropdown max-h-48 overflow-auto rounded-2xl bg-[var(--surface-card)] py-1 responsiveTextInput shadow-lg focus:outline-none border border-[var(--surface-header)] custom-scrollbar"
+        className="z-dropdown max-h-48 overflow-auto rounded-2xl bg-[var(--bg-card)] py-1 responsiveTextInput shadow-lg focus:outline-none border border-[var(--bg-subtle)] custom-scrollbar"
         style={{
           position: "absolute",
           ...(dropUp
@@ -170,7 +176,7 @@ export default function EditableSelectCell({ getValue, row, column, table }) {
               key={o.value}
               className={({ active, selected }) =>
                 `relative cursor-pointer select-none py-2 pl-4 pr-4 rounded-lg text-left
-                ${selected ? 'bg-[var(--surface-header)] text-[var(--endeavour)] dropdown-option-selected' : active ? 'bg-[var(--surface-header)] text-[var(--endeavour)]' : 'text-[var(--port-gore)]'}`
+                ${selected ? 'bg-[var(--bg-subtle)] text-[var(--endeavour)] dropdown-option-selected' : active ? 'bg-[var(--bg-subtle)] text-[var(--endeavour)]' : 'text-[var(--port-gore)]'}`
               }
               value={o.value}
             >
@@ -197,7 +203,7 @@ export default function EditableSelectCell({ getValue, row, column, table }) {
 
   // Custom scrollbar styles (add to your global CSS or Tailwind config)
   // .custom-scrollbar::-webkit-scrollbar { width: 8px; }
-  // .custom-scrollbar::-webkit-scrollbar-thumb { background: var(--border-neutral); border-radius: 8px; }
+  // .custom-scrollbar::-webkit-scrollbar-thumb { background: var(--line); border-radius: 8px; }
 
   return (
     <div className="relative w-full">
@@ -221,7 +227,7 @@ export default function EditableSelectCell({ getValue, row, column, table }) {
             createPortal(
               <>
                 <div
-                  className="fixed inset-0 z-dropdown"
+                  className="fixed inset-0 z-page-popover"
                   onClick={handleClose}
                   aria-hidden="true"
                 />
@@ -235,7 +241,7 @@ export default function EditableSelectCell({ getValue, row, column, table }) {
       {/* Close dropdown on outside click */}
       {open && (
         <div
-          className="fixed inset-0 z-dropdown"
+          className="fixed inset-0 z-page-popover"
           onClick={handleClose}
           aria-hidden="true"
         />

@@ -3,6 +3,8 @@ import { useState, useContext } from 'react';
 import { SettingsContext } from "../../../contexts/useSettingsContext";
 import { TbSortAscending, TbSortDescending } from 'react-icons/tb';
 import CheckBox from "../../../components/checkbox";
+import Avatar from "../../../components/Avatar";
+import { TONES } from "../../../components/statusUtils";
 import Tltip from "../../../components/tlTip";
 import { Button } from "../../../components/ui/button";
 import { filteredArray, groupedArrayInvoice, loadAllStockData, loadCompanyExpense, loadCompanyExpenses, loadData, loadInvoice } from "../../../utils/utils"
@@ -55,9 +57,9 @@ const sumKey = (kind, id) => kind + '_' + id;
 const SumToggle = ({ active, onToggle }) => (
     <Tltip direction='right' tltpText={active ? 'Remove from sum' : 'Add to running sum'}>
         <button type="button" onClick={onToggle}
-            className={`flex items-center justify-center w-4 h-4 rounded-lg border responsiveTextTable leading-none font-bold transition-colors ${active
-                ? 'bg-[var(--endeavour)] border-[var(--endeavour)] text-white'
-                : 'bg-[var(--surface-card)] border-[var(--border-divider)] text-[var(--endeavour)] hover:bg-[var(--surface-header)]'}`}>
+            className={`flex items-center justify-center w-4 h-4 rounded border responsiveTextTable leading-none font-bold transition-colors ${active
+                ? 'bg-[var(--brand)] border-[var(--brand)] text-[var(--on-brand)]'
+                : 'bg-[var(--bg-card)] border-[var(--brand-border)] text-[var(--brand)] hover:bg-[var(--brand-soft)]'}`}>
             {active ? '✓' : '+'}
         </button>
     </Tltip>
@@ -90,8 +92,8 @@ const FinalBadge = ({ fnlzing, invType, invoiceNo }) => {
     const yes = fnlzing === '4568' || fn;
     // Matches FinalSummaryBadge: soft tint + inset ring + status dot.
     const tone = yes
-        ? { dot: 'var(--ok-text)', text: 'var(--ok-strong)', bg: 'var(--ok-soft)', ring: 'var(--ok-border)' }
-        : { dot: 'var(--warn-text)', text: 'var(--warn-strong)', bg: 'var(--warn-soft)', ring: 'var(--warn-border)' };
+        ? { dot: TONES.green.text, text: TONES.green.text, bg: TONES.green.bg, ring: TONES.green.border }
+        : { dot: TONES.amber.text, text: TONES.amber.text, bg: TONES.amber.bg, ring: TONES.amber.border };
     return (
         <Tltip direction='top' tltpText={fn ? 'Final Note issued — finalized' : yes ? 'Shipment finalized — final invoice issued' : 'Not finalized — balance is before the final invoice'}>
             <span
@@ -134,7 +136,7 @@ export const FinalSummaryBadge = ({ finalized = 0, total = 0 }) => {
     // "Final" column already spells out Yes/No, so a word here would be
     // redundant. Same dot colours as the table chips: emerald = all finalized ·
     // amber = none yet (provisional) · blue = partial. Meaning is in the tooltip.
-    const dot = allDone ? 'var(--ok-text)' : noneDone ? 'var(--warn-text)' : 'var(--primary-bright)';
+    const dot = allDone ? TONES.green.text : noneDone ? TONES.amber.text : TONES.blue.text;
     const label = allDone ? 'All finalized — final invoice issued'
         : noneDone ? 'Not finalized yet — before final invoice'
             : `${finalized} of ${total} finalized`;
@@ -567,7 +569,7 @@ export const StoclToolTip = ({ stock, stockDataAll, settings, uidCollection, set
     });
 
     return (
-        <div className="w-full border border-[var(--border-divider)] rounded-2xl overflow-hidden bg-[var(--surface-card)]">
+        <div className="w-full border border-[var(--line)] rounded-2xl overflow-hidden bg-[var(--bg-card)]">
             <div className="max-h-[30rem] lg:max-h-[50rem] overflow-y-auto overflow-x-auto">
             <table className="cashflow-detail-table w-full table-auto">
                 <thead>
@@ -591,8 +593,8 @@ export const StoclToolTip = ({ stock, stockDataAll, settings, uidCollection, set
                                 <td className="text-left cursor-pointer text-[var(--endeavour)] hover:underline max-w-20 truncate"
                                     onClick={() => moveToContracts(z, 'stock', uidCollection, setDateSelect,
                                         setValueCon, setIsOpenCon, blankInvoice, router, setToast)}>
-                                    <Tltip direction='top' tltpText={z.order || ''}><span className="block truncate">{indent ? '' : z.order}</span></Tltip></td>
-                                <td className="text-left w-16"><Tltip direction='top' tltpText={[settings.Supplier.Supplier.find(q => q.id === z.supplier)?.nname, settings.Supplier.Supplier.find(q => q.id === z.originSupplier)?.nname ? 'Org: ' + settings.Supplier.Supplier.find(q => q.id === z.originSupplier)?.nname : ''].filter(Boolean).join(' · ')}><span className="block truncate cursor-default">{indent ? '' : settings.Supplier.Supplier.find(q => q.id === z.supplier)?.nname}</span></Tltip></td>
+                                    <Tltip direction='top' tltpText={z.order || ''}><span className="block truncate">{z.order}</span></Tltip></td>
+                                <td className="text-left w-16"><Tltip direction='top' tltpText={[settings.Supplier.Supplier.find(q => q.id === z.supplier)?.nname, settings.Supplier.Supplier.find(q => q.id === z.originSupplier)?.nname ? 'Org: ' + settings.Supplier.Supplier.find(q => q.id === z.originSupplier)?.nname : ''].filter(Boolean).join(' · ')}><span className="flex items-center gap-1.5 min-w-0 cursor-default"><Avatar name={z._supplierName} size={18} /><span className="block truncate">{z._supplierName}</span></span></Tltip></td>
                                 <td className="text-left w-28 max-w-28">
                                     <Tltip direction='top' tltpText={z.descriptionName || ''}><span className={`block truncate cursor-default ${indent ? 'pl-4' : ''}`}>{z.descriptionName}</span></Tltip>
                                 </td>
@@ -692,7 +694,7 @@ export const StoclToolTip = ({ stock, stockDataAll, settings, uidCollection, set
 
                 </tbody>
                 <tfoot>
-                    <tr className="bg-[var(--surface-header)]">
+                    <tr className="bg-[var(--bg-subtle)]">
                         <th></th>
                         <th className="text-left">
                             Total
@@ -751,7 +753,7 @@ export const StocksUnSold = ({ supplier, stockDataAllArray, settings, uidCollect
     });
 
     return (
-        <div className="w-full border border-[var(--border-divider)] rounded-2xl overflow-hidden bg-[var(--surface-card)]">
+        <div className="w-full border border-[var(--line)] rounded-2xl overflow-hidden bg-[var(--bg-card)]">
             <div className="max-h-[30rem] lg:max-h-[50rem] overflow-y-auto overflow-x-auto">
             <table className="cashflow-detail-table w-full table-auto">
                 <thead>
@@ -876,7 +878,7 @@ export const StocksUnSold = ({ supplier, stockDataAllArray, settings, uidCollect
 
                 </tbody>
                 <tfoot>
-                    <tr className="bg-[var(--surface-header)]">
+                    <tr className="bg-[var(--bg-subtle)]">
                         <th></th>
                         <th className="text-left">
                             Total
@@ -1240,7 +1242,7 @@ export const ClientDetails = ({ client, data, type, uidCollection, setDateSelect
     const filteredArr1 = sortKey ? sortRows(rawInDebt, sortKey, sortDir) : rawInDebt;
 
     return (
-        <div className="w-full border border-[var(--border-divider)] rounded-2xl overflow-hidden bg-[var(--surface-card)]">
+        <div className="w-full border border-[var(--line)] rounded-2xl overflow-hidden bg-[var(--bg-card)]">
             <div className="max-h-[30rem] lg:max-h-[50rem] overflow-y-auto overflow-x-auto">
             {type === 'PartPaid' &&
                 <div className="pt-1 w-full">
@@ -1342,7 +1344,7 @@ export const ClientDetails = ({ client, data, type, uidCollection, setDateSelect
 
                         </tbody>
                         <tfoot>
-                            <tr className="bg-[var(--surface-header)]">
+                            <tr className="bg-[var(--bg-subtle)]">
                                 <th></th>
                                 <th className="text-left">TOTAL</th>
                                 <th></th>
@@ -1464,7 +1466,7 @@ export const ClientDetails = ({ client, data, type, uidCollection, setDateSelect
 
                         </tbody>
                         <tfoot>
-                            <tr className="bg-[var(--surface-header)]">
+                            <tr className="bg-[var(--bg-subtle)]">
                                 <th></th>
                                 <th className="text-left">TOTAL</th>
                                 <th></th>
@@ -1700,7 +1702,7 @@ export const SupplierDetails = ({ supplier, data, uidCollection, setDateSelect,
     });
 
     return (
-        <div className="w-full border border-[var(--border-divider)] rounded-2xl overflow-hidden bg-[var(--surface-card)]">
+        <div className="w-full border border-[var(--line)] rounded-2xl overflow-hidden bg-[var(--bg-card)]">
             <div className="max-h-[30rem] lg:max-h-[50rem] overflow-y-auto overflow-x-auto">
             <table className="cashflow-detail-table w-full table-auto">
                 <thead>
@@ -1803,7 +1805,7 @@ export const SupplierDetails = ({ supplier, data, uidCollection, setDateSelect,
                     })}
                 </tbody>
                 <tfoot>
-                    <tr className="bg-[var(--surface-header)]">
+                    <tr className="bg-[var(--bg-subtle)]">
                         <th></th>
                         <th className="text-left">TOTAL</th>
                         <th></th>
@@ -1922,7 +1924,7 @@ export const ExpensesToolTip = ({ supplier, expensesAll, settings, uidCollection
     const allEur = filteredArr.length > 0 && filteredArr.every(z => z.cur === 'eu');
 
     return (
-        <div className="w-full border border-[var(--border-divider)] rounded-2xl overflow-hidden bg-[var(--surface-card)]">
+        <div className="w-full border border-[var(--line)] rounded-2xl overflow-hidden bg-[var(--bg-card)]">
             <div className="max-h-[30rem] lg:max-h-[50rem] overflow-y-auto overflow-x-auto">
             <table className="cashflow-detail-table w-full table-auto">
                 <thead>
@@ -1990,7 +1992,7 @@ export const ExpensesToolTip = ({ supplier, expensesAll, settings, uidCollection
 
                 </tbody>
                 <tfoot>
-                    <tr className="bg-[var(--surface-header)]">
+                    <tr className="bg-[var(--bg-subtle)]">
                         <th></th>
                         <th className="text-left">
                             {!allEur && <div>Total $</div>}

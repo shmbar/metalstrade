@@ -162,7 +162,11 @@ const GATES = [
       let m;
       while ((m = re.exec(src)) !== null) {
         const v = m[1].replace(/\s+/g, " ").trim();
-        if (!/var\(--font-poppins\)|var\(--font-mono\)|^inherit$/.test(v)) {
+        // Two UI families are legitimate after the SaaS redesign: Jakarta for all
+        // UI/headings and Inter for data tables and figures (its tabular numerals
+        // keep columns aligned). --font-poppins remains as a legacy alias onto
+        // Jakarta, so old call sites still resolve to the current UI font.
+        if (!/var\(--font-jakarta\)|var\(--font-inter\)|var\(--font-poppins\)|var\(--font-mono\)|^inherit$/.test(v)) {
           bad.push(src.slice(0, m.index).split("\n").length + ": " + v.slice(0, 60));
         }
       }

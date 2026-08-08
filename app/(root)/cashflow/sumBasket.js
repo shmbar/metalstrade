@@ -74,9 +74,9 @@ export default function SumBasket({ items = [], onRemove, onClear }) {
     return (
         <div
             ref={ref}
-            className={`fixed z-dropdown w-[19rem] rounded-2xl overflow-hidden font-poppins
-                ring-1 ring-[var(--border-cell)] border border-[var(--border-divider)]
-                bg-[var(--surface-card)] shadow-lg
+            className={`fixed z-40 w-[19rem] rounded-2xl overflow-hidden font-poppins
+                border border-[var(--line)]
+                bg-[var(--glass)] backdrop-blur-md shadow-pop
                 animate-in fade-in slide-in-from-bottom-3 duration-300
                 ${pos ? '' : 'bottom-4 left-1/2 -translate-x-1/2'}`}
             style={pos ? { left: pos.left, top: pos.top } : undefined}
@@ -85,40 +85,40 @@ export default function SumBasket({ items = [], onRemove, onClear }) {
             <div
                 onPointerDown={startDrag}
                 className="flex items-center justify-between gap-2 px-3 py-2 cursor-grab active:cursor-grabbing select-none
-                    bg-[var(--endeavour)] text-[var(--on-brand)]"
+                    bg-[var(--bg-card)] border-b border-[var(--line)] text-[var(--ink)]"
             >
                 <div className="flex items-center gap-2 min-w-0">
-                    <span className="grid place-items-center w-6 h-6 rounded-lg bg-[var(--on-brand-soft)] shrink-0">
+                    <span className="grid place-items-center w-6 h-6 rounded-lg bg-[var(--brand-soft)] text-[var(--brand)] shrink-0">
                         <Sigma className="w-3.5 h-3.5" />
                     </span>
-                    <span className="font-medium responsiveTextInput truncate">Selected invoices</span>
-                    <span className="shrink-0 responsiveTextTable font-semibold px-1.5 py-0.5 rounded-full bg-[var(--on-brand-soft-strong)]">
+                    <span className="font-semibold responsiveTextInput truncate">Selected invoices</span>
+                    <span className="shrink-0 responsiveTextTable font-bold px-1.5 py-0.5 rounded-full bg-[var(--bg-subtle)] text-[var(--ink-secondary)]">
                         {items.length}
                     </span>
                 </div>
-                <div className="flex items-center gap-0.5 shrink-0">
+                <div className="flex items-center gap-0.5 shrink-0 text-[var(--ink-secondary)]">
                     <button onPointerDown={e => e.stopPropagation()} onClick={copySummary}
-                        title="Copy summary" className="p-1 rounded-lg hover:bg-[var(--on-brand-soft)] transition-colors">
+                        title="Copy summary" className="p-1 rounded-lg hover:bg-[var(--bg-subtle)] transition-colors">
                         {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
                     </button>
                     <button onPointerDown={e => e.stopPropagation()} onClick={() => setCollapsed(c => !c)}
-                        title={collapsed ? 'Show list' : 'Hide list'} className="p-1 rounded-lg hover:bg-[var(--on-brand-soft)] transition-colors">
+                        title={collapsed ? 'Show list' : 'Hide list'} className="p-1 rounded-lg hover:bg-[var(--bg-subtle)] transition-colors">
                         {collapsed ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
                     </button>
                     <button onPointerDown={e => e.stopPropagation()} onClick={onClear}
-                        title="Clear all" className="p-1 rounded-lg hover:bg-[var(--on-brand-soft)] transition-colors">
+                        title="Clear all" className="p-1 rounded-lg hover:bg-[var(--bg-subtle)] transition-colors">
                         <X className="w-3.5 h-3.5" />
                     </button>
                 </div>
             </div>
 
             {/* Metric switcher */}
-            <div className="flex items-center gap-1 px-2 py-1.5 bg-[var(--surface-card)] border-b border-[var(--selago)]">
+            <div className="flex items-center gap-1 px-2 py-1.5 bg-white/60 border-b border-[var(--line)]">
                 {METRICS.map(m => (
                     <button key={m} onClick={() => setMetric(m)}
-                        className={`flex-1 responsiveTextTable font-medium py-1 rounded-lg transition-colors ${metric === m
-                            ? 'bg-[var(--endeavour)] text-[var(--on-brand)] shadow-sm'
-                            : 'text-[var(--chathams-blue)] hover:bg-[var(--surface-header)]'}`}>
+                        className={`flex-1 responsiveTextTable font-semibold py-1 rounded-lg transition-colors ${metric === m
+                            ? 'bg-[var(--brand)] text-[var(--on-brand)] shadow-card'
+                            : 'text-[var(--ink-secondary)] hover:bg-[var(--bg-subtle)]'}`}>
                         {metricLabel[m]}
                     </button>
                 ))}
@@ -127,29 +127,29 @@ export default function SumBasket({ items = [], onRemove, onClear }) {
             {/* Subtotals — always visible, shown as soft stat pills */}
             <div className="px-3 py-2.5 flex flex-col gap-1.5 bg-[var(--surface-card)]">
                 {hasUsd &&
-                    <div className="flex items-center justify-between rounded-2xl px-2.5 py-1.5 bg-[var(--surface-header)] border border-[var(--border-cell)]">
-                        <span className="flex items-center gap-1.5 responsiveTextTable font-medium tracking-wide uppercase text-[var(--regent-gray)]">
-                            <span className="grid place-items-center w-4 h-4 rounded-full bg-[var(--endeavour)] text-[var(--on-brand)] responsiveTextTable font-semibold leading-none">$</span>
+                    <div className="flex items-center justify-between rounded-2xl px-2.5 py-1.5 bg-[var(--bg-subtle)] border border-[var(--line)]">
+                        <span className="flex items-center gap-1.5 responsiveTextTable font-semibold tracking-wide uppercase text-[var(--ink-muted)]">
+                            <span className="grid place-items-center w-4 h-4 rounded-full bg-[var(--brand)] text-[var(--on-brand)] responsiveTextTable font-bold leading-none">$</span>
                             {metricLabel[metric]}
                         </span>
                         <NumericFormat value={usd} displayType="text" thousandSeparator prefix="$"
                             decimalScale={2} fixedDecimalScale
-                            className="tabular-nums responsiveTextTitle font-semibold text-[var(--chathams-blue)] leading-none" />
+                            className="tabular-nums responsiveTextPage font-bold text-[var(--ink)] leading-none" />
                     </div>
                 }
                 {hasEur &&
-                    <div className="flex items-center justify-between rounded-2xl px-2.5 py-1.5 bg-[var(--surface-header)] border border-[var(--border-cell)]">
-                        <span className="flex items-center gap-1.5 responsiveTextTable font-medium tracking-wide uppercase text-[var(--regent-gray)]">
-                            <span className="grid place-items-center w-4 h-4 rounded-full bg-[var(--brand-deep)] text-[var(--on-brand)] responsiveTextTable font-semibold leading-none">€</span>
+                    <div className="flex items-center justify-between rounded-2xl px-2.5 py-1.5 bg-[var(--bg-subtle)] border border-[var(--line)]">
+                        <span className="flex items-center gap-1.5 responsiveTextTable font-semibold tracking-wide uppercase text-[var(--ink-muted)]">
+                            <span className="grid place-items-center w-4 h-4 rounded-full bg-[var(--brand-strong)] text-[var(--on-brand)] responsiveTextTable font-bold leading-none">€</span>
                             {metricLabel[metric]}
                         </span>
                         <NumericFormat value={eur} displayType="text" thousandSeparator prefix="€"
                             decimalScale={2} fixedDecimalScale
-                            className="tabular-nums responsiveTextTitle font-semibold text-[var(--chathams-blue)] leading-none" />
+                            className="tabular-nums responsiveTextPage font-bold text-[var(--ink)] leading-none" />
                     </div>
                 }
                 {naCount > 0 &&
-                    <div className="responsiveTextTable text-[var(--regent-gray)] italic">
+                    <div className="responsiveTextTable text-[var(--ink-muted)] italic">
                         {naCount} item{naCount > 1 ? 's' : ''} ha{naCount > 1 ? 've' : 's'} no {metricLabel[metric].toLowerCase()} — excluded
                     </div>
                 }
@@ -157,23 +157,23 @@ export default function SumBasket({ items = [], onRemove, onClear }) {
 
             {/* Selected line items — collapsible */}
             {!collapsed &&
-                <div className="max-h-52 overflow-y-auto border-t border-[var(--selago)] bg-[var(--surface-card)]">
+                <div className="max-h-52 overflow-y-auto border-t border-[var(--line)] bg-white/40">
                     {rows.map(r => (
                         <div key={r.key}
-                            className="group flex items-center justify-between gap-2 px-3 py-1.5 hover:bg-[var(--selago)] transition-colors responsiveText">
+                            className="group flex items-center justify-between gap-2 px-3 py-1.5 hover:bg-[var(--bg-subtle)] transition-colors responsiveText">
                             <div className="min-w-0">
-                                <div className="truncate text-[var(--port-gore)] font-medium leading-tight">{r.label || kindLabel[r.kind]}</div>
-                                {r.sub && <div className="truncate responsiveTextTable text-[var(--regent-gray)] leading-tight">{r.sub}</div>}
+                                <div className="truncate text-[var(--ink)] font-medium leading-tight">{r.label || kindLabel[r.kind]}</div>
+                                {r.sub && <div className="truncate responsiveTextTable text-[var(--ink-muted)] leading-tight">{r.sub}</div>}
                             </div>
                             <div className="flex items-center gap-1.5 shrink-0">
                                 {r.v == null
-                                    ? <span className="text-[var(--regent-gray)]">—</span>
+                                    ? <span className="text-[var(--ink-muted)]">—</span>
                                     : <NumericFormat value={r.v} displayType="text" thousandSeparator
                                         prefix={r.cur === 'us' ? '$' : '€'} decimalScale={2} fixedDecimalScale
-                                        className="tabular-nums text-[var(--port-gore)]" />
+                                        className="tabular-nums text-[var(--ink)]" />
                                 }
                                 <button onClick={() => onRemove(r.key)} title="Remove"
-                                    className="grid place-items-center w-4 h-4 rounded-full text-[var(--regent-gray)] hover:text-[var(--on-brand)] hover:bg-red-400 opacity-0 group-hover:opacity-100 transition-all">
+                                    className="grid place-items-center w-4 h-4 rounded-full text-[var(--ink-muted)] hover:text-[var(--on-brand)] hover:bg-red-400 opacity-0 group-hover:opacity-100 transition-all">
                                     <X className="w-2.5 h-2.5" />
                                 </button>
                             </div>

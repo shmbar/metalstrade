@@ -9,24 +9,23 @@ export const detailsToolTip = (row, data, settings, dataTable,) => {
     let id = settings.Stocks.Stocks.find(z => z.nname === row.original.stock)?.id
     let filteredArr = dataTable.filter(z => z.stock === id)
 
-    const thStyle = { textAlign: 'center', padding: '6px 10px', color: 'var(--chathams-blue)', fontWeight: 500, fontSize: 'var(--fs-table)', border: '1px solid var(--border-divider)', background: 'var(--surface-header)', whiteSpace: 'nowrap' }
-    const tdStyle = { textAlign: 'center', padding: '5px 10px', border: '1px solid var(--selago)', fontSize: 'var(--fs-table)', color: 'var(--chathams-blue)', whiteSpace: 'nowrap' }
+    const thStyle = { textAlign: 'center', padding: '6px 10px', color: 'var(--chathams-blue)', fontWeight: 500, fontSize: 'var(--fs-input)', border: '1px solid var(--line)', background: 'var(--bg-subtle)', whiteSpace: 'nowrap' }
+    const tdStyle = { textAlign: 'center', padding: '5px 10px', border: '1px solid var(--line)', fontSize: 'var(--fs-input)', color: 'var(--chathams-blue)', whiteSpace: 'nowrap' }
 
     return (
         <div style={{
-            background: 'var(--surface-card)',
+            background: "var(--bg-card)",
             borderRadius: '16px',
             overflow: 'hidden',
             maxHeight: '28rem',
             overflowY: 'auto',
-            boxShadow: '0 8px 32px rgba(var(--endeavour-rgb),0.13)',
-            border: '1px solid var(--border-divider)',
+            boxShadow: 'var(--shadow-md)',
+            border: '1px solid var(--line)',
             fontFamily: "var(--font-poppins), 'Poppins', sans-serif",
             minWidth: '400px',
         }}>
-            {/* Title bar — same size/weight as the summary cards' titles
-                ("Summary - Stocks" / "Avg Cost Price per Grade"): table rung, 500. */}
-            <div className="responsiveTextTable font-medium" style={{ background: 'var(--surface-header)', padding: '8px 16px', fontWeight: 500, color: 'var(--chathams-blue)', borderBottom: '1px solid var(--border-divider)' }}>
+            {/* Title bar */}
+            <div style={{ background: 'var(--bg-subtle)', padding: '7px 14px', fontWeight: 500, fontSize: 'var(--fs-title)', color: 'var(--chathams-blue)', borderBottom: '1px solid var(--line)' }}>
                 Stock Details
             </div>
             <table style={{ fontFamily: 'inherit', fontSize: 'var(--fs-table)', width: '100%', borderCollapse: 'collapse', tableLayout: 'auto' }}>

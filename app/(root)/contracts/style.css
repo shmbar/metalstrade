@@ -4,11 +4,11 @@
       border: none !important;
     }
     table tbody tr {
-      background: var(--surface-card) !important;
+      background: var(--bg-card) !important;
       border-radius: 1rem !important;
       border: 1px solid var(--selago) !important;
       margin-bottom: 0.75rem !important;
-      box-shadow: 0 2px 8px 0 rgba(var(--rock-blue-rgb),0.08);
+      box-shadow: var(--shadow-xs);
       display: block !important;
       padding: 0.5rem 0.75rem !important;
     }
@@ -146,7 +146,7 @@
 
 /* Selected row highlight */
 tr[aria-selected="true"] {
-  background: var(--selago);
+  background: var(--brand-soft);
 }
 
 /* Compact table styles for larger screens */
@@ -216,7 +216,7 @@ table td input:focus,
 .table-cell-uniform td input:focus-visible {
   border-color: var(--endeavour) !important;
   outline: none !important;
-  box-shadow: 0 0 0 3px rgba(var(--endeavour-rgb), 0.12) !important;
+  box-shadow: 0 0 0 3px var(--brand-soft) !important;
 }
 
 /* Ensure material column inputs align left and remain readable */

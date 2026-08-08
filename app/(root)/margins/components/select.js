@@ -38,29 +38,31 @@ const SelectEnt = memo(({ props, data, handleChangeSelect, month, name, plHolder
                         aria-expanded={open}
                         className="
                           group w-full flex items-center justify-between
-                          bg-[var(--surface-pill)] rounded-lg px-2
-                          responsiveText
-                          text-[var(--port-gore)]
-                          border border-[var(--border-cell)]
-                          focus:border-[var(--endeavour)]
-                          focus:ring-1 focus:ring-[var(--endeavour)]
+                          bg-transparent rounded-control px-2
+                          responsiveTextInput
+                          text-[var(--ink)]
+                          border border-transparent
+                          hover:border-[var(--line-strong)] hover:bg-[var(--bg-card)]
+                          focus:border-[var(--brand)] focus:bg-[var(--bg-card)]
+                          focus:ring-2 focus:ring-[var(--brand-soft)]
                           focus:outline-none
+                          transition-colors
                         "
-                        style={{ minHeight: '26px', fontFamily: "var(--font-poppins), 'Poppins', sans-serif" }}
+                        style={{ minHeight: '26px' }}
                       >
                         <span className={cn(
                           "flex-1 text-center truncate",
-                          !fullName && "text-slate-400"
+                          !fullName && "text-[var(--ink-muted)]"
                         )}>
                           {fullName || plHolder}
                         </span>
-                        <ChevronDown className="size-3 opacity-50 ml-1 shrink-0" />
+                        <ChevronDown className="size-3 opacity-0 group-hover:opacity-50 ml-1 shrink-0 transition-opacity" />
                       </button>
                     </PopoverTrigger>
                     <PopoverContent
                       align="start"
                       sideOffset={4}
-                      className="p-0 w-[var(--radix-popover-trigger-width)] min-w-[180px] z-40 bg-[var(--surface-pill)] rounded-2xl border border-[var(--border-cell)] shadow-lg"
+                      className="p-0 w-[var(--radix-popover-trigger-width)] min-w-[180px] z-40 bg-[var(--bg-card)] rounded-2xl border border-[var(--line)] shadow-pop"
                     >
                       <Command className="bg-transparent">
                         <CommandInput
@@ -68,7 +70,7 @@ const SelectEnt = memo(({ props, data, handleChangeSelect, month, name, plHolder
                           className="responsiveTextInput h-8"
                         />
                         <CommandList style={{ maxHeight: '200px' }}>
-                          <CommandEmpty className="py-3 text-center responsiveText text-[var(--regent-gray)]">
+                          <CommandEmpty className="py-3 text-center responsiveText text-[var(--ink-muted)]">
                             No match
                           </CommandEmpty>
                           <CommandGroup>
@@ -80,7 +82,7 @@ const SelectEnt = memo(({ props, data, handleChangeSelect, month, name, plHolder
                                   handleChangeSelect(z.id, props.row.original.id, month, name);
                                   setOpen(false);
                                 }}
-                                className="responsiveText px-2 py-1.5 hover:bg-blue-50 cursor-pointer text-[var(--port-gore)] data-[selected=true]:bg-[var(--surface-header)] data-[selected=true]:text-[var(--endeavour)]"
+                                className="responsiveText px-2 py-1.5 hover:bg-[var(--bg-subtle)] cursor-pointer text-[var(--ink)] data-[selected=true]:bg-[var(--brand-soft)] data-[selected=true]:text-[var(--brand)]"
                               >
                                 <Check
                                   className={cn(
@@ -101,7 +103,7 @@ const SelectEnt = memo(({ props, data, handleChangeSelect, month, name, plHolder
               {fullName && !open && (
                 <TooltipContent
                   side="top"
-                  className="bg-[var(--brand-deep)] text-white responsiveTextInput rounded-lg px-2.5 py-1 border-0 shadow-md"
+                  className="bg-[var(--ink)] text-[var(--on-brand)] responsiveTextInput rounded-lg px-2.5 py-1 border-0 shadow-pop"
                   style={{ fontFamily: "var(--font-poppins), 'Poppins', sans-serif" }}
                 >
                   {fullName}
