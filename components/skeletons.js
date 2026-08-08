@@ -19,8 +19,8 @@ export const TableSkeleton = ({ rows = 9, title = true }) => (
                 <Bar w={95} h={10} />
             </div>
         )}
-        <div className="rounded-2xl bg-[var(--surface-card)] shadow-md border border-[var(--selago)] overflow-hidden">
-            <div className="flex items-center gap-2 px-4 py-3 border-b border-[var(--selago)] flex-wrap">
+        <div className="rounded-2xl bg-[var(--bg-card)] border border-[var(--line)] shadow-card overflow-hidden">
+            <div className="flex items-center gap-2 px-4 py-3 border-b border-[var(--line)] flex-wrap">
                 <Bar w={140} h={26} className="rounded-full" />
                 <Bar w={95} h={26} className="rounded-full" />
                 <Bar w={115} h={26} className="rounded-full" />
@@ -29,7 +29,7 @@ export const TableSkeleton = ({ rows = 9, title = true }) => (
             </div>
             <div className="px-4 py-1">
                 {Array.from({ length: rows }).map((_, i) => (
-                    <div key={i} className="flex items-center gap-3 py-3 border-b border-[var(--selago)] last:border-0">
+                    <div key={i} className="flex items-center gap-3 py-3 border-b border-[var(--line)] last:border-0">
                         <Bar w="8%" h={11} />
                         <Bar w="10%" h={11} />
                         <Bar w="14%" h={11} />
@@ -41,7 +41,7 @@ export const TableSkeleton = ({ rows = 9, title = true }) => (
                     </div>
                 ))}
             </div>
-            <div className="flex items-center justify-between px-4 py-3 border-t border-[var(--selago)]">
+            <div className="flex items-center justify-between px-4 py-3 border-t border-[var(--line)]">
                 <Bar w={90} h={10} />
                 <Bar w={160} h={22} className="rounded-full" />
                 <Bar w={70} h={10} />
@@ -59,7 +59,7 @@ export const CardsSkeleton = () => (
         </div>
         <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3 mb-4">
             {Array.from({ length: 6 }).map((_, i) => (
-                <div key={i} className="rounded-2xl bg-[var(--surface-card)] shadow-md border border-[var(--selago)] p-4">
+                <div key={i} className="rounded-2xl bg-[var(--bg-card)] border border-[var(--line)] shadow-card p-4">
                     <Bar w="55%" h={10} className="mb-3" />
                     <Bar w="75%" h={20} className="mb-2" />
                     <Bar w="40%" h={9} />
@@ -67,7 +67,7 @@ export const CardsSkeleton = () => (
             ))}
         </div>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
-            <div className="lg:col-span-2 rounded-2xl bg-[var(--surface-card)] shadow-md border border-[var(--selago)] p-5">
+            <div className="lg:col-span-2 rounded-2xl bg-[var(--bg-card)] border border-[var(--line)] shadow-card p-5">
                 <Bar w={160} h={13} className="mb-5" />
                 <div className="flex items-end gap-2" style={{ height: 180 }}>
                     {[60, 100, 75, 130, 90, 150, 110, 70, 125, 95, 140, 85].map((h, i) => (
@@ -75,7 +75,7 @@ export const CardsSkeleton = () => (
                     ))}
                 </div>
             </div>
-            <div className="rounded-2xl bg-[var(--surface-card)] shadow-md border border-[var(--selago)] p-5">
+            <div className="rounded-2xl bg-[var(--bg-card)] border border-[var(--line)] shadow-card p-5">
                 <Bar w={130} h={13} className="mb-5" />
                 {Array.from({ length: 6 }).map((_, i) => (
                     <div key={i} className="flex items-center gap-3 py-2.5">

@@ -13,11 +13,17 @@ import { UserAuth } from './useAuthContext'
 // member across devices, and mirrored in localStorage so the boot script in
 // app/layout.js can repaint before first paint (no flash of the wrong mode).
 
+// `theme` / `toggleTheme` are aliases for `mode` / `toggleMode`. They exist so a
+// component only cares about light-vs-dark can read the same shape the reference
+// implementation uses (`const { theme } = useTheme()`), while the colour-preset
+// dimension stays available as `themeId` / `setTheme` for the theme switcher.
 const ThemeContext = createContext({
   themeId: DEFAULT_THEME_ID,
   mode: DEFAULT_MODE,
+  theme: DEFAULT_MODE,
   setTheme: () => {},
   toggleMode: () => {},
+  toggleTheme: () => {},
 })
 
 const validMode = m => (m === 'dark' ? 'dark' : 'light')
@@ -91,12 +97,15 @@ const ThemeProvider = ({ children }) => {
   }, [commit, themeId, mode])
 
   return (
-    <ThemeContext.Provider value={{ themeId, mode, setTheme, toggleMode }}>
+    <ThemeContext.Provider
+      value={{ themeId, mode, setTheme, toggleMode, theme: mode, toggleTheme: toggleMode }}
+    >
       {children}
     </ThemeContext.Provider>
   )
 }
 
 export default ThemeProvider
+export { ThemeProvider }
 
 export const useTheme = () => useContext(ThemeContext)

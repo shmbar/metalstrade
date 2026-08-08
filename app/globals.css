@@ -1,77 +1,140 @@
 
 /* Site Color Palette as CSS Variables */
 :root {
-  --endeavour: #0366ae;
-  --rock-blue: #9fb8d4;
-  --selago: #ebf2fc;
-  --port-gore: #28264f;
-  --bunting: #1c134d;
-  --chathams-blue: #103a7a;
-  --regent-gray: #838ca7;
-  --primary-bright: #2f6fdb;
-  --surface-header: #dbeeff;
-  --surface-pill: #f8fbff;
-  --border-cell: #d8e8f5;
-  --border-divider: #b8ddf8;
+  /* ── Legacy palette names, re-valued onto the SaaS system ─────────────────
+     These names are load-bearing: the design audit tokenised the whole app onto
+     them (zero hardcoded hexes remain), and utils/themes.js derives them per
+     colour preset. Re-valuing them here therefore restyles every screen at once
+     WITHOUT touching a single component. Each maps to its semantic twin in the
+     new token block below — see the "role" note on each line. */
+  --endeavour: #6D5CE0;        /* role: --brand         (primary accent)      */
+  --rock-blue: #DAD6E8;        /* role: --line-strong   (control outlines)    */
+  --selago: #F4F3F9;           /* role: --bg-subtle     (fills, header bands) */
+  --port-gore: #1E1B39;        /* role: --ink           (primary text)        */
+  --bunting: #15122B;          /* role: --ink (deepest) (display headings)    */
+  --chathams-blue: #1E1B39;    /* role: --ink           (headings)            */
+  --regent-gray: #6E6B84;      /* role: --ink-muted     (captions)            */
+  --primary-bright: #8B7CF7;   /* role: brand, lifted   (hover/active)        */
+  --surface-header: #F4F3F9;   /* role: --bg-subtle     (table header bg)     */
+  --surface-pill: #F4F3F9;     /* role: --bg-subtle     (input bg)            */
+  --border-cell: #EAE8F2;      /* role: --line          (row dividers)        */
+  --border-divider: #EAE8F2;   /* role: --line          (section dividers)    */
   /* RGB channel triplets — required wherever alpha compositing is needed,
      e.g. rgba(var(--endeavour-rgb), 0.5). Keep in sync with the hex tokens above. */
-  --endeavour-rgb: 3, 102, 174;
-  --rock-blue-rgb: 159, 184, 212;
-  --selago-rgb: 235, 242, 252;
-  --port-gore-rgb: 40, 38, 79;
-  --bunting-rgb: 28, 19, 77;
-  --chathams-blue-rgb: 16, 58, 122;
-  --regent-gray-rgb: 131, 140, 167;
-  --primary-bright-rgb: 47, 111, 219;
-  --surface-header-rgb: 219, 238, 255;
-  --surface-pill-rgb: 248, 251, 255;
-  --border-cell-rgb: 216, 232, 245;
-  --border-divider-rgb: 184, 221, 248;
+  --endeavour-rgb: 109, 92, 224;
+  --rock-blue-rgb: 218, 214, 232;
+  --selago-rgb: 244, 243, 249;
+  --port-gore-rgb: 30, 27, 57;
+  --bunting-rgb: 21, 18, 43;
+  --chathams-blue-rgb: 30, 27, 57;
+  --regent-gray-rgb: 110, 107, 132;
+  --primary-bright-rgb: 139, 124, 247;
+  --surface-header-rgb: 244, 243, 249;
+  --surface-pill-rgb: 244, 243, 249;
+  --border-cell-rgb: 234, 232, 242;
+  --border-divider-rgb: 234, 232, 242;
 
   /* Neutral base layer — themable so dark mode can flip it.
      Light values are the original palette (zero visual change in light mode). */
-  --surface-card: #ffffff;
-  --surface-base: #fafafa;
-  --surface-muted: #f5f5f5;
-  --border-neutral: #e5e7eb;
-  --border-neutral-strong: #cccccc;
-  --text-strong: #1f2937;
-  --text-mid: #64748b;
-  --text-faint: #9ca3af;
+  --surface-card: #FFFFFF;            /* role: --bg-card    */
+  --surface-base: #F7F6FB;            /* role: --bg-page    */
+  --surface-muted: #F4F3F9;           /* role: --bg-subtle  */
+  --surface-sunken: #ECEAF4;          /* role: --bg-sunken (pressed/selected) */
+  --border-neutral: #EAE8F2;          /* role: --line       */
+  --border-neutral-strong: #DAD6E8;   /* role: --line-strong*/
+  --text-strong: #1E1B39;             /* role: --ink        */
+  --text-mid: #48455E;                /* role: --ink-secondary */
+  --text-faint: #6E6B84;              /* role: --ink-muted  */
   --surface-card-rgb: 255, 255, 255;
-  --surface-base-rgb: 250, 250, 250;
+  --surface-base-rgb: 247, 246, 251;
 
   /* Status colour system — light values match the original pastels.
      Dark mode swaps these for dark-tinted backgrounds + brighter text
      (see DARK_STATUS in utils/themes.js). */
-  --ok-soft: #f0fdf4;
-  --ok-bg: #dcfce7;
-  --ok-border: #86efac;
-  --ok-text: #16a34a;
-  --ok-strong: #15803d;
-  --danger-soft: #fef2f2;
-  --danger-bg: #fee2e2;
-  --danger-border: #fca5a5;
-  --danger-text: #dc2626;
-  --danger-strong: #991b1b;
-  --warn-soft: #fffbeb;
-  --warn-bg: #fef3c7;
-  --warn-border: #fde68a;
-  --warn-text: #d97706;
-  --warn-strong: #92400e;
-  --violet-soft: #f5f3ff;
-  --violet-bg: #ede9fe;
-  --violet-border: #ddd6fe;
-  --violet-text: #7c3aed;
-  --violet-strong: #5b21b6;
-  --pink-soft: #fdf2f8;
-  --pink-bg: #fce7f3;
-  --pink-text: #db2777;
-  --pink-strong: #9d174d;
+  /* One pastel system: soft bg, dark text, faint border. */
+  --ok-soft: #F2FBF6;
+  --ok-bg: #E5F6EC;
+  --ok-border: #BFE8D0;
+  --ok-text: #177245;
+  --ok-strong: #0F5A34;
+  --danger-soft: #FEF5F5;
+  --danger-bg: #FDEAEA;
+  --danger-border: #F5C6C9;
+  --danger-text: #B42332;
+  --danger-strong: #8E1B27;
+  --warn-soft: #FEFAF2;
+  --warn-bg: #FDF3E1;
+  --warn-border: #F5DFAE;
+  --warn-text: #9A6215;
+  --warn-strong: #7A4D10;
+  /* The violet family IS the brand family in this system. */
+  --violet-soft: #F6F4FE;
+  --violet-bg: #EEEBFC;
+  --violet-border: #D6CFF7;
+  --violet-text: #5A49CB;
+  --violet-strong: #4A3BB0;
+  --pink-soft: #FDF4F8;
+  --pink-bg: #FBE9F0;
+  --pink-text: #B03A62;
+  --pink-strong: #8E2B4C;
   /* 6th avatar hue (components/CommentThread.js). The other five already came
      from tokens; this one was the last literal in the set. */
-  --teal-text: #0e7490;
+  --teal-text: #0B6D62;
   --radius: 0.75rem;
+
+  /* ══ SaaS design tokens — the semantic layer ═══════════════════════════════
+     The names the redesigned components address directly. The legacy names
+     above are aliases onto these roles, so both vocabularies render one system.
+     NEVER hardcode these hexes in a component — always var(). The only
+     exceptions are canvas/PDF/email contexts, which cannot resolve var(). */
+
+  /* CRITICAL: every name here is an ALIAS onto a legacy token, never a literal.
+     utils/themes.js only ever writes the legacy names, so aliasing is what makes
+     the new vocabulary follow the colour preset AND dark mode automatically.
+     Hardcoding a hex here would strand the whole redesign in light mode. */
+
+  /* Surfaces — lavender-tinted neutrals */
+  --bg-page:   var(--surface-base);
+  --bg-card:   var(--surface-card);
+  --bg-subtle: var(--surface-muted);
+  --bg-sunken: var(--surface-sunken);
+
+  /* Borders ("line" — --border is taken by the shadcn HSL channel tokens) */
+  --line:        var(--border-neutral);
+  --line-strong: var(--border-neutral-strong);
+
+  /* Ink — deep navy-violet */
+  --ink:           var(--text-strong);
+  --ink-secondary: var(--text-mid);
+  --ink-muted:     var(--text-faint);
+
+  /* Brand accent. --violet-* is the brand family in this system, and it is the
+     one status family the theme engine keeps in step with --endeavour. */
+  --brand:        var(--endeavour);
+  --brand-strong: var(--violet-text);
+  --brand-soft:   var(--violet-bg);
+  --brand-border: var(--violet-border);
+
+  /* Status aliases used by components/statusUtils.js TONES */
+  --bad-bg: var(--danger-bg);
+  --bad-text: var(--danger-text);
+  --bad-border: var(--danger-border);
+  --info-bg: var(--violet-bg);
+  --info-text: var(--violet-text);
+  --info-border: var(--violet-border);
+  --neutral-bg: var(--surface-muted);
+  --neutral-text: var(--text-mid);
+  --neutral-border: var(--border-neutral);
+
+  /* Radii */
+  --radius-card: 16px;
+  --radius-panel: 12px;
+  --radius-control: 10px;
+  --radius-pill: 999px;
+
+  /* Translucent surface for the glassy topbar — built from the card colour so it
+     darkens with the theme instead of staying white. */
+  --glass: color-mix(in srgb, var(--surface-card) 82%, transparent);
 
   /* ── Design-audit token layer (see design-audit/TOKENS.md) ─────────────────
      Added so that overlay, shadow and stacking decisions live in ONE place
@@ -113,10 +176,11 @@
   --on-brand-soft-strong: rgb(255 255 255 / 0.26);
   /* Shadow colour as an RGB triplet so alpha can be composed. Light mode tints
      shadows with the brand blue (softer on white); dark mode uses pure black. */
-  --shadow-rgb: 16, 58, 122;
-  --shadow-sm: 0 1px 2px rgb(var(--shadow-rgb) / 0.06);
-  --shadow-md: 0 4px 12px rgb(var(--shadow-rgb) / 0.10);
-  --shadow-lg: 0 12px 40px rgb(var(--shadow-rgb) / 0.16);
+  --shadow-rgb: 30, 27, 57;
+  --shadow-xs: 0 1px 2px rgb(var(--shadow-rgb) / 0.05);
+  --shadow-sm: 0 2px 8px rgb(var(--shadow-rgb) / 0.06);
+  --shadow-md: 0 8px 24px rgb(var(--shadow-rgb) / 0.09);
+  --shadow-lg: 0 16px 44px rgb(var(--shadow-rgb) / 0.14);
 
   /* Monospace — IDs, hashes, reference codes. The ONLY second family allowed,
      and it is a system stack (no extra webfont download). */
@@ -181,29 +245,29 @@
      correctly instead of computing hsl(var(--undefined)) and rendering broken.
      Light theme only (no dark mode in use). Values are HSL channels (no hsl()). */
   --background: 0 0% 100%;
-  --foreground: 222 84% 5%;
+  --foreground: 246 36% 17%;         /* --ink #1E1B39 */
   --card: 0 0% 100%;
-  --card-foreground: 222 84% 5%;
+  --card-foreground: 246 36% 17%;
   --popover: 0 0% 100%;
-  --popover-foreground: 222 84% 5%;
-  --primary: 205 96% 35%;            /* #0366ae endeavour */
+  --popover-foreground: 246 36% 17%;
+  --primary: 248 68% 62%;            /* --brand #6D5CE0 */
   --primary-foreground: 0 0% 100%;
-  --secondary: 210 40% 96%;
-  --secondary-foreground: 222 47% 11%;
-  --muted: 210 40% 96%;
-  --muted-foreground: 215 16% 47%;
-  --accent: 207 100% 93%;            /* #dbeeff app accent */
-  --accent-foreground: 216 77% 27%;  /* #103a7a chathams-blue */
-  --destructive: 0 84% 60%;
+  --secondary: 250 33% 96%;          /* --bg-subtle #F4F3F9 */
+  --secondary-foreground: 246 36% 17%;
+  --muted: 250 33% 96%;
+  --muted-foreground: 249 12% 40%;   /* --ink-secondary #48455E */
+  --accent: 251 74% 95%;             /* --brand-soft #EEEBFC */
+  --accent-foreground: 248 56% 54%;  /* --brand-strong #5A49CB */
+  --destructive: 353 68% 42%;        /* --danger-text #B42332 */
   --destructive-foreground: 0 0% 98%;
-  --border: 214 32% 91%;
-  --input: 214 32% 91%;
-  --ring: 205 96% 35%;               /* brand-blue focus ring */
-  --chart-1: 12 76% 61%;
-  --chart-2: 173 58% 39%;
-  --chart-3: 197 37% 24%;
-  --chart-4: 43 74% 66%;
-  --chart-5: 27 87% 67%;
+  --border: 252 26% 93%;             /* --line #EAE8F2 */
+  --input: 253 28% 87%;              /* --line-strong #DAD6E8 */
+  --ring: 248 68% 62%;               /* brand focus ring */
+  --chart-1: 248 68% 62%;            /* brand violet */
+  --chart-2: 173 83% 33%;            /* teal  */
+  --chart-3: 207 78% 55%;            /* blue  */
+  --chart-4: 35 79% 57%;             /* amber */
+  --chart-5: 343 63% 59%;            /* rose  */
 }
 
 /* The type ladder stepping up at the same 4 breakpoints the .responsiveText*
@@ -262,7 +326,21 @@ body,
 :root {
   height: 100%;
   overflow-x: hidden;
-  font-family: var(--font-poppins), 'Poppins', sans-serif;
+  font-family: var(--font-jakarta), 'Plus Jakarta Sans', system-ui, sans-serif;
+}
+
+body {
+  background: var(--bg-page);
+  color: var(--ink);
+}
+
+/* Data tables and figures switch to Inter for its tabular numerals, so columns
+   of numbers stay optically aligned. Everything else stays on Jakarta. */
+table,
+.tnum,
+[data-numeric] {
+  font-family: var(--font-inter), 'Inter', system-ui, sans-serif;
+  font-variant-numeric: tabular-nums;
 }
 
 /* Dark mode plumbing. The .dark class is set by applyTheme() (utils/themes.js)
@@ -392,11 +470,21 @@ thead th {
      which is what produced the "pill inputs too small next to the figures"
      report on cashflow). Matches .responsiveText so a control and the body text
      beside it are always the same size. */
+  /* ── Inputs ──────────────────────────────────────────────────────────────
+     Same band as the buttons: h-8, 10px corners, --line-strong outline on the
+     card surface. Focus is a brand border plus a 3px brand-soft ring — never a
+     pill, never a bare colour change. */
   .input {
-    @apply w-full border rounded-full border-[var(--border-cell)] h-7 focus:outline-0 focus:border-[var(--endeavour)] indent-1.5
-           text-[0.6875rem] xl:text-[0.75rem] 2xl:text-[0.8125rem] 3xl:text-[0.875rem]
-           text-[var(--port-gore)] bg-[var(--surface-pill)];
+    @apply w-full border rounded-control border-[var(--line-strong)] h-8 px-2.5
+           text-[var(--ink)] bg-[var(--bg-card)]
+           focus:outline-0 focus:border-[var(--brand)] transition-colors;
+    font-size: var(--fs-input);
     font-family: inherit;
+  }
+
+  .input:focus,
+  .input:focus-visible {
+    box-shadow: 0 0 0 3px var(--brand-soft);
   }
 
   .dashBox {
@@ -417,18 +505,31 @@ thead th {
      They previously used 9 / 10.512 / 11.5 / 12px: the two middle steps were
      rogue values (0.657rem, 0.71875rem) that existed nowhere else in the app.
      Heights were py-1.5, h-7, py-1 and py-1 — four buttons, three heights. */
+  /* ── Buttons ─────────────────────────────────────────────────────────────
+     One control band: h-8, --radius-control (10px), --fs-input type. Nothing
+     pill-shaped, nothing bespoke — a button and the field beside it line up.  */
   .blackButton {
-    @apply bg-[var(--endeavour)] hover:opacity-90 text-white flex items-center gap-2 justify-center rounded-full border-0 px-3 h-7 text-[0.5625rem] xl:text-[0.625rem] 2xl:text-[0.6875rem] 3xl:text-[0.75rem] font-medium focus:outline-none shadow-md transition-all disabled:opacity-50 disabled:cursor-not-allowed
+    @apply bg-[var(--brand)] hover:bg-[var(--brand-strong)] text-[var(--on-brand)] flex items-center gap-2 justify-center rounded-control border-0 px-3 h-8 font-medium focus:outline-none transition-colors disabled:opacity-50 disabled:cursor-not-allowed;
+    font-size: var(--fs-input);
+    box-shadow: var(--shadow-xs);
   }
 
   .whiteButton {
-    @apply bg-[var(--surface-card)] border-[var(--border-divider)] hover:bg-[var(--selago)] text-[var(--chathams-blue)] flex items-center gap-2 justify-center rounded-full border px-3 h-7 text-[0.5625rem] xl:text-[0.625rem] 2xl:text-[0.6875rem] 3xl:text-[0.75rem] font-medium focus:outline-none shadow-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed
+    @apply bg-[var(--bg-card)] border-[var(--line-strong)] hover:bg-[var(--bg-subtle)] text-[var(--ink)] flex items-center gap-2 justify-center rounded-control border px-3 h-8 font-medium focus:outline-none transition-colors disabled:opacity-50 disabled:cursor-not-allowed;
+    font-size: var(--fs-input);
+    box-shadow: var(--shadow-xs);
   }
-    .supplierButton {
-    @apply bg-[var(--surface-header)] hover:bg-[var(--selago)] text-[var(--endeavour)] flex items-center gap-2 justify-center rounded-full border-0 px-3 h-7 text-[0.5625rem] xl:text-[0.625rem] 2xl:text-[0.6875rem] 3xl:text-[0.75rem] font-medium focus:outline-none shadow-md transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed
+
+  .supplierButton {
+    @apply bg-[var(--brand-soft)] hover:bg-[var(--bg-sunken)] text-[var(--brand)] flex items-center gap-2 justify-center rounded-control border-0 px-3 h-8 font-medium focus:outline-none transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed;
+    font-size: var(--fs-input);
+    box-shadow: var(--shadow-xs);
   }
-   .supplierAddButton {
-    @apply bg-[var(--endeavour)] hover:opacity-90 text-white flex items-center gap-2 justify-center rounded-full border-0 px-3 h-7 text-[0.5625rem] xl:text-[0.625rem] 2xl:text-[0.6875rem] 3xl:text-[0.75rem] font-medium focus:outline-none shadow-md transition-opacity cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed
+
+  .supplierAddButton {
+    @apply bg-[var(--brand)] hover:bg-[var(--brand-strong)] text-[var(--on-brand)] flex items-center gap-2 justify-center rounded-control border-0 px-3 h-8 font-medium focus:outline-none transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed;
+    font-size: var(--fs-input);
+    box-shadow: var(--shadow-xs);
   }
 
   /* Focus ring — one definition, visible in both modes. Applied to every
@@ -986,4 +1087,120 @@ div.relative.w-full.text-gray-700 > div.absolute.z-10:not(.right-0) > div.absolu
   text-transform: uppercase;
   letter-spacing: 0.025em;
   color: var(--regent-gray);
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   SaaS redesign — page shell, type scale and motion.
+   Written as plain CSS (no @apply) so it is readable and layer-independent.
+   Sizes come from the --fs-* ladder above, so these classes ramp at exactly
+   the same 4 breakpoints as every other size in the app.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+/* ── Type scale ──────────────────────────────────────────────────────────── */
+.text-display {
+  font-size: var(--fs-display);
+  font-weight: 700;
+  color: var(--ink);
+  letter-spacing: -0.01em;
+}
+
+.text-title {
+  font-size: var(--fs-page);
+  font-weight: 600;
+  color: var(--ink);
+  letter-spacing: -0.01em;
+}
+
+.text-stat {
+  font-size: var(--fs-stat);
+  font-weight: 700;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+}
+
+/* Table column headers / field labels — 11px uppercase muted */
+.text-caption {
+  font-size: var(--fs-body);
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--ink-secondary);
+  letter-spacing: 0.04em;
+}
+
+/* Chips / timestamps */
+.text-micro {
+  font-size: var(--fs-caption);
+  font-weight: 500;
+}
+
+.tnum {
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── Page shell ──────────────────────────────────────────────────────────── */
+.page-card {
+  background: var(--bg-card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-xs);
+  animation: rise-in 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.page-header {
+  animation: rise-in 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* ── Motion & micro-interactions ─────────────────────────────────────────── */
+@keyframes rise-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.dashCard,
+.dashStatCard,
+.kpi-card {
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.dashCard:hover,
+.dashStatCard:hover,
+.kpi-card:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+}
+
+.blackButton:active,
+.whiteButton:active,
+.supplierButton:active,
+.supplierAddButton:active {
+  transform: scale(0.98);
+}
+
+/* Hide scrollbars on horizontal chip rails (content still scrolls) */
+.scrollbar-none {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .page-card,
+  .page-header,
+  .kpi-card {
+    animation: none;
+  }
+  .dashCard:hover,
+  .dashStatCard:hover,
+  .kpi-card:hover {
+    transform: none;
+  }
+  .blackButton:active,
+  .whiteButton:active,
+  .supplierButton:active,
+  .supplierAddButton:active {
+    transform: none;
+  }
 }

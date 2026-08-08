@@ -22,8 +22,8 @@ export default function NavbarLinks() {
           href={link.href}
           className={`relative font-medium responsiveTextTitle px-3 py-1.5 rounded-lg transition-all duration-200 group ${
             pathname === link.href
-              ? 'text-[var(--endeavour)] bg-[var(--surface-header)]'
-              : 'text-[var(--chathams-blue)] hover:text-[var(--endeavour)] hover:bg-[var(--surface-header)]/60'
+              ? 'text-[var(--endeavour)] bg-[var(--bg-subtle)]'
+              : 'text-[var(--chathams-blue)] hover:text-[var(--endeavour)] hover:bg-[var(--bg-subtle)]/60'
           }`}
         >
           {link.label}
@@ -35,7 +35,7 @@ export default function NavbarLinks() {
 
       <Link
         href="/signin"
-        className="ml-2 bg-[var(--endeavour)] text-white responsiveTextTitle px-5 py-2 rounded-lg hover:bg-[var(--brand-deep)] transition-all duration-200 font-medium shadow-sm hover:shadow-md hover:scale-105 active:scale-95"
+        className="ml-2 bg-[var(--endeavour)] text-[var(--on-brand)] responsiveTextTitle px-5 py-2 rounded-lg hover:bg-[var(--brand-strong)] transition-all duration-200 font-medium shadow-sm hover:shadow-md hover:scale-105 active:scale-95"
       >
         Sign In
       </Link>

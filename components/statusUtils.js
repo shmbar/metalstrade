@@ -1,12 +1,15 @@
 // Pure status → color helpers (no JSX/React) so they're unit-testable in isolation
 // and reusable anywhere. The <StatusBadge> component in StatusBadge.js renders these.
 
+// One pastel system: soft bg, strong text, matching border. Every value is a
+// token so chips follow the colour preset and flip correctly in dark mode.
+// "blue" is the info/accent tone — violet in this palette.
 export const TONES = {
-    green: { bg: 'var(--ok-bg)', text: 'var(--ok-strong)', border: 'var(--ok-border)' },
-    amber: { bg: 'var(--warn-bg)', text: 'var(--warn-strong)', border: 'var(--warn-border)' },
-    red: { bg: 'var(--danger-bg)', text: 'var(--danger-strong)', border: 'var(--danger-border)' },
-    blue: { bg: 'var(--surface-header)', text: 'var(--endeavour)', border: 'var(--border-divider)' },
-    gray: { bg: 'var(--surface-muted)', text: 'var(--text-mid)', border: 'var(--border-neutral)' },
+    green: { bg: 'var(--ok-bg)', text: 'var(--ok-text)', border: 'var(--ok-border)' },
+    amber: { bg: 'var(--warn-bg)', text: 'var(--warn-text)', border: 'var(--warn-border)' },
+    red: { bg: 'var(--bad-bg)', text: 'var(--bad-text)', border: 'var(--bad-border)' },
+    blue: { bg: 'var(--brand-soft)', text: 'var(--brand-strong)', border: 'var(--brand-border)' },
+    gray: { bg: 'var(--neutral-bg)', text: 'var(--ink-secondary)', border: 'var(--neutral-border)' },
 };
 
 // Map a free-text status label to a tone. Order matters: negative/partial checks

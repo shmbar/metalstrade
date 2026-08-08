@@ -2,15 +2,13 @@ import { Fragment, useContext, useState, useRef, useEffect } from 'react'
 import { useGlobalSearch } from '../../../contexts/useGlobalSearchContext'
 import imsLogo from '../../../public/logo/logoNew.svg';
 import Image from 'next/image'
-import { BiLogOutCircle,BiSearch } from 'react-icons/bi';
+import { LogOut as LogOutIcon, Search, Settings as SettingsIcon, Menu as MenuIcon } from 'lucide-react';
 import { UserAuth } from "../../../contexts/useAuthContext";
 import { useRouter } from "next/navigation";
 import { Menu, MenuButton, Transition, MenuItems } from '@headlessui/react'
 import { sideBar } from '../../../components/const'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation';
-import { FiSettings } from "react-icons/fi";
-import { ImMenu } from "react-icons/im";
 import CompanySelect from './companySelect';
 import NotificationBell from '@components/NotificationBell';
 import { SettingsContext } from "../../../contexts/useSettingsContext";
@@ -88,7 +86,7 @@ const SideBarMini = () => {
   }, []);
 
   return (
-    <nav className="w-full h-14 flex items-center shadow-sm bg-[var(--border-divider)]">
+    <nav className="w-full h-14 flex items-center bg-[var(--bg-card)] border-b border-[var(--line)]" style={{ boxShadow: 'var(--shadow-xs)' }}>
       <div className='flex w-full justify-between items-center'>
         {/* Logo and Search Icon */}
         <div className='flex items-center'>
@@ -101,15 +99,16 @@ const SideBarMini = () => {
             />
           </div>
           <div className='relative' ref={searchRef}>
-            <BiSearch
-              className="w-5 h-5 text-[var(--chathams-blue)] cursor-pointer ml-4"
+            <Search
+              size={20} strokeWidth={1.75}
+              className="text-[var(--ink-secondary)] cursor-pointer ml-4"
               onClick={() => {
                 setSearchOpen((v) => !v);
                 setShowDropdown(true);
               }}
             />
             {searchOpen && (
-              <div className="absolute top-12 left-0 w-72 z-dropdown responsiveText">
+              <div className="absolute top-12 left-0 w-72 z-appbar responsiveText">
                 <input
                   type="text"
                   placeholder={placeholderText}
@@ -120,22 +119,22 @@ const SideBarMini = () => {
                     setQuery(e.target.value);
                     setShowDropdown(true);
                   }}
-                  className="w-full pl-4 pr-10 py-2.5 rounded-lg bg-gray-50 border border-transparent focus:border-[var(--rock-blue)] focus:bg-[var(--surface-card)] focus:outline-none placeholder-gray-400 transition-all"
-                  style={{ fontSize: 'inherit', color: 'var(--port-gore)' }}
+                  className="w-full pl-4 pr-10 py-2.5 rounded-control bg-[var(--bg-subtle)] border border-[var(--line)] focus:border-[var(--brand)] focus:bg-[var(--bg-card)] focus:outline-none focus:ring-[3px] focus:ring-[var(--brand-soft)] placeholder:text-[var(--ink-muted)] transition-all"
+                  style={{ fontSize: 'inherit', color: 'var(--ink)' }}
                 />
                 {/* Search Dropdown */}
                 {showDropdown && searchResults.length > 0 && (
-                  <div className='absolute left-0 right-0 mt-2 bg-[var(--surface-card)] rounded-2xl shadow-lg border border-[var(--selago)] z-dropdown overflow-auto max-h-80 w-full min-w-[16rem]'>
+                  <div className='absolute left-0 right-0 mt-2 bg-[var(--bg-card)] rounded-2xl border border-[var(--line)] z-dropdown overflow-auto max-h-80 w-full min-w-[16rem]' style={{ boxShadow: 'var(--shadow-md)' }}>
                     {searchResults.map((r) => (
                       <button
                         key={r.key}
                         type='button'
                         onMouseDown={(e) => e.preventDefault()}
                         onClick={() => onPickResult(r)}
-                        className='w-full text-left px-4 py-3 hover:bg-[var(--selago)] transition-all flex flex-col items-start'
+                        className='w-full text-left px-4 py-3 hover:bg-[var(--bg-subtle)] transition-all flex flex-col items-start'
                       >
-                        <div className='responsiveText font-medium text-[var(--port-gore)] break-words'>{r.title}</div>
-                        <div className='responsiveText text-[var(--regent-gray)] truncate w-full'>{r.subtitle}</div>
+                        <div className='responsiveText font-medium text-[var(--ink)] break-words'>{r.title}</div>
+                        <div className='responsiveText text-[var(--ink-muted)] truncate w-full'>{r.subtitle}</div>
                       </button>
                     ))}
                   </div>
@@ -152,8 +151,8 @@ const SideBarMini = () => {
             {({ close }) => (
               <>
                 <div className='flex h-full'>
-                  <MenuButton className="flex items-center justify-center px-4 text-[var(--chathams-blue)] focus:outline-none">
-                    <ImMenu className='opacity-90' />
+                  <MenuButton className="flex items-center justify-center px-4 text-[var(--ink-secondary)] focus:outline-none">
+                    <MenuIcon size={20} strokeWidth={1.75} />
                   </MenuButton>
                 </div>
                 <Transition
@@ -167,19 +166,20 @@ const SideBarMini = () => {
                 >
                 <MenuItems
   data-ims-sidebar="1"
-  className="fixed right-2 top-14 w-76 origin-top-left divide-y divide-[rgba(var(--chathams-blue-rgb),0.2)] rounded-2xl shadow-lg border border-[var(--selago)] bg-[var(--border-divider)] focus:outline-none h-[450px] overflow-auto z-command"
+  className="fixed right-2 top-14 w-76 origin-top-left divide-y divide-[var(--line)] rounded-2xl border border-[var(--line)] bg-[var(--bg-card)] focus:outline-none h-[450px] overflow-auto z-dropdown"
+  style={{ boxShadow: 'var(--shadow-md)' }}
 >
-  <div className='px-4 py-3 border-b border-[var(--selago)]'>
-    <p className='responsiveText font-medium text-[var(--chathams-blue)]'>
+  <div className='px-4 py-3 border-b border-[var(--line)]'>
+    <p className='responsiveText font-medium text-[var(--ink)]'>
       {user?.displayName || user?.email?.split('@')[0] || 'User'}
     </p>
-    <p className='responsiveText text-[var(--chathams-blue)] truncate'>{user?.email || ''}</p>
+    <p className='responsiveText text-[var(--ink-muted)] truncate'>{user?.email || ''}</p>
   </div>
-  <ul className="flex-1 divide-[rgba(var(--chathams-blue-rgb),0.2)] divide-y">
+  <ul className="flex-1 divide-[var(--line)] divide-y">
     {sideBar(userTitle, gisAccount).map((x, i) => (
       <div key={i} className="py-2">
         {x.ttl && (
-          <div className='responsiveTextTable font-medium tracking-widest uppercase text-[var(--chathams-blue)]/80 px-4 pb-2 pt-3' style={{letterSpacing: '0.12em'}}>
+          <div className='font-semibold uppercase text-[var(--ink-muted)] px-4 pb-2 pt-3' style={{letterSpacing: '0.06em', fontSize: 'var(--fs-table)'}}>
             {getTtl(x.ttl, ln)}
           </div>
         )}
@@ -196,10 +196,10 @@ const SideBarMini = () => {
                         <Link href={`/${sub.page}`} key={subIdx} onClick={e => { close(); }}>
                           <div className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-all duration-150 responsiveText mt-1
                             ${isSubActive
-                              ? 'bg-[var(--surface-card)] text-[var(--chathams-blue)] font-medium scale-[1.01]'
-                              : 'text-[var(--chathams-blue)] hover:bg-[rgba(var(--surface-card-rgb),0.5)] hover:translate-x-0.5'}`}
+                              ? 'bg-[var(--brand-soft)] text-[var(--brand)] font-medium'
+                              : 'text-[var(--ink-secondary)] hover:bg-[var(--bg-subtle)]'}`}
                           >
-                            <span style={{color: 'var(--chathams-blue)'}}>{sub.img}</span>
+                            <span>{sub.img}</span>
                             <span className="responsiveText whitespace-nowrap font-normal">{getTtl(sub.item, ln)}</span>
                           </div>
                         </Link>
@@ -215,9 +215,9 @@ const SideBarMini = () => {
                 <div className="flex px-2 py-1 responsiveText items-center">
                   <div className={`gap-3 w-full flex items-center px-3 py-2 rounded-2xl transition-all duration-150
                     ${isActive
-                      ? 'bg-[var(--surface-card)] text-[var(--chathams-blue)] font-medium scale-[1.01]'
-                      : 'text-[var(--chathams-blue)] hover:bg-[rgba(var(--surface-card-rgb),0.5)] hover:translate-x-0.5'}`}>
-                    <span className="transition-colors" style={{color: 'var(--chathams-blue)'}}>{y.img}</span>
+                      ? 'bg-[var(--brand-soft)] text-[var(--brand)] font-medium'
+                      : 'text-[var(--ink-secondary)] hover:bg-[var(--bg-subtle)]'}`}>
+                    <span className="transition-colors">{y.img}</span>
                     <span className="responsiveText whitespace-nowrap font-normal">{getTtl(y.item, ln)}</span>
                   </div>
                 </div>
@@ -232,8 +232,8 @@ const SideBarMini = () => {
   <div className='py-2'>
     <Link href='/settings' onClick={e => close()}>
       <div className="flex px-2 py-1 responsiveText items-center">
-        <div className="gap-3 w-full flex items-center px-3 py-2 rounded-2xl transition-all duration-150 text-[var(--chathams-blue)] hover:bg-[rgba(var(--surface-card-rgb),0.5)]">
-          <FiSettings className='w-4 h-4' style={{color: 'var(--chathams-blue)'}} />
+        <div className="gap-3 w-full flex items-center px-3 py-2 rounded-2xl transition-all duration-150 text-[var(--ink-secondary)] hover:bg-[var(--bg-subtle)]">
+          <SettingsIcon size={16} strokeWidth={1.75} />
           <span className='responsiveText font-normal'>{getTtl('Settings', ln)}</span>
         </div>
       </div>
@@ -241,8 +241,8 @@ const SideBarMini = () => {
   </div>
   <div className='py-2'>
     <div className="flex px-2 py-1 responsiveText items-center cursor-pointer" onClick={() => { LogOut(); close(); }}>
-      <div className="gap-3 w-full flex items-center px-3 py-2 rounded-2xl transition-all duration-150 text-[var(--chathams-blue)] hover:bg-[rgba(var(--surface-card-rgb),0.5)]">
-        <BiLogOutCircle className='w-4 h-4' style={{color: 'var(--chathams-blue)'}} />
+      <div className="gap-3 w-full flex items-center px-3 py-2 rounded-2xl transition-all duration-150 text-[var(--bad-text)] hover:bg-[var(--bad-bg)]">
+        <LogOutIcon size={16} strokeWidth={1.75} />
         <span className='responsiveText font-normal'>{getTtl('Logout', ln)}</span>
       </div>
     </div>

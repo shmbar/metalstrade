@@ -1,13 +1,21 @@
 import './globals.css';
-import { Poppins } from 'next/font/google';
+import { Inter, Plus_Jakarta_Sans } from 'next/font/google';
 import Provider from './providers'
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { GlobalSearchProvider } from '../contexts/useGlobalSearchContext';
 
-const poppins = Poppins({
-	weight: ['300', '400', '500', '600', '700'],
+// Plus Jakarta Sans = all UI, headings and body (the reference look).
+// Inter = data tables and figures only — its tabular numerals keep columns aligned.
+const jakarta = Plus_Jakarta_Sans({
+	weight: ['400', '500', '600', '700', '800'],
 	subsets: ['latin'],
-	variable: '--font-poppins',
+	variable: '--font-jakarta',
+});
+
+const inter = Inter({
+	weight: ['400', '500', '600'],
+	subsets: ['latin'],
+	variable: '--font-inter',
 });
 
 export const metadata = {
@@ -31,7 +39,12 @@ export default function RootLayout({ children }) {
 		// suppressHydrationWarning: the pre-paint boot script below legitimately
 		// sets theme vars + .dark on <html> before React hydrates
 		<html lang="en" suppressHydrationWarning>
-			<body className={poppins.className} style={{ '--font-poppins': poppins.style.fontFamily }}>
+			{/* --font-poppins is aliased to Jakarta so the legacy call sites that still
+			    say font-poppins / var(--font-poppins) render the current UI font. */}
+			<body
+				className={`${jakarta.variable} ${inter.variable} ${jakarta.className}`}
+				style={{ '--font-poppins': jakarta.style.fontFamily }}
+			>
 				{/* Apply the member's saved colour theme before first paint (see
 				    contexts/useThemeContext.js — the vars map is precomputed at save time). */}
 				<script

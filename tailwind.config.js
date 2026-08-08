@@ -10,7 +10,12 @@ module.exports = {
 	theme: {
 		extend: {
 			fontFamily: {
-				poppins: ['var(--font-poppins)', 'sans-serif'],
+				sans: ['var(--font-jakarta)', 'Plus Jakarta Sans', 'system-ui', 'sans-serif'],
+				display: ['var(--font-jakarta)', 'Plus Jakarta Sans', 'system-ui', 'sans-serif'],
+				// Data tables / figures — Inter's tabular numerals keep columns aligned.
+				inter: ['var(--font-inter)', 'Inter', 'system-ui', 'sans-serif'],
+				// Legacy alias — the old font-poppins call sites render the current UI font.
+				poppins: ['var(--font-jakarta)', 'Plus Jakarta Sans', 'system-ui', 'sans-serif'],
 			},
 			gridTemplateColumns: {
 				'21': 'repeat(21, minmax(0, 1fr))'
@@ -19,6 +24,31 @@ module.exports = {
 				LoginBG: "url('/login/loginBG.jpg')",
 			},
 			colors: {
+				/* SaaS design tokens (globals.css :root) — the semantic vocabulary the
+				   redesigned components use: bg-page, bg-surface, text-ink, border-line… */
+				page: 'var(--bg-page)',
+				surface: 'var(--bg-card)',
+				subtle: 'var(--bg-subtle)',
+				sunken: 'var(--bg-sunken)',
+				line: {
+					DEFAULT: 'var(--line)',
+					strong: 'var(--line-strong)',
+				},
+				ink: {
+					DEFAULT: 'var(--ink)',
+					secondary: 'var(--ink-secondary)',
+					muted: 'var(--ink-muted)',
+				},
+				brand: {
+					DEFAULT: 'var(--brand)',
+					strong: 'var(--brand-strong)',
+					soft: 'var(--brand-soft)',
+					line: 'var(--brand-border)',
+				},
+				ok: { bg: 'var(--ok-bg)', text: 'var(--ok-text)', line: 'var(--ok-border)' },
+				warn: { bg: 'var(--warn-bg)', text: 'var(--warn-text)', line: 'var(--warn-border)' },
+				bad: { bg: 'var(--bad-bg)', text: 'var(--bad-text)', line: 'var(--bad-border)' },
+				info: { bg: 'var(--info-bg)', text: 'var(--info-text)', line: 'var(--info-border)' },
 				customBlue: '#096EB6',
 				customLavender: '#B1A0C7',
 				customOrange: '#E26B0A',
@@ -130,7 +160,10 @@ module.exports = {
 			borderRadius: {
 				lg: 'var(--radius)',
 				md: 'calc(var(--radius) - 2px)',
-				sm: 'calc(var(--radius) - 4px)'
+				sm: 'calc(var(--radius) - 4px)',
+				card: 'var(--radius-card)',
+				panel: 'var(--radius-panel)',
+				control: 'var(--radius-control)',
 			},
 			/* Shadows re-pointed at themable tokens (design-audit/TOKENS.md §5.2).
 			   Tailwind's defaults hardcode rgba(0,0,0,…), which is invisible on a
@@ -139,6 +172,11 @@ module.exports = {
 			   It also collapses 5 shadow steps into the 3 the spec allows:
 			   xl and 2xl now resolve to the same value as lg. */
 			boxShadow: {
+				/* SaaS tiers — shadow-card is the default resting elevation for
+				   page cards / KPI cards; raised for hover; pop for overlays. */
+				card: 'var(--shadow-xs)',
+				raised: 'var(--shadow-sm)',
+				pop: 'var(--shadow-md)',
 				sm: 'var(--shadow-sm)',
 				DEFAULT: 'var(--shadow-md)',
 				md: 'var(--shadow-md)',

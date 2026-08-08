@@ -19,68 +19,81 @@
 // desaturated borders, near-neutral dark text, and a brighter more vivid primary.
 // NOTE: Ocean bypasses this entirely (stylesheet defaults), so the app's classic
 // blue is unaffected; this signature shapes the other presets.
+// Re-measured 2026-08-08 from the SaaS redesign palette (see app/globals.css
+// :root). Every value below is the HSL of the corresponding token in the new
+// system, expressed relative to the default theme's hue (248). Applying the
+// default preset therefore reproduces the stylesheet exactly, and every other
+// preset renders the SAME design in its own hue.
 const LIGHT_SIGNATURE = {
-  endeavour: { dh: 0, s: 88, l: 45 },
-  'chathams-blue': { dh: 11, s: 62, l: 29 },
-  'port-gore': { dh: 30, s: 18, l: 18 },
-  bunting: { dh: 44, s: 45, l: 16 },
-  'rock-blue': { dh: 7, s: 32, l: 71 },
-  'regent-gray': { dh: 18, s: 13, l: 53 },
-  selago: { dh: 10, s: 50, l: 96 },
-  'primary-bright': { dh: 13, s: 75, l: 55 },
-  'surface-header': { dh: 3, s: 62, l: 94 },
-  'surface-pill': { dh: 9, s: 55, l: 98 },
-  'border-cell': { dh: 2, s: 32, l: 89 },
-  'border-divider': { dh: 0, s: 42, l: 86 },
+  endeavour: { dh: 0, s: 68, l: 62 },          /* --brand        #6D5CE0 */
+  'chathams-blue': { dh: -2, s: 36, l: 16 },   /* --ink          #1E1B39 */
+  'port-gore': { dh: -2, s: 36, l: 16 },       /* --ink          #1E1B39 */
+  bunting: { dh: -1, s: 41, l: 12 },           /* deepest ink    #15122B */
+  'rock-blue': { dh: 6, s: 28, l: 87 },        /* --line-strong  #DAD6E8 */
+  'regent-gray': { dh: -1, s: 10, l: 47 },     /* --ink-muted    #6E6B84 */
+  selago: { dh: 2, s: 33, l: 96 },             /* --bg-subtle    #F4F3F9 */
+  'primary-bright': { dh: -1, s: 89, l: 73 },  /* brand, lifted  #8B7CF7 */
+  'surface-header': { dh: 2, s: 33, l: 96 },   /* --bg-subtle    #F4F3F9 */
+  'surface-pill': { dh: 2, s: 33, l: 96 },     /* --bg-subtle    #F4F3F9 */
+  'border-cell': { dh: 4, s: 28, l: 93 },      /* --line         #EAE8F2 */
+  'border-divider': { dh: 4, s: 28, l: 93 },   /* --line         #EAE8F2 */
 };
 
 // Same tokens, dark values. Text-role tokens (port-gore, chathams-blue, …)
 // become light; surface-role tokens become hue-tinted darks.
 const DARK_SIGNATURE = {
-  endeavour: { dh: 0, s: 72, l: 48 },
-  'chathams-blue': { dh: 11, s: 50, l: 72 },
-  'port-gore': { dh: 38, s: 20, l: 88 },
-  bunting: { dh: 44, s: 25, l: 84 },
-  'rock-blue': { dh: 7, s: 26, l: 58 },
-  'regent-gray': { dh: 20, s: 10, l: 64 },
-  selago: { dh: 10, s: 22, l: 19 },
-  'primary-bright': { dh: 13, s: 78, l: 62 },
-  'surface-header': { dh: 3, s: 26, l: 17 },
-  'surface-pill': { dh: 9, s: 20, l: 13 },
-  'border-cell': { dh: 2, s: 16, l: 24 },
-  'border-divider': { dh: 0, s: 18, l: 30 },
+  endeavour: { dh: -1, s: 89, l: 73 },         /* --brand        #8B7CF7 */
+  'chathams-blue': { dh: 1, s: 64, l: 95 },    /* --ink          #EDEBFA */
+  'port-gore': { dh: 1, s: 64, l: 95 },        /* --ink          #EDEBFA */
+  bunting: { dh: 1, s: 64, l: 96 },            /* lightest ink           */
+  'rock-blue': { dh: 1, s: 29, l: 29 },        /* --line-strong  #3A3560 */
+  'regent-gray': { dh: 1, s: 16, l: 59 },      /* --ink-muted    #8B87A8 */
+  selago: { dh: 1, s: 27, l: 17 },             /* --bg-subtle    #232038 */
+  'primary-bright': { dh: 0, s: 100, l: 79 },  /* --brand-strong #A497FF */
+  'surface-header': { dh: 1, s: 27, l: 17 },   /* --bg-subtle    #232038 */
+  'surface-pill': { dh: 1, s: 27, l: 17 },     /* --bg-subtle    #232038 */
+  'border-cell': { dh: 0, s: 27, l: 23 },      /* --line         #2E2A4A */
+  'border-divider': { dh: 0, s: 27, l: 23 },   /* --line         #2E2A4A */
 };
 
 // Neutral base layer, dark values — tinted with the theme hue (Telegram-style),
 // damped by the theme's sat so Graphite/Stone go properly grey.
 const DARK_NEUTRALS = {
-  'surface-card': { s: 14, l: 11 },
-  'surface-base': { s: 16, l: 8 },
-  'surface-muted': { s: 13, l: 16 },
-  'border-neutral': { s: 12, l: 24 },
-  'border-neutral-strong': { s: 10, l: 33 },
-  'text-strong': { s: 12, l: 92 },
-  'text-mid': { s: 8, l: 66 },
-  'text-faint': { s: 6, l: 48 },
+  'surface-card': { s: 33, l: 14 },            /* --bg-card      #1B1830 */
+  'surface-base': { s: 29, l: 10 },            /* --bg-page      #131120 */
+  'surface-muted': { s: 27, l: 17 },           /* --bg-subtle    #232038 */
+  'surface-sunken': { s: 28, l: 21 },          /* --bg-sunken    #2B2745 */
+  'border-neutral': { s: 27, l: 23 },          /* --line         #2E2A4A */
+  'border-neutral-strong': { s: 29, l: 29 },   /* --line-strong  #3A3560 */
+  'text-strong': { s: 64, l: 95 },             /* --ink          #EDEBFA */
+  'text-mid': { s: 25, l: 76 },                /* --ink-secondary #B6B2D0 */
+  'text-faint': { s: 16, l: 59 },              /* --ink-muted    #8B87A8 */
 };
 const NEUTRAL_RGB_TOKENS = ['surface-card', 'surface-base'];
 
 // Status system, dark values — hue-independent (green must stay green).
 const DARK_STATUS = {
-  'ok-soft': '#12291b', 'ok-bg': '#143521', 'ok-border': '#1e5e34',
-  'ok-text': '#4ade80', 'ok-strong': '#86efac',
-  'danger-soft': '#2e1416', 'danger-bg': '#3b191c', 'danger-border': '#7a2e2e',
-  'danger-text': '#f87171', 'danger-strong': '#fca5a5',
-  'warn-soft': '#2a2110', 'warn-bg': '#382c13', 'warn-border': '#7d5c17',
-  'warn-text': '#fbbf24', 'warn-strong': '#fde68a',
-  'violet-soft': '#1f1a30', 'violet-bg': '#282045', 'violet-border': '#453781',
-  'violet-text': '#a78bfa', 'violet-strong': '#c4b5fd',
-  'pink-soft': '#2a1520', 'pink-bg': '#38182a',
-  'pink-text': '#f472b6', 'pink-strong': '#f9a8d4',
+  'ok-soft': '#0E2117', 'ok-bg': '#12291C', 'ok-border': '#1F4630',
+  'ok-text': '#5ECC96', 'ok-strong': '#8CE0B4',
+  'danger-soft': '#291418', 'danger-bg': '#321A1E', 'danger-border': '#542730',
+  'danger-text': '#F0788C', 'danger-strong': '#F7A3B0',
+  'warn-soft': '#251D0F', 'warn-bg': '#2E2413', 'warn-border': '#4A3A1D',
+  'warn-text': '#E8B95C', 'warn-strong': '#F2D290',
+  /* The violet family is the brand family — keep it in step with --brand dark. */
+  'violet-soft': '#1C1834', 'violet-bg': '#22203E', 'violet-border': '#3D3768',
+  'violet-text': '#A99EF5', 'violet-strong': '#C4BCFF',
+  'pink-soft': '#2A1520', 'pink-bg': '#38182A',
+  'pink-text': '#F0839F', 'pink-strong': '#F7AEC1',
+  /* 6th avatar hue — also needs a dark value or the chip goes dark-on-dark. */
+  'teal-text': '#5FD6C4',
 };
 
 export const THEMES = [
-  { id: 'ocean', label: 'Ocean', hue: 205 },
+  /* The default. Its id stays 'ocean' so every preference already saved in
+     Firestore keeps resolving (and lands on the new default look); the hue and
+     label move to the redesign's violet identity. Users who explicitly picked a
+     blue keep it via 'azure' / 'sky' below. */
+  { id: 'ocean', label: 'Iris', hue: 248 },
   { id: 'azure', label: 'Azure', hue: 214 },
   { id: 'sky', label: 'Sky', hue: 193 },
   { id: 'teal', label: 'Teal', hue: 175, sat: 0.9, darken: 2 },
@@ -261,5 +274,5 @@ export function applyTheme(themeOrId, mode = DEFAULT_MODE) {
 
 // Swatch colour for the picker UI (mode-independent — swatches show the hue).
 export function themeSwatch(theme) {
-  return theme.id === DEFAULT_THEME_ID ? '#0366ae' : deriveTokens(theme, 'light').hex.endeavour;
+  return theme.id === DEFAULT_THEME_ID ? '#6D5CE0' : deriveTokens(theme, 'light').hex.endeavour;
 }

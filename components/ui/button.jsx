@@ -14,42 +14,43 @@ import { cn } from "@lib/utils"
  * with NEAR-BLACK text (slate-900 is NOT remapped), i.e. invisible button labels
  * in dark mode across 16 files.
  *
- * Sizes are the three from the spec (24 / 28 / 32px) and match .input, so a
- * button and the field beside it always line up. Type ramps with the ladder
- * instead of sitting at the rogue 0.72rem it used before.
+ * Controls sit on the shared 28 / 32 / 36px band and match .input, so a button
+ * and the field beside it always line up. Type ramps with the ladder instead of
+ * sitting at the rogue 0.72rem it used before. Corners are --radius-control
+ * (10px) — the redesign has no pill-shaped buttons.
  */
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full font-medium transition-colors " +
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-control font-medium transition-colors " +
   "responsiveTextTableTitle " +
-  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--endeavour)] focus-visible:ring-offset-1 focus-visible:ring-offset-[var(--surface-card)] " +
+  "focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-[var(--brand-soft)] focus-visible:border-[var(--brand)] " +
   "disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
   {
     variants: {
       variant: {
         default:
-          "bg-[var(--endeavour)] text-white hover:opacity-90 shadow-md",
+          "bg-[var(--brand)] text-[var(--on-brand)] hover:bg-[var(--brand-strong)] shadow-card",
         destructive:
-          "bg-[var(--danger-text)] text-white hover:opacity-90 shadow-md",
+          "bg-[var(--bad-text)] text-[var(--on-brand)] hover:opacity-90 shadow-card",
         outline:
-          "border border-[var(--border-divider)] bg-[var(--surface-card)] text-[var(--endeavour)] hover:bg-[var(--selago)] shadow-sm",
+          "border border-[var(--line-strong)] bg-[var(--bg-card)] text-[var(--ink)] hover:bg-[var(--bg-subtle)] shadow-card",
         secondary:
-          "bg-[var(--surface-header)] text-[var(--chathams-blue)] hover:bg-[var(--selago)] shadow-sm",
+          "bg-[var(--bg-subtle)] text-[var(--ink)] hover:bg-[var(--bg-sunken)]",
         ghost:
-          "text-[var(--chathams-blue)] hover:bg-[var(--surface-header)]",
+          "border border-transparent text-[var(--ink-secondary)] hover:bg-[var(--bg-subtle)] hover:text-[var(--ink)]",
         link:
-          "text-[var(--endeavour)] underline-offset-4 hover:underline",
+          "text-[var(--brand)] underline-offset-4 hover:underline",
         /* Kept for source compatibility — these were only defined in the
            duplicate button.tsx. They are aliases of default/outline. */
         customBlue:
-          "bg-[var(--endeavour)] text-white hover:opacity-90 shadow-md px-2",
+          "bg-[var(--brand)] text-[var(--on-brand)] hover:bg-[var(--brand-strong)] shadow-card px-2",
         customWhite:
-          "border border-[var(--border-divider)] bg-[var(--surface-card)] text-[var(--endeavour)] hover:bg-[var(--selago)] shadow-sm px-2",
+          "border border-[var(--line-strong)] bg-[var(--bg-card)] text-[var(--brand)] hover:bg-[var(--bg-subtle)] shadow-card px-2",
       },
       size: {
-        sm: "h-6 px-2.5",
-        default: "h-7 px-3",
-        lg: "h-8 px-4",
-        icon: "h-7 w-7 px-0",
+        sm: "h-7 px-2.5",
+        default: "h-8 px-3",
+        lg: "h-9 px-4",
+        icon: "h-8 w-8 px-0",
       },
     },
     defaultVariants: {

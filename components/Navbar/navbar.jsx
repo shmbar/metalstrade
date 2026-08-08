@@ -19,14 +19,10 @@ export default function Navbar() {
 
   return (
     <nav
-      /* z-appbar, not z-sticky: at 20 this tied with the hero's own `relative z-20`
-         container, and the hero — later in the DOM — won, so the headline and the
-         dashboard mockup painted straight over the nav. Same chrome role as the
-         CRM's MainNav, so the same rung. */
       className={`fixed top-0 left-0 right-0 z-appbar transition-all duration-300 ${
         scrolled
-          ? 'bg-[rgba(var(--surface-card-rgb),0.95)] backdrop-blur-md shadow-md border-b border-[var(--border-cell)]'
-          : 'bg-[var(--surface-header)] border-b border-[var(--border-divider)] shadow-sm'
+          ? 'bg-[var(--glass)] backdrop-blur-md shadow-md border-b border-[var(--line-strong)]'
+          : 'bg-[var(--bg-subtle)] border-b border-[var(--line)] shadow-sm'
       }`}
       style={{ height: 'clamp(56px, 7vh, 80px)' }}
     >

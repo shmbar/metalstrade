@@ -5,14 +5,14 @@ import { UserAuth } from '../../../contexts/useAuthContext'
 import { SettingsContext } from '../../../contexts/useSettingsContext'
 import { getTtl } from '../../../utils/languages'
 import { useRouter } from 'next/navigation'
-import { IoClose, IoMoonOutline, IoSunnyOutline } from 'react-icons/io5';
+import { X, Search, Bot, LogOut as LogOutIcon, Settings, ChevronDown, Sun, Moon } from 'lucide-react';
+import { useTheme } from '../../../contexts/useThemeContext';
+import { THEMES, themeSwatch } from '../../../utils/themes';
 import Image from 'next/image';
 import { useGlobalSearch } from '../../../contexts/useGlobalSearchContext'
 import Tltip from '../../../components/tlTip'
 import { Selector } from '@components/selectors/selectShad';
 import NotificationBell from '@components/NotificationBell';
-import { useTheme } from '../../../contexts/useThemeContext';
-import { THEMES, themeSwatch } from '../../../utils/themes';
 
 // Self-contained clock: owns the 1-second interval so only this tiny component
 // re-renders each second — previously the state lived in MainNav and re-rendered
@@ -28,11 +28,11 @@ const Clock = () => {
 
   if (!now) return null
   return (
-    <div className='flex flex-col items-end leading-tight select-none pointer-events-none pl-4 border-l border-[var(--border-divider)]'>
-      <span style={{ fontSize: 'var(--fs-body)', color: 'var(--chathams-blue)', fontWeight: 500, opacity: 0.8 }}>
+    <div className='flex flex-col items-end leading-tight select-none pointer-events-none pl-4 border-l border-[var(--line)]'>
+      <span style={{ fontSize: 'var(--fs-body)', color: 'var(--ink-muted)', fontWeight: 500 }}>
         {now.toLocaleDateString('en-GB', { weekday: 'short', day: '2-digit', month: 'short', year: 'numeric' })}
       </span>
-      <span style={{ fontSize: 'var(--fs-title)', color: 'var(--chathams-blue)', fontWeight: 600, letterSpacing: '0.05em' }}>
+      <span style={{ fontSize: 'var(--fs-title)', color: 'var(--ink)', fontWeight: 600, letterSpacing: '0.05em', fontVariantNumeric: 'tabular-nums' }}>
         {now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
       </span>
     </div>
@@ -40,8 +40,10 @@ const Clock = () => {
 }
 
 export const MainNav = () => {
-  const { SignOut, user, gisAccount } = UserAuth();
-  const { themeId, mode, setTheme, toggleMode } = useTheme();
+  const { SignOut, user, gisAccount, userTitle } = UserAuth();
+  // `theme` / `toggleTheme` are the light-dark dimension; `themeId` / `setTheme`
+  // are the per-member colour preset. Both persist to Firestore per member.
+  const { theme, toggleTheme, themeId, setTheme } = useTheme();
   const { compData, accounts, uidCollection, setUidCollection } = useContext(SettingsContext)
   const ln = compData?.lng || 'English'
   const router = useRouter()
@@ -88,11 +90,15 @@ export const MainNav = () => {
 
   return (
     <div
-      className='fixed top-0 left-0 right-0 px-1 md:px-2 xl:px-3 py-3 hidden md:flex items-center bg-[var(--surface-header)] z-appbar rounded-lg'
+      className='fixed top-0 left-0 right-0 px-1 md:px-2 xl:px-3 py-3 hidden md:flex items-center z-appbar rounded-lg'
       style={{
         height: 'clamp(56px, 7vh, 80px)',
         borderRadius: '12px',
-        border: '1.5px solid var(--border-divider)',
+        border: '1px solid var(--line)',
+        boxShadow: 'var(--shadow-xs)',
+        background: 'var(--glass)',
+        backdropFilter: 'blur(10px)',
+        WebkitBackdropFilter: 'blur(10px)',
         padding: '0 clamp(8px, 1vw, 16px)', // reduced horizontal padding
       }}
     >
@@ -116,13 +122,12 @@ export const MainNav = () => {
       </div>
 
 
-      {/* Right Side: All icons and controls in a row, all functional */}
-      <div className='flex items-center gap-2 ml-auto'>
-        {/* Global Search */} 
-        <div className='relative flex items-center' ref={searchRef}>
+      {/* Right Side: grouped control clusters separated by hairline dividers */}
+      <div className='flex items-center gap-1.5 ml-auto'>
+        {/* Global Search */}
+        <div className='relative flex items-center gap-1.5' ref={searchRef}>
 
-
-          <div className='flex-1 min-w-0 z-sticky'>
+          <div className='flex-1 min-w-0 z-50'>
             <Selector arr={accounts} value={accounts.find(x => x.id === uidCollection)}
               onChange={(e) => setUidCollection(e)}
               name='uidCollection'
@@ -131,15 +136,16 @@ export const MainNav = () => {
           </div>
 
           {!openSearch ? (
-            <Tltip tltpText={getTtl('Search', ln) || 'Search'} direction='bottom'>
-              <button
-                className='flex items-center justify-center w-10 h-10'
-                onClick={() => setOpenSearch(true)}
-                aria-label='Search'
-              >
-                <img src='/logo/search.svg' alt='Search' className='w-5 h-5' />
-              </button>
-            </Tltip>
+            <button
+              className='hidden lg:flex items-center gap-2 h-9 pl-3 pr-2 rounded-control border border-[var(--line)] bg-[var(--bg-subtle)] text-[var(--ink-muted)] hover:border-[var(--line-strong)] hover:bg-[var(--bg-card)] transition-colors'
+              onClick={() => { if (typeof window !== 'undefined') window.dispatchEvent(new CustomEvent('ims:openPalette')); }}
+              aria-label='Search'
+              style={{ minWidth: 180 }}
+            >
+              <Search size={15} strokeWidth={1.75} />
+              <span className='responsiveTextInput flex-1 text-left'>{getTtl('Search', ln) || 'Search'}...</span>
+              <kbd className='px-1.5 py-0.5 rounded bg-[var(--bg-card)] border border-[var(--line)] responsiveTextTable font-medium text-[var(--ink-secondary)]'>Ctrl K</kbd>
+            </button>
           ) : (
             <div className="relative flex items-center responsiveText">
               <input
@@ -149,24 +155,24 @@ export const MainNav = () => {
                 autoFocus
                 onBlur={() => setOpenSearch(false)}
                 onChange={(e) => setQuery(e.target.value)}
-                className='ml-2 w-60 pl-3 pr-8 py-2 rounded-full bg-gray-50 border border-gray-200 shadow-sm focus:border-[var(--rock-blue)] focus:bg-[var(--surface-card)] focus:outline-none placeholder:text-[var(--regent-gray)] placeholder:opacity-100 transition-all'
-                style={{ fontSize: 'inherit', color: query ? 'var(--port-gore)' : 'var(--port-gore)' }}
+                className='ml-2 w-60 pl-3 pr-8 py-2 rounded-control bg-[var(--bg-subtle)] border border-[var(--line)] focus:border-[var(--brand)] focus:bg-[var(--bg-card)] focus:outline-none focus:ring-[3px] focus:ring-[var(--brand-soft)] placeholder:text-[var(--ink-muted)] placeholder:opacity-100 transition-all'
+                style={{ fontSize: 'inherit', color: 'var(--ink)' }}
               />
               <button
                 type="button"
                 onClick={() => { setOpenSearch(false); setQuery(''); }}
-                className="absolute right-2 top-1/2 -translate-y-1/2 text-[var(--regent-gray)] hover:text-red-500 transition-colors"
+                className="absolute right-2 top-1/2 -translate-y-1/2 text-[var(--ink-muted)] hover:text-[var(--ink)] transition-colors"
                 tabIndex={-1}
                 aria-label="Close search"
               >
-                <IoClose size={20} />
+                <X size={18} />
               </button>
             </div>
           )}
 
           {/* Results dropdown, only if openSearch and query */}
           {openSearch && query && (
-            <div className='absolute left-0 top-full mt-2 w-72 bg-[var(--surface-card)] rounded-2xl shadow-lg border border-[var(--selago)] z-dropdown max-h-96 overflow-y-auto p-3'>
+            <div className='absolute left-0 top-full mt-2 w-72 bg-[var(--bg-card)] rounded-2xl border border-[var(--line)] z-dropdown max-h-96 overflow-y-auto p-2' style={{ boxShadow: 'var(--shadow-md)' }}>
               {searchResults.length > 0 ? (
                 searchResults.map((r) => (
                   <button
@@ -174,90 +180,82 @@ export const MainNav = () => {
                     type='button'
                     onMouseDown={(e) => e.preventDefault()}
                     onClick={() => onPickResult(r)}
-                    className='w-full text-left px-4 py-3 hover:bg-[var(--selago)] transition-all rounded-lg'
+                    className='w-full text-left px-3 py-2.5 hover:bg-[var(--bg-subtle)] transition-all rounded-lg'
                   >
-                    <div className='responsiveText font-medium text-[var(--port-gore)]'>{r.title}</div>
-                    <div className='responsiveText text-[var(--regent-gray)] truncate'>{r.subtitle}</div>
+                    <div className='responsiveText font-medium text-[var(--ink)]'>{r.title}</div>
+                    <div className='responsiveText text-[var(--ink-muted)] truncate'>{r.subtitle}</div>
                   </button>
                 ))
               ) : (
-                <div className='responsiveText text-[var(--regent-gray)] px-4 py-2'>No results</div>
+                <div className='responsiveText text-[var(--ink-muted)] px-4 py-2'>No results</div>
               )}
             </div>
           )}
         </div>
 
+        {/* — divider: search cluster | action icons — */}
+        <span className='hidden md:block h-6 w-px bg-[var(--line)] mx-1' aria-hidden='true' />
+
         <Tltip tltpText={getTtl('Ask question', ln) || 'Ask question'} direction='bottom'>
           <button
-            className='flex items-center justify-center w-10 h-10'
+            className='flex items-center justify-center w-9 h-9 rounded-control text-[var(--ink-secondary)] hover:bg-[var(--bg-subtle)] hover:text-[var(--ink)] transition-colors'
             onClick={() => {
               if (typeof window !== 'undefined') window.dispatchEvent(new CustomEvent('ims:openChat'))
             }}
             aria-label='Ask question'
           >
-            <img src='/logo/Ai bot.svg' alt='Chatbot' className='w-5 h-5' />
+            <Bot size={18} strokeWidth={1.75} />
           </button>
         </Tltip>
-        {/* Light / dark mode toggle — pairs with the colour swatches in the
-            profile dropdown; both save per member */}
-        <Tltip tltpText={mode === 'dark' ? (getTtl('Light mode', ln) || 'Light mode') : (getTtl('Dark mode', ln) || 'Dark mode')} direction='bottom'>
+        <Tltip tltpText={theme === 'dark' ? 'Light mode' : 'Dark mode'} direction='bottom'>
           <button
-            className='flex items-center justify-center w-10 h-10'
-            onClick={toggleMode}
-            aria-label={mode === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+            className='flex items-center justify-center w-9 h-9 rounded-control text-[var(--ink-secondary)] hover:bg-[var(--bg-subtle)] hover:text-[var(--ink)] transition-colors'
+            onClick={toggleTheme}
+            aria-label='Toggle theme'
           >
-            {mode === 'dark'
-              ? <IoSunnyOutline className='w-5 h-5 text-[var(--chathams-blue)]' />
-              : <IoMoonOutline className='w-5 h-5 text-[var(--chathams-blue)]' />}
+            {theme === 'dark' ? <Sun size={18} strokeWidth={1.75} /> : <Moon size={18} strokeWidth={1.75} />}
           </button>
         </Tltip>
         {/* Notification center — live bell with unread badge, snooze & sound */}
         <NotificationBell />
-        {/* Logout Icon */}
-        <Tltip tltpText={getTtl('Logout', ln) || 'Logout'} direction='bottom'>
-          <button
-            className='flex items-center justify-center w-10 h-10'
-            onClick={LogOut}
-            aria-label='Logout'
-          >
-            <img src='/logo/logout.svg' alt='Logout' className='w-5 h-5' />
-          </button>
-        </Tltip>
-        {/* User Role Button and Profile Icon: no gap between */}
-        <div className="flex items-center ml-2">
-          <span
-            className="inline-flex items-center px-2 py-1.5 rounded-lg bg-[var(--endeavour)] text-white responsiveText font-medium shadow-md"
-            style={{
-              minWidth: 60,
-              justifyContent: 'center',
-              marginRight: 0,
-              borderTopRightRadius: 0,
-              borderBottomRightRadius: 0
-            }}
-          >
-            {user?.displayName || user?.email?.split('@')[0] || 'User'}
-          </span>
-          <div className='relative' ref={dropdownRef} style={{ marginLeft: 0 }}>
+
+        {/* — divider: action icons | identity — */}
+        <span className='hidden md:block h-6 w-px bg-[var(--line)] mx-1' aria-hidden='true' />
+
+        {/* User chip (logout lives in this menu — the bare topbar logout icon was redundant) */}
+        <div className="flex items-center">
+          <div className='relative' ref={dropdownRef}>
             <button
               onClick={() => setShowDropdown(!showDropdown)}
-              className='flex items-center bg-[var(--surface-card)] gap-2 p-1 rounded-lg hover:bg-[var(--selago)] transition-all'
+              className='flex items-center gap-2 pl-1.5 pr-2 py-1 rounded-control border border-[var(--line)] bg-[var(--bg-card)] hover:bg-[var(--bg-subtle)] transition-colors'
               aria-label='User menu'
             >
-              <div className='w-6  flex items-center justify-center text-white overflow-hidden'>
-                <img src="/logo/person.svg" alt="Profile" className="w-6 h-6 inline-block align-middle" />
-              </div>
+              <span className='w-7 h-7 rounded-full bg-[var(--brand-soft)] text-[var(--brand)] flex items-center justify-center responsiveTextInput font-semibold uppercase'>
+                {(user?.displayName || user?.email || 'U').charAt(0)}
+              </span>
+              <span className='hidden xl:flex flex-col items-start leading-tight' style={{ maxWidth: 130 }}>
+                <span className='responsiveTextInput font-semibold text-[var(--ink)] truncate w-full text-left'>
+                  {user?.displayName || user?.email?.split('@')[0] || 'User'}
+                </span>
+                {userTitle && (
+                  <span className='responsiveTextTable text-[var(--ink-muted)] truncate w-full text-left capitalize'>
+                    {userTitle}
+                  </span>
+                )}
+              </span>
+              <ChevronDown size={14} strokeWidth={2} className={`text-[var(--ink-muted)] transition-transform ${showDropdown ? 'rotate-180' : ''}`} />
             </button>
             {showDropdown && (
-              <div className='absolute right-0 top-full mt-2 w-64 bg-[var(--surface-card)] rounded-2xl shadow-lg border border-[var(--selago)] py-2 z-dropdown overflow-visible'>
-                <div className='px-4 py-3 border-b border-[var(--selago)]'>
-                  <p className='responsiveTextTable font-medium text-[var(--port-gore)]'>
+              <div className='absolute right-0 top-full mt-2 w-56 bg-[var(--bg-card)] rounded-2xl border border-[var(--line)] py-2 z-dropdown overflow-visible' style={{ boxShadow: 'var(--shadow-md)' }}>
+                <div className='px-4 py-3 border-b border-[var(--line)]'>
+                  <p className='responsiveTextTable font-medium text-[var(--ink)]'>
                     {user?.displayName || user?.email?.split('@')[0] || 'User'}
                   </p>
-                  <p className='responsiveTextTable text-[var(--regent-gray)] truncate'>{user?.email || ''}</p>
+                  <p className='responsiveTextTable text-[var(--ink-muted)] truncate'>{user?.email || ''}</p>
                 </div>
                 {/* Personal colour theme — applies instantly app-wide, saved per member */}
-                <div className='px-4 py-2.5 border-b border-[var(--selago)]'>
-                  <p className='responsiveTextTable text-[var(--regent-gray)] mb-2'>{getTtl('Theme', ln) || 'Theme'}</p>
+                <div className='px-4 py-2.5 border-b border-[var(--line)]'>
+                  <p className='responsiveTextTable text-[var(--ink-muted)] mb-2'>{getTtl('Theme', ln) || 'Theme'}</p>
                   <div className='flex items-center gap-2 flex-wrap'>
                     {THEMES.map(t => (
                       <button
@@ -265,10 +263,10 @@ export const MainNav = () => {
                         onClick={() => setTheme(t.id)}
                         title={t.label}
                         aria-label={`Theme: ${t.label}`}
-                        className={`w-5 h-5 rounded-full shadow-sm transition-transform hover:scale-110 ${
+                        className={`w-5 h-5 rounded-full transition-transform hover:scale-110 ${
                           themeId === t.id
-                            ? 'ring-2 ring-offset-1 ring-[var(--endeavour)]'
-                            : 'ring-1 ring-black/10'
+                            ? 'ring-2 ring-offset-1 ring-[var(--brand)]'
+                            : 'ring-1 ring-[var(--line-strong)]'
                         }`}
                         style={{ backgroundColor: themeSwatch(t) }}
                       />
@@ -281,16 +279,16 @@ export const MainNav = () => {
                       router.push('/settings')
                       setShowDropdown(false)
                     }}
-                    className='w-full flex items-center gap-3 px-4 py-2 responsiveTextTableTitle text-[var(--port-gore)] hover:bg-[var(--selago)] hover:text-[var(--endeavour)] transition-all'
+                    className='w-full flex items-center gap-2 px-4 py-2 responsiveTextInput text-[var(--ink-secondary)] hover:bg-[var(--bg-subtle)] hover:text-[var(--ink)] transition-all'
                   >
-                    <img src='/logo/Settings.svg' alt='Settings' className='w-4 h-4 mr-2' />
+                    <Settings size={14} strokeWidth={1.75} />
                     {getTtl('Settings', ln) || 'Settings'}
                   </button>
                   <button
                     onClick={LogOut}
-                    className='w-full flex items-center gap-3 px-4 py-2 responsiveTextTableTitle text-red-500 hover:bg-red-50 transition-all'
+                    className='w-full flex items-center gap-2 px-4 py-2 responsiveTextInput text-[var(--bad-text)] hover:bg-[var(--bad-bg)] transition-all'
                   >
-                    <img src='/logo/logout.svg' alt='Logout' className='w-4 h-4 mr-2' />
+                    <LogOutIcon size={14} strokeWidth={1.75} />
                     {getTtl('Logout', ln) || 'Logout'}
                   </button>
                 </div>
