@@ -21,6 +21,8 @@ import TooltipComp from '@components/tooltip';
 const MarketsTicker = dynamic(() => import('@components/Dashboard/MarketsTicker'), { ssr: false });
 import AIAlertsBar from '@components/Dashboard/AIAlertsBar';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@components/ui/select';
+import { TONES } from '@components/statusUtils';
+import { Gauge, Receipt, Percent, Truck, Warehouse, TrendingUp, FileWarning, Ship } from 'lucide-react';
 
 import { HorizontalBar } from './charts';
 
@@ -126,6 +128,54 @@ const solidColor = (c) =>
   typeof c === 'string' && c.startsWith('var(')
     ? cssVar(c.slice(4, -1).trim(), '#2563eb')
     : c;
+
+/* ── Business summary tile ────────────────────────────────────────────────────
+   Client revision 2026-08-08: "business summaries, not big charts."
+
+   Deliberately flat — a label, a figure and one line of context. No sparkline,
+   no trend pill, no icon tile. Those belong on StatKpiCard, which stays for the
+   four headline metrics; repeating them eight more times is how a dashboard
+   turns into decoration. Every figure here comes from an aggregate that already
+   existed on this page (calContracts / setMonthsInvoices / utils/finance), so a
+   card can never disagree with the page it sits on.
+
+   `note` is not optional-by-accident: each tile says which basis it is on
+   (period, sold, outstanding), because "Expenses" and "Profit" are exactly the
+   words that mean three different things to three different people. */
+/* Each tile carries a tone, and the tone lands on the ICON only — a soft tinted
+   square with the icon in the strong tone. The figure itself stays ink unless it
+   is genuinely signed (loss, overdue, incomplete), so colour keeps meaning
+   something instead of decorating eight tiles at once. .kpi-card gives the hover
+   lift and resting shadow every other card on the page already has. */
+function SummaryTile({ label, value, note, tone, icon: Icon, toneKey = 'gray' }) {
+  const t = TONES[toneKey] || TONES.gray;
+  return (
+    <div className="kpi-card rounded-card border border-[var(--line)] bg-[var(--bg-card)] shadow-card p-3 flex flex-col gap-2 min-w-0">
+      <div className="flex items-center gap-2 min-w-0">
+        <span
+          className="w-6 h-6 rounded-control flex items-center justify-center shrink-0"
+          style={{ background: t.bg, color: t.text }}
+          aria-hidden
+        >
+          {Icon ? <Icon size={13} strokeWidth={2} /> : null}
+        </span>
+        <span className="text-caption truncate" title={label}>{label}</span>
+      </div>
+      <span
+        className="numeric leading-none truncate"
+        style={{ fontSize: 'var(--fs-stat)', color: tone || 'var(--ink)' }}
+        title={typeof value === 'string' ? value : undefined}
+      >
+        {value}
+      </span>
+      {note && (
+        <span className="text-[var(--ink-muted)] leading-tight truncate" style={{ fontSize: 'var(--fs-caption)' }} title={note}>
+          {note}
+        </span>
+      )}
+    </div>
+  );
+}
 
 function StatKpiCard({
   title,
@@ -409,7 +459,7 @@ function RankingList({ labels = [], data = [], title, subtitle, totalValue }) {
 // Per-MT unit economics — compact strip rendered right under the headline KPI
 // cards, in their visual language: tinted icon chip (color-mix, like
 // StatKpiCard) + dark hero number, so the two rows read as one family.
-function PerMtStrip({ totalMT, avgCostPerMT, avgExpensePerMT, avgProfitPerMT, avgFreightPerMT }) {
+function PerMtStrip({ totalMT, avgExpensePerMT, avgProfitPerMT, avgFreightPerMT }) {
   const profitAccent = avgProfitPerMT >= 0 ? 'var(--ok-text)' : 'var(--danger-text)';
 
   const metrics = [
@@ -426,19 +476,10 @@ function PerMtStrip({ totalMT, avgCostPerMT, avgExpensePerMT, avgProfitPerMT, av
       sub: 'for selected period',
       valueColor: 'var(--ok-text)',
     },
-    {
-      accent: 'var(--warn-text)',
-      icon: (
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-          <rect x="3" y="7" width="18" height="10" rx="2" stroke="currentColor" strokeWidth="2" />
-          <circle cx="12" cy="12" r="2.5" stroke="currentColor" strokeWidth="2" />
-        </svg>
-      ),
-      value: fmtAutoKM(avgCostPerMT),
-      label: 'Avg Cost / MT',
-      sub: 'purchase cost per MT',
-      valueColor: 'var(--warn-text)',
-    },
+    /* "Avg Cost / MT" was here. It is the same figure as the Average Rate tile
+       in the Business Summary above, on the same screen — so it went the way of
+       the three duplicated KPI cards. avgCostPerMT is still computed once, up in
+       the page body; it is no longer passed down here. */
     {
       accent: 'var(--primary-bright)',
       icon: (
@@ -485,7 +526,7 @@ function PerMtStrip({ totalMT, avgCostPerMT, avgExpensePerMT, avgProfitPerMT, av
     <CardShell className="mb-5">
       <div className="p-4">
         <SectionHeader title="Per-MT Metrics" subtitle="Unit economics for the selected period" />
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           {metrics.map((metric, i) => (
             <m.div
               key={i}
@@ -504,7 +545,9 @@ function PerMtStrip({ totalMT, avgCostPerMT, avgExpensePerMT, avgProfitPerMT, av
                 </span>
                 <span className="responsiveTextTable font-medium text-[var(--regent-gray)] leading-tight">{metric.label}</span>
               </div>
-              <div className="font-semibold leading-none" style={{ color: metric.valueColor, fontSize: 'clamp(1.05rem, 0.85rem + 0.6vw, 1.45rem)', fontFamily: 'var(--font-jakarta), Manrope, sans-serif', fontVariantNumeric: 'tabular-nums' }}>
+              {/* was a bespoke clamp() topping out at 23px — now the shared KPI
+                  rung, so these read at the same size as every other figure. */}
+              <div className="mt-2.5 font-semibold leading-none" style={{ color: metric.valueColor, fontSize: 'var(--fs-stat)', fontFamily: 'var(--font-jakarta), sans-serif', fontVariantNumeric: 'tabular-nums' }}>
                 {metric.value}
               </div>
               <div className="mt-1.5 text-[var(--regent-gray)] leading-tight" style={{ fontSize: 'var(--fs-caption)' }}>{metric.sub}</div>
@@ -1016,7 +1059,20 @@ const Dash = () => {
   // Storage + warehouse spend (the storage-cost buckets), for the dashboard tile.
   const storageSpend = Object.entries(expByType).reduce((s, [lbl, v]) =>
     ['storage', 'warehouse'].includes(String(lbl).toLowerCase()) ? s + v : s, 0);
-  const storageByMonth = conAgg.storageByMonth || {};
+  /* conAgg.storageByMonth is no longer read here — it existed only to feed the
+     "Storage Spend" sparkline, which the Warehouse summary tile replaced. Left
+     in place in funcs.js: it is a cheap accumulator and other callers may want
+     the series back. */
+  /* Commission spend, for the summary tile the client asked for. Read out of the
+     SAME expByType bucket the "Expenses by Type" card already renders — matched
+     on the expense-type label, exactly as storageSpend above matches storage /
+     warehouse. No new arithmetic: if this tile and that card ever disagree, they
+     are reading different data, not computing it differently.
+     substring match because the configured label is free text ("commission",
+     "Broker's Commission", "commission fee" all occur in components/const.js and
+     in customer data). */
+  const commissionSpend = Object.entries(expByType).reduce((s, [lbl, v]) =>
+    String(lbl).toLowerCase().includes('commission') ? s + v : s, 0);
 
   // SOLD-BASIS monthly profit = revenue (sold) − cost-of-sold − expenses. Unsold material
   // is stock, not a cost, so it never drags profit negative the way the old "all purchases"
@@ -1073,6 +1129,43 @@ const Dash = () => {
   const totalInvoices = useMemo(() => sumObj(dataInvoices), [dataInvoices]);
   const totalContracts = useMemo(() => sumObj(dataContracts), [dataContracts]);
   const totalExpenses = useMemo(() => sumObj(dataExpenses), [dataExpenses]);
+
+  /* ── Business-summary tiles ────────────────────────────────────────────────
+     Both of these RESHAPE numbers that already exist for display; neither
+     computes a new one.
+
+     Unpaid Invoices reads utils/finance receivables() — the same call the
+     Outstanding Receivables card and the alerts bar use, so the tile cannot
+     disagree with them. Amounts are kept PER CURRENCY and never summed: USD and
+     EUR receivables are different money, and adding them is the one thing this
+     tile must not do. */
+  const unpaidSummary = useMemo(() => {
+    const byCur = receivables?.byCur || {};
+    const sym = (c) => (c === 'us' ? '$' : c === 'eu' ? '€' : '');
+    const compact = (c, n) => {
+      const v = Number(n) || 0, a = Math.abs(v);
+      if (a >= 1e6) return `${sym(c)}${(v / 1e6).toFixed(1)}M`;
+      if (a >= 1e3) return `${sym(c)}${(v / 1e3).toFixed(1)}K`;
+      return `${sym(c)}${v.toFixed(0)}`;
+    };
+    const curs = Object.keys(byCur).filter(c => (byCur[c].due + byCur[c].balance) > 0.005);
+    const amounts = curs.length ? curs.map(c => compact(c, byCur[c].due + byCur[c].balance)) : ['$0'];
+    const count = curs.reduce((s, c) => s + byCur[c].dueCount + byCur[c].balanceCount, 0);
+    const overdueCount = curs.reduce((s, c) => s + byCur[c].dueCount, 0);
+    const note = overdueCount > 0
+      ? `${count} open · ${overdueCount} overdue`
+      : `${count} open invoice${count === 1 ? '' : 's'}`;
+    return { amounts, note, count, overdueCount };
+  }, [receivables]);
+
+  /* Shipment Status = the shipped/purchased tonnage split already shown by the
+     Tonnage card, expressed as one percentage. shippedMT is clamped to totalMT
+     further up, so the percentage cannot exceed 100. */
+  const shipmentSummary = useMemo(() => {
+    const pct = totalMT > 0 ? Math.round((shippedMT / totalMT) * 100) : 0;
+    const mt = (n) => new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 }).format(n || 0);
+    return { pct, note: totalMT > 0 ? `shipped · ${mt(pendingMT)} MT pending` : 'no tonnage in period' };
+  }, [shippedMT, pendingMT, totalMT]);
 
   const avgCostPerMT = useMemo(() => totalMT > 0 ? totalContracts / totalMT : 0, [totalContracts, totalMT]);
   const avgExpensePerMT = useMemo(() => totalMT > 0 ? totalExpenses / totalMT : 0, [totalExpenses, totalMT]);
@@ -1350,15 +1443,104 @@ const Dash = () => {
             </div>
           )}
 
+          {/* ── BUSINESS SUMMARY ──────────────────────────────────────────────
+              The eight figures the client asked to see at a glance. Placed above
+              the charts on purpose: this is the block they said they actually
+              read. Every value is an aggregate that already existed on this page
+              — nothing here is newly derived.
+
+              Three cards were REMOVED from the KPI row below when this went in,
+              because a card now carries the same information and a sparkline
+              repeating it is just noise: Net Profit (Sold) -> Profit, Other
+              Expenses -> Expenses, Storage Spend -> Warehouse & Storage. */}
+          <div className="mb-4">
+            <h3 className="text-caption mb-3">Business Summary</h3>
+            {/* 8-across only from 2xl (1536). At 1440 with the sidebar open the
+                content column is ~1200px, so eight tiles is ~145px each — enough
+                for "$1.24K" and nothing else. Four across gives two comfortable
+                rows at the width most people actually use. */}
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-8 gap-3">
+              {/* AVERAGE RATE = average purchase cost per MT.
+                  There is no metric called "Average Rate" in the app, and the
+                  phrase could mean four different numbers, so this is a decision
+                  rather than a lookup — recorded here so the next reader doesn't
+                  have to guess. It resolves to avgCostPerMT (contract value ÷
+                  tonnage purchased), which is the only candidate the dashboard
+                  ALREADY computes; the alternatives (sale rate per MT, the
+                  EUR→USD company rate, the storage rate per MT-month) would each
+                  have needed a new derivation or a different page's logic.
+                  The Per-MT strip below used to render this same figure as
+                  "Avg Cost / MT"; that tile was removed when this went in, for
+                  the same reason the three duplicated KPI cards were. */}
+              <SummaryTile
+                label="Average Rate"
+                icon={Gauge}
+                toneKey="blue"
+                value={fmtAutoKM(avgCostPerMT)}
+                note="purchase cost per MT"
+              />
+              <SummaryTile
+                label="Expenses"
+                icon={Receipt}
+                toneKey="amber"
+                value={fmtAutoKM(totalExpenses)}
+                note="all types, period"
+              />
+              <SummaryTile
+                label="Commission"
+                icon={Percent}
+                toneKey="blue"
+                value={fmtAutoKM(commissionSpend)}
+                note="commission expense types"
+              />
+              <SummaryTile
+                label="Freight"
+                icon={Truck}
+                toneKey="blue"
+                value={fmtAutoKM(freightTotal)}
+                note="freight expense types"
+              />
+              <SummaryTile
+                label="Warehouse"
+                icon={Warehouse}
+                toneKey="gray"
+                value={fmtAutoKM(storageSpend)}
+                note="storage + warehouse"
+              />
+              <SummaryTile
+                label="Profit"
+                icon={TrendingUp}
+                value={fmtAutoKM(totalPL)}
+                note="sold basis, period"
+                toneKey={totalPL < 0 ? 'red' : 'green'}
+                tone={totalPL < 0 ? 'var(--danger-text)' : undefined}
+              />
+              <SummaryTile
+                label="Unpaid Invoices"
+                icon={FileWarning}
+                value={unpaidSummary.amounts.join(' · ')}
+                note={unpaidSummary.note}
+                toneKey={unpaidSummary.overdueCount > 0 ? 'red' : 'amber'}
+                tone={unpaidSummary.overdueCount > 0 ? 'var(--danger-text)' : undefined}
+              />
+              {/* Value is the bare percentage, not "0% shipped". At --fs-stat the
+                  two-word form is ~110px wide and the tile is ~150px at 1440 with
+                  the sidebar open, so it ran out of its own card — the exact
+                  clipping the client is complaining about elsewhere. The word
+                  moved into the note, where it has room. */}
+              <SummaryTile
+                label="Shipment Status"
+                icon={Ship}
+                value={`${shipmentSummary.pct}%`}
+                note={shipmentSummary.note}
+                toneKey={shipmentSummary.pct < 100 ? 'amber' : 'green'}
+                tone={shipmentSummary.pct < 100 ? 'var(--warn-text)' : undefined}
+              />
+            </div>
+          </div>
+
           {/* KPI ROW */}
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7 gap-3 mb-5">
-            <StatKpiCard
-              title="Net Profit (Sold)"
-              value={fmtAutoKM(totalPL)}
-              chartData={dataPL}
-              accent="var(--brand)"
-              icon={<svg width="16" height="16" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8" stroke="currentColor" strokeWidth="2" /><path d="M12 8v4l2 2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" /></svg>}
-            />
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 mb-5">
             <StatKpiCard
               title="Sales Revenue"
               value={fmtAutoKM(invoiceRevAgg.total)}
@@ -1381,22 +1563,11 @@ const Dash = () => {
               accent="var(--brand)"
               icon={<svg width="16" height="16" fill="none" viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="12" rx="2" stroke="currentColor" strokeWidth="2" /><path d="M7 10h10M7 14h6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" /></svg>}
             />
-            <StatKpiCard
-              title="Other Expenses"
-              value={fmtAutoKM(totalExpenses)}
-              chartData={dataExpenses}
-              accent="var(--pink-text)"
-              goodWhenUp={false}
-              icon={<svg width="16" height="16" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8" stroke="currentColor" strokeWidth="2" /><path d="M12 8v4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" /><path d="M12 12l2 2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" /></svg>}
-            />
-            <StatKpiCard
-              title="Storage Spend"
-              value={fmtAutoKM(storageSpend)}
-              chartData={storageByMonth}
-              accent={CHART_ACCENT.storage}
-              goodWhenUp={false}
-              icon={<svg width="16" height="16" fill="none" viewBox="0 0 24 24"><path d="M3 10l9-5 9 5v9a1 1 0 01-1 1H4a1 1 0 01-1-1v-9z" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" /><path d="M9 21v-6h6v6" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" /></svg>}
-            />
+            {/* "Other Expenses" and "Storage Spend" used to sit here with their own
+                sparklines. Both are now flat tiles in the Business Summary above
+                (Expenses / Warehouse) reading the same aggregates, so the charts
+                were carrying no information the cards don't. Removed rather than
+                shrunk — two fewer chart.js instances on first paint. */}
             <StatKpiCard
               title="Avg Profit / MT"
               value={fmtAutoKM(avgProfitPerMT)}
@@ -1409,7 +1580,6 @@ const Dash = () => {
           {/* PER-MT STRIP — unit economics, right under the headline KPIs */}
           <PerMtStrip
             totalMT={totalMT}
-            avgCostPerMT={avgCostPerMT}
             avgExpensePerMT={avgExpensePerMT}
             avgProfitPerMT={avgProfitPerMT}
             avgFreightPerMT={avgFreightPerMT}
@@ -1436,7 +1606,11 @@ const Dash = () => {
                   title="Revenue, Costs & Profit"
                   subtitle="Sold basis — sales vs cost of material actually sold (unsold stock excluded) · selected period"
                 />
-                <div style={{ height: 320 }}>
+                {/* 320 -> 220. The three series here (revenue, costs, profit) each
+                    have a figure of their own in the Business Summary / KPI row
+                    now, so this chart's job narrowed from "read the numbers off
+                    it" to "see the shape" — which 220px does. */}
+                <div style={{ height: 220 }}>
                   <Line data={heroData} options={heroOptions} />
                 </div>
               </div>
@@ -1445,7 +1619,9 @@ const Dash = () => {
             <CardShell>
               <div className="p-4">
                 <SectionHeader title="Capital Breakdown" subtitle="How revenue was allocated" />
-                <div className="relative" style={{ height: 200 }}>
+                {/* 200 -> 150: the legend underneath already lists every slice with
+                    its value, so the ring is the redundant half of this card. */}
+                <div className="relative" style={{ height: 150 }}>
                   <Doughnut data={donutData} options={donutOptions} />
                   <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none"
                     style={{ opacity: donutHover ? 0 : 1, transition: 'opacity 120ms ease' }}>
