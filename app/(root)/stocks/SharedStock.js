@@ -255,7 +255,10 @@ const SharedStock = () => {
         return parts.length ? parts.join(' · ') : (curSym('us') || '$') + '0.00';
     };
     const inputCls = 'w-full rounded-lg bg-[var(--surface-pill)] border border-[var(--border-cell)] px-2 h-8 responsiveTextInput text-[var(--chathams-blue)] focus:outline-none focus:border-[var(--endeavour)]';
-    const labelCls = 'responsiveText font-medium text-[var(--chathams-blue)] mb-0.5 block';
+    // Same stacked caption every form in the app uses: 11px, uppercase, muted,
+    // sitting ABOVE its control — never inline to its left, which overlaps the
+    // field once the row gets narrow.
+    const labelCls = 'responsiveText font-semibold uppercase tracking-[0.04em] text-[var(--ink-muted)] mb-1 block';
 
     if (loading) return <div className='p-6'><TableSkeleton rows={6} title={false} /></div>;
 

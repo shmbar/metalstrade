@@ -146,7 +146,7 @@ const Payments = ({ showPayments }) => {
 
     return (
 
-        <div className={`z-10 relative mt-2 border border-[var(--border-divider)] rounded-2xl bg-[var(--surface-pill)]
+        <div className={`z-10 relative mt-2 border border-[var(--line)] rounded-2xl bg-[var(--bg-subtle)]
         ${showPayments ? 'flex animated-div' : 'hidden'}`}>
             <div className=' flex gap-3 p-2 w-full'>
 

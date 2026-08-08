@@ -337,20 +337,26 @@ const ContractModal = () => {
 	};
 
 
+	const panelCls = 'border border-[var(--line)] rounded-2xl bg-[var(--bg-card)] p-3';
+	const titleCls = 'responsiveTextTitle font-semibold mb-3 text-[var(--ink)] font-display';
+	const labelCls = 'responsiveText font-semibold uppercase tracking-[0.04em] text-[var(--ink-muted)] mb-1';
+	const inputCls = 'w-full h-8 px-3 rounded-control border border-[var(--line-strong)] bg-[var(--bg-card)] text-[var(--ink)] responsiveTextTitle outline-none transition-colors focus:border-[var(--brand)] focus:ring-[3px] focus:ring-[var(--brand-soft)]';
+
 	return (
 		<div className="px-1">
 			<div className='grid grid-cols-1 md:grid-cols-6 gap-3 pt-1'>
-				<div className='md:col-span-3 border border-[var(--border-divider)] p-2 rounded-2xl'>
+				<div className={`md:col-span-3 ${panelCls}`}>
+					<p className={titleCls}>Parties</p>
+					<p className={labelCls}>{getTtl('Supplier Name', ln)}:</p>
 					<div className='flex flex-col md:flex-row gap-3 items-start md:items-center'>
-						<p className='flex responsiveText font-medium text-[var(--chathams-blue)]'>{getTtl('Supplier Name', ln)}:</p>
-						<div className='flex-1 min-w-0'>
+						<div className='flex-1 min-w-0 w-full'>
 							<Selector arr={sups} value={valueCon}
 								onChange={(e) => handleChange(e, 'supplier')}
 								name='supplier'
 								clear={clear} />
 							<ErrDiv field='supplier' errors={errors} ln={ln} />
 						</div>
-						<div className='items-center flex gap-1'>
+						<div className='items-center flex gap-1 shrink-0'>
 							<CheckBox size='size-5' checked={valueCon.showOriginSupplier ?? false}
 								onChange={() => setValueCon({ ...valueCon, showOriginSupplier: !valueCon.showOriginSupplier })} />
 							<span className='responsiveText'>Original Supplier</span>
@@ -366,9 +372,9 @@ const ContractModal = () => {
 						</>
 					)}
 					{valueCon.showOriginSupplier &&
-						<div className='flex items-center gap-2 w-full'>
-							<p className='flex p-1 pt-2 items-center responsiveText whitespace-nowrap font-medium text-[var(--chathams-blue)]'>Original Supplier:</p>
-							<div className='flex-1 min-w-0 max-w-[18rem]'>
+						<div className='flex flex-col pt-3 w-full'>
+							<p className={labelCls}>Original Supplier:</p>
+							<div className='w-full min-w-0 max-w-[18rem]'>
 								<Selector
 									arr={settings.Supplier.Supplier
 										.map(z => ({ ...z, originSupplier: z.id }))}
@@ -381,16 +387,17 @@ const ContractModal = () => {
 						</div>
 					}
 				</div>
-				<div className='hidden md:flex md:col-span-1 border border-[var(--border-divider)] p-2 rounded-2xl'>
+				<div className={`hidden md:flex md:col-span-1 ${panelCls}`}>
 
 				</div>
-				<div className='md:col-span-2 border border-[var(--border-divider)] p-2 rounded-2xl'>
-					<p className='flex items-center responsiveText font-medium text-[var(--chathams-blue)]'>{getTtl('PoOrderNo', ln)}:</p>
-					<div className='w-full responsiveText'>
-						<input className="border border-[var(--border-cell)] bg-[var(--surface-pill)] rounded-full px-3 py-1 h-7 responsiveTextInput text-[var(--chathams-blue)] focus:outline-none focus:border-[var(--endeavour)] w-full" style={{ fontFamily: 'inherit' }} name='order' value={valueCon.order} onChange={handleValue} />
+				<div className={`md:col-span-2 ${panelCls}`}>
+					<p className={titleCls}>Order</p>
+					<p className={labelCls}>{getTtl('PoOrderNo', ln)}:</p>
+					<div className='w-full'>
+						<input className="input" name='order' value={valueCon.order} onChange={handleValue} />
 						<ErrDiv field='order' errors={errors} ln={ln} />
 					</div>
-					<p className='flex items-center responsiveText mt-3 font-medium text-[var(--chathams-blue)]'>{getTtl('Date', ln)}:</p>
+					<p className={`${labelCls} mt-3`}>{getTtl('Date', ln)}:</p>
 					<div className='w-full '>
 						<Datepicker useRange={false}
 							asSingle={true}
@@ -398,17 +405,18 @@ const ContractModal = () => {
 							popoverDirection='down'
 							onChange={handleDateChange}
 							displayFormat={"DD-MMM-YYYY"}
-							inputClassName='border border-[var(--border-cell)] bg-[var(--surface-pill)] rounded-full px-3 py-1 h-7 responsiveTextInput text-[var(--chathams-blue)] focus:outline-none focus:border-[var(--endeavour)] w-full'
+							inputClassName={inputCls}
 						/>
 						<ErrDiv field='date' errors={errors} ln={ln} />
 					</div>
 				</div>
 			</div>
 			<div className='grid grid-cols-1 md:grid-cols-3 gap-3 pt-2'>
-				<div className='border border-[var(--border-divider)] p-2 rounded-2xl'>
-					<div className='flex  gap-2 md:items-center justify-between'>
-						<p className='flex responsiveText items-center font-medium whitespace-nowrap text-[var(--chathams-blue)]'>{getTtl('Shipment', ln)}:</p>
-						<div className='flex-1 min-w-0 max-w-[15rem]'>
+				<div className={panelCls}>
+					<p className={titleCls}>Shipping</p>
+					<div className='flex flex-col'>
+						<p className={labelCls}>{getTtl('Shipment', ln)}:</p>
+						<div className='w-full min-w-0'>
 							<Selector arr={settings.Shipment.Shipment} value={valueCon}
 								onChange={(e) => handleChange(e, 'shpType')}
 								name='shpType'
@@ -416,18 +424,18 @@ const ContractModal = () => {
 							<ErrDiv field='shpType' errors={errors} ln={ln} />
 						</div>
 					</div>
-					<div className='flex flex-row gap-2 items-center pt-2 justify-between'>
-						<p className='flex responsiveText items-center font-medium whitespace-nowrap text-[var(--chathams-blue)]'>{getTtl('Origin', ln)}:</p>
-						<div className='flex-1 min-w-0 max-w-[15rem]'>
+					<div className='flex flex-col pt-3'>
+						<p className={labelCls}>{getTtl('Origin', ln)}:</p>
+						<div className='w-full min-w-0'>
 							<Selector arr={[...settings.Origin.Origin, { id: 'empty', origin: '...Empty' }]} value={valueCon}
 								onChange={(e) => handleChange(e, 'origin')}
 								name='origin'
 								clear={clear} />
 						</div>
 					</div>
-					<div className='flex flex-row gap-2 items-center pt-2 justify-between'>
-						<p className='flex responsiveText items-center font-medium whitespace-nowrap text-[var(--chathams-blue)]'>{getTtl('Delivery Terms', ln)}:</p>
-						<div className='flex-1 min-w-0 max-w-[15rem]'>
+					<div className='flex flex-col pt-3'>
+						<p className={labelCls}>{getTtl('Delivery Terms', ln)}:</p>
+						<div className='w-full min-w-0'>
 							<Selector arr={settings['Delivery Terms']['Delivery Terms']} value={valueCon}
 								onChange={(e) => handleChange(e, 'delTerm')}
 								name='delTerm'
@@ -436,28 +444,29 @@ const ContractModal = () => {
 					</div>
 				</div>
 
-				<div className='border border-[var(--border-divider)] p-2 rounded-2xl'>
-					<div className='flex gap-2 md:items-center justify-between'>
-						<p className='flex responsiveText items-center font-medium whitespace-nowrap text-[var(--chathams-blue)]'>{getTtl('POL', ln)}:</p>
-						<div className='flex-1 min-w-0 max-w-[15rem]'>
+				<div className={panelCls}>
+					<p className={titleCls}>Ports & Packing</p>
+					<div className='flex flex-col'>
+						<p className={labelCls}>{getTtl('POL', ln)}:</p>
+						<div className='w-full min-w-0'>
 							<Selector arr={settings.POL.POL} value={valueCon}
 								onChange={(e) => handleChange(e, 'pol')}
 								name='pol'
 								clear={clear} />
 						</div>
 					</div>
-					<div className='flex flex-row gap-2 items-center pt-2 justify-between'>
-						<p className='flex responsiveText items-center font-medium whitespace-nowrap text-[var(--chathams-blue)]'>{getTtl('POD', ln)}:</p>
-						<div className='flex-1 min-w-0 max-w-[15rem]'>
+					<div className='flex flex-col pt-3'>
+						<p className={labelCls}>{getTtl('POD', ln)}:</p>
+						<div className='w-full min-w-0'>
 							<Selector arr={settings.POD.POD} value={valueCon}
 								onChange={(e) => handleChange(e, 'pod')}
 								name='pod'
 								clear={clear} disabled={firstRule} />
 						</div>
 					</div>
-					<div className='flex flex-row gap-2 items-center pt-2 justify-between'>
-						<p className='flex responsiveText items-center font-medium whitespace-nowrap text-[var(--chathams-blue)]'>{getTtl('Packing', ln)}:</p>
-						<div className='flex-1 min-w-0 max-w-[15rem]'>
+					<div className='flex flex-col pt-3'>
+						<p className={labelCls}>{getTtl('Packing', ln)}:</p>
+						<div className='w-full min-w-0'>
 							<Selector arr={settings.Packing.Packing} value={valueCon}
 								onChange={(e) => handleChange(e, 'packing')}
 								name='packing'
@@ -466,29 +475,30 @@ const ContractModal = () => {
 					</div>
 				</div>
 
-				<div className='border border-[var(--border-divider)] p-2 rounded-2xl'>
-					<div className='flex gap-2 md:items-center justify-between'>
-						<p className='flex responsiveText items-center font-medium whitespace-nowrap text-[var(--chathams-blue)]'>{getTtl('Container Type', ln)}:</p>
-						<div className='flex-1 min-w-0  max-w-[15rem]'>
+				<div className={panelCls}>
+					<p className={titleCls}>Container & Delivery</p>
+					<div className='flex flex-col'>
+						<p className={labelCls}>{getTtl('Container Type', ln)}:</p>
+						<div className='w-full min-w-0'>
 							<Selector arr={settings['Container Type']['Container Type']} value={valueCon}
 								onChange={(e) => handleChange(e, 'contType')}
 								name='contType' disabled={secondRule}
 								clear={clear} />
 						</div>
 					</div>
-					<div className='flex flex-row gap-2 items-center pt-2 justify-between'>
-						<p className='flex responsiveText items-center font-medium whitespace-nowrap text-[var(--chathams-blue)]'>{getTtl('Size', ln)}:</p>
-						<div className='flex-1 min-w-0 max-w-[15rem]'>
+					<div className='flex flex-col pt-3'>
+						<p className={labelCls}>{getTtl('Size', ln)}:</p>
+						<div className='w-full min-w-0'>
 							<Selector arr={settings.Size.Size} value={valueCon}
 								onChange={(e) => handleChange(e, 'size')}
 								name='size'
 								clear={clear} />
 						</div>
 					</div>
-					<div className='flex flex-row gap-2 items-center pt-2 justify-between'>
-						<p className='flex responsiveText font-medium whitespace-nowrap text-[var(--chathams-blue)]'>{getTtl('Delivery Time', ln)}:</p>
+					<div className='flex flex-col pt-3'>
+						<p className={labelCls}>{getTtl('Delivery Time', ln)}:</p>
 						{!valueCon.isDeltimeText ?
-							<div className='flex-1 min-w-0 max-w-[15rem]'>
+							<div className='w-full min-w-0'>
 								<Selector arr={[...settings['Delivery Time']['Delivery Time'], { deltime: '..Edit Text', id: 'EditTextDelTime' }]}
 									value={valueCon}
 									onChange={(e) => handleChange(e, 'deltime')}
@@ -496,11 +506,11 @@ const ContractModal = () => {
 									clear={clear} />
 							</div>
 							:
-							<div className='flex relative w-[16rem] responsiveText'>
-								<input type='text' className="input h-7 w-full" style={{ fontFamily: 'inherit' }} name='deltime'
+							<div className='relative w-full responsiveText'>
+								<input type='text' className="input pr-7" style={{ fontFamily: 'inherit' }} name='deltime'
 									value={valueCon.deltime} onChange={handleValue} />
-								<button className='relative right-6 '>
-									<X className="size-4 text-[var(--regent-gray)]" onClick={caneclEditText} />
+								<button className='absolute right-2 top-1/2 -translate-y-1/2'>
+									<X className="size-4 text-[var(--ink-muted)]" onClick={caneclEditText} />
 								</button>
 							</div>
 						}
@@ -508,8 +518,8 @@ const ContractModal = () => {
 				</div>
 			</div>
 
-			<div className='mt-2 w-full border border-[var(--border-divider)] p-2 rounded-2xl'>
-				<p className='flex items-center responsiveText font-medium text-[var(--chathams-blue)]'>{getTtl('Payment Terms', ln)}:</p>
+			<div className={`mt-2 w-full ${panelCls}`}>
+				<p className={labelCls}>{getTtl('Payment Terms', ln)}:</p>
 				<div className='w-full '>
 					{!valueCon.isTermPmntText ?
 						<Selector arr={[...settings['Payment Terms']['Payment Terms'], { termPmnt: '..Edit Text', id: 'EditTextTermPmnt' }]}
@@ -522,7 +532,7 @@ const ContractModal = () => {
 							<textarea rows="2" className="input p-1 !rounded-lg resize-none w-full pr-7" style={{ fontFamily: 'inherit' }} name='termPmnt'
 								value={valueCon.termPmnt} onChange={handleValue} />
 							<button type='button' className='absolute right-2 top-2' onClick={caneclEditTextPmnt}>
-								<X className="size-4 text-[var(--regent-gray)]" />
+								<X className="size-4 text-[var(--ink-muted)]" />
 							</button>
 						</div>
 					}
@@ -531,17 +541,17 @@ const ContractModal = () => {
 
 			<div className='grid grid-cols-1 md:grid-cols-4 gap-3 pt-2'>
 				<div className='md:col-span-3'>
-					<div className='w-full border border-[var(--border-divider)] p-2 rounded-2xl'>
+					<div className={`w-full ${panelCls}`}>
 						<ProductsTable value={valueCon} setValue={setValueCon} currency={settings.Currency.Currency}
 							quantityTable={settings.Quantity.Quantity} setShowPoInvModal={setShowPoInvModal}
 							setShowStockModal={setShowStockModal} setToast={setToast} contractsData={contractsData}
 						/>
 					</div>
 				</div>
-				<div className='md:col-span-1 border border-[var(--border-divider)] p-2 rounded-2xl'>
-					<div className='flex flex-col gap-0.5'>
-						<p className='flex responsiveText font-medium text-[var(--chathams-blue)]'>{getTtl('Currency', ln)}:</p>
-						<div className='flex-1 min-w-0'>
+				<div className={`md:col-span-1 ${panelCls}`}>
+					<div className='flex flex-col'>
+						<p className={labelCls}>{getTtl('Currency', ln)}:</p>
+						<div className='w-full min-w-0'>
 							<Selector arr={settings.Currency.Currency} value={valueCon}
 								onChange={(e) => handleChange(e, 'cur')}
 								name='cur'
@@ -549,39 +559,29 @@ const ContractModal = () => {
 							<ErrDiv field='cur' errors={errors} ln={ln} />
 						</div>
 					</div>
-					<div className='flex flex-col gap-0.5 pt-1'>
-						<p className='flex responsiveText font-medium text-[var(--chathams-blue)]'>{getTtl('Quantity', ln)}:</p>
-						<div className='flex-1 min-w-0'>
+					<div className='flex flex-col pt-3'>
+						<p className={labelCls}>{getTtl('Quantity', ln)}:</p>
+						<div className='w-full min-w-0'>
 							<Selector arr={settings.Quantity.Quantity} value={valueCon}
 								onChange={(e) => handleChange(e, 'qTypeTable')}
 								name='qTypeTable'
 								clear={clear} />
 						</div>
 					</div>
-					<Tltip direction='bottom' tltpText='Contracts storage'>
-						<button
-							className={`blackButton py-1 mt-2 ${!valueCon.id ? 'opacity-50 cursor-not-allowed' : ''}`}
-							onClick={() => setShowFilesModal(true)}
-							disabled={!valueCon.id}
-						>
-							<Database className='size-4' />
-							{getTtl('Attachments', ln)}
-						</button>
-					</Tltip>
 				</div>
 			</div>
 
 			<div className='grid grid-cols-1 md:grid-cols-4 gap-3 pt-2'>
 				<div className='md:col-span-3'>
-					<div className='mt-2 w-full border border-[var(--border-divider)] p-2 rounded-2xl'>
+					<div className={`mt-2 w-full ${panelCls}`}>
 						<Remarks settings={settings} value={valueCon} setValue={setValueCon} />
 					</div>
-					<div className='mt-2 w-full border border-[var(--border-divider)] p-2 rounded-2xl'>
+					<div className={`mt-2 w-full ${panelCls}`}>
 						<PriceRemarks value={valueCon} setValue={setValueCon} />
 					</div>
 				</div>
-				<div className='md:col-span-1 mt-1'>
-					<p className='flex responsiveText font-medium text-[var(--chathams-blue)]'>{getTtl('Comments', ln)}:</p>
+				<div className={`md:col-span-1 mt-2 ${panelCls}`}>
+					<p className={labelCls}>{getTtl('Comments', ln)}:</p>
 					<textarea rows="5" name="comments"
 						className="input h-24 p-1 !rounded-lg resize-none w-full"
 						style={{ fontFamily: 'inherit' }}
@@ -597,27 +597,7 @@ const ContractModal = () => {
 
 
 
-			<div className="p-3 flex gap-2 flex-wrap justify-start flex-row">
-				<Tltip direction='top' tltpText='Save/Update contract'>
-					<button
-						className="blackButton py-1 disabled:opacity-50 disabled:cursor-not-allowed"
-						onClick={btnClck}
-						disabled={isButtonDisabled}
-					>
-						<Save className='size-4' />
-						{isButtonDisabled ? getTtl('saving', ln) : getTtl('save', ln)}
-						{isButtonDisabled && <LoaderCircle className='animate-spin' />}
-					</button>
-				</Tltip>
-				<Tltip direction='top' tltpText='Close form'>
-					<button
-						className="whiteButton py-1"
-						onClick={() => setIsOpenCon(false)}
-					>
-						<X className='size-4' />
-						{getTtl('Close', ln)}
-					</button>
-				</Tltip>
+			<div className="mt-3 flex flex-wrap justify-end gap-2 pt-3 border-t border-[var(--line)]">
 				<Tltip direction='top' tltpText='Preview the PO exactly as the supplier receives it — no download'>
 						<button
 							className="whiteButton py-1"
@@ -672,16 +652,30 @@ const ContractModal = () => {
 						PDF
 					</button>
 				</Tltip>
+				<Tltip direction='top' tltpText='Contracts storage'>
+					<button
+						className={`whiteButton py-1 ${!valueCon.id ? 'opacity-50 cursor-not-allowed' : ''}`}
+						onClick={() => setShowFilesModal(true)}
+						disabled={!valueCon.id}
+					>
+						<Database className='size-4' />
+						{getTtl('Attachments', ln)}
+					</button>
+				</Tltip>
+				{/* Destructive action sits far left, away from Save. mr-auto on the
+				    wrapper pushes every following control to the right edge. */}
 				{valueCon.id !== '' &&
-					<Tltip direction='top' tltpText='Delete Contract'>
-						<button
-							className="whiteButton py-1"
-							onClick={() => setIsDeleteOpen(true)}
-						>
-							<Trash className='size-4' />
-							{getTtl('Delete', ln)}
-						</button>
-					</Tltip>
+					<span className="mr-auto">
+						<Tltip direction='top' tltpText='Delete Contract'>
+							<button
+								className="whiteButton py-1 !text-[var(--bad-text)] hover:!bg-[var(--bad-bg)] hover:!border-[var(--bad-border)]"
+								onClick={() => setIsDeleteOpen(true)}
+							>
+								<Trash className='size-4' />
+								{getTtl('Delete', ln)}
+							</button>
+						</Tltip>
+					</span>
 				}
 				{valueCon.id !== '' && showButton &&
 					<Tltip direction='top' tltpText='Duplicate Contract'>
@@ -732,6 +726,26 @@ const ContractModal = () => {
 						</button>
 					</Tltip>
 				)}
+				<Tltip direction='top' tltpText='Close form'>
+					<button
+						className="whiteButton py-1"
+						onClick={() => setIsOpenCon(false)}
+					>
+						<X className='size-4' />
+						{getTtl('Close', ln)}
+					</button>
+				</Tltip>
+				<Tltip direction='top' tltpText='Save/Update contract'>
+					<button
+						className="blackButton py-1 disabled:opacity-50 disabled:cursor-not-allowed"
+						onClick={btnClck}
+						disabled={isButtonDisabled}
+					>
+						<Save className='size-4' />
+						{isButtonDisabled ? getTtl('saving', ln) : getTtl('save', ln)}
+						{isButtonDisabled && <LoaderCircle className='animate-spin' />}
+					</button>
+				</Tltip>
 			</div>
 			{showDocImport && (
 				<DocumentImportOverlay

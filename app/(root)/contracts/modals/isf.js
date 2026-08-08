@@ -10,7 +10,7 @@ const Field = ({ label, name, value, onChange, placeholder = '', wide = false })
             value={value || ''}
             onChange={onChange}
             placeholder={placeholder}
-            className="border border-[var(--border-divider)] rounded-full px-3 h-7 responsiveTextInput w-full
+            className="border border-[var(--line)] rounded-full px-3 h-7 responsiveTextInput w-full
                 focus:outline-none focus:ring-1 focus:ring-[var(--endeavour)]"
             style={{ fontFamily: 'inherit' }}
         />
@@ -18,7 +18,7 @@ const Field = ({ label, name, value, onChange, placeholder = '', wide = false })
 );
 
 const SectionLabel = ({ text }) => (
-    <p className="md:col-span-2 responsiveText font-medium text-[var(--endeavour)] mt-2 border-b border-[var(--surface-header)] pb-0.5">{text}</p>
+    <p className="md:col-span-2 responsiveText font-medium text-[var(--endeavour)] mt-2 border-b border-[var(--bg-subtle)] pb-0.5">{text}</p>
 );
 
 const SHIPMENT_TYPES = ['FCL', 'LCL', 'BULK', 'CONSOL'];
@@ -63,13 +63,13 @@ const ISF = ({ valueInv, setValueInv, compData, settings, valueCon }) => {
     const originLabel = settings.Origin?.Origin?.find(o => o.id === valueInv.origin)?.origin || '';
 
     return (
-        <div className="border border-[var(--border-divider)] rounded-2xl p-3">
+        <div className="border border-[var(--line)] rounded-2xl p-3">
             <div className="flex items-center justify-between mb-2">
                 <p className="responsiveText font-medium text-[var(--chathams-blue)]">ISF — Importer Security Filing (10+2)</p>
                 <button
                     onClick={generatePdf}
                     className="flex items-center gap-1.5 px-3 py-1 rounded-full responsiveTextInput font-medium
-                        bg-emerald-600 text-white hover:opacity-90 transition-all"
+                        bg-emerald-600 text-[var(--on-brand)] hover:opacity-90 transition-all"
                 >
                     <FileText size={13} /> ISF PDF
                 </button>
@@ -93,7 +93,7 @@ const ISF = ({ valueInv, setValueInv, compData, settings, valueCon }) => {
             )}
 
             {/* Auto-populated info */}
-            <div className="md:col-span-2 bg-[var(--surface-pill)] border border-[var(--surface-header)] rounded-2xl p-2 mb-3">
+            <div className="md:col-span-2 bg-[var(--bg-subtle)] border border-[var(--bg-subtle)] rounded-2xl p-2 mb-3">
                 <p className="responsiveText font-medium text-[var(--endeavour)] mb-1.5">Auto-populated from Contract / Invoice</p>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-2 responsiveText text-[var(--port-gore)]">
                     <div><span className="font-medium">Seller (our company):</span> {compData.name || '—'}</div>
@@ -117,8 +117,8 @@ const ISF = ({ valueInv, setValueInv, compData, settings, valueCon }) => {
                                 onClick={() => update('shipmentType', isf.shipmentType === type ? '' : type)}
                                 className={`px-3 py-0.5 rounded-full responsiveTextInput border transition-all
                                     ${isf.shipmentType === type
-                                        ? 'bg-[var(--endeavour)] text-white border-[var(--endeavour)]'
-                                        : 'text-[var(--chathams-blue)] border-[var(--border-divider)] hover:bg-[var(--selago)]'}`}
+                                        ? 'bg-[var(--endeavour)] text-[var(--on-brand)] border-[var(--endeavour)]'
+                                        : 'text-[var(--chathams-blue)] border-[var(--line)] hover:bg-[var(--selago)]'}`}
                             >
                                 {type}
                             </button>
@@ -160,8 +160,8 @@ const ISF = ({ valueInv, setValueInv, compData, settings, valueCon }) => {
                                 onClick={() => update('blType', isf.blType === type ? '' : type)}
                                 className={`px-3 py-0.5 rounded-full responsiveTextInput border transition-all
                                     ${isf.blType === type
-                                        ? 'bg-[var(--endeavour)] text-white border-[var(--endeavour)]'
-                                        : 'text-[var(--chathams-blue)] border-[var(--border-divider)] hover:bg-[var(--selago)]'}`}
+                                        ? 'bg-[var(--endeavour)] text-[var(--on-brand)] border-[var(--endeavour)]'
+                                        : 'text-[var(--chathams-blue)] border-[var(--line)] hover:bg-[var(--selago)]'}`}
                             >
                                 {type === 'House' ? 'House B/L' : type === 'Straight' ? 'Straight B/L' : type === 'Telex' ? 'Telex Release' : 'Sea Waybill'}
                             </button>

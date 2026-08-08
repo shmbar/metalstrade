@@ -124,7 +124,7 @@ const CertChecker = () => {
         <div className='p-3 space-y-3'>
 
             {/* Optional spec input */}
-            <div className='rounded-2xl p-3' style={{ border: '1px solid var(--border-divider)', background: 'var(--surface-pill)' }}>
+            <div className='rounded-2xl p-3' style={{ border: '1px solid var(--line)', background: 'var(--bg-subtle)' }}>
                 <div className='flex items-center justify-between mb-2'>
                     <p className='font-semibold' style={{ fontSize: 'var(--fs-body)', color: 'var(--chathams-blue)' }}>
                         Contract Specification {valueCon?.certSpec?.length ? '(saved)' : '(optional)'}
@@ -133,7 +133,7 @@ const CertChecker = () => {
                         <button
                             onClick={saveSpecToContract}
                             disabled={savingSpec}
-                            className='flex items-center gap-1 px-2 py-0.5 rounded-full text-white disabled:opacity-50'
+                            className='flex items-center gap-1 px-2 py-0.5 rounded-full text-[var(--on-brand)] disabled:opacity-50'
                             style={{ fontSize: 'var(--fs-caption)', background: 'var(--endeavour)' }}
                         >
                             {savingSpec ? <Loader2 className='w-2.5 h-2.5 animate-spin' /> : <Save className='w-2.5 h-2.5' />}
@@ -148,7 +148,7 @@ const CertChecker = () => {
                 )}
                 <div className='flex flex-wrap gap-1.5 mb-2'>
                     {spec.map((s, i) => (
-                        <div key={i} className='flex items-center gap-1 px-2 py-1 rounded-full' style={{ background: 'var(--surface-header)', border: '1px solid var(--border-divider)', fontSize: 'var(--fs-table)', color: 'var(--chathams-blue)' }}>
+                        <div key={i} className='flex items-center gap-1 px-2 py-1 rounded-full' style={{ background: 'var(--bg-subtle)', border: '1px solid var(--line)', fontSize: 'var(--fs-table)', color: 'var(--chathams-blue)' }}>
                             <span className='font-semibold'>{s.element}</span>
                             {(s.min !== '' || s.max !== '') && <span>{s.min || '—'}–{s.max || '—'}%</span>}
                             {s.tolerance && parseFloat(s.tolerance) > 0 && <span>±{s.tolerance}</span>}
@@ -161,7 +161,7 @@ const CertChecker = () => {
                         value={newElement}
                         onChange={e => setNewElement(e.target.value)}
                         className='rounded-full border px-2 py-0.5 outline-none focus:border-[var(--endeavour)]'
-                        style={{ fontSize: 'var(--fs-table)', borderColor: 'var(--border-divider)', background: 'var(--surface-card)', color: 'var(--port-gore)' }}
+                        style={{ fontSize: 'var(--fs-table)', borderColor: 'var(--line)', background: "var(--bg-card)", color: 'var(--port-gore)' }}
                     >
                         <option value=''>Element</option>
                         {ELEMENT_PRESETS.filter(e => !spec.find(s => s.element === e)).map(e => (
@@ -170,15 +170,15 @@ const CertChecker = () => {
                     </select>
                     <input placeholder='Min %' value={newMin} onChange={e => setNewMin(e.target.value)} type='number' step='any'
                         className='w-16 rounded-full border px-2 py-0.5 outline-none focus:border-[var(--endeavour)]'
-                        style={{ fontSize: 'var(--fs-table)', borderColor: 'var(--border-divider)', background: 'var(--surface-card)', color: 'var(--port-gore)' }} />
+                        style={{ fontSize: 'var(--fs-table)', borderColor: 'var(--line)', background: "var(--bg-card)", color: 'var(--port-gore)' }} />
                     <input placeholder='Max %' value={newMax} onChange={e => setNewMax(e.target.value)} type='number' step='any'
                         className='w-16 rounded-full border px-2 py-0.5 outline-none focus:border-[var(--endeavour)]'
-                        style={{ fontSize: 'var(--fs-table)', borderColor: 'var(--border-divider)', background: 'var(--surface-card)', color: 'var(--port-gore)' }} />
+                        style={{ fontSize: 'var(--fs-table)', borderColor: 'var(--line)', background: "var(--bg-card)", color: 'var(--port-gore)' }} />
                     <input placeholder='±tol' value={newTolerance} onChange={e => setNewTolerance(e.target.value)} type='number' step='any' title='Tolerance — allowed deviation from min/max (e.g. 0.05)'
                         className='w-14 rounded-full border px-2 py-0.5 outline-none focus:border-[var(--endeavour)]'
-                        style={{ fontSize: 'var(--fs-table)', borderColor: 'var(--border-divider)', background: 'var(--surface-card)', color: 'var(--port-gore)' }} />
+                        style={{ fontSize: 'var(--fs-table)', borderColor: 'var(--line)', background: "var(--bg-card)", color: 'var(--port-gore)' }} />
                     <button onClick={addSpec} disabled={!newElement}
-                        className='flex items-center gap-1 px-2.5 py-0.5 rounded-full text-white disabled:opacity-40'
+                        className='flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[var(--on-brand)] disabled:opacity-40'
                         style={{ fontSize: 'var(--fs-table)', background: 'var(--endeavour)' }}>
                         <Plus className='w-2.5 h-2.5' /> Add
                     </button>
@@ -197,8 +197,8 @@ const CertChecker = () => {
                 aria-label='Upload certificate — drop a PDF, JPG or PNG here, or click to browse'
                 className='rounded-2xl flex flex-col items-center justify-center cursor-pointer transition-all focus:outline-none focus:ring-2 focus:ring-[var(--endeavour)]/30'
                 style={{
-                    border: `2px dashed ${dragging ? 'var(--endeavour)' : 'var(--border-divider)'}`,
-                    background: dragging ? 'var(--surface-header)' : 'var(--surface-pill)',
+                    border: `2px dashed ${dragging ? 'var(--endeavour)' : 'var(--line)'}`,
+                    background: dragging ? 'var(--bg-subtle)' : 'var(--bg-subtle)',
                     minHeight: '80px',
                     padding: '16px',
                 }}
@@ -210,12 +210,12 @@ const CertChecker = () => {
                         <FileText className='w-4 h-4' style={{ color: 'var(--endeavour)' }} />
                         <span style={{ fontSize: 'var(--fs-body)', color: 'var(--chathams-blue)' }}>{file.name}</span>
                         <button onClick={e => { e.stopPropagation(); setFile(null); setResult(null); }} className='ml-1'>
-                            <X className='w-3 h-3' style={{ color: 'var(--danger-text)' }} />
+                            <X className='w-3 h-3' style={{ color: 'var(--bad-text)' }} />
                         </button>
                     </div>
                 ) : (
                     <>
-                        <Upload className='w-5 h-5 mb-1' style={{ color: 'var(--border-divider)' }} />
+                        <Upload className='w-5 h-5 mb-1' style={{ color: 'var(--line)' }} />
                         <p style={{ fontSize: 'var(--fs-table)', color: 'var(--chathams-blue)' }}>Drop certificate here or click to upload</p>
                         <p style={{ fontSize: 'var(--fs-caption)', color: 'var(--regent-gray)' }}>PDF, JPG, PNG · max 10 MB</p>
                     </>
@@ -225,7 +225,7 @@ const CertChecker = () => {
             {/* Analyze button */}
             {file && !result && (
                 <button onClick={analyze} disabled={analyzing}
-                    className='w-full flex items-center justify-center gap-2 py-2 rounded-2xl text-white font-medium transition-all disabled:opacity-60'
+                    className='w-full flex items-center justify-center gap-2 py-2 rounded-2xl text-[var(--on-brand)] font-medium transition-all disabled:opacity-60'
                     style={{ background: 'var(--endeavour)', fontSize: 'var(--fs-input)' }}>
                     {analyzing ? <><Loader2 className='w-4 h-4 animate-spin' /> Analyzing certificate…</> : '✦ Analyze Certificate'}
                 </button>
@@ -233,9 +233,9 @@ const CertChecker = () => {
 
             {/* Error */}
             {error && (
-                <div className='flex items-center gap-2 p-2.5 rounded-lg' style={{ background: 'var(--danger-bg)', border: '1px solid var(--danger-border)' }}>
-                    <AlertTriangle className='w-3.5 h-3.5 flex-shrink-0' style={{ color: 'var(--danger-strong)' }} />
-                    <span style={{ fontSize: 'var(--fs-table)', color: 'var(--danger-strong)' }}>{error}</span>
+                <div className='flex items-center gap-2 p-2.5 rounded-lg' style={{ background: 'var(--bad-bg)', border: '1px solid var(--bad-border)' }}>
+                    <AlertTriangle className='w-3.5 h-3.5 flex-shrink-0' style={{ color: 'var(--bad-text)' }} />
+                    <span style={{ fontSize: 'var(--fs-table)', color: 'var(--bad-text)' }}>{error}</span>
                 </div>
             )}
 
@@ -245,17 +245,17 @@ const CertChecker = () => {
                     {/* Cert metadata */}
                     <div className='flex flex-wrap gap-2'>
                         {result.certificateNumber && (
-                            <span className='px-2 py-0.5 rounded-full' style={{ fontSize: 'var(--fs-table)', background: 'var(--surface-header)', color: 'var(--chathams-blue)', border: '1px solid var(--border-divider)' }}>
+                            <span className='px-2 py-0.5 rounded-full' style={{ fontSize: 'var(--fs-table)', background: 'var(--bg-subtle)', color: 'var(--chathams-blue)', border: '1px solid var(--line)' }}>
                                 Cert # {result.certificateNumber}
                             </span>
                         )}
                         {result.date && (
-                            <span className='px-2 py-0.5 rounded-full' style={{ fontSize: 'var(--fs-table)', background: 'var(--surface-header)', color: 'var(--chathams-blue)', border: '1px solid var(--border-divider)' }}>
+                            <span className='px-2 py-0.5 rounded-full' style={{ fontSize: 'var(--fs-table)', background: 'var(--bg-subtle)', color: 'var(--chathams-blue)', border: '1px solid var(--line)' }}>
                                 {result.date}
                             </span>
                         )}
                         {result.material && (
-                            <span className='px-2 py-0.5 rounded-full' style={{ fontSize: 'var(--fs-table)', background: 'var(--surface-header)', color: 'var(--chathams-blue)', border: '1px solid var(--border-divider)' }}>
+                            <span className='px-2 py-0.5 rounded-full' style={{ fontSize: 'var(--fs-table)', background: 'var(--bg-subtle)', color: 'var(--chathams-blue)', border: '1px solid var(--line)' }}>
                                 {result.material}
                             </span>
                         )}
@@ -265,7 +265,7 @@ const CertChecker = () => {
                     {result.results?.length > 0 && (
                         <div>
                             <p className='font-semibold mb-1' style={{ fontSize: 'var(--fs-table)', color: 'var(--chathams-blue)' }}>Specification Check</p>
-                            <div className='rounded-2xl overflow-hidden' style={{ border: '1px solid var(--border-divider)' }}>
+                            <div className='rounded-2xl overflow-hidden' style={{ border: '1px solid var(--line)' }}>
                                 <table className='w-full'>
                                     <thead>
                                         <tr style={{ background: 'var(--selago)' }}>
@@ -276,7 +276,7 @@ const CertChecker = () => {
                                     </thead>
                                     <tbody>
                                         {result.results.map((row, i) => (
-                                            <tr key={i} style={{ background: i % 2 === 0 ? 'var(--surface-card)' : 'var(--surface-pill)', borderTop: '1px solid var(--surface-header)' }}>
+                                            <tr key={i} style={{ background: i % 2 === 0 ? 'var(--bg-card)' : 'var(--bg-subtle)', borderTop: '1px solid var(--bg-subtle)' }}>
                                                 <td className='px-3 py-1.5 font-semibold' style={{ fontSize: 'var(--fs-table)', color: 'var(--port-gore)' }}>{row.element}</td>
                                                 <td className='px-3 py-1.5' style={{ fontSize: 'var(--fs-table)', color: 'var(--regent-gray)' }}>{row.spec || '—'}</td>
                                                 <td className='px-3 py-1.5 font-semibold' style={{ fontSize: 'var(--fs-table)', color: 'var(--port-gore)' }}>{row.actual ?? '—'}{row.actual != null ? '%' : ''}</td>
@@ -294,14 +294,14 @@ const CertChecker = () => {
                                                         <div className='flex flex-col gap-0.5'>
                                                             <span
                                                                 className='flex items-center gap-1 px-2 py-0.5 rounded-full w-fit'
-                                                                style={{ fontSize: 'var(--fs-caption)', background: 'var(--danger-bg)', color: 'var(--danger-strong)' }}
+                                                                style={{ fontSize: 'var(--fs-caption)', background: 'var(--bad-bg)', color: 'var(--bad-text)' }}
                                                                 role='status'
                                                                 aria-label={`${row.element} fail${row.reason ? ': ' + row.reason : ''}`}
                                                             >
                                                                 <XCircle className='w-3 h-3' aria-hidden='true' /> Fail
                                                             </span>
                                                             {row.reason && (
-                                                                <span style={{ fontSize: 'var(--fs-caption)', color: 'var(--danger-strong)' }}>{row.reason}</span>
+                                                                <span style={{ fontSize: 'var(--fs-caption)', color: 'var(--bad-text)' }}>{row.reason}</span>
                                                             )}
                                                         </div>
                                                     )}
@@ -320,7 +320,7 @@ const CertChecker = () => {
                             <p className='font-semibold mb-1' style={{ fontSize: 'var(--fs-table)', color: 'var(--chathams-blue)' }}>Extracted Composition</p>
                             <div className='flex flex-wrap gap-1.5'>
                                 {result.extractedElements.map((el, i) => (
-                                    <span key={i} className='px-2.5 py-1 rounded-full font-medium' style={{ fontSize: 'var(--fs-table)', background: 'var(--surface-header)', color: 'var(--chathams-blue)', border: '1px solid var(--border-divider)' }}>
+                                    <span key={i} className='px-2.5 py-1 rounded-full font-medium' style={{ fontSize: 'var(--fs-table)', background: 'var(--bg-subtle)', color: 'var(--chathams-blue)', border: '1px solid var(--line)' }}>
                                         {el.element}: {el.value}{el.unit || '%'}
                                     </span>
                                 ))}
@@ -330,7 +330,7 @@ const CertChecker = () => {
 
                     <button onClick={() => { setFile(null); setResult(null); setError(null); }}
                         className='flex items-center gap-1 px-3 py-1 rounded-full border transition-colors hover:border-[var(--endeavour)]'
-                        style={{ fontSize: 'var(--fs-table)', borderColor: 'var(--border-divider)', color: 'var(--chathams-blue)' }}>
+                        style={{ fontSize: 'var(--fs-table)', borderColor: 'var(--line)', color: 'var(--chathams-blue)' }}>
                         <Trash2 className='w-3 h-3' /> Check another certificate
                     </button>
                 </div>

@@ -48,11 +48,11 @@ const DataModal = ({ isOpen, setIsOpen, valueCon, setToast }) => {
             <div className='flex flex-wrap p-2 justify-between gap-2'>
 
                 <div className='max-w-md grow '>
-                    <ul className="flex flex-col mt-1 max-w-md overflow-auto max-h-80 rounded-2xl divide-y border border-[var(--border-divider)]" >
+                    <ul className="flex flex-col mt-1 max-w-md overflow-auto max-h-80 rounded-2xl divide-y border border-[var(--line)]" >
                         {list.map((x, i) => {
                             return (
                                 <li key={i} className="justify-between flex items-center gap-x-2 py-2 px-4 responsiveTextTable
-                             text-[var(--port-gore)] hover:bg-[var(--surface-pill)]">
+                             text-[var(--port-gore)] hover:bg-[var(--bg-subtle)]">
                                     <Link href={x.url} target="_blank">
                                         <p className='responsiveTextTable'>{x.name}</p>
                                     </Link>

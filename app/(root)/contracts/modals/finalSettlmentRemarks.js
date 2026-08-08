@@ -61,14 +61,14 @@ const FinalRemarks = ({ value, setValue }) => {
                 <p className='flex items-center responsiveTextTitle font-medium pl-2'>{getTtl('Remarks', ln)}:</p>
 
                 <div className='group relative '>
-                    <button className="text-white  flex items-center justify-center gap-1.5 px-2 
+                    <button className="text-[var(--on-brand)]  flex items-center justify-center gap-1.5 px-2 
                     h-7 border border-slate-400 bg-slate-700 rounded-lg responsiveTextTitle
                     hover:bg-slate-400 shadow-lg"
                         onClick={() => addItem()}>
                         <IoAddCircleOutline className='scale-110' /> {getTtl('Add', ln)}
                     </button>
                     <span className="absolute hidden group-hover:flex top-8 w-fit p-1
-    bg-slate-400 rounded-lg text-center text-white responsiveTextInput z-10 whitespace-nowrap -left-1.5">
+    bg-slate-400 rounded-lg text-center text-[var(--on-brand)] responsiveTextInput z-10 whitespace-nowrap -left-1.5">
                         {getTtl('AddFormula', ln)}</span>
                 </div>
 
@@ -78,7 +78,7 @@ const FinalRemarks = ({ value, setValue }) => {
 
                 {value?.finalSRemarks?.map((x, i) => {
                     return (
-                        <li key={i} className="justify-between inline-flex items-center gap-x-2 py-2 px-4 responsiveTextTitle  bg-[var(--surface-card)] border text-[var(--port-gore)] -mt-px first:rounded-t-lg first:mt-0 last:rounded-b-lg ">
+                        <li key={i} className="justify-between inline-flex items-center gap-x-2 py-2 px-4 responsiveTextTitle  bg-[var(--bg-card)] border text-[var(--port-gore)] -mt-px first:rounded-t-lg first:mt-0 last:rounded-b-lg ">
                             {edit.status && edit.id === x.id ?
                                 <input
                                     className="w-full border rounded-lg border-slate-400 h-7 

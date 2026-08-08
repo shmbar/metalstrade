@@ -4,7 +4,7 @@ import { SettingsContext } from "@contexts/useSettingsContext";
 import { getTtl } from '@utils/languages';
 import { Selector } from '@components/selectors/selectShad';
 import { X, CirclePlus, Trash } from "lucide-react"
-import { Button } from '@components/ui/button.jsx';
+import { Button } from '@components/ui/button';
 
 
 const Remraks = ({ value, setValue, settings }) => {
@@ -61,7 +61,7 @@ const Remraks = ({ value, setValue, settings }) => {
                         <CirclePlus /> {getTtl('Add', ln)}
                     </Button>
                     <span className="absolute hidden group-hover:flex top-8 w-fit p-1
-    bg-slate-400 rounded-lg text-center text-white responsiveTextTable z-10 whitespace-nowrap -left-1.5">
+    bg-slate-400 rounded-lg text-center text-[var(--on-brand)] responsiveTextTable z-10 whitespace-nowrap -left-1.5">
                         {getTtl('AddRemark', ln)}</span>
                 </div>}
 
@@ -70,7 +70,7 @@ const Remraks = ({ value, setValue, settings }) => {
             <ul className="flex flex-col mt-1">
                 {value.remarks.map((x, i) => {
                     return (
-                        <li key={i} className="justify-between inline-flex items-center gap-x-2 py-0.5 px-2 responsiveTextTable bg-[var(--surface-card)] border text-[var(--port-gore)] -mt-px first:rounded-t-lg first:mt-0 last:rounded-b-lg relative">
+                        <li key={i} className="justify-between inline-flex items-center gap-x-2 py-0.5 px-2 responsiveTextTable bg-[var(--bg-card)] border text-[var(--port-gore)] -mt-px first:rounded-t-lg first:mt-0 last:rounded-b-lg relative">
                             {!x.isRmrkText ?
                                 <div className='w-full flex items-center gap-3'>
                                     <Selector

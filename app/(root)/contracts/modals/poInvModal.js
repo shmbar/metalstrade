@@ -10,7 +10,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { getTtl } from '@utils/languages';
 import { loadData } from '@utils/utils';
 import Datepicker from "react-tailwindcss-datepicker";
-import { Button } from '@components/ui/button.jsx';
+import { Button } from '@components/ui/button';
 import { Save, CirclePlus, CircleMinus, Trash, ArrowBigRight, FileText, Download, X } from "lucide-react";
 import DocumentImportOverlay from '@components/DocumentImportOverlay';
 
@@ -413,7 +413,7 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowStockModal }) => {
                 {valueCon.poInvoices.map((x, i) => {
 
                     return (
-                        <div className='flex gap-4 p-1 border border-[var(--border-divider)] rounded-2xl flex-col bg-[var(--surface-pill)]' key={x.id}>
+                        <div className='flex gap-4 p-1 border border-[var(--line)] rounded-2xl flex-col bg-[var(--bg-subtle)]' key={x.id}>
                             <div className=''>
                                 <div className='flex items-center'>
                                     <div className='items-center flex pt-3 pr-2'>
@@ -446,12 +446,12 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowStockModal }) => {
                                             <p className='flex responsiveTextTable font-medium whitespace-nowrap text-[var(--chathams-blue)]' >{getTtl('Balance', ln)}:</p>
                                             <div className='flex pr-3'>
                                                 <input type='text' disabled className="number-separator input border-slate-300 h-7 responsiveTextTable" name='blnc'
-                                                    style={{ color: Number(x.blnc) > 0 ? 'var(--danger-text)' : undefined }}
+                                                    style={{ color: Number(x.blnc) > 0 ? 'var(--bad-text)' : undefined }}
                                                     value={addComma(x.blnc, true, 'total')} />
                                                 <div className='group relative'>
                                                     <ArrowBigRight className='text-[var(--regent-gray)] ml-3 cursor-pointer' onClick={switchToStocks} />
                                                     <span className="absolute hidden group-hover:flex top-[30px] w-fit p-1
-    bg-slate-400 rounded-lg text-center text-white responsiveTextTable z-10 whitespace-nowrap -left-2">
+    bg-slate-400 rounded-lg text-center text-[var(--on-brand)] responsiveTextTable z-10 whitespace-nowrap -left-2">
                                                         {getTtl('Stocks', ln)}</span>
                                                 </div>
                                             </div>
@@ -460,7 +460,7 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowStockModal }) => {
                                             <p className='flex responsiveTextTable font-medium whitespace-nowrap text-[var(--chathams-blue)]'>Draft:</p>
                                             <label className='flex items-center gap-1.5 h-7 cursor-pointer' title='Draft — keep this purchase invoice off the Cashflow'>
                                                 <input type='checkbox' checked={!!x.draft} onChange={() => toggleDraft(x)} className='w-4 h-4 accent-[var(--endeavour)]' />
-                                                <span className='responsiveTextTable' style={{ color: x.draft ? 'var(--warn-strong)' : 'var(--regent-gray)' }}>{x.draft ? 'Hidden from Cashflow' : 'On Cashflow'}</span>
+                                                <span className='responsiveTextTable' style={{ color: x.draft ? 'var(--warn-text)' : 'var(--regent-gray)' }}>{x.draft ? 'Hidden from Cashflow' : 'On Cashflow'}</span>
                                             </label>
                                         </div>
                                     </div>
@@ -593,7 +593,7 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowStockModal }) => {
             {showMirror && (
                 <div className='fixed inset-0 z-modal flex items-center justify-center' style={{ background: 'var(--overlay)', backdropFilter: 'blur(2px)' }}
                     onClick={() => setShowMirror(false)}>
-                    <div className='bg-[var(--surface-card)] rounded-2xl shadow-lg w-full max-w-2xl p-4 flex flex-col gap-2'
+                    <div className='bg-[var(--bg-card)] rounded-2xl shadow-2xl w-[560px] max-w-[94vw] p-4 flex flex-col gap-2'
                         onClick={e => e.stopPropagation()}>
                         <div className='flex items-center justify-between'>
                             <p className='responsiveText font-semibold text-[var(--chathams-blue)]'>

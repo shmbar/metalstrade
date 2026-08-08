@@ -8,7 +8,7 @@ import { UserAuth } from "@contexts/useAuthContext";
 import { OutTurn, Finalizing, relStts } from '@components/const'
 import { getTtl } from '@utils/languages';
 import { Selector } from '@components/selectors/selectShad.js';
-import { Button } from '@components/ui/button.jsx';
+import { Button } from '@components/ui/button';
 import { Save } from "lucide-react";
 
 
@@ -144,10 +144,10 @@ const PnlTables = ({ data, setPnlData, val, mult }) => {
     return runData && (
         <div>
             {data.map((x, i) => {
-                return <div className='mt-4 border border-[var(--border-divider)] p-2 rounded-2xl flex flex-wrap gap-2' key={i}>
+                return <div className='mt-4 border border-[var(--line)] p-2 rounded-2xl flex flex-wrap gap-2' key={i}>
                     <Customtable data={data[i]} propDefaults={propDefaults} val={val} mult={mult} />
 
-                    <div className='bg-[var(--selago)] mt-2 lg:mt-0 flex flex-wrap items-center border border-[var(--border-divider)] rounded-lg max-w-6xl'>
+                    <div className='bg-[var(--bg-subtle)] mt-2 lg:mt-0 flex flex-wrap items-center border border-[var(--line)] rounded-lg max-w-6xl'>
                         <div className='p-1 gap-2 h-fit flex justify-normal w-full'>
                             <div className='responsiveTextTable text-[var(--chathams-blue)] items-center flex'>Outturn:</div>
                             <Selector

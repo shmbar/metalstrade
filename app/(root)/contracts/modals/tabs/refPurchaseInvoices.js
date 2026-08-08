@@ -96,75 +96,85 @@ const RefPurchaseInvoices = ({ valueCon, setValueCon, saveData_PoInvoices, ln })
 
     return (
         <div className='relative'>
-            {/* ONE table for labels + checkboxes. The old layout was two separate
-                side-by-side tables whose row heights drifted apart whenever a label
-                cell grew taller (the source-PO chip rows), producing "stairs". A
-                single table shares row heights by construction; the first column is
-                sticky so the labels stay put if the matrix scrolls horizontally. */}
-            <div className="overflow-x-auto rounded-2xl border border-[var(--border-divider)]">
-                <table className="w-full border-separate" style={{ borderSpacing: 0 }}>
-                    <thead>
-                        <tr className='text-center'>
-                            <th rowSpan={2}
-                                className='sticky left-0 z-sticky font-medium responsiveTextTable bg-[var(--surface-header)] text-[var(--chathams-blue)] whitespace-nowrap h-10 px-3 border-b border-r border-[var(--border-divider)]'>
-                                {getTtl('POInvoices', ln)}
-                            </th>
-                            <th colSpan={salesInvCols.length}
-                                className='font-medium responsiveTextTable bg-[var(--surface-header)] text-[var(--chathams-blue)] h-5 whitespace-nowrap border-b border-[var(--border-cell)] text-center'>
-                                {getTtl('SalesInvoices', ln)}
-                            </th>
-                        </tr>
-                        <tr>
-                            {salesInvCols.map((y, k) => (
-                                <th
-                                    scope="col"
-                                    key={k}
-                                    className='bg-[var(--surface-header)] border-b border-[var(--border-divider)] px-3 responsiveTextTable font-medium text-[var(--chathams-blue)] h-5 text-center whitespace-nowrap'
-                                >
-                                    {y}
-                                </th>
-                            ))}
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {rows.map((y) => (
-                            <tr key={(y._source?.id || 'local') + '_' + y.id}>
-                                <td className={`sticky left-0 z-sticky bg-[var(--surface-pill)] border-b border-r border-[var(--border-cell)] responsiveTextTable
-                                    whitespace-nowrap px-3 h-11 text-center text-[var(--port-gore)] ${y._source ? 'italic' : ''}`} >
-                                    <div className='flex flex-col items-center justify-center leading-tight gap-0.5'>
-                                        <span className='font-medium'>{y.inv}</span>
-                                        {y._source &&
-                                            <span className='responsiveTextTable px-1.5 rounded-full bg-[var(--surface-header)] text-[var(--chathams-blue)] not-italic'>
-                                                {y._source.order}
-                                            </span>
-                                        }
-                                    </div>
-                                </td>
-                                {salesInvCols.map((x, q) => {
-                                    const active = y.invRef.includes(x.toString());
-                                    return (
-                                        <td
-                                            key={q}
-                                            data-label={q}
-                                            className={`px-3 border-b border-r border-[var(--border-cell)] h-11 cursor-pointer transition-colors
-                                            ${active ? 'bg-[var(--surface-header)]' : 'bg-[var(--surface-card)] hover:bg-[var(--surface-pill)]'}`}
-                                            onClick={() => setRef(y, x)}
-                                        >
-                                            <div className='flex items-center justify-center'>
-                                                <span className={`inline-flex items-center justify-center size-4 rounded-lg transition-all
-                                                ${active
-                                                        ? 'bg-[var(--endeavour)] text-white shadow-sm'
-                                                        : 'border border-[var(--border-divider)] bg-[var(--surface-card)]'}`}>
-                                                    {active && <Check className='size-3' strokeWidth={3} />}
-                                                </span>
-                                            </div>
-                                        </td>
-                                    );
-                                })}
+            <div className="flex relative">
+                <div className="overflow-x-auto rounded-l-2xl">
+                    <table className="w-full border border-r-0 border-[var(--line)]">
+                        <thead className="divide-y divide-[var(--line-strong)]">
+                            <tr className='text-center' >
+                                <th className='font-medium responsiveTextTable bg-[var(--bg-subtle)] text-[var(--chathams-blue)] whitespace-nowrap h-10 px-3 border-b border-[var(--line)]' rowSpan="2">{getTtl('POInvoices', ln)}</th>
                             </tr>
-                        ))}
-                    </tbody>
-                </table>
+
+                        </thead>
+                        <tbody className="divide-y divide-[var(--line-strong)]">
+                            {rows.map((y) => (
+                                <tr key={(y._source?.id || 'local') + '_' + y.id}>
+                                    <td className={`bg-[var(--bg-subtle)] border border-r-0 border-[var(--line-strong)] responsiveTextTable
+                                        whitespace-nowrap px-3 h-11 text-center text-[var(--port-gore)] ${y._source ? 'italic' : ''}`} >
+                                        <div className='flex flex-col items-center justify-center leading-tight gap-0.5'>
+                                            <span className='font-medium'>{y.inv}</span>
+                                            {y._source &&
+                                                <span className='responsiveTextTable px-1.5 rounded-full bg-[var(--bg-subtle)] text-[var(--chathams-blue)] not-italic'>
+                                                    {y._source.order}
+                                                </span>
+                                            }
+                                        </div>
+                                    </td>
+
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+                <div className="rounded-r-2xl overflow-hidden">
+                    <table className="w-full border border-[var(--line)]">
+                        <thead className="divide-y divide-[var(--line-strong)]">
+                            <tr className='text-center' >
+                                <th className='font-medium responsiveTextTable bg-[var(--bg-subtle)] text-[var(--chathams-blue)] h-5 whitespace-nowrap border-b border-[var(--line)]'
+                                    colSpan={salesInvCols.length}>{getTtl('SalesInvoices', ln)}</th>
+                            </tr>
+                            <tr>
+                                {salesInvCols.map((y, k) => (
+                                    <th
+                                        scope="col"
+                                        key={k}
+                                        className='bg-[var(--bg-subtle)] border-b border-[var(--line)] px-3 responsiveTextTable font-medium text-[var(--chathams-blue)]
+                                    h-5 text-center whitespace-nowrap'
+                                    >
+                                        {y}
+                                    </th>
+
+                                ))}
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-[var(--line-strong)]">
+                            {rows.map((y) => (
+                                <tr key={(y._source?.id || 'local') + '_' + y.id}>
+                                    {salesInvCols.map((x, q) => {
+                                        const active = y.invRef.includes(x.toString());
+                                        return (
+                                            <td
+                                                key={q}
+                                                data-label={q}
+                                                className={`px-3 border border-[var(--line-strong)] h-11 cursor-pointer transition-colors
+                                                ${active ? 'bg-[var(--brand-soft)]' : 'bg-[var(--bg-card)] hover:bg-[var(--bg-subtle)]'}`}
+                                                onClick={() => setRef(y, x)}
+                                            >
+                                                <div className='flex items-center justify-center'>
+                                                    <span className={`inline-flex items-center justify-center size-4 rounded-lg transition-all
+                                                    ${active
+                                                            ? 'bg-[var(--endeavour)] text-[var(--on-brand)] shadow-sm'
+                                                            : 'border border-[var(--line)] bg-[var(--bg-card)]'}`}>
+                                                        {active && <Check className='size-3' strokeWidth={3} />}
+                                                    </span>
+                                                </div>
+                                            </td>
+                                        );
+                                    })}
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     )

@@ -58,7 +58,7 @@ const SalesContractDetails = () => {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-1.5 pt-2">
                 {/* Client */}
-                <div className="lg:col-span-2 border border-[var(--border-divider)] p-2 rounded-2xl">
+                <div className="lg:col-span-2 border border-[var(--line)] p-2 rounded-2xl">
                     <p className="responsiveText text-[var(--port-gore)] font-medium">{getTtl('Consignee', ln)}:</p>
                     <Selector arr={clts} value={valueSC} onChange={(e) => handleChange(e, 'client')}
                         name='client' clear={clear} />
@@ -73,7 +73,7 @@ const SalesContractDetails = () => {
                 </div>
 
                 {/* Contract # */}
-                <div className="border border-[var(--border-divider)] p-2 rounded-2xl flex flex-col">
+                <div className="border border-[var(--line)] p-2 rounded-2xl flex flex-col">
                     <p className="responsiveText text-[var(--port-gore)] font-medium indent-1">Sales Contract #:</p>
                     <input className="input shadow-sm h-8 responsiveTextInput w-full mt-1" name='contractNo'
                         value={valueSC.contractNo} onChange={handleValue} />
@@ -81,7 +81,7 @@ const SalesContractDetails = () => {
                 </div>
 
                 {/* Date */}
-                <div className="border border-[var(--border-divider)] p-2 rounded-2xl flex flex-col">
+                <div className="border border-[var(--line)] p-2 rounded-2xl flex flex-col">
                     <p className="responsiveText text-[var(--port-gore)] font-medium indent-1">{getTtl('Date', ln)}:</p>
                     <div className="mt-1">
                         <Datepicker useRange={false} asSingle={true} value={valueSC.dateRange}
@@ -94,7 +94,7 @@ const SalesContractDetails = () => {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 mt-1.5">
                 {/* Currency */}
-                <div className="border border-[var(--border-divider)] p-2 rounded-2xl flex items-center gap-3">
+                <div className="border border-[var(--line)] p-2 rounded-2xl flex items-center gap-3">
                     <p className="responsiveText text-[var(--port-gore)] font-medium whitespace-nowrap">{getTtl('Currency', ln)}:</p>
                     <div className="flex-1 min-w-0 max-w-[12rem]">
                         <Selector arr={settings.Currency.Currency} value={valueSC}
@@ -104,7 +104,7 @@ const SalesContractDetails = () => {
                 </div>
 
                 {/* Quantity unit */}
-                <div className="border border-[var(--border-divider)] p-2 rounded-2xl flex items-center gap-3">
+                <div className="border border-[var(--line)] p-2 rounded-2xl flex items-center gap-3">
                     <p className="responsiveText text-[var(--port-gore)] font-medium whitespace-nowrap">{getTtl('QTY', ln)}:</p>
                     <div className="flex-1 min-w-0 max-w-[12rem]">
                         <Selector arr={settings.Quantity?.Quantity || []} value={valueSC}
@@ -114,13 +114,13 @@ const SalesContractDetails = () => {
             </div>
 
             {/* Materials */}
-            <div className="border border-[var(--border-divider)] p-2 rounded-2xl mt-1.5">
+            <div className="border border-[var(--line)] p-2 rounded-2xl mt-1.5">
                 <p className="responsiveText text-[var(--port-gore)] font-medium mb-2 indent-1">Materials:</p>
                 <SalesProductsTable value={valueSC} setValue={setValueSC} />
             </div>
 
             {/* Comments */}
-            <div className="border border-[var(--border-divider)] p-2 rounded-2xl mt-1.5">
+            <div className="border border-[var(--line)] p-2 rounded-2xl mt-1.5">
                 <p className="responsiveText text-[var(--port-gore)] font-medium">{getTtl('Comments', ln)}:</p>
                 <textarea rows="2" name="comments"
                     className="input w-full p-1.5 !rounded-2xl mt-1"

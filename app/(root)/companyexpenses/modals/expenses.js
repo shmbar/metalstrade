@@ -65,8 +65,7 @@ const Expenses = ({setIsOpen}) => {
                     <button
                         type='button'
                         onClick={() => setShowDocImport(true)}
-                        className='flex items-center gap-1 px-3 py-1 rounded-full text-white transition-all'
-                        style={{ fontSize: 'var(--fs-table)', background: 'var(--endeavour)' }}
+                        className='blackButton'
                     >
                         <FileText className='w-3 h-3' />
                         Autofill from PDF
@@ -86,40 +85,40 @@ const Expenses = ({setIsOpen}) => {
                 />
             )}
 
-            <div className='z-10 relative mt-2 rounded-2xl flex m-2 pb-4' style={{ border: '1px solid var(--border-divider)', background: 'var(--surface-pill)' }}>
+            <div className='z-10 relative mt-2 rounded-2xl flex m-2 pb-4' style={{ border: '1px solid var(--line)', background: "var(--bg-card)" }}>
 
                 <div className='grid grid-cols-1 md:grid-cols-12 gap-3 w-full p-2'>
                     <div className='md:col-span-4 px-2'>
                         <div>
-                            <p className='flex responsiveTextInput font-medium whitespace-nowrap mb-0.5' style={{ color: 'var(--chathams-blue)' }}>{getTtl('Expense Invoice', ln)}</p>
+                            <p className='responsiveText font-semibold uppercase tracking-[0.04em] text-[var(--ink-muted)] mb-1'>{getTtl('Expense Invoice', ln)}</p>
                             <div className='w-full '>
-                                <input className="input h-8 responsiveTextInput !rounded-full border-[var(--border-divider)] bg-[var(--surface-card)]" name='expense' value={valueExp.expense} onChange={handleValue} />
+                                <input className="input" name='expense' value={valueExp.expense} onChange={handleValue} />
                                 <ErrDiv field='expense' errors={errorsExp} ln={ln} />
                             </div>
                         </div>
                         <div className='pt-1'>
-                            <p className='flex responsiveTextInput font-medium whitespace-nowrap mb-0.5' style={{ color: 'var(--chathams-blue)' }}>{getTtl('Date', ln)}:</p>
+                            <p className='responsiveText font-semibold uppercase tracking-[0.04em] text-[var(--ink-muted)] mb-1'>{getTtl('Date', ln)}:</p>
                             <Datepicker useRange={false}
                                 asSingle={true}
                                 value={valueExp.dateRange}
                                 popoverDirection='down'
                                 onChange={handleDateChangeDate}
                                 displayFormat={"DD-MMM-YYYY"}
-                                inputClassName='input w-full shadow-lg h-8 responsiveTextInput z-20 !rounded-full'
+                                inputClassName='input w-full z-20'
                             />
                             <ErrDiv field='date' errors={errorsExp} ln={ln} />
                         </div>
                         <div className='pt-1'>
-                            <p className='flex responsiveTextInput font-medium whitespace-nowrap mb-0.5' style={{ color: 'var(--chathams-blue)' }}>{getTtl('Amount', ln)}:</p>
+                            <p className='responsiveText font-semibold uppercase tracking-[0.04em] text-[var(--ink-muted)] mb-1'>{getTtl('Amount', ln)}:</p>
                             <div className='w-full '>
-                                <input type='number' className="input h-8 responsiveTextInput !rounded-full border-[var(--border-divider)] bg-[var(--surface-card)]" name='amount' value={valueExp.amount} onChange={handleValue} />
+                                <input type='number' className="input" name='amount' value={valueExp.amount} onChange={handleValue} />
                                 <ErrDiv field='amount' errors={errorsExp} ln={ln} />
                             </div>
                         </div>
                     </div>
                     <div className='md:col-span-4 px-2'>
                         <div>
-                            <p className='flex responsiveTextInput font-medium whitespace-nowrap mb-0.5' style={{ color: 'var(--chathams-blue)' }}>{getTtl('Vendor', ln)}:</p>
+                            <p className='responsiveText font-semibold uppercase tracking-[0.04em] text-[var(--ink-muted)] mb-1'>{getTtl('Vendor', ln)}:</p>
                             <div className='w-full '>
                                 <Selector arr={sups} value={valueExp}
                                     onChange={(e) => handleChange(e, 'supplier')}
@@ -129,7 +128,7 @@ const Expenses = ({setIsOpen}) => {
                             </div>
                         </div>
                         <div className='pt-1'>
-                            <p className='flex responsiveTextInput font-medium whitespace-nowrap mb-0.5' style={{ color: 'var(--chathams-blue)' }}>{getTtl('Expense Type', ln)}:</p>
+                            <p className='responsiveText font-semibold uppercase tracking-[0.04em] text-[var(--ink-muted)] mb-1'>{getTtl('Expense Type', ln)}:</p>
                             <div className='w-full '>
                                 <Selector arr={settings.Expenses.Expenses} value={valueExp}
                                     onChange={(e) => handleChange(e, 'expType')}
@@ -140,7 +139,7 @@ const Expenses = ({setIsOpen}) => {
                         </div>
                         <div className='pt-1 gap-3 flex'>
                             <div className='flex-1'>
-                                <p className='flex responsiveTextInput font-medium whitespace-nowrap mb-0.5' style={{ color: 'var(--chathams-blue)' }}>{getTtl('Currency', ln)}:</p>
+                                <p className='responsiveText font-semibold uppercase tracking-[0.04em] text-[var(--ink-muted)] mb-1'>{getTtl('Currency', ln)}:</p>
                                 <div className='w-full'>
                                     <Selector arr={settings.Currency.Currency} value={valueExp}
                                         onChange={(e) => handleChange(e, 'cur')}
@@ -150,7 +149,7 @@ const Expenses = ({setIsOpen}) => {
                                 </div>
                             </div>
                             <div className='flex-1'>
-                                <p className='flex responsiveTextInput font-medium whitespace-nowrap mb-0.5' style={{ color: 'var(--chathams-blue)' }}>{getTtl('Payment', ln)}:</p>
+                                <p className='responsiveText font-semibold uppercase tracking-[0.04em] text-[var(--ink-muted)] mb-1'>{getTtl('Payment', ln)}:</p>
                                 <div className='w-full'>
                                     <Selector arr={settings.ExpPmnt.ExpPmnt} value={valueExp}
                                         onChange={(e) => handleChange(e, 'paid')}
@@ -161,10 +160,10 @@ const Expenses = ({setIsOpen}) => {
                         </div>
                     </div>
                     <div className='md:col-span-4 px-2'>
-                        <p className='flex responsiveTextInput font-medium whitespace-nowrap mb-0.5' style={{ color: 'var(--chathams-blue)' }}>{getTtl('Comments', ln)}:</p>
+                        <p className='responsiveText font-semibold uppercase tracking-[0.04em] text-[var(--ink-muted)] mb-1'>{getTtl('Comments', ln)}:</p>
                         <div>
                             <textarea rows="5" name="comments"
-                                className="input h-32 p-1 rounded-2xl border-[var(--border-divider)] bg-[var(--surface-card)] w-full"
+                                className="w-full h-28 px-3 py-2 rounded-control border border-[var(--line-strong)] bg-[var(--bg-card)] text-[var(--ink)] responsiveTextTitle outline-none transition-colors focus:border-[var(--brand)] focus:ring-[3px] focus:ring-[var(--brand-soft)] resize-y"
                                 style={{ fontSize: 'var(--fs-input)', fontFamily: 'inherit' }}
                                 value={valueExp.comments} onChange={handleValue} />
                         </div>
@@ -172,10 +171,10 @@ const Expenses = ({setIsOpen}) => {
                     </div>
                 </div>
             </div>
-            <div className='flex gap-4 m-2'>
+            <div className='flex items-center gap-2 m-2 pt-3 border-t border-[var(--line)] justify-end flex-wrap'>
                 <Tltip direction='top' tltpText='Save/Update form'>
                     <button
-                        className='blackButton py-1'
+                        className='blackButton'
                         onClick={saveExpense}
                         disabled={isPending}
                     >
@@ -185,7 +184,7 @@ const Expenses = ({setIsOpen}) => {
                 </Tltip>
                 <Tltip direction='top' tltpText='Clear form'>
                     <button
-                        className="whiteButton py-1"
+                        className="whiteButton"
                         onClick={blankExpense}
                     >
                         <Eraser className='size-4' />
@@ -194,7 +193,7 @@ const Expenses = ({setIsOpen}) => {
                 </Tltip>
                 <Tltip direction='top' tltpText='Delete Expense'>
                     <button
-                        className="whiteButton py-1"
+                        className="whiteButton"
                         onClick={() => deleteCompExp(uidCollection)}
                     >
                         <Trash className='size-4' />
@@ -204,7 +203,7 @@ const Expenses = ({setIsOpen}) => {
                 {valueExp.id !== '' &&
                     <Tltip direction='top' tltpText='Copy to misc invoices'>
                         <button
-                            className="whiteButton py-1"
+                            className="whiteButton"
                             onClick={() => copyTomisc(uidCollection)}
                         >
                             <Copy className='size-4' />
@@ -215,7 +214,7 @@ const Expenses = ({setIsOpen}) => {
 
                 <Tltip direction='top' tltpText='Move expense to shipment invoice'>
                     <button
-                        className="whiteButton py-1"
+                        className="whiteButton"
                         onClick={() => setDialogShipment(true)}
                     >
                         <Truck className='size-4' />

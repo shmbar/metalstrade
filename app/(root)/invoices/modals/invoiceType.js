@@ -21,7 +21,7 @@ export default function InvType({ setSelected, plans, value, ln }) {
                                 }
                                 className={({ active, checked }) =>
                                     `
-                  ${checked ? 'bg-[var(--surface-header)] border border-[var(--endeavour)] text-[var(--endeavour)]' : 'bg-[var(--surface-card)] border border-[var(--border-divider)]'
+                  ${checked ? 'bg-[var(--brand-soft)] border border-[var(--brand)] text-[var(--brand)]' : 'bg-[var(--bg-card)] border border-[var(--line)]'
                                     }
                                     ${(value.id !== '' && value.invType === '1111' && (plan.id === '2222' || plan.id === '3333')) ||
                                         (value.id !== '' && (value.invType === '2222' || value.invType === '3333') && plan.id === '1111') ? 'bg-gray-100 cursor-not-allowed' : 'cursor-pointer'}

@@ -22,9 +22,9 @@ const DlayedResponse = ({ alertArr, setAlertArr }) => {
     return (
         <div className='p-4'>
             <div className=" overflow-x-auto">
-                <div className="border border-[var(--border-divider)] rounded-2xl overflow-hidden">
-                    <table id='my-table' className="table-fixed min-w-full divide-y divide-[var(--border-divider)]">
-                        <thead style={{ background: 'var(--surface-header)' }}>
+                <div className="border border-[var(--line)] rounded-2xl overflow-hidden">
+                    <table id='my-table' className="table-fixed min-w-full divide-y divide-[var(--line)]">
+                        <thead style={{ background: 'var(--bg-subtle)' }}>
                             <tr>
                                 <th scope="col" className="w-28 py-2 px-4 text-left responsiveTextInput font-semibold text-[var(--chathams-blue)]">Customer</th>
                                 <th scope="col" className="w-16 pr-1 py-2 text-left responsiveTextInput font-semibold text-[var(--chathams-blue)]">Invoice</th>
@@ -35,10 +35,10 @@ const DlayedResponse = ({ alertArr, setAlertArr }) => {
                                 <th scope="col" className="w-16 pr-1 py-2 text-left responsiveTextInput font-semibold text-[var(--chathams-blue)]">Keep Alerting</th>
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-[var(--border-divider)]">
+                        <tbody className="divide-y divide-[var(--line)]">
                             {alertArr.map((obj, i) => {
                                 return (
-                                    <tr key={i} className="hover:bg-[rgba(var(--surface-header-rgb),0.4)] transition-colors duration-150">
+                                    <tr key={i} className="hover:bg-[var(--bg-subtle)]/40 transition-colors duration-150">
                                         <td className="py-2 pl-4">
                                             <div className="flex items-center h-5 responsiveTextInput text-[var(--chathams-blue)]">
                                                 {settings.Client.Client.find(z => z.id === obj.client)?.nname}

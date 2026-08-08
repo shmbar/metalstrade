@@ -366,9 +366,9 @@ const ProductsTable = ({ value, setValue, currency, settings, uidCollection, set
         <div className="w-full justify-center flex">
             <div className="flex flex-col w-full">
                 <div className=" overflow-x-auto">
-                    <div className="border border-[var(--border-divider)] rounded-lg overflow-hidden">
-                        <table id='my-table' className="table-fixed min-w-[640px] w-full divide-y divide-[var(--border-divider)]">
-                            <thead style={{ background: 'var(--surface-header)' }}>
+                    <div className="border border-[var(--line)] rounded-lg overflow-hidden">
+                        <table id='my-table' className="table-fixed min-w-[640px] w-full divide-y divide-[var(--line)]">
+                            <thead style={{ background: 'var(--bg-subtle)' }}>
                                 <tr>
                                     <th scope="col" className="w-8 py-1 px-2"></th>
                                     <th scope="col" className="w-6 pr-1 py-1 text-left responsiveTextTable font-medium text-[var(--chathams-blue)]">
@@ -389,13 +389,13 @@ const ProductsTable = ({ value, setValue, currency, settings, uidCollection, set
                                     <th scope="col" className="w-[9%] px-1 py-1 text-left responsiveTextTable font-medium text-[var(--chathams-blue)]">
                                         <div>{getTtl('Total', ln)} <span className='responsiveTextTable'>
                                             {c !== '' ? '(' + c + ')' : ''}</span></div></th>
-                                    <th scope="col" className="w-[13%] px-1 py-1 text-left responsiveTextTable font-medium text-[var(--chathams-blue)] border-l border-[var(--border-divider)]">
+                                    <th scope="col" className="w-[13%] px-1 py-1 text-left responsiveTextTable font-medium text-[var(--chathams-blue)] border-l border-[var(--line)]">
                                         {getTtl('Stock', ln)}</th>
                                     <th scope="col" className="w-[9%] px-1 py-1 text-left responsiveTextTable font-medium text-[var(--chathams-blue)]">
                                         {getTtl('Available Quantity', ln)} (MT)</th>
                                 </tr>
                             </thead>
-                            <tbody className="divide-y divide-[var(--border-divider)]">
+                            <tbody className="divide-y divide-[var(--line)]">
                                 {value.productsDataInvoice.map((obj, i) => {
                                     return (
                                         <tr key={i} className='relative hover:z-10'>
@@ -508,7 +508,7 @@ const ProductsTable = ({ value, setValue, currency, settings, uidCollection, set
                                                             />
                                                             <span className={`absolute hidden ${(key === 'unitPrc' || key === 'qnty') && value1?.substring(0, 1) === "=" ? 'group-hover:flex' : ''}
                                                                  bottom-[30px] w-fit p-1  bg-slate-400 rounded-lg text-center
-                                                                  text-white responsiveTextTable z-tooltip whitespace-nowrap -left-0.5`}>
+                                                                  text-[var(--on-brand)] responsiveTextTable z-tooltip whitespace-nowrap -left-0.5`}>
                                                                 {value1}
                                                             </span>
 
@@ -527,7 +527,7 @@ const ProductsTable = ({ value, setValue, currency, settings, uidCollection, set
                                                                     fixedDecimalScale
                                                                 />
                                                                 {(obj.eqUnitPrc || obj.eq) && (
-                                                                    <span className='absolute hidden group-hover:flex bottom-[20px] w-fit p-1 bg-slate-400 rounded-lg text-center text-white responsiveTextTable z-tooltip whitespace-nowrap -left-0.5'>
+                                                                    <span className='absolute hidden group-hover:flex bottom-[20px] w-fit p-1 bg-slate-400 rounded-lg text-center text-[var(--on-brand)] responsiveTextTable z-tooltip whitespace-nowrap -left-0.5'>
                                                                         {obj.eqUnitPrc || obj.eq}
                                                                     </span>
                                                                 )}
@@ -555,7 +555,7 @@ const ProductsTable = ({ value, setValue, currency, settings, uidCollection, set
                                                                     :
                                                                     <span>Service</span>}
                                                                 {obj.eqQnty && (
-                                                                    <span className='absolute hidden group-hover:flex bottom-[20px] w-fit p-1 bg-slate-400 rounded-lg text-center text-white responsiveTextTable z-tooltip whitespace-nowrap -left-0.5'>
+                                                                    <span className='absolute hidden group-hover:flex bottom-[20px] w-fit p-1 bg-slate-400 rounded-lg text-center text-[var(--on-brand)] responsiveTextTable z-tooltip whitespace-nowrap -left-0.5'>
                                                                         {obj.eqQnty}
                                                                     </span>
                                                                 )}
@@ -722,7 +722,7 @@ const ProductsTable = ({ value, setValue, currency, settings, uidCollection, set
                                                 prefix={currentCur}
                                                 decimalScale='2'
                                                 fixedDecimalScale
-                                                style={{ color: Number(value.balanceDue) > 0 ? 'var(--danger-text)' : undefined }}
+                                                style={{ color: Number(value.balanceDue) > 0 ? 'var(--bad-text)' : undefined }}
                                             />
 
                                         </td>
