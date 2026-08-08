@@ -33,8 +33,8 @@ const CategorySelect = ({ id, value, onChange }) => (
         value={value || 'none'}
         onClick={(e) => e.stopPropagation()}
         onChange={(e) => { e.stopPropagation(); onChange(id, e.target.value === 'none' ? '' : e.target.value); }}
-        className="bg-transparent outline-none cursor-pointer responsiveTextTable"
-        style={{ color: 'var(--port-gore)', fontFamily: 'inherit' }}
+        className="bg-transparent outline-none cursor-pointer responsiveTextTable rounded-control border border-transparent hover:border-[var(--line-strong)] hover:bg-[var(--bg-card)] px-1 py-0.5 transition-colors"
+        style={{ color: 'var(--ink)', fontFamily: 'inherit' }}
     >
         <option value="none">—</option>
         {MISC_CATS.map(c => <option key={c.id} value={c.id}>{c.label}</option>)}
@@ -251,7 +251,7 @@ const SpecialInvoices = () => {
 
 
     return (
-        <div className="w-full " style={{ background: "var(--surface-pill)" }}>
+        <div className="w-full " style={{ background: "var(--bg-page)" }}>
             <div className="mx-auto w-full max-w-full px-1 md:px-2 pb-4 mt-[72px]">
                 {Object.keys(settings).length === 0 ? <TableSkeleton /> :
                     <>
@@ -259,10 +259,10 @@ const SpecialInvoices = () => {
                             table page (prevents the empty-state flash during loads). */}
                         <VideoLoader loading={loading} fullScreen={true} />
                         {/* Main Card */}
-                        <div className="rounded-2xl p-3 sm:p-5 mt-8 border border-[var(--border-divider)] shadow-xl w-full bg-[var(--surface-pill)]">
+                        <div className="page-card rounded-2xl p-3 sm:p-5 mt-8 border border-[var(--line)] shadow-card w-full bg-[var(--bg-card)]">
                             {/* Header Section */}
                             <div className='flex items-center justify-between flex-wrap gap-2 pb-2'>
-                                <h1 className="text-[var(--chathams-blue)] font-poppins responsiveTextPage font-medium border-l-4 border-[var(--chathams-blue)] pl-2">
+                                <h1 className="text-[var(--ink)] responsiveTextTitle">
                                     {getTtl('Misc Invoices', ln)}
                                 </h1>
                                 {/* <div className='flex items-center gap-2 group'>

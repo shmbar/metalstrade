@@ -339,7 +339,7 @@ const AssistantChat = () => {
     const hasMessages = messages.length > 0;
 
     return (
-        <div className="w-full min-h-screen flex flex-col bg-[var(--surface-card)]">
+        <div className="w-full min-h-screen flex flex-col bg-[var(--bg-card)]">
             <div
                 className="mx-auto w-full max-w-full px-1 md:px-2 pb-4 flex-1 flex flex-col"
                 style={{ marginTop: 'clamp(56px, 7vh, 80px)', minHeight: 'calc(100vh - clamp(56px, 7vh, 80px))' }}
@@ -347,12 +347,12 @@ const AssistantChat = () => {
                 {Object.keys(settings).length === 0 ? <Spinner /> :
                     <>
                         <Toast />
-                        <div className="border border-[var(--border-divider)] rounded-2xl shadow-sm bg-[var(--surface-card)] mt-4 flex flex-col flex-1 overflow-hidden">
+                        <div className="border border-[var(--line)] rounded-2xl shadow-sm bg-[var(--bg-card)] mt-4 flex flex-col flex-1 overflow-hidden">
 
                             {/* Top Bar — flex-wrap + nowrap pills: on narrow screens the chip
                                 row drops WHOLE onto its own line under the title instead of
                                 breaking words mid-pill ("Contract / s") and colliding with it. */}
-                            <div className="px-3 md:px-4 py-2.5 border-b border-[var(--border-divider)] flex flex-wrap items-center justify-between gap-y-2 gap-x-3 bg-[var(--surface-header)]">
+                            <div className="px-3 md:px-4 py-2.5 border-b border-[var(--line)] flex flex-wrap items-center justify-between gap-y-2 gap-x-3 bg-[var(--bg-subtle)]">
                                 <div className="flex items-center gap-2 shrink-0">
                                     <div className="w-1 h-5 bg-[var(--endeavour)] rounded-full" />
                                     <span className="responsiveTextTitle font-medium text-[var(--port-gore)]">Assistant</span>
@@ -365,13 +365,13 @@ const AssistantChat = () => {
                                             <span className="px-2 py-0.5 md:px-3 md:py-1 rounded-full responsiveTextTable font-medium whitespace-nowrap" style={{ backgroundColor: 'var(--ok-bg)', color: 'var(--ok-strong)', border: '1px solid var(--ok-border)' }}>
                                                 {contractsData.length} Contracts
                                             </span>
-                                            <span className="px-2 py-0.5 md:px-3 md:py-1 rounded-full responsiveTextTable font-medium whitespace-nowrap" style={{ backgroundColor: 'var(--surface-header)', color: 'var(--chathams-blue)', border: '1px solid var(--border-divider)' }}>
+                                            <span className="px-2 py-0.5 md:px-3 md:py-1 rounded-full responsiveTextTable font-medium whitespace-nowrap" style={{ backgroundColor: 'var(--bg-subtle)', color: 'var(--chathams-blue)', border: '1px solid var(--line)' }}>
                                                 {invoicesData.length} Invoices
                                             </span>
-                                            <span className="px-2 py-0.5 md:px-3 md:py-1 rounded-full responsiveTextTable font-medium whitespace-nowrap" style={{ backgroundColor: 'var(--violet-bg)', color: 'var(--violet-strong)', border: '1px solid var(--violet-border)' }}>
+                                            <span className="px-2 py-0.5 md:px-3 md:py-1 rounded-full responsiveTextTable font-medium whitespace-nowrap" style={{ backgroundColor: 'var(--brand-soft)', color: 'var(--brand-strong)', border: '1px solid var(--brand-border)' }}>
                                                 {expensesData.length} Expenses
                                             </span>
-                                            <span className="px-2 py-0.5 md:px-3 md:py-1 rounded-full responsiveTextTable font-medium whitespace-nowrap" style={{ backgroundColor: 'var(--warn-bg)', color: 'var(--warn-strong)', border: '1px solid var(--warn-border)' }}>
+                                            <span className="px-2 py-0.5 md:px-3 md:py-1 rounded-full responsiveTextTable font-medium whitespace-nowrap" style={{ backgroundColor: 'var(--warn-bg)', color: 'var(--warn-text)', border: '1px solid var(--warn-border)' }}>
                                                 {stocksData.length} Stocks
                                             </span>
                                         </>
@@ -379,7 +379,7 @@ const AssistantChat = () => {
                                     <button
                                         onClick={() => loadAllData(true)}
                                         disabled={dataLoading}
-                                        className="p-1.5 rounded-full transition-colors hover:bg-[rgba(var(--border-divider-rgb),0.5)] disabled:opacity-40 shrink-0"
+                                        className="p-1.5 rounded-full transition-colors hover:bg-[var(--line)]/50 disabled:opacity-40 shrink-0"
                                         title="Refresh data"
                                     >
                                         <FiRefreshCw className={`w-3.5 h-3.5 text-[var(--endeavour)] ${dataLoading ? 'animate-spin' : ''}`} />
@@ -387,7 +387,7 @@ const AssistantChat = () => {
                                     <button
                                         onClick={handleClearChat}
                                         className="flex items-center gap-1.5 px-2 py-0.5 md:px-3 md:py-1 rounded-full font-medium transition-colors whitespace-nowrap shrink-0"
-                                        style={{ backgroundColor: 'var(--danger-bg)', color: 'var(--danger-strong)', border: '1px solid var(--danger-border)', fontSize: 'var(--fs-table)' }}
+                                        style={{ backgroundColor: 'var(--bad-bg)', color: 'var(--bad-text)', border: '1px solid var(--bad-border)', fontSize: 'var(--fs-table)' }}
                                         title="Reset conversation"
                                     >
                                         <MdRestartAlt className="w-4 h-4" />
@@ -397,7 +397,7 @@ const AssistantChat = () => {
                             </div>
 
                             {/* Chat Area */}
-                            <div className="flex-1 overflow-y-auto bg-[var(--surface-card)]" style={{ minHeight: 0 }}>
+                            <div className="flex-1 overflow-y-auto bg-[var(--bg-card)]" style={{ minHeight: 0 }}>
                                 {!hasMessages ? (
                                     <div className="flex flex-col items-center justify-center py-16 px-4" style={{ minHeight: '400px' }}>
                                         <div className="mb-6">
@@ -434,7 +434,7 @@ const AssistantChat = () => {
                                                                 ? 'bg-red-50 text-red-700 border border-red-200 rounded-bl-sm'
                                                                 : 'bg-[var(--selago)]/40 text-[var(--port-gore)] border border-[var(--selago)] rounded-bl-sm'
                                                     }`}
-                                                    style={message.role === 'user' ? { backgroundColor: 'var(--surface-header)', color: 'var(--port-gore)' } : {}}
+                                                    style={message.role === 'user' ? { backgroundColor: 'var(--bg-subtle)', color: 'var(--port-gore)' } : {}}
                                                 >
                                                     <div
                                                         className="break-words"
@@ -477,8 +477,8 @@ const AssistantChat = () => {
                             </div>
 
                             {/* Input Area */}
-                            <div className="p-4 border-t border-[var(--selago)]" style={{ backgroundColor: 'var(--surface-card)' }}>
-                                <div className="responsiveText flex items-center gap-2 border-2 border-[var(--endeavour)]/30 rounded-full px-4 py-2.5 focus-within:border-[var(--endeavour)] transition-colors" style={{ backgroundColor: 'var(--surface-header)' }}>
+                            <div className="p-4 border-t border-[var(--selago)]" style={{ backgroundColor: "var(--bg-card)" }}>
+                                <div className="responsiveText flex items-center gap-2 border-2 border-[var(--endeavour)]/30 rounded-full px-4 py-2.5 focus-within:border-[var(--endeavour)] transition-colors" style={{ backgroundColor: 'var(--bg-subtle)' }}>
                                     <GrAttachment className="w-4 h-4 text-[var(--regent-gray)] flex-shrink-0" />
                                     <input
                                         ref={inputRef}
@@ -494,7 +494,7 @@ const AssistantChat = () => {
                                     <button
                                         onClick={() => handleSendMessage()}
                                         disabled={!newMessage.trim() || isLoading || dataLoading}
-                                        className="p-2 bg-[var(--endeavour)] text-white rounded-full hover:bg-[var(--brand-deep)] transition-colors disabled:opacity-40 disabled:cursor-not-allowed flex-shrink-0"
+                                        className="p-2 bg-[var(--endeavour)] text-[var(--on-brand)] rounded-full hover:bg-[var(--brand-deep)] transition-colors disabled:opacity-40 disabled:cursor-not-allowed flex-shrink-0"
                                     >
                                         {isLoading
                                             ? <IoRefresh className="w-4 h-4 animate-spin" />
@@ -508,7 +508,7 @@ const AssistantChat = () => {
                                             key={index}
                                             onClick={() => handleSendMessage(action.text)}
                                             disabled={isLoading || dataLoading}
-                                            className="flex items-center gap-1 px-2.5 py-1 bg-[var(--surface-card)] border border-[var(--border-divider)] rounded-full text-[var(--port-gore)] hover:border-[var(--endeavour)] hover:text-[var(--endeavour)] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                                            className="flex items-center gap-1 px-2.5 py-1 bg-[var(--bg-card)] border border-[var(--line)] rounded-full text-[var(--port-gore)] hover:border-[var(--endeavour)] hover:text-[var(--endeavour)] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                                             style={{ fontSize: 'var(--fs-body)' }}
                                         >
                                             {action.icon}

@@ -62,33 +62,33 @@ function MonthPickerPill({ value, onChange }) {
     return (
         <>
             <button ref={btnRef} type="button" onClick={openPicker}
-                className="flex items-center gap-2 rounded-lg bg-[var(--surface-pill)] border border-[var(--border-cell)] px-2 h-7 hover:border-[var(--endeavour)] transition-colors"
+                className="flex items-center gap-2 rounded-lg bg-[var(--bg-subtle)] border border-[var(--line-strong)] px-2 h-7 hover:border-[var(--endeavour)] transition-colors"
                 style={{ fontSize: 'var(--fs-body)', color: value ? 'var(--chathams-blue)' : 'var(--regent-gray)', minWidth: 140 }}>
                 <Calendar className="w-3.5 h-3.5 text-[var(--endeavour)] shrink-0" />
                 <span className="flex-1 text-left whitespace-nowrap">{value ? `${MONTHS_FULL[selMonth - 1]} ${selYear}` : 'Pick month'}</span>
             </button>
             {open && typeof document !== 'undefined' && createPortal(
                 <>
-                    <div className="fixed inset-0 z-dropdown" onClick={() => setOpen(false)} />
-                    <div className="fixed z-dropdown rounded-2xl shadow-xl bg-[var(--surface-card)] border border-[var(--surface-header)] overflow-hidden" style={{ top: pos.top, bottom: pos.bottom, left: pos.left, width: 224 }}>
-                        <div className="flex items-center justify-between py-1.5 px-2" style={{ background: 'var(--surface-header)' }}>
-                            <button type="button" onClick={() => setViewYear(y => y - 1)} className="p-1 rounded hover:bg-[rgba(var(--surface-card-rgb),0.6)]"><ChevronLeft className="w-4 h-4 text-[var(--endeavour)]" /></button>
+                    <div className="fixed inset-0 z-page-popover" onClick={() => setOpen(false)} />
+                    <div className="fixed z-dropdown rounded-2xl shadow-xl bg-[var(--bg-card)] border border-[var(--bg-subtle)] overflow-hidden" style={{ top: pos.top, bottom: pos.bottom, left: pos.left, width: 224 }}>
+                        <div className="flex items-center justify-between py-1.5 px-2" style={{ background: 'var(--bg-subtle)' }}>
+                            <button type="button" onClick={() => setViewYear(y => y - 1)} className="p-1 rounded hover:bg-white/60"><ChevronLeft className="w-4 h-4 text-[var(--endeavour)]" /></button>
                             <span className="font-semibold" style={{ fontSize: 'var(--fs-title)', color: 'var(--chathams-blue)' }}>{viewYear}</span>
-                            <button type="button" onClick={() => setViewYear(y => y + 1)} className="p-1 rounded hover:bg-[rgba(var(--surface-card-rgb),0.6)]"><ChevronRight className="w-4 h-4 text-[var(--endeavour)]" /></button>
+                            <button type="button" onClick={() => setViewYear(y => y + 1)} className="p-1 rounded hover:bg-white/60"><ChevronRight className="w-4 h-4 text-[var(--endeavour)]" /></button>
                         </div>
                         <div className="grid grid-cols-3 gap-1 p-2">
                             {MONTHS.map((m, i) => {
                                 const isSel = selMonth === i + 1 && selYear === viewYear;
                                 return (
                                     <button key={m} type="button" onClick={() => pick(i)}
-                                        className={`rounded-lg py-1.5 font-medium transition-colors ${isSel ? '' : 'hover:bg-[var(--selago)]'}`}
+                                        className={`rounded-lg py-1.5 font-medium transition-colors ${isSel ? '' : 'hover:bg-[var(--bg-subtle)]'}`}
                                         style={{ fontSize: 'var(--fs-input)', background: isSel ? 'var(--endeavour)' : 'transparent', color: isSel ? 'var(--on-brand)' : 'var(--chathams-blue)' }}>
                                         {m}
                                     </button>
                                 );
                             })}
                         </div>
-                        <div className="flex items-center justify-between px-2 py-1.5 border-t border-[var(--surface-header)]">
+                        <div className="flex items-center justify-between px-2 py-1.5 border-t border-[var(--bg-subtle)]">
                             <button type="button" onClick={() => { onChange(''); setOpen(false); }} className="hover:underline" style={{ fontSize: 'var(--fs-body)', color: 'var(--regent-gray)' }}>Clear</button>
                             <button type="button" onClick={thisMonth} className="font-medium hover:underline" style={{ fontSize: 'var(--fs-body)', color: 'var(--endeavour)' }}>This month</button>
                         </div>
@@ -216,12 +216,12 @@ const StorageCosts = () => {
     }
 
     return (
-        <div className="mx-auto w-full max-w-full px-1 md:px-2 pb-24 mt-[72px]" style={{ background: 'var(--surface-pill)' }}>
-            <div className="rounded-2xl p-3 sm:p-5 mt-8 border border-[var(--border-divider)] shadow-xl w-full bg-[var(--surface-pill)]">
+        <div className="mx-auto w-full max-w-full px-1 md:px-2 pb-24 mt-[72px]" style={{ background: 'var(--bg-subtle)' }}>
+            <div className="page-card rounded-2xl p-3 sm:p-5 mt-8 border border-[var(--line)] shadow-card w-full bg-[var(--bg-card)]">
                 {/* Header + unit toggle */}
                 <div className="flex items-center justify-between flex-wrap gap-2 mb-4">
                     <div>
-                        <h1 className="text-[var(--chathams-blue)] responsiveTextPage font-medium border-l-4 border-[var(--chathams-blue)] pl-2">
+                        <h1 className="text-[var(--ink)] responsiveTextTitle">
                             Storage Costs
                         </h1>
                         <p className="responsiveTextTable text-[var(--regent-gray)] pl-3 mt-1">
@@ -249,9 +249,9 @@ const StorageCosts = () => {
                                     className="rounded-full font-medium transition-colors"
                                     style={{
                                         fontSize: 'var(--fs-body)', padding: '5px 12px',
-                                        background: unit === u.key ? 'var(--endeavour)' : 'var(--surface-card)',
+                                        background: unit === u.key ? 'var(--endeavour)' : 'var(--bg-card)',
                                         color: unit === u.key ? 'var(--on-brand)' : 'var(--chathams-blue)',
-                                        border: `1px solid ${unit === u.key ? 'var(--endeavour)' : 'var(--border-cell)'}`,
+                                        border: `1px solid ${unit === u.key ? 'var(--endeavour)' : 'var(--line-strong)'}`,
                                     }}>
                                     {u.label}
                                 </button>
@@ -263,19 +263,19 @@ const StorageCosts = () => {
 
                 {/* Real actuals — exact figures from your expenses & stock, shown even before tagging */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3 mb-3">
-                    <div className="rounded-2xl p-4 bg-[var(--surface-card)] border border-[var(--border-divider)] shadow-sm">
+                    <div className="rounded-2xl p-4 bg-[var(--bg-card)] border border-[var(--line)] shadow-sm">
                         <div className="flex items-center gap-1.5 text-[var(--regent-gray)]" style={{ fontSize: 'var(--fs-table)' }}><Receipt className="w-3.5 h-3.5" /> Storage spend · {year === 'all' ? 'all years' : year}</div>
-                        <div className="font-bold mt-1 text-[var(--chathams-blue)]" style={{ fontSize: 'var(--fs-stat)' }}>{fmtUsd(actuals.totalSpend)}</div>
+                        <div className="font-bold mt-1 text-[var(--chathams-blue)]" style={{ fontSize: 'var(--fs-display)' }}>{fmtUsd(actuals.totalSpend)}</div>
                         <div className="text-[var(--regent-gray)] mt-0.5" style={{ fontSize: 'var(--fs-table)' }}>
                             {actuals.count} invoice{actuals.count === 1 ? '' : 's'} · {actuals.taggedCount} tagged · {actuals.count - actuals.taggedCount} to tag
                         </div>
                     </div>
-                    <div className="rounded-2xl p-4 bg-[var(--surface-card)] border border-[var(--border-divider)] shadow-sm">
+                    <div className="rounded-2xl p-4 bg-[var(--bg-card)] border border-[var(--line)] shadow-sm">
                         <div className="flex items-center gap-1.5 text-[var(--regent-gray)]" style={{ fontSize: 'var(--fs-table)' }}><Boxes className="w-3.5 h-3.5" /> In storage now</div>
-                        <div className="font-bold mt-1 text-[var(--chathams-blue)]" style={{ fontSize: 'var(--fs-stat)' }}>{fmtMt(actuals.totalMt)} MT</div>
+                        <div className="font-bold mt-1 text-[var(--chathams-blue)]" style={{ fontSize: 'var(--fs-display)' }}>{fmtMt(actuals.totalMt)} MT</div>
                         <div className="text-[var(--regent-gray)] mt-0.5" style={{ fontSize: 'var(--fs-table)' }}>{actuals.whMt.length} warehouse{actuals.whMt.length === 1 ? '' : 's'} with stock</div>
                     </div>
-                    <div className="rounded-2xl p-4 bg-[var(--surface-card)] border border-[var(--border-divider)] shadow-sm">
+                    <div className="rounded-2xl p-4 bg-[var(--bg-card)] border border-[var(--line)] shadow-sm">
                         <div className="flex items-center gap-1.5 text-[var(--regent-gray)] mb-1" style={{ fontSize: 'var(--fs-table)' }}><Warehouse className="w-3.5 h-3.5" /> By warehouse (MT now)</div>
                         <div className="flex flex-col gap-0.5 max-h-[4.5rem] overflow-y-auto pr-1">
                             {actuals.whMt.length === 0
@@ -292,7 +292,7 @@ const StorageCosts = () => {
 
                 {/* Overall + per-warehouse rate cards (require warehouse+month tagging) */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3 mb-5">
-                    <div className="rounded-2xl p-4 text-white" style={{ background: 'linear-gradient(135deg, var(--endeavour), var(--chathams-blue))' }}>
+                    <div className="rounded-2xl p-4 text-[var(--on-brand)]" style={{ background: 'linear-gradient(135deg, var(--endeavour), var(--chathams-blue))' }}>
                         <div className="flex items-center gap-1.5 opacity-90" style={{ fontSize: 'var(--fs-table)' }}><Boxes className="w-3.5 h-3.5" /> Avg storage cost {UNIT.find(u => u.key === unit).label}</div>
                         <div className="font-bold mt-1" style={{ fontSize: 'var(--fs-stat)' }}>{rateStr(metric.overall)}</div>
                         <div className="opacity-80 mt-0.5" style={{ fontSize: 'var(--fs-table)' }}>
@@ -300,22 +300,22 @@ const StorageCosts = () => {
                         </div>
                     </div>
                     {metric.rows.map(r => (
-                        <div key={r.wh} className="rounded-2xl p-4 bg-[var(--surface-card)] border border-[var(--border-divider)] shadow-sm">
+                        <div key={r.wh} className="rounded-2xl p-4 bg-[var(--bg-card)] border border-[var(--line)] shadow-sm">
                             <div className="flex items-center gap-1.5 text-[var(--regent-gray)]" style={{ fontSize: 'var(--fs-table)' }}><Warehouse className="w-3.5 h-3.5" /> {r.name}</div>
                             <div className="font-bold mt-1 text-[var(--chathams-blue)]" style={{ fontSize: 'var(--fs-stat)' }}>{rateStr(r.rate)}</div>
                             <div className="text-[var(--regent-gray)] mt-0.5" style={{ fontSize: 'var(--fs-table)' }}>{fmtUsd(r.cost)} · {new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 }).format(r.mt)} MT-months</div>
                         </div>
                     ))}
                     {metric.rows.length === 0 && (
-                        <div className="sm:col-span-2 xl:col-span-3 rounded-2xl p-4 bg-[var(--surface-card)] border border-dashed border-[var(--border-divider)] flex items-center text-[var(--regent-gray)] responsiveTextTable">
+                        <div className="sm:col-span-2 xl:col-span-3 rounded-2xl p-4 bg-[var(--bg-card)] border border-dashed border-[var(--line)] flex items-center text-[var(--regent-gray)] responsiveTextTable">
                             No storage invoices tagged yet for this period — tag some below to see the rate.
                         </div>
                     )}
                 </div>
 
                 {/* Per-year summary — storage spend, MT-months and the average rate for each year */}
-                <div className="rounded-2xl border border-[var(--border-divider)] bg-[var(--surface-card)] overflow-hidden mb-5">
-                    <div className="flex items-center gap-2 px-4 py-2.5" style={{ background: 'var(--surface-header)' }}>
+                <div className="rounded-2xl border border-[var(--line)] bg-[var(--bg-card)] overflow-hidden mb-5">
+                    <div className="flex items-center gap-2 px-4 py-2.5" style={{ background: 'var(--bg-subtle)' }}>
                         <Calendar className="w-4 h-4 text-[var(--endeavour)]" />
                         <span className="responsiveText font-semibold text-[var(--chathams-blue)]">Per-year summary</span>
                         <span className="responsiveTextTable text-[var(--regent-gray)] ml-1 hidden sm:inline">— click a year to filter</span>
@@ -326,7 +326,7 @@ const StorageCosts = () => {
                         <div className="overflow-x-auto">
                             <table className="w-full" style={{ fontSize: 'var(--fs-body)' }}>
                                 <thead>
-                                    <tr className="text-left text-[var(--regent-gray)]" style={{ background: 'var(--surface-pill)' }}>
+                                    <tr className="text-left uppercase text-[var(--ink-muted)]" style={{ background: "var(--bg-subtle)", fontSize: "var(--fs-body)", letterSpacing: "0.04em" }}>
                                         <th className="px-3 py-2 font-medium">Year</th>
                                         <th className="px-3 py-2 font-medium text-right">Storage spend</th>
                                         <th className="px-3 py-2 font-medium text-right">MT-months</th>
@@ -338,7 +338,7 @@ const StorageCosts = () => {
                                     {perYear.map(r => (
                                         <tr key={r.year}
                                             onClick={() => setYear(year === r.year ? 'all' : r.year)}
-                                            className={`border-t border-[var(--selago)] cursor-pointer transition-colors ${year === r.year ? 'bg-[var(--selago)]' : 'hover:bg-[var(--surface-pill)]'}`}>
+                                            className={`border-t border-[var(--bg-subtle)] cursor-pointer transition-colors ${year === r.year ? 'bg-[var(--bg-subtle)]' : 'hover:bg-[var(--bg-subtle)]'}`}>
                                             <td className="px-3 py-2 font-medium text-[var(--chathams-blue)]">{r.year}</td>
                                             <td className="px-3 py-2 text-right text-[var(--port-gore)]">{fmtUsd(r.spend)}</td>
                                             <td className="px-3 py-2 text-right text-[var(--port-gore)]">{new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 }).format(r.mtMonths)}</td>
@@ -353,19 +353,19 @@ const StorageCosts = () => {
                 </div>
 
                 {/* Triage: untagged storage invoices */}
-                <div className="rounded-2xl border border-[var(--border-divider)] bg-[var(--surface-card)] overflow-hidden">
-                    <div className="flex items-center gap-2 px-4 py-2.5" style={{ background: 'var(--surface-header)' }}>
-                        {untagged.length > 0 ? <AlertTriangle className="w-4 h-4" style={{ color: 'var(--warn-strong)' }} /> : <Check className="w-4 h-4" style={{ color: 'var(--ok-strong)' }} />}
+                <div className="rounded-2xl border border-[var(--line)] bg-[var(--bg-card)] overflow-hidden">
+                    <div className="flex items-center gap-2 px-4 py-2.5" style={{ background: 'var(--bg-subtle)' }}>
+                        {untagged.length > 0 ? <AlertTriangle className="w-4 h-4" style={{ color: 'var(--warn-text)' }} /> : <Check className="w-4 h-4" style={{ color: 'var(--ok-text)' }} />}
                         <span className="responsiveText font-semibold text-[var(--chathams-blue)]">
                             Storage invoices needing a warehouse + month
                         </span>
-                        <span className="rounded-full px-2 py-0.5 font-semibold" style={{ fontSize: 'var(--fs-table)', background: untagged.length ? 'var(--warn-soft)' : 'var(--ok-soft)', color: untagged.length ? 'var(--warn-strong)' : 'var(--ok-strong)', boxShadow: `inset 0 0 0 1px ${untagged.length ? 'var(--warn-border)' : 'var(--ok-border)'}` }}>
+                        <span className="rounded-full px-2 py-0.5 font-semibold" style={{ fontSize: 'var(--fs-table)', background: untagged.length ? 'var(--warn-bg)' : 'var(--ok-bg)', color: untagged.length ? 'var(--warn-text)' : 'var(--ok-text)', boxShadow: `inset 0 0 0 1px ${untagged.length ? 'var(--warn-border)' : 'var(--ok-border)'}` }}>
                             {untagged.length}
                         </span>
                         {actuals.count > 0 && (
                             <div className="ml-auto flex items-center gap-2 flex-1 justify-end">
-                                <div className="h-1.5 rounded-full overflow-hidden bg-[rgba(var(--surface-card-rgb),0.7)] w-full" style={{ boxShadow: 'inset 0 0 0 1px var(--border-divider)', maxWidth: 160 }}>
-                                    <div className="h-full rounded-full transition-all" style={{ width: `${Math.round((actuals.taggedCount / actuals.count) * 100)}%`, background: 'var(--ok-strong)' }} />
+                                <div className="h-1.5 rounded-full overflow-hidden bg-white/70 w-full" style={{ boxShadow: 'inset 0 0 0 1px var(--line)', maxWidth: 160 }}>
+                                    <div className="h-full rounded-full transition-all" style={{ width: `${Math.round((actuals.taggedCount / actuals.count) * 100)}%`, background: 'var(--ok-text)' }} />
                                 </div>
                                 <span className="whitespace-nowrap font-medium" style={{ fontSize: 'var(--fs-table)', color: 'var(--chathams-blue)' }}>{actuals.taggedCount}/{actuals.count} tagged</span>
                             </div>
@@ -380,7 +380,7 @@ const StorageCosts = () => {
                         <div className="overflow-x-auto">
                             <table className="w-full" style={{ fontSize: 'var(--fs-body)' }}>
                                 <thead>
-                                    <tr className="text-left text-[var(--regent-gray)]" style={{ background: 'var(--surface-pill)' }}>
+                                    <tr className="text-left uppercase text-[var(--ink-muted)]" style={{ background: "var(--bg-subtle)", fontSize: "var(--fs-body)", letterSpacing: "0.04em" }}>
                                         <th className="px-3 py-2 font-medium">Date</th>
                                         <th className="px-3 py-2 font-medium">Invoice</th>
                                         <th className="px-3 py-2 font-medium">Supplier</th>
@@ -395,7 +395,7 @@ const StorageCosts = () => {
                                         const d = draftOf(e);
                                         const ready = d.storageWh && d.storageMonth;
                                         return (
-                                            <tr key={e.id} className="border-t border-[var(--selago)]">
+                                            <tr key={e.id} className="border-t border-[var(--bg-subtle)]">
                                                 <td className="px-3 py-2 whitespace-nowrap text-[var(--port-gore)]">{(typeof e.date === 'string' ? e.date : '').substring(0, 10)}</td>
                                                 <td className="px-3 py-2 text-[var(--port-gore)] max-w-[12rem] truncate">{e.expense || '—'}</td>
                                                 <td className="px-3 py-2 text-[var(--port-gore)]">{settings.Supplier?.Supplier?.find(s => s.id === e.supplier)?.nname || '—'}</td>
@@ -417,7 +417,7 @@ const StorageCosts = () => {
                                                 </td>
                                                 <td className="px-3 py-2">
                                                     <button type="button" disabled={!ready || savingId === e.id} onClick={() => saveTag(e)}
-                                                        className="inline-flex items-center gap-1 rounded-full px-3 h-7 text-white font-medium disabled:opacity-40"
+                                                        className="inline-flex items-center gap-1 rounded-full px-3 h-7 text-[var(--on-brand)] font-medium disabled:opacity-40"
                                                         style={{ fontSize: 'var(--fs-body)', background: 'var(--endeavour)' }}>
                                                         <Save className="w-3 h-3" /> {savingId === e.id ? 'Saving…' : 'Save'}
                                                     </button>

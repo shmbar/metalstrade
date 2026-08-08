@@ -114,12 +114,12 @@ export default function MonthSelect(props) {
                     leave="transition-opacity "
                     leaveFrom="opacity-100"
                     leaveTo="opacity-0">
-                    <div className="overflow-hidden rounded-2xl shadow-xl bg-[var(--surface-card)] w-full border border-[var(--surface-header)]">
-                        <div className='py-1.5 px-3 responsiveText font-semibold' style={{ background: 'var(--surface-header)', color: 'var(--chathams-blue)' }}>Select Month</div>
+                    <div className="overflow-hidden rounded-2xl shadow-xl bg-[var(--bg-card)] w-full border border-[var(--bg-subtle)]">
+                        <div className='py-1.5 px-3 responsiveText font-semibold' style={{ background: 'var(--bg-subtle)', color: 'var(--chathams-blue)' }}>Select Month</div>
                         <div className='py-1 px-1 overflow-auto max-h-72'>
                             {months.map((x, i) => {
                                 return (
-                                    <div key={i} className='responsiveText py-1 px-2 cursor-pointer hover:bg-[var(--selago)] rounded-lg flex gap-2 items-center transition-colors'
+                                    <div key={i} className='responsiveText py-1 px-2 cursor-pointer hover:bg-[var(--bg-subtle)] rounded-lg flex gap-2 items-center transition-colors'
                                         style={{ color: 'var(--chathams-blue)' }}
                                         onClick={() => handleMontClick(i)}>
                                         <ChkBox checked={checkedItems.includes((i + 1).toString().padStart(2, '0'))} size='h-4 w-4' onChange={() => handleMontClick(i)} />
@@ -128,8 +128,8 @@ export default function MonthSelect(props) {
                                 )
                             })}
                         </div>
-                        <div className='border-t border-[var(--surface-header)] px-1 pb-1'>
-                            <div className='mt-1 responsiveText py-1 px-2 cursor-pointer hover:bg-[var(--selago)] rounded-lg flex gap-2 items-center transition-colors'
+                        <div className='border-t border-[var(--bg-subtle)] px-1 pb-1'>
+                            <div className='mt-1 responsiveText py-1 px-2 cursor-pointer hover:bg-[var(--bg-subtle)] rounded-lg flex gap-2 items-center transition-colors'
                                 style={{ color: 'var(--chathams-blue)' }}
                                 onClick={selectAll}>
                                 <ChkBox checked={allYear} size='h-4 w-4' onChange={() => selectAll()} />

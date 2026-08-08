@@ -9,7 +9,7 @@
 //       <Navbar />
 //       <main className="pt-24">
 //         {/* Hero Section */}
-//         <section className="py-20 bg-blue-600 text-white">
+//         <section className="py-20 bg-blue-600 text-[var(--on-brand)]">
 //           <div className="container mx-auto px-4 text-center">
 //             <h1 className="responsiveTextHero font-bold mb-4">About MetalsTrade</h1>
 //             <p className="responsiveTextStat text-blue-100">
@@ -19,7 +19,7 @@
 //         </section>
 
 //         {/* Mission Section */}
-//         <section className="py-20 bg-[var(--surface-card)]">
+//         <section className="py-20 bg-[var(--bg-card)]">
 //           <div className="container mx-auto px-4">
 //             <div className="grid md:grid-cols-2 gap-12 items-center">
 //               <div>
@@ -76,8 +76,8 @@
 //                   description: 'Your success is our success. We prioritize your needs.',
 //                 },
 //               ].map((value, index) => (
-//                 <div key={index} className="bg-[var(--surface-card)] p-8 rounded-2xl shadow-lg">
-//                   <h3 className="responsiveTextStat font-bold mb-4">{value.title}</h3>
+//                 <div key={index} className="bg-[var(--bg-card)] p-8 rounded-2xl shadow-lg">
+//                   <h3 className="text-2xl font-bold mb-4">{value.title}</h3>
 //                   <p className="text-gray-600">{value.description}</p>
 //                 </div>
 //               ))}
@@ -86,7 +86,7 @@
 //         </section>
 
 //         {/* Team Section */}
-//         <section className="py-20 bg-[var(--surface-card)]">
+//         <section className="py-20 bg-[var(--bg-card)]">
 //           <div className="container mx-auto px-4">
 //             <h2 className="responsiveTextHero font-bold text-center mb-16">Our Team</h2>
 //             <div className="grid md:grid-cols-4 gap-8">
@@ -99,7 +99,7 @@
 //                 <div key={index} className="text-center">
 //                   <div className="bg-gradient-to-br from-blue-600 to-blue-800 w-32 h-32 rounded-full mx-auto mb-4 flex items-center justify-center">
 //                     <svg
-//                       className="w-16 h-16 text-white"
+//                       className="w-16 h-16 text-[var(--on-brand)]"
 //                       fill="currentColor"
 //                       viewBox="0 0 24 24"
 //                     >
@@ -127,7 +127,7 @@ import { Users, Shield, Target, TrendingUp, Award, Globe, BarChart,Rocket,Handsh
 
 export default function AboutPage() {
   return (
-    <div className="w-full bg-[var(--surface-card)] min-h-screen font-sans text-foreground">
+    <div className="w-full bg-[var(--bg-card)] min-h-screen font-sans text-foreground">
       {/* Navbar Placeholder if needed - assuming layout handles it or user adds it */}
        <Navbar />
       <main className="pt-15">
@@ -137,7 +137,7 @@ export default function AboutPage() {
 />
 
      {/* Mission Section */}
-<section className="py-12 bg-[var(--surface-card)] relative z-10">
+<section className="py-12 bg-[var(--bg-card)] relative z-10">
   <div className="container mx-auto px-4">
     <div className="grid md:grid-cols-2 gap-16 items-center">
 
@@ -165,7 +165,7 @@ export default function AboutPage() {
         whileInView={{ opacity: 1, scale: 1 }}
         viewport={{ once: true }}
         transition={{ duration: 0.6, delay: 0.2 }}
-        className="relative h-[460px] bg-[var(--surface-card)] border border-gray-200 rounded-3xl shadow-lg shadow-blue-900/5 flex items-center justify-center overflow-hidden"
+        className="relative h-[460px] bg-[var(--bg-card)] border border-gray-200 rounded-3xl shadow-lg shadow-blue-900/5 flex items-center justify-center overflow-hidden"
       >
         <div className="absolute inset-0 bg-gradient-to-br from-[var(--selago)]/60 to-transparent"></div>
 
@@ -178,16 +178,16 @@ export default function AboutPage() {
             className="absolute -inset-16 border border-blue-200/70 rounded-full"
           >
             {/* OUTER ICONS */}
-            <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-[var(--endeavour)] text-white p-3 rounded-2xl shadow-md">
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-[var(--endeavour)] text-[var(--on-brand)] p-3 rounded-2xl shadow-md">
               <TrendingUp className="w-6 h-6" />
             </div>
-            <div className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 bg-[var(--endeavour)] text-white p-3 rounded-2xl shadow-md">
+            <div className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 bg-[var(--endeavour)] text-[var(--on-brand)] p-3 rounded-2xl shadow-md">
               <Globe className="w-6 h-6" />
             </div>
-            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2 bg-[var(--endeavour)] text-white p-3 rounded-2xl shadow-md">
+            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2 bg-[var(--endeavour)] text-[var(--on-brand)] p-3 rounded-2xl shadow-md">
               <Users className="w-6 h-6" />
             </div>
-            <div className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1/2 bg-[var(--endeavour)] text-white p-3 rounded-2xl shadow-md">
+            <div className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1/2 bg-[var(--endeavour)] text-[var(--on-brand)] p-3 rounded-2xl shadow-md">
               <BarChart className="w-6 h-6" />
             </div>
           </motion.div>
@@ -199,22 +199,22 @@ export default function AboutPage() {
             className="absolute inset-0 border-2 border-dashed border-[var(--rock-blue)] rounded-full"
           >
             {/* MIDDLE ICONS */}
-            <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-[var(--surface-card)] text-[var(--endeavour)] p-2 rounded-full shadow">
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-[var(--bg-card)] text-[var(--endeavour)] p-2 rounded-full shadow">
               <Rocket className="w-5 h-5" />
             </div>
-            <div className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 bg-[var(--surface-card)] text-[var(--endeavour)] p-2 rounded-full shadow">
+            <div className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 bg-[var(--bg-card)] text-[var(--endeavour)] p-2 rounded-full shadow">
               <Shield className="w-5 h-5" />
             </div>
-            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2 bg-[var(--surface-card)] text-[var(--endeavour)] p-2 rounded-full shadow">
+            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2 bg-[var(--bg-card)] text-[var(--endeavour)] p-2 rounded-full shadow">
               <Award className="w-5 h-5" />
             </div>
-            <div className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1/2 bg-[var(--surface-card)] text-[var(--endeavour)] p-2 rounded-full shadow">
+            <div className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1/2 bg-[var(--bg-card)] text-[var(--endeavour)] p-2 rounded-full shadow">
               <Handshake className="w-5 h-5" />
             </div>
           </motion.div>
 
           {/* INNER CORE */}
-          <div className="absolute inset-10 bg-[var(--surface-card)] rounded-full shadow-xl flex items-center justify-center">
+          <div className="absolute inset-10 bg-[var(--bg-card)] rounded-full shadow-xl flex items-center justify-center">
             <Target className="w-20 h-20 text-[var(--endeavour)]" strokeWidth={1.8} />
           </div>
 
@@ -228,7 +228,7 @@ export default function AboutPage() {
 
 
        {/* Values Section */}
-<section className="py-12 bg-[var(--surface-header)] relative z-10">
+<section className="py-12 bg-[var(--bg-subtle)] relative z-10">
   <div className="container mx-auto px-4">
 
     {/* Header */}
@@ -267,7 +267,7 @@ export default function AboutPage() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5, delay: index * 0.1 }}
-          className="group relative p-8 rounded-2xl bg-[var(--surface-card)] border border-[var(--border-divider)] shadow-sm
+          className="group relative p-8 rounded-2xl bg-[var(--bg-card)] border border-[var(--line)] shadow-sm
                      hover:shadow-md hover:border-[var(--endeavour)] transition-all duration-300 overflow-hidden"
         >
 
@@ -277,7 +277,7 @@ export default function AboutPage() {
           {/* Icon Wrapper */}
           <div className="relative z-10 w-16 h-16 mb-6 flex items-center justify-center rounded-2xl bg-[var(--selago)] 
                           shadow-md group-hover:bg-[var(--endeavour)] transition-all duration-300">
-            <value.icon className="w-8 h-8 text-[var(--endeavour)] group-hover:text-white transition-colors duration-300" />
+            <value.icon className="w-8 h-8 text-[var(--endeavour)] group-hover:text-[var(--on-brand)] transition-colors duration-300" />
           </div>
 
           {/* Content */}
@@ -295,7 +295,7 @@ export default function AboutPage() {
 
 
        {/* Why Choose Us Section */}
-<section className="py-12 bg-[var(--surface-card)]">
+<section className="py-12 bg-[var(--bg-card)]">
   <div className="container mx-auto px-4">
 
     {/* Heading */}
@@ -344,10 +344,10 @@ export default function AboutPage() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ delay: index * 0.1 }}
-          className="bg-[var(--surface-pill)] p-6 rounded-2xl border border-[var(--border-divider)] shadow-sm hover:shadow-md hover:border-[var(--endeavour)] hover:-translate-y-1 transition-all duration-300 group"
+          className="bg-[var(--bg-subtle)] p-6 rounded-2xl border border-[var(--line)] shadow-sm hover:shadow-md hover:border-[var(--endeavour)] hover:-translate-y-1 transition-all duration-300 group"
         >
           <div className="w-14 h-14 flex items-center justify-center rounded-2xl bg-[var(--selago)] mb-5 group-hover:bg-[var(--endeavour)] transition-colors duration-300">
-            <item.icon className="w-7 h-7 text-[var(--endeavour)] group-hover:text-white transition-all duration-300" />
+            <item.icon className="w-7 h-7 text-[var(--endeavour)] group-hover:text-[var(--on-brand)] transition-all duration-300" />
           </div>
 
           <h3 className="responsiveTextPage font-bold text-[var(--chathams-blue)] mb-2 group-hover:text-[var(--endeavour)] transition-colors duration-300">

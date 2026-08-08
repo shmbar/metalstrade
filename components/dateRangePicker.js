@@ -69,10 +69,10 @@ const DateRangePicker = ({ displayLabel }) => {
 
             /* ── Popup wrapper: rounded + themed border + shadow + compact size ── */
             .react-tailwindcss-datepicker-container > div:not(:first-child),
-            .shadow-sm.border.border-gray-300.px-1.py-0\\.5.bg-[var(--surface-card)].rounded-lg {
+            .shadow-sm.border.border-gray-300.px-1.py-0\\.5.bg-[var(--bg-card)].rounded-lg {
                 border-radius: 1.25rem !important;
-                border: 1px solid var(--selago) !important;
-                box-shadow: 0 12px 40px rgba(var(--chathams-blue-rgb),0.12) !important;
+                border: 1px solid var(--line) !important;
+                box-shadow: var(--shadow-lg) !important;
                 overflow: hidden !important;
                 z-index: 9999 !important;
                 transform-origin: top right !important;
@@ -85,8 +85,8 @@ const DateRangePicker = ({ displayLabel }) => {
 
             /* ── Month/Year header pill ── */
             .flex.items-center.space-x-1\\.5.border.border-gray-300.rounded-lg.px-2.py-1\\.5 {
-                background: var(--surface-header) !important;
-                border: 1px solid var(--border-divider) !important;
+                background: var(--bg-subtle) !important;
+                border: 1px solid var(--line) !important;
                 border-radius: 999px !important;
                 color: var(--chathams-blue) !important;
             }
@@ -96,7 +96,7 @@ const DateRangePicker = ({ displayLabel }) => {
                 border-radius: 999px !important;
             }
             .rounded-full.p-\\[0\\.45rem\\]:hover {
-                background: var(--surface-header) !important;
+                background: var(--bg-subtle) !important;
             }
 
             /* ── Month/Year text buttons (uppercase label) ── */
@@ -105,12 +105,12 @@ const DateRangePicker = ({ displayLabel }) => {
                 color: var(--chathams-blue) !important;
             }
             .tracking-wide.px-3.py-\\[0\\.55rem\\].uppercase.hover\\:bg-gray-100.rounded-lg:hover {
-                background: var(--surface-header) !important;
+                background: var(--bg-subtle) !important;
             }
 
             /* ── Week header row ── */
             .grid.grid-cols-7.border-b.border-gray-300.py-2 {
-                border-color: var(--selago) !important;
+                border-color: var(--line) !important;
             }
             .grid.grid-cols-7.border-b.border-gray-300.py-2 > div {
                 color: var(--chathams-blue) !important;
@@ -137,7 +137,7 @@ const DateRangePicker = ({ displayLabel }) => {
             }
             .flex.items-center.justify-center.w-12.h-12:hover,
             .flex.items-center.justify-center.lg\\:w-10.lg\\:h-10:hover {
-                background: var(--surface-header) !important;
+                background: var(--bg-subtle) !important;
                 color: var(--chathams-blue) !important;
             }
 
@@ -148,7 +148,7 @@ const DateRangePicker = ({ displayLabel }) => {
 
             /* ── Range highlight days (soft wash, not loud circles) ── */
             .bg-blue-100 {
-                background-color: var(--selago) !important;
+                background-color: var(--bg-subtle) !important;
             }
 
             /* ── Shortcuts list items ── */
@@ -160,12 +160,12 @@ const DateRangePicker = ({ displayLabel }) => {
             }
             .whitespace-nowrap.w-1\\/2.transition-all.duration-300.hover\\:bg-gray-100.p-2.rounded:hover,
             .whitespace-nowrap.lg\\:w-auto.transition-all.duration-300.hover\\:bg-gray-100.p-2.rounded:hover {
-                background: var(--surface-header) !important;
+                background: var(--bg-subtle) !important;
             }
 
             /* ── Divider between shortcuts and calendar ── */
             .md\\:border-b.mb-3.border-gray-300 {
-                border-color: var(--selago) !important;
+                border-color: var(--line) !important;
             }
         `;
         document.head.appendChild(style);
@@ -194,13 +194,13 @@ const DateRangePicker = ({ displayLabel }) => {
                     inputClassName="
                         responsiveText font-medium h-7 py-0 pl-7 pr-4
                         w-full
-                        bg-[var(--surface-card)]
+                        bg-[var(--bg-card)]
                         rounded-full
-                        border border-[var(--selago)]
+                        border border-[var(--line)]
                         shadow-sm
                         cursor-pointer
                         focus:outline-none
-                        focus:ring-1 focus:ring-[var(--border-cell)]
+                        focus:ring-1 focus:ring-[var(--line)]
                         tracking-normal
                         leading-tight
                     "

@@ -30,9 +30,9 @@ const SalesProductsTable = ({ value, setValue }) => {
 
     return (
         <div className="w-full">
-            <div className="border border-[var(--border-divider)] rounded-lg overflow-x-auto">
-                <table className="table-fixed min-w-[640px] w-full divide-y divide-[var(--border-divider)]">
-                    <thead style={{ background: 'var(--surface-header)' }}>
+            <div className="border border-[var(--line)] rounded-lg overflow-x-auto">
+                <table className="table-fixed min-w-[640px] w-full divide-y divide-[var(--line)]">
+                    <thead style={{ background: 'var(--bg-subtle)' }}>
                         <tr className="responsiveTextTable font-medium text-[var(--chathams-blue)] text-left">
                             <th className="w-8 px-1 py-1.5">#</th>
                             <th className="w-6/12 px-1 py-1.5">Description</th>
@@ -42,7 +42,7 @@ const SalesProductsTable = ({ value, setValue }) => {
                             <th className="w-8 px-1 py-1.5"></th>
                         </tr>
                     </thead>
-                    <tbody className="divide-y divide-[var(--border-divider)]">
+                    <tbody className="divide-y divide-[var(--line)]">
                         {rows.map((r, i) => (
                             <tr key={r.id} className="responsiveTextTable text-[var(--port-gore)]">
                                 <td className="px-1 py-1 text-center">{i + 1}</td>
@@ -96,7 +96,7 @@ const SalesProductsTable = ({ value, setValue }) => {
                         )}
                     </tbody>
                     <tfoot>
-                        <tr className="responsiveTextTable font-semibold text-[var(--chathams-blue)]" style={{ background: 'var(--surface-header)' }}>
+                        <tr className="responsiveTextTable font-semibold text-[var(--chathams-blue)]" style={{ background: 'var(--bg-subtle)' }}>
                             <td className="px-1 py-1.5" colSpan={4}>Total</td>
                             <td className="px-1 py-1.5 text-right whitespace-nowrap">
                                 <NumericFormat value={grandTotal} displayType="text" thousandSeparator

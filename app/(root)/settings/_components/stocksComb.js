@@ -24,7 +24,7 @@ const StockComb = ({ value, setValue }) => {
     <div className='w-full'>
       <Listbox value={selected} onChange={e=> setSelection(e)}>
         <div className="relative ">
-          <ListboxButton className='cursor-pointer w-full h-8 rounded-full border border-[var(--border-divider)] bg-[var(--surface-card)]
+          <ListboxButton className='cursor-pointer w-full h-8 rounded-full border border-[var(--line)] bg-[var(--bg-card)]
                      focus:outline-none focus:border-[var(--endeavour)] focus:ring-2 focus:ring-[var(--endeavour)]/20
                      pl-4 pr-10 responsiveText text-[var(--port-gore)] transition-all hover:border-[var(--rock-blue)] text-left responsiveTextInput'>
             {({ open }) => (
@@ -45,12 +45,12 @@ const StockComb = ({ value, setValue }) => {
             leaveFrom="opacity-100"
             leaveTo="opacity-0"
           >
-            <ListboxOptions className="absolute mt-1 max-h-60 w-full overflow-auto rounded-2xl bg-[var(--surface-card)] py-1 responsiveText shadow-lg border border-[var(--surface-header)] focus:outline-none z-dropdown responsiveTextInput">
+            <ListboxOptions className="absolute mt-1 max-h-60 w-full overflow-auto rounded-2xl bg-[var(--bg-card)] py-1 responsiveText shadow-lg border border-[var(--bg-subtle)] focus:outline-none z-50 responsiveTextInput">
               {types.map((tp, personIdx) => (
                 <ListboxOption
                   key={personIdx}
                   className={({ active }) =>
-                    `responsiveText relative cursor-pointer select-none py-2 pl-10 pr-4 responsiveTextInput ${active ? 'bg-[var(--surface-header)] text-[var(--endeavour)]' : 'text-[var(--port-gore)]'
+                    `responsiveText relative cursor-pointer select-none py-2 pl-10 pr-4 responsiveTextInput ${active ? 'bg-[var(--bg-subtle)] text-[var(--endeavour)]' : 'text-[var(--port-gore)]'
                     }`
                   }
                   value={tp}
@@ -65,7 +65,7 @@ const StockComb = ({ value, setValue }) => {
                       </span>
                       {selected ? (
                         <span className={`absolute inset-y-0 left-0 flex items-center pl-3
-                        ${active ? 'text-white' : 'text-[var(--endeavour)]'} `}
+                        ${active ? 'text-[var(--on-brand)]' : 'text-[var(--endeavour)]'} `}
                         >
                           <AiOutlineCheck className="size-5" aria-hidden="true" />
                         </span>

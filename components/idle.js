@@ -108,7 +108,7 @@ export default function App() {
                                 leaveFrom="opacity-100 scale-100"
                                 leaveTo="opacity-0 scale-95"
                             >
-                                <DialogPanel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-[var(--surface-card)] p-6 text-left align-middle shadow-xl transition-all">
+                                <DialogPanel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-[var(--bg-card)] p-6 text-left align-middle shadow-xl transition-all">
                                     <DialogTitle
                                         as="h3"
                                         className="responsiveTextTitle font-semibold leading-tight text-[var(--chathams-blue)]"

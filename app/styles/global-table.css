@@ -2,14 +2,12 @@
    GLOBAL DESIGN TOKENS (SYNC WITH SIDEBAR)
 ===================================================== */
 :root {
-  --ui-font-size: var(--fs-input);
-  /* Neutral aliases — resolve through the themable base layer in globals.css
-     so dark mode flips every global-table style automatically. */
-  --ui-font-color: var(--text-strong);
-  --ui-muted-color: var(--text-mid);
+  --ui-font-size: 0.78rem;
+  --ui-font-color: var(--ink); /* slate-800 */
+  --ui-muted-color: var(--ink-secondary);
 
-  --ui-bg: var(--surface-card);
-  --ui-border: var(--border-neutral-strong);
+  --ui-bg: var(--bg-card);
+  --ui-border: var(--line);
 
   --ui-primary: var(--endeavour);
   --ui-primary-soft: var(--selago);
@@ -37,8 +35,8 @@ thead th {
   position: sticky;
   top: 0;
   z-index: 5;
-  background: var(--surface-header);
-  color: var(--chathams-blue);
+  background: var(--bg-subtle);
+  color: var(--ink);
   text-transform: uppercase;
   font-weight: 600;
   letter-spacing: .03em;

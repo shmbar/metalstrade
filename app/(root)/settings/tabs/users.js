@@ -123,7 +123,7 @@ const Users = () => {
         <button
           type="button"
           onClick={addNewUser}
-          className="bg-[var(--endeavour)] text-white focus:outline-none font-medium rounded-full responsiveTextInput px-4 py-2 text-center gap-1.5 items-center flex hover:opacity-90 transition-all"
+          className="bg-[var(--endeavour)] text-[var(--on-brand)] focus:outline-none font-medium rounded-control responsiveTextInput px-4 py-2 text-center gap-1.5 items-center flex hover:opacity-90 transition-all"
         >
           <User size={16} />
           Add New User

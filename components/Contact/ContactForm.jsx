@@ -35,7 +35,7 @@ export default function ContactForm() {
       transition={{ duration: 0.6 }}
       className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16"
     >
-      <div className="bg-[var(--surface-card)] p-10 sm:p-12 lg:p-16 rounded-3xl shadow-2xl">
+      <div className="bg-[var(--bg-card)] p-10 sm:p-12 lg:p-16 rounded-3xl shadow-2xl">
         {submitted && (
           <div className="responsiveTextTitle mb-6 p-4 bg-green-100 text-green-700 rounded-lg text-center font-medium">
             Thank you! Your message has been sent.
@@ -119,7 +119,7 @@ export default function ContactForm() {
           <div className="text-center">
             <button
               type="submit"
-              className="px-10 py-4 bg-[var(--endeavour)] text-white font-bold rounded-2xl shadow-lg hover:bg-[var(--brand-deep)] transition-colors duration-300"
+              className="px-10 py-4 bg-[var(--endeavour)] text-[var(--on-brand)] font-bold rounded-2xl shadow-lg hover:bg-[var(--brand-deep)] transition-colors duration-300"
             >
               Send Message
             </button>

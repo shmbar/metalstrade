@@ -1,22 +1,12 @@
-import { DiBrackets } from "react-icons/di";
-import { TbFileInvoice } from "react-icons/tb";
-import { FaFileContract, FaFileSignature } from "react-icons/fa";
-import { TbShip } from "react-icons/tb";
-import { RiDashboardLine, RiApps2Line } from "react-icons/ri";
-import { BiBasket } from "react-icons/bi";
-import { VscPreview } from "react-icons/vsc";
-import { LiaFileInvoiceDollarSolid } from "react-icons/lia";
-import { IoNewspaperOutline } from "react-icons/io5";
-import { HiOutlineDocumentChartBar } from "react-icons/hi2";
-import { MdOutlineWarehouse } from "react-icons/md";
-import { CgEreader } from "react-icons/cg";
-import { TbReportMoney } from "react-icons/tb";
-import { GiProfit } from "react-icons/gi";
-import { TbBrandCashapp } from "react-icons/tb";
-import { TbHistory } from "react-icons/tb";
-import { FaTableList } from "react-icons/fa6";
-import { RiFormula } from "react-icons/ri";
-import { BiMessageRoundedDetail, BiPhone, BiCalendar } from "react-icons/bi";
+// One thin-line icon set (lucide) across the whole nav.
+import {
+    LayoutDashboard, LayoutGrid, MessageSquare, FileText, FileSignature, Ship,
+    Receipt, Wallet, Calculator, FileSearch, ClipboardCheck, Landmark, Boxes,
+    BarChart3, FilePlus, Briefcase, Table2, Newspaper, History, TrendingUp,
+    CircleDollarSign, Sigma,
+} from "lucide-react";
+
+const navIcon = (Icon) => <Icon size={16} strokeWidth={1.75} />;
 
 export const sideBar = (userTitle, gisAccount) => {
 
@@ -24,16 +14,14 @@ export const sideBar = (userTitle, gisAccount) => {
         {
              ttl: 'MAIN MENU',
             items: [
-                { item: 'Dashboard', img: <RiDashboardLine />, page: 'dashboard' },
-                { 
-                    item: 'Apps', 
-                    img: <RiApps2Line />, 
+                { item: 'Dashboard', img: navIcon(LayoutDashboard), page: 'dashboard' },
+                {
+                    item: 'Apps',
+                    img: navIcon(LayoutGrid),
                     page: 'apps',
                     hasDropdown: true,
                     subItems: [
-                        { item: 'Assistant', img: <BiMessageRoundedDetail />, page: 'apps/Assistant' },
-                        // { item: 'Call', img: <BiPhone />, page: 'apps/call' },
-                        // { item: 'Calendar', img: <BiCalendar />, page: 'apps/calendar' },
+                        { item: 'Assistant', img: navIcon(MessageSquare), page: 'apps/Assistant' },
                     ]
                 }
 
@@ -42,44 +30,44 @@ export const sideBar = (userTitle, gisAccount) => {
         {
             ttl: 'Shipments',
             items: [
-                { item: 'Contracts', img: <FaFileContract className="scale-[0.8]" />, page: 'contracts' },
-                { item: 'Sales Contracts', img: <FaFileSignature className="scale-[0.8]" />, page: 'salescontracts' },
-                { item: 'Shipments Tracking', img: <TbShip />, page: 'shipment' },
-                { item: 'Invoices', img: <TbFileInvoice />, page: 'invoices' },
-                { item: 'Expenses', img: <DiBrackets />, page: 'expenses' },
-                { item: 'Accounting', img: <CgEreader className="scale-[0.8]" />, page: 'accounting' },
-                { item: 'Contracts Review', img: <VscPreview />, page: 'ContractsReview&Statement' },
-                { item: 'Invoices Review', img: <LiaFileInvoiceDollarSolid />, page: 'InvoicesReview&Statement' }
+                { item: 'Contracts', img: navIcon(FileText), page: 'contracts' },
+                { item: 'Sales Contracts', img: navIcon(FileSignature), page: 'salescontracts' },
+                { item: 'Shipments Tracking', img: navIcon(Ship), page: 'shipment' },
+                { item: 'Invoices', img: navIcon(Receipt), page: 'invoices' },
+                { item: 'Expenses', img: navIcon(Wallet), page: 'expenses' },
+                { item: 'Accounting', img: navIcon(Calculator), page: 'accounting' },
+                { item: 'Contracts Review', img: navIcon(FileSearch), page: 'ContractsReview&Statement' },
+                { item: 'Invoices Review', img: navIcon(ClipboardCheck), page: 'InvoicesReview&Statement' }
             ]
         },
       
         {
             ttl: 'Statements',
             items: [
-                { item: 'Account Statement', img: <TbReportMoney className="scale-[1]" />, page: 'accstatement' },
-                { item: 'Stocks', img: <MdOutlineWarehouse />, page: 'stocks' },
-                { item: 'Storage Costs', img: <HiOutlineDocumentChartBar />, page: 'storagecosts' }
+                { item: 'Account Statement', img: navIcon(Landmark), page: 'accstatement' },
+                { item: 'Stocks', img: navIcon(Boxes), page: 'stocks' },
+                { item: 'Storage Costs', img: navIcon(BarChart3), page: 'storagecosts' }
             ]
         },
         {
             ttl: 'Miscellaneous',
             items: [
-                { item: 'Misc Invoices', img: <TbFileInvoice />, page: 'specialinvoices' },
-                { item: 'Company Expenses', img: <DiBrackets />, page: 'companyexpenses' },
-                { item: 'Material Tables', img: <FaTableList className="scale-[0.8] text-slate-500" />, page: 'materialtables' },
-                { item: 'Incoterms', img: <IoNewspaperOutline />, page: 'incoterms' },
-                { item: 'Activity Log', img: <TbHistory />, page: 'activity' },
+                { item: 'Misc Invoices', img: navIcon(FilePlus), page: 'specialinvoices' },
+                { item: 'Company Expenses', img: navIcon(Briefcase), page: 'companyexpenses' },
+                { item: 'Material Tables', img: navIcon(Table2), page: 'materialtables' },
+                { item: 'Incoterms', img: navIcon(Newspaper), page: 'incoterms' },
+                { item: 'Activity Log', img: navIcon(History), page: 'activity' },
             ]
         },
         {
             ttl: 'IMS Summary',
             items: [
                 ...(userTitle === 'Admin'
-                    ? [{ item: gisAccount ? 'Gis Admin' : 'Sharon Admin', img: <GiProfit className="scale-[0.8]" />, page: 'margins' }]
+                    ? [{ item: gisAccount ? 'Gis Admin' : 'Sharon Admin', img: navIcon(TrendingUp), page: 'margins' }]
                     : []),
-                { item: 'Cashflow', img: <TbBrandCashapp className="scale-[0.8]" />, page: 'cashflow' },
+                { item: 'Cashflow', img: navIcon(CircleDollarSign), page: 'cashflow' },
                 ...(userTitle === 'Admin'
-                    ? [{ item: 'Formulas Calc', img: <RiFormula className="scale-[0.8]" />, page: 'formulas' }]
+                    ? [{ item: 'Formulas Calc', img: navIcon(Sigma), page: 'formulas' }]
                     : []),
             ]
         }

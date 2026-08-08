@@ -20,7 +20,7 @@ const features = [
 
 export default function FeatureSection() {
   return (
-    <section id="modules" className="py-14 bg-[var(--surface-card)] scroll-mt-20">
+    <section id="modules" className="py-14 bg-[var(--bg-card)] scroll-mt-20">
       <div className="container mx-auto px-4">
         <div className="max-w-5xl mx-auto">
 
@@ -31,7 +31,7 @@ export default function FeatureSection() {
             transition={{ duration: 0.5 }}
             className="text-center mb-12"
           >
-            <span className="responsiveTextInput font-semibold uppercase tracking-widest text-[var(--endeavour)] bg-[var(--surface-header)] px-4 py-1.5 rounded-full border border-[var(--border-divider)]">
+            <span className="responsiveTextInput font-semibold uppercase tracking-widest text-[var(--endeavour)] bg-[var(--bg-subtle)] px-4 py-1.5 rounded-full border border-[var(--line)]">
               Platform Modules
             </span>
             <h2 className="responsiveTextDisplay font-bold text-[var(--chathams-blue)] mt-4 mb-3">
@@ -51,10 +51,10 @@ export default function FeatureSection() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.4, delay: i * 0.06 }}
-                className="group flex items-start gap-4 p-5 rounded-2xl border border-[var(--border-divider)] bg-[var(--surface-pill)] hover:bg-[var(--surface-header)] hover:border-[var(--endeavour)] hover:shadow-md transition-all"
+                className="group flex items-start gap-4 p-5 rounded-2xl border border-[var(--line)] bg-[var(--bg-subtle)] hover:bg-[var(--bg-subtle)] hover:border-[var(--endeavour)] hover:shadow-md transition-all"
               >
                 <div className="flex-shrink-0 w-10 h-10 rounded-2xl bg-[var(--endeavour)] flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform">
-                  <f.icon size={18} className="text-white" strokeWidth={2} />
+                  <f.icon size={18} className="text-[var(--on-brand)]" strokeWidth={2} />
                 </div>
                 <div>
                   <h3 className="responsiveTextTitle font-bold text-[var(--chathams-blue)] mb-1">{f.title}</h3>

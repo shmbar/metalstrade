@@ -22,7 +22,7 @@ const cards = [
 
 export function PlatformSection() {
   return (
-    <section className="py-10 bg-[var(--surface-header)]">
+    <section className="py-10 bg-[var(--bg-subtle)]">
       <div className="container mx-auto px-4">
         <div className="max-w-7xl mx-auto">
 
@@ -34,7 +34,7 @@ export function PlatformSection() {
             transition={{ duration: 0.5 }}
             className="text-center mb-10"
           >
-            <span className="responsiveTextInput font-semibold uppercase tracking-widest text-[var(--endeavour)] bg-[var(--surface-header)] px-4 py-1.5 rounded-full border border-[var(--border-divider)]">
+            <span className="responsiveTextInput font-semibold uppercase tracking-widest text-[var(--endeavour)] bg-[var(--bg-subtle)] px-4 py-1.5 rounded-full border border-[var(--line)]">
               Why It&apos;s Different
             </span>
             <h2 className="responsiveTextDisplay font-bold text-[var(--chathams-blue)] mt-4 mb-2">
@@ -54,10 +54,10 @@ export function PlatformSection() {
                 viewport={{ once: true }}
                 transition={{ duration: 0.4, delay: index * 0.1 }}
                 whileHover={{ y: -4 }}
-                className="rounded-2xl border border-[var(--border-divider)] bg-[var(--surface-pill)] p-8 flex flex-col gap-4 hover:border-[var(--endeavour)] hover:shadow-md transition-all"
+                className="rounded-2xl border border-[var(--line)] bg-[var(--bg-subtle)] p-8 flex flex-col gap-4 hover:border-[var(--endeavour)] hover:shadow-md transition-all"
               >
                 <div className="w-12 h-12 bg-[var(--endeavour)] rounded-2xl flex items-center justify-center shadow-md">
-                  <card.icon className="w-6 h-6 text-white" strokeWidth={2} />
+                  <card.icon className="w-6 h-6 text-[var(--on-brand)]" strokeWidth={2} />
                 </div>
                 <h3 className="responsiveTextPage font-bold text-[var(--chathams-blue)]">{card.title}</h3>
                 <p className="text-gray-500 responsiveTextTitle leading-relaxed">{card.description}</p>

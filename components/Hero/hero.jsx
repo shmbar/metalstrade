@@ -14,7 +14,7 @@ const heroStats = [
 export default function Hero() {
   return (
     <section
-      className="relative pt-20 md:pt-24 pb-10 md:pb-16 text-white overflow-hidden"
+      className="relative pt-20 md:pt-24 pb-10 md:pb-16 text-[var(--on-brand)] overflow-hidden"
       /* --brand-deep, not --chathams-blue: the latter is a TEXT token and the
          theme engine inverts it in dark mode, which flipped this hero light
          while its white text stayed white. */
@@ -42,7 +42,7 @@ export default function Hero() {
               className="inline-flex items-center gap-2 rounded-full px-3.5 py-1.5 mb-5 border border-white/25 bg-white/10 backdrop-blur-sm"
             >
               <Sparkles className="w-3.5 h-3.5 text-[var(--on-brand-muted)]" />
-              <span className="responsiveText font-semibold tracking-wide uppercase text-[var(--on-brand-muted)]">
+              <span className="responsiveText font-semibold tracking-wide uppercase text-[var(--bg-subtle)]">
                 AI-powered IMS for metals &amp; alloys trading
               </span>
             </motion.div>
@@ -66,7 +66,7 @@ export default function Hero() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.6, delay: 0.2 }}
-              className="responsiveTextTitle text-[var(--on-brand-muted)] mb-6 leading-relaxed font-light max-w-lg"
+              className="responsiveTextTitle md:text-base text-[var(--bg-subtle)] mb-6 leading-relaxed font-light max-w-lg"
             >
               Contracts, inventory, shipments, cashflow and margins — connected end to end.
               Drop a supplier invoice and the AI fills it in. Watch live metal prices and FX.
@@ -81,7 +81,7 @@ export default function Hero() {
               className="flex flex-wrap gap-2 mb-8"
             >
               {heroStats.map((s) => (
-                <span key={s} className="responsiveText font-medium text-[var(--on-brand-muted)] rounded-full px-3 py-1 border border-white/20 bg-white/[0.07]">
+                <span key={s} className="responsiveText font-medium text-[var(--bg-subtle)] rounded-full px-3 py-1 border border-white/20 bg-white/[0.07]">
                   {s}
                 </span>
               ))}
@@ -94,12 +94,12 @@ export default function Hero() {
               className="flex flex-col sm:flex-row gap-4 items-start"
             >
               <Link href="/signin">
-                <span className="bg-[var(--surface-card)] text-[var(--chathams-blue)] px-8 py-2.5 rounded-2xl font-bold hover:bg-[var(--surface-header)] transition-all shadow-lg cursor-pointer inline-block hover:scale-105 active:scale-95 responsiveTextTitle">
+                <span className="bg-[var(--bg-card)] text-[var(--chathams-blue)] px-8 py-2.5 rounded-2xl font-bold hover:bg-[var(--bg-subtle)] transition-all shadow-lg cursor-pointer inline-block hover:scale-105 active:scale-95 responsiveTextTitle">
                   Sign In
                 </span>
               </Link>
               <a href="#modules">
-                <span className="border border-[var(--border-divider)]/60 text-white px-8 py-2.5 rounded-2xl font-bold hover:bg-white/10 transition-all flex items-center gap-2 cursor-pointer hover:scale-105 active:scale-95 responsiveTextTitle">
+                <span className="border border-[var(--line)]/60 text-[var(--on-brand)] px-8 py-2.5 rounded-2xl font-bold hover:bg-white/10 transition-all flex items-center gap-2 cursor-pointer hover:scale-105 active:scale-95 responsiveTextTitle">
                   Explore the platform <ArrowRight className="w-4 h-4" />
                 </span>
               </a>

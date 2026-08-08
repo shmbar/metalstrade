@@ -61,7 +61,7 @@ export default function BlogPostPage({ params }) {
   if (!post) return notFound();
 
   return (
-    <div className="w-full bg-[var(--surface-card)] min-h-screen font-sans text-foreground">
+    <div className="w-full bg-[var(--bg-card)] min-h-screen font-sans text-foreground">
       <Navbar />
       <main className="pt-15">
         <section className="py-20 bg-[var(--selago)] text-center">

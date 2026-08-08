@@ -79,7 +79,7 @@
 //             ref={el => { if (el) el.indeterminate = table.getIsSomePageRowsSelected() }}
 //             onChange={table.getToggleAllPageRowsSelectedHandler()}
 //             className="w-4 h-4 cursor-pointer rounded"
-//             style={{ accentColor: 'var(--border-divider)' }}
+//             style={{ accentColor: 'var(--brand-soft)' }}
 //           />
 //         </div>
 //       ),
@@ -91,7 +91,7 @@
 //             disabled={!row.getCanSelect()}
 //             onChange={row.getToggleSelectedHandler()}
 //             className="w-4 h-4 cursor-pointer rounded"
-//             style={{ accentColor: 'var(--border-divider)' }}
+//             style={{ accentColor: 'var(--brand-soft)' }}
 //           />
 //         </div>
 //       ),
@@ -247,23 +247,12 @@
 //       <style jsx global>{`
 //         /* ── Column header cells ── */
 //         .custom-table th {
-//           border: 1px solid var(--border-neutral-strong);
-//           text-align: center;
-////           font-family: var(--font-poppins), 'Poppins', sans-serif;
-//           padding: 10px 8px !important;
-//           vertical-align: middle;
-//           white-space: nowrap;
+//           background-color: var(--bg-subtle);
 //         }
 
 //         /* ── Data cells ── */
 //         .custom-table td {
-//           border: 1px solid var(--border-neutral-strong);
-//           text-align: center;
-//           font-size: 9px !important;
-//           font-family: var(--font-poppins), 'Poppins', sans-serif;
-//           padding: 8px 6px !important;
-//           vertical-align: middle;
-//           height: 40px;
+//           background-color: var(--bg-card);
 //         }
 
 //         /* ── Summary td — no border, no padding, flat color bar ── */
@@ -299,8 +288,8 @@
 //           {/* ── TOOLBAR ── */}
 //           <div className="flex-shrink-0"
 //             style={{
-//               borderBottom: '2px solid var(--border-divider)',
-//               background: 'linear-gradient(90deg, rgba(var(--surface-card-rgb),0.95), rgba(var(--surface-base-rgb),0.98))'
+//               borderBottom: '2px solid var(--line)',
+//               background: 'linear-gradient(90deg, rgba(255,255,255,0.95), rgba(250,250,250,0.98))'
 //             }}>
 //             <Header
 //               globalFilter={globalFilter}
@@ -327,7 +316,7 @@
 //                 maxHeight: dynamicMaxHeight,
 //                 borderLeft: '8px solid var(--chathams-blue)',
 //                 borderRadius: '20px',
-//                 border: '1px solid var(--border-neutral-strong)',
+//                 border: '1px solid var(--line-strong)',
 //                 position: 'relative',
 //               }}
 //             >
@@ -380,7 +369,7 @@
 //                     <td
 //                       colSpan={columnsWithSelection.length}
 //                       style={{
-//                         backgroundColor: 'var(--rock-blue)',
+//                         backgroundColor: 'var(--line-strong)',
 //                         border: 'none',
 //                         padding: 0,
 //                         height: '34px',
@@ -454,33 +443,33 @@
 //                           <td key={cell.id} className="px-2 py-2 text-center">
 //                             {isCompleted ? (
 //                               <div className="flex justify-center">
-//                                 <div className="px-3 py-1.5 rounded-2xl responsiveTextTable font-normal"
+//                                 <div className="px-3 py-1.5 rounded-2xl responsiveTextTable font-medium"
 //                                   style={{
-//                                     backgroundColor: value ? 'var(--ok-text)' : 'var(--danger-text)',
-//                                     color: 'var(--on-brand)', border: '1px solid var(--border-cell)'
+//                                     backgroundColor: value ? 'var(--ok-text)' : 'var(--bad-text)',
+//                                     color: 'var(--bg-card)', border: '1px solid var(--line-strong)'
 //                                   }}>
 //                                   {value ? 'Completed' : 'Incompleted'}
 //                                 </div>
 //                               </div>
 //                             ) : isStatus ? (
 //                               <div className="flex justify-center">
-//                                 <div className="px-3 py-1.5 rounded-2xl responsiveTextTable font-normal"
+//                                 <div className="px-3 py-1.5 rounded-2xl responsiveTextTable font-medium"
 //                                   style={{
-//                                     backgroundColor: value === 'Completed' ? 'var(--ok-text)' : 'var(--danger-text)',
-//                                     color: 'var(--on-brand)', border: '1px solid var(--border-cell)'
+//                                     backgroundColor: value === 'Completed' ? 'var(--ok-text)' : 'var(--bad-text)',
+//                                     color: 'var(--bg-card)', border: '1px solid var(--line-strong)'
 //                                   }}>
 //                                   {value}
 //                                 </div>
 //                               </div>
 //                             ) : isPaid && hasValue ? (
 //                               <div className="flex justify-center">
-//                                 <div className="px-3 py-1.5 rounded-2xl responsiveTextTable font-normal min-w-[70px] text-center"
+//                                 <div className="px-3 py-1.5 rounded-2xl responsiveTextTable font-medium min-w-[70px] text-center"
 //                                   style={{
 //                                     backgroundColor:
-//                                       value === 'Paid'   ? 'var(--violet-border)' :
-//                                       value === 'Unpaid' ? 'var(--pink-text)' : 'var(--surface-pill)',
-//                                     color: value === 'Paid' || value === 'Unpaid' ? 'var(--chathams-blue)' : 'var(--text-strong)',
-//                                     border: '1px solid var(--border-cell)',
+//                                       value === 'Paid'   ? '#ceb8ff' :
+//                                       value === 'Unpaid' ? '#c387b4' : 'var(--bg-subtle)',
+//                                     color: value === 'Paid' || value === 'Unpaid' ? 'var(--chathams-blue)' : 'var(--ink)',
+//                                     border: '1px solid var(--line-strong)',
 //                                     fontWeight: value === 'Paid' || value === 'Unpaid' ? '600' : '400'
 //                                   }}>
 //                                   {flexRender(cell.column.columnDef.cell, cell.getContext())}
@@ -489,16 +478,16 @@
 //                             ) : (
 //                               <div className="flex justify-center">
 //                                 {hasValue ? (
-//                                   <div className="px-3 py-1.5 rounded-2xl responsiveTextTable font-normal min-w-[70px] text-center transition-all duration-200 ease-in-out"
+//                                   <div className="px-3 py-1.5 rounded-2xl responsiveTextTable font-medium min-w-[70px] text-center transition-all duration-200 ease-in-out"
 //                                     style={{
-//                                       backgroundColor: 'var(--surface-pill)',
-//                                       border: '1px solid var(--border-cell)',
-//                                       ...(isEditMode && { boxShadow: 'inset 0 0 0 1px var(--border-neutral-strong)' })
+//                                       backgroundColor: 'var(--bg-subtle)',
+//                                       border: '1px solid var(--line-strong)',
+//                                       ...(isEditMode && { boxShadow: 'inset 0 0 0 1px var(--line-strong)' })
 //                                     }}>
 //                                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
 //                                   </div>
 //                                 ) : (
-//                                   <div className="responsiveText text-[var(--text-mid)]">
+//                                   <div className="responsiveText text-[var(--ink-secondary)]">
 //                                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
 //                                   </div>
 //                                 )}
@@ -517,17 +506,17 @@
 //                         style={{ border: 'none' }}>
 //                         <div className="flex flex-col items-center justify-center">
 //                           <div className="w-24 h-24 mb-5 rounded-full flex items-center justify-center shadow-lg"
-//                             style={{ background: 'linear-gradient(135deg, var(--violet-text), var(--violet-text))' }}>
-//                             <svg className="w-12 h-12" style={{ color: 'var(--on-brand)' }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+//                             style={{ background: 'linear-gradient(135deg, #7A6FE3, #7A6FE3)' }}>
+//                             <svg className="w-12 h-12" style={{ color: 'var(--bg-card)' }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
 //                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
 //                                 d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
 //                             </svg>
 //                           </div>
 //                           <p className="font-normal mb-2"
-//                             style={{ color: 'var(--text-strong)', fontSize: 'var(--fs-title)' }}>
+//                             style={{ color: 'var(--ink)', fontSize: 'clamp(12px, 1.0vw, 14px)' }}>
 //                             {getTtl('No data available', ln)}
 //                           </p>
-//                           <p style={{ color: 'var(--text-mid)', fontSize: 'var(--fs-body)' }}>
+//                           <p style={{ color: 'var(--ink-secondary)', fontSize: 'clamp(10px, 0.9vw, 12px)' }}>
 //                             Try adjusting your filters or date range
 //                           </p>
 //                         </div>
@@ -550,7 +539,7 @@
 //                 <span style={{ fontSize: 'var(--fs-input)', fontWeight: '600', color: 'var(--chathams-blue)' }}>{summaryUSD.amount}</span>
 //               </div>
 //               <div className="flex items-center justify-between px-4 py-2"
-//                 style={{ backgroundColor: 'var(--rock-blue)' }}>
+//                 style={{ backgroundColor: 'var(--line-strong)' }}>
 //                 <span className="responsiveTextTable" style={{ fontWeight: '400', color: 'var(--chathams-blue)' }}>Total €:</span>
 //                 <span style={{ fontSize: 'var(--fs-input)', fontWeight: '600', color: 'var(--chathams-blue)' }}>{summaryEUR.currency}</span>
 //                 <span style={{ fontSize: 'var(--fs-input)', fontWeight: '600', color: 'var(--chathams-blue)' }}>{summaryEUR.amount}</span>
@@ -564,15 +553,15 @@
 //                   onClick={() => SelectRow(row.original)}
 //                   className="rounded-2xl overflow-hidden shadow-lg transition-colors duration-200"
 //                   style={{
-//                     backgroundColor: 'var(--surface-card)',
-//                     border: highlightId === row.original.id ? '2px solid var(--warn-text)' : '1px solid var(--border-divider)',
+//                     backgroundColor: "var(--bg-card)",
+//                     border: highlightId === row.original.id ? '2px solid var(--warn-text)' : '1px solid var(--line)',
 //                     boxShadow: highlightId === row.original.id
 //                       ? 'var(--shadow-lg)'
 //                       : '0 4px 12px rgba(var(--shadow-rgb), 0.06)'
 //                   }}>
 //                   <div className="px-3 py-2 flex items-center justify-between"
-//                     style={{ background: 'var(--border-divider)' }}>
-//                     <span className="font-normal" style={{ fontSize: 'var(--fs-caption)' }}>
+//                     style={{ background: 'var(--bg-subtle)' }}>
+//                     <span className="font-normal" style={{ fontSize: 'clamp(9px, 0.8vw, 10px)' }}>
 //                       {getTtl('Row', ln)} {rowIndex + 1}
 //                     </span>
 //                     {quickSumEnabled && (
@@ -591,33 +580,33 @@
 //                       if (cell.column.id === 'select') return null
 //                       return (
 //                         <div key={cell.id} className="flex flex-col space-y-1.5 pb-2.5 last:pb-0"
-//                           style={{ borderBottom: '1px solid var(--border-divider)' }}>
+//                           style={{ borderBottom: '1px solid var(--line)' }}>
 //                           <div className="uppercase tracking-wider font-normal"
-//                             style={{ color: 'var(--text-mid)', fontSize: 'var(--fs-caption)' }}>
+//                             style={{ color: 'var(--ink-secondary)', fontSize: 'clamp(6px, 0.6vw, 7px)' }}>
 //                             {cell.column.columnDef.header}
 //                           </div>
 //                           <div className="font-normal break-words px-2 py-1 rounded-2xl leading-relaxed min-h-7 flex items-center shadow-sm"
 //                             style={{
-//                               color: 'var(--text-strong)',
-//                               background: 'linear-gradient(135deg, var(--surface-base), var(--surface-muted))',
-//                               fontSize: 'var(--fs-caption)',
-//                               border: '1px solid var(--border-divider)'
+//                               color: 'var(--ink)',
+//                               background: 'linear-gradient(135deg, var(--bg-subtle), var(--bg-subtle))',
+//                               fontSize: 'clamp(8px, 0.7vw, 10px)',
+//                               border: '1px solid var(--line)'
 //                             }}>
 //                             {cell.column.id === 'completed' ? (
 //                               cell.getValue() ? (
-//                                 <div className="w-full px-2 py-2 rounded-lg responsiveTextTable font-normal flex items-center gap-2 justify-center shadow-md"
-//                                   style={{ backgroundColor: 'var(--ok-text)', color: 'var(--on-brand)' }}>Completed</div>
+//                                 <div className="w-full px-2 py-2 rounded-lg responsiveTextTable font-medium flex items-center gap-2 justify-center shadow-md"
+//                                   style={{ backgroundColor: 'var(--ok-text)', color: 'var(--bg-card)' }}>Completed</div>
 //                               ) : (
-//                                 <div className="w-full px-2 py-2 rounded-lg responsiveTextTable font-normal flex items-center gap-2 justify-center shadow-sm"
-//                                   style={{ backgroundColor: 'var(--danger-text)', color: 'var(--on-brand)' }}>Pending</div>
+//                                 <div className="w-full px-2 py-2 rounded-lg responsiveTextTable font-medium flex items-center gap-2 justify-center shadow-sm"
+//                                   style={{ backgroundColor: 'var(--bad-text)', color: 'var(--bg-card)' }}>Pending</div>
 //                               )
 //                             ) : cell.column.id === 'paid' && cell.getValue() ? (
 //                               <div className="w-full px-2 py-2 rounded-lg responsiveTextTable font-medium flex items-center gap-2 justify-center shadow-sm"
 //                                 style={{
 //                                   backgroundColor:
-//                                     cell.getValue() === 'Paid'   ? 'var(--violet-border)' :
-//                                     cell.getValue() === 'Unpaid' ? 'var(--pink-text)' : 'var(--surface-pill)',
-//                                   color: 'var(--chathams-blue)', border: '1px solid var(--border-cell)'
+//                                     cell.getValue() === 'Paid'   ? '#ceb8ff' :
+//                                     cell.getValue() === 'Unpaid' ? '#c387b4' : 'var(--bg-subtle)',
+//                                   color: 'var(--chathams-blue)', border: '1px solid var(--line-strong)'
 //                                 }}>
 //                                 {flexRender(cell.column.columnDef.cell, cell.getContext())}
 //                               </div>
@@ -635,17 +624,17 @@
 //               {table.getRowModel().rows.length === 0 && (
 //                 <div className="flex flex-col items-center justify-center py-24 px-3">
 //                   <div className="w-24 h-24 mb-5 rounded-full flex items-center justify-center shadow-lg"
-//                     style={{ background: 'linear-gradient(135deg, var(--violet-text), var(--violet-text))' }}>
-//                     <svg className="w-12 h-12" style={{ color: 'var(--on-brand)' }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+//                     style={{ background: 'linear-gradient(135deg, #7A6FE3, #7A6FE3)' }}>
+//                     <svg className="w-12 h-12" style={{ color: 'var(--bg-card)' }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
 //                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
 //                         d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
 //                     </svg>
 //                   </div>
 //                   <p className="font-normal mb-2 text-center"
-//                     style={{ color: 'var(--text-strong)', fontSize: 'var(--fs-caption)' }}>
+//                     style={{ color: 'var(--ink)', fontSize: 'clamp(9px, 0.8vw, 10px)' }}>
 //                     {getTtl('No data available', ln)}
 //                   </p>
-//                   <p className="text-center" style={{ color: 'var(--text-mid)', fontSize: 'var(--fs-caption)' }}>
+//                   <p className="text-center" style={{ color: 'var(--ink-secondary)', fontSize: 'clamp(7px, 0.6vw, 9px)' }}>
 //                     Try adjusting your filters or date range
 //                   </p>
 //                 </div>
@@ -656,14 +645,14 @@
 //           {/* ── PAGINATION FOOTER ── */}
 //           <div className="flex-shrink-0"
 //             style={{
-//               borderTop: '2px solid var(--border-divider)',
-//               background: 'linear-gradient(90deg, rgba(var(--surface-card-rgb),0.95), rgba(var(--surface-base-rgb),0.98))'
+//               borderTop: '2px solid var(--line)',
+//               background: 'linear-gradient(90deg, rgba(255,255,255,0.95), rgba(250,250,250,0.98))'
 //             }}>
 //             <div className="px-4 py-3">
 //               <div className="grid grid-cols-3 items-center">
 //                 <div className="flex justify-start">
 //                   <div className="whitespace-nowrap font-normal"
-//                     style={{ color: 'var(--text-mid)', fontSize: 'var(--fs-caption)' }}>
+//                     style={{ color: 'var(--ink-secondary)', fontSize: 'clamp(7px, 0.6vw, 9px)' }}>
 //                     {`${
 //                       table.getState().pagination.pageIndex * table.getState().pagination.pageSize +
 //                       (table.getFilteredRowModel().rows.length ? 1 : 0)
@@ -724,8 +713,8 @@ import ResetFilterTableIcon from '../../../components/table/filters/resetTabe';
 import dateBetweenFilterFn from '../../../components/table/filters/date-between-filter';
 import { Filter } from '../../../components/table/filters/filterFunc';
 import { labelAwareGlobalFilter } from '../../../components/table/filters/labelAwareGlobalFilter';
-
-const EMPTY_STATE_VIDEO_SRC = '/logo/no-data.mp4';
+import { TONES } from '../../../components/statusUtils';
+import EmptyState from '../../../components/EmptyState';
 
 const Customtable = ({
   data,
@@ -756,7 +745,6 @@ const Customtable = ({
   const [selectedRowId, setSelectedRowId]       = useState(null)
   const [currencyColCenter, setCurrencyColCenter] = useState(null) // px from left of table
   const [amountColCenter, setAmountColCenter]   = useState(null) // px from left of table
-  const [isEmptyStateVideoError, setIsEmptyStateVideoError] = useState(false)
 
   const [{ pageIndex, pageSize }, setPagination] = useState({ pageIndex: 0, pageSize: 25 })
   const pagination = useMemo(() => ({ pageIndex, pageSize }), [pageIndex, pageSize])
@@ -780,7 +768,7 @@ const Customtable = ({
             ref={el => { if (el) el.indeterminate = table.getIsSomePageRowsSelected() }}
             onChange={table.getToggleAllPageRowsSelectedHandler()}
             className="w-4 h-4 cursor-pointer rounded"
-            style={{ accentColor: 'var(--border-divider)' }}
+            style={{ accentColor: 'var(--brand-soft)' }}
           />
         </div>
       ),
@@ -792,7 +780,7 @@ const Customtable = ({
             disabled={!row.getCanSelect()}
             onChange={row.getToggleSelectedHandler()}
             className="w-4 h-4 cursor-pointer rounded"
-            style={{ accentColor: 'var(--border-divider)' }}
+            style={{ accentColor: 'var(--brand-soft)' }}
           />
         </div>
       ),
@@ -880,24 +868,6 @@ const Customtable = ({
 
   const totalCols = columnsWithSelection.length
 
-  const renderEmptyStateMedia = () => {
-    if (!isEmptyStateVideoError) {
-      return (
-        <video
-          className="w-24 h-24 mb-5 rounded-2xl object-cover"
-          autoPlay
-          loop
-          muted
-          playsInline
-          onError={() => setIsEmptyStateVideoError(true)}
-        >
-          <source src={EMPTY_STATE_VIDEO_SRC} type="video/mp4" />
-        </video>
-      );
-    }
-
-    return <div className="w-24 h-24 mb-5" />;
-  }
 
   /* ── Renders one flat summary bar ── */
   const renderSummaryBar = (bgColor, label, amountText) => (
@@ -949,21 +919,29 @@ const Customtable = ({
       <style jsx global>{`
         /* ── Column header cells ── */
         .custom-table th {
-          border: 1px solid var(--border-neutral-strong);
+          background-color: var(--bg-subtle);
+          border-bottom: 1px solid var(--line);
           text-align: center;
-          font-family: var(--font-poppins), 'Poppins', sans-serif;
-          padding: 6px 8px !important;
+          font-family: var(--font-inter), 'Inter', system-ui, sans-serif;
+          font-size: 0.6875rem;
+          text-transform: uppercase;
+          letter-spacing: 0.04em;
+          color: var(--ink-secondary);
+          font-weight: 600;
+          padding: 7px 8px !important;
           vertical-align: middle;
           white-space: nowrap;
         }
 
         /* ── Data cells ── */
         .custom-table td {
-          font-size: var(--fs-table);   /* dense-cell rung; was a hardcoded 9px */
-          border: 1px solid var(--border-neutral-strong);
+          background-color: var(--bg-card);
+          border-bottom: 1px solid var(--line);
           text-align: center;
-          font-family: var(--font-poppins), 'Poppins', sans-serif;
-          padding: 3px 6px !important;
+          font-size: 0.75rem;
+          font-variant-numeric: tabular-nums;
+          font-family: var(--font-inter), 'Inter', system-ui, sans-serif;
+          padding: 5px 8px !important;
           vertical-align: middle;
         }
 
@@ -978,15 +956,11 @@ const Customtable = ({
 
         /* ── Header blue ── */
         .header-blue {
-          background-color: var(--surface-header);
-          color: var(--chathams-blue);
+          background-color: var(--bg-subtle);
+          color: var(--ink-secondary);
         }
 
         /* Paid/Unpaid never wraps */
-        .custom-table th:last-child {
-          min-width: 100px;
-        }
-
         .pagination-center { display:flex; justify-content:center; align-items:center; gap:10px; }
         .page-btn   { padding:6px 12px; border-radius:8px; font-weight:500; }
         .page-active { background-color:var(--brand-deep); color:white; }
@@ -995,13 +969,13 @@ const Customtable = ({
 
       <div className="custom-table">
         <div className="relative flex flex-col rounded-2xl">
-          <div className="absolute inset-0 rounded-2xl border border-[var(--border-divider)] pointer-events-none z-sticky" />
+          <div className="absolute inset-0 rounded-2xl border border-[var(--line)] pointer-events-none z-sticky" />
 
           {/* ── TOOLBAR ── */}
           <div className="flex-shrink-0 rounded-t-2xl"
             style={{
-              borderBottom: '1px solid var(--border-divider)',
-              background: 'var(--surface-card)',
+              borderBottom: '1px solid var(--line)',
+              background: "var(--bg-card)",
             }}>
             <Header
               globalFilter={globalFilter}
@@ -1084,7 +1058,7 @@ const Customtable = ({
                     <td
                       colSpan={totalCols}
                       style={{
-                        backgroundColor: 'var(--rock-blue)',
+                        backgroundColor: 'var(--line-strong)',
                         border: 'none',
                         padding: 0,
                         height: '26px',
@@ -1150,9 +1124,9 @@ const Customtable = ({
                       ))}
                     </tr>
                     {filterOn && (
-                      <tr style={{ backgroundColor: 'var(--surface-card)' }}>
+                      <tr style={{ backgroundColor: "var(--bg-card)" }}>
                         {hdGroup.headers.map(header => (
-                          <th key={header.id} className="px-2 py-1.5" style={{ backgroundColor: 'var(--surface-card)', borderBottom: '2px solid var(--border-divider)' }}>
+                          <th key={header.id} className="px-2 py-1.5" style={{ backgroundColor: "var(--bg-card)", borderBottom: '2px solid var(--line)' }}>
                             {header.column.getCanFilter() && (
                               <Filter column={header.column} table={table} filterOn={filterOn} />
                             )}
@@ -1200,22 +1174,22 @@ const Customtable = ({
                           <td key={cell.id} className="px-1 py-0.5 text-center" style={{ whiteSpace: 'nowrap' }}>
                             {isCompleted ? (
                               <div className="flex justify-center">
-                                <div className="px-3 py-1 rounded-2xl responsiveTextTable font-normal"
+                                <div className="px-1 py-1 responsiveTextTable font-medium"
                                   style={{
-                                    backgroundColor: value ? 'var(--ok-bg)' : 'var(--danger-bg)',
-                                    color: value ? 'var(--ok-text)' : 'var(--danger-text)',
-                                    border: `1px solid ${value ? 'var(--ok-border)' : 'var(--danger-border)'}`
+                                    backgroundColor: value ? 'var(--ok-bg)' : 'var(--bad-bg)',
+                                    color: value ? 'var(--ok-text)' : 'var(--bad-text)',
+                                    border: `1px solid ${value ? 'var(--ok-border)' : 'var(--bad-border)'}`
                                   }}>
                                   {value ? 'Completed' : 'Incompleted'}
                                 </div>
                               </div>
                             ) : isPaid ? (
                               <div className="flex justify-center">
-                                <div className="px-3 py-1 rounded-2xl responsiveTextTable font-normal min-w-[70px] text-center"
+                                <div className={`px-2.5 py-0.5 responsiveTextTable min-w-[70px] text-center ${(isPaidValue || isUnpaidValue) ? 'rounded-full font-medium' : 'font-normal'}`}
                                   style={{
-                                    backgroundColor: isUnpaidValue ? 'var(--danger-bg)' : isPaidValue ? 'var(--ok-bg)' : 'var(--surface-pill)',
-                                    color: isPaidValue ? 'var(--ok-strong)' : isUnpaidValue ? 'var(--danger-text)' : 'var(--port-gore)',
-                                    border: `1px solid ${isPaidValue ? 'var(--ok-border)' : isUnpaidValue ? 'var(--danger-border)' : 'var(--border-neutral-strong)'}`,
+                                    backgroundColor: isUnpaidValue ? 'var(--bad-bg)' : isPaidValue ? 'var(--ok-bg)' : 'transparent',
+                                    color: isPaidValue ? 'var(--ok-text)' : isUnpaidValue ? 'var(--bad-text)' : 'var(--ink)',
+                                    border: `1px solid ${isPaidValue ? 'var(--ok-border)' : isUnpaidValue ? 'var(--bad-border)' : 'transparent'}`,
                                   }}>
                                   {flexRender(cell.column.columnDef.cell, cell.getContext())}
                                 </div>
@@ -1224,9 +1198,9 @@ const Customtable = ({
                               <div className="flex justify-center">
                                 {isCurrency && hasValue ? (
                                   (() => {
-                                    const bg = isUSDValue ? 'var(--ok-bg)' : isEURValue ? 'var(--surface-header)' : 'var(--border-neutral)'
-                                    const border = isUSDValue ? '1px solid var(--ok-border)' : isEURValue ? '1px solid var(--border-divider)' : '1px solid var(--border-neutral-strong)'
-                                    const color = isUSDValue ? 'var(--ok-strong)' : 'var(--chathams-blue)'
+                                    const bg = isUSDValue ? 'var(--ok-bg)' : isEURValue ? 'var(--bg-subtle)' : 'var(--line-strong)'
+                                    const border = isUSDValue ? '1px solid var(--ok-border)' : isEURValue ? '1px solid var(--line)' : '1px solid var(--neutral-border)'
+                                    const color = isUSDValue ? 'var(--ok-text)' : 'var(--chathams-blue)'
                                     return (
                                       <span className="rounded-full responsiveTextTable font-medium"
                                         style={{
@@ -1246,13 +1220,11 @@ const Customtable = ({
                                     )
                                   })()
                                 ) : hasValue ? (
-                                  <div className="px-3 py-1 rounded-2xl responsiveTextTable font-normal min-w-[70px]"
-                                    style={{ backgroundColor: 'var(--surface-pill)', border: '1px solid var(--border-cell)' }}>
+                                  <div className="px-1 py-1 responsiveTextTable font-medium min-w-[70px]">
                                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                                   </div>
                                 ) : (
-                                  <div className="px-3 py-1 rounded-2xl responsiveTextTable font-normal w-full"
-                                    style={{ backgroundColor: 'var(--surface-pill)', border: '1px solid var(--border-cell)' }}>&nbsp;</div>
+                                  <div className="px-1 py-1 responsiveTextTable font-medium w-full">&nbsp;</div>
                                 )}
                               </div>
                             )}
@@ -1267,15 +1239,7 @@ const Customtable = ({
                     <tr>
                       <td colSpan={totalCols} className="py-24 text-center"
                         style={{ border: 'none' }}>
-                        <div className="flex flex-col items-center justify-center">
-                          {renderEmptyStateMedia()}
-                          <p className="responsiveText font-normal mb-2" style={{ color: 'var(--port-gore)' }}>
-                            {getTtl('No data available', ln)}
-                          </p>
-                          <p className="responsiveText" style={{ color: 'var(--regent-gray)' }}>
-                            Try adjusting your filters or date range
-                          </p>
-                        </div>
+                        <EmptyState message={getTtl('No data available', ln)} hint="Try adjusting your filters or date range" />
                       </td>
                     </tr>
                   )}
@@ -1295,7 +1259,7 @@ const Customtable = ({
                 <span className="responsiveTextTable" style={{ fontWeight: '400', color: 'var(--chathams-blue)' }}>{summaryUSD.amount}</span>
               </div>
               <div className="flex items-center justify-between px-4 py-2"
-                style={{ backgroundColor: 'var(--rock-blue)' }}>
+                style={{ backgroundColor: 'var(--line-strong)' }}>
                 <span className="responsiveTextTable" style={{ fontWeight: '400', color: 'var(--chathams-blue)' }}>Total €:</span>
                 <span className="responsiveTextTable" style={{ fontWeight: '400', color: 'var(--chathams-blue)' }}>EUR</span>
                 <span className="responsiveTextTable" style={{ fontWeight: '400', color: 'var(--chathams-blue)' }}>{summaryEUR.amount}</span>
@@ -1309,14 +1273,14 @@ const Customtable = ({
                   onClick={() => SelectRow(row.original)}
                   className="rounded-2xl overflow-hidden shadow-lg transition-colors duration-200"
                   style={{
-                    backgroundColor: 'var(--surface-card)',
-                    border: highlightId === row.original.id ? '2px solid var(--warn-text)' : '1px solid var(--border-divider)',
+                    backgroundColor: "var(--bg-card)",
+                    border: highlightId === row.original.id ? '2px solid var(--warn-text)' : '1px solid var(--line)',
                     boxShadow: highlightId === row.original.id
                       ? 'var(--shadow-lg)'
                       : '0 4px 12px rgba(var(--shadow-rgb), 0.06)'
                   }}>
                   <div className="px-3 py-2 flex items-center justify-between"
-                    style={{ background: 'var(--border-divider)' }}>
+                    style={{ background: 'var(--bg-subtle)' }}>
                     <span className="font-normal" style={{ fontSize: 'var(--fs-table)' }}>
                       {getTtl('Row', ln)} {rowIndex + 1}
                     </span>
@@ -1344,33 +1308,33 @@ const Customtable = ({
                       const isEURValue = ['eu', 'eur', '€'].includes(normalizedValue)
                       return (
                         <div key={cell.id} className="flex flex-col space-y-1.5 pb-2.5 last:pb-0"
-                          style={{ borderBottom: '1px solid var(--border-divider)' }}>
+                          style={{ borderBottom: '1px solid var(--line)' }}>
                           <div className="uppercase tracking-wider font-normal"
                             style={{ color: 'var(--regent-gray)', fontSize: 'var(--fs-caption)' }}>
                             {cell.column.columnDef.header}
                           </div>
-                          <div className="responsiveTextTable font-normal break-words px-2 py-1 rounded-2xl leading-relaxed min-h-7 flex items-center shadow-sm"
+                          <div className="responsiveTextTable font-medium break-words px-2 py-1 rounded-2xl leading-relaxed min-h-7 flex items-center shadow-sm"
                             style={{
                               color: 'var(--port-gore)',
-                              background: 'linear-gradient(135deg,var(--surface-base),var(--surface-muted))',
-                              border: '1px solid var(--border-divider)'
+                              background: 'linear-gradient(135deg,var(--bg-subtle),var(--bg-subtle))',
+                              border: '1px solid var(--line)'
                             }}>
                             {cell.column.id === 'completed' ? (
                               cell.getValue() ? (
-                                <div className="w-full px-2 py-2 rounded-lg responsiveTextTable font-normal flex items-center gap-2 justify-center shadow-md"
+                                <div className="w-full px-2 py-2 rounded-lg responsiveTextTable font-medium flex items-center gap-2 justify-center shadow-md"
                                   style={{ backgroundColor: 'var(--ok-bg)', color: 'var(--ok-text)' }}>Completed</div>
                               ) : (
-                                <div className="w-full px-2 py-2 rounded-lg responsiveTextTable font-normal flex items-center gap-2 justify-center shadow-sm"
-                                  style={{ backgroundColor: 'var(--danger-bg)', color: 'var(--danger-text)' }}>Pending</div>
+                                <div className="w-full px-2 py-2 rounded-lg responsiveTextTable font-medium flex items-center gap-2 justify-center shadow-sm"
+                                  style={{ backgroundColor: 'var(--bad-bg)', color: 'var(--bad-text)' }}>Pending</div>
                               )
                             ) : cell.column.id === 'paid' && cell.getValue() ? (
                               <div className="w-full px-2 py-2 rounded-lg responsiveTextTable font-medium flex items-center gap-2 justify-center shadow-sm"
                                 style={{
                                   backgroundColor:
                                     isUnpaidValue ? 'var(--warn-bg)' :
-                                    isPaidValue ? 'var(--ok-bg)' : 'var(--surface-pill)',
-                                  color: isPaidValue ? 'var(--ok-strong)' : isUnpaidValue ? 'var(--warn-strong)' : 'var(--chathams-blue)',
-                                  border: isPaidValue ? '1px solid var(--ok-border)' : isUnpaidValue ? '1px solid var(--warn-border)' : '1px solid var(--border-cell)'
+                                    isPaidValue ? 'var(--ok-bg)' : 'var(--bg-subtle)',
+                                  color: isPaidValue ? 'var(--ok-text)' : isUnpaidValue ? 'var(--warn-text)' : 'var(--chathams-blue)',
+                                  border: isPaidValue ? '1px solid var(--ok-border)' : isUnpaidValue ? '1px solid var(--warn-border)' : '1px solid var(--line-strong)'
                                 }}>
                                 {flexRender(cell.column.columnDef.cell, cell.getContext())}
                               </div>
@@ -1379,9 +1343,9 @@ const Customtable = ({
                                 style={{
                                   backgroundColor:
                                     isUSDValue ? 'var(--ok-bg)' :
-                                    isEURValue ? 'var(--surface-header)' : 'var(--border-neutral)',
-                                  color: isUSDValue ? 'var(--ok-strong)' : 'var(--chathams-blue)',
-                                  border: isUSDValue ? '1px solid var(--ok-border)' : isEURValue ? '1px solid var(--border-divider)' : '1px solid var(--border-neutral-strong)'
+                                    isEURValue ? 'var(--bg-subtle)' : 'var(--line-strong)',
+                                  color: isUSDValue ? 'var(--ok-text)' : 'var(--chathams-blue)',
+                                  border: isUSDValue ? '1px solid var(--ok-border)' : isEURValue ? '1px solid var(--line)' : '1px solid var(--neutral-border)'
                                 }}>
                                 {isUSDValue ? '$' :
                                  isEURValue ? '€' :
@@ -1400,8 +1364,7 @@ const Customtable = ({
 
               {table.getRowModel().rows.length === 0 && (
                 <div className="flex flex-col items-center justify-center py-24 px-3">
-                  {renderEmptyStateMedia()}
-                  <p className="responsiveText font-normal mb-2 text-center" style={{ color: 'var(--port-gore)' }}>
+                                    <p className="responsiveText font-normal mb-2 text-center" style={{ color: 'var(--port-gore)' }}>
                     {getTtl('No data available', ln)}
                   </p>
                   <p className="responsiveText text-center" style={{ color: 'var(--regent-gray)' }}>
@@ -1415,8 +1378,8 @@ const Customtable = ({
           {/* ── PAGINATION FOOTER ── */}
           <div className="flex-shrink-0 rounded-b-2xl"
             style={{
-              borderTop: '1px solid var(--border-divider)',
-              background: 'var(--surface-card)',
+              borderTop: '1px solid var(--line)',
+              background: "var(--bg-card)",
             }}>
             <div className="px-4 py-3">
               <div className="grid grid-cols-3 items-center">

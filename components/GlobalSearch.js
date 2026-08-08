@@ -192,7 +192,7 @@ const GlobalSearch = () => {
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     onFocus={handleFocus}
-                    className='w-full pl-10 pr-10 py-2.5 rounded-lg bg-[var(--surface-card)] border border-gray-300 focus:border-[var(--rock-blue)] focus:outline-none responsiveText text-[var(--port-gore)] placeholder-gray-500 transition-all'
+                    className='w-full pl-10 pr-10 py-2.5 rounded-lg bg-[var(--bg-card)] border border-gray-300 focus:border-[var(--rock-blue)] focus:outline-none responsiveText text-[var(--port-gore)] placeholder-gray-500 transition-all'
                 />
                 {searchQuery && (
                     <button
@@ -206,7 +206,7 @@ const GlobalSearch = () => {
 
             {/* Search Results Dropdown */}
             {isOpen && (
-                <div className='absolute top-full left-0 right-0 mt-2 bg-[var(--surface-card)] rounded-2xl shadow-xl border border-gray-200 z-dropdown max-h-[70vh] overflow-y-auto'>
+                <div className='absolute top-full left-0 right-0 mt-2 bg-[var(--bg-card)] rounded-2xl shadow-xl border border-gray-200 z-50 max-h-[70vh] overflow-y-auto'>
                     {!searchQuery ? (
                         <div className='p-4 text-center text-[var(--regent-gray)] responsiveText'>
                             {getTtl('Type to search contracts, invoices, expenses...', ln)}

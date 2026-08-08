@@ -68,12 +68,12 @@ const PdfPreview = ({ blob, filename = 'document.pdf', title, onClose }) => {
             onClick={onClose}
         >
             <div
-                className='w-full max-w-4xl rounded-2xl bg-[var(--surface-card)] shadow-lg overflow-hidden flex flex-col'
-                style={{ border: '1px solid var(--border-divider)', height: '92vh' }}
+                className='w-full max-w-4xl rounded-2xl bg-white shadow-2xl overflow-hidden flex flex-col'
+                style={{ border: '1px solid var(--line)', height: '92vh' }}
                 onClick={e => e.stopPropagation()}
             >
                 {/* Header */}
-                <div className='flex items-center justify-between px-4 py-3 flex-shrink-0' style={{ background: 'var(--surface-header)', borderBottom: '1px solid var(--border-divider)' }}>
+                <div className='flex items-center justify-between px-4 py-3 flex-shrink-0' style={{ background: 'var(--bg-subtle)', borderBottom: '1px solid var(--line)' }}>
                     <span className='font-semibold truncate' style={{ fontSize: 'var(--fs-input)', color: 'var(--chathams-blue)' }}>
                         {title || filename}
                     </span>
@@ -81,21 +81,21 @@ const PdfPreview = ({ blob, filename = 'document.pdf', title, onClose }) => {
                         <button
                             onClick={download}
                             className='flex items-center gap-1 px-2.5 py-1 rounded-full border transition-colors hover:border-[var(--endeavour)]'
-                            style={{ fontSize: 'var(--fs-table)', borderColor: 'var(--border-divider)', color: 'var(--chathams-blue)', background: 'var(--surface-card)' }}
+                            style={{ fontSize: 'var(--fs-table)', borderColor: 'var(--line)', color: 'var(--chathams-blue)', background: 'var(--bg-card)' }}
                         >
                             <Download className='w-3 h-3' /> Download
                         </button>
                         <button
                             onClick={print}
                             className='flex items-center gap-1 px-2.5 py-1 rounded-full border transition-colors hover:border-[var(--endeavour)]'
-                            style={{ fontSize: 'var(--fs-table)', borderColor: 'var(--border-divider)', color: 'var(--chathams-blue)', background: 'var(--surface-card)' }}
+                            style={{ fontSize: 'var(--fs-table)', borderColor: 'var(--line)', color: 'var(--chathams-blue)', background: 'var(--bg-card)' }}
                         >
                             <Printer className='w-3 h-3' /> Print
                         </button>
                         <button
                             onClick={onClose}
                             aria-label='Close preview'
-                            className='p-1 rounded-full hover:bg-[var(--border-divider)] transition-colors focus:outline-none focus:ring-2 focus:ring-[var(--endeavour)]/40'
+                            className='p-1 rounded-full hover:bg-[var(--bg-sunken)] transition-colors focus:outline-none focus:ring-2 focus:ring-[var(--endeavour)]/40'
                         >
                             <X className='w-4 h-4' style={{ color: 'var(--chathams-blue)' }} />
                         </button>

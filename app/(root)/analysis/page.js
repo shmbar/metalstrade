@@ -85,17 +85,17 @@ const Analyss = () => {
   ];
 
   return (
-    <div className="w-full" style={{ background: "var(--surface-pill)" }}>
+    <div className="w-full" style={{ background: "var(--bg-page)" }}>
       <div className="mx-auto w-full max-w-full px-1 md:px-2 pb-4 mt-[72px]">
         {Object.keys(settings).length === 0 ? <TableSkeleton /> :
           <>
             <Toast />
             <VideoLoader loading={loading} fullScreen={true} />
             {/* Main Card */}
-            <div className="rounded-2xl p-3 sm:p-5 mt-8 border border-[var(--border-divider)] shadow-xl w-full bg-[var(--surface-pill)]">
+            <div className="page-card rounded-2xl p-3 sm:p-5 mt-8 border border-[var(--line)] shadow-card w-full bg-[var(--bg-card)]">
               {/* Header Section */}
               <div className='flex items-center justify-between flex-wrap gap-2 pb-2'>
-                <h1 className="text-[var(--chathams-blue)] font-poppins responsiveTextPage font-medium border-l-4 border-[var(--chathams-blue)] pl-2">
+                <h1 className="text-[var(--ink)] responsiveTextTitle">
                   {getTtl('Weight Analysis', ln)}
                 </h1>
               

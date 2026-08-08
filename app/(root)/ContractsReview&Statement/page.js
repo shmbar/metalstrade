@@ -39,10 +39,10 @@ const fmtMT = (n) => new Intl.NumberFormat('en-US', { maximumFractionDigits: 2 }
 
 // Auto-derived lifecycle colours, used only when the contract has no manual shipment status set.
 const FALLBACK_STATUS_STYLES = {
-    shipped: { backgroundColor: 'var(--surface-header)', border: '1px solid var(--border-divider)', color: 'var(--chathams-blue)' },
-    partial: { backgroundColor: 'var(--surface-header)', border: '1px solid var(--border-divider)', color: 'var(--chathams-blue)' },
-    pending: { backgroundColor: 'var(--warn-bg)', border: '1px solid var(--warn-border)', color: 'var(--warn-strong)' },
-    unsold:  { backgroundColor: 'var(--danger-bg)', border: '1px solid var(--danger-border)', color: 'var(--danger-text)' },
+    shipped: { backgroundColor: 'var(--brand-soft)', border: '1px solid var(--brand-border)', color: 'var(--brand-strong)' },
+    partial: { backgroundColor: 'var(--bg-subtle)', border: '1px solid var(--line)', color: 'var(--chathams-blue)' },
+    pending: { backgroundColor: 'var(--warn-bg)', border: '1px solid var(--warn-border)', color: 'var(--warn-text)' },
+    unsold:  { backgroundColor: 'var(--bad-bg)', border: '1px solid var(--bad-border)', color: 'var(--bad-text)' },
 };
 
 // Status chip that follows the software lifecycle: the contract's shipment status (Pending /
@@ -53,7 +53,7 @@ const StatusChip = ({ shipmentStatus, rollup }) => {
     if (key === 'none') return <span className="responsiveTextTable" style={{ color: 'var(--regent-gray)' }}>—</span>;
     const style = isShipment ? (SHIPMENT_STATUS_STYLES[key] || SHIPMENT_STATUS_STYLES['']) : FALLBACK_STATUS_STYLES[key];
     return (
-        <span className="px-3 py-1 rounded-2xl responsiveTextTable font-normal whitespace-nowrap" style={style}>
+        <span className="px-3 py-1 rounded-2xl responsiveTextTable font-medium whitespace-nowrap" style={style}>
             {label}
         </span>
     );
@@ -64,7 +64,7 @@ const ProgressBar = ({ shipped, total }) => {
     const t = parseFloat(total) || 0;
     const s = parseFloat(shipped) || 0;
     const pct = t > 0 ? Math.max(0, Math.min(100, Math.round((s / t) * 100))) : 0;
-    const color = pct >= 100 ? 'var(--ok-text)' : pct > 0 ? 'var(--endeavour)' : 'var(--border-neutral-strong)';
+    const color = pct >= 100 ? 'var(--ok-text)' : pct > 0 ? 'var(--endeavour)' : 'var(--neutral-border)';
     return (
         <div className="flex flex-col items-center gap-1" style={{ minWidth: 84 }}>
             <div style={{ width: '100%', height: 6, borderRadius: 9999, background: 'var(--selago)', overflow: 'hidden' }}>
@@ -613,12 +613,12 @@ const ContractsMerged = () => {
                         <button
                             onClick={row.getToggleExpandedHandler()}
                             aria-label={row.getIsExpanded() ? 'Collapse details' : 'Expand details'}
-                            className={`flex items-center justify-center w-6 h-6 rounded-lg transition-all duration-200 focus:outline-none ${row.getIsExpanded() ? 'bg-[var(--selago)] text-[var(--endeavour)]' : 'text-[var(--endeavour)] hover:bg-[var(--selago)]'}`}
+                            className={`flex items-center justify-center w-6 h-6 rounded-lg transition-all duration-200 focus:outline-none ${row.getIsExpanded() ? 'bg-[var(--brand-soft)] text-[var(--endeavour)]' : 'text-[var(--endeavour)] hover:bg-[var(--bg-subtle)]'}`}
                         >
                             <IoIosArrowDown size={13} className={`transition-transform duration-200 ${row.getIsExpanded() ? 'rotate-180' : 'rotate-0'}`} />
                         </button>
                     ) : (
-                        <span className='inline-block w-1.5 h-1.5 rounded-full' style={{ background: 'var(--border-neutral-strong)' }} />
+                        <span className='inline-block w-1.5 h-1.5 rounded-full' style={{ background: 'var(--neutral-border)' }} />
                     )}
                 </div>
             ),
@@ -832,8 +832,8 @@ const ContractsMerged = () => {
                     onClick={() => setEnabledSwitch(!enabledSwitch)}
                     className="relative w-9 h-5 rounded-full focus:outline-none transition-colors duration-200 border-2 flex items-center"
                     style={{
-                        background: enabledSwitch ? "var(--endeavour)" : "var(--text-faint)",
-                        borderColor: enabledSwitch ? "var(--endeavour)" : "var(--text-faint)",
+                        background: enabledSwitch ? "var(--brand)" : "var(--ink-muted)",
+                        borderColor: enabledSwitch ? "var(--brand)" : "var(--ink-muted)",
                         minWidth: trackWidth,
                         borderWidth: 2,
                         padding: 0,
@@ -847,8 +847,8 @@ const ContractsMerged = () => {
                             width: `${knobSize}px`,
                             height: `${knobSize}px`,
                             borderRadius: "50%",
-                            background: "radial-gradient(circle at 60% 40%, var(--surface-muted) 70%, var(--border-neutral) 100%)",
-                            boxShadow: "0 2px 6px rgba(var(--shadow-rgb), 0.10)",
+                            background: "radial-gradient(circle at 60% 40%, var(--bg-subtle) 70%, var(--line) 100%)",
+                            boxShadow: "var(--shadow-sm)",
                             transform: `translateY(-50%) ${enabledSwitch ? `translateX(${translateX}px)` : "translateX(0)"}`,
                             transition: "transform 0.2s",
                             display: "block",
@@ -860,17 +860,17 @@ const ContractsMerged = () => {
     }
 
     return (
-        <div className="w-full " style={{ background: "var(--surface-pill)" }}>
+        <div className="w-full " style={{ background: "var(--bg-subtle)" }}>
             <div className="mx-auto w-full max-w-full px-1 md:px-2 pb-4 mt-[72px]">
                 {Object.keys(settings).length === 0 ? <TableSkeleton /> :
                     <>
                         <Toast />
                         <VideoLoader loading={loading} fullScreen={true} />
                         {/* Main Card */}
-                        <div className="rounded-2xl p-3 sm:p-5 mt-8 border border-[var(--border-divider)]  w-full bg-[var(--surface-card)]">
+                        <div className="page-card rounded-2xl p-3 sm:p-5 mt-8 border border-[var(--line)] shadow-card w-full bg-[var(--bg-card)]">
                             {/* Header Section */}
                             <div className='flex items-center justify-between flex-wrap gap-2 pb-1'>
-                                <h1 className="text-[var(--chathams-blue)] font-poppins responsiveTextPage font-medium border-l-4 border-[var(--chathams-blue)] pl-2">
+                                <h1 className="text-[var(--ink)] responsiveTextTitle">
                                     {getTtl('Contracts', ln)}
                                 </h1>
                                 {/* <div className='flex group'>

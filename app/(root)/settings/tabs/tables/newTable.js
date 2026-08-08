@@ -83,9 +83,9 @@ const Customtable = ({
       <div>
         {/* Custom header: Search + Edit + Columns + Filter icons */}
         <div className="flex items-center gap-2 p-2">
-          <div className="flex items-center relative w-[140px] h-7 border border-[var(--selago)] rounded-2xl bg-[var(--surface-card)] shadow-sm">
+          <div className="flex items-center relative w-[140px] h-7 border border-[var(--selago)] rounded-2xl bg-[var(--bg-card)] shadow-sm">
             <input
-              className="bg-[var(--surface-card)] border-0 shadow-none pr-8 pl-3 focus:outline-none w-full text-[var(--endeavour)] placeholder:text-[var(--endeavour)] h-full responsiveTextInput rounded-2xl"
+              className="bg-[var(--bg-card)] border-0 shadow-none pr-8 pl-3 focus:outline-none w-full text-[var(--endeavour)] placeholder:text-[var(--endeavour)] h-full responsiveTextInput rounded-2xl"
               placeholder="Search..."
               value={globalFilter ?? ''}
               onChange={e => setGlobalFilter(e.target.value)}
@@ -110,14 +110,14 @@ const Customtable = ({
 
         <div className="w-full rounded-2xl border border-[var(--selago)] overflow-x-auto shadow-sm">
           <table className="w-full min-w-[700px] border-collapse text-center table-fixed border border-[var(--selago)]">
-            <thead className="md:sticky md:top-0 md:z-sticky bg-[var(--surface-header)]">
+            <thead className="md:sticky md:top-0 md:z-10 bg-[var(--bg-subtle)]">
               {table.getHeaderGroups().map((hdGroup) => (
-                <tr key={hdGroup.id} className="divide-x divide-[var(--selago)]">
+                <tr key={hdGroup.id} className="border-b border-[var(--line)]">
                   {hdGroup.headers.map((header) => (
                     <th
                       key={header.id}
-                      className="px-3 py-3 responsiveTextTable text-[var(--chathams-blue)] text-center font-medium font-poppins"
-                      style={{ width: `${header.column.getSize()}px` }}
+                      className="px-3 py-2 text-center font-medium uppercase"
+                      style={{ width: `${header.column.getSize()}px`, fontSize: 'var(--fs-body)', letterSpacing: '0.04em', color: 'var(--ink-muted)' }}
                     >
                       {header.column.getCanSort() ? (
                         <div
@@ -137,7 +137,7 @@ const Customtable = ({
                       )}
                       {filterOn && header.column.getCanFilter() && (
                         <input
-                          className="mt-1 w-full border border-[var(--selago)] rounded-full px-2 py-0.5 responsiveTextTable font-normal focus:outline-none focus:border-[var(--endeavour)]"
+                          className="mt-1 w-full border border-[var(--selago)] rounded-full px-2 py-0.5 responsiveTextTable font-medium focus:outline-none focus:border-[var(--endeavour)]"
                           value={header.column.getFilterValue() ?? ''}
                           onChange={e => header.column.setFilterValue(e.target.value)}
                           placeholder="Filter..."
@@ -149,18 +149,18 @@ const Customtable = ({
                 </tr>
               ))}
             </thead>
-            <tbody className="divide-y divide-[var(--selago)] bg-[var(--surface-card)]">
+            <tbody className="divide-y divide-[var(--line)] bg-[var(--bg-card)]">
               {table.getRowModel().rows.map((row) => (
                 <tr
                   key={row.id}
-                  className="cursor-pointer transition-colors divide-x divide-[var(--selago)]"
+                  className="cursor-pointer transition-colors hover-row"
                   onDoubleClick={() => Edit(row)}
                 >
                   {row.getVisibleCells().map((cell) => (
                     <td
                       key={cell.id}
                       data-label={cell.column.columnDef.header}
-                      className="px-3 py-2 responsiveTextTable font-normal text-center font-poppins"
+                      className="px-3 py-2 responsiveTextTable font-medium text-center font-poppins"
                     >
                       <div className="flex items-center justify-center">
                         {
@@ -169,10 +169,7 @@ const Customtable = ({
                               {flexRender(cell.column.columnDef.cell, cell.getContext())}
                             </div>
                           ) : (
-                            <div
-                              className="px-3 py-1 rounded-2xl responsiveTextTable font-normal w-full"
-                              style={{ backgroundColor: 'var(--surface-pill)', border: '1px solid var(--border-cell)' }}
-                            >
+                            <div className="px-1 py-1 responsiveTextTable font-medium w-full" style={{ color: 'var(--ink)' }}>
                               {cell.getValue() != null && cell.getValue() !== ''
                                 ? flexRender(cell.column.columnDef.cell, cell.getContext())
                                 : <>&nbsp;</>}
@@ -186,7 +183,7 @@ const Customtable = ({
             </tbody>
           </table>
         </div>
-        <div className="flex items-center justify-between p-3 border-[var(--border-divider)] bg-[var(--surface-card)] rounded-b-lg">
+        <div className="flex items-center justify-between p-3 border-[var(--line)] bg-[var(--bg-card)] rounded-b-lg">
           {/* LEFT — Showing text */}
           <div className="hidden lg:flex text-[var(--endeavour)] responsiveTextInput">
             {`${getTtl("Showing", ln)} ${table.getState().pagination.pageIndex *

@@ -1,8 +1,6 @@
 'use client';
 import React, { useState, useEffect } from 'react';
-import { Eye, EyeOff, ArrowLeft } from 'lucide-react';
-import { RiRefreshLine } from "react-icons/ri";
-import { IoMdArrowDropright } from "react-icons/io";
+import { Eye, EyeOff, ArrowLeft, RefreshCw, ChevronRight } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 import { UserAuth } from '@contexts/useAuthContext';
@@ -62,17 +60,17 @@ export default function SignInPage() {
   };
 
   return (
-    <div className="w-full bg-[var(--surface-card)] min-h-screen font-sans">
+    <div className="w-full bg-[var(--bg-card)] min-h-screen font-sans">
       <main>
-        <section className="relative bg-gradient-to-br from-[var(--endeavour)] via-[var(--rock-blue)] to-[var(--port-gore)] text-white overflow-hidden min-h-screen flex items-center justify-center py-6">
+        <section className="relative bg-gradient-to-br from-[var(--brand)] via-[var(--brand-strong)] to-[var(--ink)] text-[var(--on-brand)] overflow-hidden min-h-screen flex items-center justify-center py-6">
           
           {/* Sign In Card */}
           <div className="container px-4 relative z-20 py-8">
             <div className="max-w-md mx-auto">
-              <div className="bg-[var(--surface-card)] rounded-lg shadow-2xl w-full p-8 relative">
+              <div className="bg-[var(--bg-card)] rounded-2xl w-full p-8 relative" style={{ boxShadow: 'var(--shadow-md)' }}>
 
                 {/* Back Arrow */}
-                <button className="absolute top-8 left-8 text-gray-600 hover:text-gray-800 transition-colors">
+                <button className="absolute top-8 left-8 text-[var(--ink-muted)] hover:text-[var(--ink)] transition-colors">
                   <ArrowLeft size={20} />
                 </button>
 
@@ -80,18 +78,18 @@ export default function SignInPage() {
                 <div className="text-center mb-8 pt-6">
                   <div className="inline-block">
                     <div className="flex items-center justify-center gap-1">
-                      <span className="responsiveTextStat font-bold text-[var(--endeavour)]">IMS</span>
+                      <span className="text-4xl font-bold text-[var(--brand)] font-display">IMS</span>
                     </div>
-                    <p className="responsiveTextInput text-gray-500 tracking-[0.2em] mt-1">METALS & ALLOYS</p>
+                    <p className="responsiveTextInput text-[var(--ink-muted)] tracking-[0.2em] mt-1">METALS & ALLOYS</p>
                   </div>
                 </div>
 
                 {/* Welcome Text */}
                 <div className="text-center mb-8">
-                  <h1 className="responsiveTextPage font-semibold text-[var(--port-gore)] mb-2">
+                  <h1 className="text-2xl font-semibold text-[var(--ink)] mb-2 font-display">
                     Welcome to IMS
                   </h1>
-                  <p className="responsiveTextTitle text-gray-500">
+                  <p className="responsiveTextTitle text-[var(--ink-muted)]">
                     Login to your account
                   </p>
                 </div>
@@ -101,7 +99,7 @@ export default function SignInPage() {
 
                   {/* Email */}
                   <div>
-                    <label className="block responsiveTextTitle font-medium text-gray-700 mb-2">
+                    <label className="block responsiveTextTitle font-medium text-[var(--ink-secondary)] mb-2">
                       Email
                     </label>
                     <input
@@ -110,13 +108,13 @@ export default function SignInPage() {
                       onChange={(e) => setEmail(e.target.value)}
                       onKeyPress={handleKeyPress}
                       placeholder="abc@gmail.com"
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--endeavour)] focus:border-transparent transition-all text-gray-800 placeholder-gray-400"
+                      className="w-full px-4 py-3 border border-[var(--line-strong)] rounded-control focus:outline-none focus:ring-[3px] focus:ring-[var(--brand-soft)] focus:border-[var(--brand)] transition-all text-[var(--ink)] placeholder:text-[var(--ink-muted)]"
                     />
                   </div>
 
                   {/* Password */}
                   <div>
-                    <label className="block responsiveTextTitle font-medium text-gray-700 mb-2">
+                    <label className="block responsiveTextTitle font-medium text-[var(--ink-secondary)] mb-2">
                       Password
                     </label>
                     <div className="relative">
@@ -126,12 +124,12 @@ export default function SignInPage() {
                         onChange={(e) => setPassword(e.target.value)}
                         onKeyPress={handleKeyPress}
                         placeholder="Enter your password"
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--endeavour)] focus:border-transparent transition-all text-gray-800 placeholder-gray-400 pr-12"
+                        className="w-full px-4 py-3 border border-[var(--line-strong)] rounded-control focus:outline-none focus:ring-[3px] focus:ring-[var(--brand-soft)] focus:border-[var(--brand)] transition-all text-[var(--ink)] placeholder:text-[var(--ink-muted)] pr-12"
                       />
                       <button
                         type="button"
                         onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 transition-colors"
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--ink-muted)] hover:text-[var(--ink)] transition-colors"
                       >
                         {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                       </button>
@@ -154,12 +152,12 @@ export default function SignInPage() {
                       checked={remember}
                       onChange={() => setRemember(!remember)}
                     />
-                    <label className="responsiveTextTitle text-gray-600">Remember me</label>
+                    <label className="responsiveTextTitle text-[var(--ink-secondary)]">Remember me</label>
                   </div>
 
                   {/* Forgot */}
                   <div className="flex justify-end">
-                    <a href="#" className="responsiveTextTitle text-[var(--endeavour)] hover:text-[var(--port-gore)] transition-colors">
+                    <a href="#" className="responsiveTextTitle text-[var(--brand)] hover:text-[var(--brand-strong)] transition-colors">
                       Forgot Password?
                     </a>
                   </div>
@@ -168,27 +166,27 @@ export default function SignInPage() {
                   <button
                     onClick={handleSubmit}
                     disabled={disabled && !err}
-                    className="w-full bg-[var(--endeavour)] text-white py-3 rounded-lg font-medium hover:bg-[var(--brand-deep)] transition-colors shadow-md hover:shadow-lg flex items-center justify-center gap-2"
+                    className="w-full bg-[var(--brand)] text-[var(--on-brand)] py-3 rounded-control font-medium hover:bg-[var(--brand-strong)] transition-colors shadow-card flex items-center justify-center gap-2"
                   >
                     {(disabled && !err) ? 'Connecting' : 'Sign In'}
-                    {(disabled && !err) && <div className="animate-spin"><RiRefreshLine className="scale-125" /></div>}
-                    {!disabled && <IoMdArrowDropright />}
+                    {(disabled && !err) && <RefreshCw size={16} className="animate-spin" />}
+                    {!disabled && <ChevronRight size={16} />}
                   </button>
                 </div>
 
                 {/* Register */}
                 <div className="text-center mt-6">
-                  <p className="responsiveTextTitle text-gray-600">
+                  <p className="responsiveTextTitle text-[var(--ink-secondary)]">
                     Don&#39;t have an account?{' '}
-                    <a href="#" className="text-[var(--endeavour)] hover:text-[var(--port-gore)] font-medium transition-colors">
+                    <a href="#" className="text-[var(--brand)] hover:text-[var(--brand-strong)] font-medium transition-colors">
                       Register
                     </a>
                   </p>
                 </div>
 
                 {/* Footer */}
-                <div className="text-center mt-8 pt-6 border-t border-gray-200">
-                  <p className="responsiveTextInput text-gray-400">© 2025 IMS. All Rights Reserved</p>
+                <div className="text-center mt-8 pt-6 border-t border-[var(--line)]">
+                  <p className="responsiveTextInput text-[var(--ink-muted)]">© 2025 IMS. All Rights Reserved</p>
                 </div>
               </div>
             </div>
@@ -202,7 +200,7 @@ export default function SignInPage() {
             <svg
               viewBox="0 0 1440 320"
               preserveAspectRatio="none"
-              className="w-full h-full text-white"
+              className="w-full h-full text-[var(--on-brand)]"
             >
               <path
                 d="M0,160 C 400,160 800,60 1440,60 L 1440,320 L 0,320 Z"

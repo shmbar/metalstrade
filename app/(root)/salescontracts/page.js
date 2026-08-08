@@ -112,7 +112,7 @@ const SalesContracts = () => {
                 accessorFn: (c) => contractQty(c) - (shippedByContract[c.id] || 0),
                 cell: (props) => {
                     const v = props.getValue();
-                    return <span style={{ color: v > 0.0001 ? 'var(--warn-strong)' : 'var(--ok-strong)', fontWeight: 600 }}>
+                    return <span style={{ color: v > 0.0001 ? 'var(--warn-text)' : 'var(--ok-text)', fontWeight: 600 }}>
                         <NumericFormat value={v} displayType="text" thousandSeparator decimalScale={3} fixedDecimalScale />
                     </span>;
                 },
@@ -140,9 +140,9 @@ const SalesContracts = () => {
                 },
                 cell: (props) => {
                     const v = props.getValue();
-                    const tone = v === 'Fully shipped' ? ['var(--ok-bg)', 'var(--ok-strong)', 'var(--ok-border)']
-                        : v === 'Partial' ? ['var(--border-cell)', 'var(--primary-bright)', 'var(--border-divider)']
-                            : ['var(--warn-bg)', 'var(--warn-strong)', 'var(--warn-border)'];
+                    const tone = v === 'Fully shipped' ? ['var(--ok-bg)', 'var(--ok-text)', 'var(--ok-border)']
+                        : v === 'Partial' ? ['var(--brand-soft)', 'var(--brand-strong)', 'var(--brand-border)']
+                            : ['var(--warn-bg)', 'var(--warn-text)', 'var(--warn-border)'];
                     return <span className="rounded-full responsiveTextTable font-medium" style={{
                         background: tone[0], color: tone[1], border: `1px solid ${tone[2]}`, padding: '2px 12px', whiteSpace: 'nowrap'
                     }}>{v}</span>;
@@ -162,14 +162,14 @@ const SalesContracts = () => {
     };
 
     return (
-        <div className="w-full" style={{ background: "var(--surface-pill)" }}>
+        <div className="w-full" style={{ background: "var(--bg-subtle)" }}>
             <div className="mx-auto w-full max-w-full px-1 md:px-2 pb-4 mt-[72px]">
                 {Object.keys(settings).length === 0 ? <TableSkeleton /> :
                     <>
                         <Toast />
-                        <div className="rounded-2xl p-3 sm:p-5 mt-8 border border-[var(--border-divider)] w-full bg-[var(--surface-pill)]">
+                        <div className="page-card rounded-2xl p-3 sm:p-5 mt-8 border border-[var(--line)] shadow-card w-full bg-[var(--bg-card)]">
                             <div className='flex items-center justify-between flex-wrap gap-2 pb-2'>
-                                <h1 className="text-[var(--chathams-blue)] responsiveTextPage font-medium border-l-4 border-[var(--chathams-blue)] pl-2">
+                                <h1 className="text-[var(--ink)] responsiveTextTitle">
                                     Sales Contracts
                                 </h1>
                             </div>

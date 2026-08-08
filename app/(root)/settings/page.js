@@ -59,45 +59,25 @@ const Page = () => {
     <div className="mx-auto w-full max-w-full px-1 md:px-2 pb-4 mt-[72px]">
       <Toast />
       <VideoLoader loading={loading} fullScreen={true} />
-      <div className="p-1 md:p-4 bg-[var(--surface-card)] rounded-2xl border border-[var(--border-divider)] shadow-sm">
-        <div className="mt-5 text-[var(--chathams-blue)] font-poppins responsiveTextPage font-medium border-l-4 border-[var(--chathams-blue)] pl-2">{getTtl('Settings', ln)}</div>
+      <div>
+        {/* Page header sits on the page background, like every other page */}
+        <div className="page-header mt-6 mb-3 px-1">
+          <h1 className="text-display">{getTtl('Settings', ln)}</h1>
+          <p className="responsiveTextInput text-[var(--ink-muted)] mt-0.5">Suppliers, clients & app configuration</p>
+        </div>
 
-        <div className="w-full px-3 mt-2 border border-[var(--border-divider)] rounded-2xl bg-[var(--surface-card)] p-3">
+        <div className="w-full">
           <TabGroup >
-<TabList
-  className="
-    flex
-    ml-1
-    gap-4
-    bg-transparent
-    pb-2
-    p-0
-    overflow-x-auto
-  "
->
+<TabList className="inline-flex ml-1 gap-1 p-0.5 rounded-full bg-[var(--bg-subtle)] border border-[var(--line)] overflow-x-auto">
               {tabs.map((z) => (
                <Tab
   key={z}
   className={({ selected }) =>
     classNames(
-      'px-5 py-2 h-8 flex items-center responsiveTextInput font-poppins whitespace-nowrap transition-all focus:outline-none rounded-full',
+      'px-4 py-1.5 h-8 flex items-center responsiveTextInput whitespace-nowrap transition-colors focus:outline-none rounded-full',
       selected
-        ? `
-          font-semibold
-          text-white
-          bg-[var(--endeavour)]
-          shadow-md
-          border border-[var(--endeavour)]
-        `
-        : `
-          text-[var(--endeavour)]
-          bg-[var(--surface-header)]
-          border border-[var(--border-divider)]
-          font-medium
-          hover:bg-[var(--border-divider)]
-          hover:border-[var(--endeavour)]
-          hover:shadow-sm
-        `
+        ? 'font-medium text-[var(--ink)] bg-[var(--bg-card)] shadow-card'
+        : 'font-medium text-[var(--ink-secondary)] hover:text-[var(--ink)]'
     )
   }
 >
@@ -106,17 +86,7 @@ const Page = () => {
 
               ))}
             </TabList>
-           <div
-  className="
-    relative
-    mt-[-1px]
-    rounded-2xl
-    border border-[var(--border-divider)]
-    bg-[var(--surface-card)]
-    shadow-sm
-    p-3
-  "
->
+           <div className="page-card relative mt-3 rounded-2xl border border-[var(--line)] bg-[var(--bg-card)] shadow-card p-4">
   <TabPanels>
     {tabs.map((tab, idx) => (
       <TabPanel

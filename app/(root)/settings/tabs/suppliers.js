@@ -11,6 +11,7 @@ import Tltip from '../../../../components/tlTip';
 import { FiUpload } from 'react-icons/fi';
 import { RiEraserLine } from 'react-icons/ri';
 import { CirclePlus, PenLine, Trash, Paintbrush   } from 'lucide-react';
+import Avatar from '../../../../components/Avatar';
 
 
 const Suppliers = () => {
@@ -73,25 +74,26 @@ const Suppliers = () => {
         setErrors({})
     }
 
-    const fieldRow = 'flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-0';
-    const labelCls = 'sm:w-[80px] shrink-0 responsiveText font-medium text-[var(--chathams-blue)] responsiveTextInput';
-    const inputCls = 'w-full sm:flex-1 h-7 px-5 responsiveText rounded-full border border-[var(--border-divider)] bg-[var(--surface-card)] responsiveTextInput';
+    const fieldRow = 'flex flex-col';
+    const labelCls = 'responsiveText font-semibold uppercase tracking-[0.04em] text-[var(--ink-muted)] mb-1';
+    const inputCls = 'w-full h-8 px-3 rounded-control border border-[var(--line-strong)] bg-[var(--bg-card)] text-[var(--ink)] responsiveTextTitle outline-none transition-colors focus:border-[var(--brand)] focus:ring-[3px] focus:ring-[var(--brand-soft)]';
 
     return (
         <div className='p-2 rounded-2xl flex flex-col md:flex-row w-full gap-4'>
-            <div className='p-4 rounded-2xl mt-1 shadow-md w-full md:w-[28%] bg-[var(--surface-header)]'>
-                <p className='flex items-center responsiveText font-medium pl-2 text-[var(--chathams-blue)] responsiveTextInput'>{getTtl('Suppliers', ln)}:</p>
+            <div className='p-4 rounded-2xl mt-1 shadow-md w-full md:w-[28%] bg-[var(--bg-subtle)]'>
+                <p className='flex items-center responsiveText font-medium pl-2 text-[var(--ink)] responsiveTextInput'>{getTtl('Suppliers', ln)}:</p>
                 <ul className="flex flex-col mt-2 max-h-80 overflow-auto p-2 custom-scroll">
                     {sortArr((settings.Supplier?.Supplier || []).filter(q => !q.deleted), 'supplier').map((x, i) => (
                         <li key={i} onClick={() => SelectSupplier(x)}
-                            className={`cursor-pointer flex items-center gap-x-2 py-2 px-4 responsiveText text-[var(--chathams-blue)] responsiveTextInput rounded-full hover:bg-[var(--surface-header)] ${value.id === x.id && 'font-medium bg-[var(--surface-card)]'}`}>
-                            {x.supplier}
+                            className={`cursor-pointer flex items-center gap-x-2 py-1.5 px-3 responsiveText text-[var(--ink)] responsiveTextInput rounded-2xl hover:bg-[var(--bg-sunken)] ${value.id === x.id && 'font-medium bg-[var(--brand-soft)] text-[var(--brand)]'}`}>
+                            <Avatar name={x.nname || x.supplier} size={20} />
+                            <span className="truncate">{x.supplier}</span>
                         </li>
                     ))}
                 </ul>
             </div>
 
-            <div className='flex flex-col w-full bg-[var(--surface-base)] p-4 rounded-2xl'>
+            <div className='flex flex-col w-full bg-[var(--bg-subtle)] p-4 rounded-2xl'>
                 <div className='pb-4 mt-1 w-full gap-4 flex flex-wrap'>
                     <Tltip direction='top' tltpText='Add new supplier'>
                         <button className={`supplierAddButton ${disabledButton ? 'cursor-not-allowed' : ''}`} disabled={disabledButton} onClick={addItem}>
@@ -116,7 +118,7 @@ const Suppliers = () => {
                     </Tltip>
                 </div>
 
-                <div className='border border-[var(--border-divider)] p-4 rounded-2xl mt-1 shadow-md w-full bg-[var(--surface-card)]'>
+                <div className='border border-[var(--line)] p-4 rounded-2xl mt-1 shadow-md w-full bg-[var(--bg-card)]'>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4 w-full">
                         <div className="space-y-4">
                             <div className="flex flex-col">
@@ -164,7 +166,7 @@ const Suppliers = () => {
                     </div>
                 </div>
 
-                <div className='border border-[var(--border-divider)] p-4 rounded-2xl mt-3 shadow-md w-full bg-[var(--surface-card)]'>
+                <div className='border border-[var(--line)] p-4 rounded-2xl mt-3 shadow-md w-full bg-[var(--bg-card)]'>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4 w-full">
                         <div className="space-y-4">
                             <div className={fieldRow}>

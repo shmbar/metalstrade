@@ -13,12 +13,12 @@ const salesTrendData = [
   { name: 'Jun', blue: 45, yellow: 35 },
 ];
 const salesTrendSeries = [
-  { data: salesTrendData.map(d => d.blue), stroke: 'var(--primary-bright)', strokeWidth: 2.5, fill: true, gradientFrom: 'var(--primary-bright)', gradientFromOpacity: 0.2, gradientToOpacity: 0 },
+  { data: salesTrendData.map(d => d.blue), stroke: 'var(--brand)', strokeWidth: 2.5, fill: true, gradientFrom: 'var(--brand)', gradientFromOpacity: 0.2, gradientToOpacity: 0 },
   { data: salesTrendData.map(d => d.yellow), stroke: 'var(--warn-text)', strokeWidth: 2.5, fill: false },
 ];
 
 const pieData = [
-  { name: 'July', value: 62, color: 'var(--primary-bright)' }, // Blue
+  { name: 'July', value: 62, color: 'var(--brand)' }, // Blue
   { name: 'August', value: 38, color: 'var(--warn-text)' }, // Yellow
 ];
 
@@ -32,7 +32,7 @@ export function PlatformCard1() {
       className="relative h-full py-4 lg:pr-4"
     >
       {/* Browser Window Frame */}
-      <div className="bg-[var(--surface-card)] rounded-2xl p-8 shadow-sm border border-slate-100/50 relative overflow-visible">
+      <div className="bg-[var(--bg-card)] rounded-card p-8 shadow-sm border border-slate-100/50 relative overflow-visible">
         
         {/* Window Controls (Dots) */}
         <div className="flex space-x-2 mb-8 absolute top-8 left-8">
@@ -48,7 +48,7 @@ export function PlatformCard1() {
           transition={{ delay: 0.4 }}
           className="absolute -top-12 right-12 bg-[var(--endeavour)] w-48 h-32 rounded-2xl shadow-xl shadow-[var(--endeavour)]/20 flex flex-col justify-center px-6 space-y-3 z-10"
         >
-          <div className="w-2/3 h-2 bg-white/90 rounded-full" />
+          <div className="w-2/3 h-2 bg-[var(--glass)] rounded-full" />
           <div className="w-full h-2 bg-white/40 rounded-full" />
           <div className="w-5/6 h-2 bg-white/40 rounded-full" />
         </motion.div>

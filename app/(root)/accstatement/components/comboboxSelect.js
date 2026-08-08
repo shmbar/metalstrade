@@ -32,7 +32,7 @@ const MyComboboxSelectStock = ({ data, setValue, value, idx, name, classes, disa
         <div className="w-full">
             <Combobox by="id" value={selected} onChange={(e) => setSelection(e)} disabled={disabled}>
                 <div className="relative">
-                    <div className={`relative w-full cursor-default overflow-hidden rounded-2xl bg-[var(--surface-card)] text-left 
+                    <div className={`relative w-full cursor-default overflow-hidden rounded-2xl bg-[var(--bg-card)] text-left 
                      focus:outline-none responsiveText border border-[var(--endeavour)] hover:border-[var(--endeavour)] transition-colors h-8 ${classes} items-center flex`}>
                         <ComboboxInput
                             className={cn('w-full py-2 pl-3 pr-10 responsiveText leading-5 focus:outline-none',
@@ -55,7 +55,7 @@ const MyComboboxSelectStock = ({ data, setValue, value, idx, name, classes, disa
                         afterLeave={() => setQuery('')}
                     >
                         <ComboboxOptions className={`z-dropdown absolute mt-1 max-h-60 w-full overflow-auto custom-scroll rounded-2xl
-                        bg-[var(--surface-card)] py-1 responsiveTextInput shadow-lg border border-[var(--surface-header)] focus:outline-none
+                        bg-[var(--bg-card)] py-1 text-base shadow-lg border border-[var(--bg-subtle)] focus:outline-none
                         responsiveText ${classes1}`}>
                             {filteredData.length === 0 && query !== '' ? (
                                 <div className="relative cursor-default select-none py-2 px-4 text-[var(--regent-gray)] responsiveText">
@@ -69,8 +69,8 @@ const MyComboboxSelectStock = ({ data, setValue, value, idx, name, classes, disa
                                         className={cn(
                                             'relative cursor-default select-none py-1 responsiveText pl-2 pr-2 text-[var(--port-gore)]',
                                             selected.id === x.id
-                                                ? 'bg-[var(--surface-header)] text-[var(--endeavour)]'
-                                                : 'hover:bg-[var(--surface-header)] hover:text-[var(--endeavour)]'
+                                                ? 'bg-[var(--bg-subtle)] text-[var(--endeavour)]'
+                                                : 'hover:bg-[var(--bg-subtle)] hover:text-[var(--endeavour)]'
                                         )}
                                         value={x}
                                     >

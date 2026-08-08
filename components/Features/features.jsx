@@ -40,7 +40,7 @@ export default function Features() {
           transition={{ duration: 0.5 }}
           className="text-center mb-10"
         >
-          <h2 className="responsiveTextDisplay font-bold text-white tracking-tight">
+          <h2 className="responsiveTextDisplay font-bold text-[var(--on-brand)] tracking-tight">
             Everything you need to grow your business
           </h2>
         </motion.div>

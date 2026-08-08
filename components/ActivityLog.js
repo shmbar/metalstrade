@@ -4,16 +4,17 @@ import { UserAuth } from '../contexts/useAuthContext';
 import { loadActivity } from '../utils/utils';
 import { Selector } from './selectors/selectShad';
 import { FileText, Receipt, Banknote, Package, Settings as SettingsIcon, Activity, RefreshCw, Loader2, Search } from 'lucide-react';
+import { TONES } from './statusUtils';
 
-// Visual identity per entity type (aligns with the future #7 status-color system).
+// Visual identity per entity type (aligns with the status-color system in statusUtils).
 const ENTITY_META = {
-    contract: { label: 'Contract', icon: FileText, color: 'var(--endeavour)', bg: 'var(--surface-header)' },
-    invoice: { label: 'Invoice', icon: Receipt, color: 'var(--ok-strong)', bg: 'var(--ok-soft)' },
-    expense: { label: 'Expense', icon: Banknote, color: 'var(--warn-strong)', bg: 'var(--warn-soft)' },
+    contract: { label: 'Contract', icon: FileText, color: 'var(--brand)', bg: 'var(--brand-soft)' },
+    invoice: { label: 'Invoice', icon: Receipt, color: TONES.green.text, bg: TONES.green.bg },
+    expense: { label: 'Expense', icon: Banknote, color: TONES.amber.text, bg: TONES.amber.bg },
     stock: { label: 'Stock', icon: Package, color: 'var(--violet-text)', bg: 'var(--violet-soft)' },
-    settings: { label: 'Settings', icon: SettingsIcon, color: 'var(--text-mid)', bg: 'var(--surface-muted)' },
+    settings: { label: 'Settings', icon: SettingsIcon, color: TONES.gray.text, bg: TONES.gray.bg },
 };
-const FALLBACK_META = { label: 'Activity', icon: Activity, color: 'var(--text-mid)', bg: 'var(--surface-muted)' };
+const FALLBACK_META = { label: 'Activity', icon: Activity, color: TONES.gray.text, bg: TONES.gray.bg };
 const metaFor = (t) => ENTITY_META[t] || FALLBACK_META;
 
 function relativeTime(ms) {
@@ -139,8 +140,8 @@ const ActivityLog = ({ entityType, entityId, showFilters = false }) => {
             {/* Filters (global mode only) */}
             {showFilters && (
                 <div className='flex flex-wrap items-center gap-2 mb-3'>
-                    <div className='flex items-center gap-1.5 px-3 py-1 flex-1 min-w-[180px]' style={{ borderRadius: 9999, border: '1px solid var(--border-divider)', background: 'var(--surface-pill)' }}>
-                        <Search className='w-3.5 h-3.5' style={{ color: 'var(--regent-gray)' }} />
+                    <div className='flex items-center gap-1.5 px-3 py-1 flex-1 min-w-[180px]' style={{ borderRadius: 9999, border: '1px solid var(--line-strong)', background: 'var(--bg-subtle)' }}>
+                        <Search className='w-3.5 h-3.5' style={{ color: 'var(--ink-muted)' }} />
                         <input
                             value={q}
                             onChange={e => setQ(e.target.value)}
@@ -181,13 +182,13 @@ const ActivityLog = ({ entityType, entityId, showFilters = false }) => {
             {/* States */}
             {loading ? (
                 <div className='flex items-center justify-center gap-2 py-8'>
-                    <Loader2 className='w-4 h-4 animate-spin' style={{ color: 'var(--endeavour)' }} />
-                    <span style={{ fontSize: 'var(--fs-input)', color: 'var(--chathams-blue)' }}>Loading activity…</span>
+                    <Loader2 className='w-4 h-4 animate-spin' style={{ color: 'var(--brand)' }} />
+                    <span style={{ fontSize: 'var(--fs-input)', color: 'var(--ink-secondary)' }}>Loading activity…</span>
                 </div>
             ) : filtered.length === 0 ? (
                 <div className='flex flex-col items-center justify-center py-8 gap-1'>
-                    <Activity className='w-5 h-5' style={{ color: 'var(--border-divider)' }} />
-                    <span style={{ fontSize: 'var(--fs-input)', color: 'var(--regent-gray)' }}>
+                    <Activity className='w-5 h-5' style={{ color: 'var(--ink-muted)' }} />
+                    <span style={{ fontSize: 'var(--fs-input)', color: 'var(--ink-muted)' }}>
                         {items.length === 0 ? 'No activity recorded yet.' : 'No activity matches your filters.'}
                     </span>
                 </div>
@@ -238,7 +239,7 @@ const ActivityLog = ({ entityType, entityId, showFilters = false }) => {
                                                         </span>
                                                     )}
                                                     <span className='inline-flex items-center gap-1'>
-                                                        <span className='inline-flex items-center justify-center rounded-full text-white' style={{ width: 14, height: 14, fontSize: 'var(--fs-caption)', background: meta.color }}>
+                                                        <span className='inline-flex items-center justify-center rounded-full text-[var(--on-brand)]' style={{ width: 14, height: 14, fontSize: 'var(--fs-caption)', background: meta.color }}>
                                                             {initials(r.actorName)}
                                                         </span>
                                                         {r.actorName || 'Unknown'}

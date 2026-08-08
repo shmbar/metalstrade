@@ -41,7 +41,7 @@ export function PlatformCard3() {
         className="relative min-h-[260px] w-full py-4 lg:pl-4 h-full"
       >
         {/* Main Card */}
-        <div className="relative z-10 bg-gradient-to-r from-[var(--endeavour)] to-[var(--port-gore)] rounded-2xl p-6 text-white shadow-2xl shadow-[var(--endeavour)]/20 w-[85%]">
+        <div className="relative z-10 bg-gradient-to-r from-[var(--endeavour)] to-[var(--port-gore)] rounded-2xl p-6 text-[var(--on-brand)] shadow-2xl shadow-[var(--endeavour)]/20 w-[85%]">
           <div className="flex justify-between items-start mb-6">
             <span className="responsiveTextTitle font-medium opacity-90">Credit Balance</span>
             <MoreHorizontal className="w-6 h-6 opacity-70" />
@@ -72,7 +72,7 @@ export function PlatformCard3() {
           className="absolute bottom-8 right-8 md:right-16 bg-[var(--endeavour)] w-28 h-32 flex items-center justify-center shadow-2xl shadow-blue-900/30 z-20 cursor-pointer hover:scale-105 transition-transform duration-300"
           style={{ borderRadius: '10px 10px 50px 50px' }}
         >
-           <div className="bg-[var(--surface-card)] rounded-full p-2 shadow-sm">
+           <div className="bg-[var(--bg-card)] rounded-full p-2 shadow-sm">
              <Check className="w-8 h-8 text-[var(--endeavour)] stroke-[4px]" />
            </div>
         </div>
@@ -91,7 +91,7 @@ export function PlatformCard3() {
         className="flex flex-col items-start space-y-3 py-4 lg:pl-4 h-full justify-start"
       >
         <div className="w-10 h-10 bg-[var(--endeavour)] rounded-2xl flex items-center justify-center shadow-lg shadow-blue-900/20">
-          <Lock className="w-5 h-5 text-white" strokeWidth={2} />
+          <Lock className="w-5 h-5 text-[var(--on-brand)]" strokeWidth={2} />
         </div>
         <div className="space-y-2">
           <h2 className="responsiveTextPage font-bold text-[var(--chathams-blue)] tracking-tight">Secure & Reliable</h2>
@@ -100,7 +100,7 @@ export function PlatformCard3() {
             Keep your transactions safe and maintain complete peace of mind.
           </p>
         </div>
-        <Button className="bg-[var(--endeavour)] hover:bg-[var(--brand-deep)] text-white px-4 py-2 rounded-lg responsiveTextTitle font-medium shadow-md shadow-blue-500/25 transition-transform hover:scale-105 cursor-pointer">
+        <Button className="bg-[var(--endeavour)] hover:bg-[var(--brand-deep)] text-[var(--on-brand)] px-4 py-2 rounded-lg responsiveTextTitle font-medium shadow-md shadow-blue-500/25 transition-transform hover:scale-105 cursor-pointer">
           Learn More
         </Button>
       </motion.div>

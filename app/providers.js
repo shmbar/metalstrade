@@ -7,10 +7,11 @@ import InvoiceProvider from '../contexts/useInvoiceContext';
 import ExpensesProvider from '../contexts/useExpensesContext';
 import { default as AuthContextProvider } from '../contexts/useAuthContext';
 import NotificationProvider from '../contexts/useNotificationContext';
-import ThemeProvider from '../contexts/useThemeContext';
+import { ThemeProvider } from '../contexts/useThemeContext';
 
 const Providers=({ children }) =>{
     return (
+            <ThemeProvider>
             <SettingsProvider>
                 <AuthContextProvider>
                 <ThemeProvider>
@@ -28,6 +29,7 @@ const Providers=({ children }) =>{
                 </ThemeProvider>
                 </AuthContextProvider>
         </SettingsProvider>
+            </ThemeProvider>
     );
 }
 

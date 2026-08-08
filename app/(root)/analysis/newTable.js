@@ -53,7 +53,7 @@ const Customtable = ({
             }}
             onChange={table.getToggleAllPageRowsSelectedHandler()}
             className="w-4 h-4 cursor-pointer rounded"
-            style={{ accentColor: 'var(--border-divider)' }}
+            style={{ accentColor: 'var(--brand)' }}
           />
         </div>
       ),
@@ -65,7 +65,7 @@ const Customtable = ({
             disabled={!row.getCanSelect()}
             onChange={row.getToggleSelectedHandler()}
             className="w-4 h-4 cursor-pointer rounded"
-            style={{ accentColor: 'var(--border-divider)' }}
+            style={{ accentColor: 'var(--brand)' }}
           />
         </div>
       ),
@@ -115,17 +115,17 @@ const Customtable = ({
       <style jsx global>{`
         .dashboard-scroll::-webkit-scrollbar { width: 10px; height: 10px; }
         .dashboard-scroll::-webkit-scrollbar-track { 
-          background: linear-gradient(180deg, var(--surface-muted), var(--surface-base)); 
+          background: linear-gradient(180deg, var(--bg-subtle), var(--bg-subtle)); 
           border-radius: 6px; 
         }
         .dashboard-scroll::-webkit-scrollbar-thumb { 
           background: linear-gradient(180deg, var(--violet-text), var(--violet-strong)); 
           border-radius: 6px; 
-          border: 2px solid var(--surface-muted);
+          border: 2px solid var(--bg-subtle);
         }
         .dashboard-scroll::-webkit-scrollbar-thumb:hover { 
           background: linear-gradient(180deg, var(--violet-text), var(--violet-strong));
-          border-color: var(--surface-base);
+          border-color: var(--bg-subtle);
         }
         .glass-table {
           background: linear-gradient(135deg, 
@@ -135,33 +135,37 @@ const Customtable = ({
           );
         }
         .custom-table, .custom-table *, .glass-table, .glass-table * {
-          font-family: var(--font-poppins), 'Poppins', sans-serif;
+          font-family: var(--font-inter), 'Inter', system-ui, sans-serif;
           transition-property: color, background-color, border-color, box-shadow !important;
           transition-duration: 150ms !important;
           transition-timing-function: ease-in-out !important;
         }
         .custom-table th, .custom-table td {
-          border: 1px solid var(--border-cell);
-          background-color: var(--surface-pill);
           text-align: center;
           vertical-align: middle;
-          padding: 6px;
-          border-radius: 4px;
+          padding: 6px 8px;
         }
         .custom-table th {
-          background-color: var(--border-cell);
+          background-color: var(--bg-subtle);
+          border-bottom: 1px solid var(--line);
+          font-size: 0.6875rem;
+          text-transform: uppercase;
+          letter-spacing: 0.04em;
+          color: var(--ink-secondary);
+          font-weight: 600;
         }
         .custom-table td {
-          font-size: var(--fs-table);   /* dense-cell rung; was a hardcoded 9px */
-          background-color: var(--surface-card);
-          border: 1px solid var(--border-neutral);
+          background-color: var(--bg-card);
+          border-bottom: 1px solid var(--line);
+          font-size: 0.75rem;
+          font-variant-numeric: tabular-nums;
         }
       `}</style>
 
       <div className="custom-table">
         <div className="flex flex-col" style={{ boxShadow: '0 20px 60px rgba(var(--shadow-rgb), 0.08), 0 0 1px rgba(var(--shadow-rgb), 0.1) inset' }}>
           {/* HEADER */}
-          <div className="flex-shrink-0" style={{ borderBottom: '2px solid var(--border-divider)', background: 'linear-gradient(90deg, rgba(var(--surface-card-rgb),0.95), rgba(var(--surface-base-rgb),0.98))' }}>
+          <div className="flex-shrink-0" style={{ borderBottom: '2px solid var(--line)', background: 'linear-gradient(90deg, color-mix(in srgb, var(--bg-card) 95%, transparent), color-mix(in srgb, var(--bg-subtle) 98%, transparent))' }}>
             <Header
               globalFilter={globalFilter}
               setGlobalFilter={setGlobalFilter}
@@ -180,7 +184,7 @@ const Customtable = ({
 
           {/* DESKTOP TABLE */}
           <div className="hidden md:block">
-            <div className="overflow-auto dashboard-scroll" style={{ maxHeight: dynamicMaxHeight, borderRadius: '24px', border: '1px solid var(--border-cell)' }}>
+            <div className="overflow-auto dashboard-scroll" style={{ maxHeight: dynamicMaxHeight, borderRadius: '24px', border: '1px solid var(--line-strong)' }}>
               <table className="w-full" style={{ tableLayout: 'auto' }}>
                 <thead className="sticky top-0 z-sticky">
                   {table.getHeaderGroups().map(hdGroup => (
@@ -191,7 +195,7 @@ const Customtable = ({
                           className={`px-2 py-2 font-poppins responsiveTextTable font-medium`}
                           style={{
                             color: 'var(--chathams-blue)',
-                            backgroundColor: 'var(--surface-header)',
+                            backgroundColor: 'var(--bg-subtle)',
                             minWidth: header.column.id === 'select' ? '50px' : '60px',
                             letterSpacing: '0.05em',
                             textAlign: header.column.id === 'select' ? 'left' : 'center',
@@ -216,7 +220,7 @@ const Customtable = ({
                       <tr
                         key={row.id}
                         onDoubleClick={() => SelectRow?.(row.original)}
-                        className={`border-b ${borderColor} cursor-pointer transition-colors ${isAverageRow ? "bg-orange-100 hover:bg-orange-200" : "hover:bg-[var(--surface-header)]"}`}
+                        className={`border-b ${borderColor} cursor-pointer transition-colors ${isAverageRow ? "bg-orange-100 hover:bg-orange-200" : "hover:bg-[var(--bg-subtle)]"}`}
                       >
                         {row.index === firstOccurrenceOrder && (
                           <td
@@ -258,7 +262,7 @@ const Customtable = ({
                           className={`px-2 py-2 font-poppins responsiveTextTable font-medium`}
                           style={{
                             color: 'var(--chathams-blue)',
-                            backgroundColor: 'var(--surface-header)',
+                            backgroundColor: 'var(--bg-subtle)',
                             minWidth: header.column.id === 'select' ? '50px' : '60px',
                             letterSpacing: '0.05em',
                             textAlign: header.column.id === 'select' ? 'left' : 'center',
@@ -283,7 +287,7 @@ const Customtable = ({
                       <tr
                         key={row.id}
                         onDoubleClick={() => SelectRow?.(row.original)}
-                        className={`border-b ${borderColor} cursor-pointer transition-colors ${isAverageRow ? "bg-orange-100 hover:bg-orange-200" : "hover:bg-[var(--surface-header)]"}`}
+                        className={`border-b ${borderColor} cursor-pointer transition-colors ${isAverageRow ? "bg-orange-100 hover:bg-orange-200" : "hover:bg-[var(--bg-subtle)]"}`}
                       >
                         {row.index === firstOccurrenceOrder && (
                           <td
@@ -314,7 +318,7 @@ const Customtable = ({
 
           {/* FOOTER */}
           <div className="flex-shrink-0">
-            <div className="flex items-center justify-between p-4" style={{ borderTop: '2px solid var(--border-divider)', background: 'linear-gradient(90deg, rgba(var(--surface-card-rgb),0.95), rgba(var(--surface-base-rgb),0.98))' }}>
+            <div className="flex items-center justify-between p-4" style={{ borderTop: '2px solid var(--line)', background: 'linear-gradient(90deg, color-mix(in srgb, var(--bg-card) 95%, transparent), color-mix(in srgb, var(--bg-subtle) 98%, transparent))' }}>
               <RowsIndicator
                 table={table}
                 quickSumEnabled={quickSumEnabled}
@@ -325,8 +329,8 @@ const Customtable = ({
                 className="flex-shrink-0"
                 buttonClassName="px-3 py-1 responsiveText"
                 disabledClassName="opacity-50 cursor-not-allowed"
-                activeClassName="bg-blue-600 text-white"
-                inactiveClassName="bg-[var(--surface-muted)] text-[var(--port-gore)]"
+                activeClassName="bg-blue-600 text-[var(--on-brand)]"
+                inactiveClassName="bg-[var(--neutral-bg)] text-[var(--port-gore)]"
               />
             </div>
           </div>

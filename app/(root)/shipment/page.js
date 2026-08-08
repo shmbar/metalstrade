@@ -16,6 +16,8 @@ import { HiMiniChevronUpDown } from 'react-icons/hi2';
 import Image from 'next/image';
 import Tltip from '../../../components/tlTip';
 import { FileSpreadsheet } from 'lucide-react';
+import ProgressBar from '../../../components/ProgressBar';
+import Avatar from '../../../components/Avatar';
 // exceljs is imported dynamically inside exportExcel so it stays off the
 // first-load bundle (same pattern as the other excel exporters).
 import { saveAs } from 'file-saver';
@@ -47,13 +49,15 @@ function NotesCell({ value, contractId, contractDate, uidCollection, onChange, o
         }, 800);
     };
 
+    // Flat at rest (matches read-only tables); the input box only appears on
+    // hover/focus so editability stays discoverable without the boxed-grid look.
     return (
-        <div className="px-3 py-1 rounded-2xl responsiveTextTable font-normal" style={{ backgroundColor: 'var(--surface-pill)', border: '1px solid var(--border-cell)' }}>
+        <div className="px-2 py-0.5 rounded-control responsiveTextTable font-medium border border-transparent hover:border-[var(--line-strong)] hover:bg-[var(--bg-card)] focus-within:border-[var(--brand)] focus-within:bg-[var(--bg-card)] transition-colors">
             <textarea
                 value={local}
                 onChange={handleChange}
                 rows={1}
-                className="w-full min-w-[160px] responsiveTextTable text-[var(--port-gore)] bg-transparent resize-none focus:outline-none placeholder:text-[var(--regent-gray)]"
+                className="w-full min-w-[160px] responsiveTextTable text-[var(--ink)] bg-transparent resize-none focus:outline-none placeholder:text-[var(--ink-muted)]"
                 placeholder="Add notes..."
             />
         </div>
@@ -73,15 +77,26 @@ function DateCell({ rawDate, onOpen, onClear, urgency }) {
     const ref = useRef(null);
     const display = fmtDate(rawDate);
 
-    // Arrival cells tint when cargo is overdue (red) or due within 7 days (amber).
+    // Countdown suffix for near/overdue arrivals: "in 3d" / "today" / "5d late".
+    let countdown = null;
+    if (urgency && rawDate) {
+        const t = new Date(rawDate).getTime();
+        if (!isNaN(t)) {
+            const days = Math.floor((Date.now() - t) / 86400000);
+            countdown = days > 0 ? `${days}d late` : days === 0 ? 'today' : `in ${-days}d`;
+        }
+    }
+
+    // Arrival cells tint when cargo is overdue (red) or due within 7 days (amber);
+    // neutral dates are flat like read-only cells, with a hover affordance only.
     const tint = urgency === 'overdue'
-        ? { backgroundColor: 'var(--danger-bg)', border: '1px solid var(--danger-border)' }
+        ? { backgroundColor: 'var(--bad-bg)', border: '1px solid var(--bad-border)' }
         : urgency === 'soon'
         ? { backgroundColor: 'var(--warn-bg)', border: '1px solid var(--warn-border)' }
-        : { backgroundColor: 'var(--surface-pill)', border: '1px solid var(--border-cell)' };
-    const textColor = urgency === 'overdue' ? 'var(--danger-strong)'
-        : urgency === 'soon' ? 'var(--warn-strong)'
-        : (display ? 'var(--port-gore)' : 'var(--regent-gray)');
+        : { backgroundColor: 'transparent', border: '1px solid transparent' };
+    const textColor = urgency === 'overdue' ? 'var(--bad-text)'
+        : urgency === 'soon' ? 'var(--warn-text)'
+        : (display ? 'var(--ink)' : 'var(--ink-muted)');
 
     const handleClick = (e) => {
         e.stopPropagation();
@@ -101,13 +116,18 @@ function DateCell({ rawDate, onOpen, onClear, urgency }) {
     return (
         <div
             ref={ref}
-            className="h-7 responsiveTextTable flex items-center justify-center px-2 rounded-lg cursor-pointer select-none w-full relative"
+            className="h-7 responsiveTextTable flex items-center justify-center px-2 rounded-control cursor-pointer select-none w-full relative hover:!border-[var(--line-strong)] hover:!bg-[var(--bg-card)] transition-colors"
             style={{ ...tint, minWidth: '72px' }}
             onClick={handleClick}
         >
             <span style={{ color: textColor }}>
                 {display || '—'}
             </span>
+            {countdown && (
+                <span className='font-semibold whitespace-nowrap' style={{ color: textColor, fontSize: 'var(--fs-table)', marginLeft: 5, opacity: 0.85 }}>
+                    · {countdown}
+                </span>
+            )}
             {display && (
                 <button
                     onClick={(e) => { e.stopPropagation(); onClear(); }}
@@ -139,22 +159,22 @@ function FilterSelect({ value, onChange, placeholder, options }) {
                 className="flex items-center gap-1.5 font-medium px-2.5 py-0.5 rounded-full border cursor-pointer focus:outline-none transition-colors whitespace-nowrap"
                 style={{
                     fontSize: 'var(--fs-body)',
-                    borderColor: active ? 'var(--endeavour)' : 'var(--border-divider)',
+                    borderColor: active ? 'var(--endeavour)' : 'var(--line)',
                     color: active ? 'var(--on-brand)' : 'var(--chathams-blue)',
-                    backgroundColor: active ? 'var(--endeavour)' : 'var(--surface-card)',
+                    backgroundColor: active ? 'var(--endeavour)' : 'var(--bg-card)',
                 }}
             >
                 <span>{label}</span>
                 <svg width="8" height="8" viewBox="0 0 10 10" fill="currentColor"><path d="M2 3.5L5 6.5L8 3.5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" fill="none"/></svg>
             </button>
             {open && (
-                <div className="absolute z-toast top-full mt-1 left-0 rounded-2xl shadow-lg overflow-hidden" style={{ border: '1px solid var(--border-cell)', backgroundColor: 'var(--surface-card)', minWidth: '140px', maxHeight: '220px', overflowY: 'auto' }}>
+                <div className="absolute z-dropdown top-full mt-1 left-0 rounded-2xl shadow-lg overflow-hidden" style={{ border: '1px solid var(--line-strong)', backgroundColor: "var(--bg-card)", minWidth: '140px', maxHeight: '220px', overflowY: 'auto' }}>
                     <div
                         onClick={() => { onChange(''); setOpen(false); }}
                         className="px-3 py-1.5 cursor-pointer transition-colors"
-                        style={{ fontSize: 'var(--fs-body)', color: value === '' ? 'var(--endeavour)' : 'var(--chathams-blue)', fontWeight: value === '' ? 600 : 400, backgroundColor: value === '' ? 'var(--selago)' : 'var(--surface-card)' }}
-                        onMouseEnter={e => { if (value !== '') e.currentTarget.style.backgroundColor = 'var(--selago)'; }}
-                        onMouseLeave={e => { if (value !== '') e.currentTarget.style.backgroundColor = 'var(--surface-card)'; }}
+                        style={{ fontSize: 'var(--fs-body)', color: value === '' ? 'var(--endeavour)' : 'var(--chathams-blue)', fontWeight: value === '' ? 600 : 400, backgroundColor: value === '' ? 'var(--selago)' : 'var(--bg-card)' }}
+                        onMouseEnter={e => { if (value !== '') e.currentTarget.style.backgroundColor = 'var(--bg-subtle)'; }}
+                        onMouseLeave={e => { if (value !== '') e.currentTarget.style.backgroundColor = 'var(--bg-card)'; }}
                     >
                         {placeholder}
                     </div>
@@ -163,9 +183,9 @@ function FilterSelect({ value, onChange, placeholder, options }) {
                             key={o.id}
                             onClick={() => { onChange(o.id); setOpen(false); }}
                             className="px-3 py-1.5 cursor-pointer transition-colors"
-                            style={{ fontSize: 'var(--fs-body)', color: value === o.id ? 'var(--endeavour)' : 'var(--port-gore)', fontWeight: value === o.id ? 600 : 400, backgroundColor: value === o.id ? 'var(--selago)' : 'var(--surface-card)' }}
-                            onMouseEnter={e => { if (value !== o.id) e.currentTarget.style.backgroundColor = 'var(--selago)'; }}
-                            onMouseLeave={e => { if (value !== o.id) e.currentTarget.style.backgroundColor = 'var(--surface-card)'; }}
+                            style={{ fontSize: 'var(--fs-body)', color: value === o.id ? 'var(--endeavour)' : 'var(--port-gore)', fontWeight: value === o.id ? 600 : 400, backgroundColor: value === o.id ? 'var(--selago)' : 'var(--bg-card)' }}
+                            onMouseEnter={e => { if (value !== o.id) e.currentTarget.style.backgroundColor = 'var(--bg-subtle)'; }}
+                            onMouseLeave={e => { if (value !== o.id) e.currentTarget.style.backgroundColor = 'var(--bg-card)'; }}
                         >
                             {o.label}
                         </div>
@@ -201,25 +221,32 @@ function StatusSelect({ value, onChange }) {
         setOpen(p => !p);
     };
 
+    // Lifecycle progress under the chip: Pending→Shipped→In Transit→Arrived→Completed.
+    const LIFECYCLE = ['Pending', 'Shipped', 'In Transit', 'Arrived', 'Completed'];
+    const stageIdx = LIFECYCLE.indexOf(value);
+    const progress = value === 'On Hold' ? 0.5 : stageIdx >= 0 ? (stageIdx + 1) / LIFECYCLE.length : 0;
+    const progressTone = value === 'On Hold' ? 'amber' : value === 'Completed' ? 'green' : 'brand';
+
     return (
-        <div className="flex justify-center">
+        <div className="flex flex-col items-center gap-1">
             <div
                 ref={btnRef}
                 onClick={handleToggle}
                 role="button"
                 tabIndex={0}
                 onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleToggle(); } }}
-                className="px-3 py-1 rounded-2xl font-normal responsiveTextTable text-center whitespace-nowrap cursor-pointer"
+                className="px-2.5 py-0.5 rounded-full font-medium responsiveTextTable text-center whitespace-nowrap cursor-pointer"
                 style={STATUS_STYLES[value]}
             >
                 {value || '— Select —'}
                 <svg width="10" height="10" viewBox="0 0 10 10" fill="currentColor" style={{ display: 'inline-block', marginLeft: 6, verticalAlign: 'middle', marginTop: -1 }}><path d="M2 3.5L5 6.5L8 3.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none"/></svg>
             </div>
+            {progress > 0 && <ProgressBar value={progress} tone={progressTone} width="76px" />}
             {open && typeof document !== 'undefined' && createPortal(
                 <div
                     ref={dropRef}
                     className="rounded-2xl overflow-hidden shadow-lg"
-                    style={{ position: 'fixed', top: pos.top, left: pos.left, minWidth: pos.width, zIndex: 99999, border: '1px solid var(--border-cell)', backgroundColor: 'var(--surface-card)' }}
+                    style={{ position: 'fixed', top: pos.top, left: pos.left, minWidth: pos.width, zIndex: 99999, border: '1px solid var(--line-strong)', backgroundColor: "var(--bg-card)" }}
                 >
                     {STATUSES.map(s => (
                         <div
@@ -247,6 +274,23 @@ const ShipmentPage = () => {
     const [invoiceMap, setInvoiceMap] = useState({});
     const [search, setSearch] = useState('');
     const [statusFilter, setStatusFilter] = useState('');
+    // Group rows into collapsible lifecycle sections (persisted; set in an effect
+    // rather than the initializer so SSR and first client render agree).
+    const [groupByStatus, setGroupByStatus] = useState(true);
+    const [collapsedGroups, setCollapsedGroups] = useState(() => new Set());
+    useEffect(() => {
+        try { setGroupByStatus(localStorage.getItem('ims:shipGroupByStatus') !== '0'); } catch { }
+    }, []);
+    const toggleGroupByStatus = () => setGroupByStatus(v => {
+        const nv = !v;
+        try { localStorage.setItem('ims:shipGroupByStatus', nv ? '1' : '0'); } catch { }
+        return nv;
+    });
+    const toggleGroup = (s) => setCollapsedGroups(prev => {
+        const next = new Set(prev);
+        if (next.has(s)) next.delete(s); else next.add(s);
+        return next;
+    });
     const [showFilters, setShowFilters] = useState(true);
     const [pageIndex, setPageIndex] = useState(0);
     const [pageSize, setPageSize] = useState(25);
@@ -652,6 +696,22 @@ const ShipmentPage = () => {
     const startRow = sortedFiltered.length === 0 ? 0 : safePageIndex * pageSize + 1;
     const endRow = safePageIndex * pageSize + paginated.length;
 
+    // Collapsible status sections (current page only — pagination stays intact).
+    // Grouping is skipped while a specific status filter is active (pointless then).
+    const GROUP_ORDER = ['Pending', 'Shipped', 'In Transit', 'Arrived', 'Completed', 'On Hold', ''];
+    const groupingActive = groupByStatus && statusFilter === '';
+    const displayRows = !groupingActive
+        ? paginated.map(c => ({ type: 'row', contract: c }))
+        : GROUP_ORDER.flatMap(s => {
+            const items = paginated.filter(c => normalizeStatus(c.shipmentStatus || '') === s);
+            if (!items.length) return [];
+            const collapsed = collapsedGroups.has(s);
+            return [
+                { type: 'header', status: s, count: items.length, collapsed },
+                ...(collapsed ? [] : items.map(c => ({ type: 'row', contract: c }))),
+            ];
+        });
+
     const getPageNumbers = () => {
         const pages = [];
         const maxVisible = 5;
@@ -708,26 +768,29 @@ const ShipmentPage = () => {
     }
 
     return (
-        <div className="w-full" style={{ background: 'var(--surface-pill)' }}>
+        <div className="w-full" style={{ background: 'var(--bg-page)' }}>
         <style jsx global>{`
             .custom-table th {
-                border: 1px solid var(--border-cell);
-                background-color: var(--surface-header);
-                text-align: center;
-                vertical-align: middle;
-                padding: 6px;
-                border-radius: 4px;
+          background-color: var(--bg-subtle);
+          border-bottom: 1px solid var(--line);
+          text-align: center;
+          vertical-align: middle;
+          padding: 7px 8px;
+          font-size: 0.6875rem;
+          text-transform: uppercase;
+          letter-spacing: 0.04em;
+          color: var(--ink-secondary);
+          font-weight: 600;
         }
             .custom-table td {
-              font-size: var(--fs-table);   /* dense-cell rung; was a hardcoded 9px */
-                background-color: var(--surface-card);
-                border: 1px solid var(--border-neutral);
-                text-align: center;
-                vertical-align: middle;
-                padding: 6px;
-                border-radius: 4px;
-                overflow: visible;
-            }
+          background-color: var(--bg-card);
+          border-bottom: 1px solid var(--line);
+          text-align: center;
+          vertical-align: middle;
+          padding: 6px 8px;
+          font-size: 0.75rem;
+          font-variant-numeric: tabular-nums;
+        }
             .td-truncate {
                 overflow: hidden !important;
             }
@@ -770,29 +833,30 @@ const ShipmentPage = () => {
                 <Toast />
 
                 {/* Outer card — title only */}
-                <div className="rounded-2xl p-2 sm:p-3 lg:p-5 mt-4 sm:mt-6 lg:mt-8 border border-[var(--border-divider)] w-full bg-[var(--surface-pill)]">
+                <div className="rounded-2xl p-2 sm:p-3 lg:p-5 mt-4 sm:mt-6 lg:mt-8 border border-[var(--line)] w-full bg-[var(--bg-subtle)]">
                     <div className="flex items-center justify-between pb-2 flex-wrap gap-2">
-                        <h1 className="text-[var(--chathams-blue)] font-poppins responsiveTextPage font-medium border-l-4 border-[var(--chathams-blue)] pl-2">
-                            Shipments Tracking
-                        </h1>
+                        <div>
+                            <h1 className="text-display">Shipments Tracking</h1>
+                            <p className="responsiveTextInput text-[var(--ink-muted)] mt-0.5">Live shipment statuses</p>
+                        </div>
                     </div>
 
                     {/* Inner card — toolbar + table */}
-                    <div className="relative rounded-2xl" style={{ background: 'var(--surface-pill)' }}>
-                      <div className="absolute inset-0 rounded-2xl border border-[var(--border-divider)] pointer-events-none z-sticky" />
+                    <div className="relative rounded-2xl" style={{ background: 'var(--bg-subtle)' }}>
+                      <div className="absolute inset-0 rounded-2xl border border-[var(--line)] pointer-events-none z-sticky" />
 
                     {/* Toolbar */}
                     <div
                         className="flex flex-col sm:flex-row sm:justify-between sm:items-center px-2 py-2 gap-2 rounded-t-2xl"
-                        style={{ borderBottom: '1px solid var(--border-divider)', background: 'var(--surface-card)' }}
+                        style={{ borderBottom: '1px solid var(--line)', background: "var(--bg-card)" }}
                     >
                         {/* Left: Search + Status filter chips */}
                         <div className="flex flex-wrap items-center gap-2">
 
                             {/* Search */}
-                            <div className="flex items-center relative w-[120px] sm:w-[140px] h-7 border border-[var(--border-divider)] rounded-2xl bg-[var(--surface-card)] focus-within:ring-1 focus-within:ring-blue-200 shadow-sm transition-all duration-200">
+                            <div className="flex items-center relative w-[120px] sm:w-[140px] h-7 border border-[var(--line)] rounded-2xl bg-[var(--bg-card)] focus-within:ring-1 focus-within:ring-blue-200 shadow-sm transition-all duration-200">
                                 <input
-                                    className="bg-[var(--surface-card)] border-0 shadow-none pr-8 pl-3 focus:outline-none focus:ring-0 w-full text-[var(--chathams-blue)] placeholder:text-[var(--chathams-blue)] h-full responsiveTextTableTitle font-medium rounded-2xl"
+                                    className="bg-[var(--bg-card)] border-0 shadow-none pr-8 pl-3 focus:outline-none focus:ring-0 w-full text-[var(--chathams-blue)] placeholder:text-[var(--chathams-blue)] h-full responsiveTextTableTitle font-medium rounded-2xl"
                                     placeholder="Search"
                                     value={search}
                                     onChange={e => setSearch(e.target.value)}
@@ -843,7 +907,7 @@ const ShipmentPage = () => {
                             {showFilters && <div className="flex items-center gap-1 flex-wrap">
                                 <button
                                     onClick={() => setStatusFilter('')}
-                                    className={`font-medium px-2.5 py-0.5 rounded-full border transition-colors ${statusFilter === '' ? 'bg-[var(--endeavour)] text-white border-[var(--endeavour)]' : 'bg-[var(--surface-card)] text-[var(--endeavour)] border-[var(--endeavour)] hover:bg-[var(--selago)]'}`}
+                                    className={`font-medium px-2.5 py-0.5 rounded-full border transition-colors ${statusFilter === '' ? 'bg-[var(--endeavour)] text-[var(--on-brand)] border-[var(--endeavour)]' : 'bg-[var(--bg-card)] text-[var(--endeavour)] border-[var(--endeavour)] hover:bg-[var(--selago)]'}`}
                                     style={{ fontSize: 'var(--fs-body)' }}
                                 >
                                     All ({contracts.length})
@@ -861,6 +925,21 @@ const ShipmentPage = () => {
                                         </button>
                                     );
                                 })}
+
+                                <span className='h-4 w-px bg-[var(--line-strong)] mx-0.5' aria-hidden='true' />
+                                <button
+                                    onClick={toggleGroupByStatus}
+                                    title='Collapse the table into per-status sections'
+                                    className='font-medium px-2.5 py-0.5 rounded-full border transition-colors'
+                                    style={{
+                                        fontSize: 'var(--fs-body)',
+                                        background: groupByStatus ? 'var(--brand-soft)' : 'var(--bg-card)',
+                                        color: groupByStatus ? 'var(--brand)' : 'var(--ink-secondary)',
+                                        borderColor: groupByStatus ? 'var(--brand-border)' : 'var(--line)',
+                                    }}
+                                >
+                                    Group by status
+                                </button>
 
                                 {/* Supplier filter */}
                                 <FilterSelect
@@ -903,13 +982,13 @@ const ShipmentPage = () => {
 
                     {/* Attention strip — fastest path to what needs action; chips filter the table */}
                     {(overdueCount + soonCount + inTransitCount) > 0 && (
-                        <div className="flex items-center gap-2 px-3 py-1.5 flex-wrap" style={{ background: 'var(--surface-card)', borderBottom: '1px solid var(--selago)' }}>
+                        <div className="flex items-center gap-2 px-3 py-1.5 flex-wrap" style={{ background: "var(--bg-card)", borderBottom: '1px solid var(--line)' }}>
                             <span className="responsiveTextTable font-semibold tracking-wider" style={{ color: 'var(--regent-gray)' }}>NEEDS ATTENTION</span>
                             {overdueCount > 0 && (
                                 <button
                                     onClick={() => setUrgencyFilter(prev => prev === 'overdue' ? '' : 'overdue')}
                                     className="font-medium px-2.5 py-0.5 rounded-full transition-all"
-                                    style={{ fontSize: 'var(--fs-body)', backgroundColor: 'var(--danger-bg)', border: '1px solid var(--danger-border)', color: 'var(--danger-strong)', outline: urgencyFilter === 'overdue' ? '2px solid var(--danger-strong)' : 'none', outlineOffset: '1px' }}
+                                    style={{ fontSize: 'var(--fs-body)', backgroundColor: 'var(--bad-bg)', border: '1px solid var(--bad-border)', color: 'var(--bad-text)', outline: urgencyFilter === 'overdue' ? '2px solid var(--bad-text)' : 'none', outlineOffset: '1px' }}
                                 >
                                     {overdueCount} overdue
                                 </button>
@@ -918,7 +997,7 @@ const ShipmentPage = () => {
                                 <button
                                     onClick={() => setUrgencyFilter(prev => prev === 'soon' ? '' : 'soon')}
                                     className="font-medium px-2.5 py-0.5 rounded-full transition-all"
-                                    style={{ fontSize: 'var(--fs-body)', backgroundColor: 'var(--warn-bg)', border: '1px solid var(--warn-border)', color: 'var(--warn-strong)', outline: urgencyFilter === 'soon' ? '2px solid var(--warn-strong)' : 'none', outlineOffset: '1px' }}
+                                    style={{ fontSize: 'var(--fs-body)', backgroundColor: 'var(--warn-bg)', border: '1px solid var(--warn-border)', color: 'var(--warn-text)', outline: urgencyFilter === 'soon' ? '2px solid var(--warn-text)' : 'none', outlineOffset: '1px' }}
                                 >
                                     {soonCount} arriving ≤7d
                                 </button>
@@ -980,43 +1059,63 @@ const ShipmentPage = () => {
                                         </td>
                                     </tr>
                                 )}
-                                {paginated.map((contract) => {
+                                {displayRows.map((entry) => {
+                                    if (entry.type === 'header') {
+                                        const dotColor = STATUS_STYLES[entry.status]?.color || 'var(--ink-muted)';
+                                        return (
+                                            <tr key={`grp-${entry.status || 'none'}`} onClick={() => toggleGroup(entry.status)} className='cursor-pointer select-none'>
+                                                <td colSpan={12} style={{ background: 'var(--bg-subtle)', borderBottom: '1px solid var(--line)', padding: '5px 12px', textAlign: 'left' }}>
+                                                    <span className='inline-flex items-center gap-2'>
+                                                        <svg width='11' height='11' viewBox='0 0 10 10' fill='none' style={{ transition: 'transform 0.15s', transform: entry.collapsed ? 'rotate(-90deg)' : 'rotate(0deg)' }}>
+                                                            <path d='M2 3.5L5 6.5L8 3.5' stroke='var(--ink-muted)' strokeWidth='1.8' strokeLinecap='round' strokeLinejoin='round' />
+                                                        </svg>
+                                                        <span className='rounded-full' style={{ width: 7, height: 7, background: dotColor, display: 'inline-block' }} />
+                                                        <span className='font-semibold' style={{ fontSize: 'var(--fs-body)', textTransform: 'uppercase', letterSpacing: '0.04em', color: 'var(--ink-secondary)' }}>
+                                                            {entry.status || 'No status'}
+                                                        </span>
+                                                        <span className='rounded-full font-semibold px-1.5' style={{ fontSize: 'var(--fs-table)', background: "var(--bg-card)", color: 'var(--ink-muted)', border: '1px solid var(--line)' }}>
+                                                            {entry.count}
+                                                        </span>
+                                                    </span>
+                                                </td>
+                                            </tr>
+                                        );
+                                    }
+                                    const contract = entry.contract;
                                     const mainInv = getMainInvoice(contract);
                                     const status = contract.shipmentStatus || '';
                                     return (
                                         <tr key={contract.id} className="hover-row cursor-pointer transition-colors">
                                             <td className="td-truncate">
                                                 <Tltip direction="bottom" tltpText={contract.order || '—'}>
-                                                    <div className="px-2 py-1 rounded-2xl responsiveTextTable font-normal text-center pill-inner" style={{ backgroundColor: "var(--surface-pill)", border: "1px solid var(--border-cell)" }}>
-                                                        <button onClick={() => navigateTo(contract.id)} className="text-[var(--endeavour)] hover:underline w-full overflow-hidden text-ellipsis whitespace-nowrap block">
-                                                            {contract.order || '—'}
-                                                        </button>
-                                                    </div>
+                                                    <button onClick={() => navigateTo(contract.id)} className="responsiveTextTable font-medium text-[var(--brand)] hover:underline w-full overflow-hidden text-ellipsis whitespace-nowrap block text-center">
+                                                        {contract.order || '—'}
+                                                    </button>
                                                 </Tltip>
                                             </td>
                                             <td className="td-truncate">
                                                 <Tltip direction="bottom" tltpText={getSupplierName(contract)}>
-                                                    <div className="px-2 py-1 rounded-2xl responsiveTextTable font-normal text-center pill-inner" style={{ backgroundColor: "var(--surface-pill)", border: "1px solid var(--border-cell)" }}>
-                                                        {getSupplierName(contract)}
-                                                    </div>
+                                                    <span className="inline-flex items-center justify-center gap-1.5 responsiveTextTable text-[var(--ink)] max-w-full">
+                                                        {getSupplierName(contract) !== '—' && <Avatar name={getSupplierName(contract)} size={18} />}
+                                                        <span className="truncate">{getSupplierName(contract)}</span>
+                                                    </span>
                                                 </Tltip>
                                             </td>
                                             <td>
-                                                <div className="flex justify-center">
-                                                    <div className="px-3 py-1 rounded-2xl responsiveTextTable font-normal text-center whitespace-nowrap" style={{ backgroundColor: "var(--surface-pill)", border: "1px solid var(--border-cell)" }}>
-                                                        {mainInv ? (
-                                                            <button onClick={() => navigateTo(contract.id)} className="text-[var(--endeavour)] hover:underline">
-                                                                {mainInv.invoice}
-                                                            </button>
-                                                        ) : '—'}
-                                                    </div>
+                                                <div className="flex justify-center responsiveTextTable">
+                                                    {mainInv ? (
+                                                        <button onClick={() => navigateTo(contract.id)} className="font-medium text-[var(--brand)] hover:underline">
+                                                            {mainInv.invoice}
+                                                        </button>
+                                                    ) : <span className="text-[var(--ink-muted)]">—</span>}
                                                 </div>
                                             </td>
                                             <td className="td-truncate">
                                                 <Tltip direction="bottom" tltpText={getClientName(contract.id)}>
-                                                    <div className="px-2 py-1 rounded-2xl responsiveTextTable font-normal text-center pill-inner" style={{ backgroundColor: "var(--surface-pill)", border: "1px solid var(--border-cell)" }}>
-                                                        {getClientName(contract.id)}
-                                                    </div>
+                                                    <span className="inline-flex items-center justify-center gap-1.5 responsiveTextTable text-[var(--ink)] max-w-full">
+                                                        {getClientName(contract.id) !== '—' && <Avatar name={getClientName(contract.id)} size={18} />}
+                                                        <span className="truncate">{getClientName(contract.id)}</span>
+                                                    </span>
                                                 </Tltip>
                                             </td>
                                             <td>
@@ -1040,21 +1139,21 @@ const ShipmentPage = () => {
                                             </td>
                                             <td className="td-truncate">
                                                 <Tltip direction="bottom" tltpText={getPOL(contract)}>
-                                                    <div className="px-2 py-1 rounded-2xl responsiveTextTable font-normal text-center pill-inner" style={{ backgroundColor: "var(--surface-pill)", border: "1px solid var(--border-cell)" }}>
+                                                    <div className="responsiveTextTable text-center text-[var(--ink)] overflow-hidden text-ellipsis whitespace-nowrap">
                                                         {getPOL(contract)}
                                                     </div>
                                                 </Tltip>
                                             </td>
                                             <td className="td-truncate">
                                                 <Tltip direction="bottom" tltpText={getPOD(contract)}>
-                                                    <div className="px-2 py-1 rounded-2xl responsiveTextTable font-normal text-center pill-inner" style={{ backgroundColor: "var(--surface-pill)", border: "1px solid var(--border-cell)" }}>
+                                                    <div className="responsiveTextTable text-center text-[var(--ink)] overflow-hidden text-ellipsis whitespace-nowrap">
                                                         {getPOD(contract)}
                                                     </div>
                                                 </Tltip>
                                             </td>
                                             <td>
                                                 <div className="flex justify-center">
-                                                    <div className="px-3 py-1 rounded-2xl responsiveTextTable font-normal text-center whitespace-nowrap" style={{ backgroundColor: "var(--surface-pill)", border: "1px solid var(--border-cell)" }}>
+                                                    <div className="responsiveTextTable text-center whitespace-nowrap text-[var(--ink)]">
                                                         {getShpType(contract)}
                                                     </div>
                                                 </div>
@@ -1072,16 +1171,18 @@ const ShipmentPage = () => {
                                                     {(() => {
                                                         const ts = contract.shipmentUpdatedAt;
                                                         const recent = isRecent(ts);
-                                                        return (
+                                                        return recent ? (
                                                             <div
-                                                                className="px-2 py-1 rounded-2xl responsiveTextTable font-normal text-center whitespace-nowrap inline-flex items-center gap-1"
-                                                                style={recent
-                                                                    ? { backgroundColor: 'var(--ok-bg)', border: '1px solid var(--ok-border)', color: 'var(--ok-strong)' }
-                                                                    : { backgroundColor: 'var(--surface-pill)', border: '1px solid var(--border-cell)', color: ts ? 'var(--port-gore)' : 'var(--regent-gray)' }}
+                                                                className="px-2 py-0.5 rounded-full responsiveTextTable font-medium text-center whitespace-nowrap inline-flex items-center gap-1"
+                                                                style={{ backgroundColor: 'var(--ok-bg)', border: '1px solid var(--ok-border)', color: 'var(--ok-text)' }}
                                                             >
-                                                                {recent && <span style={{ width: 6, height: 6, borderRadius: 9999, backgroundColor: 'var(--ok-text)', display: 'inline-block' }} />}
+                                                                <span style={{ width: 6, height: 6, borderRadius: 9999, backgroundColor: 'var(--ok-text)', display: 'inline-block' }} />
                                                                 {relTime(ts)}
                                                             </div>
+                                                        ) : (
+                                                            <span className="responsiveTextTable whitespace-nowrap" style={{ color: ts ? 'var(--ink-secondary)' : 'var(--ink-muted)' }}>
+                                                                {relTime(ts)}
+                                                            </span>
                                                         );
                                                     })()}
                                                 </div>
@@ -1116,10 +1217,10 @@ const ShipmentPage = () => {
                                 <div
                                     key={contract.id}
                                     className="rounded-2xl overflow-hidden"
-                                    style={{ backgroundColor: 'var(--surface-card)', border: '1px solid var(--border-divider)', boxShadow: '0 4px 12px rgba(var(--shadow-rgb), 0.06)' }}
+                                    style={{ backgroundColor: "var(--bg-card)", border: '1px solid var(--line)', boxShadow: 'var(--shadow-sm)' }}
                                 >
                                     {/* Card header */}
-                                    <div className="px-3 py-2 flex items-center justify-between bg-[var(--border-divider)]">
+                                    <div className="px-3 py-2 flex items-center justify-between bg-[var(--bg-subtle)]">
                                         <button
                                             onClick={() => navigateTo(contract.id)}
                                             className="font-medium text-[var(--endeavour)] responsiveText hover:underline"
@@ -1131,8 +1232,8 @@ const ShipmentPage = () => {
                                                 const u = getUrgency(contract);
                                                 if (!u) return null;
                                                 const s = u === 'overdue'
-                                                    ? { backgroundColor: 'var(--danger-bg)', border: '1px solid var(--danger-border)', color: 'var(--danger-strong)', t: 'Overdue' }
-                                                    : { backgroundColor: 'var(--warn-bg)', border: '1px solid var(--warn-border)', color: 'var(--warn-strong)', t: '≤7d' };
+                                                    ? { backgroundColor: 'var(--bad-bg)', border: '1px solid var(--bad-border)', color: 'var(--bad-text)', t: 'Overdue' }
+                                                    : { backgroundColor: 'var(--warn-bg)', border: '1px solid var(--warn-border)', color: 'var(--warn-text)', t: '≤7d' };
                                                 return (
                                                     <span className="responsiveTextTable font-medium px-2 py-0.5 rounded-full" style={{ backgroundColor: s.backgroundColor, border: s.border, color: s.color }}>
                                                         {s.t}
@@ -1141,7 +1242,7 @@ const ShipmentPage = () => {
                                             })()}
                                             <span
                                                 className="responsiveTextTable font-medium px-2.5 py-0.5 rounded-full"
-                                                style={status ? STATUS_STYLES[status] : { backgroundColor: 'var(--surface-muted)', color: 'var(--regent-gray)', border: '1px solid var(--border-neutral-strong)' }}
+                                                style={status ? STATUS_STYLES[status] : { backgroundColor: 'var(--neutral-bg)', color: 'var(--regent-gray)', border: '1px solid var(--neutral-border)' }}
                                             >
                                                 {status || 'No Status'}
                                             </span>
@@ -1161,16 +1262,16 @@ const ShipmentPage = () => {
                                             { label: 'Ship Type',     value: getShpType(contract) },
                                             { label: 'Last Update',   value: relTime(contract.shipmentUpdatedAt) },
                                         ].map(({ label, value }) => (
-                                            <div key={label} className="flex flex-col space-y-1 pb-2" style={{ borderBottom: '1px solid var(--selago)' }}>
+                                            <div key={label} className="flex flex-col space-y-1 pb-2" style={{ borderBottom: '1px solid var(--bg-subtle)' }}>
                                                 <span className="responsiveTextTable uppercase tracking-wider text-[var(--regent-gray)] font-medium">{label}</span>
-                                                <div className="px-2 py-1 rounded-2xl responsiveTextTable text-[var(--port-gore)]" style={{ backgroundColor: 'var(--surface-pill)', border: '1px solid var(--border-cell)' }}>
+                                                <div className="px-1 py-1 responsiveTextTable text-[var(--ink)]">
                                                     {value || '—'}
                                                 </div>
                                             </div>
                                         ))}
 
                                         {/* Status */}
-                                        <div className="flex flex-col space-y-1 pb-2" style={{ borderBottom: '1px solid var(--selago)' }}>
+                                        <div className="flex flex-col space-y-1 pb-2" style={{ borderBottom: '1px solid var(--bg-subtle)' }}>
                                             <span className="responsiveTextTable uppercase tracking-wider text-[var(--regent-gray)] font-medium">Status</span>
                                             <StatusSelect
                                                 value={status}
@@ -1197,7 +1298,7 @@ const ShipmentPage = () => {
                     </div>
 
                     {/* Pagination footer */}
-                    <div className="flex-shrink-0 rounded-b-2xl" style={{ borderTop: '1px solid var(--border-divider)', background: 'var(--surface-card)' }}>
+                    <div className="flex-shrink-0 rounded-b-2xl" style={{ borderTop: '1px solid var(--line)', background: "var(--bg-card)" }}>
                         <div className="w-full px-6 py-4">
                             <div className="flex items-center justify-between">
 
@@ -1223,9 +1324,9 @@ const ShipmentPage = () => {
                                                 onClick={() => setPageIndex(pi)}
                                                 className="min-w-[2rem] h-8 responsiveTextInput font-medium rounded-full border transition-all duration-200"
                                                 style={{
-                                                    backgroundColor: safePageIndex === pi ? 'var(--endeavour)' : 'var(--surface-card)',
+                                                    backgroundColor: safePageIndex === pi ? 'var(--endeavour)' : 'var(--bg-card)',
                                                     color: safePageIndex === pi ? 'var(--on-brand)' : 'var(--endeavour)',
-                                                    borderColor: safePageIndex === pi ? 'var(--endeavour)' : 'var(--border-divider)',
+                                                    borderColor: safePageIndex === pi ? 'var(--endeavour)' : 'var(--line)',
                                                 }}
                                             >
                                                 {pi + 1}
@@ -1251,13 +1352,13 @@ const ShipmentPage = () => {
                                             <HiMiniChevronUpDown className="ml-2 -mr-1 mt-0.5 h-4 w-4 text-[var(--endeavour)]" />
                                         </MenuButton>
                                         <Transition as={Fragment} enter="transition ease-out duration-100" enterFrom="transform opacity-0 scale-95" enterTo="transform opacity-100 scale-100" leave="transition ease-in duration-75" leaveFrom="transform opacity-100 scale-100" leaveTo="transform opacity-0 scale-95">
-                                            <MenuItems className="absolute right-0 bottom-10 w-[4.2rem] origin-top-right rounded-lg bg-[var(--surface-card)] shadow-lg ring-1 ring-[var(--selago)] focus:outline-none z-dropdown">
+                                            <MenuItems className="absolute right-0 bottom-10 w-[4.2rem] origin-top-right rounded-lg bg-[var(--bg-card)] shadow-lg ring-1 ring-[var(--selago)] focus:outline-none z-50">
                                                 <div className="px-1 py-1">
                                                     {[5, 10, 20, 25, 50, 100].map(x => (
                                                         <MenuItem key={x}>
                                                             <button
                                                                 onClick={() => { setPageSize(x); setPageIndex(0); }}
-                                                                className={`${pageSize === x ? 'bg-[var(--surface-header)] text-[var(--endeavour)] font-semibold' : 'text-[var(--port-gore)]'} flex w-full items-center rounded-lg px-2 py-1.5 responsiveTextInput mt-0.5 justify-center ${pageSize !== x ? 'hover:bg-[var(--selago)]' : ''}`}
+                                                                className={`${pageSize === x ? 'bg-[var(--bg-subtle)] text-[var(--endeavour)] font-semibold' : 'text-[var(--port-gore)]'} flex w-full items-center rounded-lg px-2 py-1.5 responsiveTextInput mt-0.5 justify-center ${pageSize !== x ? 'hover:bg-[var(--selago)]' : ''}`}
                                                             >
                                                                 {x}
                                                             </button>

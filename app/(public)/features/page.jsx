@@ -8,7 +8,7 @@ import { BarChart, PieChart, DollarSign, FileText, Layers } from "lucide-react";
 
 export default function FeaturesPage() {
   return (
-         <div className="w-full bg-[var(--surface-card)] min-h-screen font-sans text-foreground">
+         <div className="w-full bg-[var(--bg-card)] min-h-screen font-sans text-foreground">
                {/* Navbar Placeholder if needed - assuming layout handles it or user adds it */}
                 <Navbar />
                <main className="pt-15">
@@ -22,7 +22,7 @@ export default function FeaturesPage() {
       
 
 {/* Detailed Features */}
-<section className="py-12 bg-[var(--surface-card)]">
+<section className="py-12 bg-[var(--bg-card)]">
   <div className="container mx-auto px-4">
 
     {/* SECTION TITLE */}

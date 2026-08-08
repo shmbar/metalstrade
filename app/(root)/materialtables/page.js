@@ -15,6 +15,7 @@ import { UserAuth } from "../../../contexts/useAuthContext";
 import { delCompExp, loadMaterials, saveMaterials, loadDataSettings } from "../../../utils/utils";
 import { DEFAULT_ELEMENTS, UNIT_LABELS, TO_KGS, FROM_KGS } from './constants';
 import useMetalPrices from '../../../hooks/useMetalPrices';
+import LoadingButton from '../../../components/LoadingButton';
 
 function countDecimalDigits(str) {
     const match = str.match(/(?:\.(\d+))?(?:[eE]([+-]?\d+))?$/)
@@ -350,23 +351,24 @@ const MaterialTables = () => {
                     <>
                         <Toast />
                         <VideoLoader loading={loading} fullScreen={true} />
-                        <div className="rounded-2xl p-2 sm:p-3 mt-2 border border-[var(--border-divider)] shadow-xl w-full bg-[var(--surface-card)] relative overflow-hidden">
-                            <div className="flex flex-col gap-2 pb-2">
-                                <h1 className="text-[var(--chathams-blue)] font-poppins responsiveTextPage font-medium border-l-4 border-[var(--chathams-blue)] pl-2">
-                                    {getTtl('Material Tables', ln)}
-                                </h1>
+                        <div className="w-full mt-2">
+                            <div className="page-header flex flex-wrap items-end justify-between gap-2 pb-3">
+                                <div>
+                                    <h1 className="text-display">{getTtl('Material Tables', ln)}</h1>
+                                    <p className="responsiveTextInput text-[var(--ink-muted)] mt-0.5">Element composition & pricing</p>
+                                </div>
                                 <div className="flex items-center gap-2">
-                                    <button onClick={addTable} className="flex items-center gap-1 bg-[var(--endeavour)] text-white responsiveTextTable font-medium px-4 h-8 responsiveTextTitle rounded-full hover:opacity-90 transition-all">
+                                    <button onClick={addTable} className="blackButton">
                                         + {getTtl('Add Table', ln) || 'Add Table'}
                                     </button>
-                                    <button onClick={saveTable} className="flex items-center text-[var(--endeavour)] border border-[var(--rock-blue)] responsiveTextTable font-medium px-4 h-8 responsiveTextTitle rounded-full hover:bg-[var(--selago)] transition-all">
+                                    <LoadingButton variant="secondary" onClick={saveTable}>
                                         {getTtl('Save', ln) || 'Save'}
-                                    </button>
+                                    </LoadingButton>
                                 </div>
                             </div>
-                            <div className="w-full overflow-x-auto mt-1">
+                            <div className="w-full">
                                 {data.map((table) => (
-                                    <div key={table.id} className="mb-2 rounded-2xl border border-[var(--border-divider)] shadow-sm">
+                                    <div key={table.id} className="mb-3 bg-[var(--bg-card)] rounded-2xl border border-[var(--line)] shadow-card overflow-hidden">
                                         <Table
                                             data={table.data}
                                             table1={table}
@@ -406,8 +408,8 @@ const MaterialTables = () => {
                                 ))}
                             </div>
                             {(data.length > 0 && !Object.values(totals).some(v => isNaN(v))) && (
-                                <div className="w-full pt-3 overflow-x-auto">
-                                    <div className="rounded-2xl border border-[var(--violet-border)] shadow-sm overflow-hidden">
+                                <div className="w-full pt-1">
+                                    <div className="bg-[var(--bg-card)] rounded-2xl border border-[var(--line)] shadow-card overflow-hidden">
                                         <TableTotals data={[totals]} columns={totalsColumns} />
                                     </div>
                                 </div>

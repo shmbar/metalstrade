@@ -38,9 +38,9 @@ export default function MyLayout({
 
 	// Step 4: Render layout for authenticated users
 	return (
-		<main className="md:flex ">
+		<main className="md:flex bg-[var(--bg-page)] min-h-screen">
 			<Idle />
-			<div className='hidden md:flex shadow-xl z-10 mx-auto'>
+			<div className='hidden md:flex z-10 mx-auto'>
 				<Sidebar />
 			</div>
 			{/* Same chrome role as MainNav, so the same rung — its search dropdown was

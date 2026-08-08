@@ -41,7 +41,7 @@
 }
 
 .custom-table th {
-  background-color: var(--border-cell);
+  background-color: var(--bg-subtle);
 }
 
 .custom-table td {

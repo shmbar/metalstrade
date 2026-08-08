@@ -51,8 +51,14 @@ export default function CommandPalette() {
         setOpen((prev) => (prev ? false : prev));
       }
     };
+    // Topbar search pill (and anything else) can open the palette via this event.
+    const onOpenEvent = () => setOpen(true);
     document.addEventListener('keydown', onKeyDown);
-    return () => document.removeEventListener('keydown', onKeyDown);
+    window.addEventListener('ims:openPalette', onOpenEvent);
+    return () => {
+      document.removeEventListener('keydown', onKeyDown);
+      window.removeEventListener('ims:openPalette', onOpenEvent);
+    };
   }, []);
 
   // Reset typed query when palette closes — opening it again should start fresh.
@@ -83,9 +89,7 @@ export default function CommandPalette() {
         onClick={() => setOpen(true)}
         aria-label="Open command palette (Ctrl+K)"
         title="Search & navigate (Ctrl+K)"
-        /* z-sticky, not z-dropdown: this is the persistent hint pill, not the
-           palette itself. At dropdown level it sat on top of every open modal. */
-        className="fixed bottom-4 right-20 z-sticky hidden md:flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-[var(--surface-card)] border border-[var(--border-cell)] shadow-md hover:shadow-lg transition-shadow"
+        className="fixed bottom-4 right-20 z-40 hidden md:flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-[var(--bg-card)] border border-[var(--line-strong)] shadow-md hover:shadow-lg transition-shadow"
       >
         <Search className="w-3.5 h-3.5 text-[var(--chathams-blue)]" />
         <span className="responsiveTextTable text-[var(--regent-gray)] font-medium">
@@ -107,7 +111,7 @@ export default function CommandPalette() {
           colour that ignores the theme's own overlay token. */}
       <Command
         label="Command Palette"
-        className="relative w-full max-w-2xl rounded-2xl bg-[var(--surface-card)] shadow-lg border border-[var(--border-cell)] overflow-hidden"
+        className="relative w-full max-w-xl rounded-2xl bg-[var(--bg-card)] shadow-2xl border border-[var(--line-strong)] overflow-hidden"
         onClick={(e) => e.stopPropagation()}
         loop
       >
@@ -120,7 +124,7 @@ export default function CommandPalette() {
             className="w-full h-11 outline-none bg-transparent focus:outline-none responsiveTextInput text-[var(--port-gore)] placeholder:text-[var(--regent-gray)]"
             autoFocus
           />
-          <kbd className="responsiveTextTable px-1.5 py-0.5 rounded-lg whitespace-nowrap flex-shrink-0 leading-none border border-[var(--border-cell)] text-[var(--regent-gray)]">
+          <kbd className="responsiveTextTable px-1.5 py-0.5 rounded border border-[var(--line-strong)] text-[var(--regent-gray)]">
             Esc
           </kbd>
         </div>
@@ -143,7 +147,7 @@ export default function CommandPalette() {
                 key={route}
                 value={`${label} ${keywords}`}
                 onSelect={() => go(route)}
-                className="flex items-center gap-2 px-2 py-2 rounded-lg cursor-pointer responsiveText text-[var(--port-gore)] aria-selected:bg-[var(--surface-header)]"
+                className="flex items-center gap-2 px-2 py-2 rounded-lg cursor-pointer responsiveTextTitle text-[var(--port-gore)] aria-selected:bg-[var(--bg-subtle)]"
               >
                 <Icon className="w-4 h-4 text-[var(--endeavour)]" />
                 <span className="flex-1">{label}</span>
@@ -163,7 +167,7 @@ export default function CommandPalette() {
                   key={item.key}
                   value={item.searchText}
                   onSelect={() => go(item.route, item.rowId, item.source)}
-                  className="flex flex-col items-start gap-0.5 px-2 py-2 rounded-lg cursor-pointer aria-selected:bg-[var(--surface-header)]"
+                  className="flex flex-col items-start gap-0.5 px-2 py-2 rounded-lg cursor-pointer aria-selected:bg-[var(--bg-subtle)]"
                 >
                   <span className="responsiveText text-[var(--port-gore)] truncate w-full">
                     {item.title}
@@ -179,10 +183,10 @@ export default function CommandPalette() {
           )}
         </Command.List>
 
-        <div className="flex items-center gap-3 px-3 py-2 border-t border-[var(--selago)] responsiveTextTableTitle text-[var(--regent-gray)]">
-          <span><kbd className="px-1 py-0.5 rounded border border-[var(--border-cell)]">↑↓</kbd> navigate</span>
-          <span><kbd className="px-1 py-0.5 rounded border border-[var(--border-cell)]">↵</kbd> open</span>
-          <span><kbd className="px-1 py-0.5 rounded border border-[var(--border-cell)]">Esc</kbd> close</span>
+        <div className="flex items-center gap-3 px-3 py-2 border-t border-[var(--line)] responsiveTextTableTitle text-[var(--regent-gray)]">
+          <span><kbd className="px-1 py-0.5 rounded border border-[var(--line-strong)]">↑↓</kbd> navigate</span>
+          <span><kbd className="px-1 py-0.5 rounded border border-[var(--line-strong)]">↵</kbd> open</span>
+          <span><kbd className="px-1 py-0.5 rounded border border-[var(--line-strong)]">Esc</kbd> close</span>
         </div>
       </Command>
     </div>

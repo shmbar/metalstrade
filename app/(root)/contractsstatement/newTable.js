@@ -8,6 +8,7 @@ if (typeof window !== 'undefined') {
 }
 
 import Header from "../../../components/table/header";
+import EmptyState from "../../../components/EmptyState";
 import {
   flexRender,
   getCoreRowModel,
@@ -32,33 +33,32 @@ import ResetFilterTableIcon from '../../../components/table/filters/resetTabe';
 import dateBetweenFilterFn from '../../../components/table/filters/date-between-filter';
 import { labelAwareGlobalFilter } from '../../../components/table/filters/labelAwareGlobalFilter';
 
-const EMPTY_STATE_VIDEO_SRC = '/logo/no-data.mp4';
 
 // Expandable detail for a contract line: warehouse lots + shipments
 const DetailPanel = ({ lots = [], shipments = [] }) => {
   const fmt = (n) => new Intl.NumberFormat('en-US', { maximumFractionDigits: 3 }).format(Number(n) || 0);
-  const headSt = { border: 'none', textAlign: 'left', padding: '5px 12px', fontSize: 'var(--fs-caption)', background: 'var(--surface-pill)', color: 'var(--regent-gray)', fontWeight: 500, letterSpacing: '0.04em' };
-  const cellSt = { border: 'none', textAlign: 'left', padding: '5px 12px', fontSize: 'var(--fs-table)', color: 'var(--port-gore)', background: 'var(--surface-card)' };
+  const headSt = { border: 'none', textAlign: 'left', padding: '5px 12px', fontSize: 'var(--fs-caption)', background: 'var(--bg-subtle)', color: 'var(--regent-gray)', fontWeight: 500, letterSpacing: '0.04em' };
+  const cellSt = { border: 'none', textAlign: 'left', padding: '5px 12px', fontSize: 'var(--fs-table)', color: 'var(--port-gore)', background: "var(--bg-card)" };
   const lotChip = (status) => {
     const s = (status || '').toLowerCase();
     const map = {
-      sold: { bg: 'var(--ok-bg)', c: 'var(--ok-strong)', b: 'var(--ok-border)', t: 'Sold' },
-      unsold: { bg: 'var(--danger-bg)', c: 'var(--danger-text)', b: 'var(--danger-border)', t: 'Unsold' },
+      sold: { bg: 'var(--ok-bg)', c: 'var(--ok-text)', b: 'var(--ok-border)', t: 'Sold' },
+      unsold: { bg: 'var(--bad-bg)', c: 'var(--bad-text)', b: 'var(--bad-border)', t: 'Unsold' },
     };
-    const v = map[s] || { bg: 'var(--surface-muted)', c: 'var(--text-mid)', b: 'var(--border-neutral)', t: status || '—' };
+    const v = map[s] || { bg: 'var(--neutral-bg)', c: 'var(--ink-secondary)', b: 'var(--neutral-border)', t: status || '—' };
     return <span style={{ backgroundColor: v.bg, color: v.c, border: `1px solid ${v.b}`, borderRadius: 8, padding: '1px 8px', fontSize: 'var(--fs-table)' }}>{v.t}</span>;
   };
   return (
     <div className="flex flex-col lg:flex-row gap-3" style={{ animation: 'fadeIn .2s ease-in' }}>
       {/* Lots */}
-      <div className="rounded-2xl overflow-hidden" style={{ border: '1px solid var(--border-cell)', flex: '1.4 1 0', minWidth: 0 }}>
-        <div style={{ background: 'var(--surface-header)', color: 'var(--chathams-blue)', fontSize: 'var(--fs-table)', fontWeight: 600, padding: '5px 12px' }}>Lots in warehouse</div>
+      <div className="rounded-2xl overflow-hidden" style={{ border: '1px solid var(--line-strong)', flex: '1.4 1 0', minWidth: 0 }}>
+        <div style={{ background: 'var(--bg-subtle)', color: 'var(--chathams-blue)', fontSize: 'var(--fs-table)', fontWeight: 600, padding: '5px 12px' }}>Lots in warehouse</div>
         {lots.length ? (
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead><tr><th style={headSt}>QUANTITY</th><th style={headSt}>STATUS</th><th style={headSt}>CONSIGNEE</th><th style={headSt}>SALES PO</th></tr></thead>
             <tbody>
               {lots.map((l, i) => (
-                <tr key={i} style={{ borderTop: '1px solid var(--selago)' }}>
+                <tr key={i} style={{ borderTop: '1px solid var(--line)' }}>
                   <td style={cellSt}>{fmt(l.qnty)} MT</td>
                   <td style={cellSt}>{lotChip(l.status)}</td>
                   <td style={cellSt}>{l.consignee || '—'}</td>
@@ -70,14 +70,14 @@ const DetailPanel = ({ lots = [], shipments = [] }) => {
         ) : <div style={{ padding: '8px 12px', fontSize: 'var(--fs-table)', color: 'var(--regent-gray)' }}>No lots in warehouse</div>}
       </div>
       {/* Shipments */}
-      <div className="rounded-2xl overflow-hidden" style={{ border: '1px solid var(--border-cell)', flex: '2 1 0', minWidth: 0 }}>
-        <div style={{ background: 'var(--surface-header)', color: 'var(--chathams-blue)', fontSize: 'var(--fs-table)', fontWeight: 600, padding: '5px 12px' }}>Shipments</div>
+      <div className="rounded-2xl overflow-hidden" style={{ border: '1px solid var(--line-strong)', flex: '2 1 0', minWidth: 0 }}>
+        <div style={{ background: 'var(--bg-subtle)', color: 'var(--chathams-blue)', fontSize: 'var(--fs-table)', fontWeight: 600, padding: '5px 12px' }}>Shipments</div>
         {shipments.length ? (
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead><tr>{['INVOICE', 'CONSIGNEE', 'PO CLIENT', 'DESTINATION', 'QTY'].map(h => <th key={h} style={headSt}>{h}</th>)}</tr></thead>
             <tbody>
               {shipments.map((s, i) => (
-                <tr key={i} style={{ borderTop: '1px solid var(--selago)' }}>
+                <tr key={i} style={{ borderTop: '1px solid var(--line)' }}>
                   <td style={cellSt}>{s.invoice || '—'}</td>
                   <td style={cellSt}>{s.consignee || '—'}</td>
                   <td style={cellSt}>{s.po || '—'}</td>
@@ -106,13 +106,13 @@ const RowCheckbox = ({ checked = false, indeterminate = false, disabled = false,
         className="flex items-center justify-center transition-all duration-150"
         style={{
           width: 16, height: 16, borderRadius: 5,
-          border: `1px solid ${active ? 'var(--endeavour)' : 'var(--border-cell)'}`,
-          background: active ? 'var(--endeavour)' : 'var(--surface-card)',
-          boxShadow: active ? '0 1px 2px rgba(var(--endeavour-rgb),0.25)' : 'none',
+          border: `1px solid ${active ? 'var(--endeavour)' : 'var(--line-strong)'}`,
+          background: active ? 'var(--endeavour)' : 'var(--bg-card)',
+          boxShadow: active ? 'var(--shadow-xs)' : 'none',
         }}
       >
         {indeterminate ? (
-          <span style={{ width: 8, height: 2, borderRadius: 1, background: 'var(--surface-card)' }} />
+          <span style={{ width: 8, height: 2, borderRadius: 1, background: "var(--bg-card)" }} />
         ) : checked ? (
           <svg viewBox="0 0 12 12" width="11" height="11" fill="none">
             <path d="M2.5 6.2l2.2 2.2 4.8-4.8" stroke="var(--on-brand)" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" />
@@ -154,7 +154,6 @@ const Customtable = ({
   const [quickSumEnabled, setQuickSumEnabled] = useState(false)
   const [quickSumColumns, setQuickSumColumns] = useState([])
   const [rowSelection, setRowSelection] = useState({})
-  const [isEmptyStateVideoError, setIsEmptyStateVideoError] = useState(false)
 
   usePathname()
 
@@ -245,24 +244,6 @@ const Customtable = ({
     ? `${Math.min(currentRows * 40 + 180, 700)}px`
     : '320px';
 
-  const renderEmptyStateMedia = () => {
-    if (!isEmptyStateVideoError) {
-      return (
-        <video
-          className="w-24 h-24 mb-5 rounded-2xl object-cover"
-          autoPlay
-          loop
-          muted
-          playsInline
-          onError={() => setIsEmptyStateVideoError(true)}
-        >
-          <source src={EMPTY_STATE_VIDEO_SRC} type="video/mp4" />
-        </video>
-      );
-    }
-
-    return <div className="w-24 h-24 mb-5" />;
-  }
 
   return (
     <div className="w-full">
@@ -272,15 +253,15 @@ const Customtable = ({
  /* Professional gradient scrollbar matching cards */
      .dashboard-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
         .dashboard-scroll::-webkit-scrollbar-track {
-          background: var(--selago);
+          background: var(--bg-subtle);
           border-radius: 6px;
         }
         .dashboard-scroll::-webkit-scrollbar-thumb {
-          background: var(--rock-blue);
+          background: var(--line-strong);
           border-radius: 6px;
         }
         .dashboard-scroll::-webkit-scrollbar-thumb:hover {
-          background: var(--endeavour);
+          background: var(--brand);
         }
 
 
@@ -294,37 +275,42 @@ const Customtable = ({
         }
 
         .custom-table, .custom-table *, .glass-table, .glass-table * {
-          font-family: var(--font-poppins), 'Poppins', sans-serif;
+          font-family: var(--font-inter), 'Inter', system-ui, sans-serif;
           transition-property: color, background-color, border-color, box-shadow !important;
           transition-duration: 150ms !important;
           transition-timing-function: ease-in-out !important;
         }
 
         .custom-table th {
-          border: 1px solid var(--border-cell);
-          background-color: var(--surface-pill);
+          background-color: var(--bg-subtle);
+          border-bottom: 1px solid var(--line);
           text-align: center;
           vertical-align: middle;
-          padding: 6px;
-          border-radius: 4px;
+          padding: 7px 8px;
+          font-size: 0.6875rem;
+          text-transform: uppercase;
+          letter-spacing: 0.04em;
+          color: var(--ink-secondary);
+          font-weight: 600;
         }
 
         .custom-table td {
-          border: 1px solid var(--border-cell);
-          background-color: var(--surface-pill);
+          background-color: var(--bg-card);
+          border-bottom: 1px solid var(--line);
           text-align: center;
           vertical-align: middle;
-          padding: 6px;
-          border-radius: 4px;
+          padding: 6px 8px;
+          font-size: 0.75rem;
+          font-variant-numeric: tabular-nums;
         }
 
         .custom-table th {
-          background-color: var(--border-cell);
+          background-color: var(--bg-subtle);
         }
 
         .custom-table td {
-          background-color: var(--surface-card);
-          border: 1px solid var(--border-neutral);
+          background-color: var(--bg-card);
+          border-bottom: 1px solid var(--line);
         }
 
       `}</style>
@@ -332,14 +318,14 @@ const Customtable = ({
       <div className="custom-table">
         <div className="relative flex flex-col rounded-2xl glass-table">
           {/* Border overlay — renders above children so corners always visible */}
-          <div className="absolute inset-0 rounded-2xl border border-[var(--border-divider)] pointer-events-none z-sticky" />
+          <div className="absolute inset-0 rounded-2xl border border-[var(--line)] pointer-events-none z-sticky" />
 
           {/* HEADER */}
           <div
             className="flex-shrink-0 rounded-t-2xl"
             style={{
-              borderBottom: '1px solid var(--border-divider)',
-              background: 'var(--surface-card)',
+              borderBottom: '1px solid var(--line)',
+              background: "var(--bg-card)",
             }}
           >
             <Header
@@ -394,14 +380,14 @@ const Customtable = ({
 
                       {/* Filter Row */}
                       {filterOn && (
-                        <tr style={{ backgroundColor: 'var(--surface-card)' }}>
+                        <tr style={{ backgroundColor: "var(--bg-card)" }}>
                           {group.headers.map(header => (
                             <th
                               key={header.id}
                               className="px-2 py-1.5"
                               style={{
-                                backgroundColor: 'var(--surface-card)',
-                                borderBottom: '2px solid var(--border-divider)',
+                                backgroundColor: "var(--bg-card)",
+                                borderBottom: '2px solid var(--line)',
                                 minWidth: header.column.id === 'select' ? '50px' : header.column.columnDef.meta?.filterVariant === 'dates' ? '220px' : '60px',
                                 maxWidth: header.column.id === 'select' ? '50px' : 'none',
                               }}
@@ -432,7 +418,7 @@ const Customtable = ({
                       <tr
                         tabIndex={0}
                         className="cursor-pointer transition-colors hover-row"
-                        style={{ background: row.getIsSelected() ? 'var(--selago)' : row.getIsExpanded() ? 'var(--surface-header)' : undefined }}
+                        style={{ background: row.getIsSelected() ? 'var(--brand-soft)' : row.getIsExpanded() ? 'var(--bg-subtle)' : undefined }}
                       >
                         {row.getVisibleCells().map((cell) => {
                           if (cell.column.id === 'expander') {
@@ -469,14 +455,11 @@ const Customtable = ({
                               ) : (
                                 <div className="flex justify-center">
                                   {val !== null && val !== undefined && val !== '' ? (
-                                    <div
-                                      className="px-3 py-1 rounded-2xl responsiveTextTable font-normal min-w-[70px] flex items-center justify-center"
-                                      style={{ backgroundColor: 'var(--surface-pill)', border: '1px solid var(--border-cell)' }}
-                                    >
+                                    <div className="px-1 py-1 responsiveTextTable font-medium min-w-[70px] flex items-center justify-center" style={{ color: 'var(--ink)' }}>
                                       {flexRender(cell.column.columnDef.cell, cell.getContext())}
                                     </div>
                                   ) : (
-                                    <div className="px-3 py-1 rounded-2xl responsiveTextTable font-normal min-w-[70px]" style={{ backgroundColor: 'var(--surface-pill)', border: '1px solid var(--border-cell)' }}>&nbsp;</div>
+                                    <div className="px-1 py-1 responsiveTextTable font-medium min-w-[70px]">&nbsp;</div>
                                   )}
                                 </div>
                               )}
@@ -495,7 +478,7 @@ const Customtable = ({
                         return (
                           <Fragment key={sub.id}>
                           <tr
-                            style={{ background: isOpen ? 'var(--selago)' : 'var(--selago)' }}
+                            style={{ background: isOpen ? 'var(--brand-soft)' : 'var(--bg-subtle)' }}
                             className={hasDetail ? 'cursor-pointer hover-row' : ''}
                             onClick={hasDetail ? () => setOpenLots(p => ({ ...p, [sub.id]: !p[sub.id] })) : undefined}
                           >
@@ -510,7 +493,7 @@ const Customtable = ({
                                       top: 0,
                                       bottom: isLast ? '50%' : 0,
                                       width: '1.5px',
-                                      background: 'var(--border-divider)',
+                                      background: 'var(--line)',
                                     }} />
                                     <div style={{
                                       position: 'absolute',
@@ -518,7 +501,7 @@ const Customtable = ({
                                       top: '50%',
                                       width: '14px',
                                       height: '1.5px',
-                                      background: 'var(--border-divider)',
+                                      background: 'var(--line)',
                                     }} />
                                     <div style={{
                                       position: 'absolute',
@@ -529,7 +512,7 @@ const Customtable = ({
                                       borderRadius: '50%',
                                       background: 'var(--endeavour)',
                                       transform: 'translate(-50%, -50%)',
-                                      boxShadow: '0 0 0 2px var(--selago)',
+                                      boxShadow: '0 0 0 2px var(--bg-subtle)',
                                     }} />
                                   </td>
                                 )
@@ -561,7 +544,7 @@ const Customtable = ({
                                       {hasDetail && (
                                         <IoIosArrowDown size={11} className={`transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} style={{ color: 'var(--endeavour)', flexShrink: 0 }} />
                                       )}
-                                      <div className="px-3 py-1 rounded-2xl responsiveTextTable font-normal min-w-[70px] flex items-center justify-center" style={{ backgroundColor: 'var(--surface-card)', border: '1px solid var(--border-cell)' }}>
+                                      <div className="px-1 py-1 responsiveTextTable font-medium min-w-[70px] flex items-center justify-center" style={{ color: 'var(--ink)' }}>
                                         {flexRender(cell.column.columnDef.cell, cell.getContext())}
                                       </div>
                                     </div>
@@ -578,11 +561,11 @@ const Customtable = ({
                                   {isStatus ? (
                                     <div className="flex justify-center">
                                       <div
-                                        className="px-3 py-1 rounded-2xl responsiveTextTable font-normal flex items-center justify-center"
+                                        className="px-1 py-1 responsiveTextTable font-medium flex items-center justify-center"
                                         style={{
-                                          backgroundColor: val === 'Paid' ? 'var(--ok-bg)' : val === 'Unpaid' ? 'var(--warn-bg)' : 'var(--surface-card)',
-                                          border: val ? `1px solid ${val === 'Paid' ? 'var(--ok-border)' : val === 'Unpaid' ? 'var(--warn-border)' : 'var(--border-neutral-strong)'}` : 'none',
-                                          color: val === 'Paid' ? 'var(--ok-strong)' : val === 'Unpaid' ? 'var(--warn-strong)' : 'var(--port-gore)'
+                                          backgroundColor: val === 'Paid' ? 'var(--ok-bg)' : val === 'Unpaid' ? 'var(--warn-bg)' : 'transparent',
+                                          border: val ? `1px solid ${val === 'Paid' ? 'var(--ok-border)' : val === 'Unpaid' ? 'var(--warn-border)' : 'transparent'}` : 'none',
+                                          color: val === 'Paid' ? 'var(--ok-text)' : val === 'Unpaid' ? 'var(--warn-text)' : 'var(--port-gore)'
                                         }}
                                       >
                                         {val || ' '}
@@ -592,13 +575,13 @@ const Customtable = ({
                                     <div className="flex justify-center">
                                       {val !== null && val !== undefined && val !== '' ? (
                                         <div
-                                          className="px-3 py-1 rounded-2xl responsiveTextTable font-normal min-w-[70px] flex items-center justify-center"
-                                          style={{ backgroundColor: 'var(--surface-card)', border: '1px solid var(--border-cell)' }}
+                                          className="px-1 py-1 responsiveTextTable font-medium min-w-[70px] flex items-center justify-center"
+                                          style={{ color: 'var(--ink)' }}
                                         >
                                           {flexRender(cell.column.columnDef.cell, cell.getContext())}
                                         </div>
                                       ) : (
-                                        <div className="px-3 py-1 rounded-2xl responsiveTextTable font-normal min-w-[70px]" style={{ backgroundColor: 'var(--surface-card)', border: '1px solid var(--border-cell)' }}>&nbsp;</div>
+                                        <div className="px-1 py-1 responsiveTextTable font-medium min-w-[70px]">&nbsp;</div>
                                       )}
                                     </div>
                                   )}
@@ -607,8 +590,8 @@ const Customtable = ({
                             })}
                           </tr>
                           {isOpen && hasDetail && (
-                            <tr style={{ background: 'var(--surface-pill)' }}>
-                              <td colSpan={sub.getVisibleCells().length} style={{ border: 'none', background: 'var(--surface-pill)', padding: '6px 18px 14px' }}>
+                            <tr style={{ background: 'var(--bg-subtle)' }}>
+                              <td colSpan={sub.getVisibleCells().length} style={{ border: 'none', background: 'var(--bg-subtle)', padding: '6px 18px 14px' }}>
                                 <DetailPanel lots={sub.original.lots} shipments={sub.original.shipments} />
                               </td>
                             </tr>
@@ -626,25 +609,7 @@ const Customtable = ({
                         colSpan={columnsWithSelection.length}
                         className="py-24 text-center"
                       >
-                        <div className="flex flex-col items-center justify-center">
-                          {renderEmptyStateMedia()}
-                          <p
-                            className="responsiveText font-normal mb-2"
-                            style={{
-                              color: 'var(--port-gore)',
-                            }}
-                          >
-                            {getTtl('No data available', ln)}
-                          </p>
-                          <p
-                            className="responsiveTextTable"
-                            style={{
-                              color: 'var(--regent-gray)',
-                            }}
-                          >
-                            Try adjusting your filters or date range
-                          </p>
-                        </div>
+                        <EmptyState message={getTtl('No data available', ln)} hint="Try adjusting your filters or date range" />
                       </td>
                     </tr>
                   )}
@@ -666,15 +631,15 @@ const Customtable = ({
                   onClick={() => row.getCanExpand() && row.toggleExpanded()}
                   className="rounded-2xl overflow-hidden shadow-lg transition-colors duration-200"
                   style={{
-                    backgroundColor: 'var(--surface-card)',
-                    border: '1px solid var(--border-divider)',
-                    boxShadow: '0 4px 12px rgba(var(--shadow-rgb), 0.06)'
+                    backgroundColor: "var(--bg-card)",
+                    border: '1px solid var(--line)',
+                    boxShadow: 'var(--shadow-sm)'
                   }}
                 >
                   <div 
-                    className="px-3 py-2 flex items-center justify-between bg-[var(--border-divider)]"
+                    className="px-3 py-2 flex items-center justify-between bg-[var(--bg-subtle)]"
                     // style={{ 
-                    //   background: 'linear-gradient(135deg, var(--violet-text), var(--violet-text), #0D9488)',
+                    //   background: 'linear-gradient(135deg, #7A6FE3, #7A6FE3, #0E9888)',
                     // }}
                   >
                     <span 
@@ -709,7 +674,7 @@ const Customtable = ({
                         <div 
                           key={cell.id} 
                           className="flex flex-col space-y-1.5 pb-2.5 last:pb-0"
-                          style={{ borderBottom: '1px solid var(--border-divider)' }}
+                          style={{ borderBottom: '1px solid var(--line)' }}
                         >
                           <div 
                             className="uppercase tracking-wider font-normal" 
@@ -721,13 +686,7 @@ const Customtable = ({
                             {cell.column.columnDef.header}
                           </div>
                           <div 
-                            className="font-normal break-words px-2 py-1 rounded-2xl leading-relaxed min-h-7 flex items-center shadow-sm" 
-                            style={{ 
-                              color: 'var(--port-gore)',
-                              background: 'linear-gradient(135deg, var(--surface-base), var(--surface-muted))',
-                              fontSize: 'var(--fs-table)',
-                              border: '1px solid var(--border-divider)'
-                            }}
+                            className="responsiveTextTable font-medium break-words px-1 py-1 leading-relaxed min-h-7 flex items-center" style={{ color: 'var(--ink)' }}
                           >
                             {flexRender(cell.column.columnDef.cell, cell.getContext()) || '\u00A0'}
                           </div>
@@ -737,22 +696,22 @@ const Customtable = ({
 
                     {/* Expanded SubRows in Mobile */}
                     {row.getIsExpanded() && row.subRows && row.subRows.length > 0 && (
-                      <div className="mt-3 pt-3" style={{ borderTop: '2px solid var(--border-divider)' }}>
+                      <div className="mt-3 pt-3" style={{ borderTop: '2px solid var(--line)' }}>
                         {row.subRows.map((sub, subIdx) => (
                           <div 
                             key={sub.id} 
                             className="mb-3 p-3 rounded-lg" 
                             style={{ 
-                              backgroundColor: 'var(--surface-base)', 
-                              border: '1px solid var(--border-divider)',
-                              borderLeft: '3px solid var(--violet-text)'
+                              backgroundColor: 'var(--bg-subtle)', 
+                              border: '1px solid var(--line)',
+                              borderLeft: '3px solid var(--brand)'
                             }}
                           >
                             <div
                               className="responsiveTextTable font-medium mb-2.5 pb-2"
                               style={{
                                 color: 'var(--endeavour)',
-                                borderBottom: '1px solid var(--border-divider)'
+                                borderBottom: '1px solid var(--line)'
                               }}
                             >
                               Sub-item {subIdx + 1}
@@ -778,8 +737,8 @@ const Customtable = ({
                                       className="responsiveTextTable truncate text-right px-2 py-1 rounded"
                                       style={{
                                         color: hasValue ? 'var(--port-gore)' : 'var(--regent-gray)',
-                                        backgroundColor: 'var(--surface-card)',
-                                        border: '1px solid var(--border-divider)',
+                                        backgroundColor: "var(--bg-card)",
+                                        border: '1px solid var(--line)',
                                         fontWeight: '500',
                                         minWidth: '60px'
                                       }}
@@ -801,9 +760,8 @@ const Customtable = ({
               {/* Empty state for mobile */}
               {table.getRowModel().rows.length === 0 && (
                 <div className="flex flex-col items-center justify-center py-24 px-3">
-                  {renderEmptyStateMedia()}
-                  <p
-                    className="responsiveTextTable font-normal mb-2 text-center"
+                                    <p
+                    className="responsiveTextTable font-medium mb-2 text-center"
                     style={{
                       color: 'var(--port-gore)',
                     }}
@@ -828,8 +786,8 @@ const Customtable = ({
           <div
             className="flex-shrink-0 rounded-b-2xl"
             style={{
-              borderTop: '1px solid var(--border-divider)',
-              background: 'var(--surface-card)',
+              borderTop: '1px solid var(--line)',
+              background: "var(--bg-card)",
             }}
           >
             <div className="w-full px-6 py-4">

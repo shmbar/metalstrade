@@ -53,7 +53,7 @@ export default function Testimonials() {
   const nextIdx = (activeIndex + 1) % testimonials.length;
 
   return (
-    <section className="py-20 bg-[var(--surface-card)] overflow-hidden">
+    <section className="py-20 bg-[var(--bg-card)] overflow-hidden">
       <div className="container mx-auto px-4 max-w-7xl">
         {/* Header */}
         <div className="flex items-center justify-between mb-12">

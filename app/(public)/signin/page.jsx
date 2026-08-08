@@ -60,22 +60,22 @@ export default function SignInPage() {
         <div />
 
         {/* Center content */}
-        <div className="text-white text-center">
-          <p className="text-white/80 responsiveTextTitle font-semibold uppercase tracking-[0.2em] mb-4">Welcome to IMS-Tech</p>
+        <div className="text-[var(--on-brand)] text-center">
+          <p className="text-[var(--on-brand)]/80 responsiveTextTitle font-semibold uppercase tracking-[0.2em] mb-4">Welcome to IMS-Tech</p>
           <h2 className="responsiveTextDisplay font-bold mb-3 leading-snug">
             Unlock the power of intelligent trading
           </h2>
           <div className="w-10 h-0.5 bg-white/30 mb-5 rounded-full mx-auto" />
-          <p className="text-white/60 responsiveTextTitle leading-relaxed">
+          <p className="text-[var(--on-brand)]/60 responsiveTextTitle leading-relaxed">
             Create, manage, and monitor all your business transactions in one place. Streamline your operations, gain real-time insights, and stay in control of your finances effortlessly.
           </p>
 
           {/* Feature bullets */}
           <ul className="mt-8 space-y-3.5">
             {['Real-time analytics & reporting', 'Contract & invoice management', 'Secure & role-based access'].map((item) => (
-              <li key={item} className="flex items-center justify-center gap-3 responsiveTextTitle text-white/75">
+              <li key={item} className="flex items-center justify-center gap-3 responsiveTextTitle text-[var(--on-brand)]/75">
                 <span className="w-4 h-4 rounded-full border border-white/30 bg-white/10 flex items-center justify-center flex-shrink-0">
-                  <svg className="w-2.5 h-2.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                  <svg className="w-2.5 h-2.5 text-[var(--on-brand)]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                   </svg>
                 </span>
@@ -90,8 +90,8 @@ export default function SignInPage() {
       </div>
 
       {/* RIGHT — Form Panel */}
-      <div className="w-full md:w-1/2 flex items-center justify-center bg-[var(--selago)]">
-        <div className="w-full max-w-md mx-8 bg-[var(--surface-card)] rounded-2xl shadow-sm border border-[var(--surface-header)] p-10">
+      <div className="w-full md:w-1/2 flex items-center justify-center bg-[var(--bg-subtle)]">
+        <div className="w-full max-w-md mx-8 bg-[var(--bg-card)] rounded-2xl shadow-sm border border-[var(--bg-subtle)] p-10">
 
           {/* Header */}
           <div className="mb-7 text-center">
@@ -114,7 +114,7 @@ export default function SignInPage() {
                 onChange={(e) => setEmail(e.target.value)}
                 onKeyPress={handleKeyPress}
                 placeholder="you@example.com"
-                className="w-full px-4 py-2.5 border border-[var(--surface-header)] rounded-lg responsiveTextTitle text-gray-800 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-[var(--endeavour)]/30 focus:border-[var(--endeavour)] transition-all bg-[var(--surface-card)]"
+                className="w-full px-4 py-2.5 border border-[var(--bg-subtle)] rounded-lg responsiveTextTitle text-gray-800 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-[var(--endeavour)]/30 focus:border-[var(--endeavour)] transition-all bg-[var(--bg-card)]"
               />
             </div>
 
@@ -128,7 +128,7 @@ export default function SignInPage() {
                   onChange={(e) => setPassword(e.target.value)}
                   onKeyPress={handleKeyPress}
                   placeholder="••••••••"
-                  className="w-full px-4 py-2.5 border border-[var(--surface-header)] rounded-lg responsiveTextTitle text-gray-800 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-[var(--endeavour)]/30 focus:border-[var(--endeavour)] transition-all bg-[var(--surface-card)] pr-10"
+                  className="w-full px-4 py-2.5 border border-[var(--bg-subtle)] rounded-lg responsiveTextTitle text-gray-800 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-[var(--endeavour)]/30 focus:border-[var(--endeavour)] transition-all bg-[var(--bg-card)] pr-10"
                 />
                 <button
                   type="button"
@@ -167,7 +167,7 @@ export default function SignInPage() {
             <button
               onClick={handleSubmit}
               disabled={disabled && !err}
-              className="w-full py-2.5 rounded-lg font-semibold responsiveTextTitle text-white transition-all flex items-center justify-center gap-2 mt-2 hover:opacity-90 active:scale-[0.99]"
+              className="w-full py-2.5 rounded-lg font-semibold responsiveTextTitle text-[var(--on-brand)] transition-all flex items-center justify-center gap-2 mt-2 hover:opacity-90 active:scale-[0.99]"
               style={{ background: 'var(--endeavour)' }}
             >
               {(disabled && !err) ? (

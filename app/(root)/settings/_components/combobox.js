@@ -18,7 +18,7 @@ export default function Example({ languages, compData, setCompData, lang }) {
     <div className="w-36">
       <Listbox value={selected} onChange={(e) => setSelection(e)}>
         <div className="relative">
-          <Listbox.Button className="cursor-pointer w-full h-8 rounded-full border border-[var(--border-divider)] bg-[var(--surface-card)]
+          <Listbox.Button className="cursor-pointer w-full h-8 rounded-full border border-[var(--line)] bg-[var(--bg-card)]
                      focus:outline-none focus:border-[var(--endeavour)] focus:ring-2 focus:ring-[var(--endeavour)]/20 responsiveText
                      pl-4 pr-10 text-[var(--port-gore)] transition-all hover:border-[var(--rock-blue)] responsiveTextInput">
             {({ open }) => (
@@ -39,12 +39,12 @@ export default function Example({ languages, compData, setCompData, lang }) {
             leaveFrom="opacity-100"
             leaveTo="opacity-0"
           >
-            <Listbox.Options className="absolute mt-1 max-h-60 w-full overflow-auto rounded-2xl bg-[var(--surface-card)] py-1 responsiveText shadow-lg border border-[var(--surface-header)] focus:outline-none z-dropdown responsiveTextInput">
+            <Listbox.Options className="absolute mt-1 max-h-60 w-full overflow-auto rounded-2xl bg-[var(--bg-card)] py-1 responsiveText shadow-lg border border-[var(--bg-subtle)] focus:outline-none z-50 responsiveTextInput">
               {languages.map((language, personIdx) => (
                 <Listbox.Option
                   key={personIdx}
                   className={({ active }) =>
-                    `relative cursor-pointer select-none py-2 pl-9 pr-4 ${active ? 'bg-[var(--surface-header)] text-[var(--endeavour)]' : 'text-[var(--port-gore)]'}`
+                    `relative cursor-pointer select-none py-2 pl-9 pr-4 ${active ? 'bg-[var(--bg-subtle)] text-[var(--endeavour)]' : 'text-[var(--port-gore)]'}`
                   }
                   value={language}
                 >

@@ -2,23 +2,27 @@
 // Contracts Statement, so the statement's Status column follows the same vocabulary/colors the
 // user manages on the Shipment page (add a status here and both pages pick it up).
 
+import { TONES } from '@components/statusUtils';
+
 export const SHIPMENT_STATUSES = ['', 'Pending', 'Shipped', 'In Transit', 'Arrived', 'Completed', 'On Hold'];
+
+const tone = (t) => ({ backgroundColor: TONES[t].bg, border: `1px solid ${TONES[t].border}`, color: TONES[t].text });
 
 // Old stored values are mapped to the current vocabulary on read — no data migration needed.
 const LEGACY_ALIASES = { 'At Port': 'Arrived', 'Delivered': 'Completed' };
 export const normalizeStatus = (s) => LEGACY_ALIASES[s] || s || '';
 
 export const SHIPMENT_STATUS_STYLES = {
-    'Pending':    { backgroundColor: 'var(--warn-bg)', border: '1px solid var(--warn-border)', color: 'var(--warn-strong)' },
-    'Shipped':    { backgroundColor: 'var(--surface-header)', border: '1px solid var(--border-divider)', color: 'var(--chathams-blue)' },
-    'In Transit': { backgroundColor: 'var(--surface-header)', border: '1px solid var(--border-divider)', color: 'var(--chathams-blue)' },
-    'Arrived':    { backgroundColor: 'var(--violet-bg)', border: '1px solid var(--violet-border)', color: 'var(--violet-strong)' },
-    'Completed':  { backgroundColor: 'var(--ok-bg)', border: '1px solid var(--ok-border)', color: 'var(--ok-strong)' },
-    'On Hold':    { backgroundColor: 'var(--pink-bg)', border: '1px solid var(--pink-bg)', color: 'var(--pink-strong)' },
+    'Pending':    { backgroundColor: 'var(--warn-bg)', border: '1px solid var(--warn-border)', color: 'var(--warn-text)' },
+    'Shipped':    { backgroundColor: 'var(--brand-soft)', border: '1px solid var(--brand-border)', color: 'var(--brand-strong)' },
+    'In Transit': { backgroundColor: 'var(--bg-subtle)', border: '1px solid var(--line)', color: 'var(--chathams-blue)' },
+    'Arrived':    { backgroundColor: 'var(--brand-soft)', border: '1px solid var(--brand-border)', color: 'var(--brand-strong)' },
+    'Completed':  { backgroundColor: 'var(--ok-bg)', border: '1px solid var(--ok-border)', color: 'var(--ok-text)' },
+    'On Hold':    { backgroundColor: 'var(--bad-bg)', border: '1px solid var(--bad-border)', color: 'var(--pink-strong)' },
     // Legacy keys kept as a safety net for any raw (un-normalized) value.
-    'At Port':    { backgroundColor: 'var(--violet-bg)', border: '1px solid var(--violet-border)', color: 'var(--violet-strong)' },
-    'Delivered':  { backgroundColor: 'var(--ok-bg)', border: '1px solid var(--ok-border)', color: 'var(--ok-strong)' },
-    '':           { backgroundColor: 'var(--surface-pill)', border: '1px solid var(--border-cell)', color: 'var(--port-gore)' },
+    'At Port':    { backgroundColor: 'var(--brand-soft)', border: '1px solid var(--brand-border)', color: 'var(--brand-strong)' },
+    'Delivered':  { backgroundColor: 'var(--ok-bg)', border: '1px solid var(--ok-border)', color: 'var(--ok-text)' },
+    '':           { backgroundColor: 'var(--bg-subtle)', border: '1px solid var(--line-strong)', color: 'var(--port-gore)' },
 };
 
 // True when a real lifecycle status has been set on the contract (not the empty default).

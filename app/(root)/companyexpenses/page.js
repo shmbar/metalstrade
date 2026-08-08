@@ -158,7 +158,7 @@ const Expenses = () => {
             },
             filterFn: 'dateBetweenFilterFn'
         },
-        { accessorKey: 'cur', header: getTtl('Currency', ln), cell: (props) => { const v = (props.getValue() || '').toUpperCase(); const isUsd = v === 'USD' || v === 'US'; const isEur = v === 'EUR' || v === 'EU'; return <span style={{ background: isUsd ? 'var(--ok-border)' : isEur ? 'var(--surface-header)' : 'var(--surface-muted)', color: isUsd ? 'var(--ok-strong)' : isEur ? 'var(--chathams-blue)' : 'var(--text-mid)', borderRadius: '8px', padding: '3px 14px', fontWeight: 500, fontSize: 'var(--fs-input)', display: 'inline-block' }}>{isUsd ? '$' : isEur ? '€' : v}</span> } },
+        { accessorKey: 'cur', header: getTtl('Currency', ln), cell: (props) => { const v = (props.getValue() || '').toUpperCase(); const isUsd = v === 'USD' || v === 'US'; const isEur = v === 'EUR' || v === 'EU'; return <span style={{ background: isUsd ? 'var(--ok-border)' : isEur ? 'var(--bg-subtle)' : 'var(--neutral-bg)', color: isUsd ? 'var(--ok-text)' : isEur ? 'var(--chathams-blue)' : 'var(--ink-secondary)', borderRadius: '8px', padding: '3px 14px', fontWeight: 500, fontSize: 'var(--fs-input)', display: 'inline-block' }}>{isUsd ? '$' : isEur ? '€' : v}</span> } },
         {
             accessorKey: 'amount', header: getTtl('Amount', ln), cell: (props) => <p>{showAmount(props)}</p>,
             meta: {
@@ -284,19 +284,20 @@ const Expenses = () => {
     }, [expensesData, filteredId, settings, ln]);
 
     return (
-        <div className="w-full " style={{ background: "var(--surface-pill)" }}>
+        <div className="w-full " style={{ background: "var(--bg-page)" }}>
             <div className="mx-auto w-full max-w-full px-1 md:px-2 pb-4 mt-[72px]">
                 {Object.keys(settings).length === 0 ? <TableSkeleton /> :
                     <>
                         <Toast />
                         <VideoLoader loading={loading} fullScreen={true} />
                         {/* Main Card */}
-                        <div className="rounded-2xl p-3 sm:p-5 mt-8 border border-[var(--border-divider)] shadow-xl w-full bg-[var(--surface-pill)]">
+                        <div className="page-card rounded-2xl p-3 sm:p-5 mt-8 border border-[var(--line)] shadow-card w-full bg-[var(--bg-card)]">
                             {/* Header Section */}
                             <div className='flex items-center justify-between flex-wrap gap-2 pb-2'>
-                                <h1 className="text-[var(--chathams-blue)] font-poppins responsiveTextPage font-medium border-l-4 border-[var(--chathams-blue)] pl-2">
-                                    {getTtl('Company Expenses', ln)}
-                                </h1>
+                                <div>
+                                    <h1 className="text-display">{getTtl('Company Expenses', ln)}</h1>
+                                    <p className="responsiveTextInput text-[var(--ink-muted)] mt-0.5">Company-level expenses</p>
+                                </div>
                                 {(() => {
                                     const pendingCount = expensesData.filter(x => splitStatusOf(x) === 'pending').length;
                                     return (
@@ -308,13 +309,13 @@ const Expenses = () => {
                                             style={{
                                                 fontSize: 'var(--fs-body)', padding: '4px 12px',
                                                 color: onlyUnsplit ? 'var(--on-brand)' : 'var(--chathams-blue)',
-                                                background: onlyUnsplit ? 'var(--endeavour)' : 'var(--surface-pill)',
-                                                border: '1px solid var(--border-divider)',
+                                                background: onlyUnsplit ? 'var(--endeavour)' : 'var(--bg-subtle)',
+                                                border: '1px solid var(--line)',
                                             }}
                                         >
                                             <Split className='w-3.5 h-3.5' />
                                             Needs IMS/GIS split
-                                            <span className='rounded-full px-1.5' style={{ fontSize: 'var(--fs-table)', background: onlyUnsplit ? 'rgba(var(--surface-card-rgb), 0.25)' : 'var(--surface-header)', color: onlyUnsplit ? 'var(--on-brand)' : 'var(--endeavour)' }}>
+                                            <span className='rounded-full px-1.5' style={{ fontSize: 'var(--fs-table)', background: onlyUnsplit ? 'var(--on-brand-soft-strong)' : 'var(--bg-subtle)', color: onlyUnsplit ? 'var(--on-brand)' : 'var(--endeavour)' }}>
                                                 {pendingCount}
                                             </span>
                                         </button>
@@ -338,7 +339,7 @@ const Expenses = () => {
                                     <button
                                         type="button"
                                         onClick={addNewExpense}
-                                        className="flex items-center gap-2 bg-[var(--endeavour)] border border-[var(--chathams-blue)] text-white px-4 h-7 responsiveTextTitle font-medium responsiveText rounded-full hover:bg-[var(--selago)]/30 transition-all"
+                                        className="flex items-center gap-2 bg-[var(--endeavour)] border border-[var(--chathams-blue)] text-[var(--on-brand)] px-4 h-7 responsiveTextTitle font-medium responsiveText rounded-full hover:bg-[var(--selago)]/30 transition-all"
                                     >
                                         <TbLayoutGridAdd className="w-4 h-4" />
                                         <span>New Expense</span>

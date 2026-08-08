@@ -30,7 +30,8 @@ import { useGlobalSearch } from '../../../contexts/useGlobalSearchContext';
 import SplitControl from '../../../components/SplitControl';
 import { splitStatusOf } from '../../../utils/splitUtils';
 import { ensureSplitNotificationsBatch } from '../../../utils/utils';
-import { Split } from 'lucide-react';
+import { Split, Wallet, Factory } from 'lucide-react';
+import KpiStrip from '../../../components/KpiStrip';
 
 
 
@@ -386,20 +387,30 @@ const Expenses = () => {
 	};
 
 	return (
-		<div className="w-full " style={{ background: "var(--surface-pill)" }}>
+		<div className="w-full " style={{ background: "var(--bg-page)" }}>
 			<div className="mx-auto w-full max-w-full px-1 md:px-2 pb-4 mt-[72px]">
 				{Object.keys(settings).length === 0 ? <TableSkeleton /> :
 					<>
 						<Toast />
 						<VideoLoader loading={loading} fullScreen={true} />
+						{/* Page header */}
+						<div className="page-header mt-6 mb-3 px-1">
+							<h1 className="text-display">{getTtl('Expenses', ln)}</h1>
+							<p className="responsiveTextInput text-[var(--ink-muted)] mt-0.5">Supplier-linked expenses</p>
+						</div>
+
+						{/* KPI strip */}
+						<KpiStrip items={[
+							{ label: getTtl('Expenses', ln) || 'Expenses', value: expensesData.length, icon: Wallet, tone: 'blue' },
+							{ label: 'Needs IMS/GIS split', value: expensesData.filter(x => splitStatusOf(x) === 'pending').length, icon: Split, tone: 'amber' },
+							{ label: 'Suppliers', value: new Set(expensesData.map(x => x.supplier).filter(Boolean)).size, icon: Factory, tone: 'gray' },
+						]} />
+
 						{/* Main Card */}
-						<div className="rounded-2xl p-3 sm:p-5 mt-8 border border-[var(--border-divider)] w-full bg-[var(--surface-pill)]">
+						<div className="page-card rounded-2xl p-3 sm:p-5 border border-[var(--line)] w-full bg-[var(--bg-card)] shadow-card">
 
 							{/* Header Section */}
-							<div className='flex items-center justify-between flex-wrap gap-2 pb-2'>
-								<h1 className="text-[var(--chathams-blue)] font-poppins responsiveTextPage font-medium border-l-4 border-[var(--chathams-blue)] pl-2">
-									{getTtl('Expenses', ln)}
-								</h1>
+							<div className='flex items-center justify-end flex-wrap gap-2 pb-2'>
 								{(() => {
 									const pendingCount = expensesData.filter(x => splitStatusOf(x) === 'pending').length;
 									return (
@@ -410,14 +421,14 @@ const Expenses = () => {
 											className='inline-flex items-center gap-1.5 rounded-full transition-colors'
 											style={{
 												fontSize: 'var(--fs-body)', padding: '4px 12px',
-												color: onlyUnsplit ? 'var(--on-brand)' : 'var(--chathams-blue)',
-												background: onlyUnsplit ? 'var(--endeavour)' : 'var(--surface-pill)',
-												border: '1px solid var(--border-divider)',
+												color: onlyUnsplit ? 'var(--on-brand)' : 'var(--ink-secondary)',
+												background: onlyUnsplit ? 'var(--brand)' : 'var(--bg-subtle)',
+												border: onlyUnsplit ? '1px solid var(--brand)' : '1px solid var(--line)',
 											}}
 										>
 											<Split className='w-3.5 h-3.5' />
 											Needs IMS/GIS split
-											<span className='rounded-full px-1.5' style={{ fontSize: 'var(--fs-table)', background: onlyUnsplit ? 'rgba(var(--surface-card-rgb), 0.25)' : 'var(--surface-header)', color: onlyUnsplit ? 'var(--on-brand)' : 'var(--endeavour)' }}>
+											<span className='rounded-full px-1.5' style={{ fontSize: 'var(--fs-table)', background: onlyUnsplit ? 'var(--on-brand-soft-strong)' : 'var(--brand-soft)', color: onlyUnsplit ? 'var(--on-brand)' : 'var(--brand)' }}>
 												{pendingCount}
 											</span>
 										</button>

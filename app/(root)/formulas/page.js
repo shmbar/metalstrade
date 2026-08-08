@@ -16,6 +16,7 @@ import { getCur } from '../../../components/exchangeApi';
 import dateFormat from "dateformat";
 import useMetalPrices from '../../../hooks/useMetalPrices';
 import { RefreshCw } from 'lucide-react';
+import LoadingButton from '../../../components/LoadingButton';
 
 function classNames(...classes) {
 	return classes.filter(Boolean).join(' ')
@@ -127,23 +128,25 @@ const Page = () => {
 				<>
 					<Toast />
 					<VideoLoader loading={loading} fullScreen={true} />
-					<div className="bg-[var(--surface-card)] rounded-2xl p-2 sm:p-3 mt-4 border border-[var(--border-divider)]">
+					<div className="bg-[var(--bg-card)] rounded-2xl p-2 sm:p-3 mt-4 border border-[var(--line)] shadow-card">
 						<div className='pb-2'>
-							<h1 className="text-[var(--chathams-blue)] font-poppins responsiveTextPage font-medium border-l-4 border-[var(--chathams-blue)] pl-2">Formulas</h1>
+							<div>
+								<h1 className="text-display">Formulas</h1>
+								<p className="responsiveTextInput text-[var(--ink-muted)] mt-0.5">Pricing formula calculations</p>
+							</div>
 
 							<div className="w-full">
 								<TabGroup>
-									<TabList className="flex gap-4 mb-2 mt-2 pb-2">
+									<TabList className="inline-flex gap-1 mb-2 mt-2 p-0.5 rounded-full bg-[var(--bg-subtle)] border border-[var(--line)]">
 										{tabs.map((z) => (
 											<Tab
 												key={z}
 												className={({ selected }) =>
 													classNames(
-														'px-5 py-2 h-8 flex items-center responsiveTextInput font-poppins whitespace-nowrap transition-all rounded-full focus:outline-none',
-														'focus:outline-none',
+														'px-4 py-1.5 h-8 flex items-center responsiveTextInput whitespace-nowrap transition-colors rounded-full focus:outline-none',
 														selected
-															? 'font-semibold text-white bg-[var(--endeavour)] shadow-md border border-[var(--endeavour)]'
-															: 'text-[var(--endeavour)] bg-[var(--surface-header)] border border-[var(--border-divider)] font-medium hover:bg-[var(--border-divider)] hover:border-[var(--endeavour)] hover:shadow-sm'
+															? 'font-medium text-[var(--ink)] bg-[var(--bg-card)] shadow-card'
+															: 'font-medium text-[var(--ink-secondary)] hover:text-[var(--ink)]'
 													)
 												}
 											>
@@ -153,32 +156,36 @@ const Page = () => {
 									</TabList>
 
 									{value.general != null && !loading && (
-										<div className='bg-[var(--surface-card)] rounded-2xl p-3 mb-2 w-fit border border-[var(--border-divider)]'>
-											<div className='flex flex-wrap items-end gap-2.5'>
-												<div className='flex flex-col rounded-2xl border border-[var(--rock-blue)] bg-[var(--surface-card)] overflow-hidden min-w-[100px] flex-1'>
-													<span className='responsiveTextInput text-[var(--endeavour)] bg-[var(--surface-header)] text-center py-1.5 font-medium flex items-center justify-center gap-1'>
-														Ni LME
-														<button onClick={refreshMetal} title="Refresh live price" className="hover:text-[var(--chathams-blue)] transition-colors">
+										<div className='bg-[var(--bg-card)] rounded-2xl border border-[var(--line)] shadow-card p-4 mb-3'>
+											<div className='flex flex-wrap items-end gap-3'>
+												<div className='min-w-[130px]'>
+													<p className='responsiveTextTable font-semibold uppercase tracking-[0.04em] text-[var(--ink-muted)] mb-1.5'>Ni LME</p>
+													<div className='relative'>
+														<input
+															type='text'
+															className='w-full h-8 rounded-control border border-[var(--line-strong)] bg-[var(--bg-card)] pl-2.5 pr-8 responsiveTextTitle font-semibold tabular-nums text-[var(--ink)] focus:outline-none focus:border-[var(--brand)] focus:ring-[3px] focus:ring-[var(--brand-soft)] transition-colors'
+															name='nilme'
+															onChange={(e) => handleChange(e, 'general')}
+															value={focusedField === 'nilme' ? value.general?.nilme || '' : addComma(value.general?.nilme || '0')}
+															onFocus={() => setFocusedField('nilme')}
+															onBlur={() => setFocusedField(null)}
+														/>
+														<button
+															onClick={refreshMetal}
+															title="Refresh live price"
+															className="absolute right-1 top-1/2 -translate-y-1/2 h-6 w-6 flex items-center justify-center rounded text-[var(--ink-muted)] hover:text-[var(--brand)] hover:bg-[var(--bg-subtle)] transition-colors"
+														>
 															<RefreshCw className={`w-3 h-3 ${metalLoading ? 'animate-spin' : ''}`} />
 														</button>
-													</span>
-													<input
-														type='text'
-														className='px-2 py-1 font-medium text-[var(--danger-text)] text-center bg-[var(--surface-card)] focus:outline-none w-full responsiveTextInput'
-																						name='nilme'
-														onChange={(e) => handleChange(e, 'general')}
-														value={focusedField === 'nilme' ? value.general?.nilme || '' : addComma(value.general?.nilme || '0')}
-														onFocus={() => setFocusedField('nilme')}
-														onBlur={() => setFocusedField(null)}
-													/>
+													</div>
 												</div>
 
-												<div className='flex flex-col rounded-2xl border border-[var(--rock-blue)] bg-[var(--surface-card)] overflow-hidden min-w-[100px] flex-1'>
-													<span className='responsiveTextInput text-[var(--endeavour)] bg-[var(--surface-header)] text-center py-1.5 font-medium'>Mo Oxide - Lb</span>
+												<div className='min-w-[120px]'>
+													<p className='responsiveTextTable font-semibold uppercase tracking-[0.04em] text-[var(--ink-muted)] mb-1.5'>Mo Oxide - Lb</p>
 													<input
 														type='text'
-														className='px-2 py-1 font-medium text-[var(--danger-text)] text-center bg-[var(--surface-card)] focus:outline-none responsiveTextInput'
-																						value={focusedField === 'MoOxideLb' ? value.general?.MoOxideLb || '' : addComma(value.general?.MoOxideLb || '0')}
+														className='w-full h-8 rounded-control border border-[var(--line-strong)] bg-[var(--bg-card)] px-2.5 responsiveTextTitle font-semibold tabular-nums text-[var(--ink)] focus:outline-none focus:border-[var(--brand)] focus:ring-[3px] focus:ring-[var(--brand-soft)] transition-colors'
+														value={focusedField === 'MoOxideLb' ? value.general?.MoOxideLb || '' : addComma(value.general?.MoOxideLb || '0')}
 														name='MoOxideLb'
 														onChange={(e) => handleChange(e, 'general')}
 														onFocus={() => setFocusedField('MoOxideLb')}
@@ -186,12 +193,12 @@ const Page = () => {
 													/>
 												</div>
 
-												<div className='flex flex-col rounded-2xl border border-[var(--rock-blue)] bg-[var(--surface-card)] overflow-hidden min-w-[100px] flex-1'>
-													<span className='responsiveTextInput text-[var(--endeavour)] bg-[var(--surface-header)] text-center py-1.5 font-medium'>Charge Cr - Lb</span>
+												<div className='min-w-[120px]'>
+													<p className='responsiveTextTable font-semibold uppercase tracking-[0.04em] text-[var(--ink-muted)] mb-1.5'>Charge Cr - Lb</p>
 													<input
 														type='text'
-														className='px-2 py-1 font-medium text-[var(--danger-text)] text-center bg-[var(--surface-card)] focus:outline-none responsiveTextInput'
-																						name='chargeCrLb'
+														className='w-full h-8 rounded-control border border-[var(--line-strong)] bg-[var(--bg-card)] px-2.5 responsiveTextTitle font-semibold tabular-nums text-[var(--ink)] focus:outline-none focus:border-[var(--brand)] focus:ring-[3px] focus:ring-[var(--brand-soft)] transition-colors'
+														name='chargeCrLb'
 														onChange={(e) => handleChange(e, 'general')}
 														value={focusedField === 'chargeCrLb' ? value.general?.chargeCrLb || '' : addComma(value.general?.chargeCrLb || '0')}
 														onFocus={() => setFocusedField('chargeCrLb')}
@@ -199,34 +206,31 @@ const Page = () => {
 													/>
 												</div>
 
-												<div className='flex flex-col rounded-2xl border border-[var(--rock-blue)] bg-[var(--surface-card)] overflow-hidden min-w-[100px] flex-1'>
-													<span className='responsiveTextInput text-[var(--endeavour)] bg-[var(--surface-header)] text-center py-1.5 font-medium'>1 MT</span>
+												<div className='min-w-[110px]'>
+													<p className='responsiveTextTable font-semibold uppercase tracking-[0.04em] text-[var(--ink-muted)] mb-1.5'>1 MT</p>
 													<input
 														type='text'
-														className='px-2 py-1 font-medium text-[var(--danger-text)] text-center bg-[var(--surface-card)] focus:outline-none responsiveTextInput'
-																						value={(value.general?.mt || '0') + ' Lb'}
+														className='w-full h-8 rounded-control border border-[var(--line-strong)] bg-[var(--bg-card)] px-2.5 responsiveTextTitle font-semibold tabular-nums text-[var(--ink)] focus:outline-none focus:border-[var(--brand)] focus:ring-[3px] focus:ring-[var(--brand-soft)] transition-colors'
+														value={(value.general?.mt || '0') + ' Lb'}
 														name='mt'
 														onChange={(e) => handleChange(e, 'general')}
 													/>
 												</div>
 
-												<div className='flex flex-col rounded-2xl border border-[var(--rock-blue)] bg-[var(--surface-card)] overflow-hidden min-w-[100px] flex-1'>
-													<span className='responsiveTextInput text-[var(--endeavour)] bg-[var(--surface-header)] text-center py-1.5 font-medium'>Euro / USD</span>
+												<div className='min-w-[110px]'>
+													<p className='responsiveTextTable font-semibold uppercase tracking-[0.04em] text-[var(--ink-muted)] mb-1.5'>Euro / USD</p>
 													<input
 														type='text'
-														className='px-2 py-1 font-medium text-[var(--danger-text)] text-center bg-[var(--surface-card)] focus:outline-none responsiveTextInput'
-																						value={(value.general?.euroRate || '0')}
+														className='w-full h-8 rounded-control border border-[var(--line-strong)] bg-[var(--bg-card)] px-2.5 responsiveTextTitle font-semibold tabular-nums text-[var(--ink)] focus:outline-none focus:border-[var(--brand)] focus:ring-[3px] focus:ring-[var(--brand-soft)] transition-colors'
+														value={(value.general?.euroRate || '0')}
 														name='euroRate'
 														onChange={(e) => handleChange(e, 'general')}
 													/>
 												</div>
 
-												<div
-													className='flex items-center justify-center rounded-full border border-[var(--endeavour)] overflow-hidden min-w-[80px] px-5 py-2 cursor-pointer bg-[var(--endeavour)] hover:bg-[var(--brand-deep)] hover:border-[var(--chathams-blue)] transition-all self-stretch shadow-md'
-													onClick={saveData}
-												>
-													<span className='responsiveTextInput font-semibold text-white'>Save</span>
-												</div>
+												<LoadingButton className='min-w-[80px]' onClick={saveData}>
+													Save
+												</LoadingButton>
 											</div>
 										</div>
 									)}

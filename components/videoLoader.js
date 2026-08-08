@@ -28,12 +28,12 @@ const VideoLoader = ({ loading = true, fullScreen = true }) => {
 
   return (
     <div className={containerClasses} role="status" aria-label="Loading">
-      <div className="flex items-center gap-3 bg-[var(--surface-card)] rounded-full shadow-lg border border-[var(--selago)] px-5 py-3">
+      <div className="flex items-center gap-3 bg-[var(--bg-card)] rounded-full border border-[var(--line)] px-5 py-3" style={{ boxShadow: 'var(--shadow-sm)' }}>
         <div
-          className="w-5 h-5 rounded-full border-[3px] border-[var(--surface-header)] animate-spin"
-          style={{ borderTopColor: 'var(--endeavour)' }}
+          className="w-5 h-5 rounded-full border-[3px] border-[var(--brand-soft)] animate-spin"
+          style={{ borderTopColor: 'var(--brand)' }}
         />
-        <span className="responsiveTextInput font-medium" style={{ color: 'var(--chathams-blue)' }}>
+        <span className="responsiveTextInput font-medium" style={{ color: 'var(--ink-secondary)' }}>
           Loading…
         </span>
       </div>

@@ -23,7 +23,8 @@ import dateFormat from "dateformat";
 import { getTtl } from '../../../utils/languages';
 import DateRangePicker from '../../../components/dateRangePicker';
 // chart.js + react-chartjs-2 are loaded on demand (not in the first-load bundle).
-import { FaWallet, FaArrowTrendUp, FaArrowTrendDown, FaPiggyBank } from 'react-icons/fa6';
+import { Wallet, TrendingUp, TrendingDown, PiggyBank } from 'lucide-react';
+import KpiStrip from '../../../components/KpiStrip';
 import EditableCell from '../../../components/table/inlineEditing/EditableCell';
 import EditableSelectCell from '../../../components/table/inlineEditing/EditableSelectCell';
 import Tltip from '../../../components/tlTip';
@@ -136,8 +137,8 @@ const Accounting = () => {
 
   const { settings, dateSelect, setLoading, loading, ln } = useContext(SettingsContext);
   const { uidCollection } = UserAuth();
-  // Re-render on theme/mode switch so chart configs rebuild with fresh token values
-  useTheme();
+  const { theme } = useTheme();
+  const isDarkTheme = theme === 'dark';
   const { upsertSourceItems } = useGlobalSearch();
   const settingsLoaded = Object.keys(settings).length > 0;
   const clientCount = settings.Client?.Client?.length || 0;
@@ -449,20 +450,20 @@ const Accounting = () => {
         {
           label: 'Debit',
           data: debitByDay,
-          backgroundColor: cssVar('--chathams-blue', '#103a7a'),
+          backgroundColor: cssVar('--endeavour', '#6D5CE0'),
           borderRadius: 6,
           barPercentage: 0.6,
         },
         {
           label: 'Credit',
           data: creditByDay,
-          backgroundColor: cssVar('--rock-blue', '#9fb8d4'),
+          backgroundColor: cssVar('--rock-blue', '#DAD6E8'),
           borderRadius: 6,
           barPercentage: 0.6,
         },
       ],
     };
-  }, [invoicesAccData]);
+  }, [invoicesAccData, isDarkTheme]);
 
   const fmtChartVal = (v) => {
     const abs = Math.abs(v);
@@ -472,16 +473,17 @@ const Accounting = () => {
     return '$' + v;
   };
 
+  // Canvas can't resolve CSS vars — literals mirror the :root / .dark tokens.
   const chartOptions = {
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
       legend: { display: false },
       tooltip: {
-        backgroundColor: cssVarRgba('--surface-card-rgb', 0.95, 'rgba(255,255,255,0.95)'),
-        titleColor: cssVar('--port-gore', '#28264f'),
-        bodyColor: cssVar('--regent-gray', '#838ca7'),
-        borderColor: cssVar('--selago', '#ebf2fc'),
+        backgroundColor: cssVarRgba('--surface-card-rgb', 0.97, 'rgba(255,255,255,0.97)'),
+        titleColor: cssVar('--port-gore', '#1E1B39'),
+        bodyColor: cssVar('--regent-gray', '#6E6B84'),
+        borderColor: cssVar('--border-cell', '#EAE8F2'),
         borderWidth: 1,
         cornerRadius: 8,
         padding: 12,
@@ -493,13 +495,13 @@ const Accounting = () => {
     scales: {
       y: {
         beginAtZero: true,
-        grid: { color: cssVarRgba('--rock-blue-rgb', 0.2, 'rgba(159,184,212,0.2)') },
-        ticks: { color: cssVar('--regent-gray', '#838ca7'), font: { size: 11 }, callback: fmtChartVal },
+        grid: { color: cssVarRgba('--border-cell-rgb', 0.6, 'rgba(234,232,242,0.6)') },
+        ticks: { color: cssVar('--regent-gray', '#6E6B84'), font: { size: 11 }, callback: fmtChartVal },
         border: { display: false },
       },
       x: {
         grid: { display: false },
-        ticks: { color: cssVar('--regent-gray', '#838ca7'), font: { size: 11 } },
+        ticks: { color: cssVar('--regent-gray', '#6E6B84'), font: { size: 11 } },
         border: { display: false },
       },
     },
@@ -613,133 +615,24 @@ const Accounting = () => {
             <VideoLoader loading={loading} fullScreen={true} />
 
             {/* Header + Stats Wrapper */}
-            <div className="rounded-2xl border border-[var(--border-divider)] bg-[var(--surface-pill)] shadow-sm p-4 mb-6">
-
-              {/* Header Section */}
-              <div className='flex items-center justify-between flex-wrap gap-2 pb-3'>
-                <h1 className="text-[var(--chathams-blue)] font-poppins responsiveTextPage font-medium border-l-4 border-[var(--chathams-blue)] pl-2">
-                  {getTtl('Accounting', ln)}
-                </h1>
-              </div>
-
-              {/* Summary Cards */}
-              <div
-                style={{
-                  background: 'var(--surface-header)',
-                  width: '100%',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '40px',
-                  padding: '10px 12px',
-                  flexWrap: 'wrap',
-                  margin: '0 auto',
-                  borderRadius: '1rem',
-                  border: '1px solid var(--border-divider)',
-                }}
-              >
-
-                {/* ── My Balance ── */}
-                <div
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    flexWrap: 'nowrap',
-                    gap: '8px',
-                    background: 'var(--violet-bg)',
-                    borderRadius: '999px',
-                    padding: '7px 14px',
-                    border: '1.5px solid var(--violet-border)',
-                    boxShadow: '0 1px 3px rgba(var(--shadow-rgb), 0.06)',
-                    whiteSpace: 'nowrap',
-                  }}
-                >
-                  <FaWallet className="w-[17px] h-[17px] flex-shrink-0" style={{ color: 'var(--violet-text)' }} />
-                  <span className="responsiveText" style={{ color: 'var(--violet-text)', fontWeight: 500 }}>
-                    {formatCurrency(totals.balance)}
-                  </span>
-                  <span className="responsiveTextTable" style={{ color: 'var(--violet-text)', fontWeight: 400 }}>
-                    My Balance
-                  </span>
-                </div>
-
-                {/* ── Income ── */}
-                <div
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    flexWrap: 'nowrap',
-                    gap: '8px',
-                    background: 'var(--warn-bg)',
-                    borderRadius: '999px',
-                    padding: '7px 14px',
-                    border: '1.5px solid var(--warn-border)',
-                    boxShadow: '0 1px 3px rgba(var(--shadow-rgb), 0.06)',
-                    whiteSpace: 'nowrap',
-                  }}
-                >
-                  <FaArrowTrendUp className="w-[17px] h-[17px] flex-shrink-0" style={{ color: 'var(--warn-strong)' }} />
-                  <span className="responsiveText" style={{ color: 'var(--warn-strong)', fontWeight: 500 }}>
-                    {formatCurrency(totals.totalIncome)}
-                  </span>
-                  <span className="responsiveTextTable" style={{ color: 'var(--warn-strong)', fontWeight: 400 }}>
-                    Income
-                  </span>
-                </div>
-
-                {/* ── Expense ── */}
-                <div
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    flexWrap: 'nowrap',
-                    gap: '8px',
-                    background: 'var(--pink-bg)',
-                    borderRadius: '999px',
-                    padding: '7px 14px',
-                    border: '1.5px solid var(--pink-bg)',
-                    boxShadow: '0 1px 3px rgba(var(--shadow-rgb), 0.06)',
-                    whiteSpace: 'nowrap',
-                  }}
-                >
-                  <FaArrowTrendDown className="w-[17px] h-[17px] flex-shrink-0" style={{ color: 'var(--pink-text)' }} />
-                  <span className="responsiveText" style={{ color: 'var(--pink-text)', fontWeight: 500 }}>
-                    {formatCurrency(totals.totalExpense)}
-                  </span>
-                  <span className="responsiveTextTable" style={{ color: 'var(--pink-text)', fontWeight: 400 }}>
-                    Expense
-                  </span>
-                </div>
-
-                {/* ── Savings ── */}
-                <div
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    flexWrap: 'nowrap',
-                    gap: '8px',
-                    background: 'var(--ok-bg)',
-                    borderRadius: '999px',
-                    padding: '7px 14px',
-                    border: '1.5px solid var(--ok-border)',
-                    boxShadow: '0 1px 3px rgba(var(--shadow-rgb), 0.06)',
-                    whiteSpace: 'nowrap',
-                  }}
-                >
-                  <FaPiggyBank className="w-[17px] h-[17px] flex-shrink-0" style={{ color: 'var(--ok-strong)' }} />
-                  <span className="responsiveText" style={{ color: 'var(--ok-strong)', fontWeight: 500 }}>
-                    {formatCurrency(totals.savings)}
-                  </span>
-                  <span className="responsiveTextTable" style={{ color: 'var(--ok-strong)', fontWeight: 400 }}>
-                    Savings
-                  </span>
-                </div>
-
+            {/* Page header */}
+            <div className="page-header flex items-end justify-between flex-wrap gap-2 mt-6 mb-3 px-1">
+              <div>
+                <h1 className="text-display">{getTtl('Accounting', ln)}</h1>
+                <p className="responsiveTextInput text-[var(--ink-muted)] mt-0.5">Transactions overview</p>
               </div>
             </div>
+
+            {/* KPI strip — same card language as contracts/invoices/stocks */}
+            <KpiStrip items={[
+              { label: 'My Balance', value: totals.balance, format: formatCurrency, icon: Wallet, tone: 'blue' },
+              { label: 'Income', value: totals.totalIncome, format: formatCurrency, icon: TrendingUp, tone: 'green' },
+              { label: 'Expense', value: totals.totalExpense, format: formatCurrency, icon: TrendingDown, tone: 'red' },
+              { label: 'Savings', value: totals.savings, format: formatCurrency, icon: PiggyBank, tone: 'amber' },
+            ]} />
             {/* Full Table */}
-            <div className="rounded-2xl p-3 sm:p-5 mt-2 border border-[var(--border-divider)] shadow-xl w-full bg-[var(--surface-pill)] relative">
-              <h3 className="responsiveText font-medium font-poppins text-[var(--chathams-blue)] mb-4">All Transactions</h3>
+            <div className="page-card rounded-2xl p-3 sm:p-5 mt-2 border border-[var(--line)] shadow-card w-full bg-[var(--bg-card)] relative">
+              <h3 className="text-title mb-4">All Transactions</h3>
               <Customtable data={invoicesAccData} columns={propDefaults} onCellUpdate={onCellUpdate}
                 excellReport={EXD(invoicesAccData, settings, getTtl('Accounting', ln), ln)} />
             </div>
@@ -747,7 +640,7 @@ const Accounting = () => {
             {/* Main Content Grid */}
             <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-6 mt-3">
               {/* Last Transaction */}
-              <div className="rounded-2xl p-3 sm:p-5 mt-2 border border-[var(--border-divider)] shadow-xl w-full bg-[var(--surface-pill)]">
+              <div className="rounded-2xl p-3 sm:p-5 mt-2 border border-[var(--line)] shadow-xl w-full bg-[var(--bg-subtle)]">
                 <h3 className="responsiveText font-medium font-poppins text-[var(--chathams-blue)] mb-2">Last Transaction</h3>
                 <div className="space-y-0">
                   {recentTransactions.map((item, idx) => (
@@ -779,7 +672,7 @@ const Accounting = () => {
               </div>
 
               {/* Invoices Sent */}
-              <div className="rounded-2xl p-3 sm:p-5 mt-2 border border-[var(--border-divider)] shadow-xl w-full bg-[var(--surface-pill)]">
+              <div className="rounded-2xl p-3 sm:p-5 mt-2 border border-[var(--line)] shadow-xl w-full bg-[var(--bg-subtle)]">
                 <h3 className="responsiveText font-medium font-poppins text-[var(--chathams-blue)] mb-2">Invoices Sent</h3>
                 <div className="space-y-0">
                   {recentInvoices.map((item, idx) => (
@@ -800,7 +693,7 @@ const Accounting = () => {
                       </div>
                       <div className="text-right flex-shrink-0 ml-2">
                         <p className="responsiveText font-medium font-poppins text-[var(--chathams-blue)] mb-0.5">{formatCurrency(item.amountInv || 0)}</p>
-                        <span className={`inline-block px-2 py-0.5 rounded-full responsiveTextTable font-medium font-poppins ${idx % 2 === 0 ? 'bg-emerald-100 text-emerald-700' : 'bg-[var(--surface-muted)] text-[var(--regent-gray)]'
+                        <span className={`inline-block px-2 py-0.5 rounded-full responsiveTextTable font-medium font-poppins ${idx % 2 === 0 ? 'bg-emerald-100 text-emerald-700' : 'bg-[var(--neutral-bg)] text-[var(--regent-gray)]'
                           }`}>
                           {idx % 2 === 0 ? 'Paid' : 'Pending'}
                         </span>
@@ -814,7 +707,7 @@ const Accounting = () => {
             {/* Chart Section */}
             <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-6">
               {/* Debit & Credit Overview */}
-              <div className="rounded-2xl p-3 sm:p-5 mt-2 border border-[var(--border-divider)] shadow-xl w-full bg-[var(--surface-pill)]">
+              <div className="rounded-2xl p-3 sm:p-5 mt-2 border border-[var(--line)] shadow-xl w-full bg-[var(--bg-subtle)]">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-2">
                   <div className="min-w-0">
                     <h3 className="responsiveText font-medium font-poppins text-[var(--chathams-blue)]">Debit & Credit Overview</h3>
@@ -838,24 +731,24 @@ const Accounting = () => {
                 </div>
               </div>
               {/* Summary Stats */}
-              <div className="rounded-2xl p-3 sm:p-5 mt-2 border border-[var(--border-divider)] shadow-xl bg-[var(--surface-pill)] overflow-hidden">
+              <div className="rounded-2xl p-3 sm:p-5 mt-2 border border-[var(--line)] shadow-xl bg-[var(--bg-subtle)] overflow-hidden">
                 <h3 className="responsiveText font-medium font-poppins text-[var(--chathams-blue)] mb-4">Financial Summary</h3>
                 <div className="grid grid-cols-2 gap-4">
-                  <div className="bg-[var(--surface-header)] rounded-2xl p-4 overflow-hidden border border-[var(--border-divider)] shadow-sm">
+                  <div className="bg-[var(--bg-subtle)] rounded-2xl p-4 overflow-hidden border border-[var(--line)] shadow-sm">
                     <p className="text-[var(--port-gore)] responsiveText mb-1">Total Transactions</p>
                     <p className="responsiveTextTotal font-medium text-[var(--chathams-blue)]">{invoicesAccData.length}</p>
                   </div>
-                  <div className="bg-[var(--surface-header)] rounded-2xl p-4 overflow-hidden border border-[var(--border-divider)] shadow-sm">
+                  <div className="bg-[var(--bg-subtle)] rounded-2xl p-4 overflow-hidden border border-[var(--line)] shadow-sm">
                     <p className="text-[var(--port-gore)] responsiveText mb-1">Avg. Transaction</p>
                     <p className="responsiveTextTotal font-medium text-[var(--chathams-blue)] truncate">
                       {formatCurrency(invoicesAccData.length > 0 ? (totals.totalIncome + totals.totalExpense) / invoicesAccData.length : 0)}
                     </p>
                   </div>
-                  <div className="bg-[var(--surface-header)] rounded-2xl p-4 overflow-hidden border border-[var(--border-divider)] shadow-sm">
+                  <div className="bg-[var(--bg-subtle)] rounded-2xl p-4 overflow-hidden border border-[var(--line)] shadow-sm">
                     <p className="text-[var(--port-gore)] responsiveText mb-1">Net Profit</p>
                     <p className="responsiveTextTotal font-medium text-[var(--chathams-blue)] truncate">{formatCurrency(totals.balance)}</p>
                   </div>
-                  <div className="bg-[var(--surface-header)] rounded-2xl p-4 overflow-hidden border border-[var(--border-divider)] shadow-sm">
+                  <div className="bg-[var(--bg-subtle)] rounded-2xl p-4 overflow-hidden border border-[var(--line)] shadow-sm">
                     <p className="text-[var(--port-gore)] responsiveText mb-1">Profit Margin</p>
                     <p className="responsiveTextTotal font-medium text-[var(--chathams-blue)]">
                       {formatPercent(totals.totalIncome > 0 ? (totals.balance / totals.totalIncome) * 100 : 0)}

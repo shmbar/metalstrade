@@ -76,7 +76,7 @@ const Setup = () => {
             className="
               flex flex-col overflow-auto mt-1
               ring-1 ring-black/5 rounded-2xl
-              bg-[var(--surface-header)]
+              bg-[var(--bg-subtle)]
               py-2
             "
           >
@@ -87,11 +87,11 @@ const Setup = () => {
                   className={`
                     inline-flex items-center gap-x-2
                     py-2 px-5
-                    responsiveText font-medium text-[var(--chathams-blue)] responsiveTextInput 
+                    responsiveText font-medium text-[var(--ink)] responsiveTextInput 
                     cursor-pointer whitespace-nowrap
-                    rounded-full mx-2
+                    rounded-control mx-2
                     hover:bg-[var(--selago)]
-                    ${x === keyName ? "font-semibold bg-[var(--surface-card)]" : ""}
+                    ${x === keyName ? "font-semibold bg-[var(--bg-card)]" : ""}
                   `}
                 >
                   {x !== "Hs" ? getTtl(x, ln) : x}
@@ -103,8 +103,8 @@ const Setup = () => {
         {/* divider line stays */}
 
         {/* RIGHT PANEL */}
-        <div className="w-full md:w-[70%] md:px-4 pt-4 md:pt-0 rounded-2xl bg-[var(--surface-base)] ">
-          <div className=" p-4 rounded-2xl mt-5 shadow-md bg-[var(--surface-card)] w-full md:w-[50%]">
+        <div className="w-full md:w-[70%] md:px-4 pt-4 md:pt-0 rounded-2xl bg-[var(--bg-subtle)] ">
+          <div className=" p-4 rounded-2xl mt-5 shadow-md bg-[var(--bg-card)] w-full md:w-[50%]">
             <List
               list={list}
               ttl={keyName}

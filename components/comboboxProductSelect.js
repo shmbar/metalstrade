@@ -63,7 +63,7 @@ const MyCombobox = ({ data, setValue, value, indx, name, classes, disabled, clas
         <div className="w-full">
             <Combobox by="id" value={selected} onChange={(e) => setSelection(e)} disabled={disabled}>
                 <div className="my-1">
-                    <div className={`relative w-full cursor-default overflow-hidden rounded-lg bg-[var(--surface-card)] text-left \n                     focus:outline-none border border-[var(--endeavour)] hover:border-[var(--endeavour)] transition-colors h-7 ${classes}`}
+                    <div className={`relative w-full cursor-default overflow-hidden rounded-lg bg-[var(--bg-card)] text-left \n                     focus:outline-none border border-[var(--endeavour)] hover:border-[var(--endeavour)] transition-colors h-8 ${classes}`}
                         >
                         <Combobox.Input
                             className="w-full py-1 pl-3 pr-10 responsiveTextInput leading-5 text-[var(--endeavour)] focus:outline-none "
@@ -85,8 +85,9 @@ const MyCombobox = ({ data, setValue, value, indx, name, classes, disabled, clas
                         leaveTo="opacity-0"
                         afterLeave={() => setQuery('')}
                     >
-                        <ComboboxOptions className={`w-[var(--input-width)] z-dropdown absolute mt-1 max-h-60 overflow-auto rounded-lg 
-                        bg-[var(--surface-card)] py-1 responsiveTextInput shadow-lg ring-1 ring-[var(--selago)] focus:outline-none ${classes1}
+                        <ComboboxOptions className={`w-[var(--input-width)] z-10 absolute mt-1 max-h-60 overflow-auto rounded-lg 
+                        bg-[var(--bg-card)] py-1 text-base shadow-lg ring-1 ring-[var(--selago)] focus:outline-none 
+                        ${classes1}
                         [--anchor-gap:var(--spacing-1)]`} 
                         >
                             {filteredData.length === 0 && query !== '' ? (
@@ -99,7 +100,7 @@ const MyCombobox = ({ data, setValue, value, indx, name, classes, disabled, clas
                                     <ComboboxOption
                                         key={x.id}
                                         className={({ active }) =>
-                                            `relative cursor-default select-none py-1 responsiveTextInput pl-10 pr-4 ${active ? 'bg-[var(--endeavour)] text-white' : 'text-[var(--port-gore)]'
+                                            `relative cursor-default select-none py-1 responsiveTextInput pl-10 pr-4 ${active ? 'bg-[var(--endeavour)] text-[var(--on-brand)]' : 'text-[var(--port-gore)]'
                                             }`
                                         }
                                         value={x}
@@ -114,7 +115,7 @@ const MyCombobox = ({ data, setValue, value, indx, name, classes, disabled, clas
                                                 </span>
                                                 {selected ? (
                                                     <span
-                                                        className={`absolute inset-y-0 left-0 flex items-center pl-3 ${active ? 'text-white' : 'text-[var(--endeavour)]'
+                                                        className={`absolute inset-y-0 left-0 flex items-center pl-3 ${active ? 'text-[var(--on-brand)]' : 'text-[var(--endeavour)]'
                                                             }`}
                                                     >
                                                         <AiOutlineCheck className="h-5 w-5" aria-hidden="true" />

@@ -78,9 +78,7 @@ export function Selector({ arr, value, onChange, name, clear, disabled, secondar
                             onKeyDown={(e) => e.stopPropagation()}
                             onPointerDown={(e) => e.stopPropagation()}
                             placeholder="Search…"
-                            /* rounded-full, not rounded-lg: every other search field in the
-                               app is a pill, so a 12px radius here read as a rectangle. */
-                            className="w-full h-7 px-3 rounded-full border border-[var(--border-cell)] bg-[var(--surface-pill)] text-[var(--chathams-blue)] focus:outline-none focus:border-[var(--endeavour)]"
+                            className="w-full h-7 px-2 rounded-lg border border-[var(--line-strong)] bg-[var(--bg-subtle)] responsiveTextInput text-[var(--chathams-blue)] focus:outline-none focus:border-[var(--endeavour)]"
                         />
                     </div>
                 )}

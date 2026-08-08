@@ -124,11 +124,11 @@ export const sumClients = (dt) => {
 export const detailsToolTip = (row, data, settings, dataTable, rmrk) => {
     const containerStyle = {
         fontFamily: "var(--font-poppins), 'Poppins', sans-serif",
-        background: 'var(--surface-card)',
+        background: "var(--bg-card)",
         borderRadius: '16px',
         overflow: 'hidden',
-        boxShadow: '0 8px 32px rgba(var(--endeavour-rgb),0.13)',
-        border: '1px solid var(--border-divider)',
+        boxShadow: 'var(--shadow-md)',
+        border: '1px solid var(--line)',
         minWidth: '400px',
         padding: '0',
     };
@@ -144,14 +144,14 @@ export const detailsToolTip = (row, data, settings, dataTable, rmrk) => {
         color: 'var(--chathams-blue)',
         fontWeight: 500,
         fontSize: 'var(--fs-body)',
-        border: '1px solid var(--border-divider)',
-        background: 'var(--surface-header)',
+        border: '1px solid var(--line)',
+        background: 'var(--bg-subtle)',
         whiteSpace: 'nowrap',
     };
     const tdStyle = {
         textAlign: 'center',
         padding: '5px 10px',
-        border: '1px solid var(--selago)',
+        border: '1px solid var(--line)',
         fontSize: 'var(--fs-body)',
         color: 'var(--chathams-blue)',
         whiteSpace: 'nowrap',
@@ -169,7 +169,7 @@ export const detailsToolTip = (row, data, settings, dataTable, rmrk) => {
 
         return (
             <div style={containerStyle}>
-                <div style={{ background: 'var(--surface-header)', padding: '7px 14px', fontWeight: 500, fontSize: 'var(--fs-body)', color: 'var(--chathams-blue)', borderBottom: '1px solid var(--border-divider)' }}>
+                <div style={{ background: 'var(--bg-subtle)', padding: '7px 14px', fontWeight: 500, fontSize: 'var(--fs-body)', color: 'var(--chathams-blue)', borderBottom: '1px solid var(--line)' }}>
                     Supplier Details
                 </div>
                 <table style={tableStyle}>
@@ -183,7 +183,7 @@ export const detailsToolTip = (row, data, settings, dataTable, rmrk) => {
                     </thead>
                     <tbody>
                         {filteredArr?.map((z, i) => (
-                            <tr key={i} style={{ background: i % 2 === 0 ? 'var(--surface-card)' : 'var(--surface-pill)', transition: 'background 150ms ease-in-out' }}>
+                            <tr key={i} style={{ background: i % 2 === 0 ? 'var(--bg-card)' : 'var(--bg-subtle)', transition: 'background 150ms ease-in-out' }}>
                                 <td style={tdStyle}>
                                     {Array.isArray(z.supInvoices) ? z.supInvoices.map((item, index) => (
                                         <div key={index}>{item}</div>
@@ -237,7 +237,7 @@ export const detailsToolTip = (row, data, settings, dataTable, rmrk) => {
 
         return (
             <div style={containerStyle}>
-                <div style={{ background: 'var(--surface-header)', padding: '7px 14px', fontWeight: 500, fontSize: 'var(--fs-body)', color: 'var(--chathams-blue)', borderBottom: '1px solid var(--border-divider)' }}>
+                <div style={{ background: 'var(--bg-subtle)', padding: '7px 14px', fontWeight: 500, fontSize: 'var(--fs-body)', color: 'var(--chathams-blue)', borderBottom: '1px solid var(--line)' }}>
                     Client Details
                 </div>
                 <table style={tableStyle}>
@@ -251,7 +251,7 @@ export const detailsToolTip = (row, data, settings, dataTable, rmrk) => {
                     </thead>
                     <tbody>
                         {filteredArr?.map((z, i) => (
-                            <tr key={i} style={{ background: i % 2 === 0 ? 'var(--surface-card)' : 'var(--surface-pill)', transition: 'background 150ms ease-in-out' }}>
+                            <tr key={i} style={{ background: i % 2 === 0 ? 'var(--bg-card)' : 'var(--bg-subtle)', transition: 'background 150ms ease-in-out' }}>
                                 <td style={tdStyle}>{z.InvNum}</td>
                                 <td style={tdAmountStyle}>
                                     <NumericFormat

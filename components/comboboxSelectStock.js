@@ -59,8 +59,8 @@ const MyComboboxSelectStock = ({ data, setValue, value, idx, name, classes, disa
         <div className="w-full" ref={wrapperRef}>
             <Combobox by="id" value={selected} onChange={(e) => setSelection(e)} disabled={disabled}>
                 <div className="relative">
-                    <div className={`relative w-full cursor-default overflow-hidden rounded-full bg-[var(--surface-card)] text-left
-                     focus:outline-none responsiveTextInput border border-[var(--border-divider)] hover:border-[var(--endeavour)] transition-colors h-7 ${classes}`}>
+                    <div className={`relative w-full cursor-default overflow-hidden rounded-full bg-[var(--bg-card)] text-left
+                     focus:outline-none responsiveTextInput border border-[var(--line)] hover:border-[var(--endeavour)] transition-colors h-8 ${classes}`}>
                         <ComboboxInput
                             className={cn('w-full py-2 pl-3 pr-10 responsiveTextInput leading-5 focus:outline-none',
                                 selected[name] !== plcHolder ? 'text-[var(--endeavour)]' : 'text-[var(--endeavour)]')}
@@ -82,8 +82,8 @@ const MyComboboxSelectStock = ({ data, setValue, value, idx, name, classes, disa
                         afterLeave={() => setQuery('')}
                     >
                         <Portal>
-                            <ComboboxOptions style={dropdownStyle} className={`z-dropdown max-h-60 overflow-auto custom-scroll rounded-2xl
-                            bg-[var(--surface-card)] py-1 responsiveTextInput shadow-lg border border-[var(--surface-header)] focus:outline-none ${classes1}`}>
+                            <ComboboxOptions style={dropdownStyle} className={`z-50 max-h-60 overflow-auto custom-scroll rounded-2xl
+                            bg-[var(--bg-card)] py-1 responsiveTextInput shadow-lg border border-[var(--bg-subtle)] focus:outline-none ${classes1}`}>
                             {filteredData.length === 0 && query !== '' ? (
                                 <div className="relative cursor-default select-none py-2 px-4 text-[var(--regent-gray)] responsiveTextInput">
                                     Nothing found.
@@ -94,9 +94,9 @@ const MyComboboxSelectStock = ({ data, setValue, value, idx, name, classes, disa
                                     <ComboboxOption
                                         key={x.id}
                                         className={cn(
-                                            'relative cursor-default select-none py-1 responsiveTextInput pl-10 pr-4 text-[var(--port-gore)] hover:bg-[var(--surface-header)] hover:text-[var(--endeavour)]',
+                                            'relative cursor-default select-none py-1 responsiveTextInput pl-10 pr-4 text-[var(--port-gore)] hover:bg-[var(--bg-subtle)] hover:text-[var(--endeavour)]',
                                             selected.id === x.id
-                                                ? 'bg-[var(--surface-header)] text-[var(--endeavour)]'
+                                                ? 'bg-[var(--bg-subtle)] text-[var(--endeavour)]'
                                                 : '',
                                                 x.id==='allStocks' ? 'text-[var(--chathams-blue)] italic font-bold truncate': ''
                                         )}
