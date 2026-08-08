@@ -510,7 +510,7 @@ describe('material table footer', () => {
   it("web's fmt / footerVal / cost columns have not drifted", () => {
     expectWebUnchanged('app/(root)/materialtables/newTable.js', 'fmt', '68aede0d2941');
     expectWebUnchanged('app/(root)/materialtables/newTable.js', 'footerVal', '29b9b76b6a38');
-    expectWebUnchanged('app/(root)/materialtables/newTable.js', 'enhancedColumns', 'e0bbc31f7094');
+    expectWebUnchanged('app/(root)/materialtables/newTable.js', 'enhancedColumns', 'ae6177c397a2');
     expectWebUnchanged('app/(root)/materialtables/newTable.js', 'hasPrices', '693a64e82c2a');
     expectWebUnchanged('app/(root)/materialtables/newTable.js', 'niMult', '39476216c4bf');
   });

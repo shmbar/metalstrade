@@ -54,7 +54,7 @@ const Customtable = ({ data, columns, ln, ttl, settings, dataTable, rmrk }) => {
                     borderTopLeftRadius: '16px',
                     borderTopRightRadius: '12px'
                 }}>
-                <h3 className="responsiveTextTable text-[var(--chathams-blue)] font-medium font-poppins text-center"
+                <h3 className="responsiveTextTable text-[var(--chathams-blue)] font-medium font-sans text-center"
                     style={{
                         letterSpacing: '0.02em'
                     }}>
@@ -70,7 +70,7 @@ const Customtable = ({ data, columns, ln, ttl, settings, dataTable, rmrk }) => {
                                 <tr key={hdGroup.id} style={{ borderBottom: '1px solid var(--selago)' }}>
                                     {hdGroup.headers.map(header =>
                                         <th key={header.id}
-                                            className="responsiveTextTable relative px-6 py-2 text-left font-medium font-poppins"
+                                            className="responsiveTextTable relative px-6 py-2 text-left font-medium font-sans"
                                             style={{
                                                 color: 'var(--chathams-blue)',
                                                 borderRight: '1px solid var(--line)',

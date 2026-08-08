@@ -177,7 +177,7 @@ export default function SplitControl({
           >
             <div className="flex items-center justify-between px-4 py-2.5" style={{ background: 'var(--bg-subtle)', borderBottom: '1px solid var(--line)' }}>
               <span className="font-semibold" style={{ fontSize: 'var(--fs-title)', color: 'var(--chathams-blue)' }}>IMS / GIS split</span>
-              <button type="button" onClick={() => setOpen(false)} className="p-1 rounded-full hover:bg-white/60">
+              <button type="button" onClick={() => setOpen(false)} className="p-1 rounded-full hover:bg-[var(--bg-subtle)]">
                 <X className="w-4 h-4" style={{ color: 'var(--chathams-blue)' }} />
               </button>
             </div>
@@ -194,7 +194,7 @@ export default function SplitControl({
                   <input
                     type="number" min="0" max="100" value={ratio}
                     onChange={(e) => setRatio(e.target.value)}
-                    className="h-7 px-3 rounded-full w-24" style={{ fontSize: 'var(--fs-input)', background: 'var(--bg-subtle)', border: '1px solid var(--line-strong)' }}
+                    className="h-8 px-3 rounded-control w-24" style={{ fontSize: 'var(--fs-input)', background: 'var(--bg-subtle)', border: '1px solid var(--line-strong)' }}
                   />
                   <span style={{ fontSize: 'var(--fs-body)', color: 'var(--regent-gray)' }}>% → GIS gets {100 - (Math.min(100, Math.max(0, Number(ratio) || 0)))}%</span>
                 </div>

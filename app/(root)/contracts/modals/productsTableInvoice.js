@@ -389,7 +389,7 @@ const ProductsTable = ({ value, setValue, currency, settings, uidCollection, set
                                     <th scope="col" className="w-[9%] px-1 py-1 text-left responsiveTextTable font-medium text-[var(--chathams-blue)]">
                                         <div>{getTtl('Total', ln)} <span className='responsiveTextTable'>
                                             {c !== '' ? '(' + c + ')' : ''}</span></div></th>
-                                    <th scope="col" className="w-[13%] px-1 py-1 text-left responsiveTextTable font-medium text-[var(--chathams-blue)] border-l border-[var(--line)]">
+                                    <th scope="col" className="w-[13%] px-1 py-1 text-left responsiveTextTable font-medium text-[var(--chathams-blue)]">
                                         {getTtl('Stock', ln)}</th>
                                     <th scope="col" className="w-[9%] px-1 py-1 text-left responsiveTextTable font-medium text-[var(--chathams-blue)]">
                                         {getTtl('Available Quantity', ln)} (MT)</th>
@@ -611,7 +611,7 @@ const ProductsTable = ({ value, setValue, currency, settings, uidCollection, set
                                             fixedDecimalScale
                                         />
                                     </td>
-                                    <td className="py-2 pl-4 border-l"></td>
+                                    <td className="py-2 pl-4"></td>
                                     <td className="py-2 pl-4"></td>
                                 </tr>
 
@@ -658,7 +658,7 @@ const ProductsTable = ({ value, setValue, currency, settings, uidCollection, set
                                             fixedDecimalScale
                                         />
                                     </td>
-                                    <td className="py-2 pl-4 border-l"></td>
+                                    <td className="py-2 pl-4"></td>
                                     <td className="py-2 pl-4"></td>
                                 </tr>}
 
@@ -698,7 +698,7 @@ const ProductsTable = ({ value, setValue, currency, settings, uidCollection, set
                                                 />
                                             }
                                         </td>
-                                        <td className="py-2 pl-4 border-l"></td>
+                                        <td className="py-2 pl-4"></td>
                                         <td className="py-2 pl-4"></td>
                                     </tr>
                                 }
@@ -726,7 +726,7 @@ const ProductsTable = ({ value, setValue, currency, settings, uidCollection, set
                                             />
 
                                         </td>
-                                        <td className="py-2 pl-4 border-l"></td>
+                                        <td className="py-2 pl-4"></td>
                                         <td className="py-2 pl-4"></td>
                                     </tr>
                                 }

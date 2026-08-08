@@ -23,7 +23,7 @@ export function Header() {
         <button className="p-2 rounded-2xl hover:bg-[var(--bg-card)] transition-colors text-muted-foreground">
           <MessageSquare className="h-5 w-5" />
         </button>
-        <Avatar className="h-9 w-9 border border-white shadow-sm cursor-pointer">
+        <Avatar className="h-9 w-9 border border-[var(--bg-card)] shadow-sm cursor-pointer">
           <AvatarImage src="https://github.com/shadcn.png" />
           <AvatarFallback>AD</AvatarFallback>
         </Avatar>

@@ -74,7 +74,7 @@ export default function SumBasket({ items = [], onRemove, onClear }) {
     return (
         <div
             ref={ref}
-            className={`fixed z-40 w-[19rem] rounded-2xl overflow-hidden font-poppins
+            className={`fixed z-40 w-[19rem] rounded-2xl overflow-hidden font-sans
                 border border-[var(--line)]
                 bg-[var(--glass)] backdrop-blur-md shadow-pop
                 animate-in fade-in slide-in-from-bottom-3 duration-300
@@ -113,7 +113,7 @@ export default function SumBasket({ items = [], onRemove, onClear }) {
             </div>
 
             {/* Metric switcher */}
-            <div className="flex items-center gap-1 px-2 py-1.5 bg-white/60 border-b border-[var(--line)]">
+            <div className="flex items-center gap-1 px-2 py-1.5 bg-[var(--bg-subtle)] border-b border-[var(--line)]">
                 {METRICS.map(m => (
                     <button key={m} onClick={() => setMetric(m)}
                         className={`flex-1 responsiveTextTable font-semibold py-1 rounded-lg transition-colors ${metric === m
@@ -157,7 +157,7 @@ export default function SumBasket({ items = [], onRemove, onClear }) {
 
             {/* Selected line items — collapsible */}
             {!collapsed &&
-                <div className="max-h-52 overflow-y-auto border-t border-[var(--line)] bg-white/40">
+                <div className="max-h-52 overflow-y-auto border-t border-[var(--line)] bg-[var(--bg-subtle)]">
                     {rows.map(r => (
                         <div key={r.key}
                             className="group flex items-center justify-between gap-2 px-3 py-1.5 hover:bg-[var(--bg-subtle)] transition-colors responsiveText">

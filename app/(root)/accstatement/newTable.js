@@ -218,7 +218,7 @@ const Customtable = ({
                       {hdGroup.headers.map((header, idx) => (
                         <th
                           key={header.id}
-                          className={`px-2 py-2 responsiveTextTable font-poppins font-medium ${header.column.id === 'select' ? 'text-left' : 'text-center'}`}
+                          className={`px-2 py-2 responsiveTextTable font-sans font-medium ${header.column.id === 'select' ? 'text-left' : 'text-center'}`}
                           style={{
                             color: 'var(--chathams-blue)',
                             minWidth: header.column.id === 'select' ? '50px' : '60px',

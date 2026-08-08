@@ -68,7 +68,7 @@ const PdfPreview = ({ blob, filename = 'document.pdf', title, onClose }) => {
             onClick={onClose}
         >
             <div
-                className='w-full max-w-4xl rounded-2xl bg-white shadow-2xl overflow-hidden flex flex-col'
+                className='w-full max-w-4xl rounded-2xl bg-[var(--bg-card)] shadow-2xl overflow-hidden flex flex-col'
                 style={{ border: '1px solid var(--line)', height: '92vh' }}
                 onClick={e => e.stopPropagation()}
             >

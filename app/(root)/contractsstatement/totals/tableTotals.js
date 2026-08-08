@@ -34,7 +34,7 @@ const Customtable = ({ data, columns, expensesData, settings }) => {
                   background: linear-gradient(135deg, rgba(var(--surface-card-rgb),0.85) 0%, rgba(var(--surface-base-rgb),0.90) 50%, rgba(var(--surface-card-rgb),0.85) 100%);
                 }
                 .custom-table, .custom-table *, .glass-table, .glass-table * {
-                  font-family: var(--font-poppins), 'Poppins', sans-serif;
+                  font-family: var(--font-jakarta), 'Plus Jakarta Sans', sans-serif;
                   transition-property: color, background-color, border-color, box-shadow !important;
                   transition-duration: 150ms !important;
                   transition-timing-function: ease-in-out !important;
@@ -65,7 +65,7 @@ const Customtable = ({ data, columns, expensesData, settings }) => {
                     background: 'var(--bg-subtle)',
                     borderBottom: '1px solid var(--rock-blue)'
                 }}>
-                    <h3 className="responsiveTextTableTitle text-[var(--chathams-blue)] font-normal font-poppins text-center w-full"
+                    <h3 className="responsiveTextTableTitle text-[var(--chathams-blue)] font-normal font-sans text-center w-full"
                         style={{
                             letterSpacing: '0.02em'
                         }}>
@@ -80,7 +80,7 @@ const Customtable = ({ data, columns, expensesData, settings }) => {
                                 <tr key={hdGroup.id} style={{ borderBottom: '1px solid rgba(var(--surface-card-rgb), 0.2)' }}>
                                     {hdGroup.headers.map(header => (
                                         <th key={header.id}
-                                            className="responsiveTextTable px-2 py-2 text-center font-normal font-poppins"
+                                            className="responsiveTextTable px-2 py-2 text-center font-normal font-sans"
                                             style={{
                                                 color: 'var(--chathams-blue)',
                                                 minWidth: '60px',

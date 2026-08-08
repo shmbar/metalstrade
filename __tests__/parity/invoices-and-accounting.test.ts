@@ -449,7 +449,7 @@ describe('drift alarm — web sources these mirrors were transcribed from', () =
     expectWebUnchanged('app/(root)/accounting/page.js', 'totals', 'd16395f7b56e');
   });
   it('accounting chartData has not drifted', () => {
-    expectWebUnchanged('app/(root)/accounting/page.js', 'chartData', '1c17a38d562f');
+    expectWebUnchanged('app/(root)/accounting/page.js', 'chartData', '37689c8ecf64');
   });
   it('accounting getprefixInv / getprefixInv1 have not drifted', () => {
     expectWebUnchanged('app/(root)/accounting/page.js', 'getprefixInv', '00b2461e33d6');

@@ -21,7 +21,7 @@ export default function TestimonialCard({ name, role, image, quote, isActive = f
     >
       <div className="flex flex-col items-center text-center">
         {/* Profile Image */}
-        <div className={`rounded-full overflow-hidden border-4 border-white shadow-lg mb-4 ${
+        <div className={`rounded-full overflow-hidden border-4 border-[var(--bg-card)] shadow-lg mb-4 ${
           isActive ? "w-24 h-24" : "w-20 h-20"
         }`}>
           <img src={image} alt={name} className="w-full h-full object-cover" />

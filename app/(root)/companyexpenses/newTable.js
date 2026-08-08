@@ -296,7 +296,7 @@ const Customtable = ({
                     {hdGroup.headers.map(header => (
                       <th
                         key={header.id}
-                        className="header-blue py-1.5 font-medium font-poppins responsiveTextTable"
+                        className="header-blue py-1.5 font-medium font-sans responsiveTextTable"
                         style={{
                           cursor: header.column.getCanSort() ? 'pointer' : 'default',
                           userSelect: 'none',

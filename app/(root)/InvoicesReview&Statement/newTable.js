@@ -262,7 +262,7 @@ const Customtable = ({
                         {hdGroup.headers.map((header) => (
                           <th
                             key={`total-${header.id}`}
-                            className="font-poppins responsiveTextTable font-medium"
+                            className="font-sans responsiveTextTable font-medium"
                             style={{
                               color: 'var(--chathams-blue)',
                               backgroundColor: 'var(--ok-border)',
@@ -286,7 +286,7 @@ const Customtable = ({
                         {hdGroup.headers.map((header) => (
                           <th
                             key={header.id}
-                            className="font-poppins responsiveTextTable font-medium"
+                            className="font-sans responsiveTextTable font-medium"
                             style={{
                               color: 'var(--chathams-blue)',
                               minWidth: header.column.id === 'select' ? '50px' : '60px',

@@ -603,7 +603,7 @@ export const ExpCompare = (dtCrnt, dtCrntPrev, date, cur) => {
             legend: {
                 display: false,
                 //	position: 'bottom',
-                //	labels: {font: {family: 'Poppins'}},
+                //	labels: {font: {family: 'Plus Jakarta Sans'}},
             },
             tooltip: {
                 callbacks: {
@@ -704,7 +704,7 @@ export const RevenueCompare = (dtCrnt, dtPrev, dtCrnt1, dtPrev1, date, cur) => {
             legend: {
                 display: false,
                 //	position: 'bottom',
-                //	labels: {font: {family: 'Poppins'}},
+                //	labels: {font: {family: 'Plus Jakarta Sans'}},
             },
             tooltip: {
                 callbacks: {
@@ -786,7 +786,7 @@ export const PLCompare = (dtCrnt, dtPrev, date, cur) => {
             legend: {
                 display: false,
                 //	position: 'bottom',
-                //	labels: {font: {family: 'Poppins'}},
+                //	labels: {font: {family: 'Plus Jakarta Sans'}},
             },
             tooltip: {
                 callbacks: {

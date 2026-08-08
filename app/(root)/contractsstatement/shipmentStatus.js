@@ -2,11 +2,7 @@
 // Contracts Statement, so the statement's Status column follows the same vocabulary/colors the
 // user manages on the Shipment page (add a status here and both pages pick it up).
 
-import { TONES } from '@components/statusUtils';
-
 export const SHIPMENT_STATUSES = ['', 'Pending', 'Shipped', 'In Transit', 'Arrived', 'Completed', 'On Hold'];
-
-const tone = (t) => ({ backgroundColor: TONES[t].bg, border: `1px solid ${TONES[t].border}`, color: TONES[t].text });
 
 // Old stored values are mapped to the current vocabulary on read — no data migration needed.
 const LEGACY_ALIASES = { 'At Port': 'Arrived', 'Delivered': 'Completed' };

@@ -248,7 +248,7 @@ const Customtable = ({
   return (
     <div className="w-full">
      <style jsx global>{`
-        /* Import Poppins and set table font */
+        /* Table font */
 
  /* Professional gradient scrollbar matching cards */
      .dashboard-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
@@ -357,7 +357,7 @@ const Customtable = ({
                         {group.headers.map(header => (
                           <th
                             key={header.id}
-                            className="font-poppins responsiveTextTable font-medium"
+                            className="font-sans responsiveTextTable font-medium"
                             style={{
                               color: 'var(--chathams-blue)',
                               minWidth: header.column.id === 'select' ? '42px' : header.column.id === 'expander' ? '52px' : '60px',

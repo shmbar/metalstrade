@@ -160,7 +160,7 @@ const Customtable = ({
                     <td
                       key={cell.id}
                       data-label={cell.column.columnDef.header}
-                      className="px-3 py-2 responsiveTextTable font-medium text-center font-poppins"
+                      className="px-3 py-2 responsiveTextTable font-medium text-center font-sans"
                     >
                       <div className="flex items-center justify-center">
                         {

@@ -46,7 +46,7 @@ const Customtable = ({ data, columns, expensesData, settings, title, filt }) => 
     >
       <style jsx global>{`
         .custom-table-totals, .custom-table-totals * {
-          font-family: var(--font-poppins), 'Poppins', sans-serif;
+          font-family: var(--font-jakarta), 'Plus Jakarta Sans', sans-serif;
           transition-property: color, background-color, border-color, box-shadow !important;
           transition-duration: 150ms !important;
           transition-timing-function: ease-in-out !important;

@@ -72,9 +72,9 @@ function MonthPickerPill({ value, onChange }) {
                     <div className="fixed inset-0 z-page-popover" onClick={() => setOpen(false)} />
                     <div className="fixed z-dropdown rounded-2xl shadow-xl bg-[var(--bg-card)] border border-[var(--bg-subtle)] overflow-hidden" style={{ top: pos.top, bottom: pos.bottom, left: pos.left, width: 224 }}>
                         <div className="flex items-center justify-between py-1.5 px-2" style={{ background: 'var(--bg-subtle)' }}>
-                            <button type="button" onClick={() => setViewYear(y => y - 1)} className="p-1 rounded hover:bg-white/60"><ChevronLeft className="w-4 h-4 text-[var(--endeavour)]" /></button>
+                            <button type="button" onClick={() => setViewYear(y => y - 1)} className="p-1 rounded hover:bg-[var(--bg-subtle)]"><ChevronLeft className="w-4 h-4 text-[var(--endeavour)]" /></button>
                             <span className="font-semibold" style={{ fontSize: 'var(--fs-title)', color: 'var(--chathams-blue)' }}>{viewYear}</span>
-                            <button type="button" onClick={() => setViewYear(y => y + 1)} className="p-1 rounded hover:bg-white/60"><ChevronRight className="w-4 h-4 text-[var(--endeavour)]" /></button>
+                            <button type="button" onClick={() => setViewYear(y => y + 1)} className="p-1 rounded hover:bg-[var(--bg-subtle)]"><ChevronRight className="w-4 h-4 text-[var(--endeavour)]" /></button>
                         </div>
                         <div className="grid grid-cols-3 gap-1 p-2">
                             {MONTHS.map((m, i) => {
@@ -364,7 +364,7 @@ const StorageCosts = () => {
                         </span>
                         {actuals.count > 0 && (
                             <div className="ml-auto flex items-center gap-2 flex-1 justify-end">
-                                <div className="h-1.5 rounded-full overflow-hidden bg-white/70 w-full" style={{ boxShadow: 'inset 0 0 0 1px var(--line)', maxWidth: 160 }}>
+                                <div className="h-1.5 rounded-full overflow-hidden bg-[var(--bg-sunken)] w-full" style={{ boxShadow: 'inset 0 0 0 1px var(--line)', maxWidth: 160 }}>
                                     <div className="h-full rounded-full transition-all" style={{ width: `${Math.round((actuals.taggedCount / actuals.count) * 100)}%`, background: 'var(--ok-text)' }} />
                                 </div>
                                 <span className="whitespace-nowrap font-medium" style={{ fontSize: 'var(--fs-table)', color: 'var(--chathams-blue)' }}>{actuals.taggedCount}/{actuals.count} tagged</span>

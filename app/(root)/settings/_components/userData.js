@@ -19,7 +19,7 @@ const UserD = ({ title, type, placeholder, name, value, onChange, errors, ln, di
             <p className='flex responsiveText font-medium whitespace-nowrap pt-1 responsiveTextInput shrink-0'>{title}:</p>
             <div className='flex-1'>
                 <input
-                    className="input shadow-lg h-7 !rounded-full responsiveTextInput w-full"
+                    className="input shadow-lg responsiveTextInput w-full"
                     type={type}
                     name={name}
                     value={value[name] || ''}  // Dynamically bind value
@@ -186,7 +186,7 @@ const UserData = ({ setIsOpen, data, setData, user, setUser }) => {
                 <p className='flex responsiveText font-medium whitespace-nowrap pt-1 responsiveTextInput shrink-0'>Password Verification:</p>
                 <div className='flex-1'>
                     <input
-                        className="input shadow-lg h-7 !rounded-full responsiveTextInput w-full"
+                        className="input shadow-lg responsiveTextInput w-full"
                         type='password'
                         name='password1'
                         value={user.password1 || ''}

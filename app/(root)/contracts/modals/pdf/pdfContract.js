@@ -19,7 +19,7 @@ const showRemarks = (doc, startRemarksRow, valueCon, settings) => {
         doc.setFontSize(8);
         doc.text('Remarks:', 10, startRemarksRow);
 
-        doc.setFont('Poppins', 'normal');
+        doc.setFont('Plus Jakarta Sans', 'normal');
         for (let i = 0; i < valueCon.remarks.length; i++) {
             {
                 valueCon.remarks[i].isRmrkText ?
@@ -41,7 +41,7 @@ const showPriceRemarks = (doc, startRemarkPricesRow, valueCon) => {
         doc.setFontSize(8);
         doc.text('Price remarks:', 10, startRemarkPricesRow);
 
-        doc.setFont('Poppins', 'normal');
+        doc.setFont('Plus Jakarta Sans', 'normal');
         for (let i = 0; i < valueCon.priceRemarks.length; i++) {
             doc.text(valueCon.priceRemarks[i].rmrk, 10, startRemarkPricesRow + 5 + i * 4);
         }
@@ -49,11 +49,11 @@ const showPriceRemarks = (doc, startRemarkPricesRow, valueCon) => {
 }
 
 const Signatiure = (doc, compData, gisAccount) => {
-    doc.setFont('Poppins', 'normal');
+    doc.setFont('Plus Jakarta Sans', 'normal');
     doc.setFontSize(7);
     doc.text(`Please make sure to put ${gisAccount ? 'GIS' : 'IMS'} Shipping - ${compData.email} in copy of all e-mails regarding Inquires/Purchase orders/Settlements and etc.`, 12, 236)
 
-    doc.setFont('Poppins', 'normal');
+    doc.setFont('Plus Jakarta Sans', 'normal');
     doc.text('With kind regards,', 12, 242);
 
     {
@@ -62,7 +62,7 @@ const Signatiure = (doc, compData, gisAccount) => {
             doc.addImage('logo/imsSignatureNew.jpg', "JPEG", 10, 243, 33, 28);
     }
 
-    doc.setFont('Poppins', 'normal');
+    doc.setFont('Plus Jakarta Sans', 'normal');
     doc.setFontSize(6);
     doc.text('Any Radio Active materials detected within your load will be isolated and safely impounded and disposed of as per the regulations of the day laid down by the Government and all', 30, 267);
     doc.text(' costs relating to its safe disposal shall be borne by the Supplier', 75, 270);
@@ -106,7 +106,7 @@ export const Pdf = async (valueCon, arrTable, settings, compData, gisAccount, mo
         doc.setFontSize(10);
         doc.text(compData.name, 130, 15)
         doc.setFontSize(9);
-        doc.setFont('Poppins', 'normal');
+        doc.setFont('Plus Jakarta Sans', 'normal');
         doc.text(compData.street, 130, 21)
         doc.text(compData.city + ' ' + compData.zip, 130, 27)
         doc.text(compData.country, 130, 33)
@@ -142,7 +142,7 @@ export const Pdf = async (valueCon, arrTable, settings, compData, gisAccount, mo
             
             doc.text(compData.name, 187.5, 282)
             doc.setFontSize(9);
-            doc.setFont('Poppins', 'normal');
+            doc.setFont('Plus Jakarta Sans', 'normal');
             doc.text(compData.street + ' - ' + compData.city + ' ' + compData.zip +
                 ' - ' + compData.country, 163, 286);
             doc.text('Reg No. ' + compData.reg +
@@ -153,7 +153,7 @@ export const Pdf = async (valueCon, arrTable, settings, compData, gisAccount, mo
         } else {
             doc.text(compData.name, 82, 278)
             doc.setFontSize(8);
-            doc.setFont('Poppins', 'normal');
+            doc.setFont('Plus Jakarta Sans', 'normal');
             doc.text(compData.street + ' - ' + compData.city + ' ' + compData.zip +
                 ' - ' + compData.country, 78, 282);
             doc.text('Reg No. ' + compData.reg + ' - Vat No. ' + compData.vat +
@@ -178,7 +178,7 @@ export const Pdf = async (valueCon, arrTable, settings, compData, gisAccount, mo
     doc.setFontSize(8);
     doc.text(valueCon.supplier === '' ? '' :
         getD(sups, valueCon, 'supplier'), 10, 55);
-    doc.setFont('Poppins', 'normal');
+    doc.setFont('Plus Jakarta Sans', 'normal');
     doc.setFontSize(8);
     if (valueCon.supplier !== '') {
         doc.text(supp.street, 10, 59);
@@ -190,31 +190,31 @@ export const Pdf = async (valueCon, arrTable, settings, compData, gisAccount, mo
     doc.setFontSize(8);
     doc.setFont('PoppinsB', 'bold');
     doc.text('Purchase Order No:', 130, 50);
-    doc.setFont('Poppins', 'normal');
+    doc.setFont('Plus Jakarta Sans', 'normal');
     doc.setFontSize(8);
     doc.text(valueCon.order, 168, 50);
     doc.setFont('PoppinsB', 'bold');
     doc.setFontSize(8);
     doc.text('Date:', 130, 54);
-    doc.setFont('Poppins', 'normal');
+    doc.setFont('Plus Jakarta Sans', 'normal');
     doc.setFontSize(8);
     doc.text(valueCon.date === '' || valueCon.dateRange.startDate === null ? '' :
         dateFormat(valueCon.dateRange.startDate, 'dd-mmm-yyyy'), 168, 54);
 
-    doc.setFont('Poppins', 'normal');
+    doc.setFont('Plus Jakarta Sans', 'normal');
     doc.setFontSize(8);
     doc.text('We confirm having purchased from you the following material subject to our Conditions of Purchase stated below:', 35, 84);
 
     doc.setFont('PoppinsB', 'bold');
     doc.text('Shipment:', 10, 92);
-    doc.setFont('Poppins', 'normal');
+    doc.setFont('Plus Jakarta Sans', 'normal');
     doc.text(getD(settings.Shipment.Shipment, valueCon, 'shpType'), 35, 92);
 
     if (valueCon.origin !== '') {
         doc.setFont('PoppinsB', 'bold');
         doc.text('Origin:', 10, 96);
         if (valueCon.origin !== 'empty') {
-            doc.setFont('Poppins', 'normal');
+            doc.setFont('Plus Jakarta Sans', 'normal');
             doc.text(getD(settings.Origin.Origin, valueCon, 'origin'), 35, 96);
         }
     }
@@ -222,48 +222,48 @@ export const Pdf = async (valueCon, arrTable, settings, compData, gisAccount, mo
     if (valueCon.delTerm !== '') {
         doc.setFont('PoppinsB', 'bold');
         doc.text('Delivery Terms:', 10, 100);
-        doc.setFont('Poppins', 'normal');
+        doc.setFont('Plus Jakarta Sans', 'normal');
         doc.text(getD(settings['Delivery Terms']['Delivery Terms'], valueCon, 'delTerm'), 35, 100);
     }
 
     if (valueCon.pol !== '') {
         doc.setFont('PoppinsB', 'bold');
         doc.text('POL:', 77, 92);
-        doc.setFont('Poppins', 'normal');
+        doc.setFont('Plus Jakarta Sans', 'normal');
         doc.text(getD(settings.POL.POL, valueCon, 'pol'), 92, 92);
     }
 
     if (valueCon.pod !== '') {
         doc.setFont('PoppinsB', 'bold');
         doc.text('POD:', 77, 96);
-        doc.setFont('Poppins', 'normal');
+        doc.setFont('Plus Jakarta Sans', 'normal');
         doc.text(getD(settings.POD.POD, valueCon, 'pod'), 92, 96);
     }
 
     if (valueCon.packing !== '') {
         doc.setFont('PoppinsB', 'bold');
         doc.text('Packing:', 77, 100);
-        doc.setFont('Poppins', 'normal');
+        doc.setFont('Plus Jakarta Sans', 'normal');
         doc.text(getD(settings.Packing.Packing, valueCon, 'packing'), 92, 100);
     }
     if (valueCon.contType !== '') {
         doc.setFont('PoppinsB', 'bold');
         doc.text('Container Type:', 130, 92);
-        doc.setFont('Poppins', 'normal');
+        doc.setFont('Plus Jakarta Sans', 'normal');
         doc.text(getD(settings['Container Type']['Container Type'], valueCon, 'contType'), 155, 92);
     }
 
     if (valueCon.size !== '') {
         doc.setFont('PoppinsB', 'bold');
         doc.text('Size:', 130, 96);
-        doc.setFont('Poppins', 'normal');
+        doc.setFont('Plus Jakarta Sans', 'normal');
         doc.text(getD(settings.Size.Size, valueCon, 'size'), 155, 96);
     }
 
     if (valueCon.deltime !== '') {
         doc.setFont('PoppinsB', 'bold');
         doc.text('Delivery Time:', 130, 100);
-        doc.setFont('Poppins', 'normal');
+        doc.setFont('Plus Jakarta Sans', 'normal');
         valueCon.isDeltimeText ?
             doc.text(valueCon.deltime, 155, 100) :
             doc.text(getD(settings['Delivery Time']['Delivery Time'], valueCon, 'deltime'), 155, 100);
@@ -271,7 +271,7 @@ export const Pdf = async (valueCon, arrTable, settings, compData, gisAccount, mo
 
     doc.setFont('PoppinsB', 'bold');
     doc.text('Payment Terms:', 10, 115);
-    doc.setFont('Poppins', 'normal');
+    doc.setFont('Plus Jakarta Sans', 'normal');
     const tmp1 = doc.splitTextToSize(valueCon.isTermPmntText ? (valueCon.termPmnt || '') : getD(settings['Payment Terms']['Payment Terms'], valueCon, 'termPmnt'), 155, {})
     doc.text(tmp1, 37, 115);
 
@@ -287,7 +287,7 @@ export const Pdf = async (valueCon, arrTable, settings, compData, gisAccount, mo
         margin: { left: margin, right: margin, bottom: 35, top: 45 },
         startY: 125,
         headStyles: { fillColor: [9, 110, 182], textColor: [255, 255, 255], fontSize: 8, halign: 'center', font: 'PoppinsB', borderRadius: '10px' },
-        bodyStyles: { fontSize: 8, font: 'Poppins', textColor: [32, 55, 100] },
+        bodyStyles: { fontSize: 8, font: 'Plus Jakarta Sans', textColor: [32, 55, 100] },
         head: [['#', 'Description', 'Quantity', 'Unit Price'],
         ['', '', `${valueCon.qTypeTable && getD(settings.Quantity.Quantity, valueCon, 'qTypeTable')}`,
             `${valueCon.cur && getD(settings.Currency.Currency, valueCon, 'cur')}`

@@ -27,7 +27,7 @@ const Customtable = ({ data, columns, expensesData, settings, title, filt, headi
         <div className="w-full max-w-full flex flex-col items-stretch px-2 sm:px-0 h-full">
             <style jsx global>{`
                 .glass-table, .glass-table * {
-                    font-family: var(--font-poppins), 'Poppins', sans-serif !important;
+                    font-family: var(--font-jakarta), 'Plus Jakarta Sans', sans-serif !important;
                     color: var(--chathams-blue);
                 }
                 .glass-table th, .glass-table td {
@@ -84,7 +84,7 @@ const Customtable = ({ data, columns, expensesData, settings, title, filt, headi
                     boxShadow: '0 2px 8px rgba(var(--shadow-rgb), 0.08)'
                 }}>
                 {heading && (
-                    <div className="font-normal font-poppins text-[var(--chathams-blue)] mb-3 sm:mb-4 pl-1 pt-1">
+                    <div className="font-normal font-sans text-[var(--chathams-blue)] mb-3 sm:mb-4 pl-1 pt-1">
                         {heading}
                     </div>
                 )}
@@ -105,7 +105,7 @@ const Customtable = ({ data, columns, expensesData, settings, title, filt, headi
                         >
 
                         <div
-                        className="responsiveTextTableTitle px-6 py-4 text-center font-medium font-poppins"
+                        className="responsiveTextTableTitle px-6 py-4 text-center font-medium font-sans"
                         style={{
                             background: 'var(--bg-subtle)',
                             color: 'var(--chathams-blue)'
@@ -181,7 +181,7 @@ const Customtable = ({ data, columns, expensesData, settings, title, filt, headi
                     {/* Mobile Card View */}
                     <div className="block sm:hidden space-y-3 glass-table">
                         <div
-                            className="responsiveTextTableTitle px-6 py-4 text-center font-medium font-poppins rounded-t-2xl"
+                            className="responsiveTextTableTitle px-6 py-4 text-center font-medium font-sans rounded-t-2xl"
                             style={{ background: 'var(--bg-subtle)', color: 'var(--chathams-blue)' }}
                         >
                             {title}

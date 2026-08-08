@@ -112,7 +112,7 @@ function SupplierDocPreview({ inv, onClose, settings, gisAccount }) {
                 borderRadius: '16px',
                 border: '1px solid var(--line)',
                 boxShadow: 'var(--shadow-md)',
-                fontFamily: "var(--font-poppins), 'Poppins', sans-serif",
+                fontFamily: "var(--font-jakarta), 'Plus Jakarta Sans', sans-serif",
             }}>
                 <DialogTitle className="sr-only">Supplier Invoice {invNo}</DialogTitle>
                 {/* Status ribbon — sits OUTSIDE the document */}
@@ -123,7 +123,7 @@ function SupplierDocPreview({ inv, onClose, settings, gisAccount }) {
                     paddingRight: '44px',
                     display: 'flex', justifyContent: 'flex-start', gap: '6px', alignItems: 'center',
                     fontSize: 'var(--fs-body)',
-                    fontFamily: "var(--font-poppins), 'Poppins', sans-serif",
+                    fontFamily: "var(--font-jakarta), 'Plus Jakarta Sans', sans-serif",
                     flexShrink: 0,
                 }}>
                     <div className="flex gap-3 items-center">
@@ -359,7 +359,7 @@ function ClientDocPreview({ inv, onClose, settings, compData, gisAccount }) {
                 borderRadius: '16px',
                 border: '1px solid var(--line)',
                 boxShadow: 'var(--shadow-md)',
-                fontFamily: "var(--font-poppins), 'Poppins', sans-serif",
+                fontFamily: "var(--font-jakarta), 'Plus Jakarta Sans', sans-serif",
             }}>
                 <DialogTitle className="sr-only">{getInvTypeLabel(inv).replace(':', '')} {invNo}</DialogTitle>
                 {/* Status ribbon — sits OUTSIDE the document */}
@@ -370,7 +370,7 @@ function ClientDocPreview({ inv, onClose, settings, compData, gisAccount }) {
                     paddingRight: '44px',
                     display: 'flex', justifyContent: 'flex-start', gap: '6px', alignItems: 'center',
                     fontSize: 'var(--fs-body)',
-                    fontFamily: "var(--font-poppins), 'Poppins', sans-serif",
+                    fontFamily: "var(--font-jakarta), 'Plus Jakarta Sans', sans-serif",
                     flexShrink: 0,
                 }}>
                     <div className="flex gap-3 items-center">

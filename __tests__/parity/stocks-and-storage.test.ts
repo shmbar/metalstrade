@@ -98,7 +98,7 @@ const HASH = {
   setTotals: '0878395a5db7', // app/(root)/stocks/page.js:263
   getFormatted: 'ce2b9a9845ad', // app/(root)/stocks/page.js:312
   showWeight: 'eff225f4c25c', // app/(root)/stocks/page.js:288
-  customtable: '20d8f57fdbb4', // app/(root)/stocks/newTable.js:32 (contains the footer count)
+  customtable: '3a4c1f1532d2', // app/(root)/stocks/newTable.js:32 (contains the footer count)
   addComma: '9d2dc43091c5', // app/(root)/stocks/whModal.js:52
   sumShowAmount: '61cca0f1837f', // app/(root)/stocks/sumtables/sumTable.js:8
   gradeSummary: '3c54892bacca', // app/(root)/stocks/sumtables/gradeTable.js:11

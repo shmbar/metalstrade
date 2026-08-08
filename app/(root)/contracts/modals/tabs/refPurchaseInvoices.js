@@ -108,7 +108,9 @@ const RefPurchaseInvoices = ({ valueCon, setValueCon, saveData_PoInvoices, ln })
                         <tbody className="divide-y divide-[var(--line-strong)]">
                             {rows.map((y) => (
                                 <tr key={(y._source?.id || 'local') + '_' + y.id}>
-                                    <td className={`bg-[var(--bg-subtle)] border border-r-0 border-[var(--line-strong)] responsiveTextTable
+                                    {/* Row dividers come from divide-y on the tbody; a per-cell
+                                        border here drew a vertical grid line as well. */}
+                                    <td className={`bg-[var(--bg-subtle)] responsiveTextTable
                                         whitespace-nowrap px-3 h-11 text-center text-[var(--port-gore)] ${y._source ? 'italic' : ''}`} >
                                         <div className='flex flex-col items-center justify-center leading-tight gap-0.5'>
                                             <span className='font-medium'>{y.inv}</span>

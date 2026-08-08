@@ -1039,7 +1039,7 @@ const ShipmentPage = () => {
                                         { label: 'Last Update',   width: '8%',  col: 'updated'  },
                                         { label: 'Notes',         width: '17%', col: null       },
                                     ].map(({ label, width, col }) => (
-                                        <th key={label} className="font-poppins responsiveTextTable font-medium py-2"
+                                        <th key={label} className="font-sans responsiveTextTable font-medium py-2"
                                             onClick={col ? () => handleSort(col) : undefined}
                                             style={{ color: 'var(--chathams-blue)', letterSpacing: '0.05em', textAlign: 'center', width, cursor: col ? 'pointer' : 'default', userSelect: 'none' }}>
                                             <span className="inline-flex items-center justify-center gap-1">

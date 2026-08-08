@@ -15,7 +15,7 @@ export const TPdfTable = async (arrTable, elements, unitLabel = 'Kgs') => {
     const elems = elements || DEFAULT_ELEMENTS
 
     const doc = new jsPDF()
-    doc.addFont('/fonts/Calibri.ttf', 'Poppins', 'normal')
+    doc.addFont('/fonts/Calibri.ttf', 'Plus Jakarta Sans', 'normal')
     doc.addFont('/fonts/Calibri-bold.ttf', 'PoppinsB', 'bold')
     console.error = () => {}
 
@@ -40,7 +40,7 @@ export const TPdfTable = async (arrTable, elements, unitLabel = 'Kgs') => {
         margin: { left: margin, right: margin, bottom: 35, top: 45 },
         startY: 20,
         headStyles: { fillColor: [9, 110, 182], textColor: [255, 255, 255], fontSize: 8, halign: 'center', font: 'PoppinsB' },
-        bodyStyles: { fontSize: 8, font: 'Poppins', textColor: [32, 55, 100] },
+        bodyStyles: { fontSize: 8, font: 'Plus Jakarta Sans', textColor: [32, 55, 100] },
         head: [headers],
         body: arrTable,
         columnStyles,

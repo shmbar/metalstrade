@@ -1266,7 +1266,7 @@ const Cashflow = () => {
                                                         <div className="flex gap-2 my-1 items-center" key={i}>
                                                             <input className="responsiveText font-semibold items-center flex outline-none w-44 truncate text-[var(--chathams-blue)]" value={z.title}
                                                                 onChange={e => handleChangeInitial(e, i, 'title')} />
-                                                            <NumericFormat className='input w-44 h-6 responsiveTextTotal rounded-full'
+                                                            <NumericFormat className='input w-44 responsiveTextTotal'
                                                                 value={z.num} thousandSeparator allowNegative={false} decimalScale={2} fixedDecimalScale prefix='$'
                                                                 onValueChange={values => handleChangeInitial({ target: { value: values.value } }, i, 'num')} />
                                                             <button onClick={() => delItem(i)} className="text-red-500 px-2 h-8 rounded-lg hover:bg-red-50 transition-all"><MdDeleteOutline className="scale-110" /></button>
@@ -1905,7 +1905,7 @@ const Cashflow = () => {
                                                             <div className="flex gap-2 my-1" key={z}>
                                                                 <span className="responsiveText items-center flex w-28 text-[var(--chathams-blue)] whitespace-nowrap font-medium">Total for {z}</span>
                                                                 <NumericFormat
-                                                                    className='input w-44 h-6 responsiveText font-medium text-[var(--ink)] text-right px-3 bg-[var(--bg-subtle)] border-[var(--line-strong)] rounded-full'
+                                                                    className='input w-44 responsiveText font-medium text-[var(--ink)] text-right px-3 bg-[var(--bg-subtle)] border-[var(--line-strong)]'
                                                                     value={totalYrs.find(obj => obj.hasOwnProperty(key))?.[key] || ''}
                                                                     thousandSeparator allowNegative={false} decimalScale={2} prefix='$'
                                                                     onValueChange={values => handleChange({ target: { value: values.value } }, z)}

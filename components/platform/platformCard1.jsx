@@ -49,8 +49,8 @@ export function PlatformCard1() {
           className="absolute -top-12 right-12 bg-[var(--endeavour)] w-48 h-32 rounded-2xl shadow-xl shadow-[var(--endeavour)]/20 flex flex-col justify-center px-6 space-y-3 z-10"
         >
           <div className="w-2/3 h-2 bg-[var(--glass)] rounded-full" />
-          <div className="w-full h-2 bg-white/40 rounded-full" />
-          <div className="w-5/6 h-2 bg-white/40 rounded-full" />
+          <div className="w-full h-2 bg-[var(--on-brand-soft-strong)] rounded-full" />
+          <div className="w-5/6 h-2 bg-[var(--on-brand-soft-strong)] rounded-full" />
         </motion.div>
 
         {/* Main Content Grid */}

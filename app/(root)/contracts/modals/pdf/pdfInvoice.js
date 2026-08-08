@@ -17,7 +17,7 @@ const showRemarks = (doc, startRemarksRow, valueCon) => {
         doc.setFontSize(8);
         doc.text('Remarks:', 10, startRemarksRow);
 
-        doc.setFont('Poppins', 'normal');
+        doc.setFont('Plus Jakarta Sans', 'normal');
         for (let i = 0; i < valueCon.remarks.length; i++) {
             doc.text(valueCon.remarks[i].rmrk, 10, startRemarksRow + 5 + i * 4);
         }
@@ -62,7 +62,7 @@ export const Pdf = async (value, arrTable, settings, compData, gisAccount) => {
         doc.setFontSize(10);
         doc.text(compData.name, 138, 15)
         doc.setFontSize(9);
-        doc.setFont('Poppins', 'normal');
+        doc.setFont('Plus Jakarta Sans', 'normal');
         doc.text(compData.street, 138, 21)
         doc.text(compData.city + ' ' + compData.zip, 138, 27)
         doc.text(compData.country, 138, 33)
@@ -72,7 +72,7 @@ export const Pdf = async (value, arrTable, settings, compData, gisAccount) => {
     }
 
     const footer = () => {
-        doc.setFont('Poppins', 'normal');
+        doc.setFont('Plus Jakarta Sans', 'normal');
         doc.setFontSize(6);
 
         doc.text('This document was issued electronically and is therefore valid without signature', 70, 265);
@@ -97,7 +97,7 @@ export const Pdf = async (value, arrTable, settings, compData, gisAccount) => {
             /*
             doc.text(compData.name, 10, 281)
             doc.setFontSize(8);
-            doc.setFont('Poppins', 'normal');
+            doc.setFont('Plus Jakarta Sans', 'normal');
             doc.text(compData.street, 10, 284)
             doc.text(compData.city + ' ' + compData.zip, 10, 287)
             doc.text(compData.country, 10, 290)
@@ -120,7 +120,7 @@ export const Pdf = async (value, arrTable, settings, compData, gisAccount) => {
             doc.text(bank.bankName || '', 155, 281);
             doc.text(bank.swiftCode || '', 155, 284);
             doc.text(bank.iban || '', 155, 287);
-            doc.setFont('Poppins', 'normal');
+            doc.setFont('Plus Jakarta Sans', 'normal');
             doc.text(bank.corrBank || '', 155, 290);
             doc.text(bank.corrBankSwift || '', 155, 293);
             doc.text(bank.other || '', 155, 296);
@@ -129,7 +129,7 @@ export const Pdf = async (value, arrTable, settings, compData, gisAccount) => {
             doc.setTextColor(255, 255, 255)
             doc.text(compData.name || '', 10, 276)
             doc.setFontSize(8);
-            doc.setFont('Poppins', 'normal');
+            doc.setFont('Plus Jakarta Sans', 'normal');
             doc.text(compData.street || '', 10, 279)
             doc.text(compData.city + ' ' + compData.zip, 10, 282)
             doc.text(compData.country || '', 10, 285)
@@ -151,7 +151,7 @@ export const Pdf = async (value, arrTable, settings, compData, gisAccount) => {
             doc.text(bank.bankName || '', 155, 276);
             doc.text(bank.swiftCode || '', 155, 279);
             doc.text(bank.iban || '', 155, 282);
-            doc.setFont('Poppins', 'normal');
+            doc.setFont('Plus Jakarta Sans', 'normal');
             doc.text(bank.corrBank || '', 155, 285);
             doc.text(bank.corrBankSwift || '', 155, 288);
             doc.text(bank.other || '', 155, 291);
@@ -171,7 +171,7 @@ export const Pdf = async (value, arrTable, settings, compData, gisAccount) => {
     doc.setFontSize(8);
     doc.text(value.client === '' ? '' :
         getD(clts, value, 'client'), 10, 55);
-    doc.setFont('Poppins', 'normal');
+    doc.setFont('Plus Jakarta Sans', 'normal');
     doc.setFontSize(8);
     if (value.client !== '') {
         doc.text(clnt.street, 10, 59);
@@ -184,20 +184,20 @@ export const Pdf = async (value, arrTable, settings, compData, gisAccount) => {
 
     doc.text(value.invType === '1111' ? 'Invoice No:' : value.invType === '2222' ?
         'Credit Note No:' : 'Final Note No:', 138, 50);
-    doc.setFont('Poppins', 'normal');
+    doc.setFont('Plus Jakarta Sans', 'normal');
     doc.setFontSize(8);
     doc.text(String(value.invoice).padStart(4, "0") + getprefixInv(value), 200, 50, { align: 'right' });
     doc.setFont('PoppinsB', 'bold');
     doc.setFontSize(8);
     doc.text('Date:', 138, 54);
-    doc.setFont('Poppins', 'normal');
+    doc.setFont('Plus Jakarta Sans', 'normal');
     doc.setFontSize(8);
     doc.text(value.dateRange.startDate === '' || value.dateRange.startDate === null ? '' :
         dateFormat(value.dateRange.startDate, 'dd-mmm-yyyy'), 200, 54, { align: 'right' });
     doc.setFont('PoppinsB', 'bold');
     doc.setFontSize(8);
     doc.text('PO#:', 138, 58);
-    doc.setFont('Poppins', 'normal');
+    doc.setFont('Plus Jakarta Sans', 'normal');
     doc.setFontSize(8);
 
     let poArr = [...new Set(value.productsDataInvoice.map(x => x.po).filter(x => x !== ''))]
@@ -208,14 +208,14 @@ export const Pdf = async (value, arrTable, settings, compData, gisAccount) => {
     doc.setFontSize(8);
     doc.setFont('PoppinsB', 'bold');
     doc.text('Shipment:', 10, 92);
-    doc.setFont('Poppins', 'normal');
+    doc.setFont('Plus Jakarta Sans', 'normal');
     doc.text(getD(settings.Shipment.Shipment, value, 'shpType'), 35, 92);
 
     if (value.origin !== '') {
         doc.setFont('PoppinsB', 'bold');
         doc.text('Origin:', 10, 96);
         if (value.origin !== 'empty') {
-            doc.setFont('Poppins', 'normal');
+            doc.setFont('Plus Jakarta Sans', 'normal');
             doc.text(getD(settings.Origin.Origin, value, 'origin'), 35, 96);
         }
     }
@@ -223,28 +223,28 @@ export const Pdf = async (value, arrTable, settings, compData, gisAccount) => {
     if (value.delTerm !== '') {
         doc.setFont('PoppinsB', 'bold');
         doc.text('Delivery Terms:', 10, 100);
-        doc.setFont('Poppins', 'normal');
+        doc.setFont('Plus Jakarta Sans', 'normal');
         doc.text(getD(settings['Delivery Terms']['Delivery Terms'], value, 'delTerm'), 35, 100);
     }
 
     let empty = value.delDate.startDate === '' || value.delDate.startDate === null
     doc.setFont('PoppinsB', 'bold');
     { !empty && doc.text('Delivery Date:', 10, 104) }
-    doc.setFont('Poppins', 'normal');
+    doc.setFont('Plus Jakarta Sans', 'normal');
     doc.text(empty ? '' :
         dateFormat(value.delDate.startDate, 'dd-mmm-yyyy'), 35, 104);
 
     if (value.pol !== '') {
         doc.setFont('PoppinsB', 'bold');
         doc.text('POL:', 80, 92);
-        doc.setFont('Poppins', 'normal');
+        doc.setFont('Plus Jakarta Sans', 'normal');
         doc.text(getD(settings.POL.POL, value, 'pol'), 95, 92);
     }
 
     if (value.pod !== '') {
         doc.setFont('PoppinsB', 'bold');
         doc.text('POD:', 80, 96);
-        doc.setFont('Poppins', 'normal');
+        doc.setFont('Plus Jakarta Sans', 'normal');
         doc.text(getD(settings.POD.POD, value, 'pod'), 95, 96);
     }
 
@@ -252,7 +252,7 @@ export const Pdf = async (value, arrTable, settings, compData, gisAccount) => {
         doc.setFont('PoppinsB', 'bold');
         if (value.invType !== '2222' && value.invType !== '3333')
             doc.text('Packing:', 80, 100);
-        doc.setFont('Poppins', 'normal');
+        doc.setFont('Plus Jakarta Sans', 'normal');
         if (value.invType !== '2222' && value.invType !== '3333')
             doc.text(getD(settings.Packing.Packing, value, 'packing'), 95, 100);
     }
@@ -266,7 +266,7 @@ export const Pdf = async (value, arrTable, settings, compData, gisAccount) => {
     console.log(NetWTKgs)
     doc.setFont('PoppinsB', 'bold');
     doc.text('Total Net WT Kgs:', 138, 92);
-    doc.setFont('Poppins', 'normal');
+    doc.setFont('Plus Jakarta Sans', 'normal');
     doc.text(NetWTKgs, 200, 92, { align: 'right' });
 
     //Total Tarre WT Kgs:
@@ -281,7 +281,7 @@ export const Pdf = async (value, arrTable, settings, compData, gisAccount) => {
     doc.setFont('PoppinsB', 'bold');
     if (!secondRule && !fifthRule && value.invType !== '2222' && value.invType !== '3333')
         doc.text('Total Tarre WT Kgs:', 138, 96);
-    doc.setFont('Poppins', 'normal');
+    doc.setFont('Plus Jakarta Sans', 'normal');
     if (!secondRule && !fifthRule && value.invType !== '2222' && value.invType !== '3333') doc.text(TotalTarre, 200, 96, { align: 'right' });
 
 
@@ -289,7 +289,7 @@ export const Pdf = async (value, arrTable, settings, compData, gisAccount) => {
     if (value.ttlGross !== '') {
         doc.setFont('PoppinsB', 'bold');
         (!fourthRule && !fifthRule) && doc.text(thirdRule ? 'QTY Ingots' : 'Total Gross WT Kgs:', 138, 100);
-        doc.setFont('Poppins', 'normal');
+        doc.setFont('Plus Jakarta Sans', 'normal');
         if (!fourthRule && !fifthRule)
             doc.text((value.ttlGross * 1).toLocaleString(locale, options), 200, 100, { align: 'right' });
     }
@@ -299,14 +299,14 @@ export const Pdf = async (value, arrTable, settings, compData, gisAccount) => {
         doc.setFont('PoppinsB', 'bold');
         if (!secondRule && value.invType !== '2222' && value.invType !== '3333')
             doc.text('Total Packages:', 138, 104);
-        doc.setFont('Poppins', 'normal');
+        doc.setFont('Plus Jakarta Sans', 'normal');
 
         if (!secondRule && value.invType !== '2222' && value.invType !== '3333')
             doc.text(value.ttlPackages, 200, 104, { align: 'right' });
     }
 
     if (value.hs1 !== '' || value.hs2 !== '') {
-        doc.setFont('Poppins', 'normal');
+        doc.setFont('Plus Jakarta Sans', 'normal');
         doc.text('HS CODE:', 10, 123);
 
         if (value.hs1 !== '') {
@@ -389,7 +389,7 @@ export const Pdf = async (value, arrTable, settings, compData, gisAccount) => {
         startY: 125,
         headStyles: { fillColor: [9, 110, 182], textColor: [255, 255, 255], fontSize: 8, halign: 'center', font: 'PoppinsB' },
         bodyStyles: {
-            fontSize: 8, font: 'Poppins', textColor: [32, 55, 100], valign: "middle",
+            fontSize: 8, font: 'Plus Jakarta Sans', textColor: [32, 55, 100], valign: "middle",
 
         },
         head: [['#', 'PO#', 'Description', ShipTitle, 'Quantity', 'Unit Price', 'Total'],

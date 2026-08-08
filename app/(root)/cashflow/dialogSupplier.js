@@ -127,7 +127,7 @@ const DoalogModal = ({ obj, supplierPartialPayment }) => {
                         <div className="flex items-start md:items-end">
                             <label className='responsiveText justify-start flex'>%</label>
                             <div className='flex'>
-                                <input type='text' className="pr-3 number-separator input h-7 shadow-sm w-20 md:w-14 rounded-full" style={{ fontSize: 'inherit' }} name='invValue'
+                                <input type='text' className="pr-3 number-separator input shadow-sm w-20 md:w-14" style={{ fontSize: 'inherit' }} name='invValue'
                                     value={perc} onChange={e => handleValuePerc(e)} />
                                 <span className='ml-2 text-[var(--port-gore)] flex items-center'>%</span>
 
@@ -137,7 +137,7 @@ const DoalogModal = ({ obj, supplierPartialPayment }) => {
                             <label className="responsiveText justify-start flex">Amount</label>
                             <input
                                 type="text"
-                                className="number-separator input h-7 shadow-sm w-full rounded-full"
+                                className="number-separator input shadow-sm w-full"
                                 style={{ fontSize: 'inherit' }}
                                 value={addComma(pmnt)}
                                 onChange={handleValuePmnt}

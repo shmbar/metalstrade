@@ -473,7 +473,8 @@ const Accounting = () => {
     return '$' + v;
   };
 
-  // Canvas can't resolve CSS vars — literals mirror the :root / .dark tokens.
+  // Canvas can't resolve CSS vars, so cssVar() reads the computed token and
+  // falls back to a literal — this tracks whichever colour preset is active.
   const chartOptions = {
     responsive: true,
     maintainAspectRatio: false,
@@ -641,28 +642,28 @@ const Accounting = () => {
             <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-6 mt-3">
               {/* Last Transaction */}
               <div className="rounded-2xl p-3 sm:p-5 mt-2 border border-[var(--line)] shadow-xl w-full bg-[var(--bg-subtle)]">
-                <h3 className="responsiveText font-medium font-poppins text-[var(--chathams-blue)] mb-2">Last Transaction</h3>
+                <h3 className="responsiveText font-medium font-sans text-[var(--chathams-blue)] mb-2">Last Transaction</h3>
                 <div className="space-y-0">
                   {recentTransactions.map((item, idx) => (
                     <div key={idx} className="flex items-center justify-between py-1 border-b border-[var(--selago)] last:border-0">
                       <div className="flex items-center gap-2">
                         <div className="w-7 h-7 bg-[var(--selago)] rounded-full flex items-center justify-center flex-shrink-0">
-                          <span className="text-[var(--endeavour)] responsiveText font-medium font-poppins">
+                          <span className="text-[var(--endeavour)] responsiveText font-medium font-sans">
                             {(gQ(item.clientExp, 'Supplier', 'nname') || item.clientInvName || item.clientInv || 'N').charAt(0).toUpperCase()}
                           </span>
                         </div>
                         <div className="min-w-0">
-                          <p className="responsiveText font-medium font-poppins text-[var(--chathams-blue)] truncate">
+                          <p className="responsiveText font-medium font-sans text-[var(--chathams-blue)] truncate">
                             {gQ(item.clientExp, 'Supplier', 'nname') || item.clientInvName || item.clientInv || 'Transaction'}
                           </p>
-                          <p className="responsiveTextTable text-[var(--regent-gray)] font-poppins">
+                          <p className="responsiveTextTable text-[var(--regent-gray)] font-sans">
                             {item.dateExp ? dateFormat(item.dateExp, 'dd mmm yyyy') : item.dateInv ? dateFormat(item.dateInv, 'dd mmm yyyy') : ''}
                           </p>
                         </div>
                       </div>
                       <div className="text-right flex-shrink-0 ml-2">
-                        <p className="responsiveTextTable text-[var(--regent-gray)] font-poppins">{item.expType || item.invType || ''}</p>
-                        <p className={`responsiveText font-medium font-poppins ${item.amountInv ? 'text-emerald-500' : 'text-red-500'}`}>
+                        <p className="responsiveTextTable text-[var(--regent-gray)] font-sans">{item.expType || item.invType || ''}</p>
+                        <p className={`responsiveText font-medium font-sans ${item.amountInv ? 'text-emerald-500' : 'text-red-500'}`}>
                           {item.amountInv ? '+' : '-'}{formatCurrency(item.amountInv || item.amountExp || 0)}
                         </p>
                       </div>
@@ -673,27 +674,27 @@ const Accounting = () => {
 
               {/* Invoices Sent */}
               <div className="rounded-2xl p-3 sm:p-5 mt-2 border border-[var(--line)] shadow-xl w-full bg-[var(--bg-subtle)]">
-                <h3 className="responsiveText font-medium font-poppins text-[var(--chathams-blue)] mb-2">Invoices Sent</h3>
+                <h3 className="responsiveText font-medium font-sans text-[var(--chathams-blue)] mb-2">Invoices Sent</h3>
                 <div className="space-y-0">
                   {recentInvoices.map((item, idx) => (
                     <div key={idx} className="flex items-center justify-between py-1 border-b border-[var(--selago)] last:border-0">
                       <div className="flex items-center gap-2 min-w-0 flex-1">
                         <div className="w-7 h-7 bg-[var(--rock-blue)]/20 rounded-full flex items-center justify-center flex-shrink-0">
-                          <span className="text-[var(--chathams-blue)] responsiveText font-medium font-poppins">
+                          <span className="text-[var(--chathams-blue)] responsiveText font-medium font-sans">
                             {(item.clientInvName || item.clientInv || 'C').charAt(0).toUpperCase()}
                           </span>
                         </div>
                         <div className="min-w-0 flex-1">
-                          <p className="responsiveTextTable text-[var(--regent-gray)] font-poppins">{item.saleInvoice || 'Invoice'}</p>
-                          <p className="responsiveText font-medium font-poppins text-[var(--chathams-blue)] truncate">{item.clientInvName || item.clientInv || 'Client'}</p>
-                          <p className="responsiveTextTable text-[var(--regent-gray)] font-poppins">
+                          <p className="responsiveTextTable text-[var(--regent-gray)] font-sans">{item.saleInvoice || 'Invoice'}</p>
+                          <p className="responsiveText font-medium font-sans text-[var(--chathams-blue)] truncate">{item.clientInvName || item.clientInv || 'Client'}</p>
+                          <p className="responsiveTextTable text-[var(--regent-gray)] font-sans">
                             {item.dateInv ? dateFormat(item.dateInv, 'dd mmm yyyy') : ''}
                           </p>
                         </div>
                       </div>
                       <div className="text-right flex-shrink-0 ml-2">
-                        <p className="responsiveText font-medium font-poppins text-[var(--chathams-blue)] mb-0.5">{formatCurrency(item.amountInv || 0)}</p>
-                        <span className={`inline-block px-2 py-0.5 rounded-full responsiveTextTable font-medium font-poppins ${idx % 2 === 0 ? 'bg-emerald-100 text-emerald-700' : 'bg-[var(--neutral-bg)] text-[var(--regent-gray)]'
+                        <p className="responsiveText font-medium font-sans text-[var(--chathams-blue)] mb-0.5">{formatCurrency(item.amountInv || 0)}</p>
+                        <span className={`inline-block px-2 py-0.5 rounded-full responsiveTextTable font-medium font-sans ${idx % 2 === 0 ? 'bg-emerald-100 text-emerald-700' : 'bg-[var(--neutral-bg)] text-[var(--regent-gray)]'
                           }`}>
                           {idx % 2 === 0 ? 'Paid' : 'Pending'}
                         </span>
@@ -710,7 +711,7 @@ const Accounting = () => {
               <div className="rounded-2xl p-3 sm:p-5 mt-2 border border-[var(--line)] shadow-xl w-full bg-[var(--bg-subtle)]">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-2">
                   <div className="min-w-0">
-                    <h3 className="responsiveText font-medium font-poppins text-[var(--chathams-blue)]">Debit & Credit Overview</h3>
+                    <h3 className="responsiveText font-medium font-sans text-[var(--chathams-blue)]">Debit & Credit Overview</h3>
                     <p className="responsiveText text-[var(--regent-gray)] truncate">
                       {formatCurrency(totals.totalExpense)} Debited & {formatCurrency(totals.totalIncome)} Credited
                     </p>
@@ -732,7 +733,7 @@ const Accounting = () => {
               </div>
               {/* Summary Stats */}
               <div className="rounded-2xl p-3 sm:p-5 mt-2 border border-[var(--line)] shadow-xl bg-[var(--bg-subtle)] overflow-hidden">
-                <h3 className="responsiveText font-medium font-poppins text-[var(--chathams-blue)] mb-4">Financial Summary</h3>
+                <h3 className="responsiveText font-medium font-sans text-[var(--chathams-blue)] mb-4">Financial Summary</h3>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="bg-[var(--bg-subtle)] rounded-2xl p-4 overflow-hidden border border-[var(--line)] shadow-sm">
                     <p className="text-[var(--port-gore)] responsiveText mb-1">Total Transactions</p>

@@ -163,7 +163,7 @@ const Customtable = ({
     return (
         <div className="w-full">
             <style>{`
-                /* Import Poppins and set table font */
+                /* Table font */
 
                 /* Professional gradient scrollbar matching cards */
                 .dashboard-scroll::-webkit-scrollbar { width: 10px; height: 10px; }
@@ -190,7 +190,7 @@ const Customtable = ({
                     );
                 }
 
-                /* Use Poppins for the table and limit transitions to non-transform properties
+                /* Set the table font and limit transitions to non-transform properties
                    to avoid any hover vibration (no transform transitions allowed). */
                 .custom-table, .custom-table *, .glass-table, .glass-table * {
                     font-family: var(--font-inter), 'Inter', system-ui, sans-serif;
@@ -326,7 +326,7 @@ const Customtable = ({
                                                 {group.headers.map(header => (
                                                     <th
                                                         key={header.id}
-                                                        className="font-poppins responsiveTextTable font-medium"
+                                                        className="font-sans responsiveTextTable font-medium"
                                                         style={{
                                                             color: 'var(--chathams-blue)',
                                                             backgroundColor: 'var(--bg-subtle)',
@@ -355,7 +355,7 @@ const Customtable = ({
                                                     {group.headers.map(header => (
                                                         <th
                                                             key={header.id}
-                                                            className="px-2 py-1.5 font-medium responsiveTextInput font-poppins"
+                                                            className="px-2 py-1.5 font-medium responsiveTextInput font-sans"
                                                             style={{
                                                                 backgroundColor: "var(--bg-card)",
                                                                 borderBottom: '2px solid var(--line)',

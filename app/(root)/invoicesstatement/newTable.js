@@ -252,7 +252,7 @@ const Customtable = ({ data, columns, invisible, SelectRow, excellReport, ln, se
                                             {hdGroup.headers.map((header, idx) => (
                                                 <th
                                                     key={header.id}
-                                                    className="font-poppins responsiveTextTable font-medium"
+                                                    className="font-sans responsiveTextTable font-medium"
                                                     style={{
                                                         color: 'var(--chathams-blue)',
                                                         minWidth: header.column.id === 'select' ? '50px' : '60px',

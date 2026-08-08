@@ -132,7 +132,7 @@ const Customtable = ({ data, columns, invisible, excellReport, onCellUpdate }) =
   return (
     <div className="w-full">
       <style jsx global>{`
-        /* Import Poppins and set table font */
+        /* Table font */
 
         /* Professional gradient scrollbar matching cards */
         .dashboard-scroll::-webkit-scrollbar { width: 10px; height: 10px; }
@@ -238,7 +238,7 @@ const Customtable = ({ data, columns, invisible, excellReport, onCellUpdate }) =
                         {hdGroup.headers.map(header => (
                           <th
                             key={header.id}
-                            className="font-poppins responsiveTextTable font-medium"
+                            className="font-sans responsiveTextTable font-medium"
                             onClick={header.column.getCanSort() ? header.column.getToggleSortingHandler() : undefined}
                             style={{
                               color: 'var(--chathams-blue)',

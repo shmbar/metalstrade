@@ -104,7 +104,7 @@ const SelectEnt = memo(({ props, data, handleChangeSelect, month, name, plHolder
                 <TooltipContent
                   side="top"
                   className="bg-[var(--ink)] text-[var(--on-brand)] responsiveTextInput rounded-lg px-2.5 py-1 border-0 shadow-pop"
-                  style={{ fontFamily: "var(--font-poppins), 'Poppins', sans-serif" }}
+                  style={{ fontFamily: "var(--font-jakarta), 'Plus Jakarta Sans', sans-serif" }}
                 >
                   {fullName}
                 </TooltipContent>

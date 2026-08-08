@@ -159,7 +159,7 @@ const Customtable = ({ data, item }) => {
 	return (
 		<div className='mx-4 mb-4 rounded-2xl overflow-hidden border border-[var(--line)]' style={{ boxShadow: 'var(--shadow-sm)' }}>
 			<div className="w-full overflow-x-auto">
-				<table className="w-full" style={{ borderCollapse: 'collapse', fontFamily: "var(--font-poppins), 'Poppins', sans-serif", fontSize: 'var(--fs-table)' }}>
+				<table className="w-full" style={{ borderCollapse: 'collapse', fontFamily: "var(--font-jakarta), 'Plus Jakarta Sans', sans-serif", fontSize: 'var(--fs-table)' }}>
 					<thead>
 						<tr>
 							{cols.map((x, k) => (

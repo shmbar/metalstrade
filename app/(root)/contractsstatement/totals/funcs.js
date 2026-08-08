@@ -16,7 +16,7 @@ export const expensesToolTip = (row, expensesData, settings) => {
             overflow: 'hidden',
             boxShadow: 'var(--shadow-md)',
             border: '1px solid var(--line)',
-            fontFamily: "var(--font-poppins), 'Poppins', sans-serif",
+            fontFamily: "var(--font-jakarta), 'Plus Jakarta Sans', sans-serif",
             minWidth: '400px',
         }}>
             <div style={{ background: 'var(--bg-subtle)', padding: '7px 14px', fontWeight: 500, fontSize: 'var(--fs-body)', color: 'var(--chathams-blue)', borderBottom: '1px solid var(--line)' }}>

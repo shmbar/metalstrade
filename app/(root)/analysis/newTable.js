@@ -192,7 +192,7 @@ const Customtable = ({
                       {hdGroup.headers.map(header => (
                         <th
                           key={header.id}
-                          className={`px-2 py-2 font-poppins responsiveTextTable font-medium`}
+                          className={`px-2 py-2 font-sans responsiveTextTable font-medium`}
                           style={{
                             color: 'var(--chathams-blue)',
                             backgroundColor: 'var(--bg-subtle)',
@@ -259,7 +259,7 @@ const Customtable = ({
                       {hdGroup.headers.map(header => (
                         <th
                           key={header.id}
-                          className={`px-2 py-2 font-poppins responsiveTextTable font-medium`}
+                          className={`px-2 py-2 font-sans responsiveTextTable font-medium`}
                           style={{
                             color: 'var(--chathams-blue)',
                             backgroundColor: 'var(--bg-subtle)',

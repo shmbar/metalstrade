@@ -227,7 +227,7 @@ const DraggableRow = memo(function DraggableRow({ row, props, cName }) {
                         ? "text-[var(--bad-text)]"
                         : "text-[var(--ink)]"
                     )}
-                    style={{ fontFamily: "var(--font-poppins), 'Poppins', sans-serif" }}
+                    style={{ fontFamily: "var(--font-jakarta), 'Plus Jakarta Sans', sans-serif" }}
                   />
                 </div>
               </Tltip>
@@ -247,7 +247,7 @@ const DraggableRow = memo(function DraggableRow({ row, props, cName }) {
                     ? "text-[var(--bad-text)]"
                     : "text-[var(--ink)]"
                 )}
-                style={{ fontFamily: "var(--font-poppins), 'Poppins', sans-serif" }}
+                style={{ fontFamily: "var(--font-jakarta), 'Plus Jakarta Sans', sans-serif" }}
               />
             )}
           </TableCell>

@@ -149,7 +149,11 @@ const WHITE = [255, 255, 255];
 // Nudge lightness until `pair(l)` reaches `target` contrast (or bounds hit).
 function fitL(h, s, l, otherRgb, target, step) {
   let rgb = hslToRgb(h, s, l);
-  let guard = 40;
+  // Budget must cover the whole 2..98 lightness range. It used to be 40, which
+  // was enough only because dark --endeavour started at L48. The redesign starts
+  // it at L73, so a green/yellow preset ran out of steps at L33 and shipped white
+  // button text at 3.6:1. The l<=2 / l>=98 break below is the real terminator.
+  let guard = 100;
   while (contrast(rgb, otherRgb) < target && guard-- > 0) {
     l += step;
     if (l <= 2 || l >= 98) break;

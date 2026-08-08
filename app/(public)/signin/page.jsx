@@ -65,7 +65,7 @@ export default function SignInPage() {
           <h2 className="responsiveTextDisplay font-bold mb-3 leading-snug">
             Unlock the power of intelligent trading
           </h2>
-          <div className="w-10 h-0.5 bg-white/30 mb-5 rounded-full mx-auto" />
+          <div className="w-10 h-0.5 bg-[var(--on-brand-soft-strong)] mb-5 rounded-full mx-auto" />
           <p className="text-[var(--on-brand)]/60 responsiveTextTitle leading-relaxed">
             Create, manage, and monitor all your business transactions in one place. Streamline your operations, gain real-time insights, and stay in control of your finances effortlessly.
           </p>
@@ -74,7 +74,7 @@ export default function SignInPage() {
           <ul className="mt-8 space-y-3.5">
             {['Real-time analytics & reporting', 'Contract & invoice management', 'Secure & role-based access'].map((item) => (
               <li key={item} className="flex items-center justify-center gap-3 responsiveTextTitle text-[var(--on-brand)]/75">
-                <span className="w-4 h-4 rounded-full border border-white/30 bg-white/10 flex items-center justify-center flex-shrink-0">
+                <span className="w-4 h-4 rounded-full border border-[var(--on-brand-soft-strong)] bg-[var(--on-brand-soft)] flex items-center justify-center flex-shrink-0">
                   <svg className="w-2.5 h-2.5 text-[var(--on-brand)]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                   </svg>

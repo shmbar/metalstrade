@@ -46,7 +46,7 @@ export const PdfAccountStatement = async (arrTable, settings, compData, client, 
         doc.setFontSize(10);
         doc.text(compData.name, 130, 15)
         doc.setFontSize(9);
-        doc.setFont('Poppins', 'normal');
+        doc.setFont('Plus Jakarta Sans', 'normal');
         doc.text(compData.street, 130, 21)
         doc.text(compData.city + ' ' + compData.zip, 130, 27)
         doc.text(compData.country, 130, 33)
@@ -56,7 +56,7 @@ export const PdfAccountStatement = async (arrTable, settings, compData, client, 
     }
 
     const footer = () => {
-        doc.setFont('Poppins', 'normal');
+        doc.setFont('Plus Jakarta Sans', 'normal');
         doc.setFontSize(6);
 
         //Footer
@@ -66,7 +66,7 @@ export const PdfAccountStatement = async (arrTable, settings, compData, client, 
         doc.setFontSize(9);
         doc.text(compData.name, 82, 276)
         doc.setFontSize(8);
-        doc.setFont('Poppins', 'normal');
+        doc.setFont('Plus Jakarta Sans', 'normal');
         doc.text(compData.street + ' - ' + compData.city + ' ' + compData.zip +
             ' - ' + compData.country, 78, 280);
         doc.text('Reg No. ' + compData.reg + ' - Vat No. ' + compData.vat +
@@ -86,7 +86,7 @@ export const PdfAccountStatement = async (arrTable, settings, compData, client, 
         doc.setFont('PoppinsB', 'bold');
         doc.setFontSize(8);
         doc.text(clnt?.client, 25, 50);
-        doc.setFont('Poppins', 'normal');
+        doc.setFont('Plus Jakarta Sans', 'normal');
         doc.setFontSize(8);
 
         doc.text(clnt?.street, 25, 55);
@@ -115,7 +115,7 @@ export const PdfAccountStatement = async (arrTable, settings, compData, client, 
         margin: { left: margin, right: margin, bottom: 35, top: 45 },
         startY: 83,
         headStyles: { fillColor: [9, 110, 182], textColor: [255, 255, 255], fontSize: 8, halign: 'center', font: 'PoppinsB' },
-        bodyStyles: { fontSize: 8, font: 'Poppins', textColor: [32, 55, 100] },
+        bodyStyles: { fontSize: 8, font: 'Plus Jakarta Sans', textColor: [32, 55, 100] },
         head: [['Invoice', 'Date', 'Amount', 'Currency', 'Due Payment', 'Paid', 'Unpaid'],
             // ['', '', `${valueCon.qTypeTable && getD(settings.Quantity.Quantity, valueCon, 'qTypeTable')}`,
             //     `${valueCon.cur && getD(settings.Currency.Currency, valueCon, 'cur')}`

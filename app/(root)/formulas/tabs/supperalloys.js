@@ -801,11 +801,11 @@ const SupperAlloys = ({ value, handleChange }) => {
                             />
                         </div>
                         <div className="flex flex-wrap gap-3">
-                            <ResultBox title="Solids Price" value={formatCurrency((solidsPrice * (value?.supperalloys?.formulaIntsCost || 0) / 100).toFixed(2))} />
-                            <ResultBox title="Price per MT" value={formatCurrency((solidsPrice * (value?.supperalloys?.formulaIntsCost || 0) / 100 * value.general.mt).toFixed(2))} />
+                            <ResultBox title="Solids Price" bg="var(--danger-soft)" value={formatCurrency((solidsPrice * (value?.supperalloys?.formulaIntsCost || 0) / 100).toFixed(2))} />
+                            <ResultBox title="Price per MT" bg="var(--danger-soft)" value={formatCurrency((solidsPrice * (value?.supperalloys?.formulaIntsCost || 0) / 100 * value.general.mt).toFixed(2))} />
                         </div>
                         <div>
-                            <ResultBox title="Price / Euro" value={formatCurrency((solidsPrice * (value?.supperalloys?.formulaIntsCost || 0) / 100 / value.general?.euroRate).toFixed(2), "€")} />
+                            <ResultBox title="Price / Euro" bg="var(--ok-soft)" value={formatCurrency((solidsPrice * (value?.supperalloys?.formulaIntsCost || 0) / 100 / value.general?.euroRate).toFixed(2), "€")} />
                         </div>
                     </div>
 
@@ -821,11 +821,11 @@ const SupperAlloys = ({ value, handleChange }) => {
                             />
                         </div>
                         <div className="flex flex-wrap gap-3">
-                            <ResultBox title="Solids Price" value={formatCurrency((solidsPrice * (value?.supperalloys?.formulaIntsPrice || 0) / 100).toFixed(2))} />
-                            <ResultBox title="Price per MT" value={formatCurrency((solidsPrice * (value?.supperalloys?.formulaIntsPrice || 0) / 100 * value.general.mt).toFixed(2))} />
+                            <ResultBox title="Solids Price" bg="var(--selago)" value={formatCurrency((solidsPrice * (value?.supperalloys?.formulaIntsPrice || 0) / 100).toFixed(2))} />
+                            <ResultBox title="Price per MT" bg="var(--selago)" value={formatCurrency((solidsPrice * (value?.supperalloys?.formulaIntsPrice || 0) / 100 * value.general.mt).toFixed(2))} />
                         </div>
                         <div>
-                            <ResultBox title="Price / Euro" value={formatCurrency((solidsPrice * (value?.supperalloys?.formulaIntsPrice || 0) / 100 / value.general?.euroRate).toFixed(2), "€")} />
+                            <ResultBox title="Price / Euro" bg="var(--ok-soft)" value={formatCurrency((solidsPrice * (value?.supperalloys?.formulaIntsPrice || 0) / 100 / value.general?.euroRate).toFixed(2), "€")} />
                         </div>
                     </div>
 
@@ -834,10 +834,17 @@ const SupperAlloys = ({ value, handleChange }) => {
         </div>
     ) : null;
 };
-const ResultBox = ({ title, value }) => (
+// `bg` is meaningful here, not decoration: it bands the Cost group against the
+// Price group so the two columns of figures can be told apart at a glance. The
+// reference drops the prop and paints every box the same — that reads tidier but
+// loses the distinction, so the prop is kept and simply re-tokenised.
+const ResultBox = ({ title, value, bg = 'var(--brand-soft)' }) => (
     <div className="min-w-[120px] w-fit">
         <p className={labelCls + " whitespace-nowrap"}>{title}</p>
-        <div className="h-8 px-3 rounded-control bg-[var(--brand-soft)] border border-[var(--brand-border)] flex items-center justify-center responsiveTextTitle font-inter tabular-nums font-semibold text-[var(--brand-strong)]">
+        <div
+            className="h-8 px-3 rounded-control border flex items-center justify-center responsiveTextTitle font-inter tabular-nums font-semibold text-[var(--ink)]"
+            style={{ background: bg, borderColor: `color-mix(in srgb, ${bg} 65%, var(--line-strong))` }}
+        >
             {value}
         </div>
     </div>

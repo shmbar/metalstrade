@@ -2,7 +2,7 @@ import Image from "next/image";
 
 export default function DashboardPreview() {
   return (
-    <div className="relative rounded-3xl p-3 bg-gradient-to-b from-white/20 to-white/5 backdrop-blur-xl border border-white/20 shadow-2xl">
+    <div className="relative rounded-3xl p-3 bg-gradient-to-b from-[var(--on-brand-soft-strong)] to-[var(--on-brand-soft)] backdrop-blur-xl border border-[var(--on-brand-soft)] shadow-2xl">
       <div className="rounded-2xl overflow-hidden shadow-inner">
         <Image
           src="/dashboard-preview.png"

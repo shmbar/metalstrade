@@ -14,8 +14,6 @@ module.exports = {
 				display: ['var(--font-jakarta)', 'Plus Jakarta Sans', 'system-ui', 'sans-serif'],
 				// Data tables / figures — Inter's tabular numerals keep columns aligned.
 				inter: ['var(--font-inter)', 'Inter', 'system-ui', 'sans-serif'],
-				// Legacy alias — the old font-poppins call sites render the current UI font.
-				poppins: ['var(--font-jakarta)', 'Plus Jakarta Sans', 'system-ui', 'sans-serif'],
 			},
 			gridTemplateColumns: {
 				'21': 'repeat(21, minmax(0, 1fr))'

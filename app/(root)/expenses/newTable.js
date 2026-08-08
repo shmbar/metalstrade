@@ -1105,7 +1105,7 @@ const Customtable = ({
                       {hdGroup.headers.map(header => (
                         <th
                           key={header.id}
-                          className="header-blue font-poppins responsiveTextTable font-medium"
+                          className="header-blue font-sans responsiveTextTable font-medium"
                           onClick={header.column.getCanSort() ? header.column.getToggleSortingHandler() : undefined}
                           style={{
                             minWidth:

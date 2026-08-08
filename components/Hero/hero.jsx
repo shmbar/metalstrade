@@ -39,7 +39,7 @@ export default function Hero() {
               initial={{ opacity: 0, y: -12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
-              className="inline-flex items-center gap-2 rounded-full px-3.5 py-1.5 mb-5 border border-white/25 bg-white/10 backdrop-blur-sm"
+              className="inline-flex items-center gap-2 rounded-full px-3.5 py-1.5 mb-5 border border-[var(--on-brand-soft-strong)] bg-[var(--on-brand-soft)] backdrop-blur-sm"
             >
               <Sparkles className="w-3.5 h-3.5 text-[var(--on-brand-muted)]" />
               <span className="responsiveText font-semibold tracking-wide uppercase text-[var(--bg-subtle)]">
@@ -81,7 +81,7 @@ export default function Hero() {
               className="flex flex-wrap gap-2 mb-8"
             >
               {heroStats.map((s) => (
-                <span key={s} className="responsiveText font-medium text-[var(--bg-subtle)] rounded-full px-3 py-1 border border-white/20 bg-white/[0.07]">
+                <span key={s} className="responsiveText font-medium text-[var(--bg-subtle)] rounded-full px-3 py-1 border border-[var(--on-brand-soft)] bg-[var(--on-brand-soft)]">
                   {s}
                 </span>
               ))}
@@ -99,7 +99,7 @@ export default function Hero() {
                 </span>
               </Link>
               <a href="#modules">
-                <span className="border border-[var(--line)]/60 text-[var(--on-brand)] px-8 py-2.5 rounded-2xl font-bold hover:bg-white/10 transition-all flex items-center gap-2 cursor-pointer hover:scale-105 active:scale-95 responsiveTextTitle">
+                <span className="border border-[var(--line)]/60 text-[var(--on-brand)] px-8 py-2.5 rounded-2xl font-bold hover:bg-[var(--on-brand-soft)] transition-all flex items-center gap-2 cursor-pointer hover:scale-105 active:scale-95 responsiveTextTitle">
                   Explore the platform <ArrowRight className="w-4 h-4" />
                 </span>
               </a>

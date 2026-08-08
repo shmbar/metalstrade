@@ -99,7 +99,7 @@ const DoalogModalClient = ({ obj, clientPartialPayment }) => {
                                     popoverDirection="down"
                                     onChange={(val) => setDate(val)}
                                     displayFormat={"DD-MMM-YYYY"}
-                                    inputClassName="input w-full shadow-sm h-7 rounded-full"
+                                    inputClassName="input w-full shadow-sm h-7"
                                 />
                             )}
                         </div>
@@ -108,7 +108,7 @@ const DoalogModalClient = ({ obj, clientPartialPayment }) => {
                             <label className="responsiveText justify-start flex">Amount</label>
                             <input
                                 type="text"
-                                className="number-separator input h-7 shadow-sm w-full rounded-full"
+                                className="number-separator input shadow-sm w-full"
                                 style={{ fontSize: 'inherit' }}
                                 value={addComma(pmnt)}
                                 onChange={handleValuePmnt}

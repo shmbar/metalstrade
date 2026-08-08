@@ -74,7 +74,7 @@ function PopupCard({ n, onDismiss, onOpen }) {
 
                     <div className='min-w-0 flex-1'>
                         <div className='flex items-center justify-between gap-2'>
-                            <span className='font-semibold truncate font-poppins'
+                            <span className='font-semibold truncate font-sans'
                                 style={{ fontSize: 'var(--fs-input)', color: 'var(--ink)' }}>
                                 {n.entityLabel || 'Notification'}
                             </span>

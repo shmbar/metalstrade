@@ -78,7 +78,7 @@ const MarginTable = memo(function MarginTable(props) {
                                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                                     <div className="text-center">
                                         <div 
-                                            className="font-medium mb-0.5 responsiveText font-poppins"
+                                            className="font-medium mb-0.5 responsiveText font-sans"
                                             style={{
                                                 color: 'var(--brand)',
                                                                                                 lineHeight: '1.1'
@@ -106,7 +106,7 @@ const MarginTable = memo(function MarginTable(props) {
 
                                     <div className="text-center">
                                         <div 
-                                            className="font-medium mb-0.5 responsiveText font-poppins"
+                                            className="font-medium mb-0.5 responsiveText font-sans"
                                             style={{
                                                 color: 'var(--brand)',
                                                                                                 lineHeight: '1.1'
@@ -135,7 +135,7 @@ const MarginTable = memo(function MarginTable(props) {
 
                                     <div className="text-center">
                                         <div 
-                                            className="font-medium mb-0.5 responsiveText font-poppins"
+                                            className="font-medium mb-0.5 responsiveText font-sans"
                                             style={{
                                                 color: 'var(--brand)',
                                                                                                 lineHeight: '1.1'
@@ -163,7 +163,7 @@ const MarginTable = memo(function MarginTable(props) {
 
                                     <div className="text-center">
                                         <div 
-                                            className="font-medium mb-0.5 responsiveText font-poppins"
+                                            className="font-medium mb-0.5 responsiveText font-sans"
                                             style={{
                                                 color: 'var(--brand)',
                                                                                                 lineHeight: '1.1'

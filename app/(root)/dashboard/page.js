@@ -84,7 +84,7 @@ function SectionHeader({ title, subtitle, right }) {
   return (
     <div className="flex items-start justify-between gap-3 mb-3">
       <div className="min-w-0">
-        <h3 className="responsiveTextTitle font-semibold font-poppins text-[var(--chathams-blue)]">{title}</h3>
+        <h3 className="responsiveTextTitle font-semibold font-sans text-[var(--chathams-blue)]">{title}</h3>
         {subtitle && <p className="responsiveTextTable text-[var(--regent-gray)] mt-0.5">{subtitle}</p>}
       </div>
       {right}
@@ -517,7 +517,7 @@ function PerMtStrip({ totalMT, avgCostPerMT, avgExpensePerMT, avgProfitPerMT, av
 }
 
 // Pill-styled filter control built on the app's Radix Select (themed dropdown, small
-// Poppins text, check indicators) — not a native <select>, so the menu matches the rest
+// styled text, check indicators) — not a native <select>, so the menu matches the rest
 // of the app. Lifts to the --endeavour accent when a value is set. ('all' is the sentinel
 // for "no filter" since Radix Select can't use an empty-string value.)
 function FilterSelect({ label, icon, value, onChange, options }) {

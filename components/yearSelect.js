@@ -8,11 +8,11 @@ const YearSelect = ({yr, setYr}) => {
 
     return (
         <Menu>
-            <MenuButton className='border border-[var(--endeavour)] rounded-full p-2 text-[var(--endeavour)] responsiveTextTitle px-3 font-poppins responsiveTextInput'>{yr}</MenuButton>
-            <MenuItems anchor="bottom" className='z-50 border border-[var(--endeavour)] rounded-full p-2 mt-1 bg-[var(--bg-card)] font-poppins responsiveTextInput'>
+            <MenuButton className='border border-[var(--endeavour)] rounded-full p-2 text-[var(--endeavour)] responsiveTextTitle px-3 font-sans responsiveTextInput'>{yr}</MenuButton>
+            <MenuItems anchor="bottom" className='z-50 border border-[var(--endeavour)] rounded-full p-2 mt-1 bg-[var(--bg-card)] font-sans responsiveTextInput'>
                 {yrArr.map(z => {
                     return (
-                        <MenuItem className='text-[var(--endeavour)] font-poppins responsiveTextInput' key={z} >
+                        <MenuItem className='text-[var(--endeavour)] font-sans responsiveTextInput' key={z} >
                             <button className={`hover:bg-[var(--bg-subtle)] flex w-full items-center gap-2 rounded-full py-1.5 my-1 px-1
                             ${yr === z ? 'bg-[var(--endeavour)] text-[var(--on-brand)]' : ''}`}
                                 onClick={() => setYr(z)}>
