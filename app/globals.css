@@ -585,47 +585,54 @@ textarea:focus-visible,
   }
 }
 
+/* ── The .responsiveText* classes ────────────────────────────────────────────
+   Every size below is read from the --fs-* ladder rather than written out as a
+   four-breakpoint @apply ramp. It used to be spelled out here, which meant the
+   ladder had TWO sources of truth — and because this block sits later in the
+   file at equal specificity, the copy here quietly won. Capping the ladder
+   therefore had no effect on any of these classes until they were pointed at it.
+   One ladder, one place to change it. */
 @layer app {
-  /* Standard body / cell text — px-aligned: 11 / 12 / 13 / 14 */
+  /* Standard body / cell text */
   .responsiveText {
-    @apply text-[0.6875rem] xl:text-[0.75rem] 2xl:text-[0.8125rem] 3xl:text-[0.875rem]
-           break-words min-w-0 whitespace-normal;
+    @apply break-words min-w-0 whitespace-normal;
+    font-size: var(--fs-body);
   }
 
-  /* Dense table cell text — 10 / 11 / 12 / 13 */
+  /* Dense table cell text */
   .responsiveTextTable {
-    @apply text-[0.625rem] xl:text-[0.6875rem] 2xl:text-[0.75rem] 3xl:text-[0.8125rem]
-           break-words min-w-0 whitespace-normal;
+    @apply break-words min-w-0 whitespace-normal;
+    font-size: var(--fs-table);
   }
 
-  /* Summary table card title — 1px smaller than responsiveTextTable: 9 / 10 / 11 / 12 */
+  /* Summary table card title — one rung under responsiveTextTable */
   .responsiveTextTableTitle {
-    @apply text-[0.5625rem] xl:text-[0.625rem] 2xl:text-[0.6875rem] 3xl:text-[0.75rem]
-           break-words min-w-0 whitespace-normal;
+    @apply break-words min-w-0 whitespace-normal;
+    font-size: var(--fs-caption);
   }
 
-  /* Totals row — same size as body but bold */
+  /* Totals row — body size, medium weight */
   .responsiveTextTotal {
-    @apply text-[0.6875rem] xl:text-[0.75rem] 2xl:text-[0.8125rem] 3xl:text-[0.875rem]
-           font-medium break-words min-w-0 whitespace-normal;
+    @apply font-medium break-words min-w-0 whitespace-normal;
+    font-size: var(--fs-body);
   }
 
-  /* Pill/inline inputs — 12 / 13 / 14 / 15 */
+  /* Pill/inline inputs */
   .responsiveTextInput {
-    @apply text-[0.75rem] xl:text-[0.8125rem] 2xl:text-[0.875rem] 3xl:text-[0.9375rem]
-           break-words min-w-0 whitespace-normal;
+    @apply break-words min-w-0 whitespace-normal;
+    font-size: var(--fs-input);
   }
 
-  /* Section headings / column headers — 13 / 14 / 15 / 16 */
+  /* Section headings / column headers */
   .responsiveTextTitle {
-    @apply text-[0.8125rem] xl:text-[0.875rem] 2xl:text-[0.9375rem] 3xl:text-[1rem]
-           break-words min-w-0 whitespace-normal;
+    @apply break-words min-w-0 whitespace-normal;
+    font-size: var(--fs-title);
   }
 
-  /* Page title — 16 / 17 / 18 / 20. Top rung of the ladder. */
+  /* Page title */
   .responsiveTextPage {
-    @apply text-[1rem] xl:text-[1.0625rem] 2xl:text-[1.125rem] 3xl:text-[1.25rem]
-           font-semibold leading-tight break-words min-w-0;
+    @apply font-semibold leading-tight break-words min-w-0;
+    font-size: var(--fs-page);
   }
 
   /* ── Display rungs, for the public marketing pages ────────────────────────
@@ -635,18 +642,18 @@ textarea:focus-visible,
      that continue the same ladder — so every page in the product, app or
      marketing, is on one system. */
   .responsiveTextDisplay {
-    @apply text-[1.375rem] xl:text-[1.5625rem] 2xl:text-[1.75rem] 3xl:text-[2rem]
-           font-bold leading-tight tracking-tight break-words min-w-0;
+    @apply font-bold leading-tight tracking-tight break-words min-w-0;
+    font-size: var(--fs-display);
   }
   .responsiveTextHero {
-    @apply text-[1.875rem] xl:text-[2.25rem] 2xl:text-[2.625rem] 3xl:text-[3rem]
-           font-bold leading-[1.15] tracking-tight break-words min-w-0;
+    @apply font-bold leading-[1.15] tracking-tight break-words min-w-0;
+    font-size: var(--fs-hero);
   }
 
-  /* KPI / stat figures — 20 / 22 / 24 / 26. */
+  /* KPI / stat figures */
   .responsiveTextStat {
-    @apply text-[1.25rem] xl:text-[1.375rem] 2xl:text-[1.5rem] 3xl:text-[1.625rem]
-           font-semibold leading-tight tracking-tight break-words min-w-0;
+    @apply font-semibold leading-tight tracking-tight break-words min-w-0;
+    font-size: var(--fs-stat);
   }
 
   /* Numeric columns: equal-width digits so figures align down a column and
