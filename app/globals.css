@@ -1135,11 +1135,10 @@ div.relative.w-full.text-gray-700 > div.absolute.z-10:not(.right-0) > div.absolu
    exact values. The ladder still drives the data-density classes further down,
    where scaling with the viewport does earn its keep. */
 .text-display {
-  /* 20px, one step below the reference's 22px, and 600 instead of its 700 —
-     both deliberate departures made after using the app: 22/700 read too
-     dominant sitting at the top of every screen. Still clearly the largest
-     text on the page, just less overpowering. */
-  font-size: 1.25rem;    /* 20px */
+  font-size: 1.375rem;   /* 22px */
+  /* 600, not the reference's 700. At 22px Jakarta a full bold reads heavy at the
+     top of every screen; semibold keeps the hierarchy without the weight. This
+     is a deliberate one-step departure from the reference. */
   font-weight: 600;
   color: var(--ink);
   letter-spacing: -0.01em;
