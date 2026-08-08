@@ -304,7 +304,7 @@
     --fs-table:   0.75rem;   /* 12 — reference cap reached */
     --fs-body:    0.8125rem; /* 13 — reference cap reached */
     --fs-input:   0.8125rem; /* 13 — held at cap */
-    --fs-title:   0.9375rem; /* 15 */
+    --fs-title:   0.875rem;  /* 14 — reference cap reached (its text-sm) */
     --fs-page:    1rem;      /* 16 — held at cap */
     --fs-stat:    1.5rem;    /* 24 — reference cap reached */
     --fs-display: 1.75rem;   /* 28 — marketing only */
@@ -317,7 +317,7 @@
     --fs-table:   0.75rem;   /* 12 — held at cap */
     --fs-body:    0.8125rem; /* 13 — held at cap */
     --fs-input:   0.8125rem; /* 13 — held at cap */
-    --fs-title:   1rem;      /* 16 — reference cap reached */
+    --fs-title:   0.875rem;  /* 14 — held at cap */
     --fs-page:    1rem;      /* 16 — held at cap */
     --fs-stat:    1.5rem;    /* 24 — held at cap */
     --fs-display: 2rem;      /* 32 — marketing only */
