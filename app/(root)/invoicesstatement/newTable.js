@@ -132,25 +132,6 @@ const Customtable = ({ data, columns, invisible, SelectRow, excellReport, ln, se
         ? `${Math.min(currentRows * 40 + 180, 700)}px`
         : '320px';
 
-    const renderEmptyStateMedia = () => {
-        if (!isEmptyStateVideoError) {
-            return (
-                <video
-                    className="w-24 h-24 mb-5 rounded-2xl object-cover"
-                    autoPlay
-                    loop
-                    muted
-                    playsInline
-                    onError={() => setIsEmptyStateVideoError(true)}
-                >
-                    <source src={EMPTY_STATE_VIDEO_SRC} type="video/mp4" />
-                </video>
-            );
-        }
-
-        return <div className="w-24 h-24 mb-5" />;
-    }
-
     return (
         <div className="w-full">
             <style jsx global>{`

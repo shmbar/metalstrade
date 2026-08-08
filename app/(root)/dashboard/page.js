@@ -471,8 +471,8 @@ function PerMtStrip({ totalMT, avgCostPerMT, avgExpensePerMT, avgProfitPerMT, av
       accent: profitAccent,
       icon: (
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-          <circle cx="12" cy="12" r="10" stroke={profitColor} strokeWidth="2" fill={avgProfitPerMT >= 0 ? 'var(--ok-bg)' : 'var(--bad-bg)'} />
-          <path d={avgProfitPerMT >= 0 ? 'M8 12l3 3 5-5' : 'M8 12l3-3 5 5'} stroke={profitColor} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+          <circle cx="12" cy="12" r="10" stroke={profitAccent} strokeWidth="2" fill={avgProfitPerMT >= 0 ? 'var(--ok-bg)' : 'var(--bad-bg)'} />
+          <path d={avgProfitPerMT >= 0 ? 'M8 12l3 3 5-5' : 'M8 12l3-3 5 5'} stroke={profitAccent} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
       ),
       value: fmtAutoKM(avgProfitPerMT),

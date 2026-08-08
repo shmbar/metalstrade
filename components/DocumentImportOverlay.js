@@ -4,6 +4,7 @@ import { createPortal } from 'react-dom';
 import { FileText, Upload, Loader2, X, CheckSquare, Square, AlertTriangle, CheckCircle2, ChevronRight } from 'lucide-react';
 import { authedFetch } from '../utils/aiClient';
 import { uploadFile, fileToBase64 } from '../utils/utils';
+import { TONES } from './statusUtils';
 
 const ACCEPTED = ['application/pdf', 'image/jpeg', 'image/png', 'image/jpg'];
 
