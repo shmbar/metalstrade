@@ -347,12 +347,19 @@ body {
   color: var(--ink);
 }
 
-/* Data tables and figures switch to Inter for its tabular numerals, so columns
-   of numbers stay optically aligned. Everything else stays on Jakarta. */
+/* Numeric data aligns in columns everywhere.
+   NOTE: this deliberately sets tabular-nums ONLY, and does NOT switch tables to
+   Inter — which is what the reference does, and it is right. Jakarta already has
+   tabular figures, so the family swap bought nothing and cost two things:
+     1. tables rendered in a different typeface from the rest of the app, and
+        Inter's larger x-height reads heavier at the same px size;
+     2. Inter is loaded at 400/500/600 only, so every font-bold (700) inside a
+        table had no real face and the browser SYNTHESISED it. Faux bold is
+        heavier and blurrier than a true bold — that is why table headings and
+        totals looked bold here and clean in the reference. */
 table,
 .tnum,
 [data-numeric] {
-  font-family: var(--font-inter), 'Inter', system-ui, sans-serif;
   font-variant-numeric: tabular-nums;
 }
 
