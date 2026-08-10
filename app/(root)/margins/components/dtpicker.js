@@ -38,7 +38,16 @@ const DatePicker = ({ props, handleChangeDate, month, handleCancelDate }) => {
         handleCancelDate(null, props.row.original.id, month);
     };
 
+    /* Re-entry guard. The MutationObserver below watches `style` on the whole
+       subtree, and this function WRITES style on a node in that subtree — so
+       every reposition re-triggers the observer, which repositions again. It
+       survived before only because the values written were identical each pass;
+       the moment a write depended on a measurement it became a hard infinite
+       loop and hung the tab. The guard makes that impossible either way. */
+    const repositioningRef = useRef(false);
+
     const repositionPopup = useCallback(() => {
+        if (repositioningRef.current) return;
         const container = containerRef.current;
         if (!container) return;
         const popup = popupRef.current || container.querySelector('div[class*="absolute"][class*="z-"]');
@@ -47,41 +56,16 @@ const DatePicker = ({ props, handleChangeDate, month, handleCancelDate }) => {
         const input = container.querySelector('input');
         if (!input) return;
         const rect = input.getBoundingClientRect();
-        const wantLeft = rect.left;
-        const wantTop = rect.bottom + 4;
-        popup.style.position = 'fixed';
-        popup.style.top = `${wantTop}px`;
-        popup.style.left = `${wantLeft}px`;
-        popup.style.zIndex = '99999';
-        popup.style.width = 'auto';
-
-        /* Self-correct.
-           `position: fixed` normally resolves against the viewport, but ANY
-           ancestor with a transform, filter, backdrop-filter, perspective or
-           `contain` turns itself into the containing block instead — and then
-           these viewport coordinates land the popup somewhere else entirely.
-           This table has several candidates (dnd-kit rows, animated cards), and
-           which one applies depends on state, so rather than chase the specific
-           ancestor: measure where the popup actually ended up and subtract the
-           error. Correct in every case, including ones added later. */
-        const got = popup.getBoundingClientRect();
-        const dx = wantLeft - got.left;
-        const dy = wantTop - got.top;
-        if (Math.abs(dx) > 0.5 || Math.abs(dy) > 0.5) {
-            popup.style.left = `${wantLeft + dx}px`;
-            popup.style.top = `${wantTop + dy}px`;
-        }
-
-        /* Keep it on screen: a date cell near the right edge or low in a long
-           month would otherwise open the calendar half outside the window. */
-        const box = popup.getBoundingClientRect();
-        const pad = 8;
-        if (box.right > window.innerWidth - pad) {
-            popup.style.left = `${Math.max(pad, window.innerWidth - pad - box.width)}px`;
-        }
-        if (box.bottom > window.innerHeight - pad) {
-            const above = rect.top - 4 - box.height;
-            popup.style.top = `${above > pad ? above : Math.max(pad, window.innerHeight - pad - box.height)}px`;
+        repositioningRef.current = true;
+        try {
+            popup.style.position = 'fixed';
+            popup.style.top = `${rect.bottom + 4}px`;
+            popup.style.left = `${rect.left}px`;
+            popup.style.zIndex = '99999';
+            popup.style.width = 'auto';
+        } finally {
+            // Release after the observer has drained the records these writes queued.
+            requestAnimationFrame(() => { repositioningRef.current = false; });
         }
     }, []);
 
