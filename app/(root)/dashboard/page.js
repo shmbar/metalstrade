@@ -2,7 +2,7 @@
 'use client';
 import { useContext, useEffect, useMemo, useState } from 'react';
 import dynamic from 'next/dynamic';
-import { cssVar, cssVarRgba, RANKING_PALETTE, CHART_ACCENT } from '../../../utils/chartTheme';
+import { cssVar, cssVarRgba, CHART_ACCENT } from '../../../utils/chartTheme';
 import { useTheme } from '../../../contexts/useThemeContext';
 import { m, LazyMotion, domAnimation } from 'framer-motion';
 import VideoLoader from '@components/videoLoader';
@@ -23,6 +23,7 @@ import AIAlertsBar from '@components/Dashboard/AIAlertsBar';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@components/ui/select';
 import { TONES } from '@components/statusUtils';
 import ProgressBar from '@components/ProgressBar';
+import Avatar from '@components/Avatar';
 import { Gauge, Receipt, Percent, Truck, Warehouse, TrendingUp, FileWarning, Ship } from 'lucide-react';
 
 import { HorizontalBar } from './charts';
@@ -394,12 +395,17 @@ function ReceivablesSplitCard({ byCur = {} }) {
 
 // Ranking list (Contracts / Consignees) — avatar + animated progress bar per row.
 function RankingList({ labels = [], data = [], title, subtitle, totalValue }) {
-  // Chart series palette lives in utils/chartTheme.js — the one place colour is
-  // deliberately unthemed (see the note there).
-  const colorPalette = RANKING_PALETTE;
+  /* This used to paint bars and avatars from RANKING_PALETTE — ten fixed blues
+     from the old brand, which is why this card ignored the theme.
+     chartTheme.js exempts series palettes from theming for a good reason: in a
+     donut or a multi-line chart, colour is the ONLY thing mapping a slice to its
+     legend, so collapsing ten hues into one brand ramp destroys the encoding.
+     That reasoning does not apply here. Every row is already labelled by name
+     and ranked by bar LENGTH, so the colour carried no information at all — it
+     was decoration, and decoration should follow the theme like everything else.
+     Bars are now the brand token (one colour, length does the ranking) and the
+     avatars use the shared Avatar, whose per-name tint is themed. */
   const avatarSize = 26;
-  const getInitials = (name = '') =>
-    name.toString().split(' ').map((s) => s[0] || '').slice(0, 2).join('').toUpperCase();
   const rowCount = labels.length || 1;
   const barHeight = Math.max(14, Math.min(28, Math.round(28 - rowCount * 1.5)));
   const max = Math.max(...(data.length ? data : [1]), 1);
@@ -429,7 +435,6 @@ function RankingList({ labels = [], data = [], title, subtitle, totalValue }) {
           {labels.map((lbl, idx) => {
             const value = data[idx] || 0;
             const pct = max > 0 ? (value / max) * 100 : 0;
-            const color = colorPalette[idx % colorPalette.length];
             return (
               <m.div
                 key={idx}
@@ -438,15 +443,9 @@ function RankingList({ labels = [], data = [], title, subtitle, totalValue }) {
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.35, delay: idx * 0.04 }}
               >
-                {/* Avatar */}
-                <m.div
-                  className="flex items-center justify-center rounded-full font-medium text-[var(--on-brand)] flex-shrink-0"
-                  style={{ fontSize: 'var(--fs-table)', width: avatarSize, height: avatarSize, background: color }}
-                  whileHover={{ scale: 1.1 }}
-                  transition={{ type: 'spring', stiffness: 300 }}
-                >
-                  {getInitials(lbl)}
-                </m.div>
+                {/* Avatar — shared component, so these chips match the supplier /
+                    client chips in every table and follow the theme. */}
+                <Avatar name={lbl} size={avatarSize} />
 
                 {/* Name */}
                 <div className="w-20 responsiveText text-[var(--port-gore)] truncate flex-shrink-0">{lbl}</div>
@@ -456,7 +455,7 @@ function RankingList({ labels = [], data = [], title, subtitle, totalValue }) {
                   <div className="w-full bg-[var(--line)] rounded-full overflow-hidden" style={{ height: `${barHeight}px` }}>
                     <m.div
                       className="h-full flex items-center pl-2"
-                      style={{ width: `${pct}%`, background: color, minWidth: '42px', borderRadius: '0 9999px 9999px 0', transformOrigin: 'left' }}
+                      style={{ width: `${pct}%`, background: 'var(--brand)', minWidth: '42px', borderRadius: '0 9999px 9999px 0', transformOrigin: 'left' }}
                       initial={{ scaleX: 0 }}
                       animate={{ scaleX: 1 }}
                       transition={{ duration: 0.5, delay: idx * 0.04, ease: 'easeOut' }}
@@ -896,7 +895,10 @@ const Dash = () => {
   // Default payment term in days (Settings → General) — used to flag overdue invoices.
   const termDays = parseInt(compData?.defaultTermDays, 10) > 0 ? parseInt(compData.defaultTermDays, 10) : 30;
   const { uidCollection, user } = UserAuth();
-  const { theme } = useTheme();
+  // Bare call on purpose: nothing here reads `theme`, but subscribing makes the
+  // page re-render on a theme/mode switch, which rebuilds every chart config
+  // through cssVar() with the new token values.
+  useTheme();
   const settingsLoaded = Object.keys(settings).length > 0;
   const clientCount = settings.Client?.Client?.length || 0;
   const supplierCount = settings.Supplier?.Supplier?.length || 0;
