@@ -156,9 +156,9 @@ function FilterSelect({ value, onChange, placeholder, options }) {
         <div ref={ref} className="relative">
             <button
                 onClick={() => setOpen(p => !p)}
-                className="flex items-center gap-1.5 font-medium px-2.5 py-0.5 rounded-full border cursor-pointer focus:outline-none transition-colors whitespace-nowrap"
+                className="flex items-center gap-1.5 font-normal px-2.5 py-0.5 rounded-full border cursor-pointer focus:outline-none transition-colors whitespace-nowrap"
                 style={{
-                    fontSize: 'var(--fs-body)',
+                    fontSize: 'var(--fs-table)',
                     borderColor: active ? 'var(--endeavour)' : 'var(--line)',
                     color: active ? 'var(--on-brand)' : 'var(--chathams-blue)',
                     backgroundColor: active ? 'var(--endeavour)' : 'var(--bg-card)',
@@ -172,7 +172,7 @@ function FilterSelect({ value, onChange, placeholder, options }) {
                     <div
                         onClick={() => { onChange(''); setOpen(false); }}
                         className="px-3 py-1.5 cursor-pointer transition-colors"
-                        style={{ fontSize: 'var(--fs-body)', color: value === '' ? 'var(--endeavour)' : 'var(--chathams-blue)', fontWeight: value === '' ? 600 : 400, backgroundColor: value === '' ? 'var(--selago)' : 'var(--bg-card)' }}
+                        style={{ fontSize: 'var(--fs-table)', color: value === '' ? 'var(--endeavour)' : 'var(--chathams-blue)', fontWeight: value === '' ? 500 : 400, backgroundColor: value === '' ? 'var(--selago)' : 'var(--bg-card)' }}
                         onMouseEnter={e => { if (value !== '') e.currentTarget.style.backgroundColor = 'var(--bg-subtle)'; }}
                         onMouseLeave={e => { if (value !== '') e.currentTarget.style.backgroundColor = 'var(--bg-card)'; }}
                     >
@@ -183,7 +183,7 @@ function FilterSelect({ value, onChange, placeholder, options }) {
                             key={o.id}
                             onClick={() => { onChange(o.id); setOpen(false); }}
                             className="px-3 py-1.5 cursor-pointer transition-colors"
-                            style={{ fontSize: 'var(--fs-body)', color: value === o.id ? 'var(--endeavour)' : 'var(--port-gore)', fontWeight: value === o.id ? 600 : 400, backgroundColor: value === o.id ? 'var(--selago)' : 'var(--bg-card)' }}
+                            style={{ fontSize: 'var(--fs-table)', color: value === o.id ? 'var(--endeavour)' : 'var(--port-gore)', fontWeight: value === o.id ? 500 : 400, backgroundColor: value === o.id ? 'var(--selago)' : 'var(--bg-card)' }}
                             onMouseEnter={e => { if (value !== o.id) e.currentTarget.style.backgroundColor = 'var(--bg-subtle)'; }}
                             onMouseLeave={e => { if (value !== o.id) e.currentTarget.style.backgroundColor = 'var(--bg-card)'; }}
                         >
@@ -916,8 +916,8 @@ const ShipmentPage = () => {
                             {showFilters && <div className="flex items-center gap-1 flex-wrap">
                                 <button
                                     onClick={() => setStatusFilter('')}
-                                    className={`font-medium px-2.5 py-0.5 rounded-full border transition-colors ${statusFilter === '' ? 'bg-[var(--endeavour)] text-[var(--on-brand)] border-[var(--endeavour)]' : 'bg-[var(--bg-card)] text-[var(--endeavour)] border-[var(--endeavour)] hover:bg-[var(--selago)]'}`}
-                                    style={{ fontSize: 'var(--fs-body)' }}
+                                    className={`font-normal px-2.5 py-0.5 rounded-full border transition-colors ${statusFilter === '' ? 'bg-[var(--endeavour)] text-[var(--on-brand)] border-[var(--endeavour)]' : 'bg-[var(--bg-card)] text-[var(--endeavour)] border-[var(--endeavour)] hover:bg-[var(--selago)]'}`}
+                                    style={{ fontSize: 'var(--fs-table)' }}
                                 >
                                     All ({contracts.length})
                                 </button>
@@ -927,8 +927,8 @@ const ShipmentPage = () => {
                                         <button
                                             key={s}
                                             onClick={() => setStatusFilter(prev => prev === s ? '' : s)}
-                                            className="font-medium px-2.5 py-0.5 rounded-full transition-all"
-                                            style={{ ...STATUS_STYLES[s], fontSize: 'var(--fs-body)', opacity: statusFilter === s ? 1 : 0.75, outline: statusFilter === s ? `2px solid ${STATUS_STYLES[s].color}` : 'none', outlineOffset: '1px' }}
+                                            className="font-normal px-2.5 py-0.5 rounded-full transition-all"
+                                            style={{ ...STATUS_STYLES[s], fontSize: 'var(--fs-table)', opacity: statusFilter === s ? 1 : 0.75, outline: statusFilter === s ? `2px solid ${STATUS_STYLES[s].color}` : 'none', outlineOffset: '1px' }}
                                         >
                                             {s}: {count}
                                         </button>
@@ -939,9 +939,9 @@ const ShipmentPage = () => {
                                 <button
                                     onClick={toggleGroupByStatus}
                                     title='Collapse the table into per-status sections'
-                                    className='font-medium px-2.5 py-0.5 rounded-full border transition-colors'
+                                    className='font-normal px-2.5 py-0.5 rounded-full border transition-colors'
                                     style={{
-                                        fontSize: 'var(--fs-body)',
+                                        fontSize: 'var(--fs-table)',
                                         background: groupByStatus ? 'var(--brand-soft)' : 'var(--bg-card)',
                                         color: groupByStatus ? 'var(--brand)' : 'var(--ink-secondary)',
                                         borderColor: groupByStatus ? 'var(--brand-border)' : 'var(--line)',
@@ -992,12 +992,12 @@ const ShipmentPage = () => {
                     {/* Attention strip — fastest path to what needs action; chips filter the table */}
                     {(overdueCount + soonCount + inTransitCount) > 0 && (
                         <div className="flex items-center gap-2 px-3 py-1.5 flex-wrap" style={{ background: "var(--bg-card)", borderBottom: '1px solid var(--line)' }}>
-                            <span className="responsiveTextTable font-semibold tracking-wider" style={{ color: 'var(--regent-gray)' }}>NEEDS ATTENTION</span>
+                            <span className="responsiveTextTable font-medium tracking-wider" style={{ color: 'var(--regent-gray)' }}>NEEDS ATTENTION</span>
                             {overdueCount > 0 && (
                                 <button
                                     onClick={() => setUrgencyFilter(prev => prev === 'overdue' ? '' : 'overdue')}
-                                    className="font-medium px-2.5 py-0.5 rounded-full transition-all"
-                                    style={{ fontSize: 'var(--fs-body)', backgroundColor: 'var(--bad-bg)', border: '1px solid var(--bad-border)', color: 'var(--bad-text)', outline: urgencyFilter === 'overdue' ? '2px solid var(--bad-text)' : 'none', outlineOffset: '1px' }}
+                                    className="font-normal px-2.5 py-0.5 rounded-full transition-all"
+                                    style={{ fontSize: 'var(--fs-table)', backgroundColor: 'var(--bad-bg)', border: '1px solid var(--bad-border)', color: 'var(--bad-text)', outline: urgencyFilter === 'overdue' ? '2px solid var(--bad-text)' : 'none', outlineOffset: '1px' }}
                                 >
                                     {overdueCount} overdue
                                 </button>
@@ -1005,8 +1005,8 @@ const ShipmentPage = () => {
                             {soonCount > 0 && (
                                 <button
                                     onClick={() => setUrgencyFilter(prev => prev === 'soon' ? '' : 'soon')}
-                                    className="font-medium px-2.5 py-0.5 rounded-full transition-all"
-                                    style={{ fontSize: 'var(--fs-body)', backgroundColor: 'var(--warn-bg)', border: '1px solid var(--warn-border)', color: 'var(--warn-text)', outline: urgencyFilter === 'soon' ? '2px solid var(--warn-text)' : 'none', outlineOffset: '1px' }}
+                                    className="font-normal px-2.5 py-0.5 rounded-full transition-all"
+                                    style={{ fontSize: 'var(--fs-table)', backgroundColor: 'var(--warn-bg)', border: '1px solid var(--warn-border)', color: 'var(--warn-text)', outline: urgencyFilter === 'soon' ? '2px solid var(--warn-text)' : 'none', outlineOffset: '1px' }}
                                 >
                                     {soonCount} arriving ≤7d
                                 </button>
@@ -1014,8 +1014,8 @@ const ShipmentPage = () => {
                             {inTransitCount > 0 && (
                                 <button
                                     onClick={() => setStatusFilter(prev => prev === 'In Transit' ? '' : 'In Transit')}
-                                    className="font-medium px-2.5 py-0.5 rounded-full transition-all"
-                                    style={{ fontSize: 'var(--fs-body)', ...STATUS_STYLES['In Transit'], outline: statusFilter === 'In Transit' ? `2px solid ${STATUS_STYLES['In Transit'].color}` : 'none', outlineOffset: '1px' }}
+                                    className="font-normal px-2.5 py-0.5 rounded-full transition-all"
+                                    style={{ fontSize: 'var(--fs-table)', ...STATUS_STYLES['In Transit'], outline: statusFilter === 'In Transit' ? `2px solid ${STATUS_STYLES['In Transit'].color}` : 'none', outlineOffset: '1px' }}
                                 >
                                     {inTransitCount} in transit
                                 </button>
