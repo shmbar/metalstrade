@@ -25,8 +25,8 @@ export default function InvType({ setSelected, plans, value , ln}) {
                   ${checked ? 'bg-[var(--brand-soft)] border border-[var(--brand)] text-[var(--brand)]' : 'bg-[var(--bg-card)] border border-[var(--line)]'
                                     }
                                     ${(value.id !== '' && value.invType === '1111' && (plan.id === '2222' || plan.id === '3333')) ||
-                                        (value.id !== '' && (value.invType === '2222' || value.invType === '3333') && plan.id === '1111') ? 'bg-gray-100 cursor-not-allowed' : 'cursor-pointer'}
-                    relative flex rounded-full px-4 py-1.5 shadow-sm focus:outline-none`
+                                        (value.id !== '' && (value.invType === '2222' || value.invType === '3333') && plan.id === '1111') ? 'bg-[var(--bg-subtle)] cursor-not-allowed' : 'cursor-pointer'}
+                    relative flex rounded-control px-4 py-1.5 focus:outline-none`
                                 }
                             >
                                 {({ active, checked }) => (
@@ -36,7 +36,7 @@ export default function InvType({ setSelected, plans, value , ln}) {
                                                 <div className="responsiveTextInput">
                                                     <RadioGroup.Label
                                                         as="p"
-                                                        className={`font-medium ${checked ? 'text-[var(--endeavour)]' : 'text-[var(--port-gore)]'}`}
+                                                        className={`font-medium ${checked ? 'text-[var(--brand)]' : 'text-[var(--ink)]'}`}
                                                     >
                                                        {getTtl(plan.invType, ln)} 
                                                     </RadioGroup.Label>
