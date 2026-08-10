@@ -22,6 +22,7 @@ const MarketsTicker = dynamic(() => import('@components/Dashboard/MarketsTicker'
 import AIAlertsBar from '@components/Dashboard/AIAlertsBar';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@components/ui/select';
 import { TONES } from '@components/statusUtils';
+import ProgressBar from '@components/ProgressBar';
 import { Gauge, Receipt, Percent, Truck, Warehouse, TrendingUp, FileWarning, Ship } from 'lucide-react';
 
 import { HorizontalBar } from './charts';
@@ -147,10 +148,19 @@ const solidColor = (c) =>
    is genuinely signed (loss, overdue, incomplete), so colour keeps meaning
    something instead of decorating eight tiles at once. .kpi-card gives the hover
    lift and resting shadow every other card on the page already has. */
-function SummaryTile({ label, value, note, tone, icon: Icon, toneKey = 'gray' }) {
+/* A CELL, not a card. The eight tiles sit inside one panel separated by
+   hairlines (see the render below) instead of being eight bordered boxes — that
+   was 24 competing edges for 8 numbers, which is why the strip read as plain.
+   Hover tints the cell rather than lifting it, since it no longer floats.
+
+   `progress` and `chip` are optional and used exactly once each: a bar under the
+   shipment percentage (the one figure here with a natural visual form), and a
+   red chip for the overdue count, which is the most actionable number on the row
+   and was previously 9.5px grey, indistinguishable from "freight expense types". */
+function SummaryTile({ label, value, note, tone, icon: Icon, toneKey = 'gray', progress, progressTone, chip }) {
   const t = TONES[toneKey] || TONES.gray;
   return (
-    <div className="kpi-card rounded-card border border-[var(--line)] bg-[var(--bg-card)] shadow-card p-3 flex flex-col gap-2 min-w-0">
+    <div className="bg-[var(--bg-card)] p-3 flex flex-col gap-2 min-w-0 hover:bg-[var(--bg-subtle)] transition-colors">
       <div className="flex items-center gap-2 min-w-0">
         <span
           className="w-6 h-6 rounded-control flex items-center justify-center shrink-0"
@@ -168,10 +178,23 @@ function SummaryTile({ label, value, note, tone, icon: Icon, toneKey = 'gray' })
       >
         {value}
       </span>
-      {note && (
-        <span className="text-[var(--ink-muted)] leading-tight truncate" style={{ fontSize: 'var(--fs-caption)' }} title={note}>
-          {note}
-        </span>
+      {progress != null && <ProgressBar value={progress} tone={progressTone} />}
+      {(note || chip) && (
+        <div className="flex items-center gap-1.5 min-w-0">
+          {chip && (
+            <span
+              className="rounded-full px-1.5 font-semibold shrink-0"
+              style={{ fontSize: 'var(--fs-caption)', background: TONES.red.bg, color: TONES.red.text }}
+            >
+              {chip}
+            </span>
+          )}
+          {note && (
+            <span className="text-[var(--ink-muted)] leading-tight truncate" style={{ fontSize: 'var(--fs-caption)' }} title={note}>
+              {note}
+            </span>
+          )}
+        </div>
       )}
     </div>
   );
@@ -1459,7 +1482,8 @@ const Dash = () => {
                 content column is ~1200px, so eight tiles is ~145px each — enough
                 for "$1.24K" and nothing else. Four across gives two comfortable
                 rows at the width most people actually use. */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-8 gap-3">
+            <div className="rounded-card border border-[var(--line)] shadow-card overflow-hidden" style={{ background: 'var(--line)' }}>
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-8 gap-px">
               {/* AVERAGE RATE = average purchase cost per MT.
                   There is no metric called "Average Rate" in the app, and the
                   phrase could mean four different numbers, so this is a decision
@@ -1519,7 +1543,8 @@ const Dash = () => {
                 label="Unpaid Invoices"
                 icon={FileWarning}
                 value={unpaidSummary.amounts.join(' · ')}
-                note={unpaidSummary.note}
+                note={`${unpaidSummary.count} open`}
+                chip={unpaidSummary.overdueCount > 0 ? `${unpaidSummary.overdueCount} overdue` : null}
                 toneKey={unpaidSummary.overdueCount > 0 ? 'red' : 'amber'}
                 tone={unpaidSummary.overdueCount > 0 ? 'var(--danger-text)' : undefined}
               />
@@ -1535,7 +1560,10 @@ const Dash = () => {
                 note={shipmentSummary.note}
                 toneKey={shipmentSummary.pct < 100 ? 'amber' : 'green'}
                 tone={shipmentSummary.pct < 100 ? 'var(--warn-text)' : undefined}
+                progress={shipmentSummary.pct / 100}
+                progressTone={shipmentSummary.pct < 100 ? 'amber' : 'green'}
               />
+              </div>
             </div>
           </div>
 
