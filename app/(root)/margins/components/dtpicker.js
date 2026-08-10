@@ -1,24 +1,32 @@
 'use client'
-import { useRef, useEffect, useCallback } from 'react';
 import Datepicker from "react-tailwindcss-datepicker";
 import Tltip from "../../../../components/tlTip";
 
 const getDateValue = (props) =>
     typeof props.getValue === 'function' ? props.getValue() : props.value;
 
-/* Was w-[72px] with symmetric px-1. "DD.MM.YY" needs roughly 60px at the top
-   breakpoint, and the clear button is positioned absolutely OVER the input's
-   right edge — so the last character rendered underneath it and read as
-   clipped. Wider box, and the asymmetric right padding keeps the centred text
-   clear of the button. */
+/* Wide enough for "DD.MM.YY" at the top breakpoint, with right padding so the
+   centred text clears the absolutely-positioned clear button. */
 const DATE_INPUT_CLASS =
     'responsiveText h-7 py-0 pl-1 pr-4 w-24 bg-transparent border-0 outline-none cursor-pointer text-[var(--brand)] text-center';
 
+/* Positioning note.
+   This component used to hand-position the popup: a MutationObserver watched for
+   it opening, then pinned it with `position: fixed` at the input's viewport
+   coordinates, re-running on every scroll.
+
+   That is why the calendar opened away from its cell here and nowhere else.
+   Every other datepicker in the app leaves positioning to the library — the
+   popup is `absolute` inside the `relative` wrapper, and one rule in globals.css
+   ("Align left-side datepicker popup to input's left edge",
+   div.relative.w-full.text-gray-700 > div.absolute.z-10:not(.right-0) { left: 0 })
+   snaps it to the input. The hand-rolled `fixed` path bypassed that rule and
+   computed its own coordinates, which is both why it landed in the wrong place
+   and why it was fragile enough to hang the tab when the maths was touched.
+
+   Now it does what the rest of the app does. */
 const DatePicker = ({ props, handleChangeDate, month, handleCancelDate }) => {
     const dateVal = getDateValue(props);
-    const containerRef = useRef(null);
-    const popupRef = useRef(null);
-    const rafRef = useRef(null);
 
     const value = {
         startDate: dateVal?.startDate || null,
@@ -38,87 +46,9 @@ const DatePicker = ({ props, handleChangeDate, month, handleCancelDate }) => {
         handleCancelDate(null, props.row.original.id, month);
     };
 
-    /* Re-entry guard. The MutationObserver below watches `style` on the whole
-       subtree, and this function WRITES style on a node in that subtree — so
-       every reposition re-triggers the observer, which repositions again. It
-       survived before only because the values written were identical each pass;
-       the moment a write depended on a measurement it became a hard infinite
-       loop and hung the tab. The guard makes that impossible either way. */
-    const repositioningRef = useRef(false);
-
-    const repositionPopup = useCallback(() => {
-        if (repositioningRef.current) return;
-        const container = containerRef.current;
-        if (!container) return;
-        const popup = popupRef.current || container.querySelector('div[class*="absolute"][class*="z-"]');
-        if (!popup || popup.offsetWidth === 0) { popupRef.current = null; return; }
-        popupRef.current = popup;
-        const input = container.querySelector('input');
-        if (!input) return;
-        const rect = input.getBoundingClientRect();
-        repositioningRef.current = true;
-        try {
-            popup.style.position = 'fixed';
-            popup.style.top = `${rect.bottom + 4}px`;
-            popup.style.left = `${rect.left}px`;
-            popup.style.zIndex = '99999';
-            popup.style.width = 'auto';
-        } finally {
-            // Release after the observer has drained the records these writes queued.
-            requestAnimationFrame(() => { repositioningRef.current = false; });
-        }
-    }, []);
-
-    // Detect popup open/close via MutationObserver
-    useEffect(() => {
-        const container = containerRef.current;
-        if (!container) return;
-
-        let scrollCleanup = null;
-
-        const onMutation = () => {
-            const popup = container.querySelector('div[class*="absolute"][class*="z-"]');
-            const isOpen = popup && popup.offsetWidth > 0;
-
-            if (isOpen) {
-                popupRef.current = popup;
-                repositionPopup();
-
-                // Attach scroll listener on all scrollable ancestors + window
-                if (!scrollCleanup) {
-                    const onScroll = () => {
-                        if (rafRef.current) cancelAnimationFrame(rafRef.current);
-                        rafRef.current = requestAnimationFrame(repositionPopup);
-                    };
-                    window.addEventListener('scroll', onScroll, true);
-                    scrollCleanup = () => {
-                        window.removeEventListener('scroll', onScroll, true);
-                        if (rafRef.current) cancelAnimationFrame(rafRef.current);
-                    };
-                }
-            } else {
-                popupRef.current = null;
-                if (scrollCleanup) { scrollCleanup(); scrollCleanup = null; }
-            }
-        };
-
-        const observer = new MutationObserver(onMutation);
-        observer.observe(container, {
-            childList: true,
-            subtree: true,
-            attributes: true,
-            attributeFilter: ['class', 'style'],
-        });
-
-        return () => {
-            observer.disconnect();
-            if (scrollCleanup) scrollCleanup();
-        };
-    }, [repositionPopup]);
-
     return (
         <div className="relative flex items-center justify-center">
-            <div ref={containerRef}>
+            <div className="datepicker-wrapper">
                 <Datepicker
                     asSingle={true}
                     useRange={false}
@@ -130,7 +60,10 @@ const DatePicker = ({ props, handleChangeDate, month, handleCancelDate }) => {
                     readOnly={true}
                     showShortcuts={false}
                     inputClassName={DATE_INPUT_CLASS}
-                    containerClassName="relative [&>div]:border-0 [&>div]:shadow-none [&>div]:rounded-none [&>div]:bg-transparent"
+                    /* Same wrapper the working pickers use: `relative` so the popup
+                       anchors to this input, and --z-page-popover so it clears page
+                       furniture without floating over modals. */
+                    containerClassName="relative z-page-popover [&>div]:border-0 [&>div]:shadow-none [&>div]:rounded-none [&>div]:bg-transparent"
                     toggleClassName="hidden"
                     popoverDirection="down"
                 />
