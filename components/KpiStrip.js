@@ -5,16 +5,17 @@ import { TONES } from './statusUtils';
 // Reference-style KPI cards: icon tile + caption + big number (+ optional sub note).
 // items: [{ label, value, format?, icon: LucideIcon, tone?: 'blue'|'green'|'amber'|'red'|'gray', sub? }]
 //
-// size: 'default' (24px) | 'compact' (20px). Compact exists for strips whose values
-// are long currency strings — cashflow runs to "$33,745,945.77", where 24px crowds
-// the card, while a page showing "65" does not have that problem. Everything else
-// about the card is identical, so the two still read as the same component.
+// size: 'default' (24px) | 'compact' (--fs-page, 16px). Compact exists for strips
+// whose values are long currency strings — cashflow runs to "$33,745,945.77",
+// where 24px crowds the card, while a page showing "65" does not have that
+// problem. 16px also matches the margins stat cards, so the two summary rows in
+// this app read at the same size. Everything else about the card is identical.
 export default function KpiStrip({ items = [], size = 'default' }) {
     const valueCls = size === 'compact'
         ? 'leading-tight font-display font-bold text-[var(--ink)]'
         : 'text-stat leading-tight font-display';
     const valueStyle = size === 'compact'
-        ? { fontSize: '1.25rem', fontVariantNumeric: 'tabular-nums', letterSpacing: '-0.01em' }
+        ? { fontSize: 'var(--fs-page)', fontVariantNumeric: 'tabular-nums', letterSpacing: '-0.01em' }
         : undefined;
     if (!items.length) return null;
     return (
