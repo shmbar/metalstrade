@@ -157,9 +157,9 @@ const Page = () => {
 
 									{value.general != null && !loading && (
 										<div className='bg-[var(--bg-card)] rounded-2xl border border-[var(--line)] shadow-card p-4 mb-3'>
-											<div className='flex flex-wrap items-end gap-3'>
-												<div className='min-w-[130px]'>
-													<p className='responsiveTextTable font-semibold uppercase tracking-[0.04em] text-[var(--ink-muted)] mb-1.5'>Ni LME</p>
+											<div className='grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 items-end'>
+												<div className='min-w-0'>
+													<p className='responsiveTextTable font-semibold uppercase tracking-[0.04em] text-[var(--ink-muted)] mb-1.5'>Ni LME ($/MT)</p>
 													<div className='relative'>
 														<input
 															type='text'
@@ -180,8 +180,8 @@ const Page = () => {
 													</div>
 												</div>
 
-												<div className='min-w-[120px]'>
-													<p className='responsiveTextTable font-semibold uppercase tracking-[0.04em] text-[var(--ink-muted)] mb-1.5'>Mo Oxide - Lb</p>
+												<div className='min-w-0'>
+													<p className='responsiveTextTable font-semibold uppercase tracking-[0.04em] text-[var(--ink-muted)] mb-1.5'>Mo Oxide ($/lb)</p>
 													<input
 														type='text'
 														className='w-full h-8 rounded-control border border-[var(--line-strong)] bg-[var(--bg-card)] px-2.5 responsiveTextTitle font-semibold tabular-nums text-[var(--ink)] focus:outline-none focus:border-[var(--brand)] focus:ring-[3px] focus:ring-[var(--brand-soft)] transition-colors'
@@ -193,8 +193,8 @@ const Page = () => {
 													/>
 												</div>
 
-												<div className='min-w-[120px]'>
-													<p className='responsiveTextTable font-semibold uppercase tracking-[0.04em] text-[var(--ink-muted)] mb-1.5'>Charge Cr - Lb</p>
+												<div className='min-w-0'>
+													<p className='responsiveTextTable font-semibold uppercase tracking-[0.04em] text-[var(--ink-muted)] mb-1.5'>Charge Cr ($/lb)</p>
 													<input
 														type='text'
 														className='w-full h-8 rounded-control border border-[var(--line-strong)] bg-[var(--bg-card)] px-2.5 responsiveTextTitle font-semibold tabular-nums text-[var(--ink)] focus:outline-none focus:border-[var(--brand)] focus:ring-[3px] focus:ring-[var(--brand-soft)] transition-colors'
@@ -206,29 +206,36 @@ const Page = () => {
 													/>
 												</div>
 
-												<div className='min-w-[110px]'>
-													<p className='responsiveTextTable font-semibold uppercase tracking-[0.04em] text-[var(--ink-muted)] mb-1.5'>1 MT</p>
+												<div className='min-w-0'>
+													<p className='responsiveTextTable font-semibold uppercase tracking-[0.04em] text-[var(--ink-muted)] mb-1.5'>1 MT (lb)</p>
 													<input
 														type='text'
 														className='w-full h-8 rounded-control border border-[var(--line-strong)] bg-[var(--bg-card)] px-2.5 responsiveTextTitle font-semibold tabular-nums text-[var(--ink)] focus:outline-none focus:border-[var(--brand)] focus:ring-[3px] focus:ring-[var(--brand-soft)] transition-colors'
-														value={(value.general?.mt || '0') + ' Lb'}
+														/* The ' Lb' suffix used to be concatenated into the VALUE of this
+														   editable input, so typing wrote "2204.62 Lb" straight back into
+														   state. The unit lives in the label now. */
+														value={value.general?.mt ?? ''}
 														name='mt'
 														onChange={(e) => handleChange(e, 'general')}
 													/>
 												</div>
 
-												<div className='min-w-[110px]'>
-													<p className='responsiveTextTable font-semibold uppercase tracking-[0.04em] text-[var(--ink-muted)] mb-1.5'>Euro / USD</p>
+												<div className='min-w-0'>
+													<p className='responsiveTextTable font-semibold uppercase tracking-[0.04em] text-[var(--ink-muted)] mb-1.5'>EUR / USD</p>
 													<input
 														type='text'
 														className='w-full h-8 rounded-control border border-[var(--line-strong)] bg-[var(--bg-card)] px-2.5 responsiveTextTitle font-semibold tabular-nums text-[var(--ink)] focus:outline-none focus:border-[var(--brand)] focus:ring-[3px] focus:ring-[var(--brand-soft)] transition-colors'
-														value={(value.general?.euroRate || '0')}
+														value={focusedField === 'euroRate'
+															? (value.general?.euroRate ?? '')
+															: Number(value.general?.euroRate || 0).toFixed(2)}
 														name='euroRate'
 														onChange={(e) => handleChange(e, 'general')}
+														onFocus={() => setFocusedField('euroRate')}
+														onBlur={() => setFocusedField(null)}
 													/>
 												</div>
 
-												<LoadingButton className='min-w-[80px]' onClick={saveData}>
+												<LoadingButton className='w-full' onClick={saveData}>
 													Save
 												</LoadingButton>
 											</div>

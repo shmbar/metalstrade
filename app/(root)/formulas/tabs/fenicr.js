@@ -898,11 +898,11 @@ import { useState } from "react";
 // Shared styling (style-only constants — no logic)
 const headCell = "py-1.5 text-center responsiveTextTable font-semibold uppercase tracking-[0.04em] text-[var(--ink-muted)]";
 const labelCls = "responsiveTextTable font-semibold uppercase tracking-[0.04em] text-[var(--ink-muted)] mb-1.5";
-const inputCell = "w-full h-6 rounded-control bg-[var(--bg-subtle)] border border-[var(--line-strong)] text-center responsiveTextInput font-inter tabular-nums font-medium text-[var(--bad-text)] focus:outline-none focus:border-[var(--brand)] focus:ring-2 focus:ring-[var(--brand-soft)] transition-colors";
-const computedInput = "w-full h-6 rounded-control bg-[var(--brand-soft)] border border-transparent text-center responsiveTextInput font-inter tabular-nums font-semibold text-[var(--brand-strong)] outline-none cursor-default";
-const computedCell = "h-6 rounded-control bg-[var(--brand-soft)] flex items-center justify-center responsiveTextInput font-inter tabular-nums font-semibold text-[var(--brand-strong)]";
-const pillInput = "w-full h-8 rounded-control border border-[var(--line-strong)] bg-[var(--bg-card)] text-center responsiveTextTitle font-inter tabular-nums font-semibold text-[var(--bad-text)] focus:outline-none focus:border-[var(--brand)] focus:ring-[3px] focus:ring-[var(--brand-soft)] transition-colors";
-const resultPill = "h-8 px-3 rounded-control bg-[var(--brand-soft)] border border-[var(--brand-border)] flex items-center justify-center responsiveTextTitle font-inter tabular-nums font-semibold text-[var(--brand-strong)]";
+const inputCell = "w-full h-6 rounded-control bg-[var(--bg-subtle)] border border-[var(--line-strong)] text-center responsiveTextInput tabular-nums font-medium text-[var(--bad-text)] focus:outline-none focus:border-[var(--brand)] focus:ring-2 focus:ring-[var(--brand-soft)] transition-colors";
+const computedInput = "w-full h-6 rounded-control bg-[var(--brand-soft)] border border-transparent text-center responsiveTextInput tabular-nums font-semibold text-[var(--brand-strong)] outline-none cursor-default";
+const computedCell = "h-6 rounded-control bg-[var(--brand-soft)] flex items-center justify-center responsiveTextInput tabular-nums font-semibold text-[var(--brand-strong)]";
+const pillInput = "w-full h-8 rounded-control border border-[var(--line-strong)] bg-[var(--bg-card)] text-center responsiveTextTitle tabular-nums font-semibold text-[var(--bad-text)] focus:outline-none focus:border-[var(--brand)] focus:ring-[3px] focus:ring-[var(--brand-soft)] transition-colors";
+const resultPill = "h-8 px-3 rounded-control bg-[var(--brand-soft)] border border-[var(--brand-border)] flex items-center justify-center responsiveTextTitle tabular-nums font-semibold text-[var(--brand-strong)]";
 
 const Fenicr = ({ value, handleChange, focusedField, setFocusedField, addComma }) => {
     const fe = (100 - value?.fenicr?.ni - value?.fenicr?.cr - value?.fenicr?.mo).toFixed(2)
@@ -1019,7 +1019,7 @@ const Fenicr = ({ value, handleChange, focusedField, setFocusedField, addComma }
                                     </div>
                                 </div>
                             </div>
-                            <div className="min-w-[90px]">
+                            <div className="w-28 shrink-0">
                                 <p className={labelCls}>Ni LME</p>
                                 <div className={resultPill}>{formatCurrency(Number(value.general?.nilme).toFixed(2))}</div>
                             </div>
@@ -1036,16 +1036,16 @@ const Fenicr = ({ value, handleChange, focusedField, setFocusedField, addComma }
                         </div>
 
                         {/* Results */}
-                        <div className="flex flex-wrap gap-3">
-                            <div className="min-w-[120px]">
+                        <div className="grid grid-cols-3 gap-3">
+                            <div className="min-w-0">
                                 <p className={labelCls}>Solids Price</p>
                                 <div className={resultPill}>{formatCurrency(solidsPrice.toFixed(2))}</div>
                             </div>
-                            <div className="min-w-[120px]">
+                            <div className="min-w-0">
                                 <p className={labelCls}>Turnings Price</p>
                                 <div className={resultPill}>{formatCurrency((solidsPrice * 0.92).toFixed(2))}</div>
                             </div>
-                            <div className="min-w-[120px]">
+                            <div className="min-w-0">
                                 <p className={labelCls}>Price / Euro</p>
                                 <div className={resultPill}>{formatCurrency((solidsPrice / value.general?.euroRate).toFixed(2), '€')}</div>
                             </div>
@@ -1110,7 +1110,7 @@ const Fenicr = ({ value, handleChange, focusedField, setFocusedField, addComma }
                                     </div>
                                 </div>
                             </div>
-                            <div className="min-w-[90px]">
+                            <div className="w-28 shrink-0">
                                 <p className={labelCls}>Ni LME</p>
                                 <div className={resultPill}>{formatCurrency(Number(value.general?.nilme).toFixed(2))}</div>
                             </div>
@@ -1127,16 +1127,16 @@ const Fenicr = ({ value, handleChange, focusedField, setFocusedField, addComma }
                         </div>
 
                         {/* Results */}
-                        <div className="flex flex-wrap gap-3">
-                            <div className="min-w-[120px]">
+                        <div className="grid grid-cols-3 gap-3">
+                            <div className="min-w-0">
                                 <p className={labelCls}>Solids Price</p>
                                 <div className={resultPill}>{formatCurrency(solidsPrice1.toFixed(2))}</div>
                             </div>
-                            <div className="min-w-[120px]">
+                            <div className="min-w-0">
                                 <p className={labelCls}>Turnings Price</p>
                                 <div className={resultPill}>{formatCurrency((solidsPrice1 * 0.9).toFixed(2))}</div>
                             </div>
-                            <div className="min-w-[120px]">
+                            <div className="min-w-0">
                                 <p className={labelCls}>Price / Euro</p>
                                 <div className={resultPill}>{formatCurrency((solidsPrice1 / value.general?.euroRate).toFixed(2), '€')}</div>
                             </div>
