@@ -9,7 +9,7 @@ const ActivityPage = () => {
 
     return (
         <div className="w-full" style={{ background: 'var(--bg-subtle)' }}>
-            <div className="mx-auto w-full max-w-5xl px-1 md:px-2 pb-4 mt-[72px]">
+            <div className="mx-auto w-full max-w-full px-1 md:px-2 pb-4 mt-[72px]">
                 <div className="page-card rounded-2xl p-3 sm:p-5 mt-8 border border-[var(--line)] shadow-card w-full bg-[var(--bg-card)]">
                     <div className="pb-2">
                         <h1 className="text-display">
