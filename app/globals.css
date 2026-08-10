@@ -13,7 +13,11 @@
   --port-gore: #1E1B39;        /* role: --ink           (primary text)        */
   --bunting: #15122B;          /* role: --ink (deepest) (display headings)    */
   --chathams-blue: #1E1B39;    /* role: --ink           (headings)            */
-  --regent-gray: #6E6B84;      /* role: --ink-muted     (captions)            */
+  /* Darkened from #6E6B84 (5.1:1 on white) to 6.8:1. The client's "muted greys
+     are hard to read" is a real reading, not a preference: this token carries
+     captions, column sublabels and placeholder text, most of which render at
+     9-11px, where 5:1 is the floor rather than comfortable. */
+  --regent-gray: #5B5875;      /* role: --ink-muted     (captions)            */
   --primary-bright: #8B7CF7;   /* role: brand, lifted   (hover/active)        */
   --surface-header: #F4F3F9;   /* role: --bg-subtle     (table header bg)     */
   --surface-pill: #F4F3F9;     /* role: --bg-subtle     (input bg)            */
@@ -27,7 +31,7 @@
   --port-gore-rgb: 30, 27, 57;
   --bunting-rgb: 21, 18, 43;
   --chathams-blue-rgb: 30, 27, 57;
-  --regent-gray-rgb: 110, 107, 132;
+  --regent-gray-rgb: 91, 88, 117;
   --primary-bright-rgb: 139, 124, 247;
   --surface-header-rgb: 244, 243, 249;
   --surface-pill-rgb: 244, 243, 249;
@@ -44,43 +48,76 @@
   --border-neutral-strong: #DAD6E8;   /* role: --line-strong*/
   --text-strong: #1E1B39;             /* role: --ink        */
   --text-mid: #48455E;                /* role: --ink-secondary */
-  --text-faint: #6E6B84;              /* role: --ink-muted  */
+  --text-faint: #5B5875;              /* role: --ink-muted  (see --regent-gray) */
   --surface-card-rgb: 255, 255, 255;
   --surface-base-rgb: 247, 246, 251;
 
   /* Status colour system — light values match the original pastels.
      Dark mode swaps these for dark-tinted backgrounds + brighter text
      (see DARK_STATUS in utils/themes.js). */
-  /* One pastel system: soft bg, dark text, faint border. */
-  --ok-soft: #F2FBF6;
-  --ok-bg: #E5F6EC;
-  --ok-border: #BFE8D0;
-  --ok-text: #177245;
-  --ok-strong: #0F5A34;
-  --danger-soft: #FEF5F5;
-  --danger-bg: #FDEAEA;
-  --danger-border: #F5C6C9;
-  --danger-text: #B42332;
-  --danger-strong: #8E1B27;
-  --warn-soft: #FEFAF2;
-  --warn-bg: #FDF3E1;
-  --warn-border: #F5DFAE;
-  --warn-text: #9A6215;
-  --warn-strong: #7A4D10;
+  /* One pastel system: soft bg, dark text, faint border.
+
+     ── Client revision (2026-08-08): "remove the bright pink/orange and the
+     mismatched green; keep it simple and professional." ──────────────────────
+     Every status family below was re-cut on the SAME two axes so the whole set
+     reads as one system rather than five borrowed palettes:
+       · saturation pulled down (the greens were emerald-bright and clashed
+         with the violet neutrals; the warns were orange, not amber),
+       · hue pulled toward the cool, violet-tinted base (#1E1B39 ink,
+         lavender surfaces) so nothing sits outside the family.
+     Text-on-its-own-bg contrast was re-measured for each pair and every one
+     still clears WCAG AA (>=4.5:1) — the numbers are in the comments. Status
+     therefore stays as legible as before while losing the shout. */
+
+  /* Positive — paid / completed / settled. Muted forest, cool cast.
+     --ok-text on --ok-bg = 5.4:1 */
+  --ok-soft: #F1F6F3;
+  --ok-bg: #E6EFE9;
+  --ok-border: #C6DACE;
+  --ok-text: #2E6A4F;
+  --ok-strong: #204D39;
+  /* Negative — unpaid / overdue / cancelled. Muted brick, not fire-engine red.
+     --danger-text on --danger-bg = 5.7:1 */
+  --danger-soft: #FAF4F3;
+  --danger-bg: #F2E4E3;
+  --danger-border: #DFC2C0;
+  --danger-text: #98393B;
+  --danger-strong: #7A2B2D;
+  /* Caution — partial / pending / provisional. Ochre, NOT orange: this is the
+     family the client named first, and the old #9A6215 on #FDF3E1 was the
+     brightest thing on any screen. --warn-text on --warn-bg = 5.0:1 */
+  --warn-soft: #F8F6F1;
+  --warn-bg: #EFEADD;
+  --warn-border: #D9CFB4;
+  --warn-text: #75612F;
+  --warn-strong: #574719;
   /* The violet family IS the brand family in this system. */
   --violet-soft: #F6F4FE;
   --violet-bg: #EEEBFC;
   --violet-border: #D6CFF7;
   --violet-text: #5A49CB;
   --violet-strong: #4A3BB0;
-  --pink-soft: #FDF4F8;
-  --pink-bg: #FBE9F0;
-  --pink-text: #B03A62;
-  --pink-strong: #8E2B4C;
+  /* Was a bright rose (#B03A62). It is not a status — it is the 5th avatar hue
+     and one dashboard accent — so it does not need to shout; it only needs to
+     be TELLABLE APART from violet. Re-cut as a muted plum: same job, no shout. */
+  --pink-soft: #F5F3F7;
+  --pink-bg: #EAE5EF;
+  --pink-border: #D5CBDD;
+  --pink-text: #6A5677;
+  --pink-strong: #524061;
   /* 6th avatar hue (components/CommentThread.js). The other five already came
-     from tokens; this one was the last literal in the set. */
-  --teal-text: #0B6D62;
-  --radius: 0.75rem;
+     from tokens; this one was the last literal in the set. Muted to match. */
+  --teal-text: #2F6560;
+  /* ONE radius. Client revision 2026-08-08: "one border radius everywhere — make
+     cards and tables agree." The app had four in play (16px cards, 12px panels,
+     10px controls, plus Tailwind's own rounded-2xl at 16px and rounded-lg at
+     12px), so a KPI card, the table card under it and the button inside it all
+     curved differently. 10px is the existing --radius-control value: the tightest
+     of the four, which is the right end to converge on now that the whole UI is
+     more compact — 16px corners on a 28px-tall control read as a bubble.
+     rounded-full is deliberately NOT folded in: a pill/avatar is a shape, not a
+     corner-radius choice. */
+  --radius: 0.625rem;   /* 10px — drives Tailwind's rounded-lg */
 
   /* ══ SaaS design tokens — the semantic layer ═══════════════════════════════
      The names the redesigned components address directly. The legacy names
@@ -126,9 +163,14 @@
   --neutral-text: var(--text-mid);
   --neutral-border: var(--border-neutral);
 
-  /* Radii */
-  --radius-card: 16px;
-  --radius-panel: 12px;
+  /* Radii — all three surface/control rungs collapsed onto the single 10px
+     value (see the --radius note above). The three NAMES are kept because ~200
+     call sites use rounded-card / rounded-panel / rounded-control and the names
+     still say what a thing is; they simply no longer disagree about how round
+     it is. If a future design wants them to diverge again, this is the one place
+     to change. */
+  --radius-card: 10px;
+  --radius-panel: 10px;
   --radius-control: 10px;
   --radius-pill: 999px;
 
@@ -363,6 +405,18 @@ table,
   font-variant-numeric: tabular-nums;
 }
 
+/* Figures lighter than labels — the other half of the .numeric rule further
+   down, for markup that carries .tnum / data-numeric instead of .numeric.
+   :where() so any explicit font-* class still wins. */
+:where(.tnum, [data-numeric]) {
+  font-weight: 500;
+}
+/* …except inside a header cell, where the number IS the label. */
+:where(th) :where(.tnum, [data-numeric], .numeric),
+:where(th.tnum, th[data-numeric], th.numeric) {
+  font-weight: 600;
+}
+
 /* Dark mode plumbing. The .dark class is set by applyTheme() (utils/themes.js)
    and by the pre-paint boot script in app/layout.js. */
 html.dark {
@@ -374,7 +428,7 @@ html.dark {
   --shadow-rgb: 0, 0, 0;
   /* Avatar teal, lightened for dark surfaces (the status tokens get the same
      treatment from DARK_STATUS in utils/themes.js). */
-  --teal-text: #2dd4bf;
+  --teal-text: #7BC0B8;
 }
 /* The /logo/ SVG assets are drawn in brand blue — on dark surfaces they'd
    vanish. White-silhouette them. Rasters (.png company logos) are excluded:
@@ -438,6 +492,62 @@ tfoot th * {
   word-break: normal;
 }
 
+/* ══ Tables read as a grid ═══════════════════════════════════════════════════
+   Client revision 2026-08-08: "add the missing borders so every table reads as
+   a grid". Most tables in the app drew NO cell borders at all (/contracts is
+   the clearest case — 20+ columns of centred text with nothing separating
+   them), and the few that did each invented their own.
+
+   Written with :where(), which has ZERO specificity. That matters more than it
+   looks: every one of these declarations is beaten by ANY class or inline style
+   on the same property, so the ~40 tables that already style their own borders
+   are untouched and keep winning, and `border-b-0` / `border-none` still work
+   as opt-outs exactly where they are already used. No !important, nothing to
+   unpick later.
+
+   Vertical lines are drawn as border-RIGHT only, never border-left. In a
+   border-collapse:separate table (materialtables, companyexpenses) a
+   right-border on one cell plus a left-border on its neighbour would render as
+   a 2px line; with one direction only, that cannot happen anywhere.
+
+   Tailwind preflight already sets border-collapse:collapse on <table>, so in
+   the normal case adjacent borders merge into a single hairline. */
+:where(thead th) {
+  border-bottom: 1px solid var(--line-strong);
+}
+:where(tbody td) {
+  border-bottom: 1px solid var(--line);
+}
+/* The last row's bottom border doubles with the card/scroll-box edge. */
+:where(tbody tr:last-child td) {
+  border-bottom: 0;
+}
+:where(thead th:not(:last-child)),
+:where(tbody td:not(:last-child)),
+:where(tfoot th:not(:last-child)),
+:where(tfoot td:not(:last-child)) {
+  border-right: 1px solid var(--line);
+}
+:where(tfoot th),
+:where(tfoot td) {
+  border-top: 1px solid var(--line-strong);
+}
+
+/* ── Compact rows ────────────────────────────────────────────────────────────
+   The spacing rescale in tailwind.config.js already tightened every py-* class
+   on a cell. This sets the floor for cells that carry NO padding class at all —
+   previously they fell back to the browser default (1px) or to whatever the
+   surrounding div happened to add, which is why row heights differed between
+   pages that were meant to match. leading-[1.35] is the other half of row
+   height: at 11px type it takes a row from ~26px to ~22px without the text
+   touching the rule above it.
+   Zero specificity again, so any explicit padding utility still wins. */
+:where(th),
+:where(td) {
+  padding: 3px 6px;
+  line-height: 1.35;
+}
+
 /* Row hover: ensure all tds inherit tr hover background */
 tr.cursor-pointer:hover td,
 tr.hover-row:hover td {
@@ -476,8 +586,14 @@ thead th {
 }
 
 @layer components {
+  /* px-6 py-3 was 24/12px of padding on a cell holding 11px text — the single
+     biggest source of "everything is too big" inside a table. The spacing rescale
+     alone would have taken it to 20/10; this takes it to the density the rest of
+     the app's tables already use (px-2 py-1 = 7/4px) so /analysis stops being the
+     odd one out. Type comes off the ladder instead of a four-step @apply ramp. */
   .table_cell {
-    @apply px-6 py-3 whitespace-nowrap text-[0.75rem] xl:text-[0.8125rem] 2xl:text-[0.875rem] 3xl:text-[0.9375rem] text-[var(--port-gore)] leading-4;
+    @apply px-2 py-1 whitespace-nowrap text-[var(--port-gore)] leading-4;
+    font-size: var(--fs-table);
   }
 
   .paginator_arrow {
@@ -507,16 +623,22 @@ thead th {
     box-shadow: 0 0 0 3px var(--brand-soft);
   }
 
+  /* Card padding and elevation, compacted. shadow-lg on a card that already has a
+     border is what made every panel look like it was floating an inch off the
+     page; shadow-card (--shadow-xs) + a --line border is the resting state the
+     rest of the system uses. Radius moves onto --radius-card so cards and tables
+     agree — see the radius note in the type-scale block. */
   .dashBox {
-    @apply col-span-12 md:col-span-1 border border-[var(--selago)] rounded-2xl bg-[var(--surface-card)] justify-center flex shadow-lg text-[15px] flex-col p-4;
+    @apply col-span-12 md:col-span-1 border border-[var(--line)] rounded-card bg-[var(--surface-card)] justify-center flex shadow-card flex-col p-3;
+    font-size: var(--fs-input);
   }
 
   .dashCard {
-    @apply rounded-2xl bg-[var(--surface-card)] shadow-lg p-5 border border-[var(--selago)];
+    @apply rounded-card bg-[var(--surface-card)] shadow-card p-3 border border-[var(--line)];
   }
 
   .dashStatCard {
-    @apply rounded-2xl p-5 flex flex-col justify-between min-h-[120px] shadow-lg border border-[var(--selago)];
+    @apply rounded-card p-3 flex flex-col justify-between min-h-[88px] shadow-card border border-[var(--line)];
   }
 
   /* ── Buttons ──────────────────────────────────────────────────────────────
@@ -657,10 +779,12 @@ textarea:focus-visible,
     font-size: var(--fs-hero);
   }
 
-  /* KPI / stat figures */
+  /* KPI / stat figures — medium, tabular. Same reasoning as .text-stat and
+     .numeric: the figure is the content, the label above it is the heading. */
   .responsiveTextStat {
-    @apply font-semibold leading-tight tracking-tight break-words min-w-0;
+    @apply font-medium leading-tight tracking-tight break-words min-w-0;
     font-size: var(--fs-stat);
+    font-variant-numeric: tabular-nums;
   }
 
   /* Numeric columns: equal-width digits so figures align down a column and
@@ -674,6 +798,13 @@ textarea:focus-visible,
   .numeric {
     font-variant-numeric: tabular-nums;
     font-feature-settings: 'tnum' 1;
+    /* Figures render at 500, never 600/700. Client revision 2026-08-08: "make
+       numeric content lighter". A column of bold numbers is harder to scan than
+       a column of medium ones — the eye has nothing to fix on — and it was the
+       app's default because `font-semibold` had been copied onto value cells
+       alongside their labels. Weight now carries ONE meaning: 600 = this is a
+       label or a header, 500 = this is a figure. */
+    font-weight: 500;
     white-space: nowrap;
     overflow-wrap: normal;
     word-break: normal;
@@ -849,7 +980,7 @@ input::-webkit-inner-spin-button {
 .cashflow-detail-table td {
   vertical-align: middle;
   line-height: 1.3;
-  padding: 4px 8px;
+  padding: 2px 6px;   /* was 4px 8px — compacted with the rest of the UI */
   font-size: var(--fs-body);
 }
 
@@ -860,14 +991,22 @@ input::-webkit-inner-spin-button {
 .cashflow-detail-table thead th {
   font-weight: 500;
   color: var(--chathams-blue);
-  border-bottom: 1.5px solid var(--border-divider);
-  padding: 6px 8px;
+  border-bottom: 1px solid var(--line-strong);
+  padding: 4px 6px;   /* was 6px 8px */
   white-space: nowrap;
 }
 
 .cashflow-detail-table tbody td {
   color: var(--text-strong);
-  border-bottom: 1px solid var(--selago);
+  border-bottom: 1px solid var(--line);
+}
+
+/* Vertical rules for the cashflow detail tables. These carry their own border
+   declarations, which (correctly) beat the zero-specificity global grid above,
+   so they were the one family of tables left with horizontal lines only. */
+.cashflow-detail-table th:not(:last-child),
+.cashflow-detail-table td:not(:last-child) {
+  border-right: 1px solid var(--line);
 }
 
 .cashflow-detail-table tbody td.text-\[var\(--endeavour\)\] {
@@ -882,7 +1021,7 @@ input::-webkit-inner-spin-button {
   font-weight: 500;
   color: var(--chathams-blue);
   font-size: var(--fs-body);
-  border-top: 1.5px solid var(--border-divider);
+  border-top: 1px solid var(--line-strong);
 }
 
 .cashflow-detail-table tbody td > div {
@@ -895,6 +1034,23 @@ input::-webkit-inner-spin-button {
 /* Align left-side datepicker popup to input's left edge */
 div.relative.w-full.text-gray-700 > div.absolute.z-10:not(.right-0) {
   left: 0;
+}
+
+/* An OPEN calendar has to paint over the rows beneath it.
+   In a grid of date cells — the margins table has one per row — every wrapper
+   carries the same --z-page-popover. Equal z-index leaves DOM order to break the
+   tie, so every row BELOW the open one paints on top, and the calendar shows
+   through with their dates over it. Raising the whole column is not the answer
+   either: they would still tie. Only the wrapper that is currently open is
+   lifted, by two routes so it holds whether or not the input keeps focus:
+     :focus-within — the input is readOnly, but readOnly still takes focus
+     :has()        — matches while the popup is in its open state (no .hidden)
+   The rung is --z-dropdown, the same one select menus use, which sits above page
+   furniture and below modals. */
+.datepicker-wrapper:focus-within,
+.datepicker-wrapper:has(div.absolute.z-10:not(.hidden)) {
+  position: relative;
+  z-index: var(--z-dropdown);
 }
 
 /* Position the arrow at the left of datepicker popups */
@@ -1153,7 +1309,7 @@ div.relative.w-full.text-gray-700 > div.absolute.z-10:not(.right-0) > div.absolu
 
 .text-stat {
   font-size: 1.5rem;     /* 24px */
-  font-weight: 700;
+  font-weight: 500;      /* was 700 — KPI figures are figures, not headings */
   color: var(--ink);
   font-variant-numeric: tabular-nums;
   letter-spacing: -0.01em;
