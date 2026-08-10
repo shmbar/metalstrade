@@ -41,12 +41,25 @@ export function Selector({ arr, value, onChange, name, clear, disabled, secondar
     const shown = query ? base.filter(k => labelOf(k).toLowerCase().includes(query.toLowerCase())) : base
 
     return (
-        <Select className='border-slate-400' value={value[name]} onValueChange={onChange}
+        <Select value={value[name]} onValueChange={onChange}
             defaultValue="df" onOpenChange={(open) => { if (!open) setQuery('') }}>
+            {/* Only what this wrapper actually needs: the layout, the truncation, and
+                the room on the right for the clear button. Everything else — radius,
+                border, text colour, focus ring — comes from ui/select.tsx, which is
+                already on the design system.
+
+                This used to restate all of it in pre-redesign values (rounded-full,
+                --border-divider, --rock-blue, --chathams-blue, shadow-sm, and a
+                focus:ring-0 that removed the focus ring outright), and tailwind-merge
+                let every one of them beat the base. That is why the ~85 dropdowns
+                built on this wrapper stayed pills with a drop shadow while the
+                handful using SelectTrigger directly, and every .input beside them,
+                were 10px rectangles with a brand focus border.
+
+                h-8 stays: the base trigger is h-7 (24px) but .input is h-8 (28px), and
+                a select has to match the field next to it, not the other way round. */}
             <SelectTrigger style={sizeVar ? { fontSize: sizeVar } : undefined}
-                className={`group relative border-[var(--border-divider)] hover:border-[var(--rock-blue)] rounded-full h-8 gap-0.5 px-2
-                    text-[var(--chathams-blue)] outline-none focus:ring-0
-                    focus:outline-none focus:ring-offset-0 shadow-sm pointer-events-auto
+                className={`group relative h-8 gap-0.5 px-2 pointer-events-auto
                     w-full max-w-full overflow-hidden [&>span]:truncate [&>span]:pr-4
                     ${classes || ''}`}
                 disabled={disabled}>
@@ -69,7 +82,7 @@ export function Selector({ arr, value, onChange, name, clear, disabled, secondar
 
             </SelectTrigger>
             <SelectContent style={sizeVar ? { fontSize: sizeVar } : undefined}
-                className="z-dropdown rounded-2xl border border-[var(--surface-header)] shadow-md responsiveTextInput text-[var(--chathams-blue)] min-w-[var(--radix-select-trigger-width)] max-h-72 overflow-auto">
+                className="z-dropdown responsiveTextInput min-w-[var(--radix-select-trigger-width)] max-h-72 overflow-auto">
                 {searchable && (
                     <div className="sticky top-0 z-sticky bg-[var(--surface-card)] p-1.5 border-b border-[var(--selago)]">
                         <input
@@ -93,8 +106,13 @@ export function Selector({ arr, value, onChange, name, clear, disabled, secondar
                                    ui/select.tsx hardcodes responsiveTextInput on the item,
                                    and that class would otherwise win over the panel. */
                                 style={{ fontSize: 'inherit' }}
-                                className={cn('rounded-2xl', (k.id === 'EditTextDelTime' || k.id === 'allStocks' || k.id === 'EditTextRmrks' || k.id === 'EditTextTermPmnt') ?
-                                    'font-semibold italic text-purple-900' : 'text-[var(--chathams-blue)]')} >
+                                /* The EditText and allStocks ids are actions, not values, so
+                                   they stay marked out — but in the brand token, not
+                                   Tailwind's purple-900, which was the one raw colour left in
+                                   here and the one thing in the menu that never followed the
+                                   theme. Plain options take their colour from the panel. */
+                                className={cn((k.id === 'EditTextDelTime' || k.id === 'allStocks' || k.id === 'EditTextRmrks' || k.id === 'EditTextTermPmnt') &&
+                                    'font-semibold italic text-[var(--brand-strong)]')} >
                                 {secondaryName ? k[secondaryName] : k[name]}
                             </SelectItem>
                         )
