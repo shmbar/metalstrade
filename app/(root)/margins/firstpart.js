@@ -95,7 +95,8 @@ const FirstPart = ({ incoming, outStandingShip, purchase, totalMargin, shipped }
                                 <div className="responsiveText uppercase tracking-[0.04em] font-medium text-[var(--ink-muted)] truncate">
                                     {card.label}
                                 </div>
-                                <div className="font-display font-bold text-lg xl:text-xl text-[var(--ink)] tabular-nums truncate">
+                                <div className="font-display font-bold text-[var(--ink)] tabular-nums truncate"
+                                    style={{ fontSize: 'var(--fs-page)' }}>
                                     {card.value}
                                 </div>
                             </div>

@@ -134,7 +134,7 @@ export default function SumBasket({ items = [], onRemove, onClear }) {
                         </span>
                         <NumericFormat value={usd} displayType="text" thousandSeparator prefix="$"
                             decimalScale={2} fixedDecimalScale
-                            className="tabular-nums responsiveTextPage font-bold text-[var(--ink)] leading-none" />
+                            className="tabular-nums responsiveTextTitle font-bold text-[var(--ink)] leading-none" />
                     </div>
                 }
                 {hasEur &&
@@ -145,7 +145,7 @@ export default function SumBasket({ items = [], onRemove, onClear }) {
                         </span>
                         <NumericFormat value={eur} displayType="text" thousandSeparator prefix="€"
                             decimalScale={2} fixedDecimalScale
-                            className="tabular-nums responsiveTextPage font-bold text-[var(--ink)] leading-none" />
+                            className="tabular-nums responsiveTextTitle font-bold text-[var(--ink)] leading-none" />
                     </div>
                 }
                 {naCount > 0 &&
