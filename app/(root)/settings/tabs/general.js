@@ -12,6 +12,7 @@ import { Save } from 'lucide-react';
 
 // Standard form field styling (matches the app's control spec app-wide).
 const fieldCls = "w-full h-8 px-3 rounded-control border border-[var(--line-strong)] bg-[var(--bg-card)] text-[var(--ink)] outline-none transition-colors focus:border-[var(--brand)] focus:ring-[3px] focus:ring-[var(--brand-soft)] responsiveTextTitle";
+const sectionCls = 'responsiveTextTitle font-semibold mb-2.5 text-[var(--ink)] font-display';
 const labelCls = "responsiveText font-semibold uppercase tracking-[0.04em] text-[var(--ink-muted)]";
 
 
@@ -39,196 +40,176 @@ const General = () => {
             {compData && Object.keys(compData).length === 0 ?
                 <Spinner />
                 : <>
-                    <div className='border border-[var(--line)] p-4 rounded-2xl bg-[var(--bg-card)] mt-1'>
-                        <p className='responsiveTextTitle font-semibold mb-3 text-[var(--ink)] font-display'>Company</p>
-                        <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-                            <div className='flex flex-col gap-1.5' >
-                                <p className={labelCls}>
-                                    {getTtl('cmpName', ln)}:</p>
-                                <input
-                                    type='input'
-                                    className={fieldCls}
+                    {/* One panel, sections divided by hairlines, instead of four
+                        separately bordered cards. Widths are content-aware on a
+                        12-column grid: a 5-character ZIP no longer occupies half
+                        the page the way a rigid 2-column split forced it to. */}
+                    <div className='border border-[var(--line)] rounded-2xl bg-[var(--bg-card)] mt-1 overflow-hidden'>
 
-                                    value={compData?.name || ''}
-                                    onChange={e => setCompData({ ...(compData || {}), name: e.target.value })}
-                                />
+                        {/* Company */}
+                        <div className='p-4'>
+                            <p className={sectionCls}>Company</p>
+                            <div className='grid grid-cols-12 gap-3'>
+                                <div className='col-span-12 md:col-span-6 flex flex-col gap-1'>
+                                    <p className={labelCls}>{getTtl('cmpName', ln)}</p>
+                                    <input
+                                        type='input'
+                                        className={fieldCls}
+                                        value={compData?.name || ''}
+                                        onChange={e => setCompData({ ...(compData || {}), name: e.target.value })}
+                                    />
+                                </div>
+                                <div className='col-span-12 sm:col-span-6 md:col-span-3 flex flex-col gap-1'>
+                                    <p className={labelCls}>{getTtl("lng", ln)}</p>
+                                    <div className="relative w-full">
+                                        <CBox
+                                            languages={languages}
+                                            compData={compData}
+                                            setCompData={setCompData}
+                                            lang={languages.find(
+                                                x => x.lng === (compData?.lng || "English")
+                                            )}
+                                        />
+                                    </div>
+                                </div>
                             </div>
+                        </div>
 
-                            <div className='flex flex-col gap-1.5' >
-                                <p className={labelCls}>
-                                    {getTtl("lng", ln)}:
-                                </p>
-
-                                <div className="relative w-full">
-                                    <CBox
-                                        languages={languages}
-                                        compData={compData}
-                                        setCompData={setCompData}
-                                        lang={languages.find(
-                                            x => x.lng === (compData?.lng || "English")
-                                        )}
+                        {/* Address & Registration */}
+                        <div className='p-4 border-t border-[var(--line)]'>
+                            <p className={sectionCls}>Address &amp; Registration</p>
+                            <div className='grid grid-cols-12 gap-3'>
+                                <div className='col-span-12 md:col-span-5 flex flex-col gap-1'>
+                                    <p className={labelCls}>{getTtl('street', ln)}</p>
+                                    <input
+                                        type='input'
+                                        className={fieldCls}
+                                        value={compData?.street || ''}
+                                        onChange={e => setCompData({ ...(compData || {}), street: e.target.value })}
+                                    />
+                                </div>
+                                <div className='col-span-6 md:col-span-3 flex flex-col gap-1'>
+                                    <p className={labelCls}>{getTtl('city', ln)}</p>
+                                    <input
+                                        type='input'
+                                        className={fieldCls}
+                                        value={compData?.city || ''}
+                                        onChange={e => setCompData({ ...(compData || {}), city: e.target.value })}
+                                    />
+                                </div>
+                                <div className='col-span-6 md:col-span-2 flex flex-col gap-1'>
+                                    <p className={labelCls}>{getTtl('country', ln)}</p>
+                                    <input
+                                        type='input'
+                                        className={fieldCls}
+                                        value={compData?.country || ''}
+                                        onChange={e => setCompData({ ...(compData || {}), country: e.target.value })}
+                                    />
+                                </div>
+                                <div className='col-span-6 md:col-span-2 flex flex-col gap-1'>
+                                    <p className={labelCls}>{getTtl('zipCode', ln)}</p>
+                                    <input
+                                        type='input'
+                                        className={fieldCls}
+                                        value={compData?.zip || ''}
+                                        onChange={e => setCompData({ ...(compData || {}), zip: e.target.value })}
+                                    />
+                                </div>
+                                <div className='col-span-6 md:col-span-4 flex flex-col gap-1'>
+                                    <p className={labelCls}>Reg No.</p>
+                                    <input
+                                        type='input'
+                                        className={fieldCls}
+                                        value={compData?.reg || ''}
+                                        onChange={e => setCompData({ ...(compData || {}), reg: e.target.value })}
+                                    />
+                                </div>
+                                <div className='col-span-6 md:col-span-4 flex flex-col gap-1'>
+                                    <p className={labelCls}>VAT No.</p>
+                                    <input
+                                        type='input'
+                                        className={fieldCls}
+                                        value={compData?.vat || ''}
+                                        onChange={e => setCompData({ ...(compData || {}), vat: e.target.value })}
+                                    />
+                                </div>
+                                <div className='col-span-12 md:col-span-4 flex flex-col gap-1'>
+                                    <p className={labelCls}>EORI No.</p>
+                                    <input
+                                        type='input'
+                                        className={fieldCls}
+                                        value={compData?.eori || ''}
+                                        onChange={e => setCompData({ ...(compData || {}), eori: e.target.value })}
                                     />
                                 </div>
                             </div>
                         </div>
-                    </div>
 
-                    <div className='border border-[var(--line)] p-4 rounded-2xl bg-[var(--bg-card)] mt-5'>
-                        <p className='responsiveTextTitle font-semibold mb-3 text-[var(--ink)] font-display'>Address & Registration</p>
-                        <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-                            <div className='col-span-12 sm:col-span-1'>
-                                <div className='flex flex-col gap-2'>
-                                    <div className='flex flex-col gap-1.5' >
-                                        <p className={labelCls}>
-                                            {getTtl('street', ln)}:</p>
-                                        <input
-                                            type='input'
-                                            className={fieldCls}
-                                            value={compData?.street || ''}
-                                            onChange={e => setCompData({ ...(compData || {}), street: e.target.value })}
-                                        />
-                                    </div>
-                                    <div className='flex flex-col gap-1.5' >
-                                        <p className={labelCls}>
-                                            {getTtl('city', ln)}: </p>
-                                        <input
-                                            type='input'
-                                            className={fieldCls}
-                                            value={compData?.city || ''}
-                                            onChange={e => setCompData({ ...(compData || {}), city: e.target.value })}
-                                        />
-                                    </div>
-                                    <div className='flex flex-col gap-1.5' >
-                                        <p className={labelCls}>
-                                            {getTtl('country', ln)}:</p>
-                                        <input
-                                            type='input'
-                                            className={fieldCls}
-
-                                            value={compData?.country || ''}
-                                            onChange={e => setCompData({ ...(compData || {}), country: e.target.value })}
-                                        />
-                                    </div>
-                                    <div className='flex flex-col gap-1.5' >
-                                        <p className={labelCls}>
-                                            {getTtl('zipCode', ln)}:</p>
-                                        <input
-                                            type='input'
-                                            className={fieldCls}
-
-                                            value={compData?.zip || ''}
-                                            onChange={e => setCompData({ ...(compData || {}), zip: e.target.value })}
-                                        />
-                                    </div>
+                        {/* Online */}
+                        <div className='p-4 border-t border-[var(--line)]'>
+                            <p className={sectionCls}>Online</p>
+                            <div className='grid grid-cols-12 gap-3'>
+                                <div className='col-span-12 md:col-span-5 flex flex-col gap-1'>
+                                    <p className={labelCls}>{getTtl('cmpemail', ln)}</p>
+                                    <input
+                                        type='input'
+                                        className={fieldCls}
+                                        value={compData?.email || ''}
+                                        onChange={e => setCompData({ ...(compData || {}), email: e.target.value })}
+                                    />
+                                </div>
+                                <div className='col-span-12 md:col-span-5 flex flex-col gap-1'>
+                                    <p className={labelCls}>{getTtl('cmpwebsite', ln)}</p>
+                                    <input
+                                        type='input'
+                                        className={fieldCls}
+                                        value={compData?.website || ''}
+                                        onChange={e => setCompData({ ...(compData || {}), website: e.target.value })}
+                                    />
                                 </div>
                             </div>
-                            <div className='col-span-12 sm:col-span-1'>
-                                <div className='flex flex-col gap-2'>
-                                    <div className='flex flex-col gap-1.5' >
-                                        <p className={labelCls}>Reg No.:</p>
-                                        <input
-                                            type='input'
-                                            className={fieldCls}
+                        </div>
 
-                                            value={compData?.reg || ''}
-                                            onChange={e => setCompData({ ...(compData || {}), reg: e.target.value })}
-                                        />
-                                    </div>
-                                    <div className='flex flex-col gap-1.5' >
-                                        <p className={labelCls}>VAT No.:</p>
-                                        <input
-                                            type='input'
-                                            className={fieldCls}
-
-                                            value={compData?.vat || ''}
-                                            onChange={e => setCompData({ ...(compData || {}), vat: e.target.value })}
-                                        />
-                                    </div>
-                                    <div className='flex flex-col gap-1.5' >
-                                        <p className={labelCls}>EORI No.:</p>
-                                        <input
-                                            type='input'
-                                            className={fieldCls}
-
-                                            value={compData?.eori || ''}
-                                            onChange={e => setCompData({ ...(compData || {}), eori: e.target.value })}
-                                        />
-                                    </div>
+                        {/* Contact */}
+                        <div className='p-4 border-t border-[var(--line)]'>
+                            <p className={sectionCls}>Contact</p>
+                            <div className='grid grid-cols-12 gap-3'>
+                                <div className='col-span-6 md:col-span-3 flex flex-col gap-1'>
+                                    <p className={labelCls}>{getTtl('cmpPhone', ln)}</p>
+                                    <input
+                                        type='input'
+                                        className={fieldCls}
+                                        value={compData?.phone || ''}
+                                        onChange={e => setCompData({ ...(compData || {}), phone: e.target.value })}
+                                    />
                                 </div>
-
-                            </div>
-                        </div>
-                    </div>
-
-
-
-                    <div className='border border-[var(--line)] p-4 rounded-2xl bg-[var(--bg-card)]  mt-5 w-full'>
-                        <p className='responsiveTextTitle font-semibold mb-3 text-[var(--ink)] font-display'>Online</p>
-                        <div className='grid grid-cols-1 md:grid-cols-2 gap-2 w-full'>
-                            <div className='flex flex-col gap-1.5' >
-                                <p className={labelCls}>
-                                    {getTtl('cmpemail', ln)}:</p>
-                                <input
-                                    type='input'
-                                    className={fieldCls}
-                                    value={compData?.email || ''}
-                                    onChange={e => setCompData({ ...(compData || {}), email: e.target.value })}
-                                />
-                            </div>
-                            <div className='flex flex-col gap-1.5' >
-                                <p className={labelCls}>
-                                    {getTtl('cmpwebsite', ln)}:</p>
-                                <input
-                                    type='input'
-                                    className={fieldCls}
-                                    value={compData?.website || ''}
-                                    onChange={e => setCompData({ ...(compData || {}), website: e.target.value })}
-                                />
-                            </div>
-                        </div>
-                    </div>
-
-
-                    <div className=' border border-[var(--line)] p-4 rounded-2xl bg-[var(--bg-card)]  mt-5 w-full'>
-                        <p className='responsiveTextTitle font-semibold mb-3 text-[var(--ink)] font-display'>Contact</p>
-                        <div className='grid grid-cols-1 md:grid-cols-2 gap-2 w-full'>
-                            <div className='flex flex-col gap-1.5' >
-                                <p className={labelCls}>
-                                    {getTtl('cmpPhone', ln)}:</p>
-                                <input
-                                    type='input'
-                                    className={fieldCls}
-                                    value={compData?.phone || ''}
-                                    onChange={e => setCompData({ ...(compData || {}), phone: e.target.value })}
-                                />
-                            </div>
-                            <div className='flex flex-col gap-1.5' >
-                                <p className={labelCls}>
-                                    {getTtl('cmpMobile', ln)}:</p>
-                                <input
-                                    type='input'
-                                    className={fieldCls}
-                                    value={compData?.mobile || ''}
-                                    onChange={e => setCompData({ ...(compData || {}), mobile: e.target.value })}
-                                />
-                            </div>
-                            <div className='flex flex-col gap-1.5' >
-                                <p className={labelCls}>Fax:</p>
-                                <input
-                                    type='input'
-                                    className={fieldCls}
-                                    value={compData?.fax || ''}
-                                    onChange={e => setCompData({ ...(compData || {}), fax: e.target.value })}
-                                />
-                            </div>
-                            <div className='flex flex-col gap-1.5' >
-                                <p className={labelCls}>Contact Person:</p>
-                                <input
-                                    type='input'
-                                    className={fieldCls}
-                                    value={compData?.contact || ''}
-                                    onChange={e => setCompData({ ...(compData || {}), contact: e.target.value })}
-                                />
+                                <div className='col-span-6 md:col-span-3 flex flex-col gap-1'>
+                                    <p className={labelCls}>{getTtl('cmpMobile', ln)}</p>
+                                    <input
+                                        type='input'
+                                        className={fieldCls}
+                                        value={compData?.mobile || ''}
+                                        onChange={e => setCompData({ ...(compData || {}), mobile: e.target.value })}
+                                    />
+                                </div>
+                                <div className='col-span-6 md:col-span-3 flex flex-col gap-1'>
+                                    <p className={labelCls}>Fax</p>
+                                    <input
+                                        type='input'
+                                        className={fieldCls}
+                                        value={compData?.fax || ''}
+                                        onChange={e => setCompData({ ...(compData || {}), fax: e.target.value })}
+                                    />
+                                </div>
+                                <div className='col-span-6 md:col-span-3 flex flex-col gap-1'>
+                                    <p className={labelCls}>Contact Person</p>
+                                    <input
+                                        type='input'
+                                        className={fieldCls}
+                                        value={compData?.contact || ''}
+                                        onChange={e => setCompData({ ...(compData || {}), contact: e.target.value })}
+                                    />
+                                </div>
                             </div>
                         </div>
                     </div>
