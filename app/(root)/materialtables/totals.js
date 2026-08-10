@@ -35,7 +35,7 @@ const Customtable = ({ data, columns }) => {
                         tableLayout: 'auto',
                         borderCollapse: 'separate',
                         borderSpacing: 0,
-                        fontFamily: "var(--font-inter), 'Inter', sans-serif",
+                        fontFamily: 'inherit',
                     }}
                 >
                     <thead>
@@ -107,7 +107,7 @@ const Customtable = ({ data, columns }) => {
                 </table>
 
                 {/* Mobile */}
-                <div className="sm:hidden flex flex-col gap-3 p-3" style={{ fontFamily: "var(--font-inter), 'Inter', sans-serif" }}>
+                <div className="sm:hidden flex flex-col gap-3 p-3" style={{ fontFamily: 'inherit' }}>
                     {table.getRowModel().rows.map((row) => (
                         <div
                             key={row.id}

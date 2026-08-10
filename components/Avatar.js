@@ -8,8 +8,8 @@ const PALETTE = [
     { bg: 'var(--brand-soft)', text: 'var(--brand-strong)' },  // violet
     { bg: 'var(--ok-bg)', text: 'var(--ok-text)' },            // green
     { bg: 'var(--warn-bg)', text: 'var(--warn-text)' },        // amber
-    { bg: 'var(--pink-bg)', text: 'var(--pink-text)' },        // rose
-    { bg: 'var(--bg-sunken)', text: 'var(--teal-text)' },      // teal
+    { bg: 'var(--pink-bg)', text: 'var(--pink-text)' },        // plum (was rose)
+    { bg: 'var(--bg-sunken)', text: 'var(--teal-text)' },      // muted teal
     { bg: 'var(--neutral-bg)', text: 'var(--ink-secondary)' }, // neutral
 ];
 

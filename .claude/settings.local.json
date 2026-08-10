@@ -15,7 +15,10 @@
       "Bash(npm run *)",
       "Bash(npx next *)",
       "Bash(curl -s -o /dev/null http://localhost:3013/signin)",
-      "Bash(node speed-all.js)"
+      "Bash(node speed-all.js)",
+      "Bash(NODE_OPTIONS=\"--max-old-space-size=8192\" npm run build)",
+      "Bash(echo \"BUILD \\(8GB heap\\): $?\")",
+      "Read(//tmp/**)"
     ]
   }
 }

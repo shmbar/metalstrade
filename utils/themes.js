@@ -30,7 +30,7 @@ const LIGHT_SIGNATURE = {
   'port-gore': { dh: -2, s: 36, l: 16 },       /* --ink          #1E1B39 */
   bunting: { dh: -1, s: 41, l: 12 },           /* deepest ink    #15122B */
   'rock-blue': { dh: 6, s: 28, l: 87 },        /* --line-strong  #DAD6E8 */
-  'regent-gray': { dh: -1, s: 10, l: 47 },     /* --ink-muted    #6E6B84 */
+  'regent-gray': { dh: -1, s: 14, l: 40 },     /* --ink-muted    #5B5875 */
   selago: { dh: 2, s: 33, l: 96 },             /* --bg-subtle    #F4F3F9 */
   'primary-bright': { dh: -1, s: 89, l: 73 },  /* brand, lifted  #8B7CF7 */
   'surface-header': { dh: 2, s: 33, l: 96 },   /* --bg-subtle    #F4F3F9 */
@@ -47,7 +47,7 @@ const DARK_SIGNATURE = {
   'port-gore': { dh: 1, s: 64, l: 95 },        /* --ink          #EDEBFA */
   bunting: { dh: 1, s: 64, l: 96 },            /* lightest ink           */
   'rock-blue': { dh: 1, s: 29, l: 29 },        /* --line-strong  #3A3560 */
-  'regent-gray': { dh: 1, s: 16, l: 59 },      /* --ink-muted    #8B87A8 */
+  'regent-gray': { dh: 1, s: 18, l: 66 },      /* --ink-muted    #A5A0C0 */
   selago: { dh: 1, s: 27, l: 17 },             /* --bg-subtle    #232038 */
   'primary-bright': { dh: 0, s: 100, l: 79 },  /* --brand-strong #A497FF */
   'surface-header': { dh: 1, s: 27, l: 17 },   /* --bg-subtle    #232038 */
@@ -67,25 +67,35 @@ const DARK_NEUTRALS = {
   'border-neutral-strong': { s: 29, l: 29 },   /* --line-strong  #3A3560 */
   'text-strong': { s: 64, l: 95 },             /* --ink          #EDEBFA */
   'text-mid': { s: 25, l: 76 },                /* --ink-secondary #B6B2D0 */
-  'text-faint': { s: 16, l: 59 },              /* --ink-muted    #8B87A8 */
+  /* Raised from l:59 with the light-mode --ink-muted, and for the same reason:
+     captions render at 9-11px, where the old value sat right on the AA floor
+     against the dark card. l:66 takes it to ~7:1. */
+  'text-faint': { s: 18, l: 66 },              /* --ink-muted    #A5A0C0 */
 };
 const NEUTRAL_RGB_TOKENS = ['surface-card', 'surface-base'];
 
 // Status system, dark values — hue-independent (green must stay green).
+//
+// Re-cut 2026-08-08 alongside the light values in globals.css, on the same two
+// axes (saturation down, hue pulled cool). Dark mode had the worse version of
+// the client's complaint: on a near-black card, #5ECC96 / #E8B95C / #F0788C all
+// glowed. Every value below still clears 6.5:1 against --bg-card (#1B1830), so
+// nothing lost legibility — measured, not assumed.
 const DARK_STATUS = {
-  'ok-soft': '#0E2117', 'ok-bg': '#12291C', 'ok-border': '#1F4630',
-  'ok-text': '#5ECC96', 'ok-strong': '#8CE0B4',
-  'danger-soft': '#291418', 'danger-bg': '#321A1E', 'danger-border': '#542730',
-  'danger-text': '#F0788C', 'danger-strong': '#F7A3B0',
-  'warn-soft': '#251D0F', 'warn-bg': '#2E2413', 'warn-border': '#4A3A1D',
-  'warn-text': '#E8B95C', 'warn-strong': '#F2D290',
+  'ok-soft': '#131F19', 'ok-bg': '#16261E', 'ok-border': '#264534',
+  'ok-text': '#74B896', 'ok-strong': '#9CCFB4',                 /* 7.4:1 */
+  'danger-soft': '#241819', 'danger-bg': '#2E1D1E', 'danger-border': '#4E3032',
+  'danger-text': '#DE8A88', 'danger-strong': '#EDACA9',         /* 6.6:1 */
+  'warn-soft': '#201D14', 'warn-bg': '#272317', 'warn-border': '#423C24',
+  'warn-text': '#D4BA7C', 'warn-strong': '#E3D2A6',             /* 9.1:1 */
   /* The violet family is the brand family — keep it in step with --brand dark. */
   'violet-soft': '#1C1834', 'violet-bg': '#22203E', 'violet-border': '#3D3768',
   'violet-text': '#A99EF5', 'violet-strong': '#C4BCFF',
-  'pink-soft': '#2A1520', 'pink-bg': '#38182A',
-  'pink-text': '#F0839F', 'pink-strong': '#F7AEC1',
+  /* Plum, matching the light-mode retirement of the bright rose. */
+  'pink-soft': '#221B29', 'pink-bg': '#2B2333', 'pink-border': '#413653',
+  'pink-text': '#B9A3C6', 'pink-strong': '#D0BFDA',             /* 7.5:1 */
   /* 6th avatar hue — also needs a dark value or the chip goes dark-on-dark. */
-  'teal-text': '#5FD6C4',
+  'teal-text': '#7BC0B8',
 };
 
 export const THEMES = [

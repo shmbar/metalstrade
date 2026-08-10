@@ -144,7 +144,7 @@ const Customtable = ({
           );
         }
         .custom-table, .custom-table *, .glass-table, .glass-table * {
-          font-family: var(--font-inter), 'Inter', system-ui, sans-serif;
+          font-family: inherit;
           transition-property: color, background-color, border-color, box-shadow !important;
           transition-duration: 150ms !important;
           transition-timing-function: ease-in-out !important;

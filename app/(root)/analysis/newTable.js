@@ -135,7 +135,7 @@ const Customtable = ({
           );
         }
         .custom-table, .custom-table *, .glass-table, .glass-table * {
-          font-family: var(--font-inter), 'Inter', system-ui, sans-serif;
+          font-family: inherit;
           transition-property: color, background-color, border-color, box-shadow !important;
           transition-duration: 150ms !important;
           transition-timing-function: ease-in-out !important;
@@ -220,7 +220,7 @@ const Customtable = ({
                       <tr
                         key={row.id}
                         onDoubleClick={() => SelectRow?.(row.original)}
-                        className={`border-b ${borderColor} cursor-pointer transition-colors ${isAverageRow ? "bg-orange-100 hover:bg-orange-200" : "hover:bg-[var(--bg-subtle)]"}`}
+                        className={`border-b ${borderColor} cursor-pointer transition-colors ${isAverageRow ? "bg-[var(--bg-sunken)] hover:bg-[var(--bg-sunken)] font-semibold" : "hover:bg-[var(--bg-subtle)]"}`}
                       >
                         {row.index === firstOccurrenceOrder && (
                           <td
@@ -287,7 +287,7 @@ const Customtable = ({
                       <tr
                         key={row.id}
                         onDoubleClick={() => SelectRow?.(row.original)}
-                        className={`border-b ${borderColor} cursor-pointer transition-colors ${isAverageRow ? "bg-orange-100 hover:bg-orange-200" : "hover:bg-[var(--bg-subtle)]"}`}
+                        className={`border-b ${borderColor} cursor-pointer transition-colors ${isAverageRow ? "bg-[var(--bg-sunken)] hover:bg-[var(--bg-sunken)] font-semibold" : "hover:bg-[var(--bg-subtle)]"}`}
                       >
                         {row.index === firstOccurrenceOrder && (
                           <td

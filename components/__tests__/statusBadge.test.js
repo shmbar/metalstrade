@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { statusTone, amountToneClass } from '../statusUtils.js';
+import { statusTone, amountToneClass, amountToneColor, TONES } from '../statusUtils.js';
 
 describe('statusTone', () => {
     it('maps positive / done statuses to green', () => {
@@ -13,7 +13,7 @@ describe('statusTone', () => {
     });
 
     it('maps partial / in-progress statuses to amber', () => {
-        ['Partially Paid', 'Partly Shipped', 'Pending', 'Open', 'On Hold', 'In Transit', 'Processing']
+        ['Partially Paid', 'Partly Shipped', 'Pending', 'Open', 'On Hold', 'In Transit', 'Processing', 'In Progress', 'Ongoing']
             .forEach(s => expect(statusTone(s), s).toBe('amber'));
     });
 
@@ -47,14 +47,16 @@ describe('statusTone', () => {
 });
 
 describe('amountToneClass', () => {
-    it('returns red for negatives (number or formatted string)', () => {
-        expect(amountToneClass(-5)).toBe('text-red-600');
-        expect(amountToneClass('-1,234.50')).toBe('text-red-600');
-        expect(amountToneClass('-$2,000')).toBe('text-red-600');
+    it('returns the danger token for negatives (number or formatted string)', () => {
+        expect(amountToneClass(-5)).toBe('text-[var(--danger-text)]');
+        expect(amountToneClass('-1,234.50')).toBe('text-[var(--danger-text)]');
+        expect(amountToneClass('-$2,000')).toBe('text-[var(--danger-text)]');
     });
-    it('returns green for positives (number or formatted string)', () => {
-        expect(amountToneClass(10)).toBe('text-green-700');
-        expect(amountToneClass('$1,000.00')).toBe('text-green-700');
+    // Changed 2026-08-08 with the palette revision: positives are the normal case
+    // in a ledger and are no longer flagged green. Only the exception is coloured.
+    it('leaves positives uncoloured (default ink)', () => {
+        expect(amountToneClass(10)).toBe('');
+        expect(amountToneClass('$1,000.00')).toBe('');
     });
     it('returns empty for zero and non-numbers', () => {
         expect(amountToneClass(0)).toBe('');
@@ -63,5 +65,38 @@ describe('amountToneClass', () => {
         expect(amountToneClass('abc')).toBe('');
         expect(amountToneClass(null)).toBe('');
         expect(amountToneClass(undefined)).toBe('');
+    });
+    // No raw Tailwind palette name may leak out of this module — that is the
+    // whole point of centralising here rather than in tailwind.config.
+    it('never returns a raw palette class', () => {
+        [-5, 10, 0, 'abc', null].forEach(v => {
+            expect(amountToneClass(v)).not.toMatch(/(red|green|amber|orange|emerald|rose|pink)-[0-9]/);
+        });
+    });
+});
+
+describe('amountToneColor', () => {
+    it('mirrors amountToneClass as a style value', () => {
+        expect(amountToneColor(-5)).toBe('var(--danger-text)');
+        expect(amountToneColor('-$2,000')).toBe('var(--danger-text)');
+        expect(amountToneColor(10)).toBeUndefined();
+        expect(amountToneColor(0)).toBeUndefined();
+        expect(amountToneColor('abc')).toBeUndefined();
+    });
+});
+
+describe('TONES', () => {
+    // Every tone must be built from tokens, or chips stop following the colour
+    // preset and stop flipping in dark mode.
+    it('is entirely token-valued', () => {
+        Object.entries(TONES).forEach(([name, t]) => {
+            ['bg', 'text', 'border'].forEach(k => {
+                expect(t[k], `${name}.${k}`).toMatch(/^var\(--[a-z-]+\)$/);
+            });
+        });
+    });
+    it('keeps the five tones visually distinct (no two share a text token)', () => {
+        const texts = Object.values(TONES).map(t => t.text);
+        expect(new Set(texts).size).toBe(texts.length);
     });
 });

@@ -922,7 +922,7 @@ const Customtable = ({
           background-color: var(--bg-subtle);
           border-bottom: 1px solid var(--line);
           text-align: center;
-          font-family: var(--font-inter), 'Inter', system-ui, sans-serif;
+          font-family: inherit;
           font-size: 0.6875rem;
           text-transform: uppercase;
           letter-spacing: 0.04em;
@@ -940,7 +940,7 @@ const Customtable = ({
           text-align: center;
           font-size: 0.75rem;
           font-variant-numeric: tabular-nums;
-          font-family: var(--font-inter), 'Inter', system-ui, sans-serif;
+          font-family: inherit;
           padding: 5px 8px !important;
           vertical-align: middle;
         }

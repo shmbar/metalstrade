@@ -12,6 +12,26 @@ import { HiOutlineDocumentText, HiOutlineCurrencyDollar, HiOutlineCalculator } f
 import { BsFileText } from 'react-icons/bs';
 import { IoClose } from 'react-icons/io5';
 import dateFormat from 'dateformat';
+import { TONES, statusTone } from './statusUtils';
+
+/* Result-type styling.
+   These four sections used to be told apart by hue — green Contracts, blue
+   Invoices, purple Expenses, teal Accounting — on both the section icon and the
+   inline type label. Four saturated hues stacked in one 400px dropdown is the
+   single densest bit of colour in the app, and none of it carried meaning the
+   words and icons weren't already carrying: every row literally says "Contract"
+   / "Invoice" next to a distinct icon.
+   Type is now neutral, and the only colour left in the panel is the status chip
+   on the right — which IS meaning. */
+const TYPE_INK = 'var(--ink-secondary)';
+
+/* Status chips come from the shared statusTone() map so a status is drawn the
+   same colour here as it is on its own page. They were hardcoded per branch,
+   which is how "Draft" ended up yellow here and blue everywhere else. */
+const chipStyle = (label) => {
+    const t = TONES[statusTone(label)];
+    return { backgroundColor: t.bg, color: t.text, border: `1px solid ${t.border}` };
+};
 
 const GlobalSearch = () => {
     const { settings, ln } = useContext(SettingsContext);
@@ -225,7 +245,7 @@ const GlobalSearch = () => {
                                         className='w-full px-4 py-2 bg-gray-50 flex items-center justify-between hover:bg-gray-100 transition-colors'
                                     >
                                         <div className='flex items-center gap-2'>
-                                            <BsFileText className='text-green-600' />
+                                            <BsFileText style={{ color: TYPE_INK }} />
                                             <span className='responsiveText font-semibold text-[var(--port-gore)] uppercase'>
                                                 {getTtl('Contracts', ln)} ({results.contracts.length})
                                             </span>
@@ -240,17 +260,13 @@ const GlobalSearch = () => {
                                         >
                                             <div>
                                                 <p className='responsiveText font-medium text-[var(--port-gore)]'>
-                                                    <span className='text-green-600 font-semibold'>Contract</span> • PO# {item.order}
+                                                    <span className='font-semibold' style={{ color: TYPE_INK }}>Contract</span> • PO# {item.order}
                                                 </p>
                                                 <p className='responsiveText text-[var(--regent-gray)]'>
                                                     {getSettingValue('Supplier', item.supplier, 'nname')} • {item.date ? dateFormat(item.date, 'dd.mm.yy') : '-'}
                                                 </p>
                                             </div>
-                                            <span className={`px-2 py-0.5 rounded-full responsiveText ${
-                                                item.conStatus === 'Completed' ? 'bg-green-100 text-green-700' :
-                                                item.conStatus === 'In Progress' ? 'bg-blue-100 text-blue-700' :
-                                                'bg-gray-100 text-[var(--port-gore)]'
-                                            }`}>
+                                            <span className='px-2 py-0.5 rounded-full responsiveText font-medium' style={chipStyle(item.conStatus || 'Open')}>
                                                 {item.conStatus || 'Open'}
                                             </span>
                                         </button>
@@ -266,7 +282,7 @@ const GlobalSearch = () => {
                                         className='w-full px-4 py-2 bg-gray-50 flex items-center justify-between hover:bg-gray-100 transition-colors'
                                     >
                                         <div className='flex items-center gap-2'>
-                                            <HiOutlineDocumentText className='text-blue-600' />
+                                            <HiOutlineDocumentText style={{ color: TYPE_INK }} />
                                             <span className='responsiveText font-semibold text-[var(--port-gore)] uppercase'>
                                                 {getTtl('Invoices', ln)} ({results.invoices.length})
                                             </span>
@@ -281,18 +297,13 @@ const GlobalSearch = () => {
                                         >
                                             <div>
                                                 <p className='responsiveText font-medium text-[var(--port-gore)]'>
-                                                    <span className='text-blue-600 font-semibold'>Invoice</span> • #{item.invoice}
+                                                    <span className='font-semibold' style={{ color: TYPE_INK }}>Invoice</span> • #{item.invoice}
                                                 </p>
                                                 <p className='responsiveText text-[var(--regent-gray)]'>
                                                     {item.client} • {item.totalAmount ? `${item.cur || ''} ${item.totalAmount}` : '-'}
                                                 </p>
                                             </div>
-                                            <span className={`px-2 py-0.5 rounded-full responsiveText ${
-                                                item.invoiceStatus === 'Paid' ? 'bg-green-100 text-green-700' :
-                                                item.invoiceStatus === 'Draft' ? 'bg-yellow-100 text-yellow-700' :
-                                                item.canceled ? 'bg-red-100 text-red-700' :
-                                                'bg-gray-100 text-[var(--port-gore)]'
-                                            }`}>
+                                            <span className='px-2 py-0.5 rounded-full responsiveText font-medium' style={chipStyle(item.canceled ? 'Canceled' : item.invoiceStatus || 'Draft')}>
                                                 {item.canceled ? 'Canceled' : item.invoiceStatus || 'Draft'}
                                             </span>
                                         </button>
@@ -308,7 +319,7 @@ const GlobalSearch = () => {
                                         className='w-full px-4 py-2 bg-gray-50 flex items-center justify-between hover:bg-gray-100 transition-colors'
                                     >
                                         <div className='flex items-center gap-2'>
-                                            <HiOutlineCurrencyDollar className='text-purple-600' />
+                                            <HiOutlineCurrencyDollar style={{ color: TYPE_INK }} />
                                             <span className='responsiveText font-semibold text-[var(--port-gore)] uppercase'>
                                                 {getTtl('Expenses', ln)} ({results.expenses.length})
                                             </span>
@@ -323,16 +334,13 @@ const GlobalSearch = () => {
                                         >
                                             <div>
                                                 <p className='responsiveText font-medium text-[var(--port-gore)]'>
-                                                    <span className='text-purple-600 font-semibold'>Expense</span> • {getSettingValue('Supplier', item.supplier, 'nname') || 'Expense'}
+                                                    <span className='font-semibold' style={{ color: TYPE_INK }}>Expense</span> • {getSettingValue('Supplier', item.supplier, 'nname') || 'Expense'}
                                                 </p>
                                                 <p className='responsiveText text-[var(--regent-gray)]'>
                                                     {getSettingValue('Expenses', item.expType, 'expType') || '-'} • {item.amount ? `${getSettingValue('Currency', item.cur, 'cur') || ''} ${item.amount}` : '-'}
                                                 </p>
                                             </div>
-                                            <span className={`px-2 py-0.5 rounded-full responsiveText ${
-                                                item.paidUnpaid === 'Paid' ? 'bg-green-100 text-green-700' :
-                                                'bg-orange-100 text-orange-700'
-                                            }`}>
+                                            <span className='px-2 py-0.5 rounded-full responsiveText font-medium' style={chipStyle(item.paidUnpaid || 'Unpaid')}>
                                                 {item.paidUnpaid || 'Unpaid'}
                                             </span>
                                         </button>
@@ -348,7 +356,7 @@ const GlobalSearch = () => {
                                         className='w-full px-4 py-2 bg-gray-50 flex items-center justify-between hover:bg-gray-100 transition-colors'
                                     >
                                         <div className='flex items-center gap-2'>
-                                            <HiOutlineCalculator className='text-teal-600' />
+                                            <HiOutlineCalculator style={{ color: TYPE_INK }} />
                                             <span className='responsiveText font-semibold text-[var(--port-gore)] uppercase'>
                                                 {getTtl('Accounting', ln)} ({results.accounting.length})
                                             </span>
@@ -363,7 +371,7 @@ const GlobalSearch = () => {
                                         >
                                             <div>
                                                 <p className='responsiveText font-medium text-[var(--port-gore)]'>
-                                                    <span className='text-teal-600 font-semibold'>Accounting</span> • {getSettingValue('Expenses', item.expType, 'expType') || 'Expense'} {getSettingValue('Supplier', item.supplier, 'nname')} • {item.salesInv}
+                                                    <span className='font-semibold' style={{ color: TYPE_INK }}>Accounting</span> • {getSettingValue('Expenses', item.expType, 'expType') || 'Expense'} {getSettingValue('Supplier', item.supplier, 'nname')} • {item.salesInv}
                                                 </p>
                                                 <p className='responsiveText text-[var(--regent-gray)]'>
                                                     {item.amount ? `${getSettingValue('Currency', item.cur, 'cur') || ''} ${item.amount}` : '-'}

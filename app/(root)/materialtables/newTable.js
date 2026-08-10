@@ -527,7 +527,7 @@ const Customtable = ({
             {/* ── Desktop table ── */}
             <div className="hidden sm:block">
                 <div className="overflow-auto dashboard-scroll" style={{ maxHeight: '700px' }}>
-                    <table className="w-full responsiveTextTable" style={{ tableLayout: 'auto', borderCollapse: 'separate', borderSpacing: 0, fontFamily: "var(--font-inter), 'Inter', sans-serif" }}>
+                    <table className="w-full responsiveTextTable" style={{ tableLayout: 'auto', borderCollapse: 'separate', borderSpacing: 0, fontFamily: 'inherit' }}>
 
                         {/* THEAD */}
                         <thead>
@@ -696,7 +696,7 @@ const Customtable = ({
 
             {/* ── Mobile card view ── */}
             <div className="sm:hidden">
-                <div className="overflow-y-auto dashboard-scroll px-2 py-2 space-y-2" style={{ maxHeight: '700px', fontFamily: "var(--font-inter), 'Inter', sans-serif" }}>
+                <div className="overflow-y-auto dashboard-scroll px-2 py-2 space-y-2" style={{ maxHeight: '700px', fontFamily: 'inherit' }}>
                     {table.getRowModel().rows.map((row, ri) => (
                         <div key={row.id} className="rounded-2xl overflow-hidden shadow-card" style={{ backgroundColor: "var(--bg-card)", border: '1px solid var(--line)' }}>
                             <div className="px-3 py-2" style={{ background: 'var(--brand-soft)' }}>

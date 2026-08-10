@@ -630,70 +630,70 @@ const Shipments = () => {
 
   let propDefaults = Object.keys(settings).length === 0 ? [] : [
     {
-      accessorKey: 'order', header: getTtl('PO', ln) + '#', bgt: 'bg-green-500', bgr: 'bg-green-50',
+      accessorKey: 'order', header: getTtl('PO', ln) + '#',
       cell: (props) => { const val = props.getValue(); const full = props.row.original.orderFull; const isTrunc = full && full !== val; return <Tltip tltpText={full} show={isTrunc} direction="top"><span style={{ whiteSpace: 'nowrap' }} className="cursor-default">{val}</span></Tltip>; },
       ttlUS: getTtl('Total', ln) + ' $:', ttlEU: getTtl('Total', ln) + ' €:',
       meta: { excludeFromQuickSum: true }
     }, //false
     {
-      accessorKey: 'supplier', header: getTtl('Supplier', ln), bgt: 'bg-green-500', bgr: 'bg-green-50',
+      accessorKey: 'supplier', header: getTtl('Supplier', ln),
       meta: {
         filterVariant: 'selectSupplier',
       },
     },
     {
-      accessorKey: 'supplierInv', header: getTtl('Supplier inv', ln), bgt: 'bg-green-500', bgr: 'bg-green-50', cell: (props) => { const arr = props.getValue(); const full = props.row.original.supplierInvFull || []; return <div>{arr.map((item, i) => { const isTrunc = full[i] && full[i] !== item; return <Tltip key={i} tltpText={full[i]} show={isTrunc} direction="top"><div style={{ whiteSpace: 'nowrap' }} className={i < arr.length - 1 ? 'border-b border-[var(--rock-blue)] py-0.5 cursor-default' : 'py-0.5 cursor-default'}>{item}</div></Tltip>; })}</div>; },
+      accessorKey: 'supplierInv', header: getTtl('Supplier inv', ln), cell: (props) => { const arr = props.getValue(); const full = props.row.original.supplierInvFull || []; return <div>{arr.map((item, i) => { const isTrunc = full[i] && full[i] !== item; return <Tltip key={i} tltpText={full[i]} show={isTrunc} direction="top"><div style={{ whiteSpace: 'nowrap' }} className={i < arr.length - 1 ? 'border-b border-[var(--rock-blue)] py-0.5 cursor-default' : 'py-0.5 cursor-default'}>{item}</div></Tltip>; })}</div>; },
       meta: { excludeFromQuickSum: true },
     },
     {
-      accessorKey: 'supplierInvAmount', header: getTtl('Sup Inv amount', ln), bgt: 'bg-green-500', bgr: 'bg-green-50', cell: (props) => { const arr = props.getValue(); return <div>{arr.map((item, i) => <div key={i} className={i < arr.length - 1 ? 'border-b border-[var(--rock-blue)] py-0.5' : 'py-0.5'}>{showAmountPO(item, props)}</div>)}</div>; }, ttlUS: showAmountTtl(totals[0]?.us.supplierInvAmount, 'USD'), ttlEU: showAmountTtl(totals[1]?.eu.supplierInvAmount, 'EUR'),
+      accessorKey: 'supplierInvAmount', header: getTtl('Sup Inv amount', ln), cell: (props) => { const arr = props.getValue(); return <div>{arr.map((item, i) => <div key={i} className={i < arr.length - 1 ? 'border-b border-[var(--rock-blue)] py-0.5' : 'py-0.5'}>{showAmountPO(item, props)}</div>)}</div>; }, ttlUS: showAmountTtl(totals[0]?.us.supplierInvAmount, 'USD'), ttlEU: showAmountTtl(totals[1]?.eu.supplierInvAmount, 'EUR'),
       enableColumnFilter: false,
     },
     {
-      accessorKey: 'supplierPrepayment', header: getTtl('Sup Prepayment', ln), bgt: 'bg-green-500', bgr: 'bg-green-50', cell: (props) => { const arr = props.getValue(); return <div>{arr.map((item, i) => <div key={i} className={i < arr.length - 1 ? 'border-b border-[var(--rock-blue)] py-0.5' : 'py-0.5'}>{showAmountPO(item, props)}</div>)}</div>; }, ttlUS: showAmountTtl(totals[0]?.us.supplierPrepayment, 'USD'), ttlEU: showAmountTtl(totals[1]?.eu.supplierPrepayment, 'EUR'),
+      accessorKey: 'supplierPrepayment', header: getTtl('Sup Prepayment', ln), cell: (props) => { const arr = props.getValue(); return <div>{arr.map((item, i) => <div key={i} className={i < arr.length - 1 ? 'border-b border-[var(--rock-blue)] py-0.5' : 'py-0.5'}>{showAmountPO(item, props)}</div>)}</div>; }, ttlUS: showAmountTtl(totals[0]?.us.supplierPrepayment, 'USD'), ttlEU: showAmountTtl(totals[1]?.eu.supplierPrepayment, 'EUR'),
       enableColumnFilter: false,
     },
     {
-      accessorKey: 'supBlnc', header: getTtl('Balance', ln), bgt: 'bg-green-500', bgr: 'bg-green-50', cell: (props) => { const arr = props.getValue(); return <div>{arr.map((item, i) => <div key={i} className={i < arr.length - 1 ? 'border-b border-[var(--rock-blue)] py-0.5' : 'py-0.5'}>{showAmountPO(item, props)}</div>)}</div>; }, ttlUS: showAmountTtl(totals[0]?.us.supBlnc, 'USD'), ttlEU: showAmountTtl(totals[1]?.eu.supBlnc, 'EUR'),
+      accessorKey: 'supBlnc', header: getTtl('Balance', ln), cell: (props) => { const arr = props.getValue(); return <div>{arr.map((item, i) => <div key={i} className={i < arr.length - 1 ? 'border-b border-[var(--rock-blue)] py-0.5' : 'py-0.5'}>{showAmountPO(item, props)}</div>)}</div>; }, ttlUS: showAmountTtl(totals[0]?.us.supBlnc, 'USD'), ttlEU: showAmountTtl(totals[1]?.eu.supBlnc, 'EUR'),
       meta: {
         filterVariant: 'range',
       },
     },
 
-    { accessorKey: 'invoice', header: getTtl('Invoice', ln), bgt: 'bg-amber-400', bgr: 'bg-amber-50',  cell: (props) => <div>{String(props.getValue()).padStart(4, "0") }</div>, meta: { excludeFromQuickSum: true } },
+    { accessorKey: 'invoice', header: getTtl('Invoice', ln),  cell: (props) => <div>{String(props.getValue()).padStart(4, "0") }</div>, meta: { excludeFromQuickSum: true } },
     {
-      accessorKey: 'client', header: getTtl('Consignee', ln), bgt: 'bg-amber-400', bgr: 'bg-amber-50', meta: {
+      accessorKey: 'client', header: getTtl('Consignee', ln), meta: {
         filterVariant: 'selectClient',
       },
     },
     {
-      accessorKey: 'totalAmount', header: getTtl('invValueSale', ln), bgt: 'bg-amber-400', bgr: 'bg-amber-50', cell: (props) => <p>{showAmountInv(props)}</p>,
+      accessorKey: 'totalAmount', header: getTtl('invValueSale', ln), cell: (props) => <p>{showAmountInv(props)}</p>,
       meta: {
         filterVariant: 'range',
       },
       ttlUS: showAmountTtl(totals[0]?.us.totalAmount, 'USD'), ttlEU: showAmountTtl(totals[1]?.eu.totalAmount, 'EUR')
     },
     {
-      accessorKey: 'prepaidPer', header: getTtl('Prepaid', ln) + ' %', bgt: 'bg-amber-400', bgr: 'bg-amber-50',
+      accessorKey: 'prepaidPer', header: getTtl('Prepaid', ln) + ' %',
       ttlUS: totals[0]?.us.prepaidPer, ttlEU: totals[1]?.eu.prepaidPer,
       meta: { excludeFromQuickSum: true }
     },
     {
-      accessorKey: 'totalPrepayment1', header: getTtl('Prepaid Amount', ln), bgt: 'bg-amber-400', bgr: 'bg-amber-50', cell: (props) => <p>{showAmountInv(props)}</p>,
+      accessorKey: 'totalPrepayment1', header: getTtl('Prepaid Amount', ln), cell: (props) => <p>{showAmountInv(props)}</p>,
       meta: {
         filterVariant: 'range',
       },
       ttlUS: showAmountTtl(totals[0]?.us.totalPrepayment1, 'USD'), ttlEU: showAmountTtl(totals[1]?.eu.totalPrepayment1, 'EUR')
     },
     {
-      accessorKey: 'debtaftr', header: getTtl('debtAfterPrepPmnt', ln), bgt: 'bg-amber-400', bgr: 'bg-amber-50', cell: (props) => <p>{showAmountInv(props)}</p>,
+      accessorKey: 'debtaftr', header: getTtl('debtAfterPrepPmnt', ln), cell: (props) => <p>{showAmountInv(props)}</p>,
       ttlUS: showAmountTtl(totals[0]?.us.debtaftr, 'USD'), ttlEU: showAmountTtl(totals[1]?.eu.debtaftr, 'EUR')
     }, //false
 
 
-    { accessorKey: 'status', header: getTtl('Release Status', ln), bgt: 'bg-purple-800', bgr: 'bg-purple-50' }, //false
+    { accessorKey: 'status', header: getTtl('Release Status', ln) }, //false
     {
-      accessorKey: 'etd', enableSorting: false, header: 'ETD', bgt: 'bg-purple-800', bgr: 'bg-purple-50',
+      accessorKey: 'etd', enableSorting: false, header: 'ETD',
       meta: {
         filterVariant: 'dates',
         excludeFromQuickSum: true,
@@ -701,7 +701,7 @@ const Shipments = () => {
       filterFn: 'dateBetweenFilterFn'
     },//false
     {
-      accessorKey: 'eta', enableSorting: false, header: 'ETA', bgt: 'bg-purple-800', bgr: 'bg-purple-50',
+      accessorKey: 'eta', enableSorting: false, header: 'ETA',
       meta: {
         filterVariant: 'dates',
         excludeFromQuickSum: true,
@@ -709,26 +709,26 @@ const Shipments = () => {
       filterFn: 'dateBetweenFilterFn'
     },//false
 
-    { accessorKey: 'rcvd', header: 'Outturn', bgt: 'bg-[var(--brand)]', bgr: 'bg-blue-50' }, //false
-    { accessorKey: 'outrnamnt', header: 'Outturn Amount', bgt: 'bg-[var(--brand)]', bgr: 'bg-blue-50', cell: (props) => <p>{props.getValue() !== '' && showAmountInv(props)}</p> }, //false
+    { accessorKey: 'rcvd', header: 'Outturn' }, //false
+    { accessorKey: 'outrnamnt', header: 'Outturn Amount', cell: (props) => <p>{props.getValue() !== '' && showAmountInv(props)}</p> }, //false
     {
-      accessorKey: 'deviation', header: getTtl('Deviation', ln), bgt: 'bg-[var(--brand)]', bgr: 'bg-blue-50', cell: (props) => <p>{showAmountInv(props)}</p>,
+      accessorKey: 'deviation', header: getTtl('Deviation', ln), cell: (props) => <p>{showAmountInv(props)}</p>,
       ttlUS: showAmountTtl(totals[0]?.us.deviation, 'USD'), ttlEU: showAmountTtl(totals[1]?.eu.deviation, 'EUR')
     },
     {
-      accessorKey: 'debtBlnc', header: getTtl('Debt Balance', ln), bgt: 'bg-[var(--brand)]', bgr: 'bg-blue-50', cell: (props) => <p>{showAmountInv(props)}</p>,
+      accessorKey: 'debtBlnc', header: getTtl('Debt Balance', ln), cell: (props) => <p>{showAmountInv(props)}</p>,
       ttlUS: showAmountTtl(totals[0]?.us.debtBlnc, 'USD'), ttlEU: showAmountTtl(totals[1]?.eu.debtBlnc, 'EUR')
     },//false
-    { accessorKey: 'cn', header: getTtl('Credit/Final Note', ln), bgt: 'bg-[var(--brand)]', bgr: 'bg-blue-50' },
-    { accessorKey: 'fnlzing', header: getTtl('Finalizing', ln), bgt: 'bg-[var(--brand)]', bgr: 'bg-blue-50' },//false
+    { accessorKey: 'cn', header: getTtl('Credit/Final Note', ln) },
+    { accessorKey: 'fnlzing', header: getTtl('Finalizing', ln) },//false
 
 
     {
-      accessorKey: 'inDebt', header: getTtl('Initial Debt', ln), bgt: 'bg-slate-400', cell: (props) => <p>{showAmountInv(props)}</p>,
+      accessorKey: 'inDebt', header: getTtl('Initial Debt', ln), cell: (props) => <p>{showAmountInv(props)}</p>,
       ttlUS: showAmountTtl(totals[0]?.us.inDebt, 'USD'), ttlEU: showAmountTtl(totals[1]?.eu.inDebt, 'EUR')
     },
     {
-      accessorKey: 'payments', header: getTtl('Actual Payment', ln), bgt: 'bg-slate-400', cell: (props) => <p>{showAmountInv(props)}</p>,
+      accessorKey: 'payments', header: getTtl('Actual Payment', ln), cell: (props) => <p>{showAmountInv(props)}</p>,
       ttlUS: showAmountTtl(totals[0]?.us.payments, 'USD'), ttlEU: showAmountTtl(totals[1]?.eu.payments, 'EUR'),
       meta: {
         filterVariant: 'range',

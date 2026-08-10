@@ -103,8 +103,12 @@ focus:outline-0 focus:border-[var(--endeavour)] indent-1.5 text-[var(--endeavour
                             }
 
                             {edit.id !== x.id && <div className='flex gap-4'>
-                                <PenLine size={14} className='text-green-500 cursor-pointer hover:text-green-700' onClick={() => editItem(x)} />
-                                <Trash size={14} className='text-red-500 cursor-pointer hover:text-red-700' onClick={() => deleteItem(x)} />
+                                {/* Edit was green for no reason other than "not the delete
+                                    one" — it is not a positive status. Muted ink, and
+                                    delete keeps the danger token because destructive
+                                    actions are the one thing worth colouring. */}
+                                <PenLine size={14} className='text-[var(--ink-muted)] cursor-pointer hover:text-[var(--brand)] transition-colors' onClick={() => editItem(x)} />
+                                <Trash size={14} className='text-[var(--ink-muted)] cursor-pointer hover:text-[var(--danger-text)] transition-colors' onClick={() => deleteItem(x)} />
                             </div>}
                         </li>
                     )

@@ -56,9 +56,14 @@ export const TPdfTable = async (arrTable, elements, unitLabel = 'Kgs') => {
                 data.cell.styles.fillColor = [255, 255, 255]
                 data.cell.styles.textColor = [32, 55, 100]
             }
-            // Last row element cells: light orange
+            /* Last row (totals) element cells. Was a light orange [247,199,172] —
+               the one bright fill on a document the client sends to counterparties.
+               Now the RGB of --warn-bg (#EFEADD), so the PDF reads in the same
+               muted family as the screen. Written as a literal on purpose: jsPDF
+               cannot resolve var(), which is why export colours are exempt from
+               the theming gates — this is a value change, not a tokenisation. */
             if (data.row.index === arrTable.length - 1 && data.column.index > 1) {
-                data.cell.styles.fillColor = [247, 199, 172]
+                data.cell.styles.fillColor = [239, 234, 221]
             }
         },
         willDrawCell(data) {

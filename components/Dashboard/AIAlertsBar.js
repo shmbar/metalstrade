@@ -209,8 +209,10 @@ const AIAlertsBar = () => {
         >
             <span className='flex items-center gap-1.5' style={{ fontSize: 'var(--fs-table)', color: 'var(--ink)', fontWeight: 600 }}>
                 <span className='relative flex h-2 w-2'>
-                    <span className='absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75 animate-ping' />
-                    <span className='relative inline-flex rounded-full h-2 w-2 bg-emerald-500' />
+                    {/* "Live" pulse. Was emerald — a bright green dot that read as a
+                        status when it only means "this bar is up to date". Brand. */}
+                    <span className='absolute inline-flex h-full w-full rounded-full opacity-75 animate-ping' style={{ background: 'var(--brand)' }} />
+                    <span className='relative inline-flex rounded-full h-2 w-2' style={{ background: 'var(--brand)' }} />
                 </span>
                 Live alerts
             </span>

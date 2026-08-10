@@ -31,6 +31,7 @@ import ResetFilterTableIcon from '../../../components/table/filters/resetTabe';
 import dateBetweenFilterFn from '../../../components/table/filters/date-between-filter';
 import { Filter } from "../../../components/table/filters/filterFunc";
 import { labelAwareGlobalFilter } from "../../../components/table/filters/labelAwareGlobalFilter";
+import { statusChipStyle } from "../../../components/statusUtils";
 
 
 const Customtable = ({
@@ -183,7 +184,7 @@ const Customtable = ({
           );
         }
         .custom-table, .custom-table *, .glass-table, .glass-table * {
-          font-family: var(--font-inter), 'Inter', system-ui, sans-serif;
+          font-family: inherit;
           transition-property: color, background-color, border-color, box-shadow !important;
           transition-duration: 150ms !important;
           transition-timing-function: ease-in-out !important;
@@ -258,20 +259,29 @@ const Customtable = ({
                 <thead className="sticky top-0 z-sticky">
                   {table.getHeaderGroups().map(hdGroup => (
                     <Fragment key={hdGroup.id}>
-                      <tr style={{ background: 'var(--ok-border)', borderBottom: '2px solid var(--line-strong)' }}>
+                      {/* TOTALS BAND.
+                          This was `var(--ok-border)` — a full-width GREEN band across
+                          the top of the page. That is the green the client called out:
+                          --ok-border is the "paid / positive" status colour, and a
+                          totals row is not a status. It is emphasis, so it takes the
+                          neutral emphasis surface (--bg-sunken) that every other
+                          highlighted row in the app uses.
+                          Padding 10/8 -> 4/6 and the 2px rule -> 1px, in line with the
+                          rest of the density pass. */}
+                      <tr style={{ background: 'var(--bg-sunken)', borderBottom: '1px solid var(--line-strong)' }}>
                         {hdGroup.headers.map((header) => (
                           <th
                             key={`total-${header.id}`}
-                            className="font-sans responsiveTextTable font-medium"
+                            className="responsiveTextTable numeric"
                             style={{
-                              color: 'var(--chathams-blue)',
-                              backgroundColor: 'var(--ok-border)',
+                              color: 'var(--ink)',
+                              backgroundColor: 'var(--bg-sunken)',
                               minWidth: header.column.id === 'select' ? '50px' : '60px',
                               maxWidth: header.column.id === 'select' ? '50px' : 'none',
-                              padding: '10px 8px',
-                                border: 'none',
-                                                    boxShadow: 'none',
-                                                    borderRadius: 0,
+                              padding: '4px 6px',
+                              border: 'none',
+                              boxShadow: 'none',
+                              borderRadius: 0,
                               letterSpacing: '0.02em',
                               textAlign: 'center',
                               fontSize: 'var(--fs-table)',
@@ -282,17 +292,24 @@ const Customtable = ({
                         ))}
                       </tr>
 
-                      <tr style={{ borderBottom: '1px solid rgba(var(--surface-card-rgb), 0.2)' }}>
+                      {/* COLUMN LABELS. The rule under this row was
+                          rgba(--surface-card-rgb, 0.2) — white at 20% opacity on a
+                          white card, i.e. invisible, which is why the header ran into
+                          the first data row. It is a real line now.
+                          .text-caption gives every column header in the app the same
+                          treatment (11px, uppercase, 600, --ink-secondary) instead of
+                          this page's own font-sans/font-medium/0.05em combination. */}
+                      <tr style={{ borderBottom: '1px solid var(--line-strong)' }}>
                         {hdGroup.headers.map((header) => (
                           <th
                             key={header.id}
-                            className="font-sans responsiveTextTable font-medium"
+                            className="text-caption"
                             style={{
-                              color: 'var(--chathams-blue)',
                               minWidth: header.column.id === 'select' ? '50px' : '60px',
                               maxWidth: header.column.id === 'select' ? '50px' : 'none',
-                              letterSpacing: '0.05em',
+                              padding: '5px 6px',
                               textAlign: 'center',
+                              verticalAlign: 'middle',
                               cursor: header.column.getCanSort() ? 'pointer' : 'default',
                               userSelect: 'none',
                             }}
@@ -300,8 +317,8 @@ const Customtable = ({
                           >
                             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
                               {flexRender(header.column.columnDef.header, header.getContext())}
-                              {header.column.getIsSorted() === 'asc' && <TbSortAscending style={{ fontSize: 'var(--fs-title)', color: 'var(--endeavour)' }} />}
-                              {header.column.getIsSorted() === 'desc' && <TbSortDescending style={{ fontSize: 'var(--fs-title)', color: 'var(--endeavour)' }} />}
+                              {header.column.getIsSorted() === 'asc' && <TbSortAscending style={{ fontSize: 'var(--fs-title)', color: 'var(--brand)' }} />}
+                              {header.column.getIsSorted() === 'desc' && <TbSortDescending style={{ fontSize: 'var(--fs-title)', color: 'var(--brand)' }} />}
                             </div>
                           </th>
                         ))}
@@ -351,65 +368,55 @@ const Customtable = ({
                         }
                         const isCompleted = cell.column.id === 'completed';
                         const isStatus = cell.column.id === 'status' && cell.getValue();
-
-                        // Badge config
-                        let badgeConfig = null;
-                        if (isCompleted) {
-                          badgeConfig = cell.getValue()
-                            ? { bg: 'var(--ok-bg)', color: 'var(--ok-text)', label: 'Completed' }
-                            : { bg: 'var(--bad-bg)', color: 'var(--bad-text)', label: 'Incompleted' };
-                        }
-                        if (isStatus && cell.getValue()) {
-                          if (cell.getValue() === 'Completed')
-                            badgeConfig = { bg: 'var(--ok-bg)', color: 'var(--ok-text)', label: 'Completed' };
-                          else if (cell.getValue() === 'Incompleted')
-                            badgeConfig = { bg: 'var(--bad-bg)', color: 'var(--bad-text)', label: 'Incompleted' };
-                          else if (cell.getValue() === 'Paid')
-                            badgeConfig = { bg: 'var(--ok-bg)', color: 'var(--ok-text)', border: 'var(--ok-border)', label: 'Paid' };
-                          else if (cell.getValue() === 'Unpaid')
-                            badgeConfig = { bg: 'var(--warn-bg)', color: 'var(--warn-text)', border: 'var(--warn-border)', label: 'Unpaid' };
-                        }
+                        /* Status label. The four cases used to be spelled out here with
+                           their own bg/color/border triples — including two that forgot
+                           a border and fell back to --line-strong, so "Completed" and
+                           "Paid" were outlined differently on the same row. statusTone()
+                           already knows all four words; use it. */
+                        const badgeLabel = isCompleted
+                          ? (cell.getValue() ? 'Completed' : 'Incompleted')
+                          : isStatus ? String(cell.getValue()) : null;
+                        const isBadge = isCompleted || isStatus;
+                        const hasValue = cell.getValue() !== null && cell.getValue() !== undefined && cell.getValue() !== '';
 
                         return (
                           <td
                             key={cell.id}
-                            className="px-2 py-2 text-center"
+                            className="px-2 py-0.5 text-center"
                             style={{
                               minWidth: cell.column.id === 'select' ? '50px' : '60px',
                               maxWidth: cell.column.id === 'select' ? '50px' : 'none',
                               whiteSpace: 'nowrap'
                             }}
                           >
-                            {(isCompleted || isStatus) && badgeConfig ? (
-                              <div className="flex justify-center">
-                                <div
-                                  className="px-1 py-1 responsiveTextTable font-medium"
-                                  style={{
-                                    backgroundColor: badgeConfig.bg,
-                                    color: badgeConfig.color,
-                                    border: `1px solid ${badgeConfig.border || 'var(--line-strong)'}`
-                                  }}
+                            {/* ONE wrapper for every cell state.
+                                Before, three different wrappers were used depending on
+                                what the cell held: `min-w-[70px]` when there was a value,
+                                `w-full` when there wasn't, and a third for badges — each
+                                with its own px-1 py-1 ON TOP of the td's px-2 py-2. That
+                                is the misalignment the client saw: an empty cell and a
+                                filled cell in the same column resolved to different
+                                widths, so the column edges wandered down the table.
+                                Padding now lives on the td only, and the wrapper is the
+                                same element in all three cases. */}
+                            <div className="flex justify-center items-center">
+                              {isBadge && badgeLabel ? (
+                                <span
+                                  className="px-2 py-0.5 rounded-full responsiveTextTable font-medium"
+                                  style={statusChipStyle(badgeLabel)}
                                 >
-                                  {badgeConfig.label}
-                                </div>
-                              </div>
-                            ) : (isCompleted || isStatus) && !badgeConfig ? (
-                              <div className="flex justify-center">
-                                <div className="px-1 py-1 responsiveTextTable font-medium w-full">&nbsp;</div>
-                              </div>
-                            ) : (
-                              <div className="flex justify-center">
-                                {cell.getValue() !== null && cell.getValue() !== undefined && cell.getValue() !== '' ? (
-                                  <div
-                                    className="px-1 py-1 responsiveTextTable font-medium min-w-[70px]"
-                                  >
-                                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                                  </div>
-                                ) : (
-                                  <div className="px-1 py-1 responsiveTextTable font-medium w-full">&nbsp;</div>
-                                )}
-                              </div>
-                            )}
+                                  {badgeLabel}
+                                </span>
+                              ) : isBadge ? (
+                                <span className="responsiveTextTable">&nbsp;</span>
+                              ) : hasValue ? (
+                                <span className="responsiveTextTable numeric">
+                                  {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                                </span>
+                              ) : (
+                                <span className="responsiveTextTable">&nbsp;</span>
+                              )}
+                            </div>
                           </td>
                         )
                       })}

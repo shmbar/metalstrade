@@ -22,6 +22,7 @@ import { EXD } from './excel'
 import dateFormat from "dateformat";
 import { getTtl } from '../../../utils/languages';
 import DateRangePicker from '../../../components/dateRangePicker';
+import { TONES, toneChipStyle } from '../../../components/statusUtils';
 // chart.js + react-chartjs-2 are loaded on demand (not in the first-load bundle).
 import { Wallet, TrendingUp, TrendingDown, PiggyBank } from 'lucide-react';
 import KpiStrip from '../../../components/KpiStrip';
@@ -663,7 +664,10 @@ const Accounting = () => {
                       </div>
                       <div className="text-right flex-shrink-0 ml-2">
                         <p className="responsiveTextTable text-[var(--regent-gray)] font-sans">{item.expType || item.invType || ''}</p>
-                        <p className={`responsiveText font-medium font-sans ${item.amountInv ? 'text-emerald-500' : 'text-red-500'}`}>
+                        {/* Money in / money out. Only the outflow is coloured — the
+                            leading +/- already says which direction this is, so a
+                            green on every inflow was decoration, not signal. */}
+                        <p className={`responsiveText font-medium font-sans ${item.amountInv ? 'text-[var(--ink)]' : 'text-[var(--danger-text)]'}`}>
                           {item.amountInv ? '+' : '-'}{formatCurrency(item.amountInv || item.amountExp || 0)}
                         </p>
                       </div>
@@ -694,8 +698,8 @@ const Accounting = () => {
                       </div>
                       <div className="text-right flex-shrink-0 ml-2">
                         <p className="responsiveText font-medium font-sans text-[var(--chathams-blue)] mb-0.5">{formatCurrency(item.amountInv || 0)}</p>
-                        <span className={`inline-block px-2 py-0.5 rounded-full responsiveTextTable font-medium font-sans ${idx % 2 === 0 ? 'bg-emerald-100 text-emerald-700' : 'bg-[var(--neutral-bg)] text-[var(--regent-gray)]'
-                          }`}>
+                        <span className='inline-block px-2 py-0.5 rounded-full responsiveTextTable font-medium font-sans'
+                          style={toneChipStyle(idx % 2 === 0 ? TONES.green : TONES.amber)}>
                           {idx % 2 === 0 ? 'Paid' : 'Pending'}
                         </span>
                       </div>

@@ -1,4 +1,0 @@
-# Screenshots are build artefacts of the visual pass — large, binary, and
-# regenerated on demand by `npm run design:screenshots`. SUMMARY.md IS tracked,
-# because that is the evidence; the PNGs are the working material.
-*.png

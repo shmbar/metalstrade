@@ -78,19 +78,54 @@ The `settings` object contains nested objects loaded from Firestore: `settings.S
 - Detail tables use the global CSS class `cashflow-detail-table` (defined in `globals.css`)
 
 ### Styling Conventions
-- **Font**: Poppins (site-wide), weight 600 for UI labels
-- **Theme colors** (CSS variables in `globals.css`):
-  - `var(--endeavour)` = `#0366ae` (primary blue)
-  - `var(--chathams-blue)` = `#103a7a` (dark blue)
-  - `var(--port-gore)` = `#28264f` (dark text)
-  - `#dbeeff` = header/section backgrounds
-  - `#f8fbff` = input/pill backgrounds
-  - `#d8e8f5` = cell borders
-  - `#b8ddf8` = section divider borders
-- **Responsive text classes** (`globals.css @layer app`): `.responsiveText`, `.responsiveTextTable`, `.responsiveTextTotal`, `.responsiveTextTitle`, `.responsiveTextInput`
-- **Button classes**: `.blackButton` (primary), `.whiteButton`, `.supplierButton`, `.supplierAddButton`
-- **Pill inputs** (Material Tables style): `rounded-lg bg-[#f8fbff] border border-[#d8e8f5] minHeight: 26px`
-- Tables use `rounded-full` stat boxes, `rounded-2xl` cards, `rounded-lg` pills
+
+**Everything routes through tokens.** No raw hex, no `text-xs`/`text-sm`, no
+`text-[13px]`, no inline `fontSize`. If a value you need doesn't exist, add it to the
+ladder in `app/globals.css` — don't hardcode it at the call site. `npm run design:check`
+enforces this over every file; the pre-commit hook runs it on staged files.
+
+- **Font**: Plus Jakarta Sans — **the only family in the app**. There is no Inter and no
+  Poppins; `--font-mono` is the single documented exception, for IDs/hashes via `.mono`.
+  - **Weight carries one meaning**: `600` = label or header. `500` = figure. `400` = body.
+  - `font-bold` is remapped to **600** in `tailwind.config.js`, so nothing renders at 700
+    except the marketing hero (`font-extrabold`).
+  - Numeric content is `500` + `tabular-nums`, applied by `.numeric` / `.tnum` /
+    `[data-numeric]`. Inside a `<th>` it lifts back to 600 — there the number is the label.
+- **Colour tokens** (CSS variables in `globals.css`; `utils/themes.js` derives every
+  dark/preset value from them):
+  - `var(--brand)` / `var(--endeavour)` = `#6D5CE0` (primary violet)
+  - `var(--ink)`, `var(--ink-secondary)`, `var(--ink-muted)` = text
+  - `var(--bg-page)`, `var(--bg-card)`, `var(--bg-subtle)`, `var(--bg-sunken)` = surfaces
+  - `var(--line)`, `var(--line-strong)` = borders
+  - Status families: `--ok-*` (positive), `--warn-*` (caution), `--danger-*` (negative),
+    `--violet-*` (brand/info), `--pink-*` (a 6th hue for avatars — **not** a status)
+  - All five families are deliberately **muted** (client revision 2026-08-08). There is no
+    bright pink, orange, emerald or rose anywhere: Tailwind's `orange`/`emerald`/`rose`
+    utilities are mapped onto `warn`/`ok`/`danger` in `tailwind.config.js`, so a call site
+    cannot reintroduce one.
+- **Status colour lives in `components/statusUtils.js`** — `TONES`, `statusTone(label)`,
+  `toneChipStyle(tone)`, `statusChipStyle(label)`, `amountToneClass(n)`, `MOVEMENT`.
+  Build chips from there rather than hand-rolling bg/text/border triples.
+  Signed amounts colour **negatives only**; a positive is the normal case in a ledger.
+- **Type ladder** (`--fs-*` in `globals.css`, re-declared at 1280/1536/1920):
+  `--fs-caption` `--fs-table` `--fs-body` `--fs-input` `--fs-title` `--fs-page` `--fs-stat`.
+  Reachable as classes (`.responsiveText`, `.responsiveTextTable`, `.responsiveTextTitle`,
+  `.responsiveTextInput`, `.responsiveTextStat`, …) or as `fontSize: 'var(--fs-body)'`.
+  App chrome (`.text-display` `.text-title` `.text-stat` `.text-caption` `.text-micro`) is
+  deliberately **fixed**, not on the ladder — page furniture shouldn't grow with the monitor.
+- **Density**: Tailwind's spacing scale is rescaled ~-12.5% in `tailwind.config.js` (steps
+  1.5–10 only; 11+ are layout widths and are left alone). Control band is **h-7 24px /
+  h-8 28px / h-9 32px**. Compact the token layer, never page-by-page.
+- **One radius**: `--radius-card` = `--radius-panel` = `--radius-control` = **10px**, and
+  `rounded-lg`/`rounded-2xl`/`rounded-3xl` all resolve to it. `rounded-full` is for
+  pills/avatars only.
+- **Tables** read as a grid: zero-specificity `:where()` rules in `globals.css` give every
+  table header/body/footer its borders and a 3px/6px cell floor. Any explicit class on the
+  same property overrides them, so existing per-table styling still wins.
+- **Button classes**: `.blackButton` (primary), `.whiteButton`, `.supplierButton`,
+  `.supplierAddButton` — all one band (h-8, `--radius-control`, 12px type).
+- **Cards**: `border border-[var(--line)]` + `shadow-card`. A surface should not float
+  without a border.
 
 ### Key Libraries
 - **TanStack React Table v8** — table state management

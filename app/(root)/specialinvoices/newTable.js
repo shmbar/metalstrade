@@ -182,7 +182,7 @@ const Customtable = ({
                 /* Set the table font and limit transitions to non-transform properties
                    to avoid any hover vibration (no transform transitions allowed). */
                 .custom-table, .custom-table *, .glass-table, .glass-table * {
-                    font-family: var(--font-inter), 'Inter', system-ui, sans-serif;
+                    font-family: inherit;
                     transition-property: color, background-color, border-color, box-shadow !important;
                     transition-duration: 150ms !important;
                     transition-timing-function: ease-in-out !important;
@@ -211,25 +211,32 @@ const Customtable = ({
           font-variant-numeric: tabular-nums;
         }
 
+                /* Two summary bands. They were a saturated --ok-border green and a
+                   --line-strong blue, which is the "green that doesn't match" the
+                   client flagged — a green band on a totals row does not mean
+                   "good", it just means "this row is a summary".
+                   Both are now quiet fills; they stay tellable apart by tint plus a
+                   semibold label, not by hue strength. Contrast measured: 8.2:1 and
+                   11:1 respectively. */
                 .summary-green-si {
-                    background-color: var(--ok-border);
-                    color: var(--ok-text);
-                    font-weight: 400;
+                    background-color: var(--ok-bg);
+                    color: var(--ok-strong);
+                    font-weight: 500;
                 }
                 .summary-green-si th {
-                    background-color: var(--ok-border) !important;
-                    color: var(--ok-text) !important;
+                    background-color: var(--ok-bg) !important;
+                    color: var(--ok-strong) !important;
                     border: none !important;
                 }
 
                 .summary-blue-si {
-                    background-color: var(--line-strong);
-                    color: var(--chathams-blue);
-                    font-weight: 400;
+                    background-color: var(--bg-sunken);
+                    color: var(--ink);
+                    font-weight: 500;
                 }
                 .summary-blue-si th {
-                    background-color: var(--line-strong) !important;
-                    color: var(--chathams-blue) !important;
+                    background-color: var(--bg-sunken) !important;
+                    color: var(--ink) !important;
                     border: none !important;
                 }
             `}</style>

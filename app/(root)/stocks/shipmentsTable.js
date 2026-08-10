@@ -8,6 +8,11 @@ import dateFormat from "dateformat";
 
 import '../contracts/style.css';
 import { getTtl } from '@utils/languages';
+/* Stock movements were drawn green-in / red-out. That is a direction, not a
+   verdict — an outbound shipment is the business working, not an error — and
+   red/green on every row is most of why this table read as loud. MOVEMENT keeps
+   the two tellable apart while leaving the arrow icons to carry the direction. */
+import { MOVEMENT } from '@components/statusUtils';
 
 const getprefixInv = (x) => {
 	return (x.invType === '1111' || x.invType === 'Invoice') ? '' :
@@ -119,14 +124,14 @@ const Customtable = ({ data, item }) => {
 
 		return x === 'supplier' ? obj.client ?? tmp.arr.find(z => z.id === obj.supplier)['nname'] :
 			(x === 'type' && obj[x] === 'Purchase') ?
-				<div className='flex items-center gap-1'><HiArrowDownTray className='font-semibold scale-110 text-green-600' /> <span >{obj[x]}</span> </div> :
+				<div className='flex items-center gap-1'><HiArrowDownTray className='font-semibold scale-110' style={{ color: MOVEMENT.in }} /> <span >{obj[x]}</span> </div> :
 				(x === 'type' && obj[x] === 'Final Settlement') ?
 					<div className='flex items-center gap-1'> <span >{obj[x]}</span> </div> :
 					(x === 'type' && (obj[x] !== 'Movement' && parseFloat(obj.qnty) >= 0)) ?
-						<div className='flex items-center gap-1'><HiArrowUpTray className='font-semibold scale-110 text-red-600' /> <span >{obj[x]}</span> </div> :
+						<div className='flex items-center gap-1'><HiArrowUpTray className='font-semibold scale-110' style={{ color: MOVEMENT.out }} /> <span >{obj[x]}</span> </div> :
 						(x === 'type' && obj.moveType === 'in') ?
 							<div className='flex items-center gap-1 group relative cursor-default'>
-								<HiArrowDownTray className='font-semibold scale-110 text-green-600' />
+								<HiArrowDownTray className='font-semibold scale-110' style={{ color: MOVEMENT.in }} />
 								<span >{obj[x]}</span>
 								<span className="absolute hidden group-hover:flex -top-2 w-fit p-1
     bg-slate-400 rounded-lg text-center text-[var(--on-brand)] responsiveText z-10 whitespace-nowrap -left-36 ">
@@ -134,14 +139,14 @@ const Customtable = ({ data, item }) => {
 							</div> :
 							(x === 'type' && obj.moveType === 'out') ?
 								<div className='flex items-center gap-1 group relative cursor-default'>
-									<HiArrowUpTray className='font-semibold scale-110 text-red-600' />
+									<HiArrowUpTray className='font-semibold scale-110' style={{ color: MOVEMENT.out }} />
 									<span >{obj[x]}</span>
 									<span className="absolute hidden group-hover:flex -top-2 w-fit p-1
     bg-slate-400 rounded-lg text-center text-[var(--on-brand)] responsiveText z-10 whitespace-nowrap -left-36 ">
 										<span>{`Moved to:`}&nbsp;</span> <span className='font-medium'>{`${settings.Stocks.Stocks.find(x => x.id === obj.newStock)['stock']}`}</span></span>
 								</div> :
 								x === 'qnty' ?
-									<div className={`${obj.type === 'Purchase' || obj.moveType === 'in' || parseFloat(obj.qnty) < 0 ? 'text-green-600' : 'text-red-600'}`}>{showWeight(obj[x])}</div> :
+									<div style={{ color: obj.type === 'Purchase' || obj.moveType === 'in' || parseFloat(obj.qnty) < 0 ? MOVEMENT.in : MOVEMENT.out }}>{showWeight(obj[x])}</div> :
 									x === 'total' ? showWeight(obj[x]) :
 										obj[x]
 	}
