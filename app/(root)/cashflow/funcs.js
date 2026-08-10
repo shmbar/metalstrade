@@ -665,7 +665,10 @@ export const StoclToolTip = ({ stock, stockDataAll, settings, uidCollection, set
                                             <span className="block truncate cursor-pointer hover:underline">{z.order}</span>
                                         </td>
                                         <td className="text-left w-16">
-                                            <span className="block truncate cursor-default">{z._supplierName}</span>
+                                            <span className="flex items-center gap-1.5 min-w-0 cursor-default">
+                                                <Avatar name={z._supplierName} size={18} />
+                                                <span className="block truncate">{z._supplierName}</span>
+                                            </span>
                                         </td>
                                         <td className="text-left w-28 max-w-28">
                                             <span className="flex items-center gap-1 font-medium" style={{ color: 'var(--chathams-blue)' }}>
@@ -1029,7 +1032,10 @@ export const SharedStockDetails = ({ rows, settings }) => {
                                 </td>
                                 <td className="text-left">
                                     <Tltip direction='top' tltpText={r._wh}>
-                                        <span className="block truncate cursor-default max-w-32">{r._wh}</span>
+                                        <span className="flex items-center gap-1.5 min-w-0 cursor-default">
+                                            <Avatar name={r._wh} size={18} />
+                                            <span className="block truncate max-w-32">{r._wh}</span>
+                                        </span>
                                     </Tltip>
                                 </td>
                                 <td className="text-left">
@@ -1976,7 +1982,10 @@ export const ExpensesToolTip = ({ supplier, expensesAll, settings, uidCollection
                                     {dateFormat(z.date, 'dd.mm.yy')}
                                 </td>
                                 <td className="text-left">
-                                    <span className={z.paid === '111' ? 'text-green-600' : 'text-orange-500'}>{z.paid === '111' ? 'Paid' : 'Unpaid'}</span>
+                                    {/* Paid/Unpaid via the shared tones — this pair was
+                                        the last place in cashflow still drawing its own
+                                        green/orange instead of TONES. */}
+                                    <span style={{ color: z.paid === '111' ? TONES.green.text : TONES.amber.text, fontWeight: 500 }}>{z.paid === '111' ? 'Paid' : 'Unpaid'}</span>
                                 </td>
                                 <td className="text-left !py-1">
                                     <Tltip direction='right' tltpText='Set full payment'>
