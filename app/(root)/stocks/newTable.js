@@ -151,12 +151,12 @@ const Customtable = ({
           background-color: var(--bg-subtle);
           text-align: center;
           vertical-align: middle;
-          padding: 6px;
-          font-size: 11px;
+          padding: 4px 8px;
+          font-size: var(--fs-table);
           text-transform: uppercase;
           letter-spacing: 0.04em;
           color: var(--ink-secondary);
-          font-weight: 600;
+          font-weight: 500;
         }
         .custom-table td {
           border: none;

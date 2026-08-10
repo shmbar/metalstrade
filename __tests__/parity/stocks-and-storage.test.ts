@@ -98,7 +98,13 @@ const HASH = {
   setTotals: '0878395a5db7', // app/(root)/stocks/page.js:263
   getFormatted: 'ce2b9a9845ad', // app/(root)/stocks/page.js:312
   showWeight: 'eff225f4c25c', // app/(root)/stocks/page.js:288
-  customtable: '3a4c1f1532d2', // app/(root)/stocks/newTable.js:32 (contains the footer count)
+  // Re-recorded 2026-08-10. The alarm fired on a web-only style change: three
+  // declarations inside the `.custom-table th` styled-jsx block (padding, font-size,
+  // font-weight) as part of putting every table header on the same values. No formula,
+  // no column, no footer count touched — `git diff` on that symbol is those three lines.
+  // Nothing to port: mobile is React Native, with no CSS, no `.custom-table` and no
+  // --fs-table, so there is no mirror this can drift from.
+  customtable: 'a3ec13daadeb', // app/(root)/stocks/newTable.js:32 (contains the footer count)
   addComma: '9d2dc43091c5', // app/(root)/stocks/whModal.js:52
   sumShowAmount: '61cca0f1837f', // app/(root)/stocks/sumtables/sumTable.js:8
   gradeSummary: '3c54892bacca', // app/(root)/stocks/sumtables/gradeTable.js:11

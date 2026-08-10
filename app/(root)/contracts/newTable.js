@@ -201,7 +201,7 @@ const Customtable = ({
           border-bottom: 1px solid var(--line);
           text-align: center;
           vertical-align: middle;
-          padding: 7px 8px;
+          padding: 4px 8px;
         }
 
         .custom-table td {

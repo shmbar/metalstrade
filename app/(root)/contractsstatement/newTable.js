@@ -286,12 +286,12 @@ const Customtable = ({
           border-bottom: 1px solid var(--line);
           text-align: center;
           vertical-align: middle;
-          padding: 7px 8px;
-          font-size: 0.6875rem;
+          padding: 4px 8px;
+          font-size: var(--fs-table);
           text-transform: uppercase;
           letter-spacing: 0.04em;
           color: var(--ink-secondary);
-          font-weight: 600;
+          font-weight: 500;
         }
 
         .custom-table td {

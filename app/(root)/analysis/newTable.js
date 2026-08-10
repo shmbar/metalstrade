@@ -148,11 +148,11 @@ const Customtable = ({
         .custom-table th {
           background-color: var(--bg-subtle);
           border-bottom: 1px solid var(--line);
-          font-size: 0.6875rem;
+          font-size: var(--fs-table);
           text-transform: uppercase;
           letter-spacing: 0.04em;
           color: var(--ink-secondary);
-          font-weight: 600;
+          font-weight: 500;
         }
         .custom-table td {
           background-color: var(--bg-card);

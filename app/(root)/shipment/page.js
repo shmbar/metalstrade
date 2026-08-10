@@ -775,12 +775,12 @@ const ShipmentPage = () => {
           border-bottom: 1px solid var(--line);
           text-align: center;
           vertical-align: middle;
-          padding: 7px 8px;
-          font-size: 0.6875rem;
+          padding: 4px 8px;
+          font-size: var(--fs-table);
           text-transform: uppercase;
           letter-spacing: 0.04em;
           color: var(--ink-secondary);
-          font-weight: 600;
+          font-weight: 500;
         }
             .custom-table td {
           background-color: var(--bg-card);
@@ -1048,9 +1048,17 @@ const ShipmentPage = () => {
                                         { label: 'Last Update',   width: '8%',  col: 'updated'  },
                                         { label: 'Notes',         width: '17%', col: null       },
                                     ].map(({ label, width, col }) => (
-                                        <th key={label} className="font-sans responsiveTextTable font-medium py-2"
+                                        /* py-2 dropped: it never applied. `.custom-table th`
+                                           in the block above is unlayered and 0,1,1, so it
+                                           outranks every Tailwind utility here, which sit in
+                                           @layer utilities at 0,1,0. Size and weight are left
+                                           on the element only because they now agree with the
+                                           block; the padding did not, and read as a lie.
+                                           letter-spacing was 0.05em against every other page's
+                                           0.04em — inline, so it did win. */
+                                        <th key={label} className="font-sans responsiveTextTable font-medium"
                                             onClick={col ? () => handleSort(col) : undefined}
-                                            style={{ color: 'var(--chathams-blue)', letterSpacing: '0.05em', textAlign: 'center', width, cursor: col ? 'pointer' : 'default', userSelect: 'none' }}>
+                                            style={{ color: 'var(--chathams-blue)', letterSpacing: '0.04em', textAlign: 'center', width, cursor: col ? 'pointer' : 'default', userSelect: 'none' }}>
                                             <span className="inline-flex items-center justify-center gap-1">
                                                 {label}
                                                 {col && sortCol === col && sortDir === 'asc' && <TbSortAscending style={{ fontSize: 'var(--fs-title)', color: 'var(--endeavour)' }} />}

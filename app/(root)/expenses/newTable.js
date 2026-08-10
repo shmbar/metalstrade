@@ -923,12 +923,12 @@ const Customtable = ({
           border-bottom: 1px solid var(--line);
           text-align: center;
           font-family: inherit;
-          font-size: 0.6875rem;
+          font-size: var(--fs-table);
           text-transform: uppercase;
           letter-spacing: 0.04em;
           color: var(--ink-secondary);
-          font-weight: 600;
-          padding: 7px 8px !important;
+          font-weight: 500;
+          padding: 4px 8px !important;
           vertical-align: middle;
           white-space: nowrap;
         }
