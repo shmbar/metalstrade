@@ -938,10 +938,10 @@ const Customtable = ({
           background-color: var(--bg-card);
           border-bottom: 1px solid var(--line);
           text-align: center;
-          font-size: 0.75rem;
+          font-size: var(--fs-table);
           font-variant-numeric: tabular-nums;
           font-family: inherit;
-          padding: 5px 8px !important;
+          padding: 6px 8px !important;
           vertical-align: middle;
         }
 

@@ -167,7 +167,7 @@ const Customtable = ({
           text-align: center;
           vertical-align: middle;
           padding: 6px 8px;
-          font-size: 0.75rem;
+          font-size: var(--fs-table);
           font-variant-numeric: tabular-nums;
         }
         .custom-table th {

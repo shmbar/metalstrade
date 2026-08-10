@@ -123,8 +123,11 @@ function DateCell({ rawDate, onOpen, onClear, urgency }) {
             <span style={{ color: textColor }}>
                 {display || '—'}
             </span>
+            {/* 500, not 600. This was the one genuinely bold thing inside a data row
+                anywhere in the app, and it does not need to be: it already carries the
+                danger colour, which is what marks it. */}
             {countdown && (
-                <span className='font-semibold whitespace-nowrap' style={{ color: textColor, fontSize: 'var(--fs-table)', marginLeft: 5, opacity: 0.85 }}>
+                <span className='font-medium whitespace-nowrap' style={{ color: textColor, fontSize: 'var(--fs-table)', marginLeft: 5, opacity: 0.85 }}>
                     · {countdown}
                 </span>
             )}
@@ -788,7 +791,7 @@ const ShipmentPage = () => {
           text-align: center;
           vertical-align: middle;
           padding: 6px 8px;
-          font-size: 0.75rem;
+          font-size: var(--fs-table);
           font-variant-numeric: tabular-nums;
         }
             .td-truncate {
@@ -1087,7 +1090,10 @@ const ShipmentPage = () => {
                                                             <path d='M2 3.5L5 6.5L8 3.5' stroke='var(--ink-muted)' strokeWidth='1.8' strokeLinecap='round' strokeLinejoin='round' />
                                                         </svg>
                                                         <span className='rounded-full' style={{ width: 7, height: 7, background: dotColor, display: 'inline-block' }} />
-                                                        <span className='font-semibold' style={{ fontSize: 'var(--fs-body)', textTransform: 'uppercase', letterSpacing: '0.04em', color: 'var(--ink-secondary)' }}>
+                                                        {/* --fs-table, matching the header and the rows.
+                                                            It was --fs-body, a rung above both, so the
+                                                            group label was the largest text in the table. */}
+                                                        <span className='font-semibold' style={{ fontSize: 'var(--fs-table)', textTransform: 'uppercase', letterSpacing: '0.04em', color: 'var(--ink-secondary)' }}>
                                                             {entry.status || 'No status'}
                                                         </span>
                                                         <span className='rounded-full font-semibold px-1.5' style={{ fontSize: 'var(--fs-table)', background: "var(--bg-card)", color: 'var(--ink-muted)', border: '1px solid var(--line)' }}>

@@ -163,8 +163,8 @@ const Customtable = ({
           border-bottom: 1px solid var(--line);
           text-align: center;
           vertical-align: middle;
-          padding: 6px;
-          font-size: 0.75rem;
+          padding: 6px 8px;
+          font-size: var(--fs-table);
           color: var(--ink);
         }
       `}</style>

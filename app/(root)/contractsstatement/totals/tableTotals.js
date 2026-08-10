@@ -44,7 +44,7 @@ const Customtable = ({ data, columns, expensesData, settings }) => {
                   background-color: var(--bg-subtle);
                   text-align: center;
                   vertical-align: middle;
-                  padding: 6px;
+                  padding: 6px 8px;
                 }
                 .custom-table th {
                   background-color: var(--bg-subtle);
@@ -52,7 +52,7 @@ const Customtable = ({ data, columns, expensesData, settings }) => {
                 .custom-table td {
                   background-color: var(--bg-card);
                   border: 1px solid var(--selago);
-                  font-size: 0.75rem;
+                  font-size: var(--fs-table);
                 }
                 .dashboard-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
                 .dashboard-scroll::-webkit-scrollbar-track { background: var(--bg-subtle); border-radius: 6px; }
