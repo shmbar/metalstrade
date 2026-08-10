@@ -1053,6 +1053,20 @@ div.relative.w-full.text-gray-700 > div.absolute.z-10:not(.right-0) {
   z-index: var(--z-dropdown);
 }
 
+/* ...and z-index alone is not enough, because the calendar is also CLIPPED.
+   The margins table sits in a horizontal scroll container (min-w-900px table),
+   and per CSS Overflow 3 an `overflow-x: auto` box cannot keep `overflow-y:
+   visible` — the y axis is coerced to auto. So the container clips vertically
+   too, and an absolutely-positioned popup opening from a lower row is cut off
+   at the container's bottom edge. No stacking value escapes an overflow clip.
+
+   The date cell and the month card already opt out of clipping individually;
+   the scroll container is the one that cannot, because it needs the scrollbar.
+   So drop its clip for exactly as long as a calendar is open. */
+.margins-table-scroll:has(.datepicker-wrapper:focus-within) {
+  overflow: visible;
+}
+
 /* Position the arrow at the left of datepicker popups */
 div.relative.w-full.text-gray-700 > div.absolute.z-10:not(.right-0) > div.absolute.z-20 {
   margin-left: 0 !important;

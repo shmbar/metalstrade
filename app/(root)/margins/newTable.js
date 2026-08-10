@@ -362,7 +362,9 @@ const Customtable = (props) => {
                 <style jsx global>{`
                     .margins-data-table tbody td { font-size: 0.75rem; }
                 `}</style>
-                <div className="rounded-lg border border-[var(--line)] overflow-x-auto relative shadow-card">
+                {/* margins-table-scroll: globals.css lifts this clip while a date
+                    picker is open, so the calendar is not cut off at the bottom edge. */}
+                <div className="margins-table-scroll rounded-lg border border-[var(--line)] overflow-x-auto relative shadow-card">
                     {/* Desktop Table - Compact Heights */}
                     <div className="hidden sm:block w-full min-w-[900px]">
                         <Table className="w-full margins-data-table" style={{ borderSpacing: '0 1px', tableLayout: 'fixed' }}>
