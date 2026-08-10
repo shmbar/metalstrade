@@ -1034,23 +1034,34 @@ const ShipmentPage = () => {
                     {/* Table — Desktop */}
                     <div className="custom-table hidden md:block flex-1 overflow-x-auto">
                     <div>
-                        <table className="w-full" style={{ minWidth: '1300px', tableLayout: 'fixed' }}>
+                        {/* tableLayout: auto, like every other main table in the app.
+                            This was `fixed` with a hardcoded percentage per column and a
+                            1300px floor, so each column got its share whether it needed it
+                            or not: POD and Delivery Time were clipped to "IWH Seagul…"
+                            while POL and Ship Type sat half empty, and the 1300px floor
+                            forced a horizontal scrollbar even on a screen with room.
+                            Auto sizes each column to its content instead.
+
+                            Safe for the Notes column, which is the one free-text field
+                            here: it is a <textarea>, so it wraps rather than growing, and
+                            its own min-w-[160px] is its floor. */}
+                        <table className="w-full" style={{ tableLayout: 'auto' }}>
                             <thead>
                                 <tr>
                                     {[
-                                        { label: 'Contract #',    width: '7%',  col: 'order'    },
-                                        { label: 'Supplier',      width: '8%',  col: 'supplier' },
-                                        { label: 'Invoice #',     width: '6%',  col: 'invoice'  },
-                                        { label: 'Client',        width: '8%',  col: 'client'   },
-                                        { label: 'Shipment Date', width: '8%',  col: 'etd'      },
-                                        { label: 'Arrival Date',  width: '8%',  col: 'eta'      },
-                                        { label: 'POL',           width: '7%',  col: 'pol'      },
-                                        { label: 'POD',           width: '7%',  col: 'pod'      },
-                                        { label: 'Ship Type',     width: '7%',  col: 'shpType'  },
-                                        { label: 'Status',        width: '9%',  col: 'status'   },
-                                        { label: 'Last Update',   width: '8%',  col: 'updated'  },
-                                        { label: 'Notes',         width: '17%', col: null       },
-                                    ].map(({ label, width, col }) => (
+                                        { label: 'Contract #',    col: 'order'    },
+                                        { label: 'Supplier',      col: 'supplier' },
+                                        { label: 'Invoice #',     col: 'invoice'  },
+                                        { label: 'Client',        col: 'client'   },
+                                        { label: 'Shipment Date', col: 'etd'      },
+                                        { label: 'Arrival Date',  col: 'eta'      },
+                                        { label: 'POL',           col: 'pol'      },
+                                        { label: 'POD',           col: 'pod'      },
+                                        { label: 'Ship Type',     col: 'shpType'  },
+                                        { label: 'Status',        col: 'status'   },
+                                        { label: 'Last Update',   col: 'updated'  },
+                                        { label: 'Notes',         col: null       },
+                                    ].map(({ label, col }) => (
                                         /* py-2 dropped: it never applied. `.custom-table th`
                                            in the block above is unlayered and 0,1,1, so it
                                            outranks every Tailwind utility here, which sit in
@@ -1061,7 +1072,13 @@ const ShipmentPage = () => {
                                            0.04em — inline, so it did win. */
                                         <th key={label} className="font-sans responsiveTextTable font-medium"
                                             onClick={col ? () => handleSort(col) : undefined}
-                                            style={{ color: 'var(--chathams-blue)', letterSpacing: '0.04em', textAlign: 'center', width, cursor: col ? 'pointer' : 'default', userSelect: 'none' }}>
+                                            /* nowrap: under auto layout the browser narrows a column
+                                               by wrapping its header, and six of these are two words.
+                                               Without this, "Shipment Date" and "Last Update" would be
+                                               the only labels on two lines — the margins bug in
+                                               1304bea1, which read as mis-alignment rather than as
+                                               wrapping. The table scrolls if it genuinely cannot fit. */
+                                            style={{ color: 'var(--chathams-blue)', letterSpacing: '0.04em', textAlign: 'center', whiteSpace: 'nowrap', cursor: col ? 'pointer' : 'default', userSelect: 'none' }}>
                                             <span className="inline-flex items-center justify-center gap-1">
                                                 {label}
                                                 {col && sortCol === col && sortDir === 'asc' && <TbSortAscending style={{ fontSize: 'var(--fs-title)', color: 'var(--endeavour)' }} />}
