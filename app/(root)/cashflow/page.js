@@ -1297,8 +1297,9 @@ const Cashflow = () => {
                                                             <div className="bg-[var(--bg-card)] py-0.5 px-0 rounded-2xl hover:bg-[var(--bg-subtle)] transition-colors" key={i}>
                                                                 <MyAccordion title={
                                                                     <div className="flex w-full justify-between">
-                                                                        <div className="responsiveText items-center font-medium text-[var(--ink)] flex outline-none whitespace-normal break-words min-w-0"
+                                                                        <div className="responsiveText items-center font-medium text-[var(--ink)] flex gap-1.5 outline-none whitespace-normal break-words min-w-0"
                                                                         >
+                                                                            <Avatar name={settings.Stocks.Stocks.find(z => z.id === x.stock)?.nname} size={18} />
                                                                             {settings.Stocks.Stocks.find(z => z.id === x.stock)?.nname}
                                                                         </div>
 
@@ -1358,8 +1359,9 @@ const Cashflow = () => {
                                                             <div className="bg-[var(--bg-card)] py-0.5 px-0 rounded-2xl hover:bg-[var(--bg-subtle)] transition-colors" key={i}>
                                                                 <MyAccordion title={
                                                                     <div className="flex w-full justify-between">
-                                                                        <div className="responsiveText font-medium text-[var(--ink)] items-center flex outline-none whitespace-normal break-words min-w-0"
+                                                                        <div className="responsiveText font-medium text-[var(--ink)] items-center flex gap-1.5 outline-none whitespace-normal break-words min-w-0"
                                                                         >
+                                                                            <Avatar name={settings.Stocks.Stocks.find(z => z.id === x.stock)?.nname} size={18} />
                                                                             {settings.Stocks.Stocks.find(z => z.id === x.stock)?.nname}
                                                                         </div>
 
