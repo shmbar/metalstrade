@@ -2,9 +2,20 @@
 import CountUp from './CountUp';
 import { TONES } from './statusUtils';
 
-// Reference-style KPI cards: icon tile + caption + big Manrope number (+ optional sub note).
+// Reference-style KPI cards: icon tile + caption + big number (+ optional sub note).
 // items: [{ label, value, format?, icon: LucideIcon, tone?: 'blue'|'green'|'amber'|'red'|'gray', sub? }]
-export default function KpiStrip({ items = [] }) {
+//
+// size: 'default' (24px) | 'compact' (20px). Compact exists for strips whose values
+// are long currency strings — cashflow runs to "$33,745,945.77", where 24px crowds
+// the card, while a page showing "65" does not have that problem. Everything else
+// about the card is identical, so the two still read as the same component.
+export default function KpiStrip({ items = [], size = 'default' }) {
+    const valueCls = size === 'compact'
+        ? 'leading-tight font-display font-bold text-[var(--ink)]'
+        : 'text-stat leading-tight font-display';
+    const valueStyle = size === 'compact'
+        ? { fontSize: '1.25rem', fontVariantNumeric: 'tabular-nums', letterSpacing: '-0.01em' }
+        : undefined;
     if (!items.length) return null;
     return (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
@@ -31,7 +42,7 @@ export default function KpiStrip({ items = [] }) {
                             >
                                 {label}
                             </div>
-                            <div className="text-stat leading-tight font-display">
+                            <div className={valueCls} style={valueStyle}>
                                 <CountUp value={value} format={format} />
                             </div>
                             {sub ? (
