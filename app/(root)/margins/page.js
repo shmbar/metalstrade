@@ -626,7 +626,7 @@ const Margins = () => {
                                             <button
                                                 onClick={() => setAlertDismissed(true)}
                                                 aria-label='Dismiss margin alert banner'
-                                                className='p-1 rounded-full hover:bg-black/5 transition-colors focus:outline-none focus:ring-2 focus:ring-[var(--brand-soft)]'
+                                                className='p-1 rounded-full hover:bg-[var(--bg-sunken)] transition-colors focus:outline-none focus:ring-2 focus:ring-[var(--brand-soft)]'
                                             >
                                                 <X className='w-3.5 h-3.5' style={{ color: TONES.amber.text }} aria-hidden='true' />
                                             </button>
