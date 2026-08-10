@@ -124,7 +124,9 @@ export default function CommandPalette() {
             className="w-full h-11 outline-none bg-transparent focus:outline-none responsiveTextInput text-[var(--port-gore)] placeholder:text-[var(--regent-gray)]"
             autoFocus
           />
-          <kbd className="responsiveTextTable px-1.5 py-0.5 rounded border border-[var(--line-strong)] text-[var(--regent-gray)]">
+          {/* flex-shrink-0 is load-bearing: the input beside this is w-full, so
+              without it flexbox shrinks the badge until "Esc" wraps to two lines. */}
+          <kbd className="responsiveTextTable px-1.5 py-0.5 rounded border border-[var(--line-strong)] text-[var(--regent-gray)] flex-shrink-0 whitespace-nowrap">
             Esc
           </kbd>
         </div>
