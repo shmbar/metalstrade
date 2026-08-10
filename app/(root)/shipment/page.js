@@ -832,9 +832,18 @@ const ShipmentPage = () => {
                 <VideoLoader loading={loading} fullScreen={true} />
                 <Toast />
 
-                {/* Outer card — title only */}
-                <div className="rounded-2xl p-2 sm:p-3 lg:p-5 mt-4 sm:mt-6 lg:mt-8 border border-[var(--line)] w-full bg-[var(--bg-subtle)]">
-                    <div className="flex items-center justify-between pb-2 flex-wrap gap-2">
+                {/* This used to be an outer card — border, --bg-subtle and its own
+                    padding — wrapping BOTH the title and the table card below. No other
+                    page does that, which is the extra border this page had and contracts
+                    does not, and it is why the heading looked different: same
+                    .text-display, but on a tinted bordered panel instead of the page.
+
+                    The element stays as a plain grouping div so the table card keeps its
+                    place in the tree and the diff stays small. The header inside is now
+                    the contracts markup verbatim, .page-header included — that class
+                    carries the rise-in entrance the other pages' headers have. */}
+                <div className="w-full">
+                    <div className="page-header flex items-end justify-between flex-wrap gap-2 mt-6 mb-3 px-1">
                         <div>
                             <h1 className="text-display">Shipments Tracking</h1>
                             <p className="responsiveTextInput text-[var(--ink-muted)] mt-0.5">Live shipment statuses</p>
@@ -1374,7 +1383,7 @@ const ShipmentPage = () => {
                         </div>
                     </div>
                     </div> {/* end inner card */}
-                </div> {/* end outer card */}
+                </div> {/* end page wrapper (was the outer card) */}
             </div>
         </div>
     );
