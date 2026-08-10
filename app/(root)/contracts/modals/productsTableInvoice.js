@@ -596,11 +596,11 @@ const ProductsTable = ({ value, setValue, currency, settings, uidCollection, set
                                     <td className="py-2 pl-4"></td>
                                     <td className="py-2 pl-4"></td>
                                     <td className="py-2 pl-4"></td>
-                                    <td className="px-1 py-2 responsiveTextTable text-[var(--regent-gray)] whitespace-nowrap border-t border-slate-500">
+                                    <td className="px-1 py-2 responsiveTextTable text-[var(--regent-gray)] whitespace-nowrap border-t border-[var(--line-strong)]">
                                         {getTtl('Total Amount', ln)}:
                                     </td>
-                                    <td className="px-1 py-2 border-t border-slate-500"></td>
-                                    <td className="px-1 py-2 responsiveTextTable text-[var(--port-gore)] whitespace-nowrap border-t border-slate-500">
+                                    <td className="px-1 py-2 border-t border-[var(--line-strong)]"></td>
+                                    <td className="px-1 py-2 responsiveTextTable text-[var(--port-gore)] whitespace-nowrap border-t border-[var(--line-strong)]">
                                         <NumericFormat
                                             value={value.totalAmount}
                                             displayType="text"
