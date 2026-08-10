@@ -1411,7 +1411,7 @@ const Dash = () => {
           <m.div className="mb-5 flex flex-wrap items-center justify-between gap-3"
             initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.05 }}>
             <div>
-              <h1 className="text-display">
+              <h1 className="text-greeting">
                 {(() => {
                   const h = new Date().getHours();
                   const greet = h < 12 ? 'Good morning' : h < 18 ? 'Good afternoon' : 'Good evening';

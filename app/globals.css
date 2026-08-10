@@ -1326,6 +1326,20 @@ div.relative.w-full.text-gray-700 > div.absolute.z-10:not(.right-0) > div.absolu
   letter-spacing: -0.01em;
 }
 
+/* The dashboard salutation ("Good morning, Sharon"). It occupies the h1 slot but
+   it is not a page heading — it names the reader, not the page — so it drops to
+   16px at 400 (body) rather than .text-display's 22px at 600. Weight 400 is the
+   point: a greeting shouldn't compete with the KPI figures underneath it.
+   Chrome, so fixed like its neighbours, not on the --fs-* ladder.
+   NOTE: don't try to get here with `text-title font-normal` — this block is
+   emitted after @tailwind utilities, so .text-title's 600 wins the cascade. */
+.text-greeting {
+  font-size: 1rem;       /* 16px */
+  font-weight: 400;
+  color: var(--ink);
+  letter-spacing: -0.01em;
+}
+
 .text-title {
   font-size: 1rem;       /* 16px */
   font-weight: 600;
