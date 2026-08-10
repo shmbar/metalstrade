@@ -263,12 +263,19 @@ const Customtable = ({
                         {hdGroup.headers.map(header => (
                         <th
                           key={header.id}
-                          className="group/th font-semibold py-2"
+                          /* py-1 is 4px: spacing step 1 sits outside the rescaled range
+                             (only 1.5-10 are remapped), so it keeps Tailwind's 0.25rem.
+                             py-2 was 7px. */
+                          className="group/th font-medium py-1"
                           onClick={header.column.getCanSort() ? header.column.getToggleSortingHandler() : undefined}
                           style={{
                             minWidth: header.column.id === 'select' ? '50px' : '60px',
                             maxWidth: header.column.id === 'select' ? '50px' : 'none',
-                            fontSize: 'var(--fs-body)',
+                            /* --fs-table, the rung below --fs-body, which is exactly 1px
+                               lower at every breakpoint: 10 / 11 / 12 / 12 against
+                               11 / 12 / 13 / 13. A step down the ladder, not a hardcoded
+                               size, so it still ramps with the monitor. */
+                            fontSize: 'var(--fs-table)',
                             textTransform: 'uppercase',
                             letterSpacing: '0.04em',
                             textAlign: 'center',
