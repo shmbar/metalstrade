@@ -704,6 +704,18 @@ textarea:focus-visible,
      — `outline` already follows the element's own border-radius. */
 }
 
+/* One exception to the rule above: cmdk's search box (the margins supplier and
+   client dropdowns). It is auto-focused the instant the popover opens and is the
+   only focusable thing in it, so the ring announces nothing the popover has not
+   already announced — and because the input carried rounded-full, the ring drew
+   a 2px brand-coloured PILL across the top of the panel, reading as a second
+   control floating inside the menu rather than a search row. The row's own rule
+   and divider carry it now. Attribute selector so it beats input:focus-visible
+   above; both are unlayered, so specificity decides. */
+[cmdk-input]:focus-visible {
+  outline: none;
+}
+
 @layer components {
   .title_style {
     @apply text-[var(--port-gore)] border-b border-[var(--rock-blue)] items-center flex justify-center text-[0.75rem] xl:text-[0.8125rem] 2xl:text-[0.875rem] 3xl:text-[0.9375rem] font-semibold;
