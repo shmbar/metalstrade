@@ -754,10 +754,11 @@ const Margins = () => {
                                     {/* Undo — next to Save, per the client's request */}
                                     {undoCount > 0 && (
                                         <Tltip direction='top' tltpText='Undo the last change — edits, added/deleted rows and deleted months'>
+                                            {/* Was a bespoke h-7 pill with its own colours. It sits between
+                                                Save and Search, so it just uses the shared secondary button. */}
                                             <button
                                                 onClick={undo}
-                                                className='flex items-center gap-1 px-2.5 h-7 rounded-full transition-all hover:opacity-80'
-                                                style={{ fontSize: 'var(--fs-table)', background: 'var(--surface-header)', color: 'var(--chathams-blue)', border: '1px solid var(--border-divider)' }}
+                                                className='whiteButton'
                                             >
                                                 <Undo2 className='w-3 h-3' /> Undo
                                             </button>
@@ -765,10 +766,14 @@ const Margins = () => {
                                     )}
 
                                     {/* Search — filters rows across all months by description / supplier / client.
-                                        Same pill pattern as the app's table search (components/table/header.js). */}
-                                    <div className="flex items-center relative w-[160px] h-7 border border-[var(--border-divider)] rounded-full bg-[var(--surface-card)] focus-within:ring-1 focus-within:ring-[var(--border-divider)] shadow-sm transition-all duration-200">
+                                        On the shared control band: h-8, 10px corners, --line-strong outline and
+                                        the brand focus ring, so it matches Add month / Save / Undo beside it.
+                                        It was h-7, rounded-full, a lighter border and one type rung smaller —
+                                        and its placeholder was ink-coloured, which made "Search" read as a
+                                        typed value rather than a prompt. */}
+                                    <div className="flex items-center relative w-40 h-8 border border-[var(--line-strong)] rounded-control bg-[var(--bg-card)] focus-within:border-[var(--brand)] focus-within:ring-[3px] focus-within:ring-[var(--brand-soft)] transition-colors">
                                         <input
-                                            className="bg-[var(--surface-card)] border-0 shadow-none pr-8 pl-3 focus:outline-none focus:ring-0 w-full text-[var(--chathams-blue)] placeholder:text-[var(--chathams-blue)] h-full responsiveTextTableTitle font-medium rounded-full"
+                                            className="bg-transparent border-0 shadow-none pr-8 pl-3 focus:outline-none focus:ring-0 w-full text-[var(--ink)] placeholder:text-[var(--ink-muted)] h-full responsiveTextInput rounded-control"
                                             placeholder={getTtl('Search', ln)}
                                             value={query}
                                             onChange={e => setQuery(e.target.value)}
@@ -776,10 +781,10 @@ const Margins = () => {
                                             type='text'
                                         />
                                         {query === '' ? (
-                                            <Search className="absolute right-3 top-1.5 w-3.5 h-3.5" style={{ color: 'var(--regent-gray)' }} />
+                                            <Search className="absolute right-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5" style={{ color: 'var(--ink-muted)' }} />
                                         ) : (
-                                            <X className="absolute right-3 top-1.5 w-3.5 h-3.5 cursor-pointer hover:text-red-500 transition-colors"
-                                                style={{ color: 'var(--regent-gray)' }}
+                                            <X className="absolute right-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 cursor-pointer hover:text-[var(--bad-text)] transition-colors"
+                                                style={{ color: 'var(--ink-muted)' }}
                                                 onClick={() => setQuery('')} aria-label='Clear search' />
                                         )}
                                     </div>
