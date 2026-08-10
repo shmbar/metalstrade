@@ -75,7 +75,7 @@ function PopupCard({ n, onDismiss, onOpen }) {
                     <div className='min-w-0 flex-1'>
                         <div className='flex items-center justify-between gap-2'>
                             <span className='font-semibold truncate font-sans'
-                                style={{ fontSize: 'var(--fs-input)', color: 'var(--ink)' }}>
+                                style={{ fontSize: 'var(--fs-table)', color: 'var(--ink)' }}>
                                 {n.entityLabel || 'Notification'}
                             </span>
                             <span className='shrink-0 rounded-full px-1.5 py-0.5 font-medium uppercase tracking-wide'
@@ -83,7 +83,7 @@ function PopupCard({ n, onDismiss, onOpen }) {
                                 {n.severity || 'info'}
                             </span>
                         </div>
-                        <p className='mt-0.5' style={{ fontSize: 'var(--fs-body)', color: 'var(--ink)', lineHeight: 1.4 }}>
+                        <p className='mt-0.5' style={{ fontSize: 'var(--fs-table)', color: 'var(--ink)', lineHeight: 1.4 }}>
                             {n.message || n.type}
                         </p>
                         <div className='mt-1 flex items-center justify-between'>

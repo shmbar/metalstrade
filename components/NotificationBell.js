@@ -80,7 +80,7 @@ function Chip({ active, onClick, label, count, unread, muted, onToggleMute }) {
             onClick={onClick}
             className='group/chip flex items-center gap-1.5 px-2.5 py-1 rounded-full whitespace-nowrap flex-shrink-0 transition-colors font-medium'
             style={{
-                fontSize: 'var(--fs-body)',
+                fontSize: 'var(--fs-table)',
                 border: `1px solid ${active ? 'var(--brand)' : 'transparent'}`,
                 background: active ? 'var(--brand)' : 'var(--bg-subtle)',
                 color: active ? 'var(--on-brand)' : muted ? 'var(--ink-muted)' : 'var(--ink-secondary)',
@@ -248,13 +248,13 @@ const NotificationBell = () => {
                     <Icon className='w-4 h-4' style={{ color: meta.color }} />
                 </span>
                 <button onClick={() => onOpenItem(n)} className='min-w-0 flex-1 text-left'>
-                    <p className='break-words' style={{ fontSize: 'var(--fs-input)', color: 'var(--ink)', fontWeight: unreadFlag ? 600 : 400 }}>
+                    <p className='break-words' style={{ fontSize: 'var(--fs-table)', color: 'var(--ink)', fontWeight: unreadFlag ? 600 : 400 }}>
                         {n.message || `${n.entityType || 'Item'} ${n.action || 'updated'}`}
                     </p>
                     {/* Calm meta line — priority is already carried by the section header
                         and the row's left accent; repeating a red pill on every row made
                         the whole panel read as one long alarm. */}
-                    <div className='flex items-center gap-1.5 mt-0.5' style={{ fontSize: 'var(--fs-table)', color: 'var(--ink-muted)' }}>
+                    <div className='flex items-center gap-1.5 mt-0.5' style={{ fontSize: 'var(--fs-caption)', color: 'var(--ink-muted)' }}>
                         <span className='rounded-full shrink-0' style={{ width: 5, height: 5, background: SEVERITY_DOT[n.severity] || 'var(--line-strong)' }} />
                         <span className='truncate'>{n.actorName || 'System'}</span>
                         <span>·</span>
@@ -285,7 +285,7 @@ const NotificationBell = () => {
                                 key={opt.label}
                                 onClick={() => { snooze?.(n.id, opt.ms); setSnoozeFor(null); }}
                                 className='block w-full text-left px-3 py-1 hover:bg-[var(--bg-subtle)] whitespace-nowrap'
-                                style={{ fontSize: 'var(--fs-table)', color: 'var(--ink)' }}
+                                style={{ fontSize: 'var(--fs-caption)', color: 'var(--ink)' }}
                             >
                                 Remind me in {opt.label}
                             </button>
@@ -318,10 +318,10 @@ const NotificationBell = () => {
                 <div className='absolute right-0 top-full mt-2 w-[380px] bg-[var(--bg-card)] rounded-2xl border border-[var(--line)] z-dropdown overflow-hidden' style={{ boxShadow: 'var(--shadow-md)', animation: 'rise-in 0.25s cubic-bezier(0.16,1,0.3,1) both' }}>
                     {/* Header */}
                     <div className='flex items-center justify-between px-4 py-3' style={{ background: "var(--bg-card)", borderBottom: '1px solid var(--line)' }}>
-                        <span className='font-semibold font-display inline-flex items-center gap-1.5' style={{ fontSize: 'var(--fs-title)', color: 'var(--ink)' }}>
+                        <span className='font-semibold font-display inline-flex items-center gap-1.5' style={{ fontSize: 'var(--fs-input)', color: 'var(--ink)' }}>
                             Notifications
                             {effectiveUnreadCount > 0 && (
-                                <span className='px-1.5 py-0.5 rounded-full font-semibold' style={{ fontSize: 'var(--fs-table)', background: 'var(--brand-soft)', color: 'var(--brand)' }}>
+                                <span className='px-1.5 py-0.5 rounded-full font-semibold' style={{ fontSize: 'var(--fs-caption)', background: 'var(--brand-soft)', color: 'var(--brand)' }}>
                                     {effectiveUnreadCount} new
                                 </span>
                             )}
@@ -336,7 +336,7 @@ const NotificationBell = () => {
                                 onClick={() => { setSelectMode(v => !v); setSelected(new Set()); setDetail(null); }}
                                 className='px-2.5 py-1 rounded-lg font-medium transition-colors hover:bg-[var(--bg-subtle)]'
                                 style={{
-                                    fontSize: 'var(--fs-body)',
+                                    fontSize: 'var(--fs-table)',
                                     background: selectMode ? 'var(--brand-soft)' : 'transparent',
                                     color: selectMode ? 'var(--brand)' : 'var(--ink-secondary)',
                                 }}
@@ -348,7 +348,7 @@ const NotificationBell = () => {
                                 disabled={unreadCount === 0}
                                 title='Mark every notification as read'
                                 className='flex items-center gap-1 px-2.5 py-1 rounded-lg font-medium disabled:opacity-40 transition-colors hover:bg-[var(--brand-strong)]'
-                                style={{ fontSize: 'var(--fs-body)', background: 'var(--brand)', color: 'var(--on-brand)' }}
+                                style={{ fontSize: 'var(--fs-table)', background: 'var(--brand)', color: 'var(--on-brand)' }}
                             >
                                 <CheckCheck className='w-3 h-3' /> Read all
                             </button>
@@ -367,7 +367,7 @@ const NotificationBell = () => {
                                     <button onClick={() => setDetail(null)} className='p-1 rounded-full hover:bg-[var(--bg-subtle)]' aria-label='Back to list'>
                                         <ChevronLeft className='w-4 h-4' style={{ color: 'var(--ink-secondary)' }} />
                                     </button>
-                                    <span style={{ fontSize: 'var(--fs-body)', fontWeight: 600, color: 'var(--ink)' }}>Notification</span>
+                                    <span style={{ fontSize: 'var(--fs-table)', fontWeight: 600, color: 'var(--ink)' }}>Notification</span>
                                 </div>
                                 <div className='p-4'>
                                     <div className='flex items-center gap-2.5'>
@@ -375,7 +375,7 @@ const NotificationBell = () => {
                                             <DIcon className='w-4.5 h-4.5 w-[18px] h-[18px]' style={{ color: meta.color }} />
                                         </span>
                                         <div className='min-w-0'>
-                                            <p className='font-semibold truncate' style={{ fontSize: 'var(--fs-input)', color: 'var(--ink)' }}>
+                                            <p className='font-semibold truncate' style={{ fontSize: 'var(--fs-table)', color: 'var(--ink)' }}>
                                                 {detail.entityLabel || detail.entityType || 'Notification'}
                                             </p>
                                             <span className='inline-flex items-center gap-1 px-1.5 rounded-full font-semibold mt-0.5'
@@ -384,18 +384,18 @@ const NotificationBell = () => {
                                             </span>
                                         </div>
                                     </div>
-                                    <p className='mt-3 break-words' style={{ fontSize: 'var(--fs-input)', color: 'var(--ink)', lineHeight: 1.55 }}>
+                                    <p className='mt-3 break-words' style={{ fontSize: 'var(--fs-table)', color: 'var(--ink)', lineHeight: 1.55 }}>
                                         {detail.message || `${detail.entityType || 'Item'} ${detail.action || 'updated'}`}
                                     </p>
                                     <div className='mt-3 rounded-2xl p-2.5' style={{ background: 'var(--bg-subtle)', border: '1px solid var(--line)' }}>
-                                        <p style={{ fontSize: 'var(--fs-table)', color: 'var(--ink-muted)' }}>
+                                        <p style={{ fontSize: 'var(--fs-caption)', color: 'var(--ink-muted)' }}>
                                             From: <span style={{ color: 'var(--ink)' }}>{detail.actorName || 'System'}</span>
                                         </p>
-                                        <p className='mt-0.5' style={{ fontSize: 'var(--fs-table)', color: 'var(--ink-muted)' }}>
+                                        <p className='mt-0.5' style={{ fontSize: 'var(--fs-caption)', color: 'var(--ink-muted)' }}>
                                             When: <span style={{ color: 'var(--ink)' }}>{detail.createdAtMs ? new Date(detail.createdAtMs).toLocaleString() : detail.createdAt || '—'}</span>
                                         </p>
                                         {receipts.length > 0 && (
-                                            <p className='mt-0.5 flex items-center gap-1' style={{ fontSize: 'var(--fs-table)', color: TONES.green.text }}>
+                                            <p className='mt-0.5 flex items-center gap-1' style={{ fontSize: 'var(--fs-caption)', color: TONES.green.text }}>
                                                 <CheckCheck className='w-3 h-3' /> Seen by {receipts.map(r => r.name).join(', ')}
                                             </p>
                                         )}
@@ -404,14 +404,14 @@ const NotificationBell = () => {
                                         <button
                                             onClick={() => openRecord(detail)}
                                             className='flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-full font-medium text-[var(--on-brand)] hover:opacity-90 transition-opacity'
-                                            style={{ fontSize: 'var(--fs-body)', background: 'var(--brand)' }}
+                                            style={{ fontSize: 'var(--fs-table)', background: 'var(--brand)' }}
                                         >
                                             <ExternalLink className='w-3.5 h-3.5' /> Open record
                                         </button>
                                         <button
                                             onClick={() => setDetail(null)}
                                             className='px-4 py-1.5 rounded-full font-medium transition-colors hover:bg-[var(--bg-subtle)]'
-                                            style={{ fontSize: 'var(--fs-body)', color: 'var(--ink-secondary)', border: '1px solid var(--line-strong)' }}
+                                            style={{ fontSize: 'var(--fs-table)', color: 'var(--ink-secondary)', border: '1px solid var(--line-strong)' }}
                                         >
                                             Close
                                         </button>
@@ -440,14 +440,14 @@ const NotificationBell = () => {
                                 <span className='flex items-center justify-center rounded-full' style={{ width: 44, height: 44, background: 'var(--bg-subtle)' }}>
                                     <Bell className='w-5 h-5' strokeWidth={1.75} style={{ color: 'var(--ink-muted)' }} />
                                 </span>
-                                <span className='font-medium' style={{ fontSize: 'var(--fs-input)', color: 'var(--ink-secondary)' }}>You&apos;re all caught up</span>
+                                <span className='font-medium' style={{ fontSize: 'var(--fs-table)', color: 'var(--ink-secondary)' }}>You&apos;re all caught up</span>
                             </div>
                         ) : catFilter === 'all' ? (
                             groups.map(([label, items]) => (
                                 <div key={label}>
                                     <div
                                         className='sticky top-0 flex items-center justify-between px-4 pt-2.5 pb-1 bg-[var(--bg-card)]'
-                                        style={{ fontSize: 'var(--fs-table)', fontWeight: 600, letterSpacing: '0.05em', color: 'var(--ink-muted)', textTransform: 'uppercase', zIndex: 5 }}
+                                        style={{ fontSize: 'var(--fs-caption)', fontWeight: 600, letterSpacing: '0.05em', color: 'var(--ink-muted)', textTransform: 'uppercase', zIndex: 5 }}
                                     >
                                         <span>{label}</span>
                                         <span>{items.length}</span>
@@ -464,14 +464,14 @@ const NotificationBell = () => {
                     {/* Footer: selection action bar while selecting, otherwise activity link */}
                     {!detail && (selectMode ? (
                         <div className='flex items-center justify-between px-3 py-2' style={{ borderTop: '1px solid var(--line)', background: 'var(--bg-subtle)' }}>
-                            <span style={{ fontSize: 'var(--fs-body)', fontWeight: 600, color: 'var(--ink)' }}>
+                            <span style={{ fontSize: 'var(--fs-table)', fontWeight: 600, color: 'var(--ink)' }}>
                                 {selected.size} selected
                             </span>
                             <button
                                 onClick={readSelected}
                                 disabled={selected.size === 0}
                                 className='flex items-center gap-1.5 px-3 py-1 rounded-full font-medium text-[var(--on-brand)] disabled:opacity-40 hover:opacity-90 transition-opacity'
-                                style={{ fontSize: 'var(--fs-body)', background: 'var(--brand)' }}
+                                style={{ fontSize: 'var(--fs-table)', background: 'var(--brand)' }}
                             >
                                 <CheckCheck className='w-3.5 h-3.5' /> Mark {selected.size > 0 ? selected.size + ' ' : ''}as read
                             </button>
@@ -480,7 +480,7 @@ const NotificationBell = () => {
                         <button
                             onClick={() => { setOpen(false); router.push('/activity'); }}
                             className='w-full flex items-center justify-center gap-1.5 py-2 hover:bg-[var(--bg-subtle)] transition-colors'
-                            style={{ fontSize: 'var(--fs-body)', color: 'var(--brand-strong)', borderTop: '1px solid var(--line)' }}
+                            style={{ fontSize: 'var(--fs-table)', color: 'var(--brand-strong)', borderTop: '1px solid var(--line)' }}
                         >
                             <Activity className='w-3.5 h-3.5' /> View all activity
                         </button>
