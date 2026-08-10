@@ -6,6 +6,14 @@ import Tltip from "../../../../components/tlTip";
 const getDateValue = (props) =>
     typeof props.getValue === 'function' ? props.getValue() : props.value;
 
+/* Was w-[72px] with symmetric px-1. "DD.MM.YY" needs roughly 60px at the top
+   breakpoint, and the clear button is positioned absolutely OVER the input's
+   right edge — so the last character rendered underneath it and read as
+   clipped. Wider box, and the asymmetric right padding keeps the centred text
+   clear of the button. */
+const DATE_INPUT_CLASS =
+    'responsiveText h-7 py-0 pl-1 pr-4 w-24 bg-transparent border-0 outline-none cursor-pointer text-[var(--brand)] text-center';
+
 const DatePicker = ({ props, handleChangeDate, month, handleCancelDate }) => {
     const dateVal = getDateValue(props);
     const containerRef = useRef(null);
@@ -106,7 +114,7 @@ const DatePicker = ({ props, handleChangeDate, month, handleCancelDate }) => {
                     primaryColor="blue"
                     readOnly={true}
                     showShortcuts={false}
-                    inputClassName="responsiveText h-7 py-0 px-1 w-[72px] bg-transparent border-0 outline-none cursor-pointer text-[var(--brand)] text-center"
+                    inputClassName={DATE_INPUT_CLASS}
                     containerClassName="relative [&>div]:border-0 [&>div]:shadow-none [&>div]:rounded-none [&>div]:bg-transparent"
                     toggleClassName="hidden"
                     popoverDirection="down"
@@ -116,7 +124,7 @@ const DatePicker = ({ props, handleChangeDate, month, handleCancelDate }) => {
                 <Tltip direction="top" tltpText="Clear date">
                     <button
                         onClick={handleClear}
-                        className="absolute top-0 right-0 text-[var(--ink-muted)] hover:text-[var(--bad-text)] transition-colors z-10 font-medium leading-none"
+                        className="absolute top-1/2 -translate-y-1/2 right-0 text-[var(--ink-muted)] hover:text-[var(--bad-text)] transition-colors z-10 font-medium leading-none"
                         style={{ fontSize: 'var(--fs-input)', padding: '1px 2px' }}
                     >
                         ×

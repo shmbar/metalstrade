@@ -38,7 +38,7 @@ const INPUT_CLASS = `
 
 const INPUT_STYLE = { minHeight: '26px', fontVariantNumeric: 'tabular-nums' };
 
-export const Input = function Input({ props, handleChange, month, name, styles, addCur }) {
+export const Input = function Input({ props, handleChange, month, name, styles, addCur, placeholder }) {
   const inputRef = useRef(null);
   const savedCursor = useRef(null);
 
@@ -64,6 +64,7 @@ export const Input = function Input({ props, handleChange, month, name, styles, 
       type="text"
       value={value}
       name={name}
+      placeholder={placeholder}
       onChange={(e) => {
         if (name === 'description') {
           savedCursor.current = e.target.selectionStart;

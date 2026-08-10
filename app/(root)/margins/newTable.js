@@ -568,22 +568,26 @@ if (col.accessorKey === 'supplier' || col.accessorKey === 'client') {
   );
 }
                                                             if (['purchase', 'description', 'margin', 'shipped'].includes(col.accessorKey)) {
+                                                                // The 100px cap suits the numeric columns, but Description sits
+                                                                // in a 16%-wide column and was squeezed into the same 100px,
+                                                                // clipping anything longer than a short code.
                                                                 return (
-                                                                    <div className="w-full max-w-[100px]">
-                                                                        <Input 
-                                                                            props={{ 
-                                                                                row: { original: row }, 
-                                                                                column: { id: col.accessorKey }, 
-                                                                                getValue: () => row[col.accessorKey] 
-                                                                            }} 
-                                                                            handleChange={props.handleChange} 
-                                                                            month={row.month} 
-                                                                            name={col.accessorKey} 
+                                                                    <div className={cn('w-full', col.accessorKey !== 'description' && 'max-w-[100px]')}>
+                                                                        <Input
+                                                                            props={{
+                                                                                row: { original: row },
+                                                                                column: { id: col.accessorKey },
+                                                                                getValue: () => row[col.accessorKey]
+                                                                            }}
+                                                                            handleChange={props.handleChange}
+                                                                            month={row.month}
+                                                                            name={col.accessorKey}
+                                                                            placeholder={col.accessorKey === 'description' ? 'Description' : undefined}
                                                                             styles={cn(
                                                                                 '',
                                                                                 col.accessorKey === 'description' && 'text-left'
                                                                             )}
-                                                                            addCur={currs.includes(col.accessorKey)} 
+                                                                            addCur={currs.includes(col.accessorKey)}
                                                                         />
                                                                     </div>
                                                                 );
