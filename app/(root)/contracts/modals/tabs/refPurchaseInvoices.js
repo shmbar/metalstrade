@@ -96,87 +96,81 @@ const RefPurchaseInvoices = ({ valueCon, setValueCon, saveData_PoInvoices, ln })
 
     return (
         <div className='relative'>
-            <div className="flex relative">
-                <div className="overflow-x-auto rounded-l-2xl">
-                    <table className="w-full border border-r-0 border-[var(--line)]">
-                        <thead className="divide-y divide-[var(--line-strong)]">
-                            <tr className='text-center' >
-                                <th className='font-medium responsiveTextTable bg-[var(--bg-subtle)] text-[var(--chathams-blue)] whitespace-nowrap h-10 px-3 border-b border-[var(--line)]' rowSpan="2">{getTtl('POInvoices', ln)}</th>
-                            </tr>
-
-                        </thead>
-                        <tbody className="divide-y divide-[var(--line-strong)]">
-                            {rows.map((y) => (
-                                <tr key={(y._source?.id || 'local') + '_' + y.id}>
-                                    {/* Row dividers come from divide-y on the tbody; a per-cell
-                                        border here drew a vertical grid line as well. */}
-                                    <td className={`bg-[var(--bg-subtle)] responsiveTextTable
-                                        whitespace-nowrap px-3 h-11 text-center text-[var(--port-gore)] ${y._source ? 'italic' : ''}`} >
-                                        <div className='flex flex-col items-center justify-center leading-tight gap-0.5'>
-                                            <span className='font-medium'>{y.inv}</span>
-                                            {y._source &&
-                                                <span className='responsiveTextTable px-1.5 rounded-full bg-[var(--bg-subtle)] text-[var(--chathams-blue)] not-italic'>
-                                                    {y._source.order}
-                                                </span>
-                                            }
-                                        </div>
-                                    </td>
-
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
-                <div className="rounded-r-2xl overflow-hidden">
-                    <table className="w-full border border-[var(--line)]">
-                        <thead className="divide-y divide-[var(--line-strong)]">
-                            <tr className='text-center' >
-                                <th className='font-medium responsiveTextTable bg-[var(--bg-subtle)] text-[var(--chathams-blue)] h-5 whitespace-nowrap border-b border-[var(--line)]'
-                                    colSpan={salesInvCols.length}>{getTtl('SalesInvoices', ln)}</th>
-                            </tr>
-                            <tr>
-                                {salesInvCols.map((y, k) => (
-                                    <th
-                                        scope="col"
-                                        key={k}
-                                        className='bg-[var(--bg-subtle)] border-b border-[var(--line)] px-3 responsiveTextTable font-medium text-[var(--chathams-blue)]
+            {/* ONE table for the labels AND the checkboxes — do not split this back
+                into two side-by-side tables. Two tables size their headers and rows
+                independently, so the columns drift out of step ("stairs"): the sales
+                side has two header rows to the purchase side's one, and label cells
+                grow past the fixed row height whenever they carry the source-PO chip.
+                A single table shares every row boundary by construction, which is
+                what rowSpan={2} on the label header is for. The label column is
+                sticky so it stays put when the matrix scrolls horizontally, and
+                border-separate keeps the sticky cells' own borders (collapsed
+                borders belong to the table, and sticky cells scroll away from them). */}
+            <div className="overflow-x-auto rounded-2xl border border-[var(--line)]">
+                <table className="w-full border-separate" style={{ borderSpacing: 0 }}>
+                    <thead>
+                        <tr className='text-center'>
+                            <th rowSpan={2}
+                                className='sticky left-0 z-sticky font-medium responsiveTextTable bg-[var(--bg-subtle)] text-[var(--chathams-blue)] whitespace-nowrap h-10 px-3 border-b border-r border-[var(--line)]'>
+                                {getTtl('POInvoices', ln)}
+                            </th>
+                            <th colSpan={salesInvCols.length}
+                                className='font-medium responsiveTextTable bg-[var(--bg-subtle)] text-[var(--chathams-blue)] h-5 whitespace-nowrap border-b border-[var(--line-strong)] text-center'>
+                                {getTtl('SalesInvoices', ln)}
+                            </th>
+                        </tr>
+                        <tr>
+                            {salesInvCols.map((y, k) => (
+                                <th
+                                    scope="col"
+                                    key={k}
+                                    className='bg-[var(--bg-subtle)] border-b border-[var(--line)] px-3 responsiveTextTable font-medium text-[var(--chathams-blue)]
                                     h-5 text-center whitespace-nowrap'
-                                    >
-                                        {y}
-                                    </th>
-
-                                ))}
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-[var(--line-strong)]">
-                            {rows.map((y) => (
-                                <tr key={(y._source?.id || 'local') + '_' + y.id}>
-                                    {salesInvCols.map((x, q) => {
-                                        const active = y.invRef.includes(x.toString());
-                                        return (
-                                            <td
-                                                key={q}
-                                                data-label={q}
-                                                className={`px-3 border border-[var(--line-strong)] h-11 cursor-pointer transition-colors
-                                                ${active ? 'bg-[var(--brand-soft)]' : 'bg-[var(--bg-card)] hover:bg-[var(--bg-subtle)]'}`}
-                                                onClick={() => setRef(y, x)}
-                                            >
-                                                <div className='flex items-center justify-center'>
-                                                    <span className={`inline-flex items-center justify-center size-4 rounded-lg transition-all
-                                                    ${active
-                                                            ? 'bg-[var(--endeavour)] text-[var(--on-brand)] shadow-sm'
-                                                            : 'border border-[var(--line)] bg-[var(--bg-card)]'}`}>
-                                                        {active && <Check className='size-3' strokeWidth={3} />}
-                                                    </span>
-                                                </div>
-                                            </td>
-                                        );
-                                    })}
-                                </tr>
+                                >
+                                    {y}
+                                </th>
                             ))}
-                        </tbody>
-                    </table>
-                </div>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {rows.map((y) => (
+                            <tr key={(y._source?.id || 'local') + '_' + y.id}>
+                                <td className={`sticky left-0 z-sticky bg-[var(--bg-subtle)] border-b border-r border-[var(--line-strong)] responsiveTextTable
+                                    whitespace-nowrap px-3 h-11 text-center text-[var(--port-gore)] ${y._source ? 'italic' : ''}`} >
+                                    <div className='flex flex-col items-center justify-center leading-tight gap-0.5'>
+                                        <span className='font-medium'>{y.inv}</span>
+                                        {y._source &&
+                                            <span className='responsiveTextTable px-1.5 rounded-full bg-[var(--bg-subtle)] text-[var(--chathams-blue)] not-italic'>
+                                                {y._source.order}
+                                            </span>
+                                        }
+                                    </div>
+                                </td>
+                                {salesInvCols.map((x, q) => {
+                                    const active = y.invRef.includes(x.toString());
+                                    return (
+                                        <td
+                                            key={q}
+                                            data-label={q}
+                                            className={`px-3 border-b border-r border-[var(--line-strong)] h-11 cursor-pointer transition-colors
+                                            ${active ? 'bg-[var(--brand-soft)]' : 'bg-[var(--bg-card)] hover:bg-[var(--bg-subtle)]'}`}
+                                            onClick={() => setRef(y, x)}
+                                        >
+                                            <div className='flex items-center justify-center'>
+                                                <span className={`inline-flex items-center justify-center size-4 rounded-lg transition-all
+                                                ${active
+                                                        ? 'bg-[var(--endeavour)] text-[var(--on-brand)] shadow-sm'
+                                                        : 'border border-[var(--line)] bg-[var(--bg-card)]'}`}>
+                                                    {active && <Check className='size-3' strokeWidth={3} />}
+                                                </span>
+                                            </div>
+                                        </td>
+                                    );
+                                })}
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
             </div>
         </div>
     )
