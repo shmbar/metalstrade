@@ -1,6 +1,5 @@
-'use client';
-import { useContext, useEffect, useState, useMemo } from 'react';
-import { TbLayoutGridAdd } from 'react-icons/tb';
+'use client';import { useContext, useEffect, useState, useMemo } from 'react';
+
 import { NumericFormat } from 'react-number-format';
 import dateFormat from 'dateformat';
 import Customtable from '../contracts/newTable';
@@ -13,6 +12,7 @@ import { getTtl } from '../../../utils/languages';
 import Toast from '../../../components/toast.js';
 import { TableSkeleton } from "../../../components/skeletons";
 import Tltip from '../../../components/tlTip';
+import { TbLayoutGridAdd } from "react-icons/tb";
 
 // Total contracted weight of a sales contract = sum of its product-line quantities.
 const contractQty = (c) => (c.productsData || []).reduce((s, r) => s + (parseFloat(r.qnty) || 0), 0);

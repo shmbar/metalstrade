@@ -68,13 +68,13 @@ const Page = () => {
 
         <div className="w-full">
           <TabGroup >
-<TabList className="inline-flex ml-1 gap-1 p-0.5 rounded-full bg-[var(--bg-subtle)] border border-[var(--line)] overflow-x-auto">
+<TabList className="inline-flex ml-1 gap-1 p-0.5 rounded-lg bg-[var(--bg-subtle)] border border-[var(--line)] overflow-x-auto">
               {tabs.map((z) => (
                <Tab
   key={z}
   className={({ selected }) =>
     classNames(
-      'px-4 py-1.5 h-8 flex items-center responsiveTextInput whitespace-nowrap transition-colors focus:outline-none rounded-full',
+      'px-4 py-1.5 h-8 flex items-center responsiveTextInput whitespace-nowrap transition-colors focus:outline-none rounded-lg',
       selected
         ? 'font-medium text-[var(--ink)] bg-[var(--bg-card)] shadow-card'
         : 'font-medium text-[var(--ink-secondary)] hover:text-[var(--ink)]'

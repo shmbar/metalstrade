@@ -6,6 +6,7 @@ if (typeof window !== 'undefined') {
   document.head.appendChild(style);
 }
 import Header from "../../../components/table/header";
+import SortIcon from "@components/table/SortIcon";
 import EmptyState from "../../../components/EmptyState";
 import {
   flexRender,
@@ -15,9 +16,8 @@ import {
   getSortedRowModel,
   useReactTable
 } from "@tanstack/react-table";
-
 import { Fragment, useEffect, useMemo, useState, useContext } from "react";
-import { TbSortDescending, TbSortAscending } from "react-icons/tb";
+
 import { Paginator } from "../../../components/table/Paginator";
 import RowsIndicator from "../../../components/table/RowsIndicator";
 import Image from "next/image";
@@ -162,20 +162,6 @@ const Customtable = ({
   return (
     <div className="w-full">
       <style jsx global>{`
-        .dashboard-scroll::-webkit-scrollbar { width: 10px; height: 10px; }
-        .dashboard-scroll::-webkit-scrollbar-track { 
-          background: linear-gradient(180deg, var(--bg-subtle), var(--neutral-bg)); 
-          border-radius: 6px; 
-        }
-        .dashboard-scroll::-webkit-scrollbar-thumb { 
-          background: linear-gradient(180deg, var(--line), var(--line-strong)); 
-          border-radius: 6px; 
-          border: 2px solid var(--bg-subtle);
-        }
-        .dashboard-scroll::-webkit-scrollbar-thumb:hover { 
-          background: linear-gradient(180deg, var(--line-strong), var(--ink-muted));
-          border-color: var(--neutral-bg);
-        }
         .glass-table {
           background: linear-gradient(135deg, 
             rgba(var(--surface-card-rgb),0.85) 0%,
@@ -190,37 +176,8 @@ const Customtable = ({
           transition-timing-function: ease-in-out !important;
         }
 
-        .custom-table th {
-          background-color: var(--bg-subtle);
-          border-bottom: 1px solid var(--line);
-          text-align: center;
-          vertical-align: middle;
-          padding: 4px 8px;
-          font-size: var(--fs-table);
-          text-transform: uppercase;
-          letter-spacing: 0.04em;
-          color: var(--ink-secondary);
-          font-weight: 500;
-        }
-
-        .custom-table td {
-          background-color: var(--bg-card);
-          border-bottom: 1px solid var(--line);
-          text-align: center;
-          vertical-align: middle;
-          padding: 6px 8px;
-          font-size: var(--fs-table);
-          font-variant-numeric: tabular-nums;
-        }
-
-        .custom-table th {
-          background-color: var(--bg-subtle);
-        }
-
-        .custom-table td {
-          background-color: var(--bg-card);
-          border-bottom: 1px solid var(--line);
-        }
+        /* .custom-table th/td now live in globals.css — one definition for every
+           table in the app. */
       `}</style>
 
       <div className="custom-table">
@@ -317,8 +274,7 @@ const Customtable = ({
                           >
                             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
                               {flexRender(header.column.columnDef.header, header.getContext())}
-                              {header.column.getIsSorted() === 'asc' && <TbSortAscending style={{ fontSize: 'var(--fs-title)', color: 'var(--brand)' }} />}
-                              {header.column.getIsSorted() === 'desc' && <TbSortDescending style={{ fontSize: 'var(--fs-title)', color: 'var(--brand)' }} />}
+                              <SortIcon column={header.column} />
                             </div>
                           </th>
                         ))}
@@ -402,7 +358,7 @@ const Customtable = ({
                             <div className="flex justify-center items-center">
                               {isBadge && badgeLabel ? (
                                 <span
-                                  className="px-2 py-0.5 rounded-full responsiveTextTable font-medium"
+                                  className="px-2 py-0.5 rounded-lg responsiveTextTable font-medium"
                                   style={statusChipStyle(badgeLabel)}
                                 >
                                   {badgeLabel}

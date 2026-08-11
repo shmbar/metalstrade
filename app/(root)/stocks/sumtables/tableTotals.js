@@ -1,7 +1,7 @@
 ﻿'use client'
 
 import { flexRender, getCoreRowModel, getFilteredRowModel, getSortedRowModel, useReactTable } from "@tanstack/react-table"
-import { TbSortDescending, TbSortAscending } from "react-icons/tb"
+import SortIcon from "@components/table/SortIcon"
 import { usePathname } from 'next/navigation'
 import { useMemo, useCallback } from 'react'
 import '../../contracts/style.css'
@@ -102,31 +102,24 @@ const Customtable = ({ data, columns, ln, ttl, settings, dataTable, rmrk }) => {
           Summary - Stocks
         </div>
         <div className="overflow-x-auto">
-          <table className="w-full" style={{ tableLayout: 'auto', borderCollapse: 'collapse' }}>
+          {/* custom-table: the app-wide table standard in globals.css. The header
+              band below used to be restated inline, one property at a time, and had
+              drifted to --fs-body (12px) and 6px/10px padding against the standard's
+              --fs-table (11px) and 4px/8px. Inline styles beat the shared rule, so
+              they had to come off for the standard to reach this table at all. */}
+          <table className="custom-table w-full" style={{ tableLayout: 'auto', borderCollapse: 'collapse' }}>
             <thead>
               {table.getHeaderGroups().map(hdGroup => (
                 <tr key={hdGroup.id}>
                   {hdGroup.headers.map(header => (
                     <th
                       key={header.id}
-                      className="font-medium text-center"
-                      style={{
-                        color: 'var(--ink-muted)',
-                        background: 'var(--bg-subtle)',
-                        padding: '6px 10px',
-                        borderBottom: '1px solid var(--line)',
-                        whiteSpace: 'nowrap',
-                        fontSize: 'var(--fs-body)',
-                        textTransform: 'uppercase',
-                        letterSpacing: '0.04em',
-                        fontWeight: 500,
-                      }}
+                      style={{ whiteSpace: 'nowrap' }}
                     >
                       {header.column.getCanSort() ? (
                         <div onClick={header.column.getToggleSortingHandler()} className="flex cursor-pointer items-center gap-1 justify-center">
                           {header.column.columnDef.header}
-                          {header.column.getIsSorted() === 'asc' && <TbSortAscending className="text-[var(--brand)] scale-110" />}
-                          {header.column.getIsSorted() === 'desc' && <TbSortDescending className="text-[var(--brand)] scale-110" />}
+                          <SortIcon column={header.column} />
                         </div>
                       ) : (
                         <span>{header.column.columnDef.header}</span>

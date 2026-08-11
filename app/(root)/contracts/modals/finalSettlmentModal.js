@@ -280,7 +280,7 @@ const FinalSettlmentModal = ({ isOpen, setIsOpen, setShowPoInvModal }) => {
                 <div className='border border-[var(--line)] rounded-2xl bg-[var(--bg-card)] p-3'>
                     <div className='flex items-center justify-between mb-2'>
                         <span className='responsiveText font-semibold text-[var(--chathams-blue)]'>Settlement summary</span>
-                        <button type='button' onClick={addCalc} className='flex items-center gap-1 rounded-full px-3 h-7 text-[var(--on-brand)] hover:opacity-90' style={{ fontSize: 'var(--fs-body)', background: 'var(--endeavour)' }}>
+                        <button type='button' onClick={addCalc} className='flex items-center gap-1 rounded-lg px-3 h-7 text-[var(--on-brand)] hover:opacity-90' style={{ fontSize: 'var(--fs-body)', background: 'var(--endeavour)' }}>
                             <Plus className='w-3 h-3' /> Add calculation
                         </button>
                     </div>
@@ -319,7 +319,7 @@ const FinalSettlmentModal = ({ isOpen, setIsOpen, setShowPoInvModal }) => {
                     <Tltip direction='top' tltpText={isDraft
                         ? 'Draft ON — saving keeps this settlement out of cashflow & stocks until you turn Draft off and save.'
                         : 'Draft OFF — saving applies this settlement to cashflow & stocks (original).'}>
-                        <div className='flex items-center gap-2 px-3 h-8 rounded-full border cursor-pointer'
+                        <div className='flex items-center gap-2 px-3 h-8 rounded-lg border cursor-pointer'
                             style={{ background: isDraft ? 'var(--warn-bg)' : 'var(--bg-subtle)', borderColor: isDraft ? 'var(--warn-border)' : 'var(--line-strong)' }}
                             onClick={() => setIsDraft(!isDraft)}>
                             <ChkBox checked={isDraft} size='h-5 w-5' onChange={() => setIsDraft(!isDraft)} />

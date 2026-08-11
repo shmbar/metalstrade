@@ -42,7 +42,7 @@ export default function HeadlineTicker({
       itemLabel:     'text-[var(--regent-gray)] responsiveTextTable',
       itemValue:     'text-[var(--port-gore)] responsiveTextTable font-bold',
       itemSub:       'text-[var(--regent-gray)] responsiveTextTable',
-      itemPill:      'bg-[var(--bg-subtle)] border border-[var(--line)] rounded-full',
+      itemPill:      'bg-[var(--bg-subtle)] border border-[var(--line)] rounded-lg',
       itemIcon:      'text-[var(--endeavour)]/70',
       hover:         'hover:shadow-md',
       mask:          'linear-gradient(to right, transparent, black 8%, black 92%, transparent)',
@@ -267,7 +267,7 @@ export default function HeadlineTicker({
               return (
                 <div
                   key={`${it.key}-${idx}`}
-                  className={['flex items-center whitespace-nowrap rounded-full px-2.5 py-1 responsiveTextTable', theme.itemPill].join(' ')}
+                  className={['flex items-center whitespace-nowrap rounded-lg px-2.5 py-1 responsiveTextTable', theme.itemPill].join(' ')}
                 >
                   {Icon ? <Icon className={['w-3.5 h-3.5 mr-2', theme.itemIcon].join(' ')} /> : null}
                   <div className="flex items-center gap-2">

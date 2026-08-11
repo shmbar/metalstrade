@@ -6,8 +6,8 @@ if (typeof window !== 'undefined') {
   style.innerHTML = `@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }`;
   document.head.appendChild(style);
 }
-
 import Header from "../../../components/table/header";
+import SortIcon from "@components/table/SortIcon";
 import EmptyState from "../../../components/EmptyState";
 import {
   flexRender,
@@ -20,7 +20,7 @@ import {
 } from "@tanstack/react-table"
 
 import { Fragment, useEffect, useMemo, useState } from "react"
-import { TbSortDescending, TbSortAscending } from "react-icons/tb";
+
 import { IoIosArrowDown } from "react-icons/io";
 
 import { Paginator } from "../../../components/table/Paginator";
@@ -251,18 +251,6 @@ const Customtable = ({
         /* Table font */
 
  /* Professional gradient scrollbar matching cards */
-     .dashboard-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
-        .dashboard-scroll::-webkit-scrollbar-track {
-          background: var(--bg-subtle);
-          border-radius: 6px;
-        }
-        .dashboard-scroll::-webkit-scrollbar-thumb {
-          background: var(--line-strong);
-          border-radius: 6px;
-        }
-        .dashboard-scroll::-webkit-scrollbar-thumb:hover {
-          background: var(--brand);
-        }
 
 
         /* Glassmorphic professional table */
@@ -281,38 +269,8 @@ const Customtable = ({
           transition-timing-function: ease-in-out !important;
         }
 
-        .custom-table th {
-          background-color: var(--bg-subtle);
-          border-bottom: 1px solid var(--line);
-          text-align: center;
-          vertical-align: middle;
-          padding: 4px 8px;
-          font-size: var(--fs-table);
-          text-transform: uppercase;
-          letter-spacing: 0.04em;
-          color: var(--ink-secondary);
-          font-weight: 500;
-        }
-
-        .custom-table td {
-          background-color: var(--bg-card);
-          border-bottom: 1px solid var(--line);
-          text-align: center;
-          vertical-align: middle;
-          padding: 6px 8px;
-          font-size: var(--fs-table);
-          font-variant-numeric: tabular-nums;
-        }
-
-        .custom-table th {
-          background-color: var(--bg-subtle);
-        }
-
-        .custom-table td {
-          background-color: var(--bg-card);
-          border-bottom: 1px solid var(--line);
-        }
-
+        /* .custom-table th/td now live in globals.css — one definition for every
+           table in the app. */
       `}</style>
 
       <div className="custom-table">
@@ -357,13 +315,11 @@ const Customtable = ({
                         {group.headers.map(header => (
                           <th
                             key={header.id}
-                            className="font-sans responsiveTextTable font-medium"
+                            /* Band comes from .custom-table th — see globals.css. This
+                               header had drifted to full ink and 0.05em tracking. */
                             style={{
-                              color: 'var(--chathams-blue)',
                               minWidth: header.column.id === 'select' ? '42px' : header.column.id === 'expander' ? '52px' : '60px',
                               maxWidth: header.column.id === 'select' ? '42px' : header.column.id === 'expander' ? '52px' : 'none',
-                              letterSpacing: '0.05em',
-                              textAlign: 'center',
                               cursor: header.column.getCanSort() ? 'pointer' : 'default',
                               userSelect: 'none',
                             }}
@@ -371,8 +327,7 @@ const Customtable = ({
                           >
                             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
                               {flexRender(header.column.columnDef.header, header.getContext())}
-                              {header.column.getIsSorted() === 'asc' && <TbSortAscending style={{ fontSize: 'var(--fs-title)', color: 'var(--endeavour)' }} />}
-                              {header.column.getIsSorted() === 'desc' && <TbSortDescending style={{ fontSize: 'var(--fs-title)', color: 'var(--endeavour)' }} />}
+                              <SortIcon column={header.column} />
                             </div>
                           </th>
                         ))}

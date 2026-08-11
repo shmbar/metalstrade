@@ -1,12 +1,11 @@
-'use client';
-import { useContext, useEffect, useState, useMemo, useCallback } from 'react';
+'use client';import { useContext, useEffect, useState, useMemo, useCallback } from 'react';
 import Customtable from './newTable';
 import MyDetailsModal from './modals/dataModal.js'
 import { SettingsContext } from "../../../contexts/useSettingsContext";
 import MonthSelect from '../../../components/monthSelect';
 import Toast from '../../../components/toast.js'
 import { ExpensesContext } from "../../../contexts/useExpensesContext";
-import { TbLayoutGridAdd } from 'react-icons/tb';
+
 import { loadCompanyExpenses, loadData, loadDataInvoices, updateCompanyExpenseField, ensureSplitNotificationsBatch } from '../../../utils/utils'
 import SplitControl from '../../../components/SplitControl';
 import { splitStatusOf } from '../../../utils/splitUtils';
@@ -25,6 +24,7 @@ import Tooltip from '../../../components/tooltip';
 import Tltip from '../../../components/tlTip';
 import { v4 as uuidv4 } from 'uuid';
 import TableTotals from './totals/tableTotals';
+import { TbLayoutGridAdd } from "react-icons/tb";
 
 
 const Expenses = () => {
@@ -339,7 +339,7 @@ const Expenses = () => {
                                     <button
                                         type="button"
                                         onClick={addNewExpense}
-                                        className="flex items-center gap-2 bg-[var(--endeavour)] border border-[var(--chathams-blue)] text-[var(--on-brand)] px-4 h-7 responsiveTextTitle font-medium responsiveText rounded-full hover:bg-[var(--selago)]/30 transition-all"
+                                        className="flex items-center gap-2 bg-[var(--endeavour)] border border-[var(--chathams-blue)] text-[var(--on-brand)] px-4 h-7 responsiveTextTitle font-medium responsiveText rounded-lg hover:bg-[var(--selago)]/30 transition-all"
                                     >
                                         <TbLayoutGridAdd className="w-4 h-4" />
                                         <span>New Expense</span>

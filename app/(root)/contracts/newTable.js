@@ -33,6 +33,7 @@ import dateBetweenFilterFn from '../../../components/table/filters/date-between-
 import { Filter } from "../../../components/table/filters/filterFunc";
 import { labelAwareGlobalFilter } from "../../../components/table/filters/labelAwareGlobalFilter";
 import Tltip from "../../../components/tlTip";
+import SortIcon from "@components/table/SortIcon";
 
 const Customtable = ({
   data,
@@ -182,10 +183,6 @@ const Customtable = ({
   return (
     <div className="w-full">
       <style jsx global>{`
-        .dashboard-scroll::-webkit-scrollbar { width: 4px; height: 4px; }
-        .dashboard-scroll::-webkit-scrollbar-track { background: var(--bg-subtle); }
-        .dashboard-scroll::-webkit-scrollbar-thumb { background: var(--line-strong); border-radius: 4px; }
-        .dashboard-scroll::-webkit-scrollbar-thumb:hover { background: var(--ink-muted); }
 
         .glass-table { background: var(--bg-card); }
 
@@ -196,23 +193,12 @@ const Customtable = ({
           transition-timing-function: ease-in-out !important;
         }
 
-        .custom-table th {
-          background-color: var(--bg-subtle);
-          border-bottom: 1px solid var(--line);
-          text-align: center;
-          vertical-align: middle;
-          padding: 4px 8px;
-        }
-
-        .custom-table td {
-          background-color: var(--bg-card);
-          border-bottom: 1px solid var(--line);
-          text-align: center;
-          vertical-align: middle;
-          padding: 6px 8px;
-          font-size: var(--fs-table);
-          font-variant-numeric: tabular-nums;
-        }
+        /* .custom-table th/td now live in globals.css — one definition for every
+           table in the app. This file's copy was the odd one out: it declared
+           only background/border/align/padding and left font-size, transform,
+           letter-spacing, colour and weight to inline styles on each <th>, so
+           the "same" global rule meant something different here than on the
+           other thirteen pages that defined it. */
       `}</style>
 
       <div className="custom-table">
@@ -256,40 +242,32 @@ const Customtable = ({
               <div style={{ maxHeight: dynamicMaxHeight }}>
                 <table className="w-full" style={{ tableLayout: 'auto' }}>
 
-                <thead className="sticky top-0 z-10">
+                <thead className="sticky top-0 z-sticky">
                   {table.getHeaderGroups().map(hdGroup => (
                     <Fragment key={hdGroup.id}>
                       <tr style={{ borderBottom: '1px solid var(--on-brand-soft)' }}>
                         {hdGroup.headers.map(header => (
                         <th
                           key={header.id}
-                          /* py-1 is 4px: spacing step 1 sits outside the rescaled range
-                             (only 1.5-10 are remapped), so it keeps Tailwind's 0.25rem.
-                             py-2 was 7px. */
-                          className="group/th font-medium py-1"
+                          className="group/th"
                           onClick={header.column.getCanSort() ? header.column.getToggleSortingHandler() : undefined}
+                          /* Size, weight, uppercase, tracking, colour, padding and
+                             alignment all come from `.custom-table th` in globals.css
+                             — the same rule every other table in the app reads. Only
+                             what is genuinely per-column stays inline. */
                           style={{
                             minWidth: header.column.id === 'select' ? '50px' : '60px',
                             maxWidth: header.column.id === 'select' ? '50px' : 'none',
-                            /* --fs-table, the rung below --fs-body, which is exactly 1px
-                               lower at every breakpoint: 10 / 11 / 12 / 12 against
-                               11 / 12 / 13 / 13. A step down the ladder, not a hardcoded
-                               size, so it still ramps with the monitor. */
-                            fontSize: 'var(--fs-table)',
-                            textTransform: 'uppercase',
-                            letterSpacing: '0.04em',
-                            textAlign: 'center',
                             cursor: header.column.getCanSort() ? 'pointer' : 'default',
                             userSelect: 'none',
                           }}
                         >
                           <span className="inline-flex items-center justify-center gap-1">
                             {flexRender(header.column.columnDef.header, header.getContext())}
-                            {header.column.getIsSorted() === 'asc' && <ArrowUpNarrowWide size={13} className="shrink-0" style={{ color: 'var(--brand)' }} />}
-                            {header.column.getIsSorted() === 'desc' && <ArrowDownWideNarrow size={13} className="shrink-0" style={{ color: 'var(--brand)' }} />}
-                            {header.column.getCanSort() && !header.column.getIsSorted() && (
-                              <ArrowUpDown size={11} className="shrink-0 opacity-0 group-hover/th:opacity-50 transition-opacity" style={{ color: 'var(--ink-muted)' }} />
-                            )}
+                            {/* idle: this <th> carries group/th, so the low-contrast
+                                affordance for a sortable-but-unsorted column reveals
+                                on hover. */}
+                            <SortIcon column={header.column} idle />
                           </span>
                         </th>
                         ))}
@@ -366,7 +344,7 @@ const Customtable = ({
                             ) : isCompleted ? (
                               <div className="flex justify-center">
                                 <div
-                                  className="px-2.5 py-0.5 rounded-full responsiveTextTable font-medium"
+                                  className="px-2.5 py-0.5 rounded-lg responsiveTextTable font-medium"
                                   style={{
                                     backgroundColor: value ? TONES.green.bg : TONES.amber.bg,
                                     color: value ? TONES.green.text : TONES.amber.text,
@@ -379,7 +357,7 @@ const Customtable = ({
                             ) : isStatus ? (
                               <div className="flex justify-center">
                                 <div
-                                  className="px-2.5 py-0.5 rounded-full responsiveTextTable font-medium"
+                                  className="px-2.5 py-0.5 rounded-lg responsiveTextTable font-medium"
                                   style={{
                                     backgroundColor:
                                       value === 'Paid'

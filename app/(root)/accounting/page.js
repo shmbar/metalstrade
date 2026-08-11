@@ -648,7 +648,7 @@ const Accounting = () => {
                   {recentTransactions.map((item, idx) => (
                     <div key={idx} className="flex items-center justify-between py-1 border-b border-[var(--selago)] last:border-0">
                       <div className="flex items-center gap-2">
-                        <div className="w-7 h-7 bg-[var(--selago)] rounded-full flex items-center justify-center flex-shrink-0">
+                        <div className="w-7 h-7 bg-[var(--selago)] rounded-lg flex items-center justify-center flex-shrink-0">
                           <span className="text-[var(--endeavour)] responsiveText font-medium font-sans">
                             {(gQ(item.clientExp, 'Supplier', 'nname') || item.clientInvName || item.clientInv || 'N').charAt(0).toUpperCase()}
                           </span>
@@ -683,7 +683,7 @@ const Accounting = () => {
                   {recentInvoices.map((item, idx) => (
                     <div key={idx} className="flex items-center justify-between py-1 border-b border-[var(--selago)] last:border-0">
                       <div className="flex items-center gap-2 min-w-0 flex-1">
-                        <div className="w-7 h-7 bg-[var(--rock-blue)]/20 rounded-full flex items-center justify-center flex-shrink-0">
+                        <div className="w-7 h-7 bg-[var(--rock-blue)]/20 rounded-lg flex items-center justify-center flex-shrink-0">
                           <span className="text-[var(--chathams-blue)] responsiveText font-medium font-sans">
                             {(item.clientInvName || item.clientInv || 'C').charAt(0).toUpperCase()}
                           </span>
@@ -698,7 +698,7 @@ const Accounting = () => {
                       </div>
                       <div className="text-right flex-shrink-0 ml-2">
                         <p className="responsiveText font-medium font-sans text-[var(--chathams-blue)] mb-0.5">{formatCurrency(item.amountInv || 0)}</p>
-                        <span className='inline-block px-2 py-0.5 rounded-full responsiveTextTable font-medium font-sans'
+                        <span className='inline-block px-2 py-0.5 rounded-lg responsiveTextTable font-medium font-sans'
                           style={toneChipStyle(idx % 2 === 0 ? TONES.green : TONES.amber)}>
                           {idx % 2 === 0 ? 'Paid' : 'Pending'}
                         </span>

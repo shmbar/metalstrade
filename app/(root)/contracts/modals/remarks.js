@@ -82,7 +82,7 @@ const Remraks = ({ value, setValue, ln }) => {
                         <li key={i} className="justify-between inline-flex items-center gap-x-2 py-2 px-4 responsiveText bg-[var(--bg-card)] border border-[var(--line-strong)] text-[var(--port-gore)] -mt-px first:rounded-t-xl first:mt-0 last:rounded-b-xl ">
                             {edit.status && edit.id === x.id ?
                                 <input
-                                    className="w-full border rounded-full border-[var(--line-strong)] h-7
+                                    className="w-full border rounded-lg border-[var(--line-strong)] h-7
 focus:outline-0 focus:border-[var(--endeavour)] indent-1.5 responsiveTextInput text-[var(--port-gore)]"
                                     onKeyDown={handleKeyPress}
                                     value={value1}

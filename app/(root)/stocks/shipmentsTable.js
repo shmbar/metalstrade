@@ -164,22 +164,17 @@ const Customtable = ({ data, item }) => {
 	return (
 		<div className='mx-4 mb-4 rounded-2xl overflow-hidden border border-[var(--line)]' style={{ boxShadow: 'var(--shadow-sm)' }}>
 			<div className="w-full overflow-x-auto">
-				<table className="w-full" style={{ borderCollapse: 'collapse', fontFamily: "var(--font-jakarta), 'Plus Jakarta Sans', sans-serif", fontSize: 'var(--fs-table)' }}>
+				{/* custom-table: the app-wide table standard in globals.css. This header
+				    restated the band inline and had drifted on the two things that read
+				    as "heavier": weight 600 against the standard's 500, and full ink
+				    (--chathams-blue) against --ink-secondary. */}
+				<table className="custom-table w-full" style={{ borderCollapse: 'collapse' }}>
 					<thead>
 						<tr>
 							{cols.map((x, k) => (
 								<th key={k} style={{
-									background: 'var(--bg-subtle)',
-									color: 'var(--chathams-blue)',
-									fontWeight: 600,
-									fontSize: 'var(--fs-table)',
-									textAlign: 'center',
-									padding: '7px 10px',
-									border: '1px solid var(--line)',
 									whiteSpace: 'normal',
-										width: x.width || undefined,
-									letterSpacing: '0.04em',
-									textTransform: 'uppercase',
+									width: x.width || undefined,
 								}}>
 									{x.header}
 								</th>
@@ -191,11 +186,8 @@ const Customtable = ({ data, item }) => {
 							<tr key={i} style={{ background: i % 2 === 0 ? 'var(--surface-card)' : 'var(--surface-pill)' }}>
 								{cols.map(x => (
 									<td key={x.field} style={{
-										padding: '5px 10px',
-										border: '1px solid var(--selago)',
-										fontSize: 'var(--fs-table)',
-										color: 'var(--chathams-blue)',
-										textAlign: 'center',
+										/* Size, colour, padding, borders and alignment come
+										   from .custom-table td in globals.css. */
 										whiteSpace: x.field === 'description' || x.field === 'supplier' ? 'normal' : 'nowrap',
 									width: x.width || undefined,
 									}}>

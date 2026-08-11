@@ -641,7 +641,7 @@ const FloatingChat = () => {
                         {messages.map((msg) => (
                             <div key={msg.id} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                                 {msg.role === 'assistant' && (
-                                    <div className="w-7 h-7 rounded-full bg-[var(--brand-soft)] flex items-center justify-center mr-2 flex-shrink-0 mt-1">
+                                    <div className="w-7 h-7 rounded-lg bg-[var(--brand-soft)] flex items-center justify-center mr-2 flex-shrink-0 mt-1">
                                         <Bot className="w-3.5 h-3.5 text-[var(--brand)]" />
                                     </div>
                                 )}
@@ -700,7 +700,7 @@ const FloatingChat = () => {
                                     </span>
                                 </div>
                                 {msg.role === 'user' && (
-                                    <div className="w-7 h-7 rounded-full bg-[var(--bg-sunken)] flex items-center justify-center ml-2 flex-shrink-0 mt-1">
+                                    <div className="w-7 h-7 rounded-lg bg-[var(--bg-sunken)] flex items-center justify-center ml-2 flex-shrink-0 mt-1">
                                         <User className="w-3.5 h-3.5 text-[var(--ink-secondary)]" />
                                     </div>
                                 )}
@@ -710,7 +710,7 @@ const FloatingChat = () => {
                         {/* Typing dots — only while waiting for first streaming token */}
                         {isLoading && !messages.find(m => m.isStreaming) && (
                             <div className="flex justify-start">
-                                <div className="w-7 h-7 rounded-full bg-[var(--brand-soft)] flex items-center justify-center mr-2 flex-shrink-0">
+                                <div className="w-7 h-7 rounded-lg bg-[var(--brand-soft)] flex items-center justify-center mr-2 flex-shrink-0">
                                     <Bot className="w-3.5 h-3.5 text-[var(--brand)]" />
                                 </div>
                                 <div className="bg-[var(--bg-card)] border border-[var(--line)] rounded-2xl rounded-bl-sm px-3 py-2.5">

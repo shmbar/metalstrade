@@ -18,7 +18,7 @@ export default function Example({ languages, compData, setCompData, lang }) {
     <div className="w-36">
       <Listbox value={selected} onChange={(e) => setSelection(e)}>
         <div className="relative">
-          <Listbox.Button className="cursor-pointer w-full h-8 rounded-full border border-[var(--line)] bg-[var(--bg-card)]
+          <Listbox.Button className="cursor-pointer w-full h-8 rounded-lg border border-[var(--line)] bg-[var(--bg-card)]
                      focus:outline-none focus:border-[var(--endeavour)] focus:ring-2 focus:ring-[var(--endeavour)]/20 responsiveText
                      pl-4 pr-10 text-[var(--port-gore)] transition-all hover:border-[var(--rock-blue)] responsiveTextInput">
             {({ open }) => (

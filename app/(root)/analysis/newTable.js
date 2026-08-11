@@ -1,5 +1,4 @@
 ﻿'use client'
-
 import Header from "../../../components/table/header";
 import {
   flexRender,
@@ -10,7 +9,7 @@ import {
   useReactTable
 } from "@tanstack/react-table"
 import { useMemo, useState } from "react"
-import { TbSortDescending, TbSortAscending } from "react-icons/tb";
+
 import { Paginator } from "../../../components/table/Paginator";
 import RowsIndicator from "../../../components/table/RowsIndicator";
 import '../contracts/style.css';
@@ -113,20 +112,6 @@ const Customtable = ({
   return (
     <div className="w-full">
       <style jsx global>{`
-        .dashboard-scroll::-webkit-scrollbar { width: 10px; height: 10px; }
-        .dashboard-scroll::-webkit-scrollbar-track { 
-          background: linear-gradient(180deg, var(--bg-subtle), var(--bg-subtle)); 
-          border-radius: 6px; 
-        }
-        .dashboard-scroll::-webkit-scrollbar-thumb { 
-          background: linear-gradient(180deg, var(--violet-text), var(--violet-strong)); 
-          border-radius: 6px; 
-          border: 2px solid var(--bg-subtle);
-        }
-        .dashboard-scroll::-webkit-scrollbar-thumb:hover { 
-          background: linear-gradient(180deg, var(--violet-text), var(--violet-strong));
-          border-color: var(--bg-subtle);
-        }
         .glass-table {
           background: linear-gradient(135deg, 
             rgba(var(--surface-card-rgb),0.85) 0%, 
@@ -140,26 +125,10 @@ const Customtable = ({
           transition-duration: 150ms !important;
           transition-timing-function: ease-in-out !important;
         }
-        .custom-table th, .custom-table td {
-          text-align: center;
-          vertical-align: middle;
-          padding: 6px 8px;
-        }
-        .custom-table th {
-          background-color: var(--bg-subtle);
-          border-bottom: 1px solid var(--line);
-          font-size: var(--fs-table);
-          text-transform: uppercase;
-          letter-spacing: 0.04em;
-          color: var(--ink-secondary);
-          font-weight: 500;
-        }
-        .custom-table td {
-          background-color: var(--bg-card);
-          border-bottom: 1px solid var(--line);
-          font-size: var(--fs-table);
-          font-variant-numeric: tabular-nums;
-        }
+        /* .custom-table th/td now live in globals.css — one definition for every
+           table in the app. This file's copy also gave the HEADER 6px vertical
+           padding where every other table used 4px, so its header band sat 4px
+           taller than the same band on every other page. */
       `}</style>
 
       <div className="custom-table">
@@ -192,13 +161,13 @@ const Customtable = ({
                       {hdGroup.headers.map(header => (
                         <th
                           key={header.id}
-                          className={`px-2 py-2 font-sans responsiveTextTable font-medium`}
+                          /* Band comes from .custom-table th. This header restated it
+                             inline and had drifted on two counts: full ink against the
+                             standard's --ink-secondary, and 0.05em tracking against
+                             0.04em. Both read as "heavier" next to another table. */
                           style={{
-                            color: 'var(--chathams-blue)',
-                            backgroundColor: 'var(--bg-subtle)',
                             minWidth: header.column.id === 'select' ? '50px' : '60px',
-                            letterSpacing: '0.05em',
-                            textAlign: header.column.id === 'select' ? 'left' : 'center',
+                            textAlign: header.column.id === 'select' ? 'left' : undefined,
                           }}
                         >
                           {flexRender(header.column.columnDef.header, header.getContext())}
@@ -259,13 +228,13 @@ const Customtable = ({
                       {hdGroup.headers.map(header => (
                         <th
                           key={header.id}
-                          className={`px-2 py-2 font-sans responsiveTextTable font-medium`}
+                          /* Band comes from .custom-table th. This header restated it
+                             inline and had drifted on two counts: full ink against the
+                             standard's --ink-secondary, and 0.05em tracking against
+                             0.04em. Both read as "heavier" next to another table. */
                           style={{
-                            color: 'var(--chathams-blue)',
-                            backgroundColor: 'var(--bg-subtle)',
                             minWidth: header.column.id === 'select' ? '50px' : '60px',
-                            letterSpacing: '0.05em',
-                            textAlign: header.column.id === 'select' ? 'left' : 'center',
+                            textAlign: header.column.id === 'select' ? 'left' : undefined,
                           }}
                         >
                           {flexRender(header.column.columnDef.header, header.getContext())}

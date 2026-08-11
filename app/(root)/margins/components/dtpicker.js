@@ -5,10 +5,20 @@ import Tltip from "../../../../components/tlTip";
 const getDateValue = (props) =>
     typeof props.getValue === 'function' ? props.getValue() : props.value;
 
-/* Wide enough for "DD.MM.YY" at the top breakpoint, with right padding so the
-   centred text clears the absolutely-positioned clear button. */
+/* w-full, NOT a fixed width. The date column is `tableLayout: fixed` at 6%
+   (~75px), and this input used to be w-24 (96px) — wider than its own cell. The
+   cell sets overflow:visible for the calendar popup, so the input just spilled
+   past the wrapper instead of being clipped, and the clear button (absolute
+   right-0 against the wrapper) landed ~21px inside the input's visible right
+   edge: floating between the date and the column divider rather than sitting in
+   the padding reserved for it. Input and wrapper have to share a width for
+   right-0 to mean "the right edge of this input".
+
+   pr-4 is that reserved room for the clear button; pl-1 balances the optical
+   centre. "DD.MM.YY" measures ~48px at --fs-body against ~55px of free space,
+   so it still fits without truncating. */
 const DATE_INPUT_CLASS =
-    'responsiveText h-7 py-0 pl-1 pr-4 w-24 bg-transparent border-0 outline-none cursor-pointer text-[var(--brand)] text-center';
+    'responsiveText h-7 py-0 pl-1 pr-4 w-full bg-transparent border-0 outline-none cursor-pointer text-[var(--brand)] text-center';
 
 /* Positioning note.
    This component used to hand-position the popup: a MutationObserver watched for
@@ -47,8 +57,10 @@ const DatePicker = ({ props, handleChangeDate, month, handleCancelDate }) => {
     };
 
     return (
-        <div className="relative flex items-center justify-center">
-            <div className="datepicker-wrapper">
+        /* w-full down the whole chain: this div is what the clear button below is
+           positioned against, so it has to be exactly as wide as the input. */
+        <div className="relative flex items-center justify-center w-full">
+            <div className="datepicker-wrapper w-full">
                 <Datepicker
                     asSingle={true}
                     useRange={false}

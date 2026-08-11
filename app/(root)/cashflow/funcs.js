@@ -1,7 +1,6 @@
-
 import { useState, useContext } from 'react';
 import { SettingsContext } from "../../../contexts/useSettingsContext";
-import { TbSortAscending, TbSortDescending } from 'react-icons/tb';
+
 import CheckBox from "../../../components/checkbox";
 import Avatar from "../../../components/Avatar";
 import { TONES } from "../../../components/statusUtils";
@@ -14,6 +13,7 @@ import { ContactRoundIcon, Eraser, Save } from "lucide-react";
 import { NumericFormat } from "react-number-format";
 import DoalogModal from "./dialogSupplier";
 import DoalogModalClient from "./dialogClient";
+import SortIcon from "@components/table/SortIcon";
 
 
 
@@ -32,8 +32,7 @@ const SortTh = ({ colKey, label, sortKey, sortDir, onSort, className = '' }) => 
     <th className={`cursor-pointer select-none ${className}`} onClick={() => onSort(colKey)}>
         <span className="inline-flex items-center gap-1">
             {label}
-            {sortKey === colKey && sortDir === 'asc' && <TbSortAscending className="shrink-0" style={{ fontSize: 'var(--fs-title)', color: 'var(--endeavour)' }} />}
-            {sortKey === colKey && sortDir === 'desc' && <TbSortDescending className="shrink-0" style={{ fontSize: 'var(--fs-title)', color: 'var(--endeavour)' }} />}
+            <SortIcon direction={sortKey === colKey ? sortDir : null} />
         </span>
     </th>
 );

@@ -47,7 +47,7 @@ export const Paginator = ({ table }) => {
               <button
                 key={pageIndex}
                 onClick={() => table.setPageIndex(pageIndex)}
-                className="min-w-[2rem] h-8 responsiveTextInput font-medium rounded-full border transition-all duration-200"
+                className="min-w-[2rem] h-8 responsiveTextInput font-medium rounded-lg border transition-all duration-200"
                 style={{
                   backgroundColor: isActive ? 'var(--endeavour)' : 'var(--bg-card)',
                   color: isActive ? 'var(--on-brand)' : 'var(--endeavour)',

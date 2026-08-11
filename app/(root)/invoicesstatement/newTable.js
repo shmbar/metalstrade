@@ -1,6 +1,6 @@
 ﻿"use client";
-
 import Header from "../../../components/table/header";
+import SortIcon from "@components/table/SortIcon";
 import EmptyState from "../../../components/EmptyState";
 import {
     flexRender,
@@ -11,7 +11,7 @@ import {
     useReactTable
 } from "@tanstack/react-table";
 import { useEffect, useMemo, useState } from "react";
-import { TbSortDescending, TbSortAscending } from "react-icons/tb";
+
 
 import { Paginator } from "../../../components/table/Paginator";
 import RowsIndicator from "../../../components/table/RowsIndicator";
@@ -135,20 +135,6 @@ const Customtable = ({ data, columns, invisible, SelectRow, excellReport, ln, se
     return (
         <div className="w-full">
             <style jsx global>{`
-                .dashboard-scroll::-webkit-scrollbar { width: 10px; height: 10px; }
-                .dashboard-scroll::-webkit-scrollbar-track { 
-                    background: linear-gradient(180deg, var(--surface-base), var(--surface-muted)); 
-                    border-radius: 6px; 
-                }
-                .dashboard-scroll::-webkit-scrollbar-thumb { 
-                    background: linear-gradient(180deg, var(--line), var(--line-strong)); 
-                    border-radius: 6px; 
-                    border: 2px solid var(--surface-base);
-                }
-                .dashboard-scroll::-webkit-scrollbar-thumb:hover { 
-                    background: linear-gradient(180deg, var(--border-neutral-strong), var(--text-faint));
-                    border-color: var(--surface-muted);
-                }
                 .glass-table {
                     background: linear-gradient(135deg, 
                         rgba(var(--surface-card-rgb),0.85) 0%,
@@ -163,35 +149,8 @@ const Customtable = ({ data, columns, invisible, SelectRow, excellReport, ln, se
                     transition-timing-function: ease-in-out !important;
                 }
 
-                .custom-table th {
-          background-color: var(--bg-subtle);
-          border-bottom: 1px solid var(--line);
-          text-align: center;
-          vertical-align: middle;
-          padding: 4px 8px;
-          font-size: var(--fs-table);
-          text-transform: uppercase;
-          letter-spacing: 0.04em;
-          color: var(--ink-secondary);
-          font-weight: 500;
-        }
-
-                .custom-table td {
-          background-color: var(--bg-card);
-          border-bottom: 1px solid var(--line);
-          text-align: center;
-          vertical-align: middle;
-          padding: 6px 8px;
-          font-size: var(--fs-table);
-          font-variant-numeric: tabular-nums;
-        }
-                .custom-table th {
-                    background-color: var(--bg-subtle);
-                }
-                .custom-table td {
-          background-color: var(--bg-card);
-          border-bottom: 1px solid var(--line);
-        }
+                /* .custom-table th/td now live in globals.css — one definition
+                   for every table in the app. */
             `}</style>
 
             <div className="custom-table">
@@ -233,13 +192,12 @@ const Customtable = ({ data, columns, invisible, SelectRow, excellReport, ln, se
                                             {hdGroup.headers.map((header, idx) => (
                                                 <th
                                                     key={header.id}
-                                                    className="font-sans responsiveTextTable font-medium"
+                                                    /* Band comes from .custom-table th — see
+                                                       globals.css. This header had drifted to
+                                                       full ink and 0.05em tracking. */
                                                     style={{
-                                                        color: 'var(--chathams-blue)',
                                                         minWidth: header.column.id === 'select' ? '50px' : '60px',
                                                         maxWidth: header.column.id === 'select' ? '50px' : 'none',
-                                                        letterSpacing: '0.05em',
-                                                        textAlign: 'center',
                                                         cursor: header.column.getCanSort() ? 'pointer' : 'default',
                                                         userSelect: 'none',
                                                     }}
@@ -247,8 +205,7 @@ const Customtable = ({ data, columns, invisible, SelectRow, excellReport, ln, se
                                                 >
                                                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
                                                         {flexRender(header.column.columnDef.header, header.getContext())}
-                                                        {header.column.getIsSorted() === 'asc' && <TbSortAscending style={{ fontSize: 'var(--fs-title)', color: 'var(--endeavour)' }} />}
-                                                        {header.column.getIsSorted() === 'desc' && <TbSortDescending style={{ fontSize: 'var(--fs-title)', color: 'var(--endeavour)' }} />}
+                                                        <SortIcon column={header.column} />
                                                     </div>
                                                 </th>
                                             ))}

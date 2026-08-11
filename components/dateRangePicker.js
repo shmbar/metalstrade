@@ -179,7 +179,7 @@ const DateRangePicker = ({ displayLabel }) => {
     if (menuOpen) return null;
 
     return (
-        <div className="relative flex items-center w-full max-w-[200px] rounded-full">
+        <div className="relative flex items-center w-full max-w-[200px] rounded-lg">
             {displayLabel && (
                 <span className="responsiveTextTable font-medium text-[var(--port-gore)] bg-gray-100 px-2 py-0.5 rounded-2xl shadow-sm whitespace-nowrap mr-2">
                     {displayLabel}
@@ -195,7 +195,7 @@ const DateRangePicker = ({ displayLabel }) => {
                         responsiveText font-medium h-7 py-0 pl-7 pr-4
                         w-full
                         bg-[var(--bg-card)]
-                        rounded-full
+                        rounded-lg
                         border border-[var(--line)]
                         shadow-sm
                         cursor-pointer

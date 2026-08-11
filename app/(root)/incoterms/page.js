@@ -188,7 +188,7 @@ const Incoterms = () => {
                             value={query}
                             onChange={e => setQuery(e.target.value)}
                             placeholder="Search code, name or description…"
-                            className="w-full rounded-full bg-[var(--bg-card)] border border-[var(--line-strong)] pl-8 pr-3 h-8 responsiveTextTable text-[var(--chathams-blue)] focus:outline-none focus:border-[var(--endeavour)]"
+                            className="w-full rounded-lg bg-[var(--bg-card)] border border-[var(--line-strong)] pl-8 pr-3 h-8 responsiveTextTable text-[var(--chathams-blue)] focus:outline-none focus:border-[var(--endeavour)]"
                             style={{ fontFamily: 'inherit' }}
                         />
                     </div>

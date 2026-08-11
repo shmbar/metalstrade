@@ -569,7 +569,7 @@ const DocumentImportOverlay = ({ documentType, suppliers, clients, currencies, e
                             Unmatched entities won&apos;t be applied. Verify after import.
                         </p>
                         <div className='flex gap-2'>
-                            <button onClick={onClose} className='px-3 py-1.5 rounded-full border transition-colors hover:border-[var(--brand)]'
+                            <button onClick={onClose} className='px-3 py-1.5 rounded-lg border transition-colors hover:border-[var(--brand)]'
                                 style={{ fontSize: 'var(--fs-table)', borderColor: 'var(--line-strong)', color: 'var(--ink-secondary)' }}>
                                 Cancel
                             </button>

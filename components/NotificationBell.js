@@ -364,7 +364,7 @@ const NotificationBell = () => {
                         return (
                             <div>
                                 <div className='flex items-center gap-1.5 px-2 py-1.5' style={{ borderBottom: '1px solid var(--line)' }}>
-                                    <button onClick={() => setDetail(null)} className='p-1 rounded-full hover:bg-[var(--bg-subtle)]' aria-label='Back to list'>
+                                    <button onClick={() => setDetail(null)} className='p-1 rounded-lg hover:bg-[var(--bg-subtle)]' aria-label='Back to list'>
                                         <ChevronLeft className='w-4 h-4' style={{ color: 'var(--ink-secondary)' }} />
                                     </button>
                                     <span style={{ fontSize: 'var(--fs-table)', fontWeight: 600, color: 'var(--ink)' }}>Notification</span>

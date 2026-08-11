@@ -1,5 +1,4 @@
 ﻿"use client";
-
 import Header from "../../../../../components/table/header";
 import {
   flexRender,
@@ -10,8 +9,7 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import { useEffect, useMemo, useState } from "react";
-import { TbSortDescending } from "react-icons/tb";
-import { TbSortAscending } from "react-icons/tb";
+
 import { FaSearch } from "react-icons/fa";
 import { TiDeleteOutline } from "react-icons/ti";
 import { LuFilter } from "react-icons/lu";
@@ -24,6 +22,7 @@ import { useContext } from "react";
 import { SettingsContext } from "../../../../../contexts/useSettingsContext";
 import { usePathname } from "next/navigation";
 import { getTtl } from "../../../../../utils/languages";
+import SortIcon from "@components/table/SortIcon";
 
 
 const Customtable = ({
@@ -125,19 +124,14 @@ const Customtable = ({
                           className="cursor-pointer flex items-center justify-center gap-1"
                         >
                           {header.column.columnDef.header}
-                          {
-                            {
-                              asc: <TbSortAscending className="text-[var(--endeavour)] scale-110" />,
-                              desc: <TbSortDescending className="text-[var(--endeavour)] scale-110" />,
-                            }[header.column.getIsSorted()]
-                          }
+                          <SortIcon column={header.column} />
                         </div>
                       ) : (
                         <span>{header.column.columnDef.header}</span>
                       )}
                       {filterOn && header.column.getCanFilter() && (
                         <input
-                          className="mt-1 w-full border border-[var(--selago)] rounded-full px-2 py-0.5 responsiveTextTable font-medium focus:outline-none focus:border-[var(--endeavour)]"
+                          className="mt-1 w-full border border-[var(--selago)] rounded-lg px-2 py-0.5 responsiveTextTable font-medium focus:outline-none focus:border-[var(--endeavour)]"
                           value={header.column.getFilterValue() ?? ''}
                           onChange={e => header.column.setFilterValue(e.target.value)}
                           placeholder="Filter..."
@@ -165,7 +159,7 @@ const Customtable = ({
                       <div className="flex items-center justify-center">
                         {
                           cell.column.id === 'delete' ? (
-                            <div className="px-2 py-0.5 rounded-full bg-red-100 border border-red-300 responsiveTextTable inline-flex items-center justify-center min-w-[60px]">
+                            <div className="px-2 py-0.5 rounded-lg bg-red-100 border border-red-300 responsiveTextTable inline-flex items-center justify-center min-w-[60px]">
                               {flexRender(cell.column.columnDef.cell, cell.getContext())}
                             </div>
                           ) : (

@@ -95,7 +95,7 @@ const AccountStatement = () => {
 
         <div className='flex group datepicker-wrapper w-full sm:w-auto'>
           <Datepicker
-            inputClassName='border border-[var(--line)] h-7 py-2 pl-3 pr-3 rounded-full text-[var(--ink)] placeholder:text-[var(--ink)] w-full sm:w-44
+            inputClassName='border border-[var(--line)] h-7 py-2 pl-3 pr-3 rounded-lg text-[var(--ink)] placeholder:text-[var(--ink)] w-full sm:w-44
               focus:outline-none focus:ring-1 focus:ring-blue-200 cursor-pointer bg-[var(--bg-card)] shadow-sm responsiveTextInput'
             useRange={false}
             asSingle={true}

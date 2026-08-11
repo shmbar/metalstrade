@@ -1,6 +1,5 @@
 ﻿
 // 'use client'
-
 // // Fade-in animation for badges
 // if (typeof window !== 'undefined') {
 //   const style = document.createElement('style');
@@ -689,6 +688,7 @@ if (typeof window !== 'undefined') {
 }
 
 import Header from "../../../components/table/header";
+import SortIcon from "@components/table/SortIcon";
 import {
   flexRender,
   getCoreRowModel,
@@ -699,7 +699,7 @@ import {
 } from "@tanstack/react-table"
 
 import { Fragment, useEffect, useLayoutEffect, useMemo, useState, useContext, useRef } from "react"
-import { TbSortAscending, TbSortDescending } from 'react-icons/tb'
+
 
 import { Paginator } from "../../../components/table/Paginator";
 import RowsIndicator from "../../../components/table/RowsIndicator";
@@ -917,32 +917,21 @@ const Customtable = ({
   return (
     <div className="w-full">
       <style jsx global>{`
-        /* ── Column header cells ── */
+        /* .custom-table th/td now live in globals.css — one definition for every
+           table in the app. Two things stay here because they are genuinely
+           local, not a restatement of the standard:
+             - padding !important: this table sets padding inline on 13 cells,
+               and a normal stylesheet rule loses to an inline style. The
+               !important is what makes the standard's 4px/6px band actually
+               apply here, so it has to outrank them explicitly.
+             - white-space on the header: these column labels must not wrap. */
         .custom-table th {
-          background-color: var(--bg-subtle);
-          border-bottom: 1px solid var(--line);
-          text-align: center;
-          font-family: inherit;
-          font-size: var(--fs-table);
-          text-transform: uppercase;
-          letter-spacing: 0.04em;
-          color: var(--ink-secondary);
-          font-weight: 500;
           padding: 4px 8px !important;
-          vertical-align: middle;
           white-space: nowrap;
         }
 
-        /* ── Data cells ── */
         .custom-table td {
-          background-color: var(--bg-card);
-          border-bottom: 1px solid var(--line);
-          text-align: center;
-          font-size: var(--fs-table);
-          font-variant-numeric: tabular-nums;
-          font-family: inherit;
           padding: 6px 8px !important;
-          vertical-align: middle;
         }
 
         /* ── Summary td — strip ALL borders so it's a flat bar ── */
@@ -1117,8 +1106,7 @@ const Customtable = ({
                         >
                           <span className="inline-flex items-center justify-center gap-1">
                             {flexRender(header.column.columnDef.header, header.getContext())}
-                            {header.column.getIsSorted() === 'asc'  && <TbSortAscending  style={{ fontSize: 'var(--fs-title)', color: 'var(--endeavour)' }} />}
-                            {header.column.getIsSorted() === 'desc' && <TbSortDescending style={{ fontSize: 'var(--fs-title)', color: 'var(--endeavour)' }} />}
+                            <SortIcon column={header.column} />
                           </span>
                         </th>
                       ))}
@@ -1185,7 +1173,7 @@ const Customtable = ({
                               </div>
                             ) : isPaid ? (
                               <div className="flex justify-center">
-                                <div className={`px-2.5 py-0.5 responsiveTextTable min-w-[70px] text-center ${(isPaidValue || isUnpaidValue) ? 'rounded-full font-medium' : 'font-normal'}`}
+                                <div className={`px-2.5 py-0.5 responsiveTextTable min-w-[70px] text-center ${(isPaidValue || isUnpaidValue) ? 'rounded-lg font-medium' : 'font-normal'}`}
                                   style={{
                                     backgroundColor: isUnpaidValue ? 'var(--bad-bg)' : isPaidValue ? 'var(--ok-bg)' : 'transparent',
                                     color: isPaidValue ? 'var(--ok-text)' : isUnpaidValue ? 'var(--bad-text)' : 'var(--ink)',

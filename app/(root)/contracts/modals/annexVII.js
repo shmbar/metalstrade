@@ -11,7 +11,7 @@ const Field = ({ label, name, value, onChange, placeholder = '', wide = false })
             value={value || ''}
             onChange={onChange}
             placeholder={placeholder}
-            className="border border-[var(--line)] rounded-full px-3 h-7 responsiveTextInput w-full
+            className="border border-[var(--line)] rounded-lg px-3 h-7 responsiveTextInput w-full
                 focus:outline-none focus:ring-1 focus:ring-[var(--endeavour)]"
             style={{ fontFamily: 'inherit' }}
         />
@@ -293,7 +293,7 @@ const AnnexVII = ({ valueInv, setValueInv, compData, settings, valueCon }) => {
                             value={ax.nationalCode || ''}
                             onChange={handleInput}
                             placeholder="e.g. 7503"
-                            className="border border-[var(--line)] rounded-full px-3 h-7 responsiveTextInput w-full
+                            className="border border-[var(--line)] rounded-lg px-3 h-7 responsiveTextInput w-full
                                 focus:outline-none focus:ring-1 focus:ring-[var(--endeavour)]"
                             style={{ fontFamily: 'inherit' }}
                         />

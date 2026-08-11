@@ -99,7 +99,7 @@ const StorageAging = ({ data = [] }) => {
                 <Warehouse className='w-4 h-4' style={{ color: 'var(--ink)' }} />
                 <h3 className='responsiveTextTitle font-medium text-[var(--ink)]'>Storage Aging by Terminal</h3>
                 {staleRows.length > 0 && (
-                    <span className='flex items-center gap-1 px-2 py-0.5 rounded-full' style={{ fontSize: 'var(--fs-table)', background: TONES.red.bg, color: TONES.red.text, border: `1px solid ${TONES.red.border}` }}>
+                    <span className='flex items-center gap-1 px-2 py-0.5 rounded-lg' style={{ fontSize: 'var(--fs-table)', background: TONES.red.bg, color: TONES.red.text, border: `1px solid ${TONES.red.border}` }}>
                         <AlertTriangle className='w-3 h-3' /> {staleRows.length} sitting {STALE_DAYS}d+
                     </span>
                 )}
@@ -154,7 +154,7 @@ const StorageAging = ({ data = [] }) => {
                                 <span className='truncate' style={{ fontSize: 'var(--fs-table)', color: 'var(--ink)' }}>
                                     {r.descriptionName || 'Cargo'} · {stockName(r.stock)} · {fmtQty(r.qnty)}
                                 </span>
-                                <span className='flex-shrink-0 px-2 py-0.5 rounded-full' style={{ fontSize: 'var(--fs-caption)', background: r._days >= DEMURRAGE_DAYS ? TONES.red.bg : TONES.amber.bg, color: r._days >= DEMURRAGE_DAYS ? TONES.red.text : TONES.amber.text }}>
+                                <span className='flex-shrink-0 px-2 py-0.5 rounded-lg' style={{ fontSize: 'var(--fs-caption)', background: r._days >= DEMURRAGE_DAYS ? TONES.red.bg : TONES.amber.bg, color: r._days >= DEMURRAGE_DAYS ? TONES.red.text : TONES.amber.text }}>
                                     {r._days}d{r._days >= DEMURRAGE_DAYS ? ' · demurrage risk' : ''}
                                 </span>
                             </div>

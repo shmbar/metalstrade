@@ -1,12 +1,12 @@
 'use client'
-
 import { flexRender, getCoreRowModel, getFilteredRowModel, getSortedRowModel, useReactTable } from "@tanstack/react-table"
-import { TbSortDescending, TbSortAscending } from "react-icons/tb"
+
 import { usePathname } from 'next/navigation'
 import '../../contracts/style.css'
 import { getTtl } from "../../../../utils/languages"
 import Tltip from "../../../../components/tlTip"
 import { detailsToolTip } from "./sumTablesFuncs"
+import SortIcon from "@components/table/SortIcon";
 
 const Customtable = ({ data, columns, ln, ttl, settings, dataTable, rmrk }) => {
 
@@ -64,27 +64,21 @@ const Customtable = ({ data, columns, ln, ttl, settings, dataTable, rmrk }) => {
             <div style={{ overflow: 'hidden' }}>
                 {/* Desktop View */}
                 <div className="hidden md:block overflow-x-auto">
-                    <table className="w-full" style={{ borderCollapse: 'collapse' }}>
+                    {/* custom-table: the app-wide table standard in globals.css. */}
+                    <table className="custom-table w-full" style={{ borderCollapse: 'collapse' }}>
                         <thead>
                             {table1.getHeaderGroups().map(hdGroup =>
                                 <tr key={hdGroup.id} style={{ borderBottom: '1px solid var(--selago)' }}>
                                     {hdGroup.headers.map(header =>
-                                        <th key={header.id}
-                                            className="responsiveTextTable relative px-6 py-2 text-left font-medium font-sans"
-                                            style={{
-                                                color: 'var(--chathams-blue)',
-                                                borderRight: '1px solid var(--line)',
-                                                borderBottom: '1px solid var(--line)'
-                                            }}>
+                                        /* Band (size, weight, colour, padding, borders,
+                                           uppercase, tracking) comes from .custom-table th.
+                                           This header was --fs-table but left-aligned at
+                                           px-6, so it sat apart from every other header. */
+                                        <th key={header.id} className="relative">
                                             {header.column.getCanSort() ?
                                                 <div onClick={header.column.getToggleSortingHandler()} className="flex cursor-pointer items-center gap-1">
                                                     {header.column.columnDef.header}
-                                                    {(() => {
-                                                        const sorted = header.column.getIsSorted();
-                                                        if (sorted === 'asc') return <TbSortAscending className="text-[var(--chathams-blue)] scale-125" />;
-                                                        if (sorted === 'desc') return <TbSortDescending className="text-[var(--chathams-blue)] scale-125" />;
-                                                        return null;
-                                                    })()}
+                                                    <SortIcon column={header.column} />
                                                 </div>
                                                 :
                                                 <span>{header.column.columnDef.header}</span>
@@ -98,13 +92,14 @@ const Customtable = ({ data, columns, ln, ttl, settings, dataTable, rmrk }) => {
                                 <tr key={row.id} style={{ borderBottom: '1px solid var(--selago)' }} className='hover:bg-[var(--bg-subtle)] transition'>
                                     {row.getVisibleCells().map(cell => (
                                         <td key={cell.id} data-label={cell.column.columnDef.header}
-                                            className="responsiveTextTable px-6 py-1 items-center"
                                             style={{
-                                                color: cell.column.id === 'amount' ? 'var(--chathams-blue)' : 'var(--port-gore)',
-                                                fontWeight: cell.column.id === 'amount' ? 500 : 400,
+                                                /* Size, colour, padding and borders come from
+                                                   .custom-table td. What stays is content-driven:
+                                                   the amount is a figure, so it takes the 500
+                                                   figure weight and right-aligns to put its
+                                                   decimal points in a column. */
+                                                fontWeight: cell.column.id === 'amount' ? 500 : undefined,
                                                 textAlign: cell.column.id === 'amount' ? 'right' : 'left',
-                                                borderRight: '1px solid var(--selago)',
-                                                borderBottom: '1px solid var(--selago)'
                                             }}>
                                             <Tltip direction='right' tltpText={detailsToolTip(row, data, settings, dataTable, rmrk)}>
                                                 <span>
@@ -118,38 +113,30 @@ const Customtable = ({ data, columns, ln, ttl, settings, dataTable, rmrk }) => {
                         </tbody>
                         <tfoot>
                             <tr style={{ background: 'var(--bg-subtle)', fontWeight: 500 }}>
-                                <th className="responsiveTextTable relative px-2 py-2 text-left font-medium"
-                                    style={{ color: 'var(--chathams-blue)', borderRight: '1px solid var(--selago)' }}>
+                                <th className="relative text-left">
                                     Total $:
                                 </th>
-                                <th className="responsiveTextTable relative px-2 py-2 text-left font-medium"
-                                    style={{ color: 'var(--chathams-blue)', borderRight: '1px solid var(--selago)' }}>
+                                <th className="relative text-left">
                                     {showAmount(usdTotals.invoices, 'usd')}
                                 </th>
-                                <th className="responsiveTextTable relative px-2 py-2 text-left font-medium"
-                                    style={{ color: 'var(--chathams-blue)', borderRight: '1px solid var(--selago)' }}>
+                                <th className="relative text-left">
                                     {showAmount(usdTotals.payments, 'usd')}
                                 </th>
-                                <th className="responsiveTextTable relative px-2 py-2 text-left font-medium"
-                                    style={{ color: 'var(--chathams-blue)' }}>
+                                <th className="relative text-left">
                                     {showAmount(usdTotals.balance, 'usd')}
                                 </th>
                             </tr>
                             <tr style={{ background: 'var(--bg-subtle)', borderTop: '1px solid var(--rock-blue)' }}>
-                                <th className="responsiveTextTable relative px-2 py-2 text-left font-medium"
-                                    style={{ color: 'var(--chathams-blue)', borderRight: '1px solid var(--selago)' }}>
+                                <th className="relative text-left">
                                     Total €:
                                 </th>
-                                <th className="responsiveTextTable relative px-2 py-2 text-left font-medium"
-                                    style={{ color: 'var(--chathams-blue)', borderRight: '1px solid var(--selago)' }}>
+                                <th className="relative text-left">
                                     {showAmount(eurTotals.invoices, 'eur')}
                                 </th>
-                                <th className="responsiveTextTable relative px-2 py-2 text-left font-medium"
-                                    style={{ color: 'var(--chathams-blue)', borderRight: '1px solid var(--selago)' }}>
+                                <th className="relative text-left">
                                     {showAmount(eurTotals.payments, 'eur')}
                                 </th>
-                                <th className="responsiveTextTable relative px-2 py-2 text-left font-medium"
-                                    style={{ color: 'var(--chathams-blue)' }}>
+                                <th className="relative text-left">
                                     {showAmount(eurTotals.balance, 'eur')}
                                 </th>
                             </tr>

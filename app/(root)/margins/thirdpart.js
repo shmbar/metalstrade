@@ -15,27 +15,18 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                     transition-timing-function: ease-in-out !important;
                 }
 
-                .margins-table th, .margins-table td {
-                    text-align: center;
-                    vertical-align: middle;
-                    padding: 6px;
-                }
+                /* The band comes from .custom-table th/td in globals.css — this
+                   table opts in via the class on <table> below.
 
-                .margins-table th {
-                    background-color: var(--bg-subtle);
-                    color: var(--ink-secondary);
-                    font-weight: 600;
-                    font-size: 0.6875rem;
-                    text-transform: uppercase;
-                    letter-spacing: 0.04em;
-                }
-
-                .margins-table td {
-                    background-color: var(--bg-card);
-                    border-bottom: 1px solid var(--line);
-                    color: var(--ink);
-                    font-size: 0.75rem;
-                }
+                   There used to be a .margins-table th/td copy here, and it was
+                   invisible as a bug for the same reason all the others were: it
+                   has the SAME 0,1,1 specificity as the shared rule but is
+                   injected later by styled-jsx, so it silently won. It held
+                   font-weight 600 against the standard's 500 and hardcoded
+                   0.6875rem / 0.75rem instead of --fs-table — which is why this
+                   header still rendered heavy and large after the table was
+                   supposedly standardised. A same-name, same-specificity local
+                   copy does not override the standard visibly; it replaces it. */
 
                 /* Totals row — footer treatment */
                 .margins-table tbody tr:last-child td {
@@ -75,12 +66,17 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                             className="overflow-auto"
                            
                         >
-                            <table className="w-full rounded-2xl" style={{ tableLayout: 'auto', borderSpacing: '0' }}>
-                                {/* THEAD - matching newTable header exactly */}
-                                <thead className="sticky top-0 z-10">
+                            {/* custom-table opts this Totals table into the app-wide
+                                table standard in globals.css, so its header band is
+                                the same 11px/500 uppercase as every other table. The
+                                headers below used to claim they matched newTable but
+                                carried responsiveTextInput (13px) and py-2, which made
+                                this the one header in the app two rungs too large. */}
+                            <table className="custom-table w-full rounded-2xl" style={{ tableLayout: 'auto', borderSpacing: '0' }}>
+                                <thead className="sticky top-0 z-sticky">
                                     <tr>
                                         <th
-                                            className="px-2 py-2 text-center responsiveTextInput "
+                                            className=""
                                             style={{
                                                 minWidth: '45px',
                                                 textAlign: 'center'
@@ -89,7 +85,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                             Months
                                         </th>
                                         <th
-                                            className="px-2 py-2 text-center responsiveTextInput "
+                                            className=""
                                             style={{
                                                 minWidth: '40px',
                                                 textAlign: 'center'
@@ -98,7 +94,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                             Purchased quantity (MT)
                                         </th>
                                         <th
-                                            className="px-2 py-2 text-center responsiveTextInput "
+                                            className=""
                                             style={{
                                                 minWidth: '105px',
                                                 textAlign: 'center'
@@ -107,7 +103,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                             Profit
                                         </th>
                                         <th
-                                            className="px-2 py-2 text-center responsiveTextInput "
+                                            className=""
                                             style={{
                                                 minWidth: '45px',
                                                 textAlign: 'center'
@@ -116,7 +112,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                             Outstanding shipment
                                         </th>
                                         <th
-                                            className="px-2 py-2 text-center responsiveTextInput "
+                                            className=""
                                             style={{
                                                 minWidth: '60px',
                                                 textAlign: 'center'

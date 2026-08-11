@@ -234,7 +234,7 @@ const ActivityLog = ({ entityType, entityId, showFilters = false }) => {
                                                 </p>
                                                 <div className='flex flex-wrap items-center gap-x-2 gap-y-0.5 mt-0.5 sm:mt-0 sm:flex-shrink-0 sm:justify-end' style={{ fontSize: 'var(--fs-table)', color: 'var(--regent-gray)' }}>
                                                     {r.entityLabel && (
-                                                        <span className='px-1.5 py-0.5 rounded-full' style={{ background: meta.bg, color: meta.color }}>
+                                                        <span className='px-1.5 py-0.5 rounded-lg' style={{ background: meta.bg, color: meta.color }}>
                                                             {r.entityLabel}
                                                         </span>
                                                     )}

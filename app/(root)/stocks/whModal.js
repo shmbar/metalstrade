@@ -254,7 +254,7 @@ const WHvModal = ({ isOpen, setIsOpen, item, setItem, data, setData }) => {
                     <Selector arr={settings.Stocks.Stocks} value={newItemStock} onChange={(e) => handleChange(e, 'stock')} name='stock' clear={clear} />
                 </div>
                 <div className='flex items-end'>
-                    <Button className='h-8 responsiveTextInput rounded-full' onClick={moveStock} disabled={item.stock === newItemStock.stock}>
+                    <Button className='h-8 responsiveTextInput rounded-lg' onClick={moveStock} disabled={item.stock === newItemStock.stock}>
                         <FilePen />
                         {getTtl('Move to new Stock', ln)}
                     </Button>
@@ -264,13 +264,13 @@ const WHvModal = ({ isOpen, setIsOpen, item, setItem, data, setData }) => {
             {/* Action buttons */}
             <div className='flex gap-3 px-3 py-2 border-t border-[var(--line)]'>
                 <Tltip direction='top' tltpText='Move item to a different stock'>
-                    <Button className="h-8 responsiveTextInput rounded-full" onClick={moveItems}>
+                    <Button className="h-8 responsiveTextInput rounded-lg" onClick={moveItems}>
                         <Archive />
                         {getTtl('Change Stock', ln)}
                     </Button>
                 </Tltip>
                 <Tltip direction='top' tltpText='View the contract for this item'>
-                    <Button className="h-8 responsiveTextInput rounded-full" onClick={() => moveToContracts()}>
+                    <Button className="h-8 responsiveTextInput rounded-lg" onClick={() => moveToContracts()}>
                         <FileText />
                         {getTtl('Contract', ln)}
                     </Button>

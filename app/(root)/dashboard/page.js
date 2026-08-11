@@ -599,7 +599,7 @@ function FilterSelect({ label, icon, value, onChange, options }) {
     <Select value={value || 'all'} onValueChange={(v) => { onChange(v === 'all' ? '' : v); setQ(''); }}
       onOpenChange={(open) => { if (!open) setQ(''); }}>
       <SelectTrigger
-        className="group h-8 w-auto min-w-[122px] max-w-[210px] gap-1.5 rounded-full pl-2.5 pr-1.5 shadow-sm focus:ring-0 focus:ring-offset-0"
+        className="group h-8 w-auto min-w-[122px] max-w-[210px] gap-1.5 rounded-lg pl-2.5 pr-1.5 shadow-sm focus:ring-0 focus:ring-offset-0"
         style={{
           fontSize: 'var(--fs-body)',
           background: active ? 'var(--brand-soft)' : 'var(--bg-subtle)',

@@ -25,7 +25,7 @@ function AlertPill({ icon: Icon, label, count, severity, onClick }) {
         <button
             onClick={onClick}
             aria-label={`${label}: ${count}`}
-            className='flex items-center gap-1.5 px-3 py-1.5 rounded-full transition-all hover:shadow-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30'
+            className='flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all hover:shadow-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30'
             style={{
                 background: palette.bg,
                 border: `1px solid ${palette.border}`,

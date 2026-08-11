@@ -417,7 +417,7 @@ const StorageCosts = () => {
                                                 </td>
                                                 <td className="px-3 py-2">
                                                     <button type="button" disabled={!ready || savingId === e.id} onClick={() => saveTag(e)}
-                                                        className="inline-flex items-center gap-1 rounded-full px-3 h-7 text-[var(--on-brand)] font-medium disabled:opacity-40"
+                                                        className="inline-flex items-center gap-1 rounded-lg px-3 h-7 text-[var(--on-brand)] font-medium disabled:opacity-40"
                                                         style={{ fontSize: 'var(--fs-body)', background: 'var(--endeavour)' }}>
                                                         <Save className="w-3 h-3" /> {savingId === e.id ? 'Saving…' : 'Save'}
                                                     </button>

@@ -150,7 +150,7 @@ const SharedStock = () => {
         {
             accessorKey: 'ownersLabel', header: 'Owners',
             cell: p => (
-                <span className='inline-flex items-center gap-1 px-2 py-0.5 rounded-full font-semibold whitespace-nowrap'
+                <span className='inline-flex items-center gap-1 px-2 py-0.5 rounded-lg font-semibold whitespace-nowrap'
                     style={{ fontSize: 'var(--fs-table)', background: TONES.blue.bg, color: TONES.blue.text, border: `1px solid ${TONES.blue.border}` }}>
                     <Share2 className='w-2.5 h-2.5' />{p.getValue()}
                 </span>
@@ -159,7 +159,7 @@ const SharedStock = () => {
         {
             accessorKey: 'financedLabel', header: 'Financed by',
             cell: p => (
-                <span className='inline-flex items-center px-2 py-0.5 rounded-full font-semibold whitespace-nowrap'
+                <span className='inline-flex items-center px-2 py-0.5 rounded-lg font-semibold whitespace-nowrap'
                     style={{
                         fontSize: 'var(--fs-table)',
                         background: p.getValue() === 'IMS' ? 'var(--ok-soft)' : p.getValue() === 'GIS' ? 'var(--warn-soft)' : 'var(--surface-muted)',

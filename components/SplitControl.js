@@ -177,7 +177,7 @@ export default function SplitControl({
           >
             <div className="flex items-center justify-between px-4 py-2.5" style={{ background: 'var(--bg-subtle)', borderBottom: '1px solid var(--line)' }}>
               <span className="font-semibold" style={{ fontSize: 'var(--fs-title)', color: 'var(--chathams-blue)' }}>IMS / GIS split</span>
-              <button type="button" onClick={() => setOpen(false)} className="p-1 rounded-full hover:bg-[var(--bg-subtle)]">
+              <button type="button" onClick={() => setOpen(false)} className="p-1 rounded-lg hover:bg-[var(--bg-subtle)]">
                 <X className="w-4 h-4" style={{ color: 'var(--chathams-blue)' }} />
               </button>
             </div>

@@ -1,7 +1,6 @@
-'use client';
-import { useContext, useEffect, useState, useCallback, useMemo } from 'react';
+'use client';import { useContext, useEffect, useState, useCallback, useMemo } from 'react';
 import Customtable from './newTable';
-import { TbLayoutGridAdd } from 'react-icons/tb';
+
 import { IoAnalyticsOutline } from "react-icons/io5";
 import KpiStrip from '../../../components/KpiStrip';
 import { FileText, CheckCircle2, CircleDashed, Factory } from 'lucide-react';
@@ -32,6 +31,7 @@ import EditableCell from '../../../components/table/inlineEditing/EditableCell';
 import EditableSelectCell from '../../../components/table/inlineEditing/EditableSelectCell';
 import { updateContractField } from '../../../utils/utils';
 import { useGlobalSearch } from '../../../contexts/useGlobalSearchContext';
+import { TbLayoutGridAdd } from "react-icons/tb";
 
 const Contracts = () => {
 

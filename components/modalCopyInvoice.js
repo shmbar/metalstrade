@@ -26,7 +26,7 @@ const MyModal = () => {
             <div className="responsiveTextTitle font-medium">	{getTtl('copyInvoice', ln)}</div>
             <div className='responsiveTextTitle mt-2'>{getTtl('copyInvoiceTxt', ln)}</div>
 
-            <button className='cursor-pointer px-2 py-1 responsiveTextInput mt-2 border border-[var(--on-brand)] rounded-full z-toast'
+            <button className='cursor-pointer px-2 py-1 responsiveTextInput mt-2 border border-[var(--on-brand)] rounded-lg z-toast'
               onClick={Cncl}>{getTtl('Cancel', ln)}</button>
           </div>
         </div>

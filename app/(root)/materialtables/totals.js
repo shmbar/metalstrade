@@ -29,8 +29,9 @@ const Customtable = ({ data, columns }) => {
 
             <div className="w-full overflow-x-auto">
                 {/* Desktop */}
+                {/* custom-table: the app-wide table standard in globals.css. */}
                 <table
-                    className="w-full hidden sm:table"
+                    className="custom-table w-full hidden sm:table"
                     style={{
                         tableLayout: 'auto',
                         borderCollapse: 'separate',
@@ -49,14 +50,16 @@ const Customtable = ({ data, columns }) => {
                                         <th
                                             key={header.id}
                                             style={{
-                                                backgroundColor: "var(--bg-card)",
-                                                color: 'var(--ink-muted)',
-                                                padding: isDel ? '0' : '6px 6px',
-                                                fontSize: 'var(--fs-body)',
-                                                fontWeight: '500',
-                                                textTransform: 'uppercase',
-                                                letterSpacing: '0.04em',
-                                                textAlign: colId === 'material' ? 'left' : 'center',
+                                                /* Size, weight, colour, background, uppercase
+                                                   and tracking come from .custom-table th. This
+                                                   header had drifted to --fs-body (12px) against
+                                                   the standard's --fs-table (11px).
+                                                   What stays is content-driven, not styling: the
+                                                   material column is long free text and reads
+                                                   left, and the del column is an icon with no
+                                                   padding. */
+                                                padding: isDel ? '0' : undefined,
+                                                textAlign: colId === 'material' ? 'left' : undefined,
                                                 border: 'none',
                                                 whiteSpace: 'nowrap',
                                                 minWidth: colMinWidth,

@@ -23,8 +23,8 @@ import Avatar from '../../../components/Avatar';
 import { saveAs } from 'file-saver';
 import { Menu, Transition, MenuButton, MenuItem, MenuItems } from '@headlessui/react';
 import { Fragment } from 'react';
-import { TbSortAscending, TbSortDescending } from 'react-icons/tb';
 import { SHIPMENT_STATUSES, SHIPMENT_STATUS_STYLES, normalizeStatus } from '../contractsstatement/shipmentStatus';
+import SortIcon from "@components/table/SortIcon";
 
 // Shipment lifecycle vocabulary/colors live in a shared module so the Contracts Statement
 // follows the exact same statuses (see ../contractsstatement/shipmentStatus).
@@ -159,7 +159,7 @@ function FilterSelect({ value, onChange, placeholder, options }) {
         <div ref={ref} className="relative">
             <button
                 onClick={() => setOpen(p => !p)}
-                className="flex items-center gap-1.5 font-normal px-2.5 py-0.5 rounded-full border cursor-pointer focus:outline-none transition-colors whitespace-nowrap"
+                className="flex items-center gap-1.5 font-normal px-2.5 py-0.5 rounded-lg border cursor-pointer focus:outline-none transition-colors whitespace-nowrap"
                 style={{
                     fontSize: 'var(--fs-table)',
                     borderColor: active ? 'var(--endeavour)' : 'var(--line)',
@@ -238,7 +238,7 @@ function StatusSelect({ value, onChange }) {
                 role="button"
                 tabIndex={0}
                 onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleToggle(); } }}
-                className="px-2.5 py-0.5 rounded-full font-medium responsiveTextTable text-center whitespace-nowrap cursor-pointer"
+                className="px-2.5 py-0.5 rounded-lg font-medium responsiveTextTable text-center whitespace-nowrap cursor-pointer"
                 style={STATUS_STYLES[value]}
             >
                 {value || '— Select —'}
@@ -773,27 +773,8 @@ const ShipmentPage = () => {
     return (
         <div className="w-full" style={{ background: 'var(--bg-page)' }}>
         <style jsx global>{`
-            .custom-table th {
-          background-color: var(--bg-subtle);
-          border-bottom: 1px solid var(--line);
-          text-align: center;
-          vertical-align: middle;
-          padding: 4px 8px;
-          font-size: var(--fs-table);
-          text-transform: uppercase;
-          letter-spacing: 0.04em;
-          color: var(--ink-secondary);
-          font-weight: 500;
-        }
-            .custom-table td {
-          background-color: var(--bg-card);
-          border-bottom: 1px solid var(--line);
-          text-align: center;
-          vertical-align: middle;
-          padding: 6px 8px;
-          font-size: var(--fs-table);
-          font-variant-numeric: tabular-nums;
-        }
+            /* .custom-table th/td now live in globals.css — one definition for
+               every table in the app. */
             .td-truncate {
                 overflow: hidden !important;
             }
@@ -919,7 +900,7 @@ const ShipmentPage = () => {
                             {showFilters && <div className="flex items-center gap-1 flex-wrap">
                                 <button
                                     onClick={() => setStatusFilter('')}
-                                    className={`font-normal px-2.5 py-0.5 rounded-full border transition-colors ${statusFilter === '' ? 'bg-[var(--endeavour)] text-[var(--on-brand)] border-[var(--endeavour)]' : 'bg-[var(--bg-card)] text-[var(--endeavour)] border-[var(--endeavour)] hover:bg-[var(--selago)]'}`}
+                                    className={`font-normal px-2.5 py-0.5 rounded-lg border transition-colors ${statusFilter === '' ? 'bg-[var(--endeavour)] text-[var(--on-brand)] border-[var(--endeavour)]' : 'bg-[var(--bg-card)] text-[var(--endeavour)] border-[var(--endeavour)] hover:bg-[var(--selago)]'}`}
                                     style={{ fontSize: 'var(--fs-table)' }}
                                 >
                                     All ({contracts.length})
@@ -930,7 +911,7 @@ const ShipmentPage = () => {
                                         <button
                                             key={s}
                                             onClick={() => setStatusFilter(prev => prev === s ? '' : s)}
-                                            className="font-normal px-2.5 py-0.5 rounded-full transition-all"
+                                            className="font-normal px-2.5 py-0.5 rounded-lg transition-all"
                                             style={{ ...STATUS_STYLES[s], fontSize: 'var(--fs-table)', opacity: statusFilter === s ? 1 : 0.75, outline: statusFilter === s ? `2px solid ${STATUS_STYLES[s].color}` : 'none', outlineOffset: '1px' }}
                                         >
                                             {s}: {count}
@@ -942,7 +923,7 @@ const ShipmentPage = () => {
                                 <button
                                     onClick={toggleGroupByStatus}
                                     title='Collapse the table into per-status sections'
-                                    className='font-normal px-2.5 py-0.5 rounded-full border transition-colors'
+                                    className='font-normal px-2.5 py-0.5 rounded-lg border transition-colors'
                                     style={{
                                         fontSize: 'var(--fs-table)',
                                         background: groupByStatus ? 'var(--brand-soft)' : 'var(--bg-card)',
@@ -999,7 +980,7 @@ const ShipmentPage = () => {
                             {overdueCount > 0 && (
                                 <button
                                     onClick={() => setUrgencyFilter(prev => prev === 'overdue' ? '' : 'overdue')}
-                                    className="font-normal px-2.5 py-0.5 rounded-full transition-all"
+                                    className="font-normal px-2.5 py-0.5 rounded-lg transition-all"
                                     style={{ fontSize: 'var(--fs-table)', backgroundColor: 'var(--bad-bg)', border: '1px solid var(--bad-border)', color: 'var(--bad-text)', outline: urgencyFilter === 'overdue' ? '2px solid var(--bad-text)' : 'none', outlineOffset: '1px' }}
                                 >
                                     {overdueCount} overdue
@@ -1008,7 +989,7 @@ const ShipmentPage = () => {
                             {soonCount > 0 && (
                                 <button
                                     onClick={() => setUrgencyFilter(prev => prev === 'soon' ? '' : 'soon')}
-                                    className="font-normal px-2.5 py-0.5 rounded-full transition-all"
+                                    className="font-normal px-2.5 py-0.5 rounded-lg transition-all"
                                     style={{ fontSize: 'var(--fs-table)', backgroundColor: 'var(--warn-bg)', border: '1px solid var(--warn-border)', color: 'var(--warn-text)', outline: urgencyFilter === 'soon' ? '2px solid var(--warn-text)' : 'none', outlineOffset: '1px' }}
                                 >
                                     {soonCount} arriving ≤7d
@@ -1017,7 +998,7 @@ const ShipmentPage = () => {
                             {inTransitCount > 0 && (
                                 <button
                                     onClick={() => setStatusFilter(prev => prev === 'In Transit' ? '' : 'In Transit')}
-                                    className="font-normal px-2.5 py-0.5 rounded-full transition-all"
+                                    className="font-normal px-2.5 py-0.5 rounded-lg transition-all"
                                     style={{ fontSize: 'var(--fs-table)', ...STATUS_STYLES['In Transit'], outline: statusFilter === 'In Transit' ? `2px solid ${STATUS_STYLES['In Transit'].color}` : 'none', outlineOffset: '1px' }}
                                 >
                                     {inTransitCount} in transit
@@ -1062,15 +1043,18 @@ const ShipmentPage = () => {
                                         { label: 'Last Update',   col: 'updated'  },
                                         { label: 'Notes',         col: null       },
                                     ].map(({ label, col }) => (
-                                        /* py-2 dropped: it never applied. `.custom-table th`
-                                           in the block above is unlayered and 0,1,1, so it
-                                           outranks every Tailwind utility here, which sit in
-                                           @layer utilities at 0,1,0. Size and weight are left
-                                           on the element only because they now agree with the
-                                           block; the padding did not, and read as a lie.
-                                           letter-spacing was 0.05em against every other page's
-                                           0.04em — inline, so it did win. */
-                                        <th key={label} className="font-sans responsiveTextTable font-medium"
+                                        /* Everything about the header band — size, weight,
+                                           colour, uppercase, tracking, padding, alignment —
+                                           comes from .custom-table th in globals.css.
+
+                                           Nothing here may restate it. This header used to
+                                           carry colour:--chathams-blue inline, which is full
+                                           ink; once the shared rule moved every other table to
+                                           --ink-secondary, the inline value still won here and
+                                           shipment alone rendered a shade darker. Same weight,
+                                           but darker reads as heavier, so this table looked
+                                           bolder than the rest of the app. */
+                                        <th key={label}
                                             onClick={col ? () => handleSort(col) : undefined}
                                             /* nowrap: under auto layout the browser narrows a column
                                                by wrapping its header, and six of these are two words.
@@ -1078,11 +1062,10 @@ const ShipmentPage = () => {
                                                the only labels on two lines — the margins bug in
                                                1304bea1, which read as mis-alignment rather than as
                                                wrapping. The table scrolls if it genuinely cannot fit. */
-                                            style={{ color: 'var(--chathams-blue)', letterSpacing: '0.04em', textAlign: 'center', whiteSpace: 'nowrap', cursor: col ? 'pointer' : 'default', userSelect: 'none' }}>
+                                            style={{ whiteSpace: 'nowrap', cursor: col ? 'pointer' : 'default', userSelect: 'none' }}>
                                             <span className="inline-flex items-center justify-center gap-1">
                                                 {label}
-                                                {col && sortCol === col && sortDir === 'asc' && <TbSortAscending style={{ fontSize: 'var(--fs-title)', color: 'var(--endeavour)' }} />}
-                                                {col && sortCol === col && sortDir === 'desc' && <TbSortDescending style={{ fontSize: 'var(--fs-title)', color: 'var(--endeavour)' }} />}
+                                                <SortIcon direction={col && sortCol === col ? sortDir : null} />
                                             </span>
                                         </th>
                                     ))}
@@ -1213,7 +1196,7 @@ const ShipmentPage = () => {
                                                         const recent = isRecent(ts);
                                                         return recent ? (
                                                             <div
-                                                                className="px-2 py-0.5 rounded-full responsiveTextTable font-medium text-center whitespace-nowrap inline-flex items-center gap-1"
+                                                                className="px-2 py-0.5 rounded-lg responsiveTextTable font-medium text-center whitespace-nowrap inline-flex items-center gap-1"
                                                                 style={{ backgroundColor: 'var(--ok-bg)', border: '1px solid var(--ok-border)', color: 'var(--ok-text)' }}
                                                             >
                                                                 <span style={{ width: 6, height: 6, borderRadius: 9999, backgroundColor: 'var(--ok-text)', display: 'inline-block' }} />
@@ -1275,13 +1258,13 @@ const ShipmentPage = () => {
                                                     ? { backgroundColor: 'var(--bad-bg)', border: '1px solid var(--bad-border)', color: 'var(--bad-text)', t: 'Overdue' }
                                                     : { backgroundColor: 'var(--warn-bg)', border: '1px solid var(--warn-border)', color: 'var(--warn-text)', t: '≤7d' };
                                                 return (
-                                                    <span className="responsiveTextTable font-medium px-2 py-0.5 rounded-full" style={{ backgroundColor: s.backgroundColor, border: s.border, color: s.color }}>
+                                                    <span className="responsiveTextTable font-medium px-2 py-0.5 rounded-lg" style={{ backgroundColor: s.backgroundColor, border: s.border, color: s.color }}>
                                                         {s.t}
                                                     </span>
                                                 );
                                             })()}
                                             <span
-                                                className="responsiveTextTable font-medium px-2.5 py-0.5 rounded-full"
+                                                className="responsiveTextTable font-medium px-2.5 py-0.5 rounded-lg"
                                                 style={status ? STATUS_STYLES[status] : { backgroundColor: 'var(--neutral-bg)', color: 'var(--regent-gray)', border: '1px solid var(--neutral-border)' }}
                                             >
                                                 {status || 'No Status'}
@@ -1362,7 +1345,7 @@ const ShipmentPage = () => {
                                             <button
                                                 key={pi}
                                                 onClick={() => setPageIndex(pi)}
-                                                className="min-w-[2rem] h-8 responsiveTextInput font-medium rounded-full border transition-all duration-200"
+                                                className="min-w-[2rem] h-8 responsiveTextInput font-medium rounded-lg border transition-all duration-200"
                                                 style={{
                                                     backgroundColor: safePageIndex === pi ? 'var(--endeavour)' : 'var(--bg-card)',
                                                     color: safePageIndex === pi ? 'var(--on-brand)' : 'var(--endeavour)',

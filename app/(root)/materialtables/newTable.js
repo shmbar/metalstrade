@@ -13,6 +13,7 @@ import { DndContext, closestCenter, PointerSensor, useSensor, useSensors } from 
 import { SortableContext, horizontalListSortingStrategy, useSortable, arrayMove } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import { UNIT_LABELS, UNIT_TO_MT } from './constants'
+import SortIcon from "@components/table/SortIcon";
 
 // Standard elements — cannot be removed (only user-added custom elements have the × button)
 const STANDARD_KEYS = new Set(['ni', 'cr', 'mo', 'co', 'w', 'nb', 'fe'])
@@ -45,8 +46,9 @@ function SortableHeaderCell({ id, label, style, onRemove, isFe, isStandard, sort
                 >
                     {label}
                     {isFe && <span className="responsiveTextTable" style={{ color: 'var(--brand-border)', marginLeft: '2px', fontStyle: 'italic' }}>auto</span>}
-                    {sortDir === 'asc' && <ArrowUpNarrowWide style={{ width: '10px', height: '10px', marginLeft: '1px' }} />}
-                    {sortDir === 'desc' && <ArrowDownWideNarrow style={{ width: '10px', height: '10px', marginLeft: '1px' }} />}
+                    {/* This header sorts via its own sortDir state, not a TanStack
+                        column, hence `direction` rather than `column`. */}
+                    <SortIcon direction={sortDir} />
                 </span>
                 {!isStandard && (
                     <button
@@ -593,7 +595,7 @@ const Customtable = ({
                                                         {header.column.getCanSort() ? (
                                                             <div onClick={header.column.getToggleSortingHandler()} className="cursor-pointer flex items-center gap-1" style={{ justifyContent: (colId === 'material' || colId === 'container') ? 'flex-start' : 'center' }}>
                                                                 {header.column.columnDef.header}
-                                                                {{ asc: <ArrowUpNarrowWide className="w-3 h-3" />, desc: <ArrowDownWideNarrow className="w-3 h-3" /> }[header.column.getIsSorted()]}
+                                                                <SortIcon column={header.column} />
                                                             </div>
                                                         ) : (
                                                             <span>{header.column.columnDef.header}</span>

@@ -1,7 +1,7 @@
 'use client'
 
 import { flexRender, getCoreRowModel, getFilteredRowModel, getSortedRowModel, useReactTable } from "@tanstack/react-table"
-import { TbSortDescending, TbSortAscending } from "react-icons/tb"
+import SortIcon from "@components/table/SortIcon"
 import '../../contracts/style.css'
 import Tltip from "../../../../components/tlTip"
 import { expensesToolTip } from "./funcs"
@@ -46,15 +46,12 @@ const Customtable = ({ data, columns, expensesData, settings, title, filt, headi
                     height: 100%;
                     text-align: center;
                 }
-                .glass-table th {
-                    color: var(--chathams-blue) !important;
-                    font-weight: 400;
-                    letter-spacing: 0.05em;
-                }
+                /* Type comes from .custom-table th in globals.css. This rule used to
+                   force colour with !important plus weight 400 and 0.05em tracking,
+                   which outranked even an inline style — so the standard could not
+                   reach this table no matter what was done at the call site. */
                 .glass-table tfoot th, .glass-table tfoot td {
                     background: var(--bg-subtle);
-                    color: var(--chathams-blue) !important;
-                    font-weight: 400;
                     text-align: center !important;
                     vertical-align: middle !important;
                     border-bottom: 1px solid var(--line);
@@ -113,7 +110,12 @@ const Customtable = ({ data, columns, expensesData, settings, title, filt, headi
                         >
                         {title}
                         </div>
-                        <table className="w-full glass-table" style={{ borderCollapse: 'collapse' }}>
+                        {/* custom-table: the app-wide table standard in globals.css. The
+                            header/body colours were set on the inner span of every cell,
+                            which is below the <th>/<td> the standard targets — so the
+                            standard could never reach them. They are removed rather than
+                            overridden. */}
+                        <table className="custom-table w-full glass-table" style={{ borderCollapse: 'collapse' }}>
                             {!totalsOnly && (
                                 <thead>
                                     {table1.getHeaderGroups().map(hdGroup => (
@@ -121,15 +123,12 @@ const Customtable = ({ data, columns, expensesData, settings, title, filt, headi
                                             {hdGroup.headers.map(header => (
                                                 <th key={header.id}>
                                                     {header.column.getCanSort() ? (
-                                                        <div onClick={header.column.getToggleSortingHandler()} className="responsiveTextTable flex cursor-pointer items-center gap-1 justify-center text-[var(--chathams-blue)]">
+                                                        <div onClick={header.column.getToggleSortingHandler()} className="flex cursor-pointer items-center gap-1 justify-center">
                                                             {header.column.columnDef.header}
-                                                            {{
-                                                                asc: <TbSortAscending className="text-[var(--chathams-blue)] scale-125" />,
-                                                                desc: <TbSortDescending className="text-[var(--chathams-blue)] scale-125" />
-                                                            }[header.column.getIsSorted()]}
+                                                            <SortIcon column={header.column} />
                                                         </div>
                                                     ) : (
-                                                        <span className="responsiveTextTable" style={{color:'var(--chathams-blue)'}}>{header.column.columnDef.header}</span>
+                                                        <span>{header.column.columnDef.header}</span>
                                                     )}
                                                 </th>
                                             ))}
@@ -144,7 +143,7 @@ const Customtable = ({ data, columns, expensesData, settings, title, filt, headi
                                             {row.getVisibleCells().map(cell => (
                                                 <td key={cell.id}>
                                                     <Tltip direction='right' tltpText={expensesToolTip(row, expensesData, settings, filt)}>
-                                                        <span className="responsiveTextTable items-center flex outline-none whitespace-normal break-words cursor-default" style={{color:'var(--chathams-blue)'}}>
+                                                        <span className="items-center flex justify-center outline-none whitespace-normal break-words cursor-default">
                                                             {flexRender(cell.column.columnDef.cell, cell.getContext())}
                                                         </span>
                                                     </Tltip>

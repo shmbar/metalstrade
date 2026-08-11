@@ -1,5 +1,4 @@
 ﻿'use client'
-
 // Fade-in animation for badges
 if (typeof window !== 'undefined') {
   const style = document.createElement('style');
@@ -8,6 +7,7 @@ if (typeof window !== 'undefined') {
 }
 
 import Header from "../../../components/table/header";
+import SortIcon from "@components/table/SortIcon";
 import {
   flexRender,
   getCoreRowModel,
@@ -18,7 +18,7 @@ import {
 } from "@tanstack/react-table";
 
 import { Fragment, useEffect, useMemo, useState } from "react";
-import { TbSortDescending, TbSortAscending } from "react-icons/tb";
+
 import { ArrowUpDown } from "lucide-react";
 
 import { Paginator } from "../../../components/table/Paginator";
@@ -144,29 +144,11 @@ const Customtable = ({
           transition-timing-function: ease-in-out !important;
         }
 
-        /* Table cells: header per design-system spec, body with row dividers only */
-        .custom-table th {
-          border: none;
-          border-bottom: 1px solid var(--line);
-          background-color: var(--bg-subtle);
-          text-align: center;
-          vertical-align: middle;
-          padding: 4px 8px;
-          font-size: var(--fs-table);
-          text-transform: uppercase;
-          letter-spacing: 0.04em;
-          color: var(--ink-secondary);
-          font-weight: 500;
-        }
-        .custom-table td {
-          border: none;
-          border-bottom: 1px solid var(--line);
-          text-align: center;
-          vertical-align: middle;
-          padding: 6px 8px;
-          font-size: var(--fs-table);
-          color: var(--ink);
-        }
+        /* .custom-table th/td now live in globals.css — one definition for every
+           table in the app. This file's copy additionally set border:none,
+           which cancelled the :where() column dividers every other table in the
+           app draws, so stocks was the one main table with no vertical rules.
+           Dropping it is the point of the exercise: it now matches. */
       `}</style>
 
       <div className="custom-table">
@@ -205,19 +187,19 @@ const Customtable = ({
             <div className="overflow-auto dashboard-scroll" style={{ maxHeight: dynamicMaxHeight }}>
 <table className="w-full" style={{ tableLayout: 'auto' }}>
                 {/* THEAD - Multi-color gradient inspired by all cards */}
-                <thead className="sticky top-0 z-10">
+                <thead className="sticky top-0 z-sticky">
                   {table.getHeaderGroups().map(group => (
                     <Fragment key={group.id}>
                       <tr style={{ borderBottom: '1px solid var(--line)' }}>
                         {group.headers.map(header => (
                           <th
                             key={header.id}
-                            className="group/th px-2 py-2"
+                            className="group/th"
+                            /* Band comes from .custom-table th — see globals.css.
+                               Colour was --ink-muted, a rung lighter than the
+                               standard's --ink-secondary. */
                             style={{
-                              color: 'var(--ink-muted)',
                               width: header.column.id === 'select' ? '50px' : undefined,
-                              letterSpacing: '0.04em',
-                              textAlign: 'center',
                               cursor: header.column.getCanSort() ? 'pointer' : 'default',
                               userSelect: 'none',
                             }}
@@ -225,8 +207,7 @@ const Customtable = ({
                           >
                             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
                               {flexRender(header.column.columnDef.header, header.getContext())}
-                              {header.column.getIsSorted() === 'asc' && <TbSortAscending style={{ fontSize: 'var(--fs-title)', color: 'var(--brand)' }} />}
-                              {header.column.getIsSorted() === 'desc' && <TbSortDescending style={{ fontSize: 'var(--fs-title)', color: 'var(--brand)' }} />}
+                              <SortIcon column={header.column} />
                               {header.column.getCanSort() && !header.column.getIsSorted() && (
                                 <ArrowUpDown size={11} className="shrink-0 opacity-0 group-hover/th:opacity-50 transition-opacity" style={{ color: 'var(--ink-muted)' }} />
                               )}
@@ -298,11 +279,11 @@ const Customtable = ({
                               </div>
                             ) : isCompleted ? (
                               <div className="w-full flex items-center justify-center">
-                                <span className="px-3 py-1 rounded-full font-normal" style={{ backgroundColor: tone.bg, color: tone.text, border: `1px solid ${tone.border}` }}>{cell.getValue() ? 'Completed' : 'Incompleted'}</span>
+                                <span className="px-3 py-1 rounded-lg font-normal" style={{ backgroundColor: tone.bg, color: tone.text, border: `1px solid ${tone.border}` }}>{cell.getValue() ? 'Completed' : 'Incompleted'}</span>
                               </div>
                             ) : isStatus ? (
                               <div className="w-full flex items-center justify-center">
-                                <span className="px-3 py-1 rounded-full font-normal" style={{ backgroundColor: tone?.bg, color: tone?.text, border: tone ? `1px solid ${tone.border}` : undefined }}>{cell.getValue()}</span>
+                                <span className="px-3 py-1 rounded-lg font-normal" style={{ backgroundColor: tone?.bg, color: tone?.text, border: tone ? `1px solid ${tone.border}` : undefined }}>{cell.getValue()}</span>
                               </div>
                             ) : (
                               <div className="flex justify-center font-normal">

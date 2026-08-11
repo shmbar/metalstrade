@@ -24,7 +24,7 @@ const StockComb = ({ value, setValue }) => {
     <div className='w-full'>
       <Listbox value={selected} onChange={e=> setSelection(e)}>
         <div className="relative ">
-          <ListboxButton className='cursor-pointer w-full h-8 rounded-full border border-[var(--line)] bg-[var(--bg-card)]
+          <ListboxButton className='cursor-pointer w-full h-8 rounded-lg border border-[var(--line)] bg-[var(--bg-card)]
                      focus:outline-none focus:border-[var(--endeavour)] focus:ring-2 focus:ring-[var(--endeavour)]/20
                      pl-4 pr-10 responsiveText text-[var(--port-gore)] transition-all hover:border-[var(--rock-blue)] text-left responsiveTextInput'>
             {({ open }) => (

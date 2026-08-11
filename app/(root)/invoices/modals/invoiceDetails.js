@@ -1,5 +1,4 @@
-'use client'
-import { useContext, useEffect, useState } from 'react'
+'use client'import { useContext, useEffect, useState } from 'react'
 import { SettingsContext } from "../../../../contexts/useSettingsContext";
 import { InvoiceContext } from "../../../../contexts/useInvoiceContext";
 import { getD, reOrderTableInv, loadData } from '../../../../utils/utils.js';
@@ -14,7 +13,7 @@ import { FaFilePdf } from 'react-icons/fa';
 import { GiMoneyStack } from 'react-icons/gi'
 import InvoiceType from './invoiceType.js'
 import { FaFileContract } from "react-icons/fa";
-import { TbStackPush } from 'react-icons/tb';
+
 import Expenses from '../../contracts/modals/expenses'
 import Payments from '../../contracts/modals/payments.js'
 import { UserAuth } from "../../../../contexts/useAuthContext";
@@ -31,6 +30,7 @@ import Tltip from '../../../../components/tlTip.js';
 import { Selector } from '../../../../components/selectors/selectShad.js';
 import { ChevronDown, ChevronUp, ScrollText } from 'lucide-react';
 import LoadingButton from '../../../../components/LoadingButton'
+import { TbStackPush } from "react-icons/tb";
 
 // Settings-style form spec (shared with the contract modal's invoice tab)
 const labelCls = 'responsiveText font-semibold uppercase tracking-[0.04em] text-[var(--ink-muted)] mb-1';

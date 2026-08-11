@@ -18,7 +18,8 @@
       "Bash(node speed-all.js)",
       "Bash(NODE_OPTIONS=\"--max-old-space-size=8192\" npm run build)",
       "Bash(echo \"BUILD \\(8GB heap\\): $?\")",
-      "Read(//tmp/**)"
+      "Read(//tmp/**)",
+      "Bash(node -e ' *)"
     ]
   }
 }

@@ -1,5 +1,6 @@
 ﻿'use client';
 import Header from "../../../components/table/header";
+import SortIcon from "@components/table/SortIcon";
 import EmptyState from "../../../components/EmptyState";
 import {
   flexRender,
@@ -10,7 +11,6 @@ import {
   useReactTable
 } from "@tanstack/react-table";
 import { Fragment, useEffect, useMemo, useState, useContext } from "react";
-import { TbSortDescending, TbSortAscending } from "react-icons/tb";
 import { Paginator } from "../../../components/table/Paginator";
 import RowsIndicator from "../../../components/table/RowsIndicator";
 import { SettingsContext } from "../../../contexts/useSettingsContext";
@@ -147,27 +147,8 @@ const Customtable = ({
   return (
     <div className="w-full">
       <style jsx global>{`
-        .custom-table th {
-          background-color: var(--bg-subtle);
-          border-bottom: 1px solid var(--line);
-          text-align: center;
-          vertical-align: middle;
-          padding: 4px 8px;
-          font-size: var(--fs-table);
-          text-transform: uppercase;
-          letter-spacing: 0.04em;
-          color: var(--ink-secondary);
-          font-weight: 500;
-        }
-        .custom-table td {
-          background-color: var(--bg-card);
-          border-bottom: 1px solid var(--line);
-          text-align: center;
-          vertical-align: middle;
-          padding: 6px 8px;
-          font-size: var(--fs-table);
-          font-variant-numeric: tabular-nums;
-        }
+        /* .custom-table th/td now live in globals.css — one definition for every
+           table in the app. */
         .header-blue {
           background-color: var(--bg-subtle);
           color: var(--chathams-blue);
@@ -262,7 +243,7 @@ const Customtable = ({
                 <Fragment key={hdGroup.id + '-totals'}>
                   <tr className="summary-green">
                     {hdGroup.headers.map(header => (
-                      <th key={header.id} className="py-1.5 responsiveTextTable font-medium text-center px-2" style={{ fontWeight: 500 }}>
+                      <th key={header.id} className="py-1.5">
                         {header.id === 'supplier' ? 'Total $:' :
                           header.id === 'cur' ? 'USD' :
                             header.id === 'amount' ? new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2 }).format(
@@ -275,7 +256,7 @@ const Customtable = ({
                   </tr>
                   <tr className="summary-blue">
                     {hdGroup.headers.map(header => (
-                      <th key={header.id} className="py-1.5 responsiveTextTable font-medium text-center px-2" style={{ fontWeight: 500 }}>
+                      <th key={header.id} className="py-1.5">
                         {header.id === 'supplier' ? 'Total —:' :
                           header.id === 'cur' ? 'EUR' :
                             header.id === 'amount' ? new Intl.NumberFormat('en-US', { style: 'currency', currency: 'EUR', minimumFractionDigits: 2 }).format(
@@ -305,8 +286,7 @@ const Customtable = ({
                       >
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
                           {flexRender(header.column.columnDef.header, header.getContext())}
-                          {header.column.getIsSorted() === 'asc' && <TbSortAscending style={{ fontSize: 'var(--fs-title)', color: 'var(--endeavour)' }} />}
-                          {header.column.getIsSorted() === 'desc' && <TbSortDescending style={{ fontSize: 'var(--fs-title)', color: 'var(--endeavour)' }} />}
+                          <SortIcon column={header.column} />
                         </div>
                       </th>
                     ))}
@@ -394,7 +374,7 @@ const Customtable = ({
             ) : isStatus ? (
               <div className="flex justify-center">
                 <div
-                  className="px-2.5 py-0.5 rounded-full responsiveTextTable font-medium"
+                  className="px-2.5 py-0.5 rounded-lg responsiveTextTable font-medium"
                   style={{
                     backgroundColor:
                       value === 'Completed'
@@ -413,7 +393,7 @@ const Customtable = ({
                   flexRender(cell.column.columnDef.cell, cell.getContext())
                 ) : hasValue ? (
                   <div
-                    className="px-2.5 py-0.5 rounded-full responsiveTextTable font-medium min-w-[70px] text-center transition-all duration-200 ease-in-out"
+                    className="px-2.5 py-0.5 rounded-lg responsiveTextTable font-medium min-w-[70px] text-center transition-all duration-200 ease-in-out"
                     style={{
                       backgroundColor:
                         value === 'Paid' ? 'var(--ok-bg)' :

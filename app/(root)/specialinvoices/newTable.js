@@ -1,5 +1,4 @@
 ﻿// 'use client'
-
 // Fade-in animation for badges
 if (typeof window !== 'undefined') {
   const style = document.createElement('style');
@@ -8,6 +7,7 @@ if (typeof window !== 'undefined') {
 }
 
 import Header from "../../../components/table/header";
+import SortIcon from "@components/table/SortIcon";
 import EmptyState from "../../../components/EmptyState";
 import {
     flexRender,
@@ -19,7 +19,7 @@ import {
 } from "@tanstack/react-table";
 
 import { Fragment, useEffect, useMemo, useState, useContext } from "react";
-import { TbSortAscending, TbSortDescending } from "react-icons/tb";
+
 import { Paginator } from "../../../components/table/Paginator";
 import RowsIndicator from "../../../components/table/RowsIndicator";
 import { SettingsContext } from "../../../contexts/useSettingsContext";
@@ -155,20 +155,6 @@ const Customtable = ({
                 /* Table font */
 
                 /* Professional gradient scrollbar matching cards */
-                .dashboard-scroll::-webkit-scrollbar { width: 10px; height: 10px; }
-                .dashboard-scroll::-webkit-scrollbar-track {
-                    background: linear-gradient(180deg, var(--bg-subtle), var(--neutral-bg));
-                    border-radius: 6px;
-                }
-                .dashboard-scroll::-webkit-scrollbar-thumb {
-                    background: linear-gradient(180deg, var(--line), var(--line-strong));
-                    border-radius: 6px;
-                    border: 2px solid var(--bg-subtle);
-                }
-                .dashboard-scroll::-webkit-scrollbar-thumb:hover {
-                    background: linear-gradient(180deg, var(--line-strong), var(--ink-muted));
-                    border-color: var(--neutral-bg);
-                }
 
                 /* Glassmorphic professional table */
                 .glass-table {
@@ -188,28 +174,8 @@ const Customtable = ({
                     transition-timing-function: ease-in-out !important;
                 }
 
-                /* Add border, background, and text alignment styles for table cells */
-                .custom-table th {
-          background-color: var(--bg-subtle);
-          border-bottom: 1px solid var(--line);
-          text-align: center;
-          vertical-align: middle;
-          padding: 4px 8px;
-          font-size: var(--fs-table);
-          text-transform: uppercase;
-          letter-spacing: 0.04em;
-          color: var(--ink-secondary);
-          font-weight: 500;
-        }
-                .custom-table td {
-          background-color: var(--bg-card);
-          border-bottom: 1px solid var(--line);
-          text-align: center;
-          vertical-align: middle;
-          padding: 6px 8px;
-          font-size: var(--fs-table);
-          font-variant-numeric: tabular-nums;
-        }
+                /* .custom-table th/td now live in globals.css — one definition
+                   for every table in the app. */
 
                 /* Two summary bands. They were a saturated --ok-border green and a
                    --line-strong blue, which is the "green that doesn't match" the
@@ -291,7 +257,7 @@ const Customtable = ({
                                                 return (
                                                     <tr className="summary-green-si">
                                                         {group.headers.map(header => (
-                                                            <th key={header.id} className="responsiveTextTable" style={{ padding: '6px 8px', textAlign: 'center', fontWeight: 500, borderRight: '1px solid rgba(var(--shadow-rgb), 0.08)' }}>
+                                                            <th key={header.id} style={{ padding: '6px 8px', borderRight: '1px solid rgba(var(--shadow-rgb), 0.08)' }}>
                                                                 {header.id === 'compName' ? 'Total $:' :
                                                                     header.id === 'qnty' ? (usdWeight % 1 === 0 ? usdWeight : usdWeight.toFixed(2)) :
                                                                         header.id === 'total' ? new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2 }).format(usdTotal) : ''}
@@ -308,7 +274,7 @@ const Customtable = ({
                                                 return (
                                                     <tr className="summary-blue-si">
                                                         {group.headers.map(header => (
-                                                            <th key={header.id} className="responsiveTextTable" style={{ padding: '6px 8px', textAlign: 'center', fontWeight: 500, borderRight: '1px solid rgba(var(--shadow-rgb), 0.08)' }}>
+                                                            <th key={header.id} style={{ padding: '6px 8px', borderRight: '1px solid rgba(var(--shadow-rgb), 0.08)' }}>
                                                                 {header.id === 'compName' ? 'Total EUR:' :
                                                                     header.id === 'qnty' ? (eurWeight % 1 === 0 ? eurWeight : eurWeight.toFixed(2)) :
                                                                         header.id === 'total' ? new Intl.NumberFormat('en-US', { style: 'currency', currency: 'EUR', minimumFractionDigits: 2 }).format(eurTotal) : ''}
@@ -322,15 +288,12 @@ const Customtable = ({
                                                 {group.headers.map(header => (
                                                     <th
                                                         key={header.id}
-                                                        className="font-sans responsiveTextTable font-medium"
+                                                        /* Band comes from .custom-table th — see
+                                                           globals.css. This header had drifted to
+                                                           full ink and 0.05em tracking. */
                                                         style={{
-                                                            color: 'var(--chathams-blue)',
-                                                            backgroundColor: 'var(--bg-subtle)',
-                                                            fontWeight: 500,
                                                             minWidth: header.column.id === 'select' ? '50px' : '60px',
                                                             maxWidth: header.column.id === 'select' ? '50px' : 'none',
-                                                            letterSpacing: '0.05em',
-                                                            textAlign: 'center',
                                                             cursor: header.column.getCanSort() ? 'pointer' : 'default',
                                                             userSelect: 'none',
                                                         }}
@@ -338,8 +301,7 @@ const Customtable = ({
                                                     >
                                                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
                                                             {flexRender(header.column.columnDef.header, header.getContext())}
-                                                            {header.column.getIsSorted() === 'asc' && <TbSortAscending style={{ fontSize: 'var(--fs-title)', color: 'var(--endeavour)' }} />}
-                                                            {header.column.getIsSorted() === 'desc' && <TbSortDescending style={{ fontSize: 'var(--fs-title)', color: 'var(--endeavour)' }} />}
+                                                            <SortIcon column={header.column} />
                                                         </div>
                                                     </th>
                                                 ))}
@@ -411,7 +373,7 @@ const Customtable = ({
             {isCompleted ? (
               <div className="flex justify-center">
                 <div
-                  className="px-2.5 py-0.5 rounded-full responsiveTextTable font-medium"
+                  className="px-2.5 py-0.5 rounded-lg responsiveTextTable font-medium"
                   style={{
                     backgroundColor: value ? 'var(--ok-bg)' : 'var(--bad-bg)',
                     color: value ? 'var(--ok-text)' : 'var(--bad-text)',
@@ -424,7 +386,7 @@ const Customtable = ({
             ) : isStatus ? (
               <div className="flex justify-center">
                 <div
-                  className="px-2.5 py-0.5 rounded-full responsiveTextTable font-medium"
+                  className="px-2.5 py-0.5 rounded-lg responsiveTextTable font-medium"
                   style={{
                     backgroundColor:
                       value === 'Paid'
@@ -444,7 +406,7 @@ const Customtable = ({
                 {hasValue ? (
                   value === 'Paid' || value === 'Not Paid' ? (
                     <div
-                      className="px-2.5 py-0.5 rounded-full responsiveTextTable font-medium min-w-[70px]"
+                      className="px-2.5 py-0.5 rounded-lg responsiveTextTable font-medium min-w-[70px]"
                       style={{
                         backgroundColor: value === 'Paid' ? 'var(--ok-bg)' : 'var(--warn-bg)',
                         border: `1px solid ${value === 'Paid' ? 'var(--ok-border)' : 'var(--warn-border)'}`,

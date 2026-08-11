@@ -283,7 +283,7 @@ const ReminderModal = ({ invoice, clientEmail: initialEmail, companyName, langua
 
                 {/* Footer */}
                 <div className='flex items-center justify-end gap-2 px-4 py-3' style={{ borderTop: '1px solid var(--line)', background: 'var(--bg-subtle)' }}>
-                    <button onClick={onClose} className='px-3 py-1.5 rounded-full border transition-colors hover:border-[var(--brand)]'
+                    <button onClick={onClose} className='px-3 py-1.5 rounded-lg border transition-colors hover:border-[var(--brand)]'
                         style={{ fontSize: 'var(--fs-table)', borderColor: 'var(--line-strong)', color: 'var(--ink-secondary)' }}>
                         {sent ? 'Close' : 'Cancel'}
                     </button>

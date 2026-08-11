@@ -98,7 +98,7 @@ const Stocks = () => {
                 <ul className="flex flex-col mt-1 bg-[var(--bg-subtle)] py-2 max-h-80 overflow-auto custom-scroll">
                     {sortArr((settings?.Stocks?.Stocks ?? []).filter(x => !x.deleted), 'stock').map((x, i) => (
                         <li key={i} onClick={() => SelectStock(x)}
-                            className={`cursor-pointer flex items-center gap-x-2 py-2 px-4 responsiveText text-[var(--ink)] responsiveTextInput rounded-full hover:bg-[var(--bg-subtle)] ${value.id === x.id && 'font-medium bg-[var(--bg-card)]'}`}>
+                            className={`cursor-pointer flex items-center gap-x-2 py-2 px-4 responsiveText text-[var(--ink)] responsiveTextInput rounded-lg hover:bg-[var(--bg-subtle)] ${value.id === x.id && 'font-medium bg-[var(--bg-card)]'}`}>
                             {x.stock}
                         </li>
                     ))}

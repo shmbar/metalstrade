@@ -768,7 +768,7 @@ const Margins = () => {
                                     {/* Search — filters rows across all months by description / supplier / client.
                                         On the shared control band: h-8, 10px corners, --line-strong outline and
                                         the brand focus ring, so it matches Add month / Save / Undo beside it.
-                                        It was h-7, rounded-full, a lighter border and one type rung smaller —
+                                        It was h-7, rounded-lg, a lighter border and one type rung smaller —
                                         and its placeholder was ink-coloured, which made "Search" read as a
                                         typed value rather than a prompt. */}
                                     <div className="flex items-center relative w-40 h-8 border border-[var(--line-strong)] rounded-control bg-[var(--bg-card)] focus-within:border-[var(--brand)] focus-within:ring-[3px] focus-within:ring-[var(--brand-soft)] transition-colors">

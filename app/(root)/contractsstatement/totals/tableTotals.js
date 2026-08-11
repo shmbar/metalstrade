@@ -1,8 +1,8 @@
 ﻿'use client'
 
-
 import { flexRender, getCoreRowModel, getFilteredRowModel, getSortedRowModel, useReactTable } from "@tanstack/react-table";
-import { TbSortDescending, TbSortAscending } from "react-icons/tb";
+import SortIcon from "@components/table/SortIcon";
+
 import { usePathname } from 'next/navigation';
 import { getTtl } from "../../../../utils/languages";
 import Tltip from "../../../../components/tlTip";
@@ -39,25 +39,15 @@ const Customtable = ({ data, columns, expensesData, settings }) => {
                   transition-duration: 150ms !important;
                   transition-timing-function: ease-in-out !important;
                 }
-                .custom-table th, .custom-table td {
-                  border: 1px solid var(--selago);
-                  background-color: var(--bg-subtle);
-                  text-align: center;
-                  vertical-align: middle;
-                  padding: 6px 8px;
-                }
-                .custom-table th {
-                  background-color: var(--bg-subtle);
-                }
-                .custom-table td {
-                  background-color: var(--bg-card);
-                  border: 1px solid var(--selago);
-                  font-size: var(--fs-table);
-                }
-                .dashboard-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
-                .dashboard-scroll::-webkit-scrollbar-track { background: var(--bg-subtle); border-radius: 6px; }
-                .dashboard-scroll::-webkit-scrollbar-thumb { background: var(--line-strong); border-radius: 6px; }
-                .dashboard-scroll::-webkit-scrollbar-thumb:hover { background: var(--brand); }
+                /* .custom-table th/td now live in globals.css — one definition
+                   for every table in the app.
+
+                   This copy was the most damaging of the fourteen: it was global
+                   like the rest, but instead of restating the standard it
+                   replaced it, boxing every cell in a full --selago border. Any
+                   page that mounted this Summary component got those borders on
+                   its MAIN table too, because both tables answer to the same
+                   .custom-table name. That is the drift, in one block. */
             `}</style>
             <div className="glass-table rounded-2xl shadow-lg border border-[var(--line)] overflow-hidden">
                 {/* Header */}
@@ -79,21 +69,16 @@ const Customtable = ({ data, columns, expensesData, settings }) => {
                             {table1.getHeaderGroups().map(hdGroup =>
                                 <tr key={hdGroup.id} style={{ borderBottom: '1px solid rgba(var(--surface-card-rgb), 0.2)' }}>
                                     {hdGroup.headers.map(header => (
+                                        /* Type, weight, colour, padding and alignment come
+                                           from .custom-table th in globals.css. Only the
+                                           column's own minimum width stays here. */
                                         <th key={header.id}
-                                            className="responsiveTextTable px-2 py-2 text-center font-normal font-sans"
-                                            style={{
-                                                color: 'var(--chathams-blue)',
-                                                minWidth: '60px',
-                                                textAlign: 'center',
-                                            }}
+                                            style={{ minWidth: '60px' }}
                                         >
                                             {header.column.getCanSort() ?
                                                 <div onClick={header.column.getToggleSortingHandler()} className="responsiveTextTable flex cursor-pointer items-center gap-1 justify-center">
                                                     {header.column.columnDef.header}
-                                                    {{
-                                                        asc: <TbSortAscending className="text-[var(--endeavour)] scale-125" />,
-                                                        desc: <TbSortDescending className="text-[var(--endeavour)] scale-125" />
-                                                    }[header.column.getIsSorted()]}
+                                                    <SortIcon column={header.column} />
                                                 </div>
                                                 :
                                                 <span className="responsiveTextTable">{header.column.columnDef.header}</span>
@@ -108,13 +93,10 @@ const Customtable = ({ data, columns, expensesData, settings }) => {
                                 <tr key={row.id} className="cursor-pointer">
                                     {row.getVisibleCells().map(cell => (
                                         <td key={cell.id} data-label={cell.column.columnDef.header}
-                                            className="responsiveTextTable px-2 py-1 transition-colors duration-150 group/cell relative cell-hover-effect text-center"
+                                            className="transition-colors duration-150 group/cell relative cell-hover-effect"
                                             style={{
-                                                color: 'var(--port-gore)',
-                                                fontWeight: '400',
                                                 zIndex: 1,
                                                 willChange: 'background-color, color',
-                                                textAlign: 'center',
                                             }}
                                         >
                                             <Tltip direction='right' tltpText={expensesToolTip(row, expensesData, settings)}>
