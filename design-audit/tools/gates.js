@@ -178,19 +178,30 @@ gate('custom-table-def', 'Local CSS rule styles th/td type (belongs in globals.c
       and pulses, progress-bar fills, the toggle switch (round IS the affordance),
       AutosavePill, and the public marketing pages + chat UI, which are a separate
       visual language where a pill is the conventional form. */
-const RADIUS_EXEMPT = /(\(public\)|Hero|Features|platform|Testimonial|FloatingChat|Assistant|AutosavePill|switch\.(js|tsx)|spinner|videoLoader|skeletons)/;
+/* Only true pills remain. The public marketing pages and the chat UI were both
+   exempted at first on the assumption that they were "a separate visual
+   language" — Zak overruled both (2026-08-12). The app has ONE radius; if a
+   marketing page wants a pill it has to be an actual pill (an avatar, a dot, a
+   progress bar), not a rounded control. Do not re-add a whole area here. */
+const RADIUS_EXEMPT = /(AutosavePill|switch\.(js|tsx)|spinner|videoLoader|skeletons)/;
 gate('one-radius', 'rounded-full on an interactive control (use rounded-lg = --radius-control)', (file, src) => {
     if (!/\.(js|jsx|tsx)$/.test(file) || RADIUS_EXEMPT.test(file)) return [];
     const hits = [];
-    src.split('\n').forEach((l, i) => {
+    const lines = src.split('\n');
+    lines.forEach((l, i) => {
         if (!l.includes('rounded-full')) return;
         if (/^\s*(\/\/|\/?\*|\*)/.test(l)) return;                       // comments
         const interactive = /<button|onClick|cursor-pointer|<input|<select|\bh-(7|8|9|10)\b/.test(l);
         if (!interactive) return;
-        const isAvatarOrDot = /\bw-([0-9.]+)\b\s+\bh-\1\b|\bh-([0-9.]+)\b\s+\bw-\2\b/.test(l)
-            || /animate-(ping|spin|pulse)/.test(l)
-            || /width:\s*[0-9]+/.test(l);
-        const isBar = /overflow-hidden/.test(l) && /\bh-(1|1\.5|2|full)\b/.test(l);
+        /* Look at the next two lines as well, not just this one. A conditional
+           className puts `rounded-full` on the opening line and the `w-3 h-3` that
+           proves it is a dot on the NEXT line inside the template literal — which
+           is how the testimonial carousel dots read as a false positive. */
+        const ctx = lines.slice(i, i + 3).join(' ');
+        const isAvatarOrDot = /\bw-([0-9.]+)\b\s+\bh-\1\b|\bh-([0-9.]+)\b\s+\bw-\2\b/.test(ctx)
+            || /animate-(ping|spin|pulse|bounce)/.test(ctx)
+            || /width:\s*[0-9]+/.test(ctx);
+        const isBar = /overflow-hidden/.test(ctx) && /\bh-(1|1\.5|2|full)\b/.test(ctx);
         if (!isAvatarOrDot && !isBar) hits.push(`${file}:${i + 1}: rounded-full on an interactive element`);
     });
     return hits;

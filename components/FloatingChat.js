@@ -613,13 +613,13 @@ const FloatingChat = () => {
                                 <Loader2 className="w-3 h-3 text-[var(--brand)] animate-spin" />
                             ) : (
                                 <div className="flex items-center gap-1">
-                                    <span className="px-2 py-0.5 rounded-full font-medium" style={{ fontSize: 'var(--fs-table)', backgroundColor: TONES.green.bg, color: TONES.green.text, border: `1px solid ${TONES.green.border}` }}>
+                                    <span className="px-2 py-0.5 rounded-lg font-medium" style={{ fontSize: 'var(--fs-table)', backgroundColor: TONES.green.bg, color: TONES.green.text, border: `1px solid ${TONES.green.border}` }}>
                                         {contractsData.length} Con
                                     </span>
-                                    <span className="px-2 py-0.5 rounded-full font-medium" style={{ fontSize: 'var(--fs-table)', backgroundColor: TONES.blue.bg, color: TONES.blue.text, border: `1px solid ${TONES.blue.border}` }}>
+                                    <span className="px-2 py-0.5 rounded-lg font-medium" style={{ fontSize: 'var(--fs-table)', backgroundColor: TONES.blue.bg, color: TONES.blue.text, border: `1px solid ${TONES.blue.border}` }}>
                                         {invoicesData.length} Inv
                                     </span>
-                                    <span className="px-2 py-0.5 rounded-full font-medium" style={{ fontSize: 'var(--fs-table)', backgroundColor: TONES.amber.bg, color: TONES.amber.text, border: `1px solid ${TONES.amber.border}` }}>
+                                    <span className="px-2 py-0.5 rounded-lg font-medium" style={{ fontSize: 'var(--fs-table)', backgroundColor: TONES.amber.bg, color: TONES.amber.text, border: `1px solid ${TONES.amber.border}` }}>
                                         {stocksData.length} Stk
                                     </span>
                                 </div>
@@ -680,7 +680,7 @@ const FloatingChat = () => {
                                                             setChatOpen(false);
                                                         }}
                                                         title={`Open ${src.label} in ${src.route.replace('/', '')}`}
-                                                        className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-[var(--bg-card)] border border-[var(--line)] hover:border-[var(--brand)] hover:bg-[var(--brand-soft)] transition-colors"
+                                                        className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-lg bg-[var(--bg-card)] border border-[var(--line)] hover:border-[var(--brand)] hover:bg-[var(--brand-soft)] transition-colors"
                                                         style={{ fontSize: 'var(--fs-table)', color: 'var(--brand-strong)' }}
                                                     >
                                                         <Icon className="w-2.5 h-2.5" aria-hidden="true" />
@@ -738,7 +738,7 @@ const FloatingChat = () => {
                                         <a
                                             key={p.route}
                                             href={p.route}
-                                            className="flex items-center gap-1 px-2.5 py-1 bg-[var(--brand)] text-[var(--on-brand)] rounded-full hover:bg-[var(--brand-strong)] transition-colors"
+                                            className="flex items-center gap-1 px-2.5 py-1 bg-[var(--brand)] text-[var(--on-brand)] rounded-lg hover:bg-[var(--brand-strong)] transition-colors"
                                             style={{ fontSize: 'var(--fs-table)' }}
                                         >
                                             <ExternalLink className="w-2.5 h-2.5" />
@@ -750,7 +750,7 @@ const FloatingChat = () => {
                         })()}
 
                         {/* Input bar */}
-                        <div className="flex items-center gap-2 border-2 border-[var(--line-strong)] rounded-full px-3 py-2 focus-within:border-[var(--brand)] transition-colors" style={{ backgroundColor: 'var(--bg-subtle)' }}>
+                        <div className="flex items-center gap-2 border-2 border-[var(--line-strong)] rounded-lg px-3 py-2 focus-within:border-[var(--brand)] transition-colors" style={{ backgroundColor: 'var(--bg-subtle)' }}>
                             <input
                                 ref={inputRef}
                                 type="text"
@@ -778,7 +778,7 @@ const FloatingChat = () => {
                                     <button
                                         key={action}
                                         onClick={() => handleSendMessage(action)}
-                                        className="px-2.5 py-1 bg-[var(--bg-card)] border border-[var(--line)] rounded-full text-[var(--ink)] hover:bg-[var(--bg-subtle)] hover:border-[var(--brand)] hover:text-[var(--brand)] transition-colors"
+                                        className="px-2.5 py-1 bg-[var(--bg-card)] border border-[var(--line)] rounded-lg text-[var(--ink)] hover:bg-[var(--bg-subtle)] hover:border-[var(--brand)] hover:text-[var(--brand)] transition-colors"
                                         style={{ fontSize: 'var(--fs-table)' }}
                                     >
                                         {action}
@@ -794,7 +794,7 @@ const FloatingChat = () => {
                                     <button
                                         key={action}
                                         onClick={() => handleSendMessage(action)}
-                                        className="px-2.5 py-1 bg-[var(--bg-card)] border border-[var(--line)] rounded-full text-[var(--ink)] hover:bg-[var(--bg-subtle)] hover:border-[var(--brand)] hover:text-[var(--brand)] transition-colors"
+                                        className="px-2.5 py-1 bg-[var(--bg-card)] border border-[var(--line)] rounded-lg text-[var(--ink)] hover:bg-[var(--bg-subtle)] hover:border-[var(--brand)] hover:text-[var(--brand)] transition-colors"
                                         style={{ fontSize: 'var(--fs-table)' }}
                                     >
                                         {action}

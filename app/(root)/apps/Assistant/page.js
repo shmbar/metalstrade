@@ -362,16 +362,16 @@ const AssistantChat = () => {
                                         <span className="responsiveTextTable text-[var(--regent-gray)] whitespace-nowrap">Loading data...</span>
                                     ) : (
                                         <>
-                                            <span className="px-2 py-0.5 md:px-3 md:py-1 rounded-full responsiveTextTable font-medium whitespace-nowrap" style={{ backgroundColor: 'var(--ok-bg)', color: 'var(--ok-strong)', border: '1px solid var(--ok-border)' }}>
+                                            <span className="px-2 py-0.5 md:px-3 md:py-1 rounded-lg responsiveTextTable font-medium whitespace-nowrap" style={{ backgroundColor: 'var(--ok-bg)', color: 'var(--ok-strong)', border: '1px solid var(--ok-border)' }}>
                                                 {contractsData.length} Contracts
                                             </span>
-                                            <span className="px-2 py-0.5 md:px-3 md:py-1 rounded-full responsiveTextTable font-medium whitespace-nowrap" style={{ backgroundColor: 'var(--bg-subtle)', color: 'var(--chathams-blue)', border: '1px solid var(--line)' }}>
+                                            <span className="px-2 py-0.5 md:px-3 md:py-1 rounded-lg responsiveTextTable font-medium whitespace-nowrap" style={{ backgroundColor: 'var(--bg-subtle)', color: 'var(--chathams-blue)', border: '1px solid var(--line)' }}>
                                                 {invoicesData.length} Invoices
                                             </span>
-                                            <span className="px-2 py-0.5 md:px-3 md:py-1 rounded-full responsiveTextTable font-medium whitespace-nowrap" style={{ backgroundColor: 'var(--brand-soft)', color: 'var(--brand-strong)', border: '1px solid var(--brand-border)' }}>
+                                            <span className="px-2 py-0.5 md:px-3 md:py-1 rounded-lg responsiveTextTable font-medium whitespace-nowrap" style={{ backgroundColor: 'var(--brand-soft)', color: 'var(--brand-strong)', border: '1px solid var(--brand-border)' }}>
                                                 {expensesData.length} Expenses
                                             </span>
-                                            <span className="px-2 py-0.5 md:px-3 md:py-1 rounded-full responsiveTextTable font-medium whitespace-nowrap" style={{ backgroundColor: 'var(--warn-bg)', color: 'var(--warn-text)', border: '1px solid var(--warn-border)' }}>
+                                            <span className="px-2 py-0.5 md:px-3 md:py-1 rounded-lg responsiveTextTable font-medium whitespace-nowrap" style={{ backgroundColor: 'var(--warn-bg)', color: 'var(--warn-text)', border: '1px solid var(--warn-border)' }}>
                                                 {stocksData.length} Stocks
                                             </span>
                                         </>
@@ -379,14 +379,14 @@ const AssistantChat = () => {
                                     <button
                                         onClick={() => loadAllData(true)}
                                         disabled={dataLoading}
-                                        className="p-1.5 rounded-full transition-colors hover:bg-[var(--line)]/50 disabled:opacity-40 shrink-0"
+                                        className="p-1.5 rounded-lg transition-colors hover:bg-[var(--line)]/50 disabled:opacity-40 shrink-0"
                                         title="Refresh data"
                                     >
                                         <FiRefreshCw className={`w-3.5 h-3.5 text-[var(--endeavour)] ${dataLoading ? 'animate-spin' : ''}`} />
                                     </button>
                                     <button
                                         onClick={handleClearChat}
-                                        className="flex items-center gap-1.5 px-2 py-0.5 md:px-3 md:py-1 rounded-full font-medium transition-colors whitespace-nowrap shrink-0"
+                                        className="flex items-center gap-1.5 px-2 py-0.5 md:px-3 md:py-1 rounded-lg font-medium transition-colors whitespace-nowrap shrink-0"
                                         style={{ backgroundColor: 'var(--bad-bg)', color: 'var(--bad-text)', border: '1px solid var(--bad-border)', fontSize: 'var(--fs-table)' }}
                                         title="Reset conversation"
                                     >
@@ -478,7 +478,7 @@ const AssistantChat = () => {
 
                             {/* Input Area */}
                             <div className="p-4 border-t border-[var(--selago)]" style={{ backgroundColor: "var(--bg-card)" }}>
-                                <div className="responsiveText flex items-center gap-2 border-2 border-[var(--endeavour)]/30 rounded-full px-4 py-2.5 focus-within:border-[var(--endeavour)] transition-colors" style={{ backgroundColor: 'var(--bg-subtle)' }}>
+                                <div className="responsiveText flex items-center gap-2 border-2 border-[var(--endeavour)]/30 rounded-lg px-4 py-2.5 focus-within:border-[var(--endeavour)] transition-colors" style={{ backgroundColor: 'var(--bg-subtle)' }}>
                                     <GrAttachment className="w-4 h-4 text-[var(--regent-gray)] flex-shrink-0" />
                                     <input
                                         ref={inputRef}
@@ -494,7 +494,7 @@ const AssistantChat = () => {
                                     <button
                                         onClick={() => handleSendMessage()}
                                         disabled={!newMessage.trim() || isLoading || dataLoading}
-                                        className="p-2 bg-[var(--endeavour)] text-[var(--on-brand)] rounded-full hover:bg-[var(--brand-deep)] transition-colors disabled:opacity-40 disabled:cursor-not-allowed flex-shrink-0"
+                                        className="p-2 bg-[var(--endeavour)] text-[var(--on-brand)] rounded-lg hover:bg-[var(--brand-deep)] transition-colors disabled:opacity-40 disabled:cursor-not-allowed flex-shrink-0"
                                     >
                                         {isLoading
                                             ? <IoRefresh className="w-4 h-4 animate-spin" />
@@ -508,7 +508,7 @@ const AssistantChat = () => {
                                             key={index}
                                             onClick={() => handleSendMessage(action.text)}
                                             disabled={isLoading || dataLoading}
-                                            className="flex items-center gap-1 px-2.5 py-1 bg-[var(--bg-card)] border border-[var(--line)] rounded-full text-[var(--port-gore)] hover:border-[var(--endeavour)] hover:text-[var(--endeavour)] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                                            className="flex items-center gap-1 px-2.5 py-1 bg-[var(--bg-card)] border border-[var(--line)] rounded-lg text-[var(--port-gore)] hover:border-[var(--endeavour)] hover:text-[var(--endeavour)] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                                             style={{ fontSize: 'var(--fs-body)' }}
                                         >
                                             {action.icon}
