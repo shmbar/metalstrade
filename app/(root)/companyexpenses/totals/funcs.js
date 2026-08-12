@@ -14,7 +14,7 @@ export const expensesToolTip = (row, expensesData, settings, filt) => {
 
   return (
     <div
-      className="w-fit custom-tooltip-table"
+      className="w-fit"
       style={{
         background: "var(--bg-subtle)",
         border: "1px solid var(--line)",
@@ -23,127 +23,30 @@ export const expensesToolTip = (row, expensesData, settings, filt) => {
         boxShadow: "var(--shadow-sm)",
         fontFamily:
           "var(--font-jakarta), 'Plus Jakarta Sans', sans-serif",
-        fontSize: 'var(--fs-body)',
       }}
     >
-      <table style={{ width: "auto", borderCollapse: "collapse" }}>
+      {/* Type, weight, padding and the header band all come from
+          .detail-popup-table in globals.css — the same band .custom-table uses,
+          so this popup matches the summary table it opens from. */}
+      <table className="detail-popup-table" style={{ fontFamily: "inherit" }}>
         <thead>
-          <tr
-            style={{
-              background: "var(--bg-subtle)",
-              borderBottom: "1px solid var(--line)",
-            }}
-          >
-            <th
-              style={{
-                textAlign: "left",
-                padding: "8px 16px 8px 8px",
-                color: "var(--chathams-blue)",
-                fontWeight: 500,
-                fontSize: 'var(--fs-body)',
-                letterSpacing: "0.05em",
-                whiteSpace: "nowrap",
-              }}
-            >
-              PO#
-            </th>
-            <th
-              style={{
-                textAlign: "left",
-                padding: "8px 16px 8px 8px",
-                color: "var(--chathams-blue)",
-                fontWeight: 500,
-                fontSize: 'var(--fs-body)',
-                letterSpacing: "0.05em",
-                whiteSpace: "nowrap",
-              }}
-            >
-              Expense Invoice
-            </th>
-            <th
-              style={{
-                textAlign: "left",
-                padding: "8px 16px 8px 8px",
-                color: "var(--chathams-blue)",
-                fontWeight: 500,
-                fontSize: 'var(--fs-body)',
-                letterSpacing: "0.05em",
-                whiteSpace: "nowrap",
-              }}
-            >
-              Expense Type
-            </th>
-            <th
-              style={{
-                textAlign: "left",
-                padding: "8px 16px 8px 8px",
-                color: "var(--chathams-blue)",
-                fontWeight: 500,
-                fontSize: 'var(--fs-body)',
-                letterSpacing: "0.05em",
-                whiteSpace: "nowrap",
-              }}
-            >
-              Amount
-            </th>
-            <th
-              style={{
-                textAlign: "left",
-                padding: "8px 16px 8px 8px",
-                color: "var(--chathams-blue)",
-                fontWeight: 500,
-                fontSize: 'var(--fs-body)',
-                letterSpacing: "0.05em",
-                whiteSpace: "nowrap",
-              }}
-            >
-              Date
-            </th>
-            <th
-              style={{
-                textAlign: "left",
-                padding: "8px 16px 8px 8px",
-                color: "var(--chathams-blue)",
-                fontWeight: 500,
-                fontSize: 'var(--fs-body)',
-                letterSpacing: "0.05em",
-                whiteSpace: "nowrap",
-              }}
-            >
-              Payment
-            </th>
+          <tr>
+            <th>PO#</th>
+            <th>Expense Invoice</th>
+            <th>Expense Type</th>
+            <th>Amount</th>
+            <th>Date</th>
+            <th>Payment</th>
           </tr>
         </thead>
         <tbody>
           {filteredArr.map((z, i) => {
             return (
-              <tr
-                key={i}
-                style={{
-                  borderBottom: "1px solid var(--line)",
-                  background: i % 2 === 0 ? "var(--bg-card)" : "var(--bg-subtle)",
-                  transition: "background-color 150ms ease-in-out",
-                }}
-              >
-                <td style={{ textAlign: "left", padding: "8px 16px 8px 8px", color: "var(--port-gore)", fontSize: 'var(--fs-body)', whiteSpace: "nowrap" }}>
-                  {z.poSupplier?.order ?? "Comp. Exp."}
-                </td>
-                <td style={{ textAlign: "left", padding: "8px 16px 8px 8px", color: "var(--port-gore)", fontSize: 'var(--fs-body)', whiteSpace: "nowrap" }}>
-                  {z.expense}
-                </td>
-                <td style={{ textAlign: "left", padding: "8px 16px 8px 8px", color: "var(--port-gore)", fontSize: 'var(--fs-body)', whiteSpace: "nowrap" }}>
-                  {settings.Expenses.Expenses.find((q) => q.id === z.expType)?.expType}
-                </td>
-                <td
-                  style={{
-                    textAlign: "left",
-                    padding: "8px 16px 8px 8px",
-                    color: "var(--chathams-blue)",
-                    fontWeight: 500,
-                    fontSize: 'var(--fs-body)',
-                    whiteSpace: "nowrap",
-                  }}
-                >
+              <tr key={i}>
+                <td>{z.poSupplier?.order ?? "Comp. Exp."}</td>
+                <td>{z.expense}</td>
+                <td>{settings.Expenses.Expenses.find((q) => q.id === z.expType)?.expType}</td>
+                <td>
                   <NumericFormat
                     value={z.amount}
                     displayType="text"
@@ -152,15 +55,10 @@ export const expensesToolTip = (row, expensesData, settings, filt) => {
                     prefix={z.cur === "us" ? "$" : "€"}
                     decimalScale={3}
                     fixedDecimalScale
-                    className="responsiveTextTable"
                   />
                 </td>
-                <td style={{ textAlign: "left", padding: "8px 16px 8px 8px", color: "var(--port-gore)", fontSize: 'var(--fs-body)', whiteSpace: "nowrap" }}>
-                  {dateFormat(z.date, "dd.mm.yy")}
-                </td>
-                <td style={{ textAlign: "left", padding: "8px 16px 8px 8px", color: "var(--port-gore)", fontSize: 'var(--fs-body)', whiteSpace: "nowrap" }}>
-                  {z.paid === "111" ? "Paid" : "Unpaid"}
-                </td>
+                <td>{dateFormat(z.date, "dd.mm.yy")}</td>
+                <td>{z.paid === "111" ? "Paid" : "Unpaid"}</td>
               </tr>
             );
           })}

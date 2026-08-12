@@ -102,7 +102,7 @@ const Customtable = ({ data, columns, expensesData, settings, title, filt, headi
                         >
 
                         <div
-                        className="responsiveTextTableTitle px-6 py-4 text-center font-medium font-sans"
+                        className="responsiveTextCardTitle px-6 py-4 text-center font-medium font-sans"
                         style={{
                             background: 'var(--bg-subtle)',
                             color: 'var(--chathams-blue)'
@@ -180,7 +180,7 @@ const Customtable = ({ data, columns, expensesData, settings, title, filt, headi
                     {/* Mobile Card View */}
                     <div className="block sm:hidden space-y-3 glass-table">
                         <div
-                            className="responsiveTextTableTitle px-6 py-4 text-center font-medium font-sans rounded-t-2xl"
+                            className="responsiveTextCardTitle px-6 py-4 text-center font-medium font-sans rounded-t-2xl"
                             style={{ background: 'var(--bg-subtle)', color: 'var(--chathams-blue)' }}
                         >
                             {title}

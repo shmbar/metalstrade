@@ -80,7 +80,7 @@ const Customtable = ({ data, columns, expensesData, settings, title, filt }) => 
           }}
         >
           <p
-            className="responsiveTextTableTitle text-[var(--chathams-blue)] font-normal text-center"
+            className="responsiveTextCardTitle text-[var(--chathams-blue)] font-normal text-center"
             style={{
               letterSpacing: '0.05em'
             }}

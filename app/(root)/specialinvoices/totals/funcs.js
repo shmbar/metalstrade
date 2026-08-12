@@ -8,9 +8,6 @@ export const expensesToolTip = (row, expensesData, settings, filt) => {
         expensesData.filter(z => (z.paidNotPaid === 'Not Paid' && z.supplier === row.original.supplier && z.cur === row.original.cur)) :
         expensesData.filter(z => (z.supplier === row.original.supplier && z.cur === row.original.cur))
 
-    const thStyle = { textAlign: 'center', padding: '6px 10px', color: 'var(--ink-secondary)', fontWeight: 600, fontSize: 'var(--fs-body)', textTransform: 'uppercase', letterSpacing: '0.04em', borderBottom: '1px solid var(--line)', background: 'var(--bg-subtle)', whiteSpace: 'nowrap' }
-    const tdStyle = { textAlign: 'center', padding: '5px 10px', borderBottom: '1px solid var(--line)', fontSize: 'var(--fs-input)', color: 'var(--ink)', fontVariantNumeric: 'tabular-nums', whiteSpace: 'nowrap' }
-
     return (
         <div style={{
             background: "var(--bg-card)",
@@ -21,27 +18,30 @@ export const expensesToolTip = (row, expensesData, settings, filt) => {
             fontFamily: "var(--font-jakarta), 'Plus Jakarta Sans', sans-serif",
             minWidth: '400px',
         }}>
-            <div style={{ background: 'var(--bg-subtle)', padding: '7px 14px', fontWeight: 500, fontSize: 'var(--fs-body)', color: 'var(--chathams-blue)', borderBottom: '1px solid var(--line)' }}>
+            {/* Type, weight, padding and the header band all come from
+                .detail-popup-* in globals.css — the same band .custom-table uses,
+                so this popup matches the summary table it opens from. */}
+            <div className="detail-popup-title">
                 Invoice Details
             </div>
-            <table style={{ fontFamily: 'inherit', fontSize: 'var(--fs-table)', width: '100%', borderCollapse: 'collapse', tableLayout: 'auto' }}>
+            <table className="detail-popup-table" style={{ fontFamily: 'inherit' }}>
                 <thead>
                     <tr>
-                        <th style={thStyle}>PO#</th>
-                        <th style={thStyle}>Invoice</th>
-                        <th style={thStyle}>Description</th>
-                        <th style={thStyle}>Amount</th>
-                        <th style={thStyle}>Date</th>
-                        <th style={thStyle}>Payment</th>
+                        <th>PO#</th>
+                        <th>Invoice</th>
+                        <th>Description</th>
+                        <th>Amount</th>
+                        <th>Date</th>
+                        <th>Payment</th>
                     </tr>
                 </thead>
                 <tbody>
                     {filteredArr.map((z, i) => (
-                        <tr key={i} style={{ background: i % 2 === 0 ? 'var(--bg-card)' : 'var(--bg-subtle)' }}>
-                            <td style={tdStyle}>{z?.order}</td>
-                            <td style={tdStyle}>{z.invoice}</td>
-                            <td style={tdStyle}>{z.description}</td>
-                            <td style={tdStyle}>
+                        <tr key={i}>
+                            <td>{z?.order}</td>
+                            <td>{z.invoice}</td>
+                            <td>{z.description}</td>
+                            <td>
                                 <NumericFormat
                                     value={z.total}
                                     displayType="text"
@@ -52,8 +52,8 @@ export const expensesToolTip = (row, expensesData, settings, filt) => {
                                     fixedDecimalScale
                                 />
                             </td>
-                            <td style={tdStyle}>{dateFormat(z.date, 'dd.mm.yy')}</td>
-                            <td style={tdStyle}>{z.paidNotPaid}</td>
+                            <td>{dateFormat(z.date, 'dd.mm.yy')}</td>
+                            <td>{z.paidNotPaid}</td>
                         </tr>
                     ))}
                 </tbody>

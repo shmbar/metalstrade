@@ -5,12 +5,9 @@ import dateFormat from "dateformat";
 
 
 export const detailsToolTip = (row, data, settings, dataTable,) => {
- 
+
     let id = settings.Stocks.Stocks.find(z => z.nname === row.original.stock)?.id
     let filteredArr = dataTable.filter(z => z.stock === id)
-
-    const thStyle = { textAlign: 'center', padding: '6px 10px', color: 'var(--chathams-blue)', fontWeight: 500, fontSize: 'var(--fs-input)', border: '1px solid var(--line)', background: 'var(--bg-subtle)', whiteSpace: 'nowrap' }
-    const tdStyle = { textAlign: 'center', padding: '5px 10px', border: '1px solid var(--line)', fontSize: 'var(--fs-input)', color: 'var(--chathams-blue)', whiteSpace: 'nowrap' }
 
     return (
         <div style={{
@@ -24,34 +21,36 @@ export const detailsToolTip = (row, data, settings, dataTable,) => {
             fontFamily: "var(--font-jakarta), 'Plus Jakarta Sans', sans-serif",
             minWidth: '400px',
         }}>
-            {/* Title bar */}
-            <div style={{ background: 'var(--bg-subtle)', padding: '7px 14px', fontWeight: 500, fontSize: 'var(--fs-title)', color: 'var(--chathams-blue)', borderBottom: '1px solid var(--line)' }}>
+            {/* Type, weight, padding and the header band all come from
+                .detail-popup-* in globals.css — the same band .custom-table uses,
+                so this popup matches the summary table it opens from. */}
+            <div className="detail-popup-title">
                 Stock Details
             </div>
-            <table style={{ fontFamily: 'inherit', fontSize: 'var(--fs-table)', width: '100%', borderCollapse: 'collapse', tableLayout: 'auto' }}>
+            <table className="detail-popup-table" style={{ fontFamily: 'inherit' }}>
                 <thead>
                     <tr>
-                        <th style={thStyle}>PO#</th>
-                        <th style={thStyle}>Supplier</th>
-                        <th style={thStyle}>Description</th>
-                        <th style={thStyle}>Quantity</th>
-                        <th style={thStyle}>Unit Price</th>
-                        <th style={thStyle}>Total</th>
+                        <th>PO#</th>
+                        <th>Supplier</th>
+                        <th>Description</th>
+                        <th>Quantity</th>
+                        <th>Unit Price</th>
+                        <th>Total</th>
                     </tr>
                 </thead>
                 <tbody>
                     {filteredArr.map((z, i) => (
-                        <tr key={i} style={{ background: i % 2 === 0 ? 'var(--surface-card)' : 'var(--surface-pill)' }}>
-                            <td style={tdStyle}>{z.order}</td>
-                            <td style={tdStyle}>{settings.Supplier.Supplier.find(q => q.id === z.supplier)?.nname}</td>
-                            <td style={tdStyle}>{z.descriptionName}</td>
-                            <td style={tdStyle}>
+                        <tr key={i}>
+                            <td>{z.order}</td>
+                            <td>{settings.Supplier.Supplier.find(q => q.id === z.supplier)?.nname}</td>
+                            <td>{z.descriptionName}</td>
+                            <td>
                                 <NumericFormat value={z.qnty} displayType="text" thousandSeparator allowNegative decimalScale='3' fixedDecimalScale />
                             </td>
-                            <td style={tdStyle}>
+                            <td>
                                 <NumericFormat value={z.unitPrc} displayType="text" thousandSeparator allowNegative prefix={z.cur === 'us' ? '$' : '€'} decimalScale='2' fixedDecimalScale />
                             </td>
-                            <td style={tdStyle}>
+                            <td>
                                 <NumericFormat value={z.total} displayType="text" thousandSeparator allowNegative prefix={z.cur === 'us' ? '$' : '€'} decimalScale='2' fixedDecimalScale />
                             </td>
                         </tr>

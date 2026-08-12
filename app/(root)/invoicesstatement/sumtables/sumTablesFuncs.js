@@ -132,35 +132,9 @@ export const detailsToolTip = (row, data, settings, dataTable, rmrk) => {
         minWidth: '400px',
         padding: '0',
     };
-    const tableStyle = {
-        width: '100%',
-        tableLayout: 'auto',
-        borderCollapse: 'collapse',
-        margin: 0,
-    };
-    const thStyle = {
-        textAlign: 'center',
-        padding: '6px 10px',
-        color: 'var(--chathams-blue)',
-        fontWeight: 500,
-        fontSize: 'var(--fs-body)',
-        border: '1px solid var(--line)',
-        background: 'var(--bg-subtle)',
-        whiteSpace: 'nowrap',
-    };
-    const tdStyle = {
-        textAlign: 'center',
-        padding: '5px 10px',
-        border: '1px solid var(--line)',
-        fontSize: 'var(--fs-body)',
-        color: 'var(--chathams-blue)',
-        whiteSpace: 'nowrap',
-        fontWeight: 400,
-    };
-    const tdAmountStyle = {
-        ...tdStyle,
-        fontWeight: 500,
-    };
+    /* Type, weight, padding, zebra and the header band all come from
+       .detail-popup-* in globals.css — the same band .custom-table uses, so
+       these popups match the summary table they open from. */
 
     if (rmrk === 'sup') {
         let filteredArr = dataTable?.filter(z => (z.supplier === row.original.supplier && (z.cur).toLowerCase() === row.original.cur))
@@ -169,27 +143,27 @@ export const detailsToolTip = (row, data, settings, dataTable, rmrk) => {
 
         return (
             <div style={containerStyle}>
-                <div style={{ background: 'var(--bg-subtle)', padding: '7px 14px', fontWeight: 500, fontSize: 'var(--fs-body)', color: 'var(--chathams-blue)', borderBottom: '1px solid var(--line)' }}>
+                <div className="detail-popup-title">
                     Supplier Details
                 </div>
-                <table style={tableStyle}>
+                <table className="detail-popup-table">
                     <thead>
                         <tr>
-                            <th style={thStyle}>Supplier Inv</th>
-                            <th style={thStyle}>Invoices amount</th>
-                            <th style={thStyle}>Prepayment</th>
-                            <th style={thStyle}>Balance</th>
+                            <th>Supplier Inv</th>
+                            <th>Invoices amount</th>
+                            <th>Prepayment</th>
+                            <th>Balance</th>
                         </tr>
                     </thead>
                     <tbody>
                         {filteredArr?.map((z, i) => (
-                            <tr key={i} style={{ background: i % 2 === 0 ? 'var(--bg-card)' : 'var(--bg-subtle)', transition: 'background 150ms ease-in-out' }}>
-                                <td style={tdStyle}>
+                            <tr key={i}>
+                                <td>
                                     {Array.isArray(z.supInvoices) ? z.supInvoices.map((item, index) => (
                                         <div key={index}>{item}</div>
                                     )) : z.supInvoices}
                                 </td>
-                                <td style={tdAmountStyle}>
+                                <td>
                                     <NumericFormat
                                         value={z.invAmount}
                                         displayType="text"
@@ -198,10 +172,9 @@ export const detailsToolTip = (row, data, settings, dataTable, rmrk) => {
                                         prefix={z.cur === 'USD' ? '$' : '€'}
                                         decimalScale={2}
                                         fixedDecimalScale
-                                        style={tdAmountStyle}
                                     />
                                 </td>
-                                <td style={tdAmountStyle}>
+                                <td>
                                     <NumericFormat
                                         value={z.pmntAmount === '' ? 0 : z.pmntAmount}
                                         displayType="text"
@@ -210,10 +183,9 @@ export const detailsToolTip = (row, data, settings, dataTable, rmrk) => {
                                         prefix={z.cur === 'USD' ? '$' : '€'}
                                         decimalScale={z.pmntAmount === '' || z.pmntAmount === 0 ? 0 : 2}
                                         fixedDecimalScale
-                                        style={tdAmountStyle}
                                     />
                                 </td>
-                                <td style={tdAmountStyle}>
+                                <td>
                                     <NumericFormat
                                         value={z.blnc === '' ? z.invAmount : z.blnc}
                                         displayType="text"
@@ -222,7 +194,6 @@ export const detailsToolTip = (row, data, settings, dataTable, rmrk) => {
                                         prefix={z.cur === 'USD' ? '$' : '€'}
                                         decimalScale={2}
                                         fixedDecimalScale
-                                        style={tdAmountStyle}
                                     />
                                 </td>
                             </tr>
@@ -237,23 +208,23 @@ export const detailsToolTip = (row, data, settings, dataTable, rmrk) => {
 
         return (
             <div style={containerStyle}>
-                <div style={{ background: 'var(--bg-subtle)', padding: '7px 14px', fontWeight: 500, fontSize: 'var(--fs-body)', color: 'var(--chathams-blue)', borderBottom: '1px solid var(--line)' }}>
+                <div className="detail-popup-title">
                     Client Details
                 </div>
-                <table style={tableStyle}>
+                <table className="detail-popup-table">
                     <thead>
                         <tr>
-                            <th style={thStyle}>Invoice</th>
-                            <th style={thStyle}>Inv. amount</th>
-                            <th style={thStyle}>Payment</th>
-                            <th style={thStyle}>Debt</th>
+                            <th>Invoice</th>
+                            <th>Inv. amount</th>
+                            <th>Payment</th>
+                            <th>Debt</th>
                         </tr>
                     </thead>
                     <tbody>
                         {filteredArr?.map((z, i) => (
-                            <tr key={i} style={{ background: i % 2 === 0 ? 'var(--bg-card)' : 'var(--bg-subtle)', transition: 'background 150ms ease-in-out' }}>
-                                <td style={tdStyle}>{z.InvNum}</td>
-                                <td style={tdAmountStyle}>
+                            <tr key={i}>
+                                <td>{z.InvNum}</td>
+                                <td>
                                     <NumericFormat
                                         value={z.totalInvoices}
                                         displayType="text"
@@ -262,10 +233,9 @@ export const detailsToolTip = (row, data, settings, dataTable, rmrk) => {
                                         prefix={z.cur === 'USD' ? '$' : '€'}
                                         decimalScale={2}
                                         fixedDecimalScale
-                                        style={tdAmountStyle}
                                     />
                                 </td>
-                                <td style={tdAmountStyle}>
+                                <td>
                                     <NumericFormat
                                         value={z.totalPmnts}
                                         displayType="text"
@@ -274,10 +244,9 @@ export const detailsToolTip = (row, data, settings, dataTable, rmrk) => {
                                         prefix={z.cur === 'USD' ? '$' : '€'}
                                         decimalScale={2}
                                         fixedDecimalScale
-                                        style={tdAmountStyle}
                                     />
                                 </td>
-                                <td style={tdAmountStyle}>
+                                <td>
                                     <NumericFormat
                                         value={z.inDebt}
                                         displayType="text"
@@ -286,7 +255,6 @@ export const detailsToolTip = (row, data, settings, dataTable, rmrk) => {
                                         prefix={z.cur === 'USD' ? '$' : '€'}
                                         decimalScale={2}
                                         fixedDecimalScale
-                                        style={tdAmountStyle}
                                     />
                                 </td>
                             </tr>

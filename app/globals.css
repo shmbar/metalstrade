@@ -461,6 +461,7 @@ html.dark img[src*="/_next/static/media/logo"][src$=".svg"] {
 .responsiveTextTable,
 .responsiveTextTable1     { font-size: var(--fs-table); }
 .responsiveText,
+.responsiveTextCardTitle,
 .responsiveTextTotal      { font-size: var(--fs-body); }
 .responsiveTextInput      { font-size: var(--fs-input); }
 .responsiveTextTitle      { font-size: var(--fs-title); }
@@ -605,6 +606,76 @@ tfoot th * {
   font-size: var(--fs-table);
   /* Figures line up in a column whether or not the cell asked for it. */
   font-variant-numeric: tabular-nums;
+}
+
+/* ── .detail-popup-table: THE hover-detail popup band ────────────────────────
+   Five summary cards open a hover popup listing the rows behind a figure —
+   stocks, expenses, companyexpenses, contractsstatement (also mounted by
+   ContractsReview&Statement) and specialinvoices. Every one of them hand-rolled
+   its own thStyle/tdStyle as inline objects, which is exactly the drift
+   .custom-table above was consolidated to end, and inline styles are invisible
+   to a scan that only greps for classes. They had reached THREE different type
+   sizes: --fs-input headers AND cells on stocks, --fs-body headers with
+   --fs-table cells on the others, and a --fs-title heading on stocks alone.
+
+   The effect was that a popup always rendered LARGER than the summary table it
+   belongs to — up to three rungs on stocks — so the detail view shouted over
+   the figures that opened it.
+
+   A popup is the same table, opened up. It therefore reads from the same band
+   as .custom-table: same rung, same padding, same header treatment. The two
+   deltas are deliberate — nowrap, because a tooltip must not reflow to fit, and
+   zebra rows, because a popup has no hover affordance to track a row by. */
+.detail-popup-table {
+  border-collapse: collapse;
+  width: 100%;
+  table-layout: auto;
+}
+
+.detail-popup-table th {
+  background-color: var(--bg-subtle);
+  border-bottom: 1px solid var(--line);
+  text-align: center;
+  vertical-align: middle;
+  padding: 4px 8px;
+  font-size: var(--fs-table);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--ink-secondary);
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.detail-popup-table td {
+  border-bottom: 1px solid var(--line);
+  text-align: center;
+  vertical-align: middle;
+  padding: 6px 8px;
+  font-size: var(--fs-table);
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* Painted on the cell, not the row: the vertical rules from the :where() grid
+   floor sit on the cells, and a row background reads behind them unevenly. */
+.detail-popup-table tbody tr:nth-child(odd) td {
+  background-color: var(--bg-card);
+}
+
+.detail-popup-table tbody tr:nth-child(even) td {
+  background-color: var(--bg-subtle);
+}
+
+/* The popup's own title band. Same rung and weight as the summary card title it
+   opens from, so the card and the popup read as one object. */
+.detail-popup-title {
+  background: var(--bg-subtle);
+  border-bottom: 1px solid var(--line);
+  padding: 6px 10px;
+  font-size: var(--fs-body);
+  font-weight: 400;
+  color: var(--chathams-blue);
 }
 
 /* ── .dashboard-scroll: THE table scroll container ───────────────────────────
@@ -837,10 +908,22 @@ textarea:focus-visible,
     font-size: var(--fs-table);
   }
 
-  /* Summary table card title — one rung under responsiveTextTable */
+  /* Caption rung — footnotes under a figure, keyboard hints, and the small
+     controls (search fields, Quick Sum, the ui/button default). The name says
+     "table title" for historical reasons; it is NOT a title rung and must not
+     be used as one. A card header that sat here rendered BELOW the rows it
+     labelled, which is what .responsiveTextCardTitle exists to fix. */
   .responsiveTextTableTitle {
     @apply break-words min-w-0 whitespace-normal;
     font-size: var(--fs-caption);
+  }
+
+  /* Summary/totals card header — one rung ABOVE the --fs-table rows it labels,
+     and the same rung as the hover-detail popup's own header, so a card and the
+     popup it opens agree. */
+  .responsiveTextCardTitle {
+    @apply break-words min-w-0 whitespace-normal;
+    font-size: var(--fs-body);
   }
 
   /* Totals row — body size, medium weight */

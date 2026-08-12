@@ -55,7 +55,7 @@ const Customtable = ({ data, columns, expensesData, settings }) => {
                     background: 'var(--bg-subtle)',
                     borderBottom: '1px solid var(--rock-blue)'
                 }}>
-                    <h3 className="responsiveTextTableTitle text-[var(--chathams-blue)] font-normal font-sans text-center w-full"
+                    <h3 className="responsiveTextCardTitle text-[var(--chathams-blue)] font-normal font-sans text-center w-full"
                         style={{
                             letterSpacing: '0.02em'
                         }}>
