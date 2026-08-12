@@ -349,7 +349,7 @@ const Customtable = ({
 
     // Ghost icon-button (presets / help)
     const iconBtn = (active) => ({
-        width: '26px', height: '26px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+        width: '28px', height: '28px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
         borderRadius: 'var(--radius-control)', border: 'none', cursor: 'pointer', padding: 0,
         background: active ? 'var(--brand-soft)' : 'transparent',
         color: active ? 'var(--brand)' : 'var(--ink-muted)',
