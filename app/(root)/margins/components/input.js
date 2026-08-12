@@ -32,18 +32,12 @@ const showAmount = (nStr) => {
 // px-1 rather than px-2: the padding is breathing room for the hover/focus
 // border, and 7px a side was coming straight off the digits' width.
 //
-// text-ellipsis: an <input> clips its overflow at the content box with no mark,
-// so a cut alloy spec ("…1.71Mo 1.2\") read as corrupt data rather than as a
-// long value. The ellipsis says "there is more"; the tooltip below says what.
-// It only takes effect while the field is unfocused — click in and the input
-// scrolls through the whole value as normal.
 const INPUT_CLASS = `
   w-full
   min-w-0
   bg-transparent
   rounded-control
   px-1
-  text-ellipsis
   responsiveTextInput
   !text-[var(--ink)]
   border border-transparent
@@ -108,7 +102,14 @@ export const Input = function Input({ props, handleChange, month, name, styles, 
         }
         handleChange(e, props.row.original.id, month);
       }}
-      className={cn(styles, INPUT_CLASS)}
+      /* text-ellipsis on the FREE-TEXT column only. An <input> clips its overflow
+         with no mark, so a cut alloy spec read as corrupt data rather than a long
+         value — the ellipsis says "there is more" and the tooltip says what.
+         It must never reach a figure: `text-overflow: ellipsis` also reserves room
+         for the "…" glyph, so on a narrow numeric cell it starts eating digits to
+         make space and "0.57" renders as "0….". A number gets a column wide
+         enough instead. */
+      className={cn(styles, INPUT_CLASS, name === 'description' && 'text-ellipsis')}
       style={INPUT_STYLE}
     />
   );
