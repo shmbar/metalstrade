@@ -47,10 +47,17 @@ import Tltip from "../../../components/tlTip";
 // They sum to exactly 100, so under `tableLayout: fixed` each column gets the
 // width written here — nothing left over for the browser to redistribute.
 //
-// The budget follows the widest string a column can hold, not its header. The
-// money columns run to 13 characters ("$1,931,250.00") and were the ones
-// truncating; the width came from the columns whose content is short and
-// bounded — Qty, Client (SJM / Iberinox / Unsold) and Open Ship.
+// The budget follows the widest string a column can hold — INCLUDING its header,
+// which the first pass overlooked. Money columns run to 13 characters
+// ("$1,931,250.00") and the width to hold them came out of Qty and Open Ship,
+// which left neither able to fit its own label: "QTY (MT)" and "OPEN SHIP" broke
+// across two lines while every other header sat on one, and Open Ship's figures
+// lost their last digit ("20.000" read "20.00").
+//
+// The money columns were over-provisioned for it. At these widths each still
+// clears its widest value with room to spare — Total Margin holds 13 characters
+// in 11%, Margin 10 in 9% — so a point each from Supplier, Margin, Total Margin
+// and Remaining buys Qty and Open Ship a point each and Description two.
 const COLUMN_CONFIGS = {
     'drag-handle': { pct: '2%',  align: 'center' },
     // 8%, not 6%: at 6% the cell was ~75px, and once the cell padding and the
@@ -58,17 +65,23 @@ const COLUMN_CONFIGS = {
     // for a "DD.MM.YY" that measures ~58px on a wide viewport — so the year was
     // clipped. Wide enough that the date never meets the button.
     'date':        { pct: '8%',  align: 'center' },
-    'purchase':    { pct: '6%',  align: 'right'  },
-    // 15%: free text, so it overflows at any width the table can afford and the
-    // input scrolls. The percent it gives up buys Qty room for its footer total.
-    'description': { pct: '15%', align: 'left'   },
-    'supplier':    { pct: '12%', align: 'left'   },
-    'client':      { pct: '8%',  align: 'left'   },
-    'margin':      { pct: '10%', align: 'right'  },
-    'totalMargin': { pct: '12%', align: 'right'  },
+    'purchase':    { pct: '7%',  align: 'right'  },
+    // Free text, so it overflows at any width the table can afford and the input
+    // scrolls — but it is the column users actually read, so it takes the two
+    // points nobody else needed rather than staying the tightest fit that works.
+    'description': { pct: '17%', align: 'left'   },
+    'supplier':    { pct: '11%', align: 'left'   },
+    // Bounded vocabulary — a client name here is "SJM" / "Oryx" / "Unsold" —
+    // so this is the column with slack to give.
+    'client':      { pct: '7%',  align: 'left'   },
+    'margin':      { pct: '9%',  align: 'right'  },
+    'totalMargin': { pct: '11%', align: 'right'  },
     'shipped':     { pct: '5%',  align: 'right'  },
-    'openShip':    { pct: '6%',  align: 'right'  },
-    'remaining':   { pct: '9%',  align: 'right'  },
+    // 8%: a figure must never truncate. "190.000" is seven characters and was
+    // losing its last one at 7% — and a cut number is worse than cut text,
+    // because "190.00" is itself a valid reading and nothing signals the loss.
+    'openShip':    { pct: '8%',  align: 'right'  },
+    'remaining':   { pct: '8%',  align: 'right'  },
     'gis':         { pct: '4%',  align: 'center' },
     'del':         { pct: '3%',  align: 'center' },
 };
@@ -401,7 +414,11 @@ const Customtable = (props) => {
   key={header.id}
   style={{
     height: '36px',
-    padding: '4px 6px',
+    /* No side padding: under `tableLayout: fixed` a column gets exactly its
+       percentage, so 6px a side was 12px the label could not use — enough to
+       wrap "QTY (MT)" and "OPEN SHIP" onto a second line. The labels are
+       centred, so they need no padding to sit off the column edge. */
+    padding: '4px 0',
     width: (COLUMN_CONFIGS[header.column.id] || {}).pct || 'auto',
   }}
   className={cn(
@@ -410,7 +427,7 @@ const Customtable = (props) => {
     idx === arr.length - 1 ? 'rounded-tr-lg' : ''
   )}
 >
-  <div className="w-full flex items-center justify-center font-medium uppercase tracking-[0.04em] responsiveText">
+  <div className="w-full flex items-center justify-center whitespace-nowrap font-medium uppercase tracking-[0.04em] responsiveText">
     {header.isPlaceholder
       ? null
       : flexRender(header.column.columnDef.header, header.getContext())}

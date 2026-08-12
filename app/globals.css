@@ -185,6 +185,25 @@
   /* Modal/dialog overlay — ONE value for every overlay in the app. */
   --overlay: rgb(0 0 0 / 0.45);
 
+  /* Tooltip bubble — THE one surface that must not be painted with --ink.
+     --ink is a TEXT token: the theme engine inverts it in dark mode, so a
+     tooltip built from it flips to a near-white pill while the --on-brand text
+     on top stays white — white on white, unreadable (reported 2026-08-13 on the
+     topbar theme toggle, and the same bug was in every Tltip in the app plus
+     the margins input/select hints). Light mode keeps the classic dark bubble;
+     dark mode uses a RAISED surface with normal ink, which is how a tooltip
+     reads over a dark page, with a border so it separates from the card under
+     it. Always use the pair together: bg --tooltip-bg + text --tooltip-ink. */
+  --tooltip-bg: var(--ink);
+  --tooltip-ink: var(--bg-card);
+  --tooltip-border: transparent;
+
+  /* Code/snippet block (settings → Email Setup). Same story as the tooltip: it
+     was painted with --ink, so dark mode turned a dark code block into a white
+     slab with a near-invisible copy button on it. */
+  --code-bg: var(--ink);
+  --code-ink: var(--line);
+
   /* Text/iconography sitting ON a brand-coloured surface (endeavour buttons,
      status chips, table header bands). Stays white in BOTH modes on purpose:
      utils/themes.js fits every brand colour to >=4.5:1 against white, so white
@@ -429,6 +448,14 @@ html.dark {
   /* Avatar teal, lightened for dark surfaces (the status tokens get the same
      treatment from DARK_STATUS in utils/themes.js). */
   --teal-text: #7BC0B8;
+  /* Tooltip: a raised panel, not an inverted one. --bg-sunken sits one step
+     above --bg-card so the bubble reads as floating, and --ink on it is the
+     app's normal 12:1 text pair. See the --tooltip-* note in :root. */
+  --tooltip-bg: var(--bg-sunken);
+  --tooltip-ink: var(--ink);
+  --tooltip-border: var(--line-strong);
+  --code-bg: var(--bg-sunken);
+  --code-ink: var(--ink-secondary);
 }
 /* The /logo/ SVG assets are drawn in brand blue — on dark surfaces they'd
    vanish. White-silhouette them. Rasters (.png company logos) are excluded:
@@ -547,6 +574,31 @@ tfoot th * {
 :where(td) {
   padding: 3px 6px;
   line-height: 1.35;
+}
+
+/* ── …but a control inside a cell must not inherit that leading ──────────────
+   Tailwind's preflight sets `line-height: inherit` on form elements, so the
+   1.35 above lands on every input, select trigger and button in a table. 1.35em
+   is shorter than Plus Jakarta Sans actually draws — its ascender plus descender
+   run past 1.4em — and the difference is where the tail of a `g` or a `y` lives.
+
+   Plain cell text survives it: the glyph simply paints outside its line box and
+   nothing clips it. A control does clip. An <input> clips to its content box,
+   and the select trigger renders its value in a `truncate` span, which is
+   `overflow: hidden`. That is why "Ta Ingots", "708 Tngs" and "Oryx" were
+   losing the bottoms of their descenders while the text beside them was fine.
+
+   `normal` asks the font how much room it needs, so this cannot drift out of
+   step when the type ladder moves. Row height is unchanged: these controls are
+   already held at min-height 26px inside a 32px cell, comfortably clear of the
+   line box at either leading.
+
+   Element selectors, not :where() — preflight's own rule is (0,0,1) and a
+   zero-specificity selector would lose to it. Any explicit leading-* utility is
+   a class (0,1,0) and still wins over this. */
+td input, td select, td textarea, td button,
+th input, th select, th textarea, th button {
+  line-height: normal;
 }
 
 /* ── .custom-table: THE main-table standard ──────────────────────────────────

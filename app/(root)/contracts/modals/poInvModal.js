@@ -451,7 +451,7 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowStockModal }) => {
                                                 <div className='group relative'>
                                                     <ArrowBigRight className='text-[var(--regent-gray)] ml-3 cursor-pointer' onClick={switchToStocks} />
                                                     <span className="absolute hidden group-hover:flex top-[30px] w-fit p-1
-    bg-slate-400 rounded-lg text-center text-[var(--on-brand)] responsiveTextTable z-10 whitespace-nowrap -left-2">
+    bg-[var(--tooltip-bg)] border border-[var(--tooltip-border)] shadow-pop rounded-lg text-center text-[var(--tooltip-ink)] responsiveTextTable z-10 whitespace-nowrap -left-2">
                                                         {getTtl('Stocks', ln)}</span>
                                                 </div>
                                             </div>

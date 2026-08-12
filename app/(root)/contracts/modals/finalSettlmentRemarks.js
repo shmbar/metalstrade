@@ -68,7 +68,7 @@ const FinalRemarks = ({ value, setValue }) => {
                         <IoAddCircleOutline className='scale-110' /> {getTtl('Add', ln)}
                     </button>
                     <span className="absolute hidden group-hover:flex top-8 w-fit p-1
-    bg-slate-400 rounded-lg text-center text-[var(--on-brand)] responsiveTextInput z-10 whitespace-nowrap -left-1.5">
+    bg-[var(--tooltip-bg)] border border-[var(--tooltip-border)] shadow-pop rounded-lg text-center text-[var(--tooltip-ink)] responsiveTextInput z-10 whitespace-nowrap -left-1.5">
                         {getTtl('AddFormula', ln)}</span>
                 </div>
 

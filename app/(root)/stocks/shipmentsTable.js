@@ -134,7 +134,7 @@ const Customtable = ({ data, item }) => {
 								<HiArrowDownTray className='font-semibold scale-110' style={{ color: MOVEMENT.in }} />
 								<span >{obj[x]}</span>
 								<span className="absolute hidden group-hover:flex -top-2 w-fit p-1
-    bg-slate-400 rounded-lg text-center text-[var(--on-brand)] responsiveText z-10 whitespace-nowrap -left-36 ">
+    bg-[var(--tooltip-bg)] border border-[var(--tooltip-border)] shadow-pop rounded-lg text-center text-[var(--tooltip-ink)] responsiveText z-10 whitespace-nowrap -left-36 ">
 									<span>{`Moved from:`}&nbsp;</span> <span className='font-medium'>{`${settings.Stocks.Stocks.find(x => x.id === obj.oldStock)['stock']}`}</span></span>
 							</div> :
 							(x === 'type' && obj.moveType === 'out') ?
@@ -142,7 +142,7 @@ const Customtable = ({ data, item }) => {
 									<HiArrowUpTray className='font-semibold scale-110' style={{ color: MOVEMENT.out }} />
 									<span >{obj[x]}</span>
 									<span className="absolute hidden group-hover:flex -top-2 w-fit p-1
-    bg-slate-400 rounded-lg text-center text-[var(--on-brand)] responsiveText z-10 whitespace-nowrap -left-36 ">
+    bg-[var(--tooltip-bg)] border border-[var(--tooltip-border)] shadow-pop rounded-lg text-center text-[var(--tooltip-ink)] responsiveText z-10 whitespace-nowrap -left-36 ">
 										<span>{`Moved to:`}&nbsp;</span> <span className='font-medium'>{`${settings.Stocks.Stocks.find(x => x.id === obj.newStock)['stock']}`}</span></span>
 								</div> :
 								x === 'qnty' ?

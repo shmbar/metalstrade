@@ -10,7 +10,7 @@ const Tltip = ({ children, direction, tltpText, show }) => {
     // For plain text tooltips we'll keep the colored background.
     // For complex JSX tooltips (tables/lists) remove outer padding so internal markup controls spacing.
     const contentClass = isString
-        ? `bg-[var(--ink)] rounded-lg ${show == null || show ? 'flex' : 'hidden'}`
+        ? `bg-[var(--tooltip-bg)] rounded-lg ${show == null || show ? 'flex' : 'hidden'}`
         : (show == null || show ? 'p-0 rounded-2xl overflow-hidden' : 'hidden')
     return (
         <TooltipProvider delayDuration='0' >
@@ -21,7 +21,7 @@ const Tltip = ({ children, direction, tltpText, show }) => {
                 <TooltipContent className={contentClass} 
                 side={direction} >
                     {isString ? (
-                        <span className="text-[var(--on-brand)] responsiveTextTable capitalize font-normal">{tltpText}</span>
+                        <span className="text-[var(--tooltip-ink)] responsiveTextTable capitalize font-normal">{tltpText}</span>
                     ) : (
                         // allow JSX/tooltip content (tables, lists) to render unwrapped
                         tltpText

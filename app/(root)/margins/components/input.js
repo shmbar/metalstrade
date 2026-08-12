@@ -1,6 +1,7 @@
 import { addComma } from '../../../../app/(root)/cashflow/funcs';
 import { cn } from '../../../../lib/utils';
-import { useRef, useLayoutEffect } from 'react';
+import { useRef, useLayoutEffect, useState } from 'react';
+import Tltip from '../../../../components/tlTip';
 
 const showAmount = (nStr) => {
   nStr += '';
@@ -30,12 +31,19 @@ const showAmount = (nStr) => {
 //
 // px-1 rather than px-2: the padding is breathing room for the hover/focus
 // border, and 7px a side was coming straight off the digits' width.
+//
+// text-ellipsis: an <input> clips its overflow at the content box with no mark,
+// so a cut alloy spec ("…1.71Mo 1.2\") read as corrupt data rather than as a
+// long value. The ellipsis says "there is more"; the tooltip below says what.
+// It only takes effect while the field is unfocused — click in and the input
+// scrolls through the whole value as normal.
 const INPUT_CLASS = `
   w-full
   min-w-0
   bg-transparent
   rounded-control
   px-1
+  text-ellipsis
   responsiveTextInput
   !text-[var(--ink)]
   border border-transparent
@@ -72,13 +80,28 @@ export const Input = function Input({ props, handleChange, month, name, styles, 
     ? addComma(props.getValue())
     : showAmount(props.getValue());
 
-  return (
+  // Measured on hover rather than on render: a table can hold hundreds of these
+  // and only the one under the pointer needs an answer, so nothing is laid out
+  // or measured until you point at a cell. scrollWidth > clientWidth is the
+  // element telling us its own text does not fit.
+  const [clipped, setClipped] = useState(false);
+  const checkClipped = () => {
+    const el = inputRef.current;
+    if (el) setClipped(el.scrollWidth > el.clientWidth + 1);
+  };
+
+  const field = (
     <input
       ref={inputRef}
       type="text"
       value={value}
       name={name}
       placeholder={placeholder}
+      onMouseEnter={checkClipped}
+      /* Radix opens a tooltip on focus as well as hover, which would drop the
+         full value on top of the field the moment you click in to edit it.
+         Suppress it while editing; the next hover measures again. */
+      onFocus={() => setClipped(false)}
       onChange={(e) => {
         if (name === 'description') {
           savedCursor.current = e.target.selectionStart;
@@ -88,6 +111,27 @@ export const Input = function Input({ props, handleChange, month, name, styles, 
       className={cn(styles, INPUT_CLASS)}
       style={INPUT_STYLE}
     />
+  );
+
+  // Only the free-text column can outgrow its cell by enough to need this. A
+  // figure is never revealed this way: a truncated number reads as a smaller
+  // valid number, so those columns are sized to fit instead (see COLUMN_CONFIGS).
+  if (name !== 'description') return field;
+
+  return (
+    <Tltip
+      direction="top"
+      show={clipped}
+      /* Passed as JSX, not a string: Tltip title-cases plain-text tooltips, and
+         an alloy spec has to read back exactly as it was typed. */
+      tltpText={
+        <span className="block max-w-[420px] break-words bg-[var(--tooltip-bg)] text-[var(--tooltip-ink)] border border-[var(--tooltip-border)] shadow-pop rounded-lg px-2 py-1 responsiveTextTable font-normal">
+          {value}
+        </span>
+      }
+    >
+      {field}
+    </Tltip>
   );
 };
 

@@ -69,7 +69,7 @@ const Remraks = ({ value, setValue, ln }) => {
                         <CirclePlus /> {getTtl('Add', ln)}
                     </Button>
                     <span className="absolute hidden group-hover:flex top-8 w-fit p-1
-    bg-slate-400 rounded-lg text-center text-[var(--on-brand)] responsiveTextTable z-10 whitespace-nowrap -left-1.5">
+    bg-[var(--tooltip-bg)] border border-[var(--tooltip-border)] shadow-pop rounded-lg text-center text-[var(--tooltip-ink)] responsiveTextTable z-10 whitespace-nowrap -left-1.5">
                         {getTtl('AddRemark', ln)}</span>
                 </div>}
 

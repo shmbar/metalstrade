@@ -17,14 +17,17 @@ function CodeBlock({ children }) {
     return (
         <div
             className='relative rounded-lg p-2.5 mt-1 mb-2 font-mono'
-            style={{ background: 'var(--ink)', color: 'var(--neutral-border)', fontSize: 'var(--fs-table)' }}
+            style={{ background: 'var(--code-bg)', color: 'var(--code-ink)', fontSize: 'var(--fs-table)' }}
         >
             <button
                 onClick={copy}
                 className='absolute top-1.5 right-1.5 p-1 rounded hover:bg-[rgba(var(--surface-card-rgb),0.1)] transition-colors'
                 title='Copy'
             >
-                {copied ? <Check className='w-3 h-3' style={{ color: 'var(--ok-border)' }} /> : <Copy className='w-3 h-3' style={{ color: 'var(--ink-muted)' }} />}
+                {/* --ink-muted is a page-text token: on this block it was 1.6:1 in
+                    light mode and vanished entirely in dark. --code-ink is the
+                    block's own foreground, so the button follows the surface. */}
+                {copied ? <Check className='w-3 h-3' style={{ color: 'var(--ok-border)' }} /> : <Copy className='w-3 h-3' style={{ color: 'var(--code-ink)' }} />}
             </button>
             <pre className='whitespace-pre-wrap pr-6'>{children}</pre>
         </div>

@@ -507,8 +507,8 @@ const ProductsTable = ({ value, setValue, currency, settings, uidCollection, set
                                                                 ref={inputRef}
                                                             />
                                                             <span className={`absolute hidden ${(key === 'unitPrc' || key === 'qnty') && value1?.substring(0, 1) === "=" ? 'group-hover:flex' : ''}
-                                                                 bottom-[30px] w-fit p-1  bg-slate-400 rounded-lg text-center
-                                                                  text-[var(--on-brand)] responsiveTextTable z-tooltip whitespace-nowrap -left-0.5`}>
+                                                                 bottom-[30px] w-fit p-1  bg-[var(--tooltip-bg)] border border-[var(--tooltip-border)] shadow-pop rounded-lg text-center
+                                                                  text-[var(--tooltip-ink)] responsiveTextTable z-tooltip whitespace-nowrap -left-0.5`}>
                                                                 {value1}
                                                             </span>
 
@@ -527,7 +527,7 @@ const ProductsTable = ({ value, setValue, currency, settings, uidCollection, set
                                                                     fixedDecimalScale
                                                                 />
                                                                 {(obj.eqUnitPrc || obj.eq) && (
-                                                                    <span className='absolute hidden group-hover:flex bottom-[20px] w-fit p-1 bg-slate-400 rounded-lg text-center text-[var(--on-brand)] responsiveTextTable z-tooltip whitespace-nowrap -left-0.5'>
+                                                                    <span className='absolute hidden group-hover:flex bottom-[20px] w-fit p-1 bg-[var(--tooltip-bg)] border border-[var(--tooltip-border)] shadow-pop rounded-lg text-center text-[var(--tooltip-ink)] responsiveTextTable z-tooltip whitespace-nowrap -left-0.5'>
                                                                         {obj.eqUnitPrc || obj.eq}
                                                                     </span>
                                                                 )}
@@ -555,7 +555,7 @@ const ProductsTable = ({ value, setValue, currency, settings, uidCollection, set
                                                                     :
                                                                     <span>Service</span>}
                                                                 {obj.eqQnty && (
-                                                                    <span className='absolute hidden group-hover:flex bottom-[20px] w-fit p-1 bg-slate-400 rounded-lg text-center text-[var(--on-brand)] responsiveTextTable z-tooltip whitespace-nowrap -left-0.5'>
+                                                                    <span className='absolute hidden group-hover:flex bottom-[20px] w-fit p-1 bg-[var(--tooltip-bg)] border border-[var(--tooltip-border)] shadow-pop rounded-lg text-center text-[var(--tooltip-ink)] responsiveTextTable z-tooltip whitespace-nowrap -left-0.5'>
                                                                         {obj.eqQnty}
                                                                     </span>
                                                                 )}
