@@ -17,11 +17,25 @@ const showAmount = (nStr) => {
 
 // Flat at rest (matches read-only tables app-wide); the input box only appears
 // on hover/focus so the grid doesn't read as a wall of boxes.
+//
+// min-w-0 is load-bearing, not tidying. Every call site renders this inside a
+// `flex` wrapper, and a flex item defaults to `min-width: auto` — for an <input>
+// that resolves to the intrinsic width of its `size` attribute (~20ch, ~177px).
+// That floor overrules `w-full`, so in a ~120px Margin cell the input stayed
+// ~177px, overflowed to the right, and the cell's `overflow: hidden` cut it off:
+// "$2,400,000" rendered as "$2,400,00" with a wide gap on the left, because the
+// centred text was centred inside the oversized box rather than the cell.
+// .responsiveText carries min-w-0; .responsiveTextInput below carries only a
+// font-size, which is why this input clipped and the read-only ones didn't.
+//
+// px-1 rather than px-2: the padding is breathing room for the hover/focus
+// border, and 7px a side was coming straight off the digits' width.
 const INPUT_CLASS = `
   w-full
+  min-w-0
   bg-transparent
   rounded-control
-  px-2
+  px-1
   responsiveTextInput
   !text-[var(--ink)]
   border border-transparent

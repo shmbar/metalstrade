@@ -229,10 +229,15 @@ const Customtable = ({
                         {hdGroup.headers.map((header) => (
                           <th
                             key={`total-${header.id}`}
-                            className="responsiveTextTable numeric"
+                            className="responsiveTextTable"
                             style={{
                               color: 'var(--ink)',
                               backgroundColor: 'var(--bg-sunken)',
+                              /* nowrap came from .numeric, which also forced 600 inside a
+                                 th and made this totals row the heaviest text in the app.
+                                 Weight now comes from .custom-table th (500) like every
+                                 other totals row; the no-break guard stays, explicitly. */
+                              whiteSpace: 'nowrap',
                               minWidth: header.column.id === 'select' ? '50px' : '60px',
                               maxWidth: header.column.id === 'select' ? '50px' : 'none',
                               padding: '4px 6px',
@@ -366,7 +371,7 @@ const Customtable = ({
                               ) : isBadge ? (
                                 <span className="responsiveTextTable">&nbsp;</span>
                               ) : hasValue ? (
-                                <span className="responsiveTextTable numeric">
+                                <span className="responsiveTextTable">
                                   {flexRender(cell.column.columnDef.cell, cell.getContext())}
                                 </span>
                               ) : (

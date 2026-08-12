@@ -5,20 +5,25 @@ import Tltip from "../../../../components/tlTip";
 const getDateValue = (props) =>
     typeof props.getValue === 'function' ? props.getValue() : props.value;
 
-/* w-full, NOT a fixed width. The date column is `tableLayout: fixed` at 6%
-   (~75px), and this input used to be w-24 (96px) — wider than its own cell. The
-   cell sets overflow:visible for the calendar popup, so the input just spilled
-   past the wrapper instead of being clipped, and the clear button (absolute
-   right-0 against the wrapper) landed ~21px inside the input's visible right
-   edge: floating between the date and the column divider rather than sitting in
-   the padding reserved for it. Input and wrapper have to share a width for
-   right-0 to mean "the right edge of this input".
+/* w-full, NOT a fixed width. The date column is `tableLayout: fixed`, and this
+   input used to be w-24 (96px) — wider than its own cell. The cell sets
+   overflow:visible for the calendar popup, so the input just spilled past the
+   wrapper instead of being clipped, and the clear button (absolute right-0
+   against the wrapper) landed ~21px inside the input's visible right edge:
+   floating between the date and the column divider rather than sitting in the
+   padding reserved for it. Input and wrapper have to share a width for right-0
+   to mean "the right edge of this input".
 
-   pr-4 is that reserved room for the clear button; pl-1 balances the optical
-   centre. "DD.MM.YY" measures ~48px at --fs-body against ~55px of free space,
-   so it still fits without truncating. */
+   Padding is SYMMETRIC (px-3) and the text is centred, so the date sits in the
+   middle of the cell and the clear button lives in the right gutter. The old
+   pl-1/pr-4 pair squeezed the content box to ~55px against a "DD.MM.YY" that
+   measures ~58px at --fs-body on a wide viewport — and an <input> clips to its
+   content box rather than overflowing, so the year's last digit vanished under
+   the × button. The column is 8% (see COLUMN_CONFIGS in ../newTable.js) and the
+   cell contributes no horizontal padding, which leaves ~76px of content box:
+   the date can't reach the button at any rung of the type ladder. */
 const DATE_INPUT_CLASS =
-    'responsiveText h-7 py-0 pl-1 pr-4 w-full bg-transparent border-0 outline-none cursor-pointer text-[var(--brand)] text-center';
+    'responsiveText h-7 py-0 px-3 w-full bg-transparent border-0 outline-none cursor-pointer text-[var(--brand)] text-center';
 
 /* Positioning note.
    This component used to hand-position the popup: a MutationObserver watched for

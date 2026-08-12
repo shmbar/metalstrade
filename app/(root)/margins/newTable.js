@@ -43,22 +43,43 @@ import { dataIds } from "./funcs";
 import CheckBox from "../../../components/checkbox";
 import Tltip from "../../../components/tlTip";
 
-// Percentage-based widths so table fills available space responsively
+// Percentage-based widths so table fills available space responsively.
+// They sum to exactly 100, so under `tableLayout: fixed` each column gets the
+// width written here — nothing left over for the browser to redistribute.
+//
+// The budget follows the widest string a column can hold, not its header. The
+// money columns run to 13 characters ("$1,931,250.00") and were the ones
+// truncating; the width came from the columns whose content is short and
+// bounded — Qty, Client (SJM / Iberinox / Unsold) and Open Ship.
 const COLUMN_CONFIGS = {
     'drag-handle': { pct: '2%',  align: 'center' },
-    'date':        { pct: '6%',  align: 'center' },
+    // 8%, not 6%: at 6% the cell was ~75px, and once the cell padding and the
+    // clear button's gutter came off it the date input had ~55px of content box
+    // for a "DD.MM.YY" that measures ~58px on a wide viewport — so the year was
+    // clipped. Wide enough that the date never meets the button.
+    'date':        { pct: '8%',  align: 'center' },
     'purchase':    { pct: '6%',  align: 'right'  },
-    'description': { pct: '16%', align: 'left'   },
+    // 15%: free text, so it overflows at any width the table can afford and the
+    // input scrolls. The percent it gives up buys Qty room for its footer total.
+    'description': { pct: '15%', align: 'left'   },
     'supplier':    { pct: '12%', align: 'left'   },
-    'client':      { pct: '10%', align: 'left'   },
-    'margin':      { pct: '8%',  align: 'right'  },
-    'totalMargin': { pct: '9%',  align: 'right'  },
+    'client':      { pct: '8%',  align: 'left'   },
+    'margin':      { pct: '10%', align: 'right'  },
+    'totalMargin': { pct: '12%', align: 'right'  },
     'shipped':     { pct: '5%',  align: 'right'  },
-    'openShip':    { pct: '7%',  align: 'right'  },
-    'remaining':   { pct: '8%',  align: 'right'  },
+    'openShip':    { pct: '6%',  align: 'right'  },
+    'remaining':   { pct: '9%',  align: 'right'  },
     'gis':         { pct: '4%',  align: 'center' },
     'del':         { pct: '3%',  align: 'center' },
 };
+
+// Cells whose content is a figure inside a full-width <input>. The input brings
+// its own gutters, so the cell's 1px of side padding is width the number can't
+// use — and an <input> clips its text to the content box instead of overflowing
+// it, which turns "slightly too narrow" into a silently missing digit.
+const FIGURE_COLUMNS = new Set([
+    'date', 'purchase', 'margin', 'totalMargin', 'shipped', 'openShip', 'remaining',
+]);
 
 
 const DraggableRow = memo(function DraggableRow({ row, props, cName }) {
@@ -104,7 +125,7 @@ const DraggableRow = memo(function DraggableRow({ row, props, cName }) {
             key={cell.id}
             style={{
               height: "32px",
-              padding: "3px 1px",
+              padding: FIGURE_COLUMNS.has(cell.column.id) ? "3px 0" : "3px 1px",
               verticalAlign: "middle",
               width: columnConfig.pct || 'auto',
               overflow: cell.column.id === "date" ? "visible" : "hidden",
@@ -222,7 +243,9 @@ const DraggableRow = memo(function DraggableRow({ row, props, cName }) {
                     decimalScale={2}
                     fixedDecimalScale
                     className={cn(
-                      "w-full bg-transparent border-none outline-none px-1 text-center responsiveText ",
+                      // px-0: read-only, so there is no hover/focus box for the
+                      // padding to clear, and the figure needs every pixel.
+                      "w-full min-w-0 bg-transparent border-none outline-none px-0 text-center responsiveText ",
                       cell.column.id === "remaining" && Number(cell.getValue()) > 0
                         ? "text-[var(--bad-text)]"
                         : "text-[var(--ink)]"
@@ -242,7 +265,7 @@ const DraggableRow = memo(function DraggableRow({ row, props, cName }) {
                 decimalScale={currs.includes(cell.column.id) ? 2 : 3}
                 fixedDecimalScale
                 className={cn(
-                  "w-full bg-transparent border-none outline-none px-1 text-center responsiveText ",
+                  "w-full min-w-0 bg-transparent border-none outline-none px-0 text-center responsiveText ",
                   ["openShip", "remaining"].includes(cell.column.id) && Number(cell.getValue()) > 0
                     ? "text-[var(--bad-text)]"
                     : "text-[var(--ink)]"
@@ -440,7 +463,10 @@ const Customtable = (props) => {
                                                         key={`footer-${footer.id}`}
                                                         style={{
                                                             height: '36px',
-                                                            padding: '4px 6px',
+                                                            // Same deal as the body: a totals figure is the
+                                                            // widest string in its column, so the figure
+                                                            // columns keep their side padding at 0.
+                                                            padding: FIGURE_COLUMNS.has(accessorKey) ? '4px 0' : '4px 6px',
                                                             verticalAlign: 'middle'
                                                         }}
                                                         className={cn(
@@ -451,7 +477,7 @@ const Customtable = (props) => {
                                                         )}
                                                     >
                                                         {["totalMargin", "remaining", "purchase", "openShip"].includes(accessorKey) && (
-                                                            <div className="flex items-center justify-center px-2 h-full">
+                                                            <div className="flex items-center justify-center h-full">
                                                                 <NumericFormat
                                                                     value={total}
                                                                     displayType="text"
