@@ -636,8 +636,8 @@ import { useState } from "react";
 const headCell = "py-1.5 text-center responsiveTextTable font-semibold uppercase tracking-[0.04em] text-[var(--ink-muted)]";
 const labelCls = "responsiveTextTable font-semibold uppercase tracking-[0.04em] text-[var(--ink-muted)] mb-1.5";
 const inputCell = "w-full h-8 rounded-control bg-[var(--bg-subtle)] border border-[var(--line-strong)] text-center responsiveTextInput tabular-nums font-medium text-[var(--bad-text)] focus:outline-none focus:border-[var(--brand)] focus:ring-2 focus:ring-[var(--brand-soft)] transition-colors";
-const computedInput = "w-full h-8 rounded-control bg-[var(--brand-soft)] border border-transparent text-center responsiveTextInput tabular-nums font-semibold text-[var(--brand-strong)] outline-none cursor-default";
-const pillInput = "w-full h-8 rounded-control border border-[var(--line-strong)] bg-[var(--bg-card)] text-center responsiveTextTitle tabular-nums font-semibold text-[var(--bad-text)] focus:outline-none focus:border-[var(--brand)] focus:ring-[3px] focus:ring-[var(--brand-soft)] transition-colors";
+const computedInput = "w-full h-8 rounded-control bg-[var(--brand-soft)] border border-transparent text-center responsiveTextInput tabular-nums font-medium text-[var(--brand-strong)] outline-none cursor-default";
+const pillInput = "w-full h-8 rounded-control border border-[var(--line-strong)] bg-[var(--bg-card)] text-center responsiveTextInput tabular-nums font-medium text-[var(--bad-text)] focus:outline-none focus:border-[var(--brand)] focus:ring-[3px] focus:ring-[var(--brand-soft)] transition-colors";
 
 const SupperAlloys = ({ value, handleChange }) => {
     const [focusedField, setFocusedField] = useState(null);
