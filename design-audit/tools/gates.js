@@ -183,7 +183,7 @@ gate('custom-table-def', 'Local CSS rule styles th/td type (belongs in globals.c
    language" — Zak overruled both (2026-08-12). The app has ONE radius; if a
    marketing page wants a pill it has to be an actual pill (an avatar, a dot, a
    progress bar), not a rounded control. Do not re-add a whole area here. */
-const RADIUS_EXEMPT = /(AutosavePill|switch\.(js|tsx)|spinner|videoLoader|skeletons)/;
+const RADIUS_EXEMPT = /(Avatar\.js|AutosavePill|switch\.(js|tsx)|spinner|videoLoader|skeletons)/;
 gate('one-radius', 'rounded-full on an interactive control (use rounded-lg = --radius-control)', (file, src) => {
     if (!/\.(js|jsx|tsx)$/.test(file) || RADIUS_EXEMPT.test(file)) return [];
     const hits = [];
@@ -192,7 +192,22 @@ gate('one-radius', 'rounded-full on an interactive control (use rounded-lg = --r
         if (!l.includes('rounded-full')) return;
         if (/^\s*(\/\/|\/?\*|\*)/.test(l)) return;                       // comments
         const interactive = /<button|onClick|cursor-pointer|<input|<select|\bh-(7|8|9|10)\b/.test(l);
-        if (!interactive) return;
+        /* A text-bearing CHIP counts too, not just interactive things. A status
+           badge is a <span> — no onClick, no height class — so the interactivity
+           test alone could not see it, and 63 of them survived two sweeps until
+           Zak spotted them on contracts/salescontracts/invoices. Horizontal AND
+           vertical padding is the tell: that combination means the element wraps
+           text, which a dot or a bar never does. */
+        const paddedChip = /\bpx-[0-9.]+\b/.test(l) && /\bpy-[0-9.]+\b/.test(l);
+        /* ...and a chip whose padding arrives as a PROP still has to be caught.
+           components/StatusBadge.js is exactly that: `rounded-full font-medium`
+           with the padding interpolated from a variable, so the px/py test above
+           sees nothing. It was the single line making every status badge in the
+           CRM a pill. An inline-flex/inline-block box that also styles TEXT is a
+           chip regardless of where its padding comes from; a dot or a bar never
+           sets font-*, and both are already excluded below. */
+        const styledChip = /\binline-(flex|block)\b/.test(l) && /\bfont-(medium|semibold|bold|normal)\b/.test(l);
+        if (!interactive && !paddedChip && !styledChip) return;
         /* Look at the next two lines as well, not just this one. A conditional
            className puts `rounded-full` on the opening line and the `w-3 h-3` that
            proves it is a dot on the NEXT line inside the template literal — which
@@ -200,7 +215,9 @@ gate('one-radius', 'rounded-full on an interactive control (use rounded-lg = --r
         const ctx = lines.slice(i, i + 3).join(' ');
         const isAvatarOrDot = /\bw-([0-9.]+)\b\s+\bh-\1\b|\bh-([0-9.]+)\b\s+\bw-\2\b/.test(ctx)
             || /animate-(ping|spin|pulse|bounce)/.test(ctx)
-            || /width:\s*[0-9]+/.test(ctx);
+            /* Inline sizing marks a dot/count badge too — dashboard's filter count
+               is a 15x15 circle sized with minWidth/height, not w-/h- classes. */
+            || /\b(minWidth|width|height)\s*:\s*[0-9]+/.test(ctx);
         const isBar = /overflow-hidden/.test(ctx) && /\bh-(1|1\.5|2|full)\b/.test(ctx);
         if (!isAvatarOrDot && !isBar) hits.push(`${file}:${i + 1}: rounded-full on an interactive element`);
     });

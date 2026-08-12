@@ -266,7 +266,7 @@ const GlobalSearch = () => {
                                                     {getSettingValue('Supplier', item.supplier, 'nname')} • {item.date ? dateFormat(item.date, 'dd.mm.yy') : '-'}
                                                 </p>
                                             </div>
-                                            <span className='px-2 py-0.5 rounded-full responsiveText font-medium' style={chipStyle(item.conStatus || 'Open')}>
+                                            <span className='px-2 py-0.5 rounded-lg responsiveText font-medium' style={chipStyle(item.conStatus || 'Open')}>
                                                 {item.conStatus || 'Open'}
                                             </span>
                                         </button>
@@ -303,7 +303,7 @@ const GlobalSearch = () => {
                                                     {item.client} • {item.totalAmount ? `${item.cur || ''} ${item.totalAmount}` : '-'}
                                                 </p>
                                             </div>
-                                            <span className='px-2 py-0.5 rounded-full responsiveText font-medium' style={chipStyle(item.canceled ? 'Canceled' : item.invoiceStatus || 'Draft')}>
+                                            <span className='px-2 py-0.5 rounded-lg responsiveText font-medium' style={chipStyle(item.canceled ? 'Canceled' : item.invoiceStatus || 'Draft')}>
                                                 {item.canceled ? 'Canceled' : item.invoiceStatus || 'Draft'}
                                             </span>
                                         </button>
@@ -340,7 +340,7 @@ const GlobalSearch = () => {
                                                     {getSettingValue('Expenses', item.expType, 'expType') || '-'} • {item.amount ? `${getSettingValue('Currency', item.cur, 'cur') || ''} ${item.amount}` : '-'}
                                                 </p>
                                             </div>
-                                            <span className='px-2 py-0.5 rounded-full responsiveText font-medium' style={chipStyle(item.paidUnpaid || 'Unpaid')}>
+                                            <span className='px-2 py-0.5 rounded-lg responsiveText font-medium' style={chipStyle(item.paidUnpaid || 'Unpaid')}>
                                                 {item.paidUnpaid || 'Unpaid'}
                                             </span>
                                         </button>

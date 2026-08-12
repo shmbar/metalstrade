@@ -5,7 +5,7 @@ export const Filter = ({ column, table, filterOn }) => {
     const columnFilterValue = column.getFilterValue();
     const { filterVariant } = column.columnDef.meta || {};
 
-    const inputCls = 'responsiveText font-normal bg-[var(--bg-subtle)] border border-[var(--line)] rounded-full px-2 py-0.5 h-6 focus:outline-none focus:ring-1 focus:ring-[var(--endeavour)] text-[var(--chathams-blue)] placeholder-[var(--line-strong)] w-full';
+    const inputCls = 'responsiveText font-normal bg-[var(--bg-subtle)] border border-[var(--line)] rounded-lg px-2 py-0.5 h-6 focus:outline-none focus:ring-1 focus:ring-[var(--endeavour)] text-[var(--chathams-blue)] placeholder-[var(--line-strong)] w-full';
     const selectCls = 'responsiveText font-normal bg-[var(--bg-subtle)] border border-[var(--line)] rounded-lg px-2 py-0.5 h-6 focus:outline-none focus:ring-1 focus:ring-[var(--endeavour)] text-[var(--chathams-blue)] w-full appearance-none cursor-pointer';
 
     return filterOn &&
@@ -129,6 +129,6 @@ const DebouncedInput = ({
 
     return (
         <input {...props} type={type} value={value} onChange={e => setValue(e.target.value)}
-            className={inputCls || `responsiveText font-normal bg-[var(--bg-subtle)] border border-[var(--line)] rounded-full px-2 py-0.5 h-6 focus:outline-none focus:ring-1 focus:ring-[var(--endeavour)] text-[var(--chathams-blue)] placeholder-[var(--line-strong)] w-full`} />
+            className={inputCls || `responsiveText font-normal bg-[var(--bg-subtle)] border border-[var(--line)] rounded-lg px-2 py-0.5 h-6 focus:outline-none focus:ring-1 focus:ring-[var(--endeavour)] text-[var(--chathams-blue)] placeholder-[var(--line-strong)] w-full`} />
     );
 }

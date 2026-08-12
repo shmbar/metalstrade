@@ -282,7 +282,7 @@ const InvoiceModal = () => {
 			<div className="mb-2">
 				<button
 					onClick={() => setDocsOpen(v => !v)}
-					className="flex items-center gap-2 w-full px-3 py-1.5 rounded-full border border-[var(--line)]
+					className="flex items-center gap-2 w-full px-3 py-1.5 rounded-lg border border-[var(--line)]
 						bg-[var(--bg-subtle)] responsiveTextInput font-medium text-[var(--chathams-blue)] hover:bg-[var(--selago)] transition-all"
 				>
 					<ScrollText size={13} />

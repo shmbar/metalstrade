@@ -255,7 +255,7 @@ function StatKpiCard({
           {trend && (
             <>
               <span
-                className="inline-flex items-center gap-0.5 rounded-full px-1.5 py-0.5 font-semibold"
+                className="inline-flex items-center gap-0.5 rounded-lg px-1.5 py-0.5 font-semibold"
                 style={{ background: deltaBg, color: deltaColor, fontSize: 'var(--fs-table)' }}
               >
                 {trend.up ? '▲' : '▼'} {Math.abs(trend.pct).toFixed(1)}%
@@ -736,7 +736,7 @@ function MiscInvoicesCard({ byCur = {}, byCat = {}, count = 0 }) {
             {entries.length === 0
               ? <span className="responsiveTextTable text-[var(--regent-gray)]">None in this period</span>
               : entries.map(([cur, v]) => (
-                <span key={cur} className="rounded-full px-3 py-1 font-semibold"
+                <span key={cur} className="rounded-lg px-3 py-1 font-semibold"
                   style={{ background: 'color-mix(in srgb, var(--pink-text) 10%, transparent)', boxShadow: 'inset 0 0 0 1px color-mix(in srgb, var(--pink-text) 20%, transparent)', color: 'var(--pink-text)', fontSize: 'var(--fs-title)', fontFamily: 'var(--font-jakarta), Manrope, sans-serif', fontVariantNumeric: 'tabular-nums' }}>
                   {fmtCur(cur, v)}
                 </span>

@@ -469,7 +469,7 @@ const Invoices = () => {
 					: { dot: 'var(--warn-text)', text: 'var(--warn-text)', bg: 'var(--warn-bg)', ring: 'var(--warn-border)' };
 				return (
 					<span
-						className="inline-flex items-center gap-1.5 rounded-full responsiveTextTable font-semibold leading-none whitespace-nowrap"
+						className="inline-flex items-center gap-1.5 rounded-lg responsiveTextTable font-semibold leading-none whitespace-nowrap"
 						style={{
 							color: tone.text,
 							backgroundColor: tone.bg,

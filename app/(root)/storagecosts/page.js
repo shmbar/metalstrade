@@ -359,7 +359,7 @@ const StorageCosts = () => {
                         <span className="responsiveText font-semibold text-[var(--chathams-blue)]">
                             Storage invoices needing a warehouse + month
                         </span>
-                        <span className="rounded-full px-2 py-0.5 font-semibold" style={{ fontSize: 'var(--fs-table)', background: untagged.length ? 'var(--warn-bg)' : 'var(--ok-bg)', color: untagged.length ? 'var(--warn-text)' : 'var(--ok-text)', boxShadow: `inset 0 0 0 1px ${untagged.length ? 'var(--warn-border)' : 'var(--ok-border)'}` }}>
+                        <span className="rounded-lg px-2 py-0.5 font-semibold" style={{ fontSize: 'var(--fs-table)', background: untagged.length ? 'var(--warn-bg)' : 'var(--ok-bg)', color: untagged.length ? 'var(--warn-text)' : 'var(--ok-text)', boxShadow: `inset 0 0 0 1px ${untagged.length ? 'var(--warn-border)' : 'var(--ok-border)'}` }}>
                             {untagged.length}
                         </span>
                         {actuals.count > 0 && (

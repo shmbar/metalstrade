@@ -78,7 +78,7 @@ function Chip({ active, onClick, label, count, unread, muted, onToggleMute }) {
     return (
         <button
             onClick={onClick}
-            className='group/chip flex items-center gap-1.5 px-2.5 py-1 rounded-full whitespace-nowrap flex-shrink-0 transition-colors font-medium'
+            className='group/chip flex items-center gap-1.5 px-2.5 py-1 rounded-lg whitespace-nowrap flex-shrink-0 transition-colors font-medium'
             style={{
                 fontSize: 'var(--fs-table)',
                 border: `1px solid ${active ? 'var(--brand)' : 'transparent'}`,
@@ -321,7 +321,7 @@ const NotificationBell = () => {
                         <span className='font-semibold font-display inline-flex items-center gap-1.5' style={{ fontSize: 'var(--fs-input)', color: 'var(--ink)' }}>
                             Notifications
                             {effectiveUnreadCount > 0 && (
-                                <span className='px-1.5 py-0.5 rounded-full font-semibold' style={{ fontSize: 'var(--fs-caption)', background: 'var(--brand-soft)', color: 'var(--brand)' }}>
+                                <span className='px-1.5 py-0.5 rounded-lg font-semibold' style={{ fontSize: 'var(--fs-caption)', background: 'var(--brand-soft)', color: 'var(--brand)' }}>
                                     {effectiveUnreadCount} new
                                 </span>
                             )}
@@ -378,7 +378,7 @@ const NotificationBell = () => {
                                             <p className='font-semibold truncate' style={{ fontSize: 'var(--fs-table)', color: 'var(--ink)' }}>
                                                 {detail.entityLabel || detail.entityType || 'Notification'}
                                             </p>
-                                            <span className='inline-flex items-center gap-1 px-1.5 rounded-full font-semibold mt-0.5'
+                                            <span className='inline-flex items-center gap-1 px-1.5 rounded-lg font-semibold mt-0.5'
                                                 style={{ fontSize: 'var(--fs-caption)', color: pr.color, background: pr.bg, border: `1px solid ${pr.border}` }}>
                                                 {pr.label} priority
                                             </span>
@@ -410,7 +410,7 @@ const NotificationBell = () => {
                                         </button>
                                         <button
                                             onClick={() => setDetail(null)}
-                                            className='px-4 py-1.5 rounded-full font-medium transition-colors hover:bg-[var(--bg-subtle)]'
+                                            className='px-4 py-1.5 rounded-lg font-medium transition-colors hover:bg-[var(--bg-subtle)]'
                                             style={{ fontSize: 'var(--fs-table)', color: 'var(--ink-secondary)', border: '1px solid var(--line-strong)' }}
                                         >
                                             Close
@@ -470,7 +470,7 @@ const NotificationBell = () => {
                             <button
                                 onClick={readSelected}
                                 disabled={selected.size === 0}
-                                className='flex items-center gap-1.5 px-3 py-1 rounded-full font-medium text-[var(--on-brand)] disabled:opacity-40 hover:opacity-90 transition-opacity'
+                                className='flex items-center gap-1.5 px-3 py-1 rounded-lg font-medium text-[var(--on-brand)] disabled:opacity-40 hover:opacity-90 transition-opacity'
                                 style={{ fontSize: 'var(--fs-table)', background: 'var(--brand)' }}
                             >
                                 <CheckCheck className='w-3.5 h-3.5' /> Mark {selected.size > 0 ? selected.size + ' ' : ''}as read

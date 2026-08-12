@@ -96,7 +96,7 @@ const FinalBadge = ({ fnlzing, invType, invoiceNo }) => {
     return (
         <Tltip direction='top' tltpText={fn ? 'Final Note issued — finalized' : yes ? 'Shipment finalized — final invoice issued' : 'Not finalized — balance is before the final invoice'}>
             <span
-                className="inline-flex items-center gap-1 rounded-full font-semibold leading-none cursor-default whitespace-nowrap"
+                className="inline-flex items-center gap-1 rounded-lg font-semibold leading-none cursor-default whitespace-nowrap"
                 style={{
                     color: tone.text,
                     backgroundColor: tone.bg,

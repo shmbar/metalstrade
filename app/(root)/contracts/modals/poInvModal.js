@@ -630,7 +630,7 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowStockModal }) => {
                                                     new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(exact)}
                                             </span>
                                             {rec && (
-                                                <span className='responsiveTextTable px-2 py-0.5 rounded-full whitespace-nowrap'
+                                                <span className='responsiveTextTable px-2 py-0.5 rounded-lg whitespace-nowrap'
                                                     style={recDiff
                                                         ? { background: 'var(--danger-bg)', color: 'var(--danger-strong)' }
                                                         : { background: 'var(--ok-bg)', color: 'var(--ok-strong)' }}>

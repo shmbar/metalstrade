@@ -10,7 +10,10 @@ export default function StatusBadge({ label, tone, size = 'sm', className = '', 
     const fontSize = size === 'xs' ? '0.625rem' : '0.65625rem';
     return (
         <span
-            className={`inline-flex items-center justify-center rounded-full font-medium whitespace-nowrap ${pad} ${className}`}
+            /* rounded-lg, not rounded-full: one radius across the app. This single
+               line is what made every StatusBadge in the CRM a pill — including
+               salescontracts and invoices, which have no radius class of their own. */
+            className={`inline-flex items-center justify-center rounded-lg font-medium whitespace-nowrap ${pad} ${className}`}
             style={{ background: t.bg, color: t.text, border: `1px solid ${t.border}`, fontSize, ...style }}
         >
             {label}

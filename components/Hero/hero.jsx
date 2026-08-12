@@ -81,7 +81,7 @@ export default function Hero() {
               className="flex flex-wrap gap-2 mb-8"
             >
               {heroStats.map((s) => (
-                <span key={s} className="responsiveText font-medium text-[var(--bg-subtle)] rounded-full px-3 py-1 border border-[var(--on-brand-soft)] bg-[var(--on-brand-soft)]">
+                <span key={s} className="responsiveText font-medium text-[var(--bg-subtle)] rounded-lg px-3 py-1 border border-[var(--on-brand-soft)] bg-[var(--on-brand-soft)]">
                   {s}
                 </span>
               ))}

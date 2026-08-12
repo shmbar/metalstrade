@@ -214,7 +214,7 @@ const Expenses = () => {
                                         disabled={categorizing || !(valueExp.supplier || valueExp.comments?.trim())}
                                         aria-label={categorizing ? 'AI is detecting expense category' : 'Auto-detect expense category using AI'}
                                         aria-busy={categorizing}
-                                        className='flex items-center gap-1 px-2 py-0.5 rounded-full text-[var(--on-brand)] transition-all disabled:opacity-40 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-[var(--endeavour)]/30'
+                                        className='flex items-center gap-1 px-2 py-0.5 rounded-lg text-[var(--on-brand)] transition-all disabled:opacity-40 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-[var(--endeavour)]/30'
                                         style={{
                                             fontSize: 'var(--fs-table)',
                                             backgroundColor: catResult === 'error' ? 'var(--bad-text)' : catResult ? 'var(--ok-text)' : 'var(--endeavour)'
@@ -234,7 +234,7 @@ const Expenses = () => {
                                 <Selector arr={settings.Expenses.Expenses} value={valueExp} onChange={(e) => handleChange(e, 'expType')} name='expType' clear={clear} />
                                 <ErrDiv field='expType' errors={errorsExp} />
                                 {catResult === 'low' && (
-                                    <p className='responsiveTextInput mt-0.5 px-2 py-0.5 rounded-full inline-block' style={{ backgroundColor: 'var(--warn-bg)', color: 'var(--warn-text)', fontSize: 'var(--fs-table)' }}>
+                                    <p className='responsiveTextInput mt-0.5 px-2 py-0.5 rounded-lg inline-block' style={{ backgroundColor: 'var(--warn-bg)', color: 'var(--warn-text)', fontSize: 'var(--fs-table)' }}>
                                         Low confidence — please verify
                                     </p>
                                 )}

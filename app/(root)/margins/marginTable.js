@@ -49,7 +49,7 @@ const MarginTable = memo(function MarginTable(props) {
                                 minHeight: '32px'
                             }}
                         >
-                            <div className="bg-[var(--bg-subtle)] rounded-full px-3 py-1 flex items-center gap-2 w-fit">
+                            <div className="bg-[var(--bg-subtle)] rounded-lg px-3 py-1 flex items-center gap-2 w-fit">
 
   <DisclosureButton className="flex items-center justify-center hover:opacity-80 transition-all" onClick={() => saveOpenClose(!open)}>
     {!open ? (

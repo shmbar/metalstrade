@@ -34,7 +34,7 @@ export function PlatformSection() {
             transition={{ duration: 0.5 }}
             className="text-center mb-10"
           >
-            <span className="responsiveTextInput font-semibold uppercase tracking-widest text-[var(--endeavour)] bg-[var(--bg-subtle)] px-4 py-1.5 rounded-full border border-[var(--line)]">
+            <span className="responsiveTextInput font-semibold uppercase tracking-widest text-[var(--endeavour)] bg-[var(--bg-subtle)] px-4 py-1.5 rounded-lg border border-[var(--line)]">
               Why It&apos;s Different
             </span>
             <h2 className="responsiveTextDisplay font-bold text-[var(--chathams-blue)] mt-4 mb-2">

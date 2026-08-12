@@ -11,7 +11,7 @@ const ACCEPTED = ['application/pdf', 'image/jpeg', 'image/png', 'image/jpg'];
 function ConfidencePill({ level }) {
     if (!level) return null;
     const t = { high: TONES.green, medium: TONES.amber, low: TONES.red }[level] || TONES.gray;
-    return <span className='px-1.5 py-0.5 rounded-full font-medium' style={{ fontSize: 'var(--fs-caption)', background: t.bg, color: t.text }}>{level}</span>;
+    return <span className='px-1.5 py-0.5 rounded-lg font-medium' style={{ fontSize: 'var(--fs-caption)', background: t.bg, color: t.text }}>{level}</span>;
 }
 
 function FieldRow({ label, value, confidence, selected, onToggle }) {
@@ -71,7 +71,7 @@ function ReconciliationPanel({ reconcile, linkedContract, extractedCurrency }) {
                     </span>
                 </div>
                 {reconcile.currencyMatch === false && (
-                    <span className='px-2 py-0.5 rounded-full' style={{ fontSize: 'var(--fs-caption)', background: TONES.red.bg, color: TONES.red.text }}>
+                    <span className='px-2 py-0.5 rounded-lg' style={{ fontSize: 'var(--fs-caption)', background: TONES.red.bg, color: TONES.red.text }}>
                         ⚠ currency mismatch
                     </span>
                 )}
@@ -478,7 +478,7 @@ const DocumentImportOverlay = ({ documentType, suppliers, clients, currencies, e
                                     </span>
                                 </div>
                                 <button onClick={() => { setFile(null); setResult(null); setError(null); }}
-                                    className='flex items-center gap-1 px-2 py-0.5 rounded-full border responsiveTextInput hover:border-[var(--brand)] transition-colors'
+                                    className='flex items-center gap-1 px-2 py-0.5 rounded-lg border responsiveTextInput hover:border-[var(--brand)] transition-colors'
                                     style={{ fontSize: 'var(--fs-caption)', borderColor: 'var(--line-strong)', color: 'var(--ink-secondary)' }}>
                                     Try another file
                                 </button>

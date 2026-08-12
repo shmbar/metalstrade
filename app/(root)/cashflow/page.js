@@ -1167,13 +1167,13 @@ const Cashflow = () => {
                             <div className="inline-flex gap-1 mb-2 bg-[var(--bg-subtle)] border border-[var(--line)] rounded-full p-0.5">
                                 <button
                                     onClick={() => setActiveTab('general')}
-                                    className={`px-4 py-1 responsiveTextInput rounded-full transition-all ${activeTab === 'general' ? 'bg-[var(--bg-card)] text-[var(--ink)] font-medium shadow-card' : 'text-[var(--ink-secondary)]'}`}
+                                    className={`px-4 py-1 responsiveTextInput rounded-lg transition-all ${activeTab === 'general' ? 'bg-[var(--bg-card)] text-[var(--ink)] font-medium shadow-card' : 'text-[var(--ink-secondary)]'}`}
                                 >
                                     General Cashflow
                                 </button>
                                 <button
                                     onClick={() => setActiveTab('unsold')}
-                                    className={`px-4 py-1 responsiveTextInput rounded-full transition-all ${activeTab === 'unsold' ? 'bg-[var(--bg-card)] text-[var(--ink)] font-medium shadow-card' : 'text-[var(--ink-secondary)]'}`}
+                                    className={`px-4 py-1 responsiveTextInput rounded-lg transition-all ${activeTab === 'unsold' ? 'bg-[var(--bg-card)] text-[var(--ink)] font-medium shadow-card' : 'text-[var(--ink-secondary)]'}`}
                                 >
                                     Unsold Stocks
                                 </button>
@@ -1849,7 +1849,7 @@ const Cashflow = () => {
                                                 {/* TOTALS AND BALANCE IN ONE ROW */}
                                                 <div className="grid grid-cols-[2fr_1fr_2fr] gap-1 responsiveTextTotal">
 
-                                                    <div className="flex justify-between items-center bg-[var(--brand-soft)] rounded-full px-3 py-0.5">
+                                                    <div className="flex justify-between items-center bg-[var(--brand-soft)] rounded-lg px-3 py-0.5">
                                                         <span className="font-medium text-[var(--ink)] responsiveText whitespace-nowrap">
                                                             Total (Left)
                                                         </span>
@@ -1865,7 +1865,7 @@ const Cashflow = () => {
                                                         />
                                                     </div>
 
-                                                    <div className="flex justify-between items-center bg-[var(--brand)] text-[var(--on-brand)] border-0 rounded-full px-3 py-0.5">
+                                                    <div className="flex justify-between items-center bg-[var(--brand)] text-[var(--on-brand)] border-0 rounded-lg px-3 py-0.5">
                                                         <span className="font-medium responsiveText whitespace-nowrap">
                                                             Balance
                                                         </span>
@@ -1881,7 +1881,7 @@ const Cashflow = () => {
                                                         />
                                                     </div>
 
-                                                    <div className="flex justify-between items-center bg-[var(--brand-soft)] rounded-full px-3 py-0.5">
+                                                    <div className="flex justify-between items-center bg-[var(--brand-soft)] rounded-lg px-3 py-0.5">
                                                         <span className="font-medium text-[var(--ink)] responsiveText whitespace-nowrap">
                                                             Total (Right)
                                                         </span>

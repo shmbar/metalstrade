@@ -284,7 +284,7 @@ export default function HeadlineTicker({
                         : Math.abs(it.change).toFixed(2);
                       return (
                         <span
-                          className="inline-flex items-center gap-0.5 rounded-full font-semibold"
+                          className="inline-flex items-center gap-0.5 rounded-lg font-semibold"
                           style={{ background: c.bg, color: c.fg, fontSize: 'var(--fs-caption)', padding: '1px 6px' }}
                         >
                           {c.arrow} {pct}

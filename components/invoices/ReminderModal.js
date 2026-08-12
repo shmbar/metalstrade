@@ -220,7 +220,7 @@ const ReminderModal = ({ invoice, clientEmail: initialEmail, companyName, langua
                                     type='text'
                                     value={subject}
                                     onChange={e => setSubject(e.target.value)}
-                                    className='w-full px-3 py-1.5 rounded-full border outline-none focus:border-[var(--brand)] transition-colors'
+                                    className='w-full px-3 py-1.5 rounded-lg border outline-none focus:border-[var(--brand)] transition-colors'
                                     style={{ fontSize: 'var(--fs-body)', borderColor: 'var(--line-strong)', background: 'var(--bg-subtle)', color: 'var(--ink)' }}
                                 />
                             </div>
@@ -289,7 +289,7 @@ const ReminderModal = ({ invoice, clientEmail: initialEmail, companyName, langua
                     </button>
                     {!sent && body && (
                         <button onClick={send} disabled={sending || onCooldown || !email.trim() || !subject.trim() || !body.trim()}
-                            className='flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[var(--on-brand)] font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed'
+                            className='flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[var(--on-brand)] font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed'
                             style={{ fontSize: 'var(--fs-table)', background: onCooldown ? 'var(--ink-muted)' : 'var(--brand)' }}
                             title={onCooldown ? `Cooldown active — wait ${cooldownHoursLeft}h` : undefined}>
                             {sending ? <Loader2 className='w-3 h-3 animate-spin' /> : <Send className='w-3 h-3' />}

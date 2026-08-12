@@ -31,7 +31,7 @@ export default function FeatureSection() {
             transition={{ duration: 0.5 }}
             className="text-center mb-12"
           >
-            <span className="responsiveTextInput font-semibold uppercase tracking-widest text-[var(--endeavour)] bg-[var(--bg-subtle)] px-4 py-1.5 rounded-full border border-[var(--line)]">
+            <span className="responsiveTextInput font-semibold uppercase tracking-widest text-[var(--endeavour)] bg-[var(--bg-subtle)] px-4 py-1.5 rounded-lg border border-[var(--line)]">
               Platform Modules
             </span>
             <h2 className="responsiveTextDisplay font-bold text-[var(--chathams-blue)] mt-4 mb-3">

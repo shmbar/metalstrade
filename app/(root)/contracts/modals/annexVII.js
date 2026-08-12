@@ -179,7 +179,7 @@ const AnnexVII = ({ valueInv, setValueInv, compData, settings, valueCon }) => {
                 <p className="responsiveText font-medium text-[var(--chathams-blue)]">Annex VII — EU Waste Shipment Document</p>
                 <button
                     onClick={generatePdf}
-                    className="flex items-center gap-1.5 px-3 py-1 rounded-full responsiveTextInput font-medium
+                    className="flex items-center gap-1.5 px-3 py-1 rounded-lg responsiveTextInput font-medium
                         bg-[var(--endeavour)] text-[var(--on-brand)] hover:opacity-90 transition-all"
                 >
                     <FileText size={13} /> Annex VII PDF

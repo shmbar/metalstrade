@@ -133,7 +133,7 @@ const CertChecker = () => {
                         <button
                             onClick={saveSpecToContract}
                             disabled={savingSpec}
-                            className='flex items-center gap-1 px-2 py-0.5 rounded-full text-[var(--on-brand)] disabled:opacity-50'
+                            className='flex items-center gap-1 px-2 py-0.5 rounded-lg text-[var(--on-brand)] disabled:opacity-50'
                             style={{ fontSize: 'var(--fs-caption)', background: 'var(--endeavour)' }}
                         >
                             {savingSpec ? <Loader2 className='w-2.5 h-2.5 animate-spin' /> : <Save className='w-2.5 h-2.5' />}
@@ -148,7 +148,7 @@ const CertChecker = () => {
                 )}
                 <div className='flex flex-wrap gap-1.5 mb-2'>
                     {spec.map((s, i) => (
-                        <div key={i} className='flex items-center gap-1 px-2 py-1 rounded-full' style={{ background: 'var(--bg-subtle)', border: '1px solid var(--line)', fontSize: 'var(--fs-table)', color: 'var(--chathams-blue)' }}>
+                        <div key={i} className='flex items-center gap-1 px-2 py-1 rounded-lg' style={{ background: 'var(--bg-subtle)', border: '1px solid var(--line)', fontSize: 'var(--fs-table)', color: 'var(--chathams-blue)' }}>
                             <span className='font-semibold'>{s.element}</span>
                             {(s.min !== '' || s.max !== '') && <span>{s.min || '—'}–{s.max || '—'}%</span>}
                             {s.tolerance && parseFloat(s.tolerance) > 0 && <span>±{s.tolerance}</span>}
@@ -160,7 +160,7 @@ const CertChecker = () => {
                     <select
                         value={newElement}
                         onChange={e => setNewElement(e.target.value)}
-                        className='rounded-full border px-2 py-0.5 outline-none focus:border-[var(--endeavour)]'
+                        className='rounded-lg border px-2 py-0.5 outline-none focus:border-[var(--endeavour)]'
                         style={{ fontSize: 'var(--fs-table)', borderColor: 'var(--line)', background: "var(--bg-card)", color: 'var(--port-gore)' }}
                     >
                         <option value=''>Element</option>
@@ -169,13 +169,13 @@ const CertChecker = () => {
                         ))}
                     </select>
                     <input placeholder='Min %' value={newMin} onChange={e => setNewMin(e.target.value)} type='number' step='any'
-                        className='w-16 rounded-full border px-2 py-0.5 outline-none focus:border-[var(--endeavour)]'
+                        className='w-16 rounded-lg border px-2 py-0.5 outline-none focus:border-[var(--endeavour)]'
                         style={{ fontSize: 'var(--fs-table)', borderColor: 'var(--line)', background: "var(--bg-card)", color: 'var(--port-gore)' }} />
                     <input placeholder='Max %' value={newMax} onChange={e => setNewMax(e.target.value)} type='number' step='any'
-                        className='w-16 rounded-full border px-2 py-0.5 outline-none focus:border-[var(--endeavour)]'
+                        className='w-16 rounded-lg border px-2 py-0.5 outline-none focus:border-[var(--endeavour)]'
                         style={{ fontSize: 'var(--fs-table)', borderColor: 'var(--line)', background: "var(--bg-card)", color: 'var(--port-gore)' }} />
                     <input placeholder='±tol' value={newTolerance} onChange={e => setNewTolerance(e.target.value)} type='number' step='any' title='Tolerance — allowed deviation from min/max (e.g. 0.05)'
-                        className='w-14 rounded-full border px-2 py-0.5 outline-none focus:border-[var(--endeavour)]'
+                        className='w-14 rounded-lg border px-2 py-0.5 outline-none focus:border-[var(--endeavour)]'
                         style={{ fontSize: 'var(--fs-table)', borderColor: 'var(--line)', background: "var(--bg-card)", color: 'var(--port-gore)' }} />
                     <button onClick={addSpec} disabled={!newElement}
                         className='flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[var(--on-brand)] disabled:opacity-40'
@@ -245,17 +245,17 @@ const CertChecker = () => {
                     {/* Cert metadata */}
                     <div className='flex flex-wrap gap-2'>
                         {result.certificateNumber && (
-                            <span className='px-2 py-0.5 rounded-full' style={{ fontSize: 'var(--fs-table)', background: 'var(--bg-subtle)', color: 'var(--chathams-blue)', border: '1px solid var(--line)' }}>
+                            <span className='px-2 py-0.5 rounded-lg' style={{ fontSize: 'var(--fs-table)', background: 'var(--bg-subtle)', color: 'var(--chathams-blue)', border: '1px solid var(--line)' }}>
                                 Cert # {result.certificateNumber}
                             </span>
                         )}
                         {result.date && (
-                            <span className='px-2 py-0.5 rounded-full' style={{ fontSize: 'var(--fs-table)', background: 'var(--bg-subtle)', color: 'var(--chathams-blue)', border: '1px solid var(--line)' }}>
+                            <span className='px-2 py-0.5 rounded-lg' style={{ fontSize: 'var(--fs-table)', background: 'var(--bg-subtle)', color: 'var(--chathams-blue)', border: '1px solid var(--line)' }}>
                                 {result.date}
                             </span>
                         )}
                         {result.material && (
-                            <span className='px-2 py-0.5 rounded-full' style={{ fontSize: 'var(--fs-table)', background: 'var(--bg-subtle)', color: 'var(--chathams-blue)', border: '1px solid var(--line)' }}>
+                            <span className='px-2 py-0.5 rounded-lg' style={{ fontSize: 'var(--fs-table)', background: 'var(--bg-subtle)', color: 'var(--chathams-blue)', border: '1px solid var(--line)' }}>
                                 {result.material}
                             </span>
                         )}
@@ -283,7 +283,7 @@ const CertChecker = () => {
                                                 <td className='px-3 py-1.5'>
                                                     {row.pass ? (
                                                         <span
-                                                            className='flex items-center gap-1 px-2 py-0.5 rounded-full w-fit'
+                                                            className='flex items-center gap-1 px-2 py-0.5 rounded-lg w-fit'
                                                             style={{ fontSize: 'var(--fs-caption)', background: 'var(--ok-bg)', color: 'var(--ok-strong)' }}
                                                             role='status'
                                                             aria-label={`${row.element} pass`}
@@ -293,7 +293,7 @@ const CertChecker = () => {
                                                     ) : (
                                                         <div className='flex flex-col gap-0.5'>
                                                             <span
-                                                                className='flex items-center gap-1 px-2 py-0.5 rounded-full w-fit'
+                                                                className='flex items-center gap-1 px-2 py-0.5 rounded-lg w-fit'
                                                                 style={{ fontSize: 'var(--fs-caption)', background: 'var(--bad-bg)', color: 'var(--bad-text)' }}
                                                                 role='status'
                                                                 aria-label={`${row.element} fail${row.reason ? ': ' + row.reason : ''}`}
@@ -320,7 +320,7 @@ const CertChecker = () => {
                             <p className='font-semibold mb-1' style={{ fontSize: 'var(--fs-table)', color: 'var(--chathams-blue)' }}>Extracted Composition</p>
                             <div className='flex flex-wrap gap-1.5'>
                                 {result.extractedElements.map((el, i) => (
-                                    <span key={i} className='px-2.5 py-1 rounded-full font-medium' style={{ fontSize: 'var(--fs-table)', background: 'var(--bg-subtle)', color: 'var(--chathams-blue)', border: '1px solid var(--line)' }}>
+                                    <span key={i} className='px-2.5 py-1 rounded-lg font-medium' style={{ fontSize: 'var(--fs-table)', background: 'var(--bg-subtle)', color: 'var(--chathams-blue)', border: '1px solid var(--line)' }}>
                                         {el.element}: {el.value}{el.unit || '%'}
                                     </span>
                                 ))}

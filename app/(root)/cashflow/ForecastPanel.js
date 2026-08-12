@@ -38,7 +38,7 @@ function ConfidenceBadge({ confidence }) {
     };
     const s = map[confidence] || map.medium;
     return (
-        <span className='px-2 py-0.5 rounded-full font-medium' style={{ fontSize: 'var(--fs-caption)', backgroundColor: s.bg, color: s.text }}>
+        <span className='px-2 py-0.5 rounded-lg font-medium' style={{ fontSize: 'var(--fs-caption)', backgroundColor: s.bg, color: s.text }}>
             {s.label}
         </span>
     );
@@ -196,7 +196,7 @@ const ForecastPanel = () => {
                                 key={h}
                                 onClick={() => loadAndForecast(h)}
                                 disabled={loading}
-                                className='px-3 py-1 rounded-full font-medium transition-all disabled:opacity-50'
+                                className='px-3 py-1 rounded-lg font-medium transition-all disabled:opacity-50'
                                 style={{
                                     fontSize: 'var(--fs-table)',
                                     background: activeHorizon === h ? 'var(--endeavour)' : 'var(--surface-pill)',

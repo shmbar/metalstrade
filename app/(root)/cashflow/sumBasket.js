@@ -92,7 +92,7 @@ export default function SumBasket({ items = [], onRemove, onClear }) {
                         <Sigma className="w-3.5 h-3.5" />
                     </span>
                     <span className="font-semibold responsiveTextInput truncate">Selected invoices</span>
-                    <span className="shrink-0 responsiveTextTable font-bold px-1.5 py-0.5 rounded-full bg-[var(--bg-subtle)] text-[var(--ink-secondary)]">
+                    <span className="shrink-0 responsiveTextTable font-bold px-1.5 py-0.5 rounded-lg bg-[var(--bg-subtle)] text-[var(--ink-secondary)]">
                         {items.length}
                     </span>
                 </div>

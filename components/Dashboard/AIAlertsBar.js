@@ -37,7 +37,7 @@ function AlertPill({ icon: Icon, label, count, severity, onClick }) {
             <Icon className='w-3.5 h-3.5' aria-hidden='true' />
             <span>{label}</span>
             <span
-                className='px-1.5 py-0.5 rounded-full'
+                className='px-1.5 py-0.5 rounded-lg'
                 style={{ background: "var(--bg-card)", fontSize: 'var(--fs-caption)', minWidth: '18px', textAlign: 'center' }}
             >
                 {count}

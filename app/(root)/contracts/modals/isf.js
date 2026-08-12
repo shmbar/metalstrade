@@ -68,7 +68,7 @@ const ISF = ({ valueInv, setValueInv, compData, settings, valueCon }) => {
                 <p className="responsiveText font-medium text-[var(--chathams-blue)]">ISF — Importer Security Filing (10+2)</p>
                 <button
                     onClick={generatePdf}
-                    className="flex items-center gap-1.5 px-3 py-1 rounded-full responsiveTextInput font-medium
+                    className="flex items-center gap-1.5 px-3 py-1 rounded-lg responsiveTextInput font-medium
                         bg-[var(--brand)] text-[var(--on-brand)] hover:bg-[var(--brand-strong)] transition-colors"
                 >
                     <FileText size={13} /> ISF PDF
@@ -115,7 +115,7 @@ const ISF = ({ valueInv, setValueInv, compData, settings, valueCon }) => {
                             <button
                                 key={type}
                                 onClick={() => update('shipmentType', isf.shipmentType === type ? '' : type)}
-                                className={`px-3 py-0.5 rounded-full responsiveTextInput border transition-all
+                                className={`px-3 py-0.5 rounded-lg responsiveTextInput border transition-all
                                     ${isf.shipmentType === type
                                         ? 'bg-[var(--endeavour)] text-[var(--on-brand)] border-[var(--endeavour)]'
                                         : 'text-[var(--chathams-blue)] border-[var(--line)] hover:bg-[var(--selago)]'}`}
@@ -158,7 +158,7 @@ const ISF = ({ valueInv, setValueInv, compData, settings, valueCon }) => {
                             <button
                                 key={type}
                                 onClick={() => update('blType', isf.blType === type ? '' : type)}
-                                className={`px-3 py-0.5 rounded-full responsiveTextInput border transition-all
+                                className={`px-3 py-0.5 rounded-lg responsiveTextInput border transition-all
                                     ${isf.blType === type
                                         ? 'bg-[var(--endeavour)] text-[var(--on-brand)] border-[var(--endeavour)]'
                                         : 'text-[var(--chathams-blue)] border-[var(--line)] hover:bg-[var(--selago)]'}`}

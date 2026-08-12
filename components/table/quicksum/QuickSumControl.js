@@ -225,7 +225,7 @@ export function QuickSumTotals({
           if (t.byCurrency.EUR != null) parts.push(`€${fmt(t.byCurrency.EUR)}`);
           if (t.byCurrency.plain != null) parts.push(fmt(t.byCurrency.plain));
           return (
-            <span key={t.id} className="bg-[var(--bg-card)] border border-[var(--line)] rounded-full px-3 py-0.5 responsiveText whitespace-nowrap font-medium">
+            <span key={t.id} className="bg-[var(--bg-card)] border border-[var(--line)] rounded-lg px-3 py-0.5 responsiveText whitespace-nowrap font-medium">
               {label}: <span className="text-[var(--endeavour)]">{parts.join(' | ')}</span>
             </span>
           );
@@ -233,7 +233,7 @@ export function QuickSumTotals({
 
         // Single currency / plain number
         return (
-          <span key={t.id} className="bg-[var(--bg-card)] border border-[var(--line)] rounded-full px-3 py-0.5 responsiveText whitespace-nowrap font-medium">
+          <span key={t.id} className="bg-[var(--bg-card)] border border-[var(--line)] rounded-lg px-3 py-0.5 responsiveText whitespace-nowrap font-medium">
             {label}: <span className="text-[var(--endeavour)]">{fmt(t.total)}</span>
           </span>
         );

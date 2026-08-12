@@ -599,12 +599,12 @@ const Margins = () => {
                                             </span>
                                             <div className='flex flex-wrap gap-1'>
                                                 {alertedItems.slice(0, 3).map((item, i) => (
-                                                    <span key={i} className='px-2 py-0.5 rounded-full' style={{ fontSize: 'var(--fs-caption)', background: "var(--bg-card)", border: `1px solid ${TONES.amber.border}`, color: TONES.amber.text }}>
+                                                    <span key={i} className='px-2 py-0.5 rounded-lg' style={{ fontSize: 'var(--fs-caption)', background: "var(--bg-card)", border: `1px solid ${TONES.amber.border}`, color: TONES.amber.text }}>
                                                         {item.description || 'Item'} · {Number(item.totalMarginVal || 0).toLocaleString()} ({item.month})
                                                     </span>
                                                 ))}
                                                 {alertedItems.length > 3 && (
-                                                    <span className='px-2 py-0.5 rounded-full' style={{ fontSize: 'var(--fs-caption)', background: "var(--bg-card)", border: `1px solid ${TONES.amber.border}`, color: TONES.amber.text }}>
+                                                    <span className='px-2 py-0.5 rounded-lg' style={{ fontSize: 'var(--fs-caption)', background: "var(--bg-card)", border: `1px solid ${TONES.amber.border}`, color: TONES.amber.text }}>
                                                         +{alertedItems.length - 3} more
                                                     </span>
                                                 )}
@@ -739,7 +739,7 @@ const Margins = () => {
                                             <AlertTriangle className="w-3 h-3" /> Unsaved — autosaving…
                                         </span>
                                     ) : savedFlash ? (
-                                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full font-semibold whitespace-nowrap"
+                                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg font-semibold whitespace-nowrap"
                                             style={{ fontSize: 'var(--fs-table)', background: TONES.green.bg, color: TONES.green.text, border: `1px solid ${TONES.green.border}` }}>
                                             ✓ Saved
                                         </span>

@@ -368,7 +368,7 @@ const ProductsTable = ({ value, setValue, currency, quantityTable, setShowPoInvM
                                                                     </div>
                                                                 )}
                                                                 {convPreview && (
-                                                                    <span className='absolute left-0 top-full mt-1 inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[var(--bg-subtle)] border border-[var(--line)] text-[var(--endeavour)] font-semibold shadow-sm whitespace-nowrap z-50'>
+                                                                    <span className='absolute left-0 top-full mt-1 inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-[var(--bg-subtle)] border border-[var(--line)] text-[var(--endeavour)] font-semibold shadow-sm whitespace-nowrap z-50'>
                                                                         <MoveRight className='size-3' />
                                                                         {convPreview}
                                                                     </span>

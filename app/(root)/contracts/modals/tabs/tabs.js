@@ -40,7 +40,7 @@ const Page = () => {
                                     key={z}
                                     className={({ selected }) =>
                                         classNames(
-                                            'rounded-full py-1.5 px-4 responsiveTextInput font-medium leading-4 transition-colors whitespace-nowrap',
+                                            'rounded-lg py-1.5 px-4 responsiveTextInput font-medium leading-4 transition-colors whitespace-nowrap',
                                             'focus:outline-none disabled:opacity-40',
                                             selected
                                                 ? 'bg-[var(--bg-card)] text-[var(--ink)] shadow-card'
