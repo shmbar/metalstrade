@@ -102,6 +102,33 @@ const MaterialTables = () => {
         }
     }, [metalPrices, loading]);
 
+    /* One definition of "a blank table", used by both the Add Table button and the
+       empty-state seed below. They have to stay identical — if they drift, the
+       table you get on first open behaves differently from the one you add by
+       hand, which is the kind of bug nobody thinks to look for.
+       Takes nilme as an argument rather than reading nilmePrice from state,
+       because the seed runs inside loadData before that state has been set. */
+    /* Fe is the auto-calculated remainder, so it reads last. Saved tables carry
+       their own copy of the element list, so changing DEFAULT_ELEMENTS alone would
+       only reorder NEW tables and leave existing ones with Fe stranded mid-row.
+       Applied on load so both cases agree. Order of the other elements — including
+       any the user dragged — is preserved exactly. */
+    const moveFeLast = (elements) => {
+        const list = elements || DEFAULT_ELEMENTS
+        const fe = list.find(e => e.key === 'fe')
+        return fe ? [...list.filter(e => e.key !== 'fe'), fe] : list
+    }
+
+    const makeBlankTable = (nilme) => ({
+        id: uuidv4(), name: '', unit: 'kgs',
+        elements: [...DEFAULT_ELEMENTS],
+        prices: nilme ? { ni: nilme } : {},
+        containerNo: '', showContainer: false, containerLabel: 'Container',
+        showCosts: false, costLabel: 'Price', niPercent: 100, priceKeys: null, data: [],
+        salesPrices: {}, showSales: false, salesLabel: 'Sales Price',
+        salesNiPercent: 100, salesPriceKeys: null,
+    })
+
     useEffect(() => {
         const loadData = async () => {
             setLoading(true)
@@ -115,7 +142,7 @@ const MaterialTables = () => {
                 ...t,
                 name: t.name || '',
                 unit: t.unit || 'kgs',
-                elements: t.elements || DEFAULT_ELEMENTS,
+                elements: moveFeLast(t.elements),
                 prices: { ...(nilme ? { ni: nilme } : {}), ...(t.prices || {}) },
                 containerNo: t.containerNo || '',
                 showContainer: t.showContainer || false,
@@ -124,21 +151,28 @@ const MaterialTables = () => {
                 costLabel: t.costLabel || 'Price',
                 niPercent: t.niPercent != null ? t.niPercent : 100,
                 priceKeys: t.priceKeys || null,
+                /* Sales fields default in for tables saved before this existed. */
+                salesPrices: t.salesPrices || {},
+                showSales: t.showSales || false,
+                salesLabel: t.salesLabel || 'Sales Price',
+                salesNiPercent: t.salesNiPercent != null ? t.salesNiPercent : 100,
+                salesPriceKeys: t.salesPriceKeys || null,
             }))
-            setData(normalized)
+            /* Never land on a blank page. With no saved tables the user previously
+               saw an empty shell and had to work out that "+ Add Table" was the
+               way in; now the page opens on one ready-to-fill table, exactly the
+               one that button would have created.
+               This is LOCAL state only — nothing is written to Firestore until the
+               user presses Save, so opening the page never creates a stray empty
+               table for someone who just looked and left. */
+            setData(normalized.length ? normalized : [makeBlankTable(nilme)])
             setLoading(false)
         }
         loadData()
     }, [])
 
     const addTable = () => {
-        setData(prev => [...prev, {
-            id: uuidv4(), name: '', unit: 'kgs',
-            elements: [...DEFAULT_ELEMENTS],
-            prices: nilmePrice ? { ni: nilmePrice } : {},
-            containerNo: '', showContainer: false, containerLabel: 'Container',
-            showCosts: false, costLabel: 'Price', niPercent: 100, priceKeys: null, data: [],
-        }])
+        setData(prev => [...prev, makeBlankTable(nilmePrice)])
     }
 
     const saveTable = async () => {
@@ -246,6 +280,41 @@ const MaterialTables = () => {
 
     const toggleCosts = (tableId) => {
         setData(prev => prev.map(t => t.id !== tableId ? t : { ...t, showCosts: !t.showCosts }))
+    }
+
+    /* ── Sales side ───────────────────────────────────────────────────────────
+       Deliberately a mirror of the cost handlers above, on its own set of fields
+       (salesPrices / showSales / salesLabel / salesPriceKeys / salesNiPercent).
+       Keeping them separate rather than parameterising one handler means the two
+       panels can never contaminate each other's prices — the whole point is to
+       compare a purchase price against a sale price on the same rows. */
+    const setSalesPrice = (tableId, key, val) => {
+        setData(prev => prev.map(t => t.id !== tableId ? t : {
+            ...t, salesPrices: { ...(t.salesPrices || {}), [key]: val },
+        }))
+    }
+
+    const setSalesLabel = (tableId, salesLabel) => {
+        setData(prev => prev.map(t => t.id !== tableId ? t : { ...t, salesLabel }))
+    }
+
+    const setSalesNiPercent = (tableId, v) => {
+        const n = Math.min(100, Math.max(0, parseFloat(v) || 0))
+        setData(prev => prev.map(t => t.id !== tableId ? t : { ...t, salesNiPercent: n }))
+    }
+
+    const toggleSales = (tableId) => {
+        setData(prev => prev.map(t => t.id !== tableId ? t : { ...t, showSales: !t.showSales }))
+    }
+
+    const applySalesPreset = (tableId, keys) => {
+        setData(prev => prev.map(t => {
+            if (t.id !== tableId) return t
+            // Same rule as the cost preset: keep only prices for elements in the preset.
+            const newPrices = {}
+            keys.forEach(k => { if (t.salesPrices?.[k] != null) newPrices[k] = t.salesPrices[k] })
+            return { ...t, salesPriceKeys: keys, salesPrices: newPrices }
+        }))
     }
 
     const applyPreset = (tableId, keys) => {
@@ -368,7 +437,14 @@ const MaterialTables = () => {
                             </div>
                             <div className="w-full">
                                 {data.map((table) => (
-                                    <div key={table.id} className="mb-3 bg-[var(--bg-card)] rounded-2xl border border-[var(--line)] shadow-card overflow-hidden">
+                                    /* NOT overflow-hidden. That clipped the preset dropdowns,
+                                       which are absolutely positioned inside this card — they
+                                       opened, then got cut off at the card edge. The clip only
+                                       ever existed to stop the table's square corners poking
+                                       past this radius, so it now lives on the table itself
+                                       (rounded-b-2xl on its scroll box in newTable.js) where it
+                                       does that job without trapping popovers. */
+                                    <div key={table.id} className="mb-3 bg-[var(--bg-card)] rounded-2xl border border-[var(--line)] shadow-card">
                                         <Table
                                             data={table.data}
                                             table1={table}
@@ -403,6 +479,16 @@ const MaterialTables = () => {
                                             setContainerNo={(v) => setContainerNo(table.id, v)}
                                             toggleContainer={() => toggleContainer(table.id)}
                                             applyPreset={(keys) => applyPreset(table.id, keys)}
+                                            salesPrices={table.salesPrices || {}}
+                                            showSales={table.showSales || false}
+                                            salesLabel={table.salesLabel || 'Sales Price'}
+                                            salesNiPercent={table.salesNiPercent != null ? table.salesNiPercent : 100}
+                                            salesPriceKeys={table.salesPriceKeys || null}
+                                            setSalesPrice={(k, v) => setSalesPrice(table.id, k, v)}
+                                            setSalesLabel={(v) => setSalesLabel(table.id, v)}
+                                            setSalesNiPercent={(v) => setSalesNiPercent(table.id, v)}
+                                            toggleSales={() => toggleSales(table.id)}
+                                            applySalesPreset={(keys) => applySalesPreset(table.id, keys)}
                                         />
                                     </div>
                                 ))}

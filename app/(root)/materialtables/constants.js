@@ -7,8 +7,13 @@ export const DEFAULT_ELEMENTS = [
     { key: 'nb', label: 'Nb' },
     { key: 'w',  label: 'W'  },
     { key: 'cu', label: 'Cu' },
-    { key: 'fe', label: 'Fe', autoCalc: true },
     { key: 'ti', label: 'Ti' },
+    /* Fe is LAST on purpose: it is the remainder (100 - sum of everything else),
+       so it can only be read once the columns it depends on have been read. It
+       used to sit between Cu and Ti, which put the total before one of its own
+       inputs. See moveFeLast() in page.js — the same ordering is applied to
+       already-saved tables, which carry their own copy of this list. */
+    { key: 'fe', label: 'Fe', autoCalc: true },
 ]
 
 export const UNIT_LABELS = { mt: 'MT', kgs: 'Kgs', lbs: 'Lbs' }

@@ -4,7 +4,7 @@ import {
     flexRender, getCoreRowModel, getFilteredRowModel,
     getPaginationRowModel, getSortedRowModel, useReactTable
 } from "@tanstack/react-table"
-import { useMemo, useState } from "react"
+import { useMemo, useState, useCallback } from "react"
 import { Settings2, HelpCircle, ArrowUpNarrowWide, ArrowDownWideNarrow } from "lucide-react"
 import Header from "../../../components/table/header"
 import { TONES } from "../../../components/statusUtils"
@@ -77,6 +77,10 @@ const Customtable = ({
     reorderElements = () => {}, setPrice = () => {},
     setContainerNo = () => {}, toggleContainer = () => {},
     applyPreset = () => {},
+    salesPrices = {}, showSales = false, salesLabel = 'Sales Price',
+    salesNiPercent = 100, salesPriceKeys = null,
+    setSalesPrice = () => {}, setSalesLabel = () => {},
+    setSalesNiPercent = () => {}, toggleSales = () => {}, applySalesPreset = () => {},
 }) => {
     const [globalFilter, setGlobalFilter] = useState('')
     const [{ pageIndex, pageSize }, setPagination] = useState({ pageIndex: 0, pageSize: 25 })
@@ -88,6 +92,8 @@ const Customtable = ({
     const [showPresets, setShowPresets] = useState(false)
     const [editingContainerLabel, setEditingContainerLabel] = useState(false)
     const [editingCostLabel, setEditingCostLabel] = useState(false)
+    const [editingSalesLabel, setEditingSalesLabel] = useState(false)
+    const [showSalesPresets, setShowSalesPresets] = useState(false)
     const [showHelp, setShowHelp] = useState(false)
 
     const pagination = useMemo(() => ({ pageIndex, pageSize }), [pageIndex, pageSize])
@@ -135,7 +141,7 @@ const Customtable = ({
             cell: (props) => {
                 const v = props.getValue()
                 if (!v) return <p></p>
-                return <p className="responsiveTextTable" style={{ color: TONES.green.text, fontWeight: '600' }}>
+                return <p className="responsiveTextTable" style={{ color: TONES.green.text, fontWeight: '500' }}>
                     ${new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(v)}
                 </p>
             },
@@ -146,8 +152,51 @@ const Customtable = ({
         return cols
     }, [columns, hasPrices, showCosts, elements, prices, unit])
 
+    /* ── Sales columns ────────────────────────────────────────────────────────
+       Same maths as cost, against salesPrices instead of prices: a row's value
+       per metric ton is the sum over elements of (element % / 100) x its price,
+       with Ni scaled by its own percentage. Sales Total is that x the row weight.
+       Chained off enhancedColumns so both pairs can show at once and the order
+       stays Cost PMT, Cost Total, Sales MT, Sales Total. */
+    const hasSalesPrices = useMemo(
+        () => elements.some(el => el.key !== 'fe' && salesPrices[el.key] !== undefined && salesPrices[el.key] !== ''),
+        [elements, salesPrices]
+    )
+    const salesNiMult = (salesNiPercent || 100) / 100
+
+    const salesPerMT = useCallback((row) => elements.reduce((sum, el) => {
+        const price = parseFloat(salesPrices[el.key]) || 0
+        if (!price) return sum
+        const mult = el.key === 'ni' ? salesNiMult : 1
+        return sum + ((parseFloat(row[el.key]) || 0) / 100) * price * mult
+    }, 0), [elements, salesPrices, salesNiMult])
+
+    const columnsWithSales = useMemo(() => {
+        if (!enhancedColumns.length || !hasSalesPrices || !showSales) return enhancedColumns
+        const money = (v, weight) => {
+            if (!v) return <p></p>
+            return <p className="responsiveTextTable" style={{ color: 'var(--brand-strong)', fontWeight: weight }}>
+                ${new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(v)}
+            </p>
+        }
+        const salesMtCol = {
+            id: 'salesMt', header: 'Sales MT', enableSorting: true,
+            accessorFn: salesPerMT,
+            cell: (props) => money(props.getValue(), '500'),
+        }
+        const salesTotalCol = {
+            id: 'salesTotal', header: 'Sales Total', enableSorting: true,
+            accessorFn: (row) => salesPerMT(row) * ((parseFloat(row.kgs) || 0) * (UNIT_TO_MT[unit] || 0.001)),
+            cell: (props) => money(props.getValue(), '500'),
+        }
+        const cols = [...enhancedColumns]
+        const delIdx = cols.findIndex(c => c.accessorKey === 'del')
+        cols.splice(delIdx >= 0 ? delIdx : cols.length, 0, salesMtCol, salesTotalCol)
+        return cols
+    }, [enhancedColumns, hasSalesPrices, showSales, salesPerMT, unit])
+
     const table = useReactTable({
-        columns: enhancedColumns, data,
+        columns: columnsWithSales, data,
         getCoreRowModel: getCoreRowModel(),
         state: { globalFilter, pagination, columnFilters },
         onColumnFiltersChange: setColumnFilters,
@@ -252,25 +301,36 @@ const Customtable = ({
         return avg === 0 ? '' : new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(avg)
     }
 
-    // Per-element pastel column tints (status TONES: blue = base/auto, green = costs, red = elements)
+    /* Column surfaces.
+       Every element column used to be painted TONES.red.bg and the base columns
+       TONES.blue.bg — a different fill per column group, which is precisely what
+       makes a table read as a spreadsheet rather than as part of an application.
+       It also put a red/salmon wash across the widest part of the page, where red
+       carries no meaning: an element percentage is not an error.
+
+       Now the header band and footer use the same neutral surfaces as every other
+       table in the app (see .custom-table in globals.css). Meaning is carried where
+       it is actually needed and nowhere else: the computed columns keep a quiet
+       tint so a derived figure is distinguishable from an entered one, and Fe keeps
+       one because it is the auto-calculated remainder. */
     const hdrBg = (colId) => {
-        if (colId === 'material' || colId === 'kgs' || colId === 'container') return TONES.blue.bg
-        if (colId === 'fe') return TONES.blue.bg
         if (colId === 'costPmt' || colId === 'costTotal') return TONES.green.bg
-        return TONES.red.bg
+        if (colId === 'salesMt' || colId === 'salesTotal') return 'var(--brand-soft)'
+        if (colId === 'fe') return 'var(--bg-sunken)'
+        return 'var(--bg-subtle)'
     }
     const ftrBg = (colId) => {
-        if (colId === 'material' || colId === 'kgs' || colId === 'container') return TONES.blue.bg
-        if (colId === 'fe') return TONES.blue.border
-        if (colId === 'costPmt' || colId === 'costTotal') return TONES.green.border
-        return TONES.red.bg
+        if (colId === 'costPmt' || colId === 'costTotal') return TONES.green.bg
+        if (colId === 'salesMt' || colId === 'salesTotal') return 'var(--brand-soft)'
+        if (colId === 'fe') return 'var(--bg-sunken)'
+        return 'var(--bg-subtle)'
     }
 
     const headers = table.getHeaderGroups()[0]?.headers ?? []
 
     // Segmented-control chip (unit toggle)
     const segChip = (active) => ({
-        padding: '1px 10px', height: '20px', borderRadius: '99px', border: 'none',
+        padding: '1px 10px', height: '28px', borderRadius: 'var(--radius-control)', border: 'none',
         background: active ? 'var(--bg-card)' : 'transparent',
         color: active ? 'var(--ink)' : 'var(--ink-secondary)',
         fontWeight: active ? '500' : '400',
@@ -280,7 +340,7 @@ const Customtable = ({
 
     // On/off pill toggle (container / cost columns)
     const toggleChip = (active) => ({
-        padding: '1px 10px', height: '24px', borderRadius: '99px',
+        padding: '1px 10px', height: '28px', borderRadius: 'var(--radius-control)',
         border: `1px solid ${active ? 'var(--brand-border)' : 'var(--line)'}`,
         background: active ? 'var(--brand-soft)' : 'var(--bg-card)',
         color: active ? 'var(--brand)' : 'var(--ink-secondary)',
@@ -290,7 +350,7 @@ const Customtable = ({
     // Ghost icon-button (presets / help)
     const iconBtn = (active) => ({
         width: '26px', height: '26px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-        borderRadius: '99px', border: 'none', cursor: 'pointer', padding: 0,
+        borderRadius: 'var(--radius-control)', border: 'none', cursor: 'pointer', padding: 0,
         background: active ? 'var(--brand-soft)' : 'transparent',
         color: active ? 'var(--brand)' : 'var(--ink-muted)',
         transition: 'all 0.15s',
@@ -308,7 +368,12 @@ const Customtable = ({
 
             {/* ── Toolbar ── */}
             {showHeader && (
-                <div className="flex-shrink-0 bg-[var(--bg-card)]" style={{ borderBottom: '1px solid var(--line)' }}>
+                /* rounded-t-2xl: this block is the top of the card, and the card can
+                   no longer use overflow-hidden (it was clipping the preset popovers).
+                   Without overflow-hidden a child's background paints straight over the
+                   card's rounded corners, so the top two corners rendered square. The
+                   scroll box at the bottom carries rounded-b-2xl for the same reason. */
+                <div className="flex-shrink-0 bg-[var(--bg-card)] rounded-t-2xl" style={{ borderBottom: '1px solid var(--line)' }}>
                     {/* Table name */}
                     <div style={{ padding: '8px 14px 2px' }}>
                         <input
@@ -332,7 +397,7 @@ const Customtable = ({
                     {/* Controls row */}
                     <div className="flex flex-wrap items-center gap-2 px-3 pb-2 responsiveTextTable">
                         {/* Unit segmented toggle */}
-                        <div className="flex items-center rounded-full p-0.5" style={{ background: 'var(--bg-subtle)', border: '1px solid var(--line)' }}>
+                        <div className="flex items-center rounded-lg p-0.5" style={{ background: 'var(--bg-subtle)', border: '1px solid var(--line)' }}>
                             {['mt', 'kgs', 'lbs'].map(u => (
                                 <button key={u} onClick={() => setUnit(u)} style={segChip(unit === u)}>{UNIT_LABELS[u]}</button>
                             ))}
@@ -381,6 +446,30 @@ const Customtable = ({
                                 </span>
                             )}
                         </button>
+                        {/* Sales columns toggle — mirrors the cost toggle beside it.
+                            Disabled until at least one sales price is entered, for the
+                            same reason: two empty columns tell you nothing. */}
+                        <button
+                            onClick={hasSalesPrices ? toggleSales : undefined}
+                            title={hasSalesPrices ? 'Toggle sales columns — double-click label to rename' : 'Enter sales prices below to enable sales columns'}
+                            style={{ ...toggleChip(showSales && hasSalesPrices), opacity: hasSalesPrices ? 1 : 0.45, display: 'flex', alignItems: 'center', gap: '3px' }}
+                        >
+                            {editingSalesLabel ? (
+                                <input
+                                    autoFocus
+                                    value={salesLabel}
+                                    onChange={e => setSalesLabel(e.target.value)}
+                                    onClick={e => e.stopPropagation()}
+                                    onBlur={() => setEditingSalesLabel(false)}
+                                    onKeyDown={e => { if (e.key === 'Enter') setEditingSalesLabel(false); e.stopPropagation(); }}
+                                    style={{ background: 'none', border: 'none', outline: 'none', color: 'inherit', font: 'inherit', width: '70px' }}
+                                />
+                            ) : (
+                                <span onDoubleClick={e => { e.stopPropagation(); setEditingSalesLabel(true); }}>
+                                    {salesLabel}
+                                </span>
+                            )}
+                        </button>
                         {/* Shipment container reference */}
                         <div className="flex items-center gap-1.5">
                             <span
@@ -393,7 +482,7 @@ const Customtable = ({
                                 onChange={e => setContainerNo(e.target.value)}
                                 placeholder="e.g. TCKU1234567"
                                 className="rounded-control border border-[var(--line-strong)] bg-[var(--bg-card)] text-[var(--ink)] outline-none focus:border-[var(--brand)] focus:ring-[3px] focus:ring-[var(--brand-soft)] transition-colors"
-                                style={{ padding: '1px 8px', height: '24px', width: '130px', fontSize: 'inherit' }}
+                                style={{ padding: '1px 8px', height: '28px', width: '130px', fontSize: 'inherit' }}
                             />
                         </div>
                         {/* Presets + help — ghost icon-buttons */}
@@ -479,7 +568,7 @@ const Customtable = ({
                                     display: 'flex', alignItems: 'center', gap: '4px',
                                     background: isNi ? 'var(--brand-soft)' : 'var(--bg-card)',
                                     border: `1px solid ${isNi ? 'var(--brand-border)' : 'var(--line)'}`,
-                                    borderRadius: '99px', padding: '2px 10px', minWidth: '68px',
+                                    borderRadius: 'var(--radius-control)', padding: '2px 10px', minWidth: '68px',
                                 }}>
                                     <span style={{
                                         fontSize: 'var(--fs-table)', fontWeight: '600', textTransform: 'uppercase',
@@ -526,9 +615,104 @@ const Customtable = ({
                 </div>
             )}
 
+            {/* ── Sales price bar ($/MT per element) ──────────────────────────
+                A mirror of the price bar above, writing to salesPrices. Same preset
+                mechanism, its own selection: a purchase preset and a sale preset are
+                not usually the same set of elements. Tinted with --ok-* so the two
+                bars are tellable apart at a glance without reading the labels. */}
+            {elements.length > 0 && (
+                <div style={{ background: 'var(--ok-bg)', borderBottom: '1px solid var(--line)', padding: '6px 12px' }}>
+                    <div className="responsiveTextTable" style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', alignItems: 'center' }}>
+                        <span className="responsiveTextTable font-medium uppercase" style={{ color: 'var(--ok-strong)', letterSpacing: '0.04em', minWidth: '48px' }}>Sales</span>
+
+                        {/* Preset picker — sets which elements the sale price is built from */}
+                        <div style={{ position: 'relative' }}>
+                            <button
+                                onClick={() => setShowSalesPresets(v => !v)}
+                                title="Choose which elements the sales price is calculated from"
+                                style={iconBtn(showSalesPresets)}
+                            >
+                                <Settings2 style={{ width: '15px', height: '15px' }} />
+                            </button>
+                            {showSalesPresets && (
+                                <div style={{ ...popStyle, left: 0, padding: '6px', minWidth: '160px', display: 'flex', flexDirection: 'column', gap: '1px' }}>
+                                    <p className="responsiveTextTable font-medium uppercase" style={{ color: 'var(--ink-muted)', letterSpacing: '0.04em', padding: '4px 10px' }}>Sales preset</p>
+                                    {PRESETS.map(p => (
+                                        <button
+                                            key={p.label}
+                                            onClick={() => { applySalesPreset(p.keys); setShowSalesPresets(false) }}
+                                            style={{
+                                                padding: '5px 10px', borderRadius: '8px', border: 'none',
+                                                background: salesPriceKeys && salesPriceKeys.join() === p.keys.join() ? 'var(--bg-subtle)' : 'transparent',
+                                                color: 'var(--ink-secondary)', fontWeight: '500', cursor: 'pointer', textAlign: 'left',
+                                            }}
+                                        >
+                                            {p.label}
+                                        </button>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+
+                        {elements.filter(el => salesPriceKeys ? salesPriceKeys.includes(el.key) : el.key !== 'fe').map(el => {
+                            const isNi = el.key === 'ni'
+                            const focused = focusedPrice === 'sales:' + el.key
+                            return (
+                                <div key={el.key} style={{
+                                    display: 'flex', alignItems: 'center', gap: '4px',
+                                    background: 'var(--bg-card)',
+                                    border: `1px solid ${isNi ? 'var(--ok-border)' : 'var(--line)'}`,
+                                    borderRadius: 'var(--radius-control)', padding: '2px 10px', minWidth: '68px',
+                                }}>
+                                    <span style={{
+                                        fontSize: 'var(--fs-table)', fontWeight: '600', textTransform: 'uppercase',
+                                        letterSpacing: '0.04em', minWidth: '16px',
+                                        color: isNi ? 'var(--ok-strong)' : 'var(--ink-muted)',
+                                    }}>
+                                        {el.label}
+                                    </span>
+                                    <input
+                                        value={focused ? (salesPrices[el.key] || '') : fmtPrice(salesPrices[el.key] || '')}
+                                        onFocus={() => setFocusedPrice('sales:' + el.key)}
+                                        onBlur={() => setFocusedPrice(null)}
+                                        onChange={e => setSalesPrice(el.key, e.target.value)}
+                                        placeholder="0"
+                                        inputMode="decimal"
+                                        style={{
+                                            fontSize: 'inherit', fontWeight: '600', width: '50px', textAlign: 'right',
+                                            background: 'transparent', border: 'none', outline: 'none',
+                                            color: 'var(--ink)', fontVariantNumeric: 'tabular-nums',
+                                        }}
+                                    />
+                                    {isNi && (
+                                        <>
+                                            <span style={{ fontSize: 'var(--fs-table)', color: 'var(--ink-muted)', margin: '0 2px' }}>×</span>
+                                            <input
+                                                value={salesNiPercent}
+                                                onChange={e => setSalesNiPercent(e.target.value)}
+                                                inputMode="decimal"
+                                                style={{
+                                                    fontSize: 'inherit', fontWeight: '600', width: '28px', textAlign: 'center',
+                                                    background: 'transparent', border: 'none', outline: 'none',
+                                                    color: 'var(--ok-strong)',
+                                                }}
+                                            />
+                                            <span className="responsiveTextTable" style={{ color: 'var(--ok-strong)', fontWeight: '600' }}>%</span>
+                                        </>
+                                    )}
+                                </div>
+                            )
+                        })}
+                    </div>
+                </div>
+            )}
+
             {/* ── Desktop table ── */}
             <div className="hidden sm:block">
-                <div className="overflow-auto dashboard-scroll" style={{ maxHeight: '700px' }}>
+                {/* rounded-b-2xl: this box is the bottom of the card, so it takes over
+                    clipping the square table corners from the card wrapper in page.js —
+                    which had to stop clipping so the preset dropdowns could escape. */}
+                <div className="overflow-auto dashboard-scroll rounded-b-2xl" style={{ maxHeight: '700px' }}>
                     <table className="w-full responsiveTextTable" style={{ tableLayout: 'auto', borderCollapse: 'separate', borderSpacing: 0, fontFamily: 'inherit' }}>
 
                         {/* THEAD */}
@@ -555,7 +739,7 @@ const Customtable = ({
                                                 if (isDel) {
                                                     // + button to add custom element, inserted before del column
                                                     const addBtn = (
-                                                        <th key="__addElem" style={{ ...thStyle, backgroundColor: TONES.red.bg, minWidth: '26px', padding: '5px 3px' }}>
+                                                        <th key="__addElem" style={{ ...thStyle, backgroundColor: 'var(--bg-subtle)', minWidth: '26px', padding: '5px 3px' }}>
                                                             {showAddElem ? (
                                                                 <div style={{ display: 'flex', alignItems: 'center', gap: '2px' }}>
                                                                     <input
@@ -680,7 +864,7 @@ const Customtable = ({
                                             <td key={header.id} className="responsiveTextTable" style={{
                                                 backgroundColor: ftrBg(colId),
                                                 color: 'var(--ink)',
-                                                padding: '6px 5px', fontWeight: '600',
+                                                padding: '6px 5px', fontWeight: '500',
                                                 textAlign: (colId === 'material' || colId === 'container') ? 'left' : 'center',
                                                 whiteSpace: 'nowrap',
                                                 borderTop: '1px solid var(--line-strong)',
