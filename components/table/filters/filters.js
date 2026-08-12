@@ -1,6 +1,7 @@
 import Tltip from '../../../components/tlTip';
 import { getTtl } from '../../../utils/languages';
 import Image from 'next/image';
+import { Filter } from "lucide-react";
 
 const Filters = (ln, filterOn, setFilterOn) => {
     const setFilter = () => {
@@ -14,14 +15,7 @@ const Filters = (ln, filterOn, setFilterOn) => {
                     onClick={setFilter}
                     className="group text-[var(--chathams-blue)] justify-center w-8 h-8 inline-flex items-center responsiveTextTitle rounded-full hover:drop-shadow-md focus:outline-none transition-colors"
                 >
-                    <Image
-                        src="/logo/filter.svg"
-                        alt="Filter"
-                        width={16}
-                        height={16}
-                        className="w-4 h-4 object-cover"
-                        priority
-                    />
+                    <Filter className="w-4 h-4" strokeWidth={2} />
                 </button>
             </Tltip>
         </div>

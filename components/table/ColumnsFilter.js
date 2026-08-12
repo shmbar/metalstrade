@@ -8,6 +8,7 @@ import { useContext } from 'react';
 import { SettingsContext } from "../../contexts/useSettingsContext";
 import { getTtl } from '../../utils/languages';
 import Tltip from '../../components/tlTip';
+import { Columns3 } from "lucide-react";
 
 
 const ColFilter = ({ table }) => {
@@ -111,7 +112,7 @@ const ColFilter = ({ table }) => {
     onClick={() => setOpen(!open)}
     className="justify-center w-8 h-8 inline-flex items-center responsiveTextTitle rounded focus:outline-none cursor-pointer"
   >
-    <Image src="/logo/colums.svg" alt="Columns" width={16} height={16} className="w-4 h-4 object-cover inline-block align-middle" priority />
+    <Columns3 className="w-4 h-4 inline-block" strokeWidth={2} />
   </div>
 </Tltip>
 

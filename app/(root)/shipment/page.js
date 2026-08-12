@@ -15,7 +15,11 @@ import { TiDeleteOutline } from 'react-icons/ti';
 import { HiMiniChevronUpDown } from 'react-icons/hi2';
 import Image from 'next/image';
 import Tltip from '../../../components/tlTip';
-import { FileSpreadsheet } from 'lucide-react';
+/* Icons must be COMPONENTS, not <Image src="/logo/*.svg">. An <img> cannot
+   inherit currentColor, so a file-based icon keeps one baked-in colour and stops
+   following the theme — which is exactly how the chat and filter icons here
+   ended up off-theme while the PDF icon beside them was fine. */
+import { FileSpreadsheet, MessageSquare, Filter } from 'lucide-react';
 import ProgressBar from '../../../components/ProgressBar';
 import Avatar from '../../../components/Avatar';
 // exceljs is imported dynamically inside exportExcel so it stays off the
@@ -872,7 +876,7 @@ const ShipmentPage = () => {
                                     onClick={() => { if (typeof window !== 'undefined') window.dispatchEvent(new CustomEvent('ims:openChat')); }}
                                     className="w-8 h-8 inline-flex items-center justify-center rounded hover:bg-[var(--selago)] cursor-pointer text-[var(--endeavour)] transition-colors"
                                 >
-                                    <Image src="/logo/chat.svg" alt="Chat" width={16} height={16} className="w-4 h-4 object-cover" priority />
+                                    <MessageSquare className="w-4 h-4" strokeWidth={2} />
                                 </div>
                             </Tltip>
 
@@ -892,7 +896,7 @@ const ShipmentPage = () => {
                                     onClick={() => setShowFilters(p => !p)}
                                     className={`w-8 h-8 inline-flex items-center justify-center rounded hover:bg-[var(--selago)] cursor-pointer text-[var(--endeavour)] transition-colors ${showFilters ? 'bg-[var(--selago)]' : ''}`}
                                 >
-                                    <Image src="/logo/filter.svg" alt="Filter" width={16} height={16} className="w-4 h-4 object-cover" priority />
+                                    <Filter className="w-4 h-4" strokeWidth={2} />
                                 </button>
                             </Tltip>
 

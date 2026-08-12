@@ -14,6 +14,7 @@ import { MdDeleteOutline } from "react-icons/md";
 import { GrDocumentPdf } from "react-icons/gr";
 import { QuickSumButton, QuickSumTotals } from './quicksum/QuickSumControl';
 import DateRangePicker from '../../components/dateRangePicker';
+import { Pencil, MessageSquare } from "lucide-react";
 
 const Header = ({
   data,
@@ -129,7 +130,7 @@ const Header = ({
                 onClick={() => { if (typeof window !== 'undefined') window.dispatchEvent(new CustomEvent('ims:openChat')); }}
                 className="w-8 h-8 inline-flex items-center justify-center rounded hover:bg-[var(--selago)] cursor-pointer text-[var(--endeavour)] transition-colors"
               >
-                <Image src="/logo/chat.svg" alt="Chat" width={16} height={16} className="w-4 h-4 object-cover" priority />
+                <MessageSquare className="w-4 h-4" strokeWidth={2} />
               </div>
             </Tltip>
             <div className="w-8 h-8 inline-flex items-center justify-center rounded hover:bg-[var(--selago)] cursor-pointer text-[var(--endeavour)] transition-colors">
@@ -203,7 +204,7 @@ const Header = ({
                     isEditMode ? 'bg-[var(--selago)] text-[var(--endeavour)]' : 'text-[var(--endeavour)]'
                   }`}
                 >
-                  <Image src="/logo/edit.svg" alt="Edit" width={16} height={16} className="w-4 h-4 object-cover" priority />
+                  <Pencil className="w-4 h-4" strokeWidth={2} />
                 </div>
               </Tltip>
             )}
@@ -214,7 +215,7 @@ const Header = ({
                 onClick={() => { if (typeof window !== 'undefined') window.dispatchEvent(new CustomEvent('ims:openChat')); }}
                 className="w-8 h-8 inline-flex items-center justify-center rounded hover:bg-[var(--selago)] cursor-pointer text-[var(--endeavour)] transition-colors"
               >
-                <Image src="/logo/chat.svg" alt="Chat" width={16} height={16} className="w-4 h-4 object-cover" priority />
+                <MessageSquare className="w-4 h-4" strokeWidth={2} />
               </div>
             </Tltip>
 

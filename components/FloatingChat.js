@@ -759,7 +759,12 @@ const FloatingChat = () => {
                                 onKeyDown={handleKeyDown}
                                 placeholder="Ask me anything"
                                 disabled={isLoading || dataLoading}
-                                className="flex-1 outline-none text-[var(--ink)] placeholder-[var(--ink-muted)] disabled:opacity-50 disabled:cursor-not-allowed"
+                                /* focus-visible:outline-none — the WRAPPER already signals
+                                   focus with focus-within:border, so the global
+                                   input:focus-visible outline drew a second ring inside it
+                                   and read as an internal border. Focus is still visible;
+                                   it is just not drawn twice. */
+                                className="flex-1 outline-none focus-visible:outline-none text-[var(--ink)] placeholder-[var(--ink-muted)] disabled:opacity-50 disabled:cursor-not-allowed"
                                 style={{ fontSize: 'var(--fs-body)', backgroundColor: 'transparent' }}
                             />
                             <button
