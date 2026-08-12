@@ -84,7 +84,7 @@ const Stocks = () => {
     }
 
     const fieldRow = 'flex flex-col';
-    const labelCls = 'responsiveText font-semibold uppercase tracking-[0.04em] text-[var(--ink-muted)] mb-1';
+    const labelCls = 'responsiveTextTable font-semibold uppercase tracking-[0.04em] text-[var(--ink-muted)] mb-1';
     const inputCls = 'w-full h-8 px-3 rounded-control border border-[var(--line-strong)] bg-[var(--bg-card)] text-[var(--ink)] responsiveTextTitle outline-none transition-colors focus:border-[var(--brand)] focus:ring-[3px] focus:ring-[var(--brand-soft)]';
 
     const clear = (name) => {

@@ -13,7 +13,7 @@ import { Save } from 'lucide-react';
 // Standard form field styling (matches the app's control spec app-wide).
 const fieldCls = "w-full h-8 px-3 rounded-control border border-[var(--line-strong)] bg-[var(--bg-card)] text-[var(--ink)] outline-none transition-colors focus:border-[var(--brand)] focus:ring-[3px] focus:ring-[var(--brand-soft)] responsiveTextTitle";
 const sectionCls = 'responsiveTextTitle font-semibold mb-2.5 text-[var(--ink)] font-display';
-const labelCls = "responsiveText font-semibold uppercase tracking-[0.04em] text-[var(--ink-muted)]";
+const labelCls = "responsiveTextTable font-semibold uppercase tracking-[0.04em] text-[var(--ink-muted)]";
 
 
 export const getLng = () => {
