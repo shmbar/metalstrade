@@ -99,13 +99,13 @@ const GradeTable = ({ dataTable, loading, settings }) => {
       >
         {/* Title */}
         <div
-          className="responsiveTextTable font-medium text-center"
+          className="responsiveTextCardTitle text-center"
           style={{
             background: 'var(--bg-subtle)',
             padding: '8px 16px',
             borderBottom: '1px solid var(--line)',
             color: 'var(--ink)',
-            fontWeight: '500'
+            fontWeight: '400'
           }}
         >
           Avg Cost Price per Grade

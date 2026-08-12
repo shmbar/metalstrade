@@ -324,9 +324,9 @@ const StorageCosts = () => {
                         <div className="px-4 py-6 text-center responsiveTextTable text-[var(--regent-gray)]">No storage invoices yet.</div>
                     ) : (
                         <div className="overflow-x-auto">
-                            <table className="w-full" style={{ fontSize: 'var(--fs-body)' }}>
+                            <table className="w-full" style={{ fontSize: 'var(--fs-table)' }}>
                                 <thead>
-                                    <tr className="text-left uppercase text-[var(--ink-muted)]" style={{ background: "var(--bg-subtle)", fontSize: "var(--fs-body)", letterSpacing: "0.04em" }}>
+                                    <tr className="text-left uppercase text-[var(--ink-muted)]" style={{ background: "var(--bg-subtle)", fontSize: "var(--fs-table)", letterSpacing: "0.04em" }}>
                                         <th className="px-3 py-2 font-medium">Year</th>
                                         <th className="px-3 py-2 font-medium text-right">Storage spend</th>
                                         <th className="px-3 py-2 font-medium text-right">MT-months</th>
@@ -339,10 +339,10 @@ const StorageCosts = () => {
                                         <tr key={r.year}
                                             onClick={() => setYear(year === r.year ? 'all' : r.year)}
                                             className={`border-t border-[var(--bg-subtle)] cursor-pointer transition-colors ${year === r.year ? 'bg-[var(--bg-subtle)]' : 'hover:bg-[var(--bg-subtle)]'}`}>
-                                            <td className="px-3 py-2 font-medium text-[var(--chathams-blue)]">{r.year}</td>
+                                            <td className="px-3 py-2 text-[var(--chathams-blue)]">{r.year}</td>
                                             <td className="px-3 py-2 text-right text-[var(--port-gore)]">{fmtUsd(r.spend)}</td>
                                             <td className="px-3 py-2 text-right text-[var(--port-gore)]">{new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 }).format(r.mtMonths)}</td>
-                                            <td className="px-3 py-2 text-right font-medium text-[var(--chathams-blue)]">{rateStr(r.rate)}</td>
+                                            <td className="px-3 py-2 text-right text-[var(--chathams-blue)]">{rateStr(r.rate)}</td>
                                             <td className="px-3 py-2 text-right text-[var(--port-gore)]">{r.count} ({r.taggedCount})</td>
                                         </tr>
                                     ))}
@@ -378,9 +378,9 @@ const StorageCosts = () => {
                         </div>
                     ) : (
                         <div className="overflow-x-auto">
-                            <table className="w-full" style={{ fontSize: 'var(--fs-body)' }}>
+                            <table className="w-full" style={{ fontSize: 'var(--fs-table)' }}>
                                 <thead>
-                                    <tr className="text-left uppercase text-[var(--ink-muted)]" style={{ background: "var(--bg-subtle)", fontSize: "var(--fs-body)", letterSpacing: "0.04em" }}>
+                                    <tr className="text-left uppercase text-[var(--ink-muted)]" style={{ background: "var(--bg-subtle)", fontSize: "var(--fs-table)", letterSpacing: "0.04em" }}>
                                         <th className="px-3 py-2 font-medium">Date</th>
                                         <th className="px-3 py-2 font-medium">Invoice</th>
                                         <th className="px-3 py-2 font-medium">Supplier</th>

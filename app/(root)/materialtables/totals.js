@@ -125,7 +125,7 @@ const Customtable = ({ data, columns }) => {
                                             <span style={{ color: 'var(--ink-muted)', fontSize: 'var(--fs-caption)', fontWeight: '500', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                                                 {cell.column.columnDef.header}
                                             </span>
-                                            <span className="responsiveTextTable" style={{ color: 'var(--ink)', fontSize: 'inherit', fontWeight: '600', fontVariantNumeric: 'tabular-nums' }}>
+                                            <span className="responsiveTextTable" style={{ color: 'var(--ink)', fontSize: 'inherit', fontWeight: '400', fontVariantNumeric: 'tabular-nums' }}>
                                                 {cell.column.id !== 'material'
                                                     ? new Intl.NumberFormat('en-US', { minimumFractionDigits: 2 }).format(cell.getContext().getValue())
                                                     : 'Total'}

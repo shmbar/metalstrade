@@ -116,7 +116,7 @@ const Customtable = ({
                     <th
                       key={header.id}
                       className="px-3 py-2 text-center font-medium uppercase"
-                      style={{ width: `${header.column.getSize()}px`, fontSize: 'var(--fs-body)', letterSpacing: '0.04em', color: 'var(--ink-muted)' }}
+                      style={{ width: `${header.column.getSize()}px`, fontSize: 'var(--fs-table)', letterSpacing: '0.04em', color: 'var(--ink-muted)' }}
                     >
                       {header.column.getCanSort() ? (
                         <div
