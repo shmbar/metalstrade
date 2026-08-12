@@ -417,12 +417,12 @@ const Customtable = ({
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}
                     </div>
                   ) : (
-                    <div className="px-1 py-0.5 responsiveTextTable font-medium min-w-[70px]" style={{ color: 'var(--ink)', whiteSpace: 'nowrap' }}>
+                    <div className="px-1 py-0.5 responsiveTextTable min-w-[70px]" style={{ color: 'var(--ink)', whiteSpace: 'nowrap' }}>
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}
                     </div>
                   )
                 ) : (
-                  <div className="p-1 responsiveTextTable font-medium min-w-[70px]">&nbsp;</div>
+                  <div className="p-1 responsiveTextTable min-w-[70px]">&nbsp;</div>
                 )}
               </div>
             )}
@@ -514,7 +514,7 @@ const Customtable = ({
                                                         {cell.column.columnDef.header}
                                                     </div>
                                                     <div
-                                                        className="responsiveTextTable font-medium break-words px-1 py-1 leading-relaxed min-h-7 flex items-center" style={{ color: 'var(--ink)' }}
+                                                        className="responsiveTextTable break-words px-1 py-1 leading-relaxed min-h-7 flex items-center" style={{ color: 'var(--ink)' }}
                                                     >
                                                         {flexRender(cell.column.columnDef.cell, cell.getContext()) || '\u00A0'}
                                                     </div>

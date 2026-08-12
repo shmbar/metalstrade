@@ -237,7 +237,7 @@ const Customtable = ({
                           }}
                         >
                           <div
-                            className="px-2 py-1 responsiveTextTable font-medium flex items-center justify-center min-w-[70px] text-center whitespace-nowrap border rounded-2xl border-transparent transition-all duration-200  ease-in-out hover:bg-[var(--bg-subtle)] hover:text-[var(--port-gore)] hover:shadow-[inset_0_0_0_1px_var(--line-strong)] fade-in"
+                            className="px-2 py-1 responsiveTextTable flex items-center justify-center min-w-[70px] text-center whitespace-nowrap border rounded-2xl border-transparent transition-all duration-200  ease-in-out hover:bg-[var(--bg-subtle)] hover:text-[var(--port-gore)] hover:shadow-[inset_0_0_0_1px_var(--line-strong)] fade-in"
                           >
                             {flexRender(cell.column.columnDef.cell, cell.getContext())}
                           </div>

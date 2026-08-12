@@ -154,7 +154,7 @@ const Customtable = ({
                     <td
                       key={cell.id}
                       data-label={cell.column.columnDef.header}
-                      className="px-3 py-2 responsiveTextTable font-medium text-center font-sans"
+                      className="px-3 py-2 responsiveTextTable text-center font-sans"
                     >
                       <div className="flex items-center justify-center">
                         {
@@ -163,7 +163,7 @@ const Customtable = ({
                               {flexRender(cell.column.columnDef.cell, cell.getContext())}
                             </div>
                           ) : (
-                            <div className="px-1 py-1 responsiveTextTable font-medium w-full" style={{ color: 'var(--ink)' }}>
+                            <div className="px-1 py-1 responsiveTextTable w-full" style={{ color: 'var(--ink)' }}>
                               {cell.getValue() != null && cell.getValue() !== ''
                                 ? flexRender(cell.column.columnDef.cell, cell.getContext())
                                 : <>&nbsp;</>}

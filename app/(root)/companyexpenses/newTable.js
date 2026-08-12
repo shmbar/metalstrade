@@ -409,7 +409,7 @@ const Customtable = ({
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </div>
                 ) : (
-                  <div className="p-1 responsiveTextTable font-medium min-w-[70px]">&nbsp;</div>
+                  <div className="p-1 responsiveTextTable min-w-[70px]">&nbsp;</div>
                 )}
               </div>
             )}
@@ -499,7 +499,7 @@ const Customtable = ({
                             {cell.column.columnDef.header}
                           </div>
                           <div
-                            className="responsiveTextTable font-medium break-words px-2 py-1 rounded-2xl leading-relaxed min-h-7 flex items-center shadow-sm" style={{ color: 'var(--ink)' }}
+                            className="responsiveTextTable break-words px-2 py-1 rounded-2xl leading-relaxed min-h-7 flex items-center shadow-sm" style={{ color: 'var(--ink)' }}
                           >
                             {cell.column.id === 'completed' ? (
                               cell.getValue() ? (

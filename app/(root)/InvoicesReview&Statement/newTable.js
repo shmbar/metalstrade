@@ -463,7 +463,7 @@ const Customtable = ({
                             {cell.column.columnDef.header}
                           </div>
                           <div
-                            className="responsiveTextTable font-medium break-words px-1 py-1 leading-relaxed min-h-7 flex items-center" style={{ color: 'var(--ink)' }}
+                            className="responsiveTextTable break-words px-1 py-1 leading-relaxed min-h-7 flex items-center" style={{ color: 'var(--ink)' }}
                           >
                             {/* Custom rendering for 'completed' column */}
                             {cell.column.id === 'completed' ? (

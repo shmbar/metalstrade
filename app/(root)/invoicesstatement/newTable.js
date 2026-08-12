@@ -298,13 +298,13 @@ const Customtable = ({ data, columns, invisible, SelectRow, excellReport, ln, se
                                                             </div>
                                                         ) : (isCompleted || isStatus) && !badgeConfig ? (
                                                             <div className="flex justify-center">
-                                                                <div className="px-1 py-1 responsiveTextTable font-medium w-full">&nbsp;</div>
+                                                                <div className="px-1 py-1 responsiveTextTable w-full">&nbsp;</div>
                                                             </div>
                                                         ) : (
                                                             <div className="flex justify-center">
                                                                 {cell.getValue() !== null && cell.getValue() !== undefined && cell.getValue() !== '' ? (
                                                                     <div
-                                                                        className="px-1 py-1 responsiveTextTable font-medium min-w-[70px]"
+                                                                        className="px-1 py-1 responsiveTextTable min-w-[70px]"
                                                                         style={{
                                                                             whiteSpace: 'nowrap',
                                                                         }}
@@ -312,7 +312,7 @@ const Customtable = ({ data, columns, invisible, SelectRow, excellReport, ln, se
                                                                         {flexRender(cell.column.columnDef.cell, cell.getContext())}
                                                                     </div>
                                                                 ) : (
-                                                                    <div className="px-1 py-1 responsiveTextTable font-medium w-full">&nbsp;</div>
+                                                                    <div className="px-1 py-1 responsiveTextTable w-full">&nbsp;</div>
                                                                 )}
                                                             </div>
                                                         )}
