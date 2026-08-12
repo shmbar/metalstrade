@@ -924,14 +924,17 @@ const Shipments = () => {
                 </div> */}
               </div>
 
-              {/* Tabs */}
+              {/* Tabs. Same rationale as ContractsReview&Statement: --fs-input rather
+                  than the dense --fs-table rung, and --brand for the active state —
+                  --chathams-blue and --port-gore resolve to the same ink, so active
+                  and inactive rendered identically apart from the underline. */}
               <div className='flex gap-8'>
                 <button
                   onClick={() => setActiveTab('review')}
-                  className={`pb-1 responsiveTextTable font-medium transition-all border-b-2 ${
+                  className={`pb-1 responsiveTextInput font-medium transition-all border-b-2 ${
                     activeTab === 'review'
-                      ? 'border-[var(--chathams-blue)] text-[var(--chathams-blue)]'
-                      : 'border-transparent text-[var(--port-gore)] hover:text-[var(--chathams-blue)]'
+                      ? 'border-[var(--brand)] text-[var(--brand)]'
+                      : 'border-transparent text-[var(--ink-secondary)] hover:text-[var(--ink)]'
                   }`}
                   style={{ background: 'none', boxShadow: 'none', borderRadius: 0 }}
                 >
@@ -939,10 +942,10 @@ const Shipments = () => {
                 </button>
                 <button
                   onClick={() => setActiveTab('statement')}
-                  className={`pb-1 responsiveTextTable font-medium transition-all border-b-2 ${
+                  className={`pb-1 responsiveTextInput font-medium transition-all border-b-2 ${
                     activeTab === 'statement'
-                      ? 'border-[var(--chathams-blue)] text-[var(--chathams-blue)]'
-                      : 'border-transparent text-[var(--port-gore)] hover:text-[var(--chathams-blue)]'
+                      ? 'border-[var(--brand)] text-[var(--brand)]'
+                      : 'border-transparent text-[var(--ink-secondary)] hover:text-[var(--ink)]'
                   }`}
                   style={{ background: 'none', boxShadow: 'none', borderRadius: 0 }}
                 >

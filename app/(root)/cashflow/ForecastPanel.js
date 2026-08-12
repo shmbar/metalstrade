@@ -22,7 +22,7 @@ function CurrencyRows({ label, data, colorClass }) {
         <div>
             <p className='font-semibold mb-0.5' style={{ fontSize: 'var(--fs-table)', color: 'var(--chathams-blue)' }}>{label}</p>
             {entries.map(([cur, val]) => (
-                <p key={cur} className={`font-semibold ${colorClass}`} style={{ fontSize: 'var(--fs-input)' }}>
+                <p key={cur} className={`font-medium ${colorClass}`} style={{ fontSize: 'var(--fs-input)' }}>
                     {cur} {Number(val).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </p>
             ))}

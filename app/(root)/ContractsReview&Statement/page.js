@@ -879,14 +879,24 @@ const ContractsMerged = () => {
                                 </div> */}
                             </div>
 
-                            {/* Tabs */}
+                            {/* Tabs.
+                                --fs-input, not --fs-table: this is page navigation sitting
+                                directly under a 22px heading, and --fs-table is the densest
+                                rung on the ladder — meant for cells packed 20 to a screen.
+                                It also puts these on the same rung as the app's other two tab
+                                bars (cashflow, stocks), which were already at --fs-input.
+
+                                Active state is --brand. It used to be --chathams-blue against
+                                an inactive --port-gore, and globals.css resolves those two
+                                tokens to the SAME ink — so the active tab was distinguishable
+                                only by a 2px underline, and the hover did nothing at all. */}
                             <div className='flex gap-8'>
                                 <button
                                     onClick={() => setActiveTab('review')}
-                                    className={`pb-1 responsiveTextTable font-medium transition-all border-b-2 ${
+                                    className={`pb-1 responsiveTextInput font-medium transition-all border-b-2 ${
                                         activeTab === 'review'
-                                            ? 'border-[var(--chathams-blue)] text-[var(--chathams-blue)]'
-                                            : 'border-transparent text-[var(--port-gore)] hover:text-[var(--chathams-blue)]'
+                                            ? 'border-[var(--brand)] text-[var(--brand)]'
+                                            : 'border-transparent text-[var(--ink-secondary)] hover:text-[var(--ink)]'
                                     }`}
                                     style={{ background: 'none', boxShadow: 'none', borderRadius: 0 }}
                                 >
@@ -894,10 +904,10 @@ const ContractsMerged = () => {
                                 </button>
                                 <button
                                     onClick={() => setActiveTab('statement')}
-                                    className={`pb-1 responsiveTextTable font-medium transition-all border-b-2 ${
+                                    className={`pb-1 responsiveTextInput font-medium transition-all border-b-2 ${
                                         activeTab === 'statement'
-                                            ? 'border-[var(--chathams-blue)] text-[var(--chathams-blue)]'
-                                            : 'border-transparent text-[var(--port-gore)] hover:text-[var(--chathams-blue)]'
+                                            ? 'border-[var(--brand)] text-[var(--brand)]'
+                                            : 'border-transparent text-[var(--ink-secondary)] hover:text-[var(--ink)]'
                                     }`}
                                     style={{ background: 'none', boxShadow: 'none', borderRadius: 0 }}
                                 >

@@ -1215,7 +1215,7 @@ const Cashflow = () => {
                                                                     prefix={x.cur === 'us' ? '$' : '€'}
                                                                     decimalScale='2'
                                                                     fixedDecimalScale
-                                                                    className='responsiveText font-semibold text-[var(--ink)] tabular-nums'
+                                                                    className='responsiveText text-[var(--ink)] tabular-nums'
                                                                 />
                                                             </div>
                                                         </div>
@@ -1312,7 +1312,7 @@ const Cashflow = () => {
                                                                                 prefix={x.cur === 'us' ? '$' : '€'}
                                                                                 decimalScale='2'
                                                                                 fixedDecimalScale
-                                                                                className='responsiveText font-semibold text-[var(--ink)] tabular-nums'
+                                                                                className='responsiveText text-[var(--ink)] tabular-nums'
                                                                             />
                                                                         </div>
                                                                     </div>
@@ -1374,7 +1374,7 @@ const Cashflow = () => {
                                                                                 prefix={x.cur === 'us' ? '$' : '€'}
                                                                                 decimalScale='2'
                                                                                 fixedDecimalScale
-                                                                                className='responsiveText font-semibold text-[var(--ink)] tabular-nums'
+                                                                                className='responsiveText text-[var(--ink)] tabular-nums'
                                                                             />
                                                                         </div>
                                                                     </div>
@@ -1425,7 +1425,7 @@ const Cashflow = () => {
                                                                         prefix='$'
                                                                         decimalScale='2'
                                                                         fixedDecimalScale
-                                                                        className='responsiveText font-medium text-[var(--port-gore)]'
+                                                                        className='responsiveText text-[var(--port-gore)]'
                                                                     />
                                                                 </div>
                                                             </div>
@@ -1466,7 +1466,7 @@ const Cashflow = () => {
                                                                                 prefix={x.cur === 'us' ? '$' : '€'}
                                                                                 decimalScale='2'
                                                                                 fixedDecimalScale
-                                                                                className='responsiveText font-semibold text-[var(--ink)] tabular-nums'
+                                                                                className='responsiveText text-[var(--ink)] tabular-nums'
                                                                             />
 
                                                                         </div>
@@ -1523,7 +1523,7 @@ const Cashflow = () => {
                                                                                 prefix={x.cur === 'us' ? '$' : '€'}
                                                                                 decimalScale='2'
                                                                                 fixedDecimalScale
-                                                                                className='responsiveText font-semibold text-[var(--ink)] tabular-nums'
+                                                                                className='responsiveText text-[var(--ink)] tabular-nums'
                                                                             />
 
                                                                         </div>
@@ -1641,7 +1641,7 @@ const Cashflow = () => {
                                                                                 prefix={'$'}
                                                                                 decimalScale='2'
                                                                                 fixedDecimalScale
-                                                                                className='responsiveText font-semibold text-[var(--ink)] tabular-nums'
+                                                                                className='responsiveText text-[var(--ink)] tabular-nums'
                                                                             />
                                                                         </div>
                                                                     </div>
@@ -1701,7 +1701,7 @@ const Cashflow = () => {
                                                                                 prefix={'$'}
                                                                                 decimalScale='2'
                                                                                 fixedDecimalScale
-                                                                                className='responsiveText font-semibold text-[var(--ink)] tabular-nums'
+                                                                                className='responsiveText text-[var(--ink)] tabular-nums'
                                                                             />
                                                                         </div>
                                                                     </div>
@@ -1756,7 +1756,7 @@ const Cashflow = () => {
                                                                                 prefix={'$'}
                                                                                 decimalScale='2'
                                                                                 fixedDecimalScale
-                                                                                className='responsiveText font-semibold text-[var(--ink)] tabular-nums'
+                                                                                className='responsiveText text-[var(--ink)] tabular-nums'
                                                                             />
                                                                         </div>
                                                                     </div>
@@ -1861,7 +1861,7 @@ const Cashflow = () => {
                                                             prefix="$"
                                                             decimalScale={2}
                                                             fixedDecimalScale
-                                                            className="font-semibold text-[var(--ink)] responsiveText whitespace-nowrap"
+                                                            className="font-medium text-[var(--ink)] responsiveText whitespace-nowrap"
                                                         />
                                                     </div>
 
@@ -1877,7 +1877,7 @@ const Cashflow = () => {
                                                             prefix="$"
                                                             decimalScale={2}
                                                             fixedDecimalScale
-                                                            className="font-semibold responsiveText whitespace-nowrap"
+                                                            className="font-medium responsiveText whitespace-nowrap"
                                                         />
                                                     </div>
 
@@ -1893,7 +1893,7 @@ const Cashflow = () => {
                                                             prefix="$"
                                                             decimalScale={2}
                                                             fixedDecimalScale
-                                                            className="font-semibold text-[var(--ink)] responsiveText whitespace-nowrap"
+                                                            className="font-medium text-[var(--ink)] responsiveText whitespace-nowrap"
                                                         />
                                                     </div>
 
