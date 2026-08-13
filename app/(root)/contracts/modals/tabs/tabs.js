@@ -33,7 +33,7 @@ const Page = () => {
             <div className="p-1">
                 <div className="w-full px-0 ">
                     <Tab.Group >
-                        <Tab.List className="inline-flex space-x-1 p-0.5 rounded-full bg-[var(--bg-subtle)] border border-[var(--line)]">
+                        <Tab.List className="inline-flex space-x-1 p-0.5 rounded-lg bg-[var(--bg-subtle)] border border-[var(--line)]">
                             {tabs.map((z, i) => (
                                 <Tab
                                     disabled={((i === 1 || i === 2 || i === 3 || i === 4) && valueCon.id === '') || isButtonDisabled}

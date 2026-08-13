@@ -261,7 +261,7 @@ const ProductsTable = ({ value, setValue, currency, quantityTable, setShowPoInvM
             <div className="flex flex-col w-full">
                 <div className="flex items-center justify-end gap-3 mb-1.5 responsiveTextTable flex-wrap">
                     <span className="text-[var(--regent-gray)] font-medium">View in:</span>
-                    <div className="inline-flex rounded-full border border-[var(--line-strong)] overflow-hidden">
+                    <div className="inline-flex rounded-lg border border-[var(--line-strong)] overflow-hidden">
                         {['mt', 'kg', 'lb'].map((u) => (
                             <button key={u} type="button" onClick={() => setViewUnit(u)}
                                 className={`px-2.5 py-0.5 font-semibold transition-colors border-l first:border-l-0 border-[var(--line-strong)] ${effViewUnit === u ? 'bg-[var(--endeavour)] text-[var(--on-brand)]' : 'bg-[var(--bg-subtle)] text-[var(--chathams-blue)] hover:bg-[var(--bg-subtle)]'}`}>
@@ -270,7 +270,7 @@ const ProductsTable = ({ value, setValue, currency, quantityTable, setShowPoInvM
                         ))}
                     </div>
                     {canFx && (
-                        <div className="inline-flex rounded-full border border-[var(--line-strong)] overflow-hidden">
+                        <div className="inline-flex rounded-lg border border-[var(--line-strong)] overflow-hidden">
                             <button type="button" onClick={() => setViewCurrency(baseCode)}
                                 className={`px-2.5 py-0.5 font-semibold transition-colors ${effViewCur === baseCode ? 'bg-[var(--endeavour)] text-[var(--on-brand)]' : 'bg-[var(--bg-subtle)] text-[var(--chathams-blue)] hover:bg-[var(--bg-subtle)]'}`}>
                                 {curSymbol} {baseCode}
