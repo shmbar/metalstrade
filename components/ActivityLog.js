@@ -133,20 +133,30 @@ const ActivityLog = ({ entityType, entityId, showFilters = false }) => {
         return out;
     }, [filtered]);
 
-    const pill = 'rounded-full border border-[var(--border-divider)] bg-[var(--surface-pill)] outline-none focus:border-[var(--endeavour)]';
+    const pill = 'rounded-lg border border-[var(--border-divider)] bg-[var(--surface-pill)] outline-none focus:border-[var(--endeavour)]';
 
     return (
         <div className='p-3'>
             {/* Filters (global mode only) */}
             {showFilters && (
                 <div className='flex flex-wrap items-center gap-2 mb-3'>
-                    <div className='flex items-center gap-1.5 px-3 py-1 flex-1 min-w-[180px]' style={{ borderRadius: 9999, border: '1px solid var(--line-strong)', background: 'var(--bg-subtle)' }}>
+                    {/* Shell carries the border AND the focus state, so they are classes
+                        rather than an inline style — focus-within cannot be written inline. */}
+                    <div className='flex items-center gap-1.5 px-3 py-1 flex-1 min-w-[180px] rounded-lg border border-[var(--line-strong)] bg-[var(--bg-subtle)] focus-within:border-[var(--brand)] transition-colors'>
                         <Search className='w-3.5 h-3.5' style={{ color: 'var(--ink-muted)' }} />
                         <input
                             value={q}
                             onChange={e => setQ(e.target.value)}
                             placeholder='Search activity…'
-                            className='flex-1 bg-transparent outline-none'
+                            /* focus-visible:outline-none, not plain outline-none: the global
+                               `input:focus-visible` rule in globals.css draws a 2px brand
+                               outline, and being (0,1,1) it beats the (0,1,0) utility. On a
+                               bare input that ring IS the focus indicator, but this input sits
+                               inside a bordered shell, so it drew a second, square outline
+                               INSIDE the rounded shell — the doubled edge. The shell's
+                               focus-within border above announces focus instead; same trade
+                               globals.css already makes for the cmdk search box. */
+                            className='flex-1 bg-transparent focus-visible:outline-none'
                             style={{ fontSize: 'var(--fs-input)', color: 'var(--port-gore)' }}
                         />
                     </div>
