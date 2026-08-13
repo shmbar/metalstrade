@@ -289,10 +289,11 @@ const Customtable = ({
                                                 );
                                             })()}
 
-                                            <tr style={{ borderBottom: '1px solid rgba(var(--surface-card-rgb), 0.2)' }}>
+                                            <tr style={{ borderBottom: '1px solid var(--on-brand-soft)' }}>
                                                 {group.headers.map(header => (
                                                     <th
                                                         key={header.id}
+                                                        className="group/th"
                                                         /* Band comes from .custom-table th — see
                                                            globals.css. This header had drifted to
                                                            full ink and 0.05em tracking. */
@@ -304,10 +305,14 @@ const Customtable = ({
                                                         }}
                                                         onClick={header.column.getCanSort() ? header.column.getToggleSortingHandler() : undefined}
                                                     >
-                                                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
+                                                        <span className="inline-flex items-center justify-center gap-1">
                                                             {flexRender(header.column.columnDef.header, header.getContext())}
-                                                            <SortIcon column={header.column} />
-                                                        </div>
+                                                            {/* idle needs group/th above it — without both, a
+                                                                sortable-but-unsorted column shows no affordance
+                                                                at all, which is why these headers gave no hint
+                                                                they could be clicked. */}
+                                                            <SortIcon column={header.column} idle />
+                                                        </span>
                                                     </th>
                                                 ))}
                                             </tr>
@@ -369,9 +374,10 @@ const Customtable = ({
         return (
           <td
             key={cell.id}
-            className="px-2 py-2 text-center"
+            className="px-2 py-0.5 text-center"
             style={{
               minWidth: cell.column.id === 'select' ? '50px' : '60px',
+              maxWidth: cell.column.id === 'select' ? '50px' : 'none',
               whiteSpace: 'nowrap',
             }}
           >
@@ -422,12 +428,25 @@ const Customtable = ({
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}
                     </div>
                   ) : (
-                    <div className="px-1 py-0.5 responsiveTextTable min-w-[70px]" style={{ color: 'var(--ink)', whiteSpace: 'nowrap' }}>
+                    /* Same clamp as contracts: long free text (descriptions, PO
+                       references) truncates at 160px instead of stretching its
+                       column, which is what made these columns far wider here
+                       than the same columns on every other page. */
+                    <div
+                      className="px-1 py-1 responsiveTextTable min-w-[70px]"
+                      style={{
+                        color: 'var(--ink)',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        whiteSpace: 'nowrap',
+                        maxWidth: '160px',
+                      }}
+                    >
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}
                     </div>
                   )
                 ) : (
-                  <div className="p-1 responsiveTextTable min-w-[70px]">&nbsp;</div>
+                  <div className="px-1 py-1 responsiveTextTable w-full">&nbsp;</div>
                 )}
               </div>
             )}

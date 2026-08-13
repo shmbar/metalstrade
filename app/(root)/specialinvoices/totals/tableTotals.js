@@ -25,12 +25,26 @@ const Customtable = ({ data, columns, expensesData, settings, title, filt, headi
 
     return (
         <div className="w-full max-w-full flex flex-col items-stretch px-2 sm:px-0 h-full">
+            {/* Scoped to .si-totals, NOT .glass-table.
+                These are `style jsx global`, so they are not scoped by styled-jsx —
+                they apply document-wide. `glass-table` is not unique to this
+                component: the main Misc Invoices table wraps itself in it too
+                (specialinvoices/newTable.js), so every rule below was also landing
+                on the page's main table. `.glass-table th` and `.custom-table th`
+                are both (0,1,1), and styled-jsx injects after globals.css, so this
+                block won every tie — which is why the main table alone in the app
+                had no header band (background: var(--bg-card) here), no column
+                dividers (border: none here), and a --line-strong bottom rule where
+                every other table uses --line.
+
+                If you add a rule here, keep it under .si-totals. A bare element
+                selector in a `global` block reaches the whole app. */}
             <style jsx global>{`
-                .glass-table, .glass-table * {
+                .si-totals, .si-totals * {
                     font-family: var(--font-jakarta), 'Plus Jakarta Sans', sans-serif !important;
                     color: var(--chathams-blue);
                 }
-                .glass-table th, .glass-table td {
+                .si-totals th, .si-totals td {
                     text-align: center !important;
                     vertical-align: middle !important;
                     padding: 8px 6px !important;
@@ -38,7 +52,7 @@ const Customtable = ({ data, columns, expensesData, settings, title, filt, headi
                     border-bottom: 1px solid var(--line-strong);
                     background: var(--bg-card);
                 }
-                .glass-table th > *, .glass-table td > * {
+                .si-totals th > *, .si-totals td > * {
                     display: flex;
                     justify-content: center;
                     align-items: center;
@@ -50,32 +64,32 @@ const Customtable = ({ data, columns, expensesData, settings, title, filt, headi
                    force colour with !important plus weight 400 and 0.05em tracking,
                    which outranked even an inline style — so the standard could not
                    reach this table no matter what was done at the call site. */
-                .glass-table tfoot th, .glass-table tfoot td {
+                .si-totals tfoot th, .si-totals tfoot td {
                     background: var(--bg-subtle);
                     text-align: center !important;
                     vertical-align: middle !important;
                     border-bottom: 1px solid var(--line);
                 }
-                .glass-table tbody tr:hover td {
+                .si-totals tbody tr:hover td {
                     background: var(--selago) !important;
                     color: var(--chathams-blue) !important;
                     transition: background 0.15s, color 0.15s;
                 }
-                    .glass-table th,
-.glass-table td {
-    border-bottom: 1px solid var(--line-strong);
-}
+                .si-totals th,
+                .si-totals td {
+                    border-bottom: 1px solid var(--line-strong);
+                }
 
-.glass-table th {
-    border-top: 1px solid var(--line-strong);
-}
+                .si-totals th {
+                    border-top: 1px solid var(--line-strong);
+                }
 
-.glass-table tr:last-child td {
-    border-bottom: none;
-}
+                .si-totals tr:last-child td {
+                    border-bottom: none;
+                }
             `}</style>
            
-            <div className="glass-table rounded-2xl shadow-lg border border-[var(--line)] p-2 sm:p-4 mb-6 w-full flex flex-col h-full"
+            <div className="si-totals glass-table rounded-2xl shadow-lg border border-[var(--line)] p-2 sm:p-4 mb-6 w-full flex flex-col h-full"
                 style={{
                     borderRadius: '16px',
                     boxShadow: '0 2px 8px rgba(var(--shadow-rgb), 0.08)'

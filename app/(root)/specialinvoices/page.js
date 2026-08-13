@@ -18,6 +18,7 @@ import TableTotals from './totals/tableTotals';
 import { TableSkeleton } from "../../../components/skeletons";
 import VideoLoader from '../../../components/videoLoader';
 import Modal from '../../../components/modal';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../../components/ui/select';
 
 // Manual IMS category buckets for Misc Invoices (client request: personal / random / shipments).
 const MISC_CATS = [
@@ -26,22 +27,34 @@ const MISC_CATS = [
     { id: 'shipments', label: 'Shipments' },
 ];
 
-// Inline dropdown used in the Category column. stopPropagation keeps row click/select
-// handlers from firing while choosing. '' (unset) shows as “—”.
-// Sits on the app's control band — h-7, --radius-control, --line border on --bg-card.
-// It used to be transparent-on-transparent, which read as plain text with a stray
-// chevron next to it and matched no other control in the app.
+// Inline dropdown used in the Category column. '' (unset) shows as “—”.
+//
+// Built on the shared ui/select primitives, not a native <select>. A native one
+// cannot match the app: the browser draws the option list itself, so it opened as
+// an OS popup with a system-blue highlight next to ~85 Radix dropdowns everywhere
+// else. SelectTrigger already carries the control band (h-7, --radius-control,
+// --line-strong, brand focus ring), so nothing here restates it.
+//
+// Size rides an inline --fs-* var rather than a class: ui/select.tsx hardcodes
+// responsiveTextInput in its own cn(), and tailwind-merge does not dedupe two
+// custom classes — see the note in components/selectors/selectShad.js.
+//
+// The stopPropagation wrapper keeps the row's click (select) and double-click
+// (open contract modal) handlers from firing while choosing a category.
 const CategorySelect = ({ id, value, onChange }) => (
-    <select
-        value={value || 'none'}
-        onClick={(e) => e.stopPropagation()}
-        onChange={(e) => { e.stopPropagation(); onChange(id, e.target.value === 'none' ? '' : e.target.value); }}
-        className="outline-none cursor-pointer responsiveTextTable rounded-control border border-[var(--line)] bg-[var(--bg-card)] hover:border-[var(--line-strong)] focus:border-[var(--brand)] h-7 px-1.5 transition-colors"
-        style={{ color: 'var(--ink)', fontFamily: 'inherit' }}
-    >
-        <option value="none">—</option>
-        {MISC_CATS.map(c => <option key={c.id} value={c.id}>{c.label}</option>)}
-    </select>
+    <div onClick={(e) => e.stopPropagation()} onDoubleClick={(e) => e.stopPropagation()}>
+        <Select value={value || 'none'} onValueChange={(v) => onChange(id, v === 'none' ? '' : v)}>
+            <SelectTrigger className="group w-full" style={{ fontSize: 'var(--fs-table)' }}>
+                <SelectValue />
+            </SelectTrigger>
+            <SelectContent className="z-dropdown" style={{ fontSize: 'var(--fs-table)' }}>
+                <SelectItem value="none" style={{ fontSize: 'inherit' }}>—</SelectItem>
+                {MISC_CATS.map(c => (
+                    <SelectItem key={c.id} value={c.id} style={{ fontSize: 'inherit' }}>{c.label}</SelectItem>
+                ))}
+            </SelectContent>
+        </Select>
+    </div>
 );
 
 const SpecialInvoices = () => {
