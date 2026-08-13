@@ -149,6 +149,13 @@ const Accounting = () => {
 
   const gQ = (z, y, x) => settings[y][y].find(q => q.id === z)?.[x] || ''
 
+  // expType is stored as an ID into settings.Expenses.Expenses — only the
+  // contract-derived purchase rows carry a literal ('Purchase'), and older
+  // expense docs may already hold the label. So: resolve the id, else pass the
+  // value through. The table's select and the Excel export both do this; any
+  // call site that prints the raw field renders the settings UUID instead.
+  const expTypeLabel = (x) => settings.Expenses?.Expenses?.find(q => q.id === x)?.expType || x || ''
+
 
   useEffect(() => {
 
@@ -322,7 +329,7 @@ const Accounting = () => {
           row.saleInvoice,
           row.expInvoice,
           row.invoice,
-          row.expType,
+          expTypeLabel(row.expType),
           row.invType,
           amount,
         ].filter(Boolean).join(' ')
@@ -663,7 +670,7 @@ const Accounting = () => {
                         </div>
                       </div>
                       <div className="text-right flex-shrink-0 ml-2">
-                        <p className="responsiveTextTable text-[var(--regent-gray)] font-sans">{item.expType || item.invType || ''}</p>
+                        <p className="responsiveTextTable text-[var(--regent-gray)] font-sans">{expTypeLabel(item.expType) || item.invType || ''}</p>
                         {/* Money in / money out. Only the outflow is coloured — the
                             leading +/- already says which direction this is, so a
                             green on every inflow was decoration, not signal. */}
