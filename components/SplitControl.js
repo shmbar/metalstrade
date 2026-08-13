@@ -201,7 +201,7 @@ export default function SplitControl({
                 <div className="flex gap-1 mt-2">
                   {[50, 60, 70, 100].map(p => (
                     <button key={p} type="button" onClick={() => setRatio(p)}
-                      className="rounded-full" style={{ fontSize: 'var(--fs-caption)', padding: '2px 8px', background: Number(ratio) === p ? 'var(--endeavour)' : 'var(--bg-subtle)', color: Number(ratio) === p ? 'var(--on-brand)' : 'var(--chathams-blue)', border: '1px solid var(--line-strong)' }}>
+                      className="rounded-lg" style={{ fontSize: 'var(--fs-caption)', padding: '2px 8px', background: Number(ratio) === p ? 'var(--endeavour)' : 'var(--bg-subtle)', color: Number(ratio) === p ? 'var(--on-brand)' : 'var(--chathams-blue)', border: '1px solid var(--line-strong)' }}>
                       {p}/{100 - p}
                     </button>
                   ))}

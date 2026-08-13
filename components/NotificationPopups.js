@@ -98,7 +98,7 @@ function PopupCard({ n, onDismiss, onOpen }) {
 
                     <button
                         onClick={(e) => { e.stopPropagation(); onDismiss(n.popupId); }}
-                        className='p-1 -mt-1 -mr-1 rounded-full hover:bg-[var(--bg-subtle)] shrink-0 transition-colors'
+                        className='p-1 -mt-1 -mr-1 rounded-lg hover:bg-[var(--bg-subtle)] shrink-0 transition-colors'
                         aria-label='Dismiss notification'
                     >
                         <X className='w-3.5 h-3.5' style={{ color: 'var(--ink-muted)' }} />

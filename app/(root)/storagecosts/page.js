@@ -246,7 +246,7 @@ const StorageCosts = () => {
                         <div className="flex items-center gap-1">
                             {UNIT.map(u => (
                                 <button key={u.key} type="button" onClick={() => setUnit(u.key)}
-                                    className="rounded-full font-medium transition-colors"
+                                    className="rounded-lg font-medium transition-colors"
                                     style={{
                                         fontSize: 'var(--fs-body)', padding: '5px 12px',
                                         background: unit === u.key ? 'var(--endeavour)' : 'var(--bg-card)',

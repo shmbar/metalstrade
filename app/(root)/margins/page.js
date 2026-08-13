@@ -734,7 +734,7 @@ const Margins = () => {
                                             <Loader2 className="w-3 h-3 animate-spin" /> Saving…
                                         </span>
                                     ) : dirty ? (
-                                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full font-semibold whitespace-nowrap"
+                                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg font-semibold whitespace-nowrap"
                                             style={{ fontSize: 'var(--fs-table)', background: TONES.amber.bg, color: TONES.amber.text, border: `1px solid ${TONES.amber.border}` }}>
                                             <AlertTriangle className="w-3 h-3" /> Unsaved — autosaving…
                                         </span>

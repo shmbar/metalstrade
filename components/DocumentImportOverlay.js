@@ -574,7 +574,7 @@ const DocumentImportOverlay = ({ documentType, suppliers, clients, currencies, e
                                 Cancel
                             </button>
                             <button onClick={handleApply}
-                                className='flex items-center gap-1 px-3 py-1.5 rounded-full text-[var(--on-brand)] font-medium transition-all'
+                                className='flex items-center gap-1 px-3 py-1.5 rounded-lg text-[var(--on-brand)] font-medium transition-all'
                                 style={{ fontSize: 'var(--fs-table)', background: 'var(--brand)' }}>
                                 Apply Selected <ChevronRight className='w-3 h-3' />
                             </button>

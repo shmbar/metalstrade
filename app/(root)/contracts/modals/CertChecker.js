@@ -178,7 +178,7 @@ const CertChecker = () => {
                         className='w-14 rounded-lg border px-2 py-0.5 outline-none focus:border-[var(--endeavour)]'
                         style={{ fontSize: 'var(--fs-table)', borderColor: 'var(--line)', background: "var(--bg-card)", color: 'var(--port-gore)' }} />
                     <button onClick={addSpec} disabled={!newElement}
-                        className='flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[var(--on-brand)] disabled:opacity-40'
+                        className='flex items-center gap-1 px-2.5 py-0.5 rounded-lg text-[var(--on-brand)] disabled:opacity-40'
                         style={{ fontSize: 'var(--fs-table)', background: 'var(--endeavour)' }}>
                         <Plus className='w-2.5 h-2.5' /> Add
                     </button>
@@ -329,7 +329,7 @@ const CertChecker = () => {
                     )}
 
                     <button onClick={() => { setFile(null); setResult(null); setError(null); }}
-                        className='flex items-center gap-1 px-3 py-1 rounded-full border transition-colors hover:border-[var(--endeavour)]'
+                        className='flex items-center gap-1 px-3 py-1 rounded-lg border transition-colors hover:border-[var(--endeavour)]'
                         style={{ fontSize: 'var(--fs-table)', borderColor: 'var(--line)', color: 'var(--chathams-blue)' }}>
                         <Trash2 className='w-3 h-3' /> Check another certificate
                     </button>

@@ -183,7 +183,7 @@ const ReminderModal = ({ invoice, clientEmail: initialEmail, companyName, langua
                         <label className='block font-semibold mb-1' style={{ fontSize: 'var(--fs-table)', color: 'var(--ink)' }}>
                             Recipient Email
                         </label>
-                        <div className='flex items-center gap-2 px-3 py-1.5 rounded-full border focus-within:border-[var(--brand)] transition-colors'
+                        <div className='flex items-center gap-2 px-3 py-1.5 rounded-lg border focus-within:border-[var(--brand)] transition-colors'
                             style={{ borderColor: 'var(--line-strong)', background: 'var(--bg-subtle)' }}>
                             <Mail className='w-3 h-3 flex-shrink-0' style={{ color: 'var(--ink-muted)' }} />
                             <input

@@ -108,8 +108,11 @@ const MODE_FILTERS = [
 
 const ModeTag = ({ mode }) => {
     const sea = mode === 'sea'
+    // rounded-lg, not rounded-full — same rule as components/StatusBadge.js: one
+    // radius across the app. The icon inside is w-2.5 h-2.5, but this is a
+    // text-bearing chip, not a dot.
     return (
-        <span className="inline-flex items-center gap-1 rounded-full font-medium whitespace-nowrap"
+        <span className="inline-flex items-center gap-1 rounded-lg font-medium whitespace-nowrap"
             style={{ fontSize: 'var(--fs-table)', padding: '2px 8px', background: sea ? 'var(--brand-soft)' : 'var(--ok-bg)', color: sea ? 'var(--endeavour)' : 'var(--ok-text)', boxShadow: `inset 0 0 0 1px ${sea ? 'var(--brand-border)' : 'var(--ok-border)'}` }}>
             {sea ? <Ship className="w-2.5 h-2.5" /> : <Globe2 className="w-2.5 h-2.5" />}
             {sea ? 'Sea / inland waterway' : 'Any mode'}
@@ -195,7 +198,7 @@ const Incoterms = () => {
                     <div className="flex items-center gap-1 flex-wrap">
                         {MODE_FILTERS.map(f => (
                             <button key={f.key} type="button" onClick={() => setMode(f.key)}
-                                className="rounded-full font-medium transition-colors"
+                                className="rounded-lg font-medium transition-colors"
                                 style={{
                                     fontSize: 'var(--fs-body)', padding: '5px 12px',
                                     background: mode === f.key ? 'var(--endeavour)' : 'var(--bg-card)',

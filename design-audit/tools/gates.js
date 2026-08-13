@@ -188,10 +188,31 @@ gate('one-radius', 'rounded-full on an interactive control (use rounded-lg = --r
     if (!/\.(js|jsx|tsx)$/.test(file) || RADIUS_EXEMPT.test(file)) return [];
     const hits = [];
     const lines = src.split('\n');
+    /* Track /* … *\/ regions properly instead of testing "does this line START with
+       a comment marker". A wrapped prose line inside a block comment does not, so
+       yearSelect.js's note about the pill it USED to be was read as code — and once
+       the interactivity test below started reading neighbouring lines, the "h-8" in
+       that same sentence made it look like a control. */
+    const inBlockComment = new Array(lines.length).fill(false);
+    let open = false;
+    lines.forEach((l, i) => {
+        if (open) inBlockComment[i] = true;
+        const lastOpen = l.lastIndexOf('/*');
+        const lastClose = l.lastIndexOf('*/');
+        if (lastOpen > lastClose) { open = true; inBlockComment[i] = true; }
+        else if (lastClose > lastOpen) open = false;
+    });
     lines.forEach((l, i) => {
         if (!l.includes('rounded-full')) return;
-        if (/^\s*(\/\/|\/?\*|\*)/.test(l)) return;                       // comments
-        const interactive = /<button|onClick|cursor-pointer|<input|<select|\bh-(7|8|9|10)\b/.test(l);
+        if (inBlockComment[i]) return;                                   // block comments
+        if (/^\s*(\/\/|\/?\*|\*)/.test(l)) return;                       // line comments
+        /* The opening tag may be two lines up. A multi-line JSX element puts
+           `<button ... onClick={...}` on one line and `className="rounded-full …"`
+           on the next, so testing only this line missed the incoterms mode filters
+           (2026-08-13) — a <button> whose padding is inline, so neither the chip
+           test below nor this one could see it. */
+        const openTag = lines.slice(Math.max(0, i - 2), i + 1).join(' ');
+        const interactive = /<button|onClick|cursor-pointer|<input|<select|\bh-(7|8|9|10)\b/.test(openTag);
         /* A text-bearing CHIP counts too, not just interactive things. A status
            badge is a <span> — no onClick, no height class — so the interactivity
            test alone could not see it, and 63 of them survived two sweeps until
@@ -213,12 +234,25 @@ gate('one-radius', 'rounded-full on an interactive control (use rounded-lg = --r
            proves it is a dot on the NEXT line inside the template literal — which
            is how the testimonial carousel dots read as a false positive. */
         const ctx = lines.slice(i, i + 3).join(' ');
-        const isAvatarOrDot = /\bw-([0-9.]+)\b\s+\bh-\1\b|\bh-([0-9.]+)\b\s+\bw-\2\b/.test(ctx)
+        /* ...but a chip that has ALREADY identified itself as text-bearing cannot be
+           talked out of it by the next line: an icon inside a chip is sized w-2.5
+           h-2.5, and reading that as "this is a dot" is what let the incoterms
+           ModeTag through. For a confirmed chip, only SAME-LINE sizing may veto. */
+        const dotScope = (paddedChip || styledChip) ? l : ctx;
+        const isAvatarOrDot = /\bw-([0-9.]+)\b\s+\bh-\1\b|\bh-([0-9.]+)\b\s+\bw-\2\b/.test(dotScope)
             || /animate-(ping|spin|pulse|bounce)/.test(ctx)
             /* Inline sizing marks a dot/count badge too — dashboard's filter count
                is a 15x15 circle sized with minWidth/height, not w-/h- classes. */
             || /\b(minWidth|width|height)\s*:\s*[0-9]+/.test(ctx);
         const isBar = /overflow-hidden/.test(ctx) && /\bh-(1|1\.5|2|full)\b/.test(ctx);
+        /* A toggle-switch TRACK stays round — round is the affordance, which the
+           header comment already exempts. RADIUS_EXEMPT only covers switch.js/tsx
+           by filename, so a switch written inline in a page (ContractsReview&
+           Statement) was not covered. A track is the one control that is explicitly
+           sized in both axes AND positioned, to carry the thumb: relative + w-N +
+           h-N. Chips and buttons set neither. */
+        const isSwitchTrack = /\brelative\b/.test(l) && /\bw-\d/.test(l) && /\bh-\d/.test(l);
+        if (isSwitchTrack) return;
         if (!isAvatarOrDot && !isBar) hits.push(`${file}:${i + 1}: rounded-full on an interactive element`);
     });
     return hits;

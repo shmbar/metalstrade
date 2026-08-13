@@ -396,10 +396,10 @@ const Stocks = () => {
 
               {/* Tabs: this account's stock vs the IMS+GIS shared pool */}
               <div className='mt-3 flex'>
-                <div className='flex items-center bg-[var(--bg-subtle)] border border-[var(--line)] rounded-full p-0.5'>
+                <div className='flex items-center bg-[var(--bg-subtle)] border border-[var(--line)] rounded-lg p-0.5'>
                   {[['mine', 'My Stock'], ['shared', 'Shared (IMS + GIS)']].map(([key, label]) => (
                     <button key={key} type='button' onClick={() => setActiveTab(key)}
-                      className={`rounded-full transition-colors ${activeTab === key
+                      className={`rounded-lg transition-colors ${activeTab === key
                         ? 'bg-[var(--bg-card)] text-[var(--ink)] font-medium shadow-card'
                         : 'text-[var(--ink-secondary)]'}`}
                       style={{ fontSize: 'var(--fs-input)', padding: '5px 14px' }}>

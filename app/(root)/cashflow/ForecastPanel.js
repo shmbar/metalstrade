@@ -190,7 +190,7 @@ const ForecastPanel = () => {
             {opened && (
                 <div className='p-3 bg-[var(--bg-card)]'>
                     {/* Horizon tabs */}
-                    <div className='inline-flex gap-1 mb-3 bg-[var(--bg-subtle)] border border-[var(--line)] rounded-full p-0.5'>
+                    <div className='inline-flex gap-1 mb-3 bg-[var(--bg-subtle)] border border-[var(--line)] rounded-lg p-0.5'>
                         {HORIZONS.map(h => (
                             <button
                                 key={h}

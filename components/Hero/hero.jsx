@@ -39,7 +39,7 @@ export default function Hero() {
               initial={{ opacity: 0, y: -12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
-              className="inline-flex items-center gap-2 rounded-full px-3.5 py-1.5 mb-5 border border-[var(--on-brand-soft-strong)] bg-[var(--on-brand-soft)] backdrop-blur-sm"
+              className="inline-flex items-center gap-2 rounded-lg px-3.5 py-1.5 mb-5 border border-[var(--on-brand-soft-strong)] bg-[var(--on-brand-soft)] backdrop-blur-sm"
             >
               <Sparkles className="w-3.5 h-3.5 text-[var(--on-brand-muted)]" />
               {/* --on-brand, not --bg-subtle: this hero is a DEEP surface in both

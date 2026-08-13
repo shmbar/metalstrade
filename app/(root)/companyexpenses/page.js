@@ -305,7 +305,7 @@ const Expenses = () => {
                                             type='button'
                                             onClick={() => setOnlyUnsplit(v => !v)}
                                             title='Show only expenses not yet split between IMS & GIS'
-                                            className='inline-flex items-center gap-1.5 rounded-full transition-colors'
+                                            className='inline-flex items-center gap-1.5 rounded-lg transition-colors'
                                             style={{
                                                 fontSize: 'var(--fs-body)', padding: '4px 12px',
                                                 color: onlyUnsplit ? 'var(--on-brand)' : 'var(--chathams-blue)',

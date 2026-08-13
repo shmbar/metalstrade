@@ -403,7 +403,7 @@ const NotificationBell = () => {
                                     <div className='flex gap-2 mt-4'>
                                         <button
                                             onClick={() => openRecord(detail)}
-                                            className='flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-full font-medium text-[var(--on-brand)] hover:opacity-90 transition-opacity'
+                                            className='flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg font-medium text-[var(--on-brand)] hover:opacity-90 transition-opacity'
                                             style={{ fontSize: 'var(--fs-table)', background: 'var(--brand)' }}
                                         >
                                             <ExternalLink className='w-3.5 h-3.5' /> Open record

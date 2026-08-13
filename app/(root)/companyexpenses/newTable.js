@@ -154,24 +154,39 @@ const Customtable = ({
           color: var(--chathams-blue);
         }
 
+        /* The two totals bands, matching specialinvoices/newTable.js.
+           The background has to sit on the th, not the tr: .custom-table th paints
+           var(--bg-subtle) on every header cell, and a cell background covers the
+           row's. Set on the tr alone (as --ok-border / --line-strong were) it never
+           showed at all, so both bands rendered the same grey as the column header
+           below them — three identical rows.
+           Tokens follow the 2026-08-08 client revision: a totals row is a summary,
+           not a status, so these are quiet fills rather than a saturated green, and
+           --ok-border / --line-strong are border tokens, not surfaces. */
         .summary-green {
-          background-color: var(--ok-border);
-          color: var(--ok-text);
-          font-weight: 400;
+          background-color: var(--ok-bg);
+          color: var(--ok-strong);
+          font-weight: 500;
         }
+        /* Only the horizontal rule is suppressed, so the two totals bands read as
+           one block. A blanket "border: none" also removed the column dividers the
+           global grid draws (the :where(thead th) rules in globals.css), which left
+           these two rows as the only ones in the table without them. */
         .summary-green th {
-          color: var(--ok-text) !important;
-          border: none !important;
+          background-color: var(--ok-bg) !important;
+          color: var(--ok-strong) !important;
+          border-bottom: 0 !important;
         }
 
         .summary-blue {
-          background-color: var(--line-strong);
-          color: var(--chathams-blue);
-          font-weight: 400;
+          background-color: var(--bg-sunken);
+          color: var(--ink);
+          font-weight: 500;
         }
         .summary-blue th {
-          color: var(--chathams-blue) !important;
-          border: none !important;
+          background-color: var(--bg-sunken) !important;
+          color: var(--ink) !important;
+          border-bottom: 0 !important;
         }
 
         .pagination-center {

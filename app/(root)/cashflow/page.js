@@ -1164,7 +1164,7 @@ const Cashflow = () => {
                             <ForecastPanel />
 
                             {/* Tabs */}
-                            <div className="inline-flex gap-1 mb-2 bg-[var(--bg-subtle)] border border-[var(--line)] rounded-full p-0.5">
+                            <div className="inline-flex gap-1 mb-2 bg-[var(--bg-subtle)] border border-[var(--line)] rounded-lg p-0.5">
                                 <button
                                     onClick={() => setActiveTab('general')}
                                     className={`px-4 py-1 responsiveTextInput rounded-lg transition-all ${activeTab === 'general' ? 'bg-[var(--bg-card)] text-[var(--ink)] font-medium shadow-card' : 'text-[var(--ink-secondary)]'}`}
