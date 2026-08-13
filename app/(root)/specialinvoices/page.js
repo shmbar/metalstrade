@@ -28,12 +28,15 @@ const MISC_CATS = [
 
 // Inline dropdown used in the Category column. stopPropagation keeps row click/select
 // handlers from firing while choosing. '' (unset) shows as “—”.
+// Sits on the app's control band — h-7, --radius-control, --line border on --bg-card.
+// It used to be transparent-on-transparent, which read as plain text with a stray
+// chevron next to it and matched no other control in the app.
 const CategorySelect = ({ id, value, onChange }) => (
     <select
         value={value || 'none'}
         onClick={(e) => e.stopPropagation()}
         onChange={(e) => { e.stopPropagation(); onChange(id, e.target.value === 'none' ? '' : e.target.value); }}
-        className="bg-transparent outline-none cursor-pointer responsiveTextTable rounded-control border border-transparent hover:border-[var(--line-strong)] hover:bg-[var(--bg-card)] px-1 py-0.5 transition-colors"
+        className="outline-none cursor-pointer responsiveTextTable rounded-control border border-[var(--line)] bg-[var(--bg-card)] hover:border-[var(--line-strong)] focus:border-[var(--brand)] h-7 px-1.5 transition-colors"
         style={{ color: 'var(--ink)', fontFamily: 'inherit' }}
     >
         <option value="none">—</option>

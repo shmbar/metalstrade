@@ -189,10 +189,15 @@ const Customtable = ({
                     color: var(--ok-strong);
                     font-weight: 500;
                 }
+                /* Only the horizontal rule is suppressed — the two bands read as one
+                   block, separated by tint. A blanket "border: none" also killed the
+                   column dividers the global grid draws (the :where(thead th) rules in
+                   globals.css), which is what left this table's summary band without
+                   the vertical rules every other page has. */
                 .summary-green-si th {
                     background-color: var(--ok-bg) !important;
                     color: var(--ok-strong) !important;
-                    border: none !important;
+                    border-bottom: 0 !important;
                 }
 
                 .summary-blue-si {
@@ -203,7 +208,7 @@ const Customtable = ({
                 .summary-blue-si th {
                     background-color: var(--bg-sunken) !important;
                     color: var(--ink) !important;
-                    border: none !important;
+                    border-bottom: 0 !important;
                 }
             `}</style>
 
@@ -244,7 +249,7 @@ const Customtable = ({
     }}
   >
                         <div className="overflow-x-auto dashboard-scroll">
-                            <table className="w-full custom-table" style={{ tableLayout: 'auto', borderCollapse: 'separate', borderSpacing: 0 }}>
+                            <table className="w-full custom-table" style={{ tableLayout: 'auto' }}>
 
                                 {/* THEAD */}
                                 <thead className="sticky top-0 z-sticky">
@@ -257,7 +262,7 @@ const Customtable = ({
                                                 return (
                                                     <tr className="summary-green-si">
                                                         {group.headers.map(header => (
-                                                            <th key={header.id} style={{ padding: '6px 8px', borderRight: '1px solid rgba(var(--shadow-rgb), 0.08)' }}>
+                                                            <th key={header.id} style={{ padding: '6px 8px' }}>
                                                                 {header.id === 'compName' ? 'Total $:' :
                                                                     header.id === 'qnty' ? (usdWeight % 1 === 0 ? usdWeight : usdWeight.toFixed(2)) :
                                                                         header.id === 'total' ? new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2 }).format(usdTotal) : ''}
@@ -274,7 +279,7 @@ const Customtable = ({
                                                 return (
                                                     <tr className="summary-blue-si">
                                                         {group.headers.map(header => (
-                                                            <th key={header.id} style={{ padding: '6px 8px', borderRight: '1px solid rgba(var(--shadow-rgb), 0.08)' }}>
+                                                            <th key={header.id} style={{ padding: '6px 8px' }}>
                                                                 {header.id === 'compName' ? 'Total EUR:' :
                                                                     header.id === 'qnty' ? (eurWeight % 1 === 0 ? eurWeight : eurWeight.toFixed(2)) :
                                                                         header.id === 'total' ? new Intl.NumberFormat('en-US', { style: 'currency', currency: 'EUR', minimumFractionDigits: 2 }).format(eurTotal) : ''}
