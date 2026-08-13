@@ -45,13 +45,19 @@ export const CHART_ACCENT = {
  * labelled by name, so colour identifies nothing — it is decoration, and
  * decoration has to follow the theme.
  *
- * The ramp rotates hue around the CURRENT brand and walks lightness, so every
- * bar is visibly different while the whole set stays in the theme's family.
+ * The ramp is a SHADE ladder, not a hue fan: it walks lightness from deep to
+ * soft while hue barely moves, so the whole set reads as one colour in several
+ * strengths. It used to fan hue across ±34°, which at the violet brand ran from
+ * azure (214°) to magenta (282°) — the top bar of every ranking card came out a
+ * blue that exists nowhere else in the app. Bar LENGTH already carries the
+ * ranking, so the hue spread bought no encoding and cost the colour scheme.
  *
  * The contrast fit is not optional. Each bar carries its value in white text, so
- * a bar has to stay dark enough to read on. At brand hues that are inherently
- * light — the Mustard and Moss presets — an un-fitted ramp puts white on pale
- * yellow. Every entry is darkened until white clears WCAG AA.
+ * a bar has to stay dark enough to read on. Rather than pick a lightness and
+ * darken it until it complies, the ladder is anchored to the lightest value this
+ * brand hue CAN carry white text at, and grows downward from there — so the
+ * inherently light presets (Mustard, Moss) still get a real ladder instead of
+ * collapsing into one clamped shade.
  */
 const hexToHsl = (hex) => {
   const m = /^#?([\da-f]{2})([\da-f]{2})([\da-f]{2})$/i.exec(String(hex).trim());
@@ -85,18 +91,38 @@ const lum = ([r, g, b]) => {
 const contrastWhite = (rgb) => 1.05 / (lum(rgb) + 0.05);
 const toHex = ([r, g, b]) => '#' + [r, g, b].map((v) => v.toString(16).padStart(2, '0')).join('');
 
+// Lightest this hue can go while white text on it still clears WCAG AA.
+const readableCeiling = (h, s) => {
+  let l = 66;
+  while (l > 6 && contrastWhite(hslToRgbArr(h, s, l)) < 4.5) l -= 1;
+  return l;
+};
+
+// Saturation is eased off as the ladder lightens, so the pale end reads as a
+// tint rather than a neon. These are the two ends of that easing.
+const SAT_DEEP = 0.90;
+const SAT_PALE = 0.72;
+
 export const brandRamp = (n, fallback = '#6D5CE0') => {
   const base = hexToHsl(cssVar('--endeavour', fallback)) || hexToHsl(fallback);
   const count = Math.max(1, n | 0);
+  // Fit the ceiling at the ramp's WEAKEST saturation — that is the entry closest
+  // to failing, so pinning to it keeps the pale end off the contrast guard and
+  // stops the last rows collapsing onto the same shade.
+  const hi = readableCeiling(base.h, base.s * SAT_PALE);
+  const span = Math.min(16, Math.max(8, hi * 0.3));
+  const lo = Math.max(6, hi - span);
+
   return Array.from({ length: count }, (_, i) => {
-    // Fan the hue across a ±34° arc and dip the lightness toward the middle of
-    // the list, so neighbours never land on the same colour.
     const t = count === 1 ? 0 : i / (count - 1);
-    const h = base.h - 34 + t * 68;
-    const s = Math.min(92, Math.max(38, base.s * (0.78 + 0.30 * (1 - t))));
-    let l = 58 - Math.sin(t * Math.PI) * 12;
+    // Hue drifts ~12° in total: enough that neighbours aren't identical, far too
+    // little to leave the brand family.
+    const h = base.h - 5 + t * 12;
+    const s = Math.min(88, Math.max(30, base.s * (SAT_DEEP - (SAT_DEEP - SAT_PALE) * t)));
+    // Row 0 is the largest value, so the ladder runs deep → soft.
+    let l = lo + (hi - lo) * t;
     let rgb = hslToRgbArr(h, s, l);
-    let guard = 100;
+    let guard = 100;   // safety net; the ceiling fit should mean this never fires
     while (contrastWhite(rgb) < 4.5 && guard-- > 0 && l > 2) {
       l -= 1;
       rgb = hslToRgbArr(h, s, l);

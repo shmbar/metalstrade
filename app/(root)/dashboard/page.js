@@ -407,8 +407,8 @@ function RankingList({ labels = [], data = [], title, subtitle, totalValue }) {
      avatars use the shared Avatar, whose per-name tint is themed. */
   const avatarSize = 26;
   const rowCount = labels.length || 1;
-  // One themed colour per row, fanned around the current brand hue. Rebuilt on a
-  // theme switch because the page re-renders through useTheme().
+  // One themed shade per row — the brand stepped deep → soft down the ranking.
+  // Rebuilt on a theme switch because the page re-renders through useTheme().
   const ramp = brandRamp(labels.length || 1);
   const barHeight = Math.max(14, Math.min(28, Math.round(28 - rowCount * 1.5)));
   const max = Math.max(...(data.length ? data : [1]), 1);
@@ -863,8 +863,8 @@ function AgingCard({ buckets = [] }) {
 
 // Horizontal-bar breakdown card (expenses by type, materials by tonnage, etc.).
 /* `accent` is kept in the signature so existing call sites stay valid, but the
-   bars now come from the themed ramp: one colour per row, fanned around the
-   current brand, instead of every row sharing one fixed accent. */
+   bars now come from the themed ramp: the brand stepped deep → soft down the
+   list, instead of every row sharing one fixed accent. */
 function BreakdownCard({ title, subtitle, entries = [], total, fmtVal, accent = 'var(--brand)' }) {
   const max = Math.max(...entries.map(([, v]) => v), 1);
   const ramp = brandRamp(entries.length || 1);
