@@ -1,13 +1,14 @@
 'use client'
-import { useContext, useEffect, useState } from 'react'
+import { useContext, useEffect, useMemo, useState } from 'react'
 import Datepicker from "react-tailwindcss-datepicker";
+import dateFormat from 'dateformat';
 import { VscSaveAs, VscClose } from 'react-icons/vsc';
-import { FileText, Copy, Trash2 } from 'lucide-react';
+import { FileText, Copy, Trash2, Link2 } from 'lucide-react';
 import { RiRefreshLine } from "react-icons/ri";
 import { SettingsContext } from "@contexts/useSettingsContext";
 import { SalesContractsContext } from "@contexts/useSalesContractsContext";
 import { UserAuth } from "@contexts/useAuthContext";
-import { validate, ErrDiv } from '@utils/utils';
+import { validate, ErrDiv, loadData } from '@utils/utils';
 import { getTtl } from '@utils/languages';
 import { Selector } from '@components/selectors/selectShad';
 import Tltip from '@components/tlTip';
@@ -25,9 +26,76 @@ const SalesContractDetails = () => {
 
     const [showDocImport, setShowDocImport] = useState(false);
     const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+    // Purchase contracts offered for linking, loaded for the sales contract's year ±1 —
+    // the cargo is often bought a season before it is sold on.
+    const [purchaseContracts, setPurchaseContracts] = useState([]);
+    // The PO this contract already shipped under, read off its sales invoices. Only used
+    // as a suggestion: it exists once the cargo path is complete, which is exactly the
+    // case the manual link is here to cover before it is.
+    const [poFromInvoice, setPoFromInvoice] = useState(null);
 
     const clts = settings.Client.Client;
     const client = valueSC.client && clts.find(z => z.id === valueSC.client);
+
+    const sups = settings.Supplier?.Supplier || [];
+    const poId = valueSC.poSupplier?.id || '';
+    const linkedPo = poId && purchaseContracts.find(c => c.id === poId);
+    // Live from the PO when it is in range, otherwise from what was stored at link time.
+    const supplierId = linkedPo ? linkedPo.supplier : (valueSC.poSupplier?.supplier || '');
+    const supplier = supplierId && sups.find(s => s.id === supplierId);
+    const supName = (id) => { const s = sups.find(z => z.id === id); return s ? (s.nname || s.supplier || '') : ''; };
+
+    useEffect(() => {
+        const load = async () => {
+            if (!uidCollection) return;
+            const yr = parseInt((valueSC.dateRange?.startDate || valueSC.date || '').substring(0, 4));
+            const y = isNaN(yr) ? new Date().getFullYear() : yr;
+            const range = { start: `${y - 1}-01-01`, end: `${y + 1}-12-31` };
+            const [cons, invs] = await Promise.all([
+                loadData(uidCollection, 'contracts', range),
+                valueSC.id ? loadData(uidCollection, 'invoices', range) : Promise.resolve([]),
+            ]);
+            setPurchaseContracts(cons || []);
+            const hit = (invs || []).find(i =>
+                i && i.salesContractId === valueSC.id && !i.canceled && i.poSupplier?.id);
+            setPoFromInvoice(hit ? { ...hit.poSupplier, invoice: hit.invoice } : null);
+        };
+        load();
+    }, [uidCollection, valueSC.id, valueSC.dateRange?.startDate, valueSC.date]);
+
+    // Label carries the supplier too: the PO number alone ('280426-1-ELG') is not something
+    // anyone recognizes at a glance. Radix throws on a blank value, so ids are required.
+    const poOptions = useMemo(() => {
+        const list = (purchaseContracts || [])
+            .filter(c => c && c.id)
+            .map(c => ({
+                id: c.id,
+                poLabel: [c.order || '(no number)', supName(c.supplier)].filter(Boolean).join('  ·  '),
+            }));
+        // A PO linked outside the loaded window must stay visible, or opening the form
+        // would silently show an empty selector over a link that is actually set.
+        if (poId && !list.some(x => x.id === poId)) {
+            list.unshift({
+                id: poId,
+                poLabel: [valueSC.poSupplier?.order || '(linked PO)', supName(valueSC.poSupplier?.supplier)]
+                    .filter(Boolean).join('  ·  '),
+            });
+        }
+        return list;
+    }, [purchaseContracts, poId, valueSC.poSupplier, sups]);
+
+    // `fallback` covers a PO outside the loaded window (the invoice suggestion can point at
+    // one): keep whatever the caller already knows rather than storing a bare id.
+    const linkPo = (id, fallback) => {
+        const c = (purchaseContracts || []).find(x => x.id === id);
+        setValueSC(prev => ({
+            ...prev,
+            poSupplier: c
+                ? { id: c.id, order: c.order || '', date: c.dateRange?.startDate || c.date || '', supplier: c.supplier || '' }
+                : { id, order: fallback?.order || '', date: fallback?.date || '', supplier: fallback?.supplier || '' },
+        }));
+    };
+    const unlinkPo = () => setValueSC(prev => ({ ...prev, poSupplier: { id: '', order: '', date: '', supplier: '' } }));
 
     useEffect(() => {
         if (Object.values(errors).includes(true)) {
@@ -89,6 +157,55 @@ const SalesContractDetails = () => {
                             inputClassName='input w-full shadow-sm h-8' />
                     </div>
                     <ErrDiv field='date' errors={errors} />
+                </div>
+            </div>
+
+            {/* Purchase contract → supplier. Linked by hand because the cargo path
+                (sales invoice → PO → supplier) only closes once the supplier's documents
+                arrive, which is often weeks after both contracts are agreed. */}
+            <div className="border border-[var(--line)] p-2 rounded-2xl mt-1.5">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
+                    <div className="flex flex-col">
+                        <p className="responsiveText text-[var(--port-gore)] font-medium indent-1">Purchase Contract:</p>
+                        <div className="mt-1">
+                            <Selector arr={poOptions} value={{ poId }} onChange={linkPo}
+                                name='poId' secondaryName='poLabel' clear={unlinkPo} />
+                        </div>
+                        {poId && linkedPo?.dateRange?.startDate && (
+                            <p className="pl-1 pt-0.5 responsiveText text-[var(--regent-gray)]">
+                                PO dated {dateFormat(linkedPo.dateRange.startDate, 'dd-mmm-yyyy')}
+                            </p>
+                        )}
+                        {!poId && poFromInvoice && (
+                            <button type="button"
+                                onClick={() => linkPo(poFromInvoice.id, poFromInvoice)}
+                                className="mt-1 self-start inline-flex items-center gap-1 responsiveText font-medium"
+                                style={{ color: 'var(--brand-strong)' }}>
+                                <Link2 className="size-3.5" />
+                                Shipped under PO {poFromInvoice.order} — link it
+                            </button>
+                        )}
+                        {poId && poFromInvoice && poFromInvoice.id !== poId && (
+                            <p className="pl-1 pt-0.5 responsiveText" style={{ color: 'var(--warn-text)' }}>
+                                Invoice {poFromInvoice.invoice} shipped this contract under PO {poFromInvoice.order}.
+                            </p>
+                        )}
+                    </div>
+                    <div className="flex flex-col">
+                        <p className="responsiveText text-[var(--port-gore)] font-medium indent-1">{getTtl('Supplier', ln)}:</p>
+                        {supplier ? (
+                            <>
+                                <p className="pl-1 mt-1 responsiveText font-medium text-[var(--ink)]">{supplier.nname || supplier.supplier}</p>
+                                <p className="pl-1 responsiveText text-[var(--regent-gray)]">{supplier.street}</p>
+                                <p className="pl-1 responsiveText text-[var(--regent-gray)]">{supplier.city}</p>
+                                <p className="pl-1 responsiveText text-[var(--regent-gray)]">{supplier.country}</p>
+                            </>
+                        ) : (
+                            <p className="pl-1 mt-1 responsiveText text-[var(--regent-gray)]">
+                                {poId ? 'No supplier on the linked purchase contract.' : 'Link a purchase contract to see the supplier.'}
+                            </p>
+                        )}
+                    </div>
                 </div>
             </div>
 

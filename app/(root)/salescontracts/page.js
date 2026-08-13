@@ -1,7 +1,9 @@
 'use client';import { useContext, useEffect, useState, useMemo } from 'react';
 
 import { NumericFormat } from 'react-number-format';
+import { useRouter } from 'next/navigation';
 import dateFormat from 'dateformat';
+import Avatar from '../../../components/Avatar';
 import Customtable from '../contracts/newTable';
 import MyDetailsModal from './modals/dataModal.js';
 import { SettingsContext } from "../../../contexts/useSettingsContext";
@@ -27,6 +29,7 @@ const SalesContracts = () => {
     const { valueSC, setValueSC, salesContractsData, setSalesContractsData,
         isOpenSC, setIsOpenSC, addSalesContract } = useContext(SalesContractsContext);
     const { uidCollection } = UserAuth();
+    const router = useRouter();
 
     const [filteredData, setFilteredData] = useState([]);
     const [highlightId, setHighlightId] = useState(null);
@@ -34,6 +37,12 @@ const SalesContracts = () => {
     const [shippedByContract, setShippedByContract] = useState({});
     // Invoice numbers the contract was shipped with (FN/CN suffixed), same source.
     const [invoicesByContract, setInvoicesByContract] = useState({});
+    // Purchase contracts in range, by id — resolves a linked PO's current order number
+    // and supplier instead of trusting what was denormalized at link time.
+    const [poById, setPoById] = useState({});
+    // Fallback source of the PO link: the one the contract actually shipped under, per
+    // its sales invoices. Only reaches the table when no PO was linked by hand.
+    const [poFromInvoices, setPoFromInvoices] = useState({});
 
     const gQ = (z, y, x) => settings?.[y]?.[y]?.find(q => q.id === z)?.[x] || '';
 
@@ -47,15 +56,24 @@ const SalesContracts = () => {
 
             // Derive shipped quantities: load invoices across the year(s) the contracts span
             // (their shipments may fall in a later month than the contract date) and total the
-            // invoiced quantity per linked sales-contract id.
+            // invoiced quantity per linked sales-contract id. The same pass records the first
+            // PO an invoice shipped under, which stands in for the manual link when there is
+            // none, and the purchase contracts themselves resolve that PO to a supplier.
             const years = dt.map(c => (c.dateRange?.startDate || c.date || '').substring(0, 4)).filter(Boolean);
             const map = {};
             const invMap = {};
+            const poMap = {};
+            const conMap = {};
             const suffix = (t) => (t === '1111' || t === 'Invoice' || !t) ? '' : (t === '2222' || t === 'Credit Note') ? 'CN' : 'FN';
             if (years.length) {
                 const minY = Math.min(...years.map(Number));
                 const maxY = Math.max(...years.map(Number));
-                const invoices = await loadData(uidCollection, 'invoices', { start: `${minY}-01-01`, end: `${maxY}-12-31` });
+                // Purchase contracts reach back an extra year: cargo bought late one year and
+                // sold on early the next is the normal case, and its PO has to resolve here.
+                const [invoices, purchaseContracts] = await Promise.all([
+                    loadData(uidCollection, 'invoices', { start: `${minY}-01-01`, end: `${maxY}-12-31` }),
+                    loadData(uidCollection, 'contracts', { start: `${minY - 1}-01-01`, end: `${maxY}-12-31` }),
+                ]);
                 invoices
                     .filter(inv => inv.salesContractId && !inv.canceled)
                     .forEach(inv => {
@@ -63,10 +81,16 @@ const SalesContracts = () => {
                         if (inv.invoice !== undefined && inv.invoice !== '') {
                             (invMap[inv.salesContractId] ||= []).push(`${inv.invoice}${suffix(inv.invType)}`);
                         }
+                        if (inv.poSupplier?.id && !poMap[inv.salesContractId]) {
+                            poMap[inv.salesContractId] = inv.poSupplier;
+                        }
                     });
+                (purchaseContracts || []).forEach(c => { if (c?.id) conMap[c.id] = c; });
             }
             setShippedByContract(map);
             setInvoicesByContract(invMap);
+            setPoFromInvoices(poMap);
+            setPoById(conMap);
             setLoading(false);
         };
         Load();
@@ -74,12 +98,62 @@ const SalesContracts = () => {
 
     const propDefaults = useMemo(() => {
         if (Object.keys(settings).length === 0) return [];
+
+        // Where the cargo came from: the PO linked by hand on the sales contract, falling
+        // back to the one its sales invoices shipped under. `derived` marks that second
+        // case so a hand-made link is never confused with one the invoices inferred.
+        const poLinkFor = (c) => {
+            const manual = c.poSupplier?.id ? c.poSupplier : null;
+            const src = manual || poFromInvoices[c.id];
+            if (!src?.id) return null;
+            const con = poById[src.id];
+            return {
+                id: src.id,
+                order: con?.order || src.order || '',
+                supplier: gQ(con?.supplier || src.supplier, 'Supplier', 'nname'),
+                derived: !manual,
+            };
+        };
+
         return [
             { accessorKey: 'contractNo', header: 'Contract #', meta: { excludeFromQuickSum: true } },
             {
                 accessorKey: 'client', header: getTtl('Consignee', ln),
                 cell: (props) => <span>{gQ(props.getValue(), 'Client', 'nname') || gQ(props.getValue(), 'Client', 'client')}</span>,
                 meta: { excludeFromQuickSum: true }
+            },
+            {
+                id: 'poOrder', header: 'Purchase Contract',
+                accessorFn: (c) => poLinkFor(c)?.order || '',
+                cell: (props) => {
+                    const link = poLinkFor(props.row.original);
+                    if (!link?.order) return <span style={{ color: 'var(--regent-gray)' }}>—</span>;
+                    return (
+                        <button type="button"
+                            onClick={(e) => { e.stopPropagation(); router.push(`/contracts?openId=${link.id}`); }}
+                            title={link.derived ? 'From the sales invoice this contract shipped under' : 'Linked on this sales contract'}
+                            className="underline underline-offset-2"
+                            style={{ color: 'var(--chathams-blue)', fontWeight: 500, fontStyle: link.derived ? 'italic' : 'normal' }}>
+                            {link.order}
+                        </button>
+                    );
+                },
+                meta: { excludeFromQuickSum: true },
+            },
+            {
+                id: 'supplier', header: getTtl('Supplier', ln),
+                accessorFn: (c) => poLinkFor(c)?.supplier || '',
+                cell: (props) => {
+                    const name = props.getValue();
+                    if (!name) return <span style={{ color: 'var(--regent-gray)' }}>—</span>;
+                    return (
+                        <span className="inline-flex items-center gap-1.5 max-w-40">
+                            <Avatar name={String(name)} size={18} />
+                            <span className="truncate">{name}</span>
+                        </span>
+                    );
+                },
+                meta: { excludeFromQuickSum: true },
             },
             {
                 accessorKey: 'date', header: getTtl('Date', ln),
@@ -150,7 +224,7 @@ const SalesContracts = () => {
                 enableColumnFilter: false,
             },
         ];
-    }, [settings, ln, shippedByContract, invoicesByContract]);
+    }, [settings, ln, shippedByContract, invoicesByContract, poById, poFromInvoices, router]);
 
     const invisible = {};
 

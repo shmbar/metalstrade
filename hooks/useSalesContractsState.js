@@ -7,10 +7,16 @@ import { SettingsContext } from "@contexts/useSettingsContext";
 import { getCur } from '@components/exchangeApi'
 import { getTtl } from '@utils/languages';
 
+// The purchase contract a sales contract is sourced from, denormalized the same way an
+// invoice stores it (utils.updatePoSupplierInv writes this exact shape) plus the supplier
+// id, so the sales-contracts table can name the supplier without loading the PO.
+export const blankPoSupplier = { id: '', order: '', date: '', supplier: '' };
+
 const newSalesContract = {
     id: '', opDate: dateFormat(new Date(), "dd-mmm-yyyy, HH:MM"), lstSaved: '', contractNo: '',
     dateRange: { startDate: null, endDate: null }, date: '', client: '',
     cur: '', qTypeTable: '', productsData: [], total: 0,
+    poSupplier: { ...blankPoSupplier },
     remarks: [], comments: '', invoices: [], file: null
 };
 
@@ -68,7 +74,12 @@ const useSalesContractsState = () => {
             // Total is always derived from the product lines so it can never drift from them.
             const total = (valueSC.productsData || []).reduce(
                 (s, r) => s + (parseFloat(r.qnty) || 0) * (parseFloat(r.unitPrc) || 0), 0);
-            const baseValue = { ...valueSC, total };
+            // Contracts saved before the PO link existed carry no poSupplier at all;
+            // normalize it here so Firestore never sees an undefined field.
+            const baseValue = {
+                ...valueSC, total,
+                poSupplier: { ...blankPoSupplier, ...(valueSC.poSupplier || {}) },
+            };
 
             let tmpEuToUs = await getCur(baseValue.dateRange.startDate);
 
