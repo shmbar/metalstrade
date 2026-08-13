@@ -41,7 +41,10 @@ export function PlatformCard3() {
         className="relative min-h-[260px] w-full py-4 lg:pl-4 h-full"
       >
         {/* Main Card */}
-        <div className="relative z-10 bg-gradient-to-r from-[var(--endeavour)] to-[var(--port-gore)] rounded-2xl p-6 text-[var(--on-brand)] shadow-2xl shadow-[var(--endeavour)]/20 w-[85%]">
+        {/* --brand-deep, not --port-gore: --port-gore is a TEXT token and flips
+            near-white in dark mode, so this gradient ran violet → white under
+            white text. --brand-deep is the deep-in-both-modes brand surface. */}
+        <div className="relative z-10 bg-gradient-to-r from-[var(--endeavour)] to-[var(--brand-deep)] rounded-2xl p-6 text-[var(--on-brand)] shadow-2xl shadow-[var(--endeavour)]/20 w-[85%]">
           <div className="flex justify-between items-start mb-6">
             <span className="responsiveTextTitle font-medium opacity-90">Credit Balance</span>
             <MoreHorizontal className="w-6 h-6 opacity-70" />

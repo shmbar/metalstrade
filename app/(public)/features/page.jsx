@@ -124,8 +124,10 @@ export default function FeaturesPage() {
               <span className="responsiveTextTitle text-gray-500">Marketing</span>
               <span className="responsiveTextTitle font-bold text-gray-700">$7,320</span>
             </div>
-            <div className="h-2 w-full bg-purple-100 rounded-full mb-2">
-              <div className="h-2 w-1/3 bg-purple-600 rounded-full"></div>
+            {/* purple-600 is not in the tailwind.config colour map, so it stayed
+                raw Tailwind violet — the one bright thing on either theme. */}
+            <div className="h-2 w-full bg-[var(--violet-bg)] rounded-full mb-2">
+              <div className="h-2 w-1/3 bg-[var(--violet-text)] rounded-full"></div>
             </div>
             <div className="flex justify-center mt-4 w-full">
               <PieChart className="w-6 h-6 text-[var(--endeavour)]" />
@@ -172,7 +174,7 @@ export default function FeaturesPage() {
               <div
                 className="
                   relative h-80 w-full rounded-2xl
-                  bg-gradient-to-br from-[var(--selago)] to-white
+                  bg-gradient-to-br from-[var(--bg-subtle)] to-[var(--bg-card)]
                   shadow-xl shadow-[var(--selago)]
                   border border-[var(--rock-blue)]/40
                   flex items-center justify-center
@@ -191,7 +193,7 @@ export default function FeaturesPage() {
               <div
                 className="
                   relative h-80 w-full rounded-2xl
-                  bg-gradient-to-br from-[var(--selago)] to-white
+                  bg-gradient-to-br from-[var(--bg-subtle)] to-[var(--bg-card)]
                   shadow-xl shadow-[var(--selago)]
                   border border-[var(--rock-blue)]/40
                   flex items-center justify-center

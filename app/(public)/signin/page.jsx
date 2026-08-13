@@ -114,7 +114,7 @@ export default function SignInPage() {
                 onChange={(e) => setEmail(e.target.value)}
                 onKeyPress={handleKeyPress}
                 placeholder="you@example.com"
-                className="w-full px-4 py-2.5 border border-[var(--bg-subtle)] rounded-lg responsiveTextTitle text-gray-800 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-[var(--endeavour)]/30 focus:border-[var(--endeavour)] transition-all bg-[var(--bg-card)]"
+                className="w-full px-4 py-2.5 border border-[var(--bg-subtle)] rounded-lg responsiveTextTitle text-gray-800 placeholder-[var(--ink-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--endeavour)]/30 focus:border-[var(--endeavour)] transition-all bg-[var(--bg-card)]"
               />
             </div>
 
@@ -128,12 +128,12 @@ export default function SignInPage() {
                   onChange={(e) => setPassword(e.target.value)}
                   onKeyPress={handleKeyPress}
                   placeholder="••••••••"
-                  className="w-full px-4 py-2.5 border border-[var(--bg-subtle)] rounded-lg responsiveTextTitle text-gray-800 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-[var(--endeavour)]/30 focus:border-[var(--endeavour)] transition-all bg-[var(--bg-card)] pr-10"
+                  className="w-full px-4 py-2.5 border border-[var(--bg-subtle)] rounded-lg responsiveTextTitle text-gray-800 placeholder-[var(--ink-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--endeavour)]/30 focus:border-[var(--endeavour)] transition-all bg-[var(--bg-card)] pr-10"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-300 hover:text-gray-500 transition-colors"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--ink-muted)] hover:text-[var(--ink-secondary)] transition-colors"
                 >
                   {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                 </button>
@@ -180,7 +180,10 @@ export default function SignInPage() {
 
           {/* Divider + copyright */}
           <div className="mt-8 pt-5 border-t border-[var(--selago)] text-center">
-            <p className="responsiveTextInput text-gray-300">© {new Date().getFullYear()} IMS Inc. All Rights Reserved</p>
+            {/* gray-300 maps to --line-strong, a BORDER token: 1.5:1 on the card
+                in dark mode (and barely better in light). Fine print still has
+                to be readable — --ink-muted is the token for it. */}
+            <p className="responsiveTextInput text-[var(--ink-muted)]">© {new Date().getFullYear()} IMS Inc. All Rights Reserved</p>
           </div>
         </div>
       </div>

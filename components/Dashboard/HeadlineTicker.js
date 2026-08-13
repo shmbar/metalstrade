@@ -40,7 +40,11 @@ export default function HeadlineTicker({
       subText:       'text-[var(--endeavour)] responsiveTextInput',
       tickerDot:     'bg-[var(--line)]',
       itemLabel:     'text-[var(--regent-gray)] responsiveTextTable',
-      itemValue:     'text-[var(--port-gore)] responsiveTextTable font-bold',
+      /* 500, not font-bold. font-bold maps to 600 (tailwind.config.js), which is
+         the app's label/header weight — so the rate read heavier than the pair
+         name beside it. 500 is the figure weight; the muted-vs-ink colour split
+         already separates label from value. */
+      itemValue:     'text-[var(--port-gore)] responsiveTextTable font-medium',
       itemSub:       'text-[var(--regent-gray)] responsiveTextTable',
       itemPill:      'bg-[var(--bg-subtle)] border border-[var(--line)] rounded-lg',
       itemIcon:      'text-[var(--endeavour)]/70',
@@ -271,8 +275,10 @@ export default function HeadlineTicker({
                 >
                   {Icon ? <Icon className={['w-3.5 h-3.5 mr-2', theme.itemIcon].join(' ')} /> : null}
                   <div className="flex items-center gap-2">
-                    <span className={['responsiveTextTable font-medium', theme.itemLabel].join(' ')}>{it.label}</span>
-                    <span className={['responsiveTextTable font-bold', theme.itemValue].join(' ')}>{it.value}</span>
+                    {/* Weight comes from the theme above — restating it here is what
+                        left font-bold applied twice to every value. */}
+                    <span className={['responsiveTextTable', theme.itemLabel].join(' ')}>{it.label}</span>
+                    <span className={['responsiveTextTable', theme.itemValue].join(' ')}>{it.value}</span>
                     {it.change != null && (() => {
                       const c = it.change > 0
                         ? { bg: 'var(--ok-bg)', fg: 'var(--ok-text)', arrow: '▲' }
@@ -284,7 +290,7 @@ export default function HeadlineTicker({
                         : Math.abs(it.change).toFixed(2);
                       return (
                         <span
-                          className="inline-flex items-center gap-0.5 rounded-lg font-semibold"
+                          className="inline-flex items-center gap-0.5 rounded-lg font-medium"
                           style={{ background: c.bg, color: c.fg, fontSize: 'var(--fs-caption)', padding: '1px 6px' }}
                         >
                           {c.arrow} {pct}

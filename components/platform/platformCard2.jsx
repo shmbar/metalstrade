@@ -89,7 +89,7 @@ export function PlatformCard2() {
         </div>
         
         {/* X Axis Labels */}
-        <div className="flex justify-between responsiveTextTable text-gray-300 mt-2 px-2 font-medium uppercase tracking-wider">
+        <div className="flex justify-between responsiveTextTable text-[var(--ink-muted)] mt-2 px-2 font-medium uppercase tracking-wider">
           <span>10:30 AM</span>
           <span>11:30 AM</span>
           <span>12:30 PM</span>

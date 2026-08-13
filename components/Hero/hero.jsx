@@ -42,7 +42,12 @@ export default function Hero() {
               className="inline-flex items-center gap-2 rounded-full px-3.5 py-1.5 mb-5 border border-[var(--on-brand-soft-strong)] bg-[var(--on-brand-soft)] backdrop-blur-sm"
             >
               <Sparkles className="w-3.5 h-3.5 text-[var(--on-brand-muted)]" />
-              <span className="responsiveText font-semibold tracking-wide uppercase text-[var(--bg-subtle)]">
+              {/* --on-brand, not --bg-subtle: this hero is a DEEP surface in both
+                  modes (see --brand-deep above), but --bg-subtle is a SURFACE
+                  token — the theme engine turns it dark in dark mode, which put
+                  near-black text on the violet hero. Everything painted on this
+                  section has to come from the non-inverting --on-brand* family. */}
+              <span className="responsiveText font-semibold tracking-wide uppercase text-[var(--on-brand)]">
                 AI-powered IMS for metals &amp; alloys trading
               </span>
             </motion.div>
@@ -66,7 +71,7 @@ export default function Hero() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.6, delay: 0.2 }}
-              className="responsiveTextTitle md:text-base text-[var(--bg-subtle)] mb-6 leading-relaxed font-light max-w-lg"
+              className="responsiveTextTitle md:text-base text-[var(--on-brand-muted)] mb-6 leading-relaxed font-light max-w-lg"
             >
               Contracts, inventory, shipments, cashflow and margins — connected end to end.
               Drop a supplier invoice and the AI fills it in. Watch live metal prices and FX.
@@ -81,7 +86,7 @@ export default function Hero() {
               className="flex flex-wrap gap-2 mb-8"
             >
               {heroStats.map((s) => (
-                <span key={s} className="responsiveText font-medium text-[var(--bg-subtle)] rounded-lg px-3 py-1 border border-[var(--on-brand-soft)] bg-[var(--on-brand-soft)]">
+                <span key={s} className="responsiveText font-medium text-[var(--on-brand)] rounded-lg px-3 py-1 border border-[var(--on-brand-soft-strong)] bg-[var(--on-brand-soft)]">
                   {s}
                 </span>
               ))}
@@ -94,12 +99,16 @@ export default function Hero() {
               className="flex flex-col sm:flex-row gap-4 items-start"
             >
               <Link href="/signin">
-                <span className="bg-[var(--bg-card)] text-[var(--chathams-blue)] px-8 py-2.5 rounded-2xl font-bold hover:bg-[var(--bg-subtle)] transition-all shadow-lg cursor-pointer inline-block hover:scale-105 active:scale-95 responsiveTextTitle">
+                {/* Same reasoning as the eyebrow: --bg-card/--chathams-blue are a
+                    surface + text pair, so in dark mode this white button turned
+                    into a dark one on a dark-violet hero. --on-brand stays white
+                    and --brand-deep stays deep, in both modes. */}
+                <span className="bg-[var(--on-brand)] text-[var(--brand-deep)] px-8 py-2.5 rounded-2xl font-bold hover:bg-[var(--on-brand-muted)] transition-all shadow-lg cursor-pointer inline-block hover:scale-105 active:scale-95 responsiveTextTitle">
                   Sign In
                 </span>
               </Link>
               <a href="#modules">
-                <span className="border border-[var(--line)]/60 text-[var(--on-brand)] px-8 py-2.5 rounded-2xl font-bold hover:bg-[var(--on-brand-soft)] transition-all flex items-center gap-2 cursor-pointer hover:scale-105 active:scale-95 responsiveTextTitle">
+                <span className="border border-[var(--on-brand-soft-strong)] text-[var(--on-brand)] px-8 py-2.5 rounded-2xl font-bold hover:bg-[var(--on-brand-soft)] transition-all flex items-center gap-2 cursor-pointer hover:scale-105 active:scale-95 responsiveTextTitle">
                   Explore the platform <ArrowRight className="w-4 h-4" />
                 </span>
               </a>
