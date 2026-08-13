@@ -237,7 +237,11 @@ export default function HeadlineTicker({
               </div>
             ) : null}
             <div className="min-w-0">
-              {title    ? <div className={['responsiveTextTitle font-bold leading-tight truncate', theme.titleText].join(' ')}>{title}</div>    : null}
+              {/* 500, not font-bold (which maps to 600). Size (--fs-title), the
+                  brand icon badge and --chathams-blue ink already mark this as a
+                  header three times over; weight was a fourth signal doing the
+                  same job, and this is a ticker strip rather than page content. */}
+              {title    ? <div className={['responsiveTextTitle font-medium leading-tight truncate', theme.titleText].join(' ')}>{title}</div>    : null}
               {subtitle ? <div className={['responsiveTextInput leading-tight truncate',           theme.subText].join(' ')}>{subtitle}</div> : null}
             </div>
           </div>
