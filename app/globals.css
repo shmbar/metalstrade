@@ -930,6 +930,26 @@ textarea:focus-visible,
   outline: none;
 }
 
+/* The sidebar search row, for the same reason: the input sits inside a bordered
+   pill that already reads as the control, so the ring drew a second box nested
+   inside the first. Unlike cmdk this one lives among the nav's other focusable
+   items, so the affordance moves to the pill rather than disappearing — focus is
+   still announced, just by the border the user already sees as the field.
+   Unlayered, so it beats the input:focus-visible rule above on specificity;
+   holds the border too, since an inline one would outrank :focus-within. */
+.sidebar-search {
+  background: var(--bg-subtle);
+  border: 1px solid var(--line);
+}
+
+.sidebar-search:focus-within {
+  border-color: var(--brand);
+}
+
+.sidebar-search input:focus-visible {
+  outline: none;
+}
+
 @layer components {
   .title_style {
     @apply text-[var(--port-gore)] border-b border-[var(--rock-blue)] items-center flex justify-center text-[0.75rem] xl:text-[0.8125rem] 2xl:text-[0.875rem] 3xl:text-[0.9375rem] font-semibold;

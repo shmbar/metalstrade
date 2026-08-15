@@ -211,7 +211,7 @@ export default function Sidebar() {
       {/* Search bar */}
       {!collapsed && (
         <div className="px-3 pt-2 pb-1 shrink-0">
-          <div className="relative flex items-center rounded-control px-3 py-1.5 responsiveTextTable" style={{ background: 'var(--bg-subtle)', border: '1px solid var(--line)' }}>
+          <div className="sidebar-search relative flex items-center rounded-control px-3 py-1.5 responsiveTextTable transition-colors">
             <Search size={13} strokeWidth={1.75} style={{ color: 'var(--ink-muted)', flexShrink: 0 }} />
             <input
               type="text"
