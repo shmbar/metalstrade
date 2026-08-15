@@ -77,6 +77,37 @@ const fmtDate = (d) => {
     } catch { return null; }
 };
 
+/* Where the floating datepicker sits for a given cell.
+
+   Anchored to the cell on BOTH axes. When there isn't room below, it flips to sit
+   above the cell rather than being clamped to a fixed viewport offset — the old
+   `Math.min(r.bottom + 2, innerHeight - 360)` did the latter, so clicking a row
+   near the bottom of the screen parked the calendar mid-table, floating over
+   unrelated rows and looking like it belonged to a different shipment. */
+const PICKER_W = 320;
+const PICKER_H = 360;
+const PICKER_ARROW = 27; // library draws its arrow ~27px in from the popover's left edge
+
+const pickerPos = (el, keepFlip) => {
+    const r = el.getBoundingClientRect();
+    // Shift left so the arrow — not the popover centre — points at the cell centre.
+    const desired = r.left + r.width / 2 - PICKER_ARROW;
+    const left = Math.max(8, Math.min(desired, window.innerWidth - PICKER_W - 8));
+
+    /* Which side to open on is decided once, at open, and then carried through
+       scrolling (keepFlip) — a calendar that hops from under the row to over it
+       while you scroll is worse than one that runs a little off-screen. */
+    const roomBelow = window.innerHeight - r.bottom - 8;
+    const roomAbove = r.top - 8;
+    const flip = keepFlip ?? (roomBelow < PICKER_H && roomAbove > roomBelow);
+
+    /* The popover places itself relative to this wrapper, so the wrapper goes on
+       the cell edge the popover grows AWAY from: `down` hangs it below, `up` pins
+       its bottom edge to the wrapper top (bottom-full) and moves the arrow to its
+       underside. The library's own mt-2.5/mb-2.5 supplies the gap either way. */
+    return { top: flip ? r.top - 2 : r.bottom + 2, left, flip };
+};
+
 function DateCell({ rawDate, onOpen, onClear, urgency }) {
     const ref = useRef(null);
     const display = fmtDate(rawDate);
@@ -102,19 +133,11 @@ function DateCell({ rawDate, onOpen, onClear, urgency }) {
         : urgency === 'soon' ? 'var(--warn-text)'
         : (display ? 'var(--ink)' : 'var(--ink-muted)');
 
+    // Hands the cell itself up, not just coordinates: the picker has to be able to
+    // re-measure this element on scroll to stay attached to it.
     const handleClick = (e) => {
         e.stopPropagation();
-        if (!ref.current) return;
-        const r = ref.current.getBoundingClientRect();
-        // Library renders its arrow at ~19px (ml-[1.2rem]) + ~8px (half of w-4) from the
-        // popover's left edge. Shift the popover left by that offset so the arrow — not
-        // the popover center — points at the cell center. Then clamp to viewport.
-        const POPOVER_W = 320;
-        const ARROW_OFFSET = 27;
-        const desired = r.left + r.width / 2 - ARROW_OFFSET;
-        const left = Math.max(8, Math.min(desired, window.innerWidth - POPOVER_W - 8));
-        const top = Math.min(r.bottom + 2, window.innerHeight - 360);
-        onOpen({ top, left });
+        if (ref.current) onOpen(ref.current);
     };
 
     return (
@@ -310,9 +333,14 @@ const ShipmentPage = () => {
 
     // Shared floating datepicker (always mounted, repositioned on cell click)
     const [floatingPicker, setFloatingPicker] = useState(null);
-    // { contractId, field, contractDate, pos: { top, left } }
+    // { contractId, field, contractDate, anchor: <the cell el>, pos: { top, left } }
     const [floatingValue, setFloatingValue] = useState({ startDate: null, endDate: null });
     const floatingPickerRef = useRef(null);
+    /* The open cell, pulled out because the effects below key off *which* cell is
+       open, not off the position — which changes on every scroll frame. Depending
+       on the whole floatingPicker object would re-subscribe them each frame and
+       re-focus the input mid-scroll. */
+    const pickerAnchor = floatingPicker?.anchor ?? null;
 
     const handleSort = (col) => {
         if (sortCol === col) {
@@ -461,21 +489,47 @@ const ShipmentPage = () => {
         setContracts(prev => prev.map(c => c.id === contractId ? { ...c, [field]: value } : c));
     };
 
-    const openFloatingPicker = (pos, contract, field) => {
-        if (!pos) return;
+    const openFloatingPicker = (anchor, contract, field) => {
+        if (!anchor) return;
         const rawDate = field === 'shipmentEtd' ? getRawETD(contract) : getRawETA(contract);
         setFloatingValue({ startDate: rawDate || null, endDate: rawDate || null });
-        setFloatingPicker({ contractId: contract.id, field, contractDate: contract.date, pos });
+        setFloatingPicker({ contractId: contract.id, field, contractDate: contract.date, anchor, pos: pickerPos(anchor) });
     };
 
     // Click the datepicker input after it mounts (conditional render = always fresh/closed state)
     useEffect(() => {
-        if (!floatingPicker) return;
+        if (!pickerAnchor) return;
         const timer = setTimeout(() => {
             floatingPickerRef.current?.querySelector('input')?.focus();
         }, 0);
         return () => clearTimeout(timer);
-    }, [floatingPicker]);
+    }, [pickerAnchor]);
+
+    /* Keep the picker attached to the cell it was opened from. It's position:fixed
+       with coordinates measured once at click time, so without this it hung in the
+       viewport while the table scrolled away underneath — pointing at whichever row
+       happened to slide under it. Re-measure instead, and close once the cell is
+       scrolled out of sight, since there's nothing left to point at.
+
+       Capture phase: scroll events don't bubble, and the table scrolls in its own
+       container, so a listener bound to window in the bubble phase never hears it. */
+    useEffect(() => {
+        if (!pickerAnchor) return;
+        const sync = () => {
+            const r = pickerAnchor.getBoundingClientRect();
+            if (!pickerAnchor.isConnected || r.bottom < 0 || r.top > window.innerHeight) {
+                setFloatingPicker(null);
+                return;
+            }
+            setFloatingPicker(p => p ? { ...p, pos: pickerPos(pickerAnchor, p.pos.flip) } : p);
+        };
+        window.addEventListener('scroll', sync, true);
+        window.addEventListener('resize', sync);
+        return () => {
+            window.removeEventListener('scroll', sync, true);
+            window.removeEventListener('resize', sync);
+        };
+    }, [pickerAnchor]);
 
     const handleFloatingPickerChange = (val) => {
         const d = val?.startDate || '';
@@ -502,13 +556,13 @@ const ShipmentPage = () => {
 
     // Close floating picker on outside click
     useEffect(() => {
-        if (!floatingPicker) return;
+        if (!pickerAnchor) return;
         const handler = (e) => {
             if (!floatingPickerRef.current?.contains(e.target)) setFloatingPicker(null);
         };
         document.addEventListener('mousedown', handler);
         return () => document.removeEventListener('mousedown', handler);
-    }, [floatingPicker]);
+    }, [pickerAnchor]);
 
     const getPOL = (contract) => {
         const list = settings?.POL?.POL;
@@ -809,7 +863,7 @@ const ShipmentPage = () => {
                         value={floatingValue}
                         onChange={handleFloatingPickerChange}
                         displayFormat="DD.MM.YY"
-                        popoverDirection="down"
+                        popoverDirection={floatingPicker.pos.flip ? 'up' : 'down'}
                         inputClassName="opacity-0 h-0 w-0 p-0 border-0 absolute overflow-hidden"
                     />
                 </div>,
@@ -1149,7 +1203,7 @@ const ShipmentPage = () => {
                                                 <div className="flex justify-center">
                                                     <DateCell
                                                         rawDate={getRawETD(contract)}
-                                                        onOpen={(pos) => openFloatingPicker(pos, contract, 'shipmentEtd')}
+                                                        onOpen={(el) => openFloatingPicker(el, contract, 'shipmentEtd')}
                                                         onClear={() => { const ts = Date.now(); handleDateFieldChange(contract.id, 'shipmentEtd', ''); touchContract(contract.id, ts); updateContractField(uidCollection, contract.id, contract.date, { shipmentEtd: '', shipmentUpdatedAt: ts }); }}
                                                     />
                                                 </div>
@@ -1159,7 +1213,7 @@ const ShipmentPage = () => {
                                                     <DateCell
                                                         rawDate={getRawETA(contract)}
                                                         urgency={getUrgency(contract)}
-                                                        onOpen={(pos) => openFloatingPicker(pos, contract, 'shipmentEta')}
+                                                        onOpen={(el) => openFloatingPicker(el, contract, 'shipmentEta')}
                                                         onClear={() => { const ts = Date.now(); handleDateFieldChange(contract.id, 'shipmentEta', ''); touchContract(contract.id, ts); updateContractField(uidCollection, contract.id, contract.date, { shipmentEta: '', shipmentUpdatedAt: ts }); }}
                                                     />
                                                 </div>
