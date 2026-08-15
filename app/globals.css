@@ -1148,6 +1148,24 @@ textarea:focus-visible,
 
 /******** toast ****/
 
+/* Entrance for portalled popup menus. A short rise + fade so the panel reads as
+   coming out of the control that opened it, rather than being swapped in. Kept
+   here rather than per-page so every menu that adopts it moves identically.
+   transform-origin is set by the caller: a menu that opened upward should grow
+   from its bottom edge. */
+@keyframes menuIn {
+  from { opacity: 0; transform: translateY(-3px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.menu-pop {
+  animation: menuIn 120ms ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .menu-pop { animation: none; }
+}
+
 /******** expenses ****/
 
 @keyframes enlargeDiv {

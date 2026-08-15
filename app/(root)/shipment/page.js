@@ -19,7 +19,7 @@ import Tltip from '../../../components/tlTip';
    inherit currentColor, so a file-based icon keeps one baked-in colour and stops
    following the theme — which is exactly how the chat and filter icons here
    ended up off-theme while the PDF icon beside them was fine. */
-import { FileSpreadsheet, MessageSquare, Filter } from 'lucide-react';
+import { FileSpreadsheet, MessageSquare, Filter, Check } from 'lucide-react';
 import ProgressBar from '../../../components/ProgressBar';
 import Avatar from '../../../components/Avatar';
 // exceljs is imported dynamically inside exportExcel so it stays off the
@@ -226,9 +226,33 @@ function FilterSelect({ value, onChange, placeholder, options }) {
     );
 }
 
+/* Menu geometry. Rows are a fixed height, so the panel's height is known before it
+   renders — that's what lets it choose a side to open on without measuring first
+   and then jumping. Row height is the app's 28px control step. */
+const STATUS_ROW_H = 28;
+const STATUS_MENU_W = 176;
+const STATUS_MENU_H = STATUSES.length * STATUS_ROW_H + 10 + 9; // + panel padding + divider
+
+const statusMenuPos = (el, keepFlip) => {
+    const r = el.getBoundingClientRect();
+    const roomBelow = window.innerHeight - r.bottom - 8;
+    // Decided once and carried through scrolling, so the panel can't hop sides
+    // under the cursor. Same rule as the datepicker above.
+    const flip = keepFlip ?? (roomBelow < STATUS_MENU_H && r.top - 8 > roomBelow);
+    return {
+        top: flip ? Math.max(8, r.top - STATUS_MENU_H - 4) : r.bottom + 4,
+        left: Math.max(8, Math.min(r.left, window.innerWidth - STATUS_MENU_W - 8)),
+        width: r.width,
+        flip,
+    };
+};
+
 function StatusSelect({ value, onChange }) {
     const [open, setOpen] = useState(false);
-    const [pos, setPos] = useState({ top: 0, left: 0, width: 0 });
+    const [pos, setPos] = useState({ top: 0, left: 0, width: 0, flip: false });
+    // Which row the keyboard is on. Separate from `value`: you can walk the list
+    // without committing, which is the whole point of arrow keys.
+    const [activeIdx, setActiveIdx] = useState(0);
     const btnRef = useRef(null);
     const dropRef = useRef(null);
 
@@ -243,12 +267,54 @@ function StatusSelect({ value, onChange }) {
         return () => document.removeEventListener('mousedown', handler);
     }, []);
 
+    /* Follow the chip. The panel is position:fixed off a one-time measurement, so
+       without this it hangs in the viewport while the row scrolls away under it —
+       and in a table this long, that happens constantly. Capture phase: scroll
+       doesn't bubble and the table scrolls in its own container. */
+    useEffect(() => {
+        if (!open) return;
+        const sync = () => {
+            const el = btnRef.current;
+            if (!el) return;
+            const r = el.getBoundingClientRect();
+            if (r.bottom < 0 || r.top > window.innerHeight) { setOpen(false); return; }
+            setPos(p => statusMenuPos(el, p.flip));
+        };
+        window.addEventListener('scroll', sync, true);
+        window.addEventListener('resize', sync);
+        return () => {
+            window.removeEventListener('scroll', sync, true);
+            window.removeEventListener('resize', sync);
+        };
+    }, [open]);
+
+    // Move focus into the panel so the arrow keys have somewhere to land.
+    useEffect(() => { if (open) dropRef.current?.focus(); }, [open]);
+
+    const commit = (s) => {
+        onChange(s);
+        setOpen(false);
+        btnRef.current?.focus();
+    };
+
     const handleToggle = () => {
         if (!open && btnRef.current) {
-            const r = btnRef.current.getBoundingClientRect();
-            setPos({ top: r.bottom + 2, left: r.left, width: r.width });
+            setPos(statusMenuPos(btnRef.current));
+            setActiveIdx(Math.max(0, STATUSES.indexOf(value)));
         }
         setOpen(p => !p);
+    };
+
+    const handleMenuKeys = (e) => {
+        const last = STATUSES.length - 1;
+        if (e.key === 'Escape') { setOpen(false); btnRef.current?.focus(); }
+        else if (e.key === 'ArrowDown') setActiveIdx(i => (i >= last ? 0 : i + 1));
+        else if (e.key === 'ArrowUp') setActiveIdx(i => (i <= 0 ? last : i - 1));
+        else if (e.key === 'Home') setActiveIdx(0);
+        else if (e.key === 'End') setActiveIdx(last);
+        else if (e.key === 'Enter' || e.key === ' ') commit(STATUSES[activeIdx]);
+        else return;
+        e.preventDefault();
     };
 
     // Lifecycle progress under the chip: Pending→Shipped→In Transit→Arrived→Completed.
@@ -265,29 +331,72 @@ function StatusSelect({ value, onChange }) {
                 role="button"
                 tabIndex={0}
                 onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleToggle(); } }}
+                aria-haspopup="listbox"
+                aria-expanded={open}
                 className="px-2.5 py-0.5 rounded-lg font-medium responsiveTextTable text-center whitespace-nowrap cursor-pointer"
                 style={STATUS_STYLES[value]}
             >
                 {value || '— Select —'}
-                <svg width="10" height="10" viewBox="0 0 10 10" fill="currentColor" style={{ display: 'inline-block', marginLeft: 6, verticalAlign: 'middle', marginTop: -1 }}><path d="M2 3.5L5 6.5L8 3.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none"/></svg>
+                <svg width="10" height="10" viewBox="0 0 10 10" fill="currentColor" style={{ display: 'inline-block', marginLeft: 6, verticalAlign: 'middle', marginTop: -1, transform: open ? 'rotate(180deg)' : 'none', transition: 'transform 120ms ease-out' }}><path d="M2 3.5L5 6.5L8 3.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none"/></svg>
             </div>
             {progress > 0 && <ProgressBar value={progress} tone={progressTone} width="76px" />}
+
+            {/* The menu is a list of choices, not a stack of chips. Filling every row
+                with its own status colour made six coloured bars in which Pending and
+                On Hold (both warn) and Shipped and Arrived (both brand) were literally
+                indistinguishable, and left nothing to show hover or the current value.
+                A colour dot carries the same association, and frees the row itself to
+                do what a menu row does: highlight under the cursor, tick what's set. */}
             {open && typeof document !== 'undefined' && createPortal(
                 <div
                     ref={dropRef}
-                    className="rounded-2xl overflow-hidden shadow-lg"
-                    style={{ position: 'fixed', top: pos.top, left: pos.left, minWidth: pos.width, zIndex: 99999, border: '1px solid var(--line-strong)', backgroundColor: "var(--bg-card)" }}
+                    role="listbox"
+                    tabIndex={-1}
+                    onKeyDown={handleMenuKeys}
+                    className="shadow-lg menu-pop"
+                    style={{
+                        position: 'fixed', top: pos.top, left: pos.left,
+                        minWidth: Math.max(pos.width, STATUS_MENU_W), zIndex: 99999,
+                        border: '1px solid var(--line)', borderRadius: 'var(--radius-card)',
+                        backgroundColor: 'var(--bg-card)', padding: '5px', outline: 'none',
+                        transformOrigin: pos.flip ? 'bottom center' : 'top center',
+                    }}
                 >
-                    {STATUSES.map(s => (
-                        <div
-                            key={s}
-                            onClick={() => { onChange(s); setOpen(false); }}
-                            className="px-3 py-1 responsiveText font-normal cursor-pointer mx-1.5 my-1 rounded-2xl transition-all"
-                            style={{ ...STATUS_STYLES[s], opacity: value === s ? 1 : 0.85 }}
-                        >
-                            {s || '— Select —'}
-                        </div>
-                    ))}
+                    {STATUSES.map((s, i) => {
+                        const selected = s === value;
+                        const active = i === activeIdx;
+                        return (
+                            /* Fragment, not a wrapper div: an option has to be a direct
+                               child of the listbox for screen readers to count the list. */
+                            <Fragment key={s || 'none'}>
+                                <div
+                                    role="option"
+                                    aria-selected={selected}
+                                    onMouseEnter={() => setActiveIdx(i)}
+                                    onClick={() => commit(s)}
+                                    className="flex items-center gap-2 px-2 cursor-pointer responsiveTextTable transition-colors"
+                                    style={{
+                                        height: `${STATUS_ROW_H - 2}px`,
+                                        borderRadius: 'var(--radius-control)',
+                                        background: active ? 'var(--bg-subtle)' : 'transparent',
+                                        color: selected ? 'var(--ink)' : 'var(--ink-secondary)',
+                                        fontWeight: selected ? '500' : '400',
+                                    }}
+                                >
+                                    {/* Hollow for "No status" — an absence shouldn't read as a state. */}
+                                    <span style={{
+                                        width: '7px', height: '7px', borderRadius: '50%', flexShrink: 0,
+                                        backgroundColor: s ? STATUS_STYLES[s]?.color : 'transparent',
+                                        border: s ? 'none' : '1px solid var(--line-strong)',
+                                    }} />
+                                    <span className="flex-1 whitespace-nowrap">{s || 'No status'}</span>
+                                    {selected && <Check size={13} strokeWidth={2.5} style={{ color: 'var(--brand)', flexShrink: 0 }} />}
+                                </div>
+                                {/* Clearing the status is a different kind of act from setting one. */}
+                                {i === 0 && <div aria-hidden="true" style={{ height: '1px', backgroundColor: 'var(--line)', margin: '4px 6px' }} />}
+                            </Fragment>
+                        );
+                    })}
                 </div>,
                 document.body
             )}
