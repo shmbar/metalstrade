@@ -3,7 +3,7 @@
 import Toast from "../../../components/toast";
 import { SettingsContext } from "../../../contexts/useSettingsContext";
 import { getTtl } from "../../../utils/languages";
-import { useContext, useEffect, useState } from "react"
+import { useContext, useEffect, useRef, useState } from "react"
 import VideoLoader from '../../../components/videoLoader';
 import { TableSkeleton } from "../../../components/skeletons";
 import Table from './newTable'
@@ -42,6 +42,12 @@ const MaterialTables = () => {
     const [nilmePrice, setNilmePrice] = useState('')
     const { uidCollection } = UserAuth()
     const { prices: metalPrices } = useMetalPrices()
+
+    /* The last LME print this page wrote into a table. It's how the poll below
+       tells its own value apart from one a person typed — see the comment there.
+       A ref, not state: it must be read and rewritten inside the poll without
+       queueing another render of its own. */
+    const lastLmeRef = useRef('')
 
     const fmtNum = (v) => {
         if (v == null || v === '') return ''
@@ -85,21 +91,41 @@ const MaterialTables = () => {
         { accessorKey: 'del', header: '', cell: () => null },
     ]
 
-    // Auto-update ni price across all tables when live Ni LME price arrives.
-    // The poll fires every 60s with a fresh metalPrices object even when the rounded
-    // price is unchanged — bail out with the previous state references in that case
-    // so tables aren't rewritten (and totals not recomputed) for a no-op.
+    /* Roll the live Ni LME price forward into both the cost and the sales bar of
+       every table. The two track LME alike: the gap between what you buy at and
+       what you sell at belongs in each bar's own × % factor, not the base price.
+
+       A field is only rewritten while it's still *ours* — empty, or still holding
+       the previous print we put there. The moment someone types their own number
+       it stops moving, because a negotiated price has to outlive the next tick;
+       silently resetting it 60 seconds later would quietly wrong the margin.
+
+       The poll fires every 60s with a fresh metalPrices object even when the
+       rounded price hasn't moved, so return the previous state references on a
+       no-op and leave the tables (and totals) alone. */
     useEffect(() => {
-        if (metalPrices?.['LME-NI']?.price != null && !loading) {
-            const liveNi = String(Math.round(metalPrices['LME-NI'].price));
-            setNilmePrice(prev => (prev === liveNi ? prev : liveNi));
-            setData(prev => prev.every(t => t.prices?.ni === liveNi)
-                ? prev
-                : prev.map(t => t.prices?.ni === liveNi ? t : {
+        if (metalPrices?.['LME-NI']?.price == null || loading) return
+        const liveNi = String(Math.round(metalPrices['LME-NI'].price))
+        const prevLme = lastLmeRef.current
+        const ours = (v) => v == null || v === '' || v === prevLme
+        const stale = (v) => ours(v) && v !== liveNi
+        lastLmeRef.current = liveNi
+        setNilmePrice(prev => (prev === liveNi ? prev : liveNi))
+        setData(prev => {
+            let touched = false
+            const next = prev.map(t => {
+                const costStale = stale(t.prices?.ni)
+                const salesStale = stale(t.salesPrices?.ni)
+                if (!costStale && !salesStale) return t
+                touched = true
+                return {
                     ...t,
-                    prices: { ...t.prices, ni: liveNi },
-                }));
-        }
+                    ...(costStale && { prices: { ...t.prices, ni: liveNi } }),
+                    ...(salesStale && { salesPrices: { ...t.salesPrices, ni: liveNi } }),
+                }
+            })
+            return touched ? next : prev
+        })
     }, [metalPrices, loading]);
 
     /* One definition of "a blank table", used by both the Add Table button and the
@@ -125,7 +151,7 @@ const MaterialTables = () => {
         prices: nilme ? { ni: nilme } : {},
         containerNo: '', showContainer: false, containerLabel: 'Container',
         showCosts: false, costLabel: 'Price', niPercent: 100, priceKeys: null, data: [],
-        salesPrices: {}, showSales: false, salesLabel: 'Sales Price',
+        salesPrices: nilme ? { ni: nilme } : {}, showSales: false, salesLabel: 'Sales Price',
         salesNiPercent: 100, salesPriceKeys: null,
     })
 
@@ -138,6 +164,10 @@ const MaterialTables = () => {
             ])
             const nilme = formulaData?.general?.nilme ? String(formulaData.general.nilme) : ''
             setNilmePrice(nilme)
+            /* Whatever the settings seeded is the page's own value, so the first
+               poll is free to move it. Without this the poll would read every
+               seeded field as hand-typed and freeze on load. */
+            lastLmeRef.current = nilme
             const normalized = (dt || []).map(t => ({
                 ...t,
                 name: t.name || '',
@@ -151,8 +181,10 @@ const MaterialTables = () => {
                 costLabel: t.costLabel || 'Price',
                 niPercent: t.niPercent != null ? t.niPercent : 100,
                 priceKeys: t.priceKeys || null,
-                /* Sales fields default in for tables saved before this existed. */
-                salesPrices: t.salesPrices || {},
+                /* Sales fields default in for tables saved before this existed.
+                   salesPrices is seeded with the LME nickel price the same way
+                   prices is, so the sales bar opens filled rather than at 0. */
+                salesPrices: { ...(nilme ? { ni: nilme } : {}), ...(t.salesPrices || {}) },
                 showSales: t.showSales || false,
                 salesLabel: t.salesLabel || 'Sales Price',
                 salesNiPercent: t.salesNiPercent != null ? t.salesNiPercent : 100,

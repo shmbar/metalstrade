@@ -19,7 +19,8 @@
       "Bash(NODE_OPTIONS=\"--max-old-space-size=8192\" npm run build)",
       "Bash(echo \"BUILD \\(8GB heap\\): $?\")",
       "Read(//tmp/**)",
-      "Bash(node -e ' *)"
+      "Bash(node -e ' *)",
+      "WebFetch(domain:dribbble.com)"
     ]
   }
 }

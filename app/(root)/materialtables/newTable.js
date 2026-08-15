@@ -686,6 +686,7 @@ const Customtable = ({
                                     />
                                     {isNi && (
                                         <>
+                                            <span style={{ fontSize: 'var(--fs-caption)', color: 'var(--ok-strong)', opacity: 0.55, fontWeight: '600' }}>LME</span>
                                             <span style={{ fontSize: 'var(--fs-table)', color: 'var(--ink-muted)', margin: '0 2px' }}>×</span>
                                             <input
                                                 value={salesNiPercent}
