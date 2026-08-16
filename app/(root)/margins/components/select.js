@@ -39,7 +39,7 @@ const SelectEnt = memo(({ props, data, handleChangeSelect, month, name, plHolder
                         className="
                           group w-full flex items-center justify-between
                           bg-transparent rounded-control px-2
-                          responsiveTextInput
+                          responsiveTextTableTitle
                           text-[var(--ink)]
                           border border-transparent
                           hover:border-[var(--line-strong)] hover:bg-[var(--bg-card)]
@@ -50,8 +50,16 @@ const SelectEnt = memo(({ props, data, handleChangeSelect, month, name, plHolder
                         "
                         style={{ minHeight: '26px' }}
                       >
+                        {/* No `truncate`. A supplier/client name is an identifier,
+                            not prose: "Iberi…" and "Iberinox" are different
+                            readings of the same cell, and the ellipsis was landing
+                            on the one column where the reader has no way to infer
+                            the rest. The name now wraps within the cell instead.
+                            Dropping overflow:hidden here also stops the trigger
+                            clipping descenders — see the leading note in
+                            globals.css under the cell line-height floor. */}
                         <span className={cn(
-                          "flex-1 text-center truncate",
+                          "flex-1 text-center",
                           !fullName && "text-[var(--ink-muted)]"
                         )}>
                           {fullName || plHolder}

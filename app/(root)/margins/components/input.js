@@ -26,8 +26,8 @@ const showAmount = (nStr) => {
 // ~177px, overflowed to the right, and the cell's `overflow: hidden` cut it off:
 // "$2,400,000" rendered as "$2,400,00" with a wide gap on the left, because the
 // centred text was centred inside the oversized box rather than the cell.
-// .responsiveText carries min-w-0; .responsiveTextInput below carries only a
-// font-size, which is why this input clipped and the read-only ones didn't.
+// The explicit min-w-0 below is what keeps that from happening, whichever ladder
+// class the field happens to carry.
 //
 // px-1 rather than px-2: the padding is breathing room for the hover/focus
 // border, and 7px a side was coming straight off the digits' width.
@@ -38,7 +38,7 @@ const INPUT_CLASS = `
   bg-transparent
   rounded-control
   px-1
-  responsiveTextInput
+  responsiveTextTableTitle
   !text-[var(--ink)]
   border border-transparent
   outline-none

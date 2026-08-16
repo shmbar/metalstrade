@@ -60,20 +60,26 @@ import Tltip from "../../../components/tlTip";
 // and Remaining buys Qty and Open Ship a point each and Description two.
 const COLUMN_CONFIGS = {
     'drag-handle': { pct: '2%',  align: 'center' },
-    // 8%, not 6%: at 6% the cell was ~75px, and once the cell padding and the
+    // 9%, not 6%: at 6% the cell was ~75px, and once the cell padding and the
     // clear button's gutter came off it the date input had ~55px of content box
     // for a "DD.MM.YY" that measures ~58px on a wide viewport — so the year was
-    // clipped. Wide enough that the date never meets the button.
-    'date':        { pct: '8%',  align: 'center' },
+    // clipped. Wide enough that the date never meets the button, with margin for
+    // the narrower table box a 14" laptop gives it.
+    'date':        { pct: '9%',  align: 'center' },
     'purchase':    { pct: '7%',  align: 'right'  },
     // Free text, so it overflows at any width the table can afford and the input
-    // scrolls — but it is the column users actually read, so it takes the two
-    // points nobody else needed rather than staying the tightest fit that works.
-    'description': { pct: '17%', align: 'left'   },
+    // scrolls — but it is the column users actually read, so it takes the points
+    // nobody else needed rather than staying the tightest fit that works. It is
+    // also the column those points come back OUT of, for the same reason: free
+    // text that runs on still reads as text and scrolls in its input, whereas a
+    // clipped entity name reads as the wrong entity and a clipped date loses its
+    // year outright. One point to Client, one to Date.
+    'description': { pct: '15%', align: 'left'   },
     'supplier':    { pct: '11%', align: 'left'   },
-    // Bounded vocabulary — a client name here is "SJM" / "Oryx" / "Unsold" —
-    // so this is the column with slack to give.
-    'client':      { pct: '7%',  align: 'left'   },
+    // Now that neither entity column truncates, this has to hold its longest
+    // name outright rather than the "SJM" / "Oryx" short ones — "Iberinox" was
+    // rendering as "Iberi…" at 7%. The point comes from Description.
+    'client':      { pct: '8%',  align: 'left'   },
     'margin':      { pct: '9%',  align: 'right'  },
     'totalMargin': { pct: '11%', align: 'right'  },
     'shipped':     { pct: '5%',  align: 'right'  },
@@ -258,7 +264,7 @@ const DraggableRow = memo(function DraggableRow({ row, props, cName }) {
                     className={cn(
                       // px-0: read-only, so there is no hover/focus box for the
                       // padding to clear, and the figure needs every pixel.
-                      "w-full min-w-0 bg-transparent border-none outline-none px-0 text-center responsiveText ",
+                      "w-full min-w-0 bg-transparent border-none outline-none px-0 text-center responsiveTextTableTitle ",
                       cell.column.id === "remaining" && Number(cell.getValue()) > 0
                         ? "text-[var(--bad-text)]"
                         : "text-[var(--ink)]"
@@ -278,7 +284,7 @@ const DraggableRow = memo(function DraggableRow({ row, props, cName }) {
                 decimalScale={currs.includes(cell.column.id) ? 2 : 3}
                 fixedDecimalScale
                 className={cn(
-                  "w-full min-w-0 bg-transparent border-none outline-none px-0 text-center responsiveText ",
+                  "w-full min-w-0 bg-transparent border-none outline-none px-0 text-center responsiveTextTableTitle ",
                   ["openShip", "remaining"].includes(cell.column.id) && Number(cell.getValue()) > 0
                     ? "text-[var(--bad-text)]"
                     : "text-[var(--ink)]"
@@ -395,8 +401,12 @@ const Customtable = (props) => {
             sensors={sensors}
         >
             <div className="flex flex-col relative w-full">
+                {/* The one size that reaches cell content carrying no ladder class
+                    of its own. It was a hardcoded 0.75rem, which pinned those cells
+                    at 12px on every screen while everything around them ramped; it
+                    reads the caption rung now so the whole body band agrees. */}
                 <style jsx global>{`
-                    .margins-data-table tbody td { font-size: 0.75rem; }
+                    .margins-data-table tbody td { font-size: var(--fs-caption); }
                 `}</style>
                 {/* margins-table-scroll: globals.css lifts this clip while a date
                     picker is open, so the calendar is not cut off at the bottom edge. */}
@@ -427,7 +437,7 @@ const Customtable = (props) => {
     idx === arr.length - 1 ? 'rounded-tr-lg' : ''
   )}
 >
-  <div className="w-full flex items-center justify-center whitespace-nowrap font-medium uppercase tracking-[0.04em] responsiveText">
+  <div className="w-full flex items-center justify-center whitespace-nowrap font-medium uppercase tracking-[0.04em] responsiveTextTable">
     {header.isPlaceholder
       ? null
       : flexRender(header.column.columnDef.header, header.getContext())}
@@ -503,7 +513,7 @@ const Customtable = (props) => {
                                                                     prefix={currs.includes(accessorKey) ? '$' : ''}
                                                                     decimalScale={currs.includes(accessorKey) ? 2 : 3}
                                                                     fixedDecimalScale
-                                                                    className="responsiveTextInput "
+                                                                    className="responsiveTextTable "
                                                                     style={{
                                                                         color: ['openShip', 'remaining'].includes(accessorKey) && total > 0 ? 'var(--bad-text)' : 'var(--ink)',
                                                                         fontWeight: '500',
