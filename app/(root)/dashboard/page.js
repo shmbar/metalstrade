@@ -393,25 +393,89 @@ function ReceivablesSplitCard({ byCur = {} }) {
   );
 }
 
-// Ranking list (Contracts / Consignees) — avatar + animated progress bar per row.
+// Share of a total, as a string. Anything that would round to 0% but isn't zero
+// says "<0.1%" — a row that exists should never read as nothing.
+const fmtPct = (p) => {
+  if (!Number.isFinite(p) || p <= 0) return '0%';
+  if (p < 0.1) return '<0.1%';
+  return `${p.toFixed(p < 10 ? 1 : 0)}%`;
+};
+
+// One breakdown/ranking entry as a card tile.
+/* These entries used to be bar ROWS: a grey track, a fill scaled to value/max,
+   and the share printed inside the fill. Zak asked for cards instead
+   (2026-08-17). Nothing is lost in the swap — the bar's LENGTH was the only
+   thing it encoded, and the ranking is now carried by reading order plus the
+   share chip, which STATES the share as a number the bar could only approximate.
+   The tile itself is the same surface the Per-MT strip uses (subtle fill, one
+   line, one radius), so the four ranking cards read as the rest of the page.
+
+   Two lines, not four. The first pass gave each tile a rank badge and an "of
+   total" caption above the chip, and 40 tiles of that ran ~92px each — the card
+   was taller than the bars it replaced, which defeats the point. Both went:
+   the badge restated the reading order, and the caption labelled a percentage
+   that cannot mean anything else. What is left is name / figure / share, and
+   the tile is ~52px. */
+function RankTile({ label, value, share, color, avatar = false, delay = 0 }) {
+  return (
+    <m.div
+      className="rounded-2xl border border-[var(--line)] bg-[var(--bg-subtle)] px-2.5 py-2 flex flex-col gap-1 min-w-0 transition-colors hover:border-[var(--line-strong)]"
+      initial={{ opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.28, delay, ease: 'easeOut' }}
+    >
+      <div className="flex items-center gap-1.5 min-w-0">
+        {/* Avatar — shared component, so these chips match the supplier / client
+            chips in every table and follow the theme. Rows that aren't a party
+            (expense types, materials) get the ramp shade as a dot instead. */}
+        {avatar
+          ? <Avatar name={label} size={18} />
+          : <span className="rounded-full flex-shrink-0" style={{ width: 8, height: 8, background: color }} />}
+        <span className="responsiveTextTable font-medium text-[var(--regent-gray)] truncate" title={label}>{label}</span>
+      </div>
+
+      <div className="flex items-baseline justify-between gap-1.5 min-w-0">
+        <span className="responsiveTextTitle numeric text-[var(--port-gore)] leading-none truncate" title={value}>{value}</span>
+        {/* Filled, not tinted — deliberately, and it is the ramp that decides.
+            brandRamp fits every shade to the lightest value that still carries
+            WHITE text at AA, so a ramp colour is only guaranteed legible as a
+            background. Flipping it to coloured-text-on-tint reads fine in light
+            mode and disappears in dark, where the tile drops to --bg-subtle and
+            the ramp is still a mid-violet. Filled is safe in both; it is caption
+            -sized so the figure beside it is still the louder half. */}
+        <span
+          className="responsiveTextTableTitle numeric rounded-lg px-1 py-px flex-shrink-0"
+          style={{ background: color, color: 'var(--on-brand)' }}
+        >
+          {share}
+        </span>
+      </div>
+    </m.div>
+  );
+}
+
+// Two tiles at page-narrow, three once the card has room. Three is the widest
+// that keeps a $37.02M figure on one line inside a half-width card.
+const TILE_GRID = 'grid grid-cols-2 xl:grid-cols-3 gap-1.5';
+
+// Ranking cards (Contracts / Consignees) — one tile per party.
 function RankingList({ labels = [], data = [], title, subtitle, totalValue }) {
-  /* This used to paint bars and avatars from RANKING_PALETTE — ten fixed blues
-     from the old brand, which is why this card ignored the theme.
+  /* The colours here used to come from RANKING_PALETTE — ten fixed blues from
+     the old brand, which is why this card ignored the theme.
      chartTheme.js exempts series palettes from theming for a good reason: in a
      donut or a multi-line chart, colour is the ONLY thing mapping a slice to its
      legend, so collapsing ten hues into one brand ramp destroys the encoding.
-     That reasoning does not apply here. Every row is already labelled by name
-     and ranked by bar LENGTH, so the colour carried no information at all — it
-     was decoration, and decoration should follow the theme like everything else.
-     Bars are now the brand token (one colour, length does the ranking) and the
-     avatars use the shared Avatar, whose per-name tint is themed. */
-  const avatarSize = 26;
-  const rowCount = labels.length || 1;
-  // One themed shade per row — the brand stepped deep → soft down the ranking.
-  // Rebuilt on a theme switch because the page re-renders through useTheme().
+     That reasoning does not apply here. Every tile is already labelled by name
+     and ranked by order, so the colour carried no information at all — it was
+     decoration, and decoration should follow the theme like everything else.
+     One themed shade per tile, the brand stepped deep → soft down the ranking.
+     Rebuilt on a theme switch because the page re-renders through useTheme(). */
   const ramp = brandRamp(labels.length || 1);
-  const barHeight = Math.max(14, Math.min(28, Math.round(28 - rowCount * 1.5)));
-  const max = Math.max(...(data.length ? data : [1]), 1);
+  /* Denominator for the share chip: the card's own total when it has one, so a
+     list that shows only its top entries still states each share of the WHOLE
+     rather than of the visible slice. */
+  const sum = data.reduce((a, v) => a + (Number(v) || 0), 0);
+  const denom = Number(totalValue) > 0 ? Number(totalValue) : sum;
 
   return (
     <CardShell>
@@ -427,55 +491,25 @@ function RankingList({ labels = [], data = [], title, subtitle, totalValue }) {
           }
         />
 
-        {/* Column headers */}
-        <div className="flex items-center gap-3 mb-2">
-          <div className="w-[116px] font-medium text-[var(--regent-gray)] uppercase tracking-wide flex-shrink-0 whitespace-nowrap" style={{ fontSize: 'var(--fs-table)' }}>Name</div>
-          <div className="flex-1 font-medium text-[var(--regent-gray)] uppercase tracking-wide text-center" style={{ fontSize: 'var(--fs-table)' }}>Contribution Share (0 – 1.0)</div>
-          <div className="w-16 text-right font-medium text-[var(--regent-gray)] uppercase tracking-wide flex-shrink-0" style={{ fontSize: 'var(--fs-table)' }}>Value</div>
-        </div>
-
-        <div className="overflow-y-auto custom-scroll" style={{ maxHeight: 360 }}>
-          {labels.map((lbl, idx) => {
-            const value = data[idx] || 0;
-            const pct = max > 0 ? (value / max) * 100 : 0;
-            return (
-              <m.div
-                key={idx}
-                className="flex items-center gap-2 mb-0.5"
-                initial={{ opacity: 0, x: -16 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.35, delay: idx * 0.04 }}
-              >
-                {/* Avatar — shared component, so these chips match the supplier /
-                    client chips in every table and follow the theme. */}
-                <Avatar name={lbl} size={avatarSize} />
-
-                {/* Name */}
-                <div className="w-20 responsiveText text-[var(--port-gore)] truncate flex-shrink-0">{lbl}</div>
-
-                {/* Bar */}
-                <div className="flex-1 min-w-0">
-                  <div className="w-full bg-[var(--line)] rounded-full overflow-hidden" style={{ height: `${barHeight}px` }}>
-                    <m.div
-                      className="h-full flex items-center pl-2"
-                      style={{ width: `${pct}%`, background: ramp[idx % ramp.length], minWidth: '42px', borderRadius: '0 9999px 9999px 0', transformOrigin: 'left' }}
-                      initial={{ scaleX: 0 }}
-                      animate={{ scaleX: 1 }}
-                      transition={{ duration: 0.5, delay: idx * 0.04, ease: 'easeOut' }}
-                    >
-                      <span className="font-medium text-[var(--on-brand)]/95 leading-none" style={{ fontSize: 'var(--fs-caption)' }}>
-                        {(max > 0 ? value / max : 0).toFixed(2)}
-                      </span>
-                    </m.div>
-                  </div>
-                </div>
-
-                {/* Value */}
-                <div className="w-16 text-right responsiveText text-[var(--port-gore)] flex-shrink-0">{fmtAutoKM(value)}</div>
-              </m.div>
-            );
-          })}
-        </div>
+        {labels.length === 0
+          ? <div className="responsiveText text-[var(--regent-gray)] py-3 text-center">No data for this period</div>
+          : (
+            <div className="overflow-y-auto custom-scroll" style={{ maxHeight: 330 }}>
+              <div className={TILE_GRID}>
+                {labels.map((lbl, idx) => (
+                  <RankTile
+                    key={`${lbl}-${idx}`}
+                    label={lbl}
+                    value={fmtAutoKM(data[idx] || 0)}
+                    share={fmtPct(denom > 0 ? ((data[idx] || 0) / denom) * 100 : 0)}
+                    color={ramp[idx % ramp.length]}
+                    avatar
+                    delay={idx * 0.03}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
       </div>
     </CardShell>
   );
@@ -861,13 +895,20 @@ function AgingCard({ buckets = [] }) {
   );
 }
 
-// Horizontal-bar breakdown card (expenses by type, materials by tonnage, etc.).
+// Breakdown card (expenses by type, materials by tonnage, etc.) — one tile per
+// entry, same tile as the ranking cards above.
 /* `accent` is kept in the signature so existing call sites stay valid, but the
-   bars now come from the themed ramp: the brand stepped deep → soft down the
-   list, instead of every row sharing one fixed accent. */
+   tiles come from the themed ramp: the brand stepped deep → soft down the list,
+   instead of every entry sharing one fixed accent. */
 function BreakdownCard({ title, subtitle, entries = [], total, fmtVal, accent = 'var(--brand)' }) {
-  const max = Math.max(...entries.map(([, v]) => v), 1);
   const ramp = brandRamp(entries.length || 1);
+  /* Share is measured against the card's own total, not the visible entries.
+     Most-Sold Material shows its top 8 out of every material shipped, so the
+     shares should add up to less than 100% — that gap is the tail, and hiding
+     it by normalising to the visible slice would overstate every tile. */
+  const sum = entries.reduce((a, [, v]) => a + (Number(v) || 0), 0);
+  const denom = Number(total) > 0 ? Number(total) : sum;
+
   return (
     <CardShell>
       <div className="p-4">
@@ -878,17 +919,22 @@ function BreakdownCard({ title, subtitle, entries = [], total, fmtVal, accent = 
         />
         {entries.length === 0
           ? <div className="responsiveText text-[var(--regent-gray)] py-3 text-center">No data for this period</div>
-          : entries.map(([label, value], idx) => (
-            <div key={label} className="flex items-center gap-2 mb-1.5">
-              <div className="w-28 responsiveTextTable text-[var(--port-gore)] truncate flex-shrink-0" title={label}>{label}</div>
-              <div className="flex-1 min-w-0">
-                <div className="w-full bg-[var(--line)] rounded-full overflow-hidden" style={{ height: 16 }}>
-                  <div className="h-full rounded-full" style={{ width: `${max > 0 ? (value / max) * 100 : 0}%`, minWidth: 4, background: ramp[idx % ramp.length], borderRadius: '0 9999px 9999px 0' }} />
-                </div>
+          : (
+            <div className="overflow-y-auto custom-scroll" style={{ maxHeight: 330 }}>
+              <div className={TILE_GRID}>
+                {entries.map(([label, value], idx) => (
+                  <RankTile
+                    key={label}
+                    label={label}
+                    value={fmtVal(value)}
+                    share={fmtPct(denom > 0 ? (value / denom) * 100 : 0)}
+                    color={ramp[idx % ramp.length]}
+                    delay={idx * 0.03}
+                  />
+                ))}
               </div>
-              <div className="w-20 text-right responsiveTextTable font-medium text-[var(--port-gore)] flex-shrink-0">{fmtVal(value)}</div>
             </div>
-          ))}
+          )}
       </div>
     </CardShell>
   );
