@@ -510,7 +510,10 @@ describe('material table footer', () => {
   it("web's fmt / footerVal / cost columns have not drifted", () => {
     expectWebUnchanged('app/(root)/materialtables/newTable.js', 'fmt', '68aede0d2941');
     expectWebUnchanged('app/(root)/materialtables/newTable.js', 'footerVal', '29b9b76b6a38');
-    expectWebUnchanged('app/(root)/materialtables/newTable.js', 'enhancedColumns', 'ae6177c397a2');
+    // Re-recorded 2026-08-17: the ONLY change was a colour literal,
+    // var(--chathams-blue) -> TONES.green.text. fmt, footerVal, hasPrices and niMult
+    // were confirmed byte-identical, so no cost/footer formula moved.
+    expectWebUnchanged('app/(root)/materialtables/newTable.js', 'enhancedColumns', '8fe5dbd308f3');
     expectWebUnchanged('app/(root)/materialtables/newTable.js', 'hasPrices', '693a64e82c2a');
     expectWebUnchanged('app/(root)/materialtables/newTable.js', 'niMult', '39476216c4bf');
   });

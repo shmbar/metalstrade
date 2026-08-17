@@ -4,7 +4,7 @@ import { useAuth } from '@/store/auth';
 import { useSettings } from '@/store/settings';
 import { loadMaterials } from '@/data/firestore';
 import { saveMaterials, deleteMaterialTable, newId } from '@/data/writes';
-import { DEFAULT_ELEMENTS } from './constants';
+import { DEFAULT_ELEMENTS, moveFeLast } from './constants';
 
 // Material tables with an editable local working copy — port of the web page's
 // data/setData model (app/(root)/materialtables/page.js). Web keeps every table in
@@ -64,7 +64,10 @@ export function useMaterials() {
   const [dirty, setDirty] = useState(false);
   useEffect(() => {
     if (query.data) {
-      setTables(query.data.map((t: any) => ({ ...t })));
+      // Re-order Fe to last on every loaded table, exactly as web does at
+      // page.js:175 — a table saved before Fe moved still carries the old order in
+      // its own `elements` array, so the constant alone would not fix it.
+      setTables(query.data.map((t: any) => ({ ...t, elements: moveFeLast(t.elements) })));
       setDirty(false);
     }
   }, [query.data]);

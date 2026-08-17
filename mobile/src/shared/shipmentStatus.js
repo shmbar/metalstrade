@@ -9,16 +9,20 @@ const LEGACY_ALIASES = { 'At Port': 'Arrived', 'Delivered': 'Completed' };
 export const normalizeStatus = (s) => LEGACY_ALIASES[s] || s || '';
 
 export const SHIPMENT_STATUS_STYLES = {
-    'Pending':    { backgroundColor: '#fef9c3', border: '1px solid #fde68a', color: '#78350f' },
-    'Shipped':    { backgroundColor: '#e0f2fe', border: '1px solid #bae6fd', color: '#075985' },
-    'In Transit': { backgroundColor: '#dbeeff', border: '1px solid #b8ddf8', color: '#103a7a' },
-    'Arrived':    { backgroundColor: '#ede9fe', border: '1px solid #ddd6fe', color: '#4c1d95' },
-    'Completed':  { backgroundColor: '#dcfce7', border: '1px solid #bbf7d0', color: '#14532d' },
-    'On Hold':    { backgroundColor: '#fce7f3', border: '1px solid #fbcfe8', color: '#831843' },
+    'Pending':    { backgroundColor: '#efeadd', border: '1px solid #d9cfb4', color: '#75612f' },
+    'Shipped':    { backgroundColor: '#eeebfc', border: '1px solid #d6cff7', color: '#5a49cb' },
+    'In Transit': { backgroundColor: '#f4f3f9', border: '1px solid #eae8f2', color: '#1e1b39' },
+    'Arrived':    { backgroundColor: '#eeebfc', border: '1px solid #d6cff7', color: '#5a49cb' },
+    'Completed':  { backgroundColor: '#e6efe9', border: '1px solid #c6dace', color: '#2e6a4f' },
+    /* Was --bad-bg with --pink-strong TEXT: a rose foreground on a red background,
+       the one place two different status families were mixed inside one chip.
+       "On Hold" is a pause, not a failure, and statusTone() already classifies it
+       amber — so it takes the warn family and the two vocabularies now agree. */
+    'On Hold':    { backgroundColor: '#efeadd', border: '1px solid #d9cfb4', color: '#75612f' },
     // Legacy keys kept as a safety net for any raw (un-normalized) value.
-    'At Port':    { backgroundColor: '#ede9fe', border: '1px solid #ddd6fe', color: '#4c1d95' },
-    'Delivered':  { backgroundColor: '#dcfce7', border: '1px solid #bbf7d0', color: '#14532d' },
-    '':           { backgroundColor: '#f8fbff', border: '1px solid #d8e8f5', color: '#28264f' },
+    'At Port':    { backgroundColor: '#eeebfc', border: '1px solid #d6cff7', color: '#5a49cb' },
+    'Delivered':  { backgroundColor: '#e6efe9', border: '1px solid #c6dace', color: '#2e6a4f' },
+    '':           { backgroundColor: '#f4f3f9', border: '1px solid #dad6e8', color: '#1e1b39' },
 };
 
 // True when a real lifecycle status has been set on the contract (not the empty default).

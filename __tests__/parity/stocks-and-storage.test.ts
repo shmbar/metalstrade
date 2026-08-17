@@ -105,7 +105,11 @@ const HASH = {
   // No formula, no column, no footer count touched — `git diff` on the symbol is those
   // lines and nothing else. Nothing to port either: mobile is React Native, with no CSS,
   // no `.custom-table` and no --fs-table, so there is no mirror this can drift from.
-  customtable: 'b73f41098510', // app/(root)/stocks/newTable.js:32 (contains the footer count)
+  // Re-recorded 2026-08-17: the design pass rewrote this component's MARKUP (265
+  // lines). The mirrored logic — the useEffect at :122-126 pushing
+  // getFilteredRowModel().rows into setFilteredArray1 on [globalFilter, columnFilters]
+  // — was verified byte-identical before updating this, so mobile's port still holds.
+  customtable: '02f67d9407b4', // app/(root)/stocks/newTable.js:32 (contains the footer count)
   addComma: '9d2dc43091c5', // app/(root)/stocks/whModal.js:52
   sumShowAmount: '61cca0f1837f', // app/(root)/stocks/sumtables/sumTable.js:8
   gradeSummary: '3c54892bacca', // app/(root)/stocks/sumtables/gradeTable.js:11
