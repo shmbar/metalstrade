@@ -173,6 +173,33 @@ function computeUnsoldWeb(contractsData: any[], stockData: any[], settings: any)
   const lots = (stockData || []).filter((z: any) => z.total !== 0).filter((x: any) => x.draft === undefined || x.draft === false);
 
   const inLotById = new Map(lots.filter((l: any) => l.type === 'in').map((l: any) => [l.id, l]));
+
+  // ── out-lot index ──────────────────────────────────────────────────────────
+  // The per-product write-off scan below used to re-filter the WHOLE ledger for
+  // every product of every contract:
+  //     contracts.flatMap(con => { for (const prod of prods) { lots.filter(…) } })
+  // On production that is 165 contracts x ~4 products x 3,249 lots ~= 2.1 MILLION
+  // passes, and it measured as 775 ms of computeCashflow's 853 ms — the second
+  // freeze on the "app gets stuck" list, and the same shape as the one already
+  // fixed in stocks/aggregate.ts.
+  //
+  // The predicate matched `descriptionId === prod.id || description === prod.id`,
+  // so a lot whose two fields disagree answers to BOTH ids. Each lot is therefore
+  // indexed under both keys (once when they are equal), which reproduces the old
+  // filter exactly. Built in `lots` order, so each bucket keeps the order
+  // Array.prototype.filter produced — filteredArray() below groups by invoice and
+  // takes a max, but the non-invoice branch concatenates in encounter order.
+  const outLotsByDesc = new Map<any, any[]>();
+  lots.forEach((l: any) => {
+    if (l.type !== 'out' || l.moveType === 'out') return;
+    const push = (k: any) => {
+      const bucket = outLotsByDesc.get(k);
+      if (bucket) bucket.push(l);
+      else outLotsByDesc.set(k, [l]);
+    };
+    push(l.descriptionId);
+    if (l.description !== l.descriptionId) push(l.description);
+  });
   const unSoldAll = (contractsData || []).flatMap((con: any) => {
     const ownLots = (con.stock || []).map((id: string) => inLotById.get(id)).filter(Boolean) as any[];
     const contractFullySold = ownLots.length > 0 && ownLots.every(lotIsSold);
@@ -199,9 +226,7 @@ function computeUnsoldWeb(contractsData: any[], stockData: any[], settings: any)
       // Outs are attributed to sold-marked lots first, so a lot that is both marked
       // sold and shipped isn't subtracted twice; only the excess hits the unsold
       // balance. This is what keeps e.g. Ta Discs at 2.790 when 0.250 had shipped.
-      const prodOuts = lots.filter(
-        (l) => l.type === 'out' && l.moveType !== 'out' && (l.descriptionId === prod.id || l.description === prod.id)
-      );
+      const prodOuts = outLotsByDesc.get(prod.id) ?? [];
       const hasInv = (l: any) => l.invoice !== undefined && l.invoice !== null && l.invoice !== '';
       const outQty = [...filteredArray(prodOuts.filter(hasInv)), ...prodOuts.filter((l) => !hasInv(l))].reduce(
         (s, l) => s + Math.abs(Number(l.qnty) || 0),
