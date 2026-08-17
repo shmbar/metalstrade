@@ -166,6 +166,53 @@ export const footerCostTotal = (
 ): number =>
   (rows || []).reduce((s: number, r: any) => s + costTotal(r, elements, prices, niMult, unit), 0);
 
+// ── sales columns — the cost bar mirrored against a second price map ────────
+
+/**
+ * Sales price per MT — newTable.js:167-172 salesPerMT.
+ *
+ * Deliberately the SAME function as costPmt with a different price map and its own
+ * Ni percentage, because that is exactly what web does: the sales bar mirrors the
+ * cost bar. Kept as named aliases rather than a second implementation — two copies
+ * of a money formula is how the apps drifted apart before, and a reader looking for
+ * "why is the sale price wrong" should land on the same code either way.
+ */
+export const salesPerMT = costPmt;
+
+/** Sales total — salesPerMT x the row weight in MT (newTable.js:187-191). */
+export const salesTotal = costTotal;
+
+/**
+ * Whether the sales bar has anything worth showing — newTable.js:161-163.
+ * Same rule as hasPrices: an Fe-only price does not count (Fe is the derived
+ * remainder), but an explicit "0" does.
+ */
+export const hasSalesPrices = hasPrices;
+
+/**
+ * Footer cell for the two SALES columns — newTable.js:296-301.
+ *
+ * Deliberately NOT the cost-side maths. footerVal has explicit branches for
+ * `costPmt` and `costTotal`, but none for `salesMt` / `salesTotal`, so those fall
+ * through to the generic element branch: a WEIGHT-WEIGHTED AVERAGE of the column's
+ * value, formatted with no '$' and blank when zero.
+ *
+ * For Sales MT that is the natural figure. For Sales Total it means the footer is
+ * the weighted average of the per-row totals rather than their SUM — which reads
+ * oddly next to Cost Total, which IS a sum. It looks like an oversight on the web
+ * side, but it is what the web page prints, so reproducing it is the whole point;
+ * a "corrected" mobile figure would just be a number that matches nothing. Recorded
+ * here so the next reader does not quietly fix it.
+ */
+export const footerSalesCol = (rows: any[], valueOf: (r: any) => number, totalW: number): number => {
+  if (!(totalW > 0)) return 0;
+  const wSum = (rows || []).reduce(
+    (s: number, r: any) => s + (parseFloat(r?.kgs) || 0) * (valueOf(r) || 0),
+    0
+  );
+  return wSum / totalW;
+};
+
 // ── cross-table grand totals — page.js:321-344 ───────────────────────────────
 
 /**

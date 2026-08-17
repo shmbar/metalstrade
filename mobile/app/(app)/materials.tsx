@@ -24,6 +24,10 @@ import {
   costTotal as costTotalOf,
   footerCostPmt,
   footerCostTotal,
+  hasSalesPrices as hasSalesPricesOf,
+  salesPerMT,
+  salesTotal,
+  footerSalesCol,
   grandTotals,
 } from '@/features/materials/tableMath';
 
@@ -96,6 +100,17 @@ export default function Materials() {
             const footCostPmt = footerCostPmt(rows, elements, prices, niMult, totalKgs);
             const footCostTotal = footerCostTotal(rows, elements, prices, niMult, unitKey);
 
+            // Sales columns — the same gate as the cost pair, against the table's
+            // SECOND price map (newTable.js:161-196). Both pairs can show at once,
+            // and the order is Cost PMT, Cost Total, Sales MT, Sales Total.
+            const salesPrices = table.salesPrices || {};
+            const salesNiMult = niMultiplier(table.salesNiPercent);
+            const showSales = !!table.showSales && hasSalesPricesOf(elements, salesPrices);
+            const salesMt = (r: any) => salesPerMT(r, elements, salesPrices, salesNiMult);
+            const salesTot = (r: any) => salesTotal(r, elements, salesPrices, salesNiMult, unitKey);
+            const footSalesMt = footerSalesCol(rows, salesMt, totalKgs);
+            const footSalesTotal = footerSalesCol(rows, salesTot, totalKgs);
+
             return (
               <Card key={table.id || ti} padded={false}>
                 <View style={{ padding: 14, paddingBottom: 8 }}>
@@ -152,6 +167,16 @@ export default function Materials() {
                             </Text>
                           </>
                         )}
+                        {showSales && (
+                          <>
+                            <Text variant="caption" tone="primary" style={{ width: COST_COL, textAlign: 'right' }}>
+                              {salesMt(r) ? money(salesMt(r)) : ''}
+                            </Text>
+                            <Text variant="caption" tone="primary" style={{ width: COST_COL, textAlign: 'right', fontFamily: 'Inter_600SemiBold' }}>
+                              {salesTot(r) ? money(salesTot(r)) : ''}
+                            </Text>
+                          </>
+                        )}
                         {editing && (
                           <Pressable onPress={() => removeRow(table.id, r.id)} hitSlop={8} style={{ paddingLeft: 8, justifyContent: 'center' }}>
                             <Ionicons name="close-circle-outline" size={16} color={colors.negative} />
@@ -178,6 +203,18 @@ export default function Materials() {
                             </Text>
                             <Text variant="caption" tone="primary" style={{ width: COST_COL, textAlign: 'right', fontFamily: 'Inter_600SemiBold' }}>
                               {money(footCostTotal)}
+                            </Text>
+                          </>
+                        )}
+                        {showSales && (
+                          <>
+                            {/* No '$' and blank at zero — these fall through web's
+                                GENERIC footer branch, not the cost one. */}
+                            <Text variant="caption" tone="primary" style={{ width: COST_COL, textAlign: 'right', fontFamily: 'Inter_600SemiBold' }}>
+                              {fmtAvg(footSalesMt)}
+                            </Text>
+                            <Text variant="caption" tone="primary" style={{ width: COST_COL, textAlign: 'right', fontFamily: 'Inter_600SemiBold' }}>
+                              {fmtAvg(footSalesTotal)}
                             </Text>
                           </>
                         )}

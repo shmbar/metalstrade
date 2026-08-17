@@ -61,8 +61,13 @@ import {
   costTotal,
   footerCostPmt,
   footerCostTotal,
+  salesPerMT,
+  salesTotal,
+  hasSalesPrices,
+  footerSalesCol,
   grandTotals,
 } from '@/features/materials/tableMath';
+import { seedLmeNickel } from '@/features/materials/useMaterials';
 import {
   DEFAULT_ELEMENTS as MOBILE_ELEMENTS,
   UNIT_LABELS as MOBILE_UNIT_LABELS,
@@ -1059,5 +1064,103 @@ describe('pricing formulas', () => {
     expect(m.cost).toBe(0);
     expect(m.sales).toBe(0);
     expect(m.fe).toBe(100); // 100 − nothing entered
+  });
+});
+
+// ═════════════════════════════════════════════════════════════════════════════
+// SALES COLUMNS — ported 2026-08-17. Web gained a second price bar (a "sales"
+// twin of the cost bar) and mobile had none of it, so a table could show what the
+// material COST but never what it would SELL for — the margin the page exists to
+// support. These pin the port against web's own rules.
+// ═════════════════════════════════════════════════════════════════════════════
+describe('material table sales columns', () => {
+  const elements = MOBILE_ELEMENTS.map((e: any) => ({ key: e.key, label: e.label }));
+
+  it('sales price per MT is the cost formula against the SALES price map', () => {
+    // newTable.js:167-172 — identical to costPmt but reading salesPrices and its own
+    // Ni percentage. Mobile aliases the same function rather than copying it.
+    const row = makeMaterialRow({ ni: '10', cr: '20', mo: '0' });
+    const salesPrices = { ni: '16000', cr: '2000' };
+    // (10/100)*16000*1 + (20/100)*2000 = 1600 + 400
+    expect(salesPerMT(row, elements, salesPrices, 1)).toBeCloseTo(2000, 6);
+    // …and the Ni percentage scales ONLY nickel
+    expect(salesPerMT(row, elements, salesPrices, 0.9)).toBeCloseTo(1600 * 0.9 + 400, 6);
+    // identical to the cost helper fed the same map — that is the point of the alias
+    expect(salesPerMT(row, elements, salesPrices, 0.9)).toBe(costPmt(row, elements, salesPrices, 0.9));
+  });
+
+  it('sales total converts the row weight to MT first', () => {
+    // A kgs table would be 1000x out otherwise (newTable.js:187-191).
+    const row = makeMaterialRow({ ni: '10', kgs: '1000' });
+    const p = { ni: '16000' };
+    expect(salesTotal(row, elements, p, 1, 'kgs')).toBeCloseTo(1600 * 1, 6); // 1000 kgs = 1 MT
+    expect(salesTotal(row, elements, p, 1, 'mt')).toBeCloseTo(1600 * 1000, 6);
+  });
+
+  it('the sales gate ignores an Fe-only price but accepts a literal zero', () => {
+    // Same rule as the cost gate (newTable.js:161-163): Fe is the derived remainder.
+    expect(hasSalesPrices(elements, { fe: '500' })).toBe(false);
+    expect(hasSalesPrices(elements, { ni: '0' })).toBe(true);
+    expect(hasSalesPrices(elements, {})).toBe(false);
+  });
+
+  it('QUIRK: the Sales Total footer is a weighted AVERAGE, not a sum', () => {
+    // footerVal has explicit branches for costPmt and costTotal but NONE for the
+    // sales columns, so they fall through to the generic element branch at
+    // newTable.js:296-301 — a weight-weighted average, no '$', blank at zero.
+    // It reads oddly beside Cost Total (which IS a sum) and looks like a web
+    // oversight, but it is what the web page prints. Pinned so nobody "fixes" it
+    // into a number that matches neither app.
+    const rows = [
+      makeMaterialRow({ id: 'a', ni: '10', kgs: '1000' }),
+      makeMaterialRow({ id: 'b', ni: '10', kgs: '3000' }),
+    ];
+    const p = { ni: '16000' };
+    const totalW = totalWeight(rows);
+    const valueOf = (r: any) => salesTotal(r, elements, p, 1, 'kgs');
+    // per-row totals are 1600 and 4800; the SUM would be 6400
+    expect(valueOf(rows[0])).toBeCloseTo(1600, 6);
+    expect(valueOf(rows[1])).toBeCloseTo(4800, 6);
+    // weighted average = (1000*1600 + 3000*4800) / 4000 = 4000 — deliberately NOT 6400
+    expect(footerSalesCol(rows, valueOf, totalW)).toBeCloseTo(4000, 6);
+    expect(footerSalesCol(rows, valueOf, totalW)).not.toBeCloseTo(6400, 6);
+  });
+
+  it('a zero-weight table gives a zero footer rather than dividing by zero', () => {
+    expect(footerSalesCol([makeMaterialRow({ kgs: '0' })], () => 5, 0)).toBe(0);
+  });
+});
+
+describe('live LME nickel seeding', () => {
+  it('refreshes a price we wrote, and NEVER one the user typed', () => {
+    // page.js:106-129. "Ours" means empty, or still equal to the last live value we
+    // wrote. A negotiated price has to outlive the next tick — resetting it 60
+    // seconds later would quietly wrong the margin.
+    const typed = { id: 't1', prices: { ni: '15000' }, salesPrices: { ni: '15500' } };
+    const ourOld = { id: 't2', prices: { ni: '16000' }, salesPrices: { ni: '16000' } };
+    const blank = { id: 't3', prices: {}, salesPrices: {} };
+
+    const out = seedLmeNickel([typed, ourOld, blank], '16670', '16000');
+    expect(out[0].prices.ni).toBe('15000'); // typed — untouched
+    expect(out[0].salesPrices.ni).toBe('15500'); // typed — untouched
+    expect(out[1].prices.ni).toBe('16670'); // ours, stale — refreshed
+    expect(out[1].salesPrices.ni).toBe('16670');
+    expect(out[2].prices.ni).toBe('16670'); // blank — seeded
+  });
+
+  it('returns the SAME array reference when nothing changed', () => {
+    // The poll fires on a timer with a fresh price object even when the rounded
+    // value has not moved; a new array each time would re-render every table and
+    // re-run the totals for nothing.
+    const tables = [{ id: 't1', prices: { ni: '16670' }, salesPrices: { ni: '16670' } }];
+    expect(seedLmeNickel(tables, '16670', '16670')).toBe(tables);
+    expect(seedLmeNickel(tables, null as any, '16670')).toBe(tables);
+  });
+
+  it('seeds both bars independently', () => {
+    const t = { id: 't1', prices: { ni: '9999' }, salesPrices: {} };
+    const out = seedLmeNickel([t], '16670', null);
+    expect(out[0].prices.ni).toBe('9999'); // typed, kept
+    expect(out[0].salesPrices.ni).toBe('16670'); // blank, seeded
   });
 });

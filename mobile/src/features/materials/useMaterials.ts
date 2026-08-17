@@ -1,10 +1,11 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/store/auth';
 import { useSettings } from '@/store/settings';
 import { loadMaterials } from '@/data/firestore';
 import { saveMaterials, deleteMaterialTable, newId } from '@/data/writes';
 import { DEFAULT_ELEMENTS, moveFeLast } from './constants';
+import { useMetalPrices } from '@/features/prices/useMetalPrices';
 
 // Material tables with an editable local working copy — port of the web page's
 // data/setData model (app/(root)/materialtables/page.js). Web keeps every table in
@@ -25,8 +26,48 @@ export function blankTable(nilmePrice?: number) {
     costLabel: 'Price',
     niPercent: 100,
     priceKeys: null,
+    // Sales bar — the cost bar's twin (web page.js:154). Seeded with the live LME
+    // nickel price the same way, so a new table opens ready to price a sale.
+    salesPrices: nilmePrice ? { ni: nilmePrice } : {},
+    showSales: false,
+    salesLabel: 'Sales Price',
+    salesNiPercent: 100,
+    salesPriceKeys: null,
     data: [] as any[],
   };
+}
+
+/**
+ * Refresh a stale LME nickel price without ever overwriting a typed one.
+ *
+ * Web page.js:106-129, and the rule is subtler than it looks. A price counts as
+ * "ours" only when it is empty or still equal to the LAST live value we wrote; once
+ * a user types their own number it stops moving, because a negotiated price has to
+ * outlive the next tick — silently resetting it 60 seconds later would quietly wrong
+ * the margin. Both bars are seeded, independently.
+ *
+ * Returns the SAME array reference when nothing changed: the poll fires on a timer
+ * with a fresh price object even when the rounded value has not moved, and returning
+ * a new array each time would re-render every table and re-run the totals for
+ * nothing.
+ */
+export function seedLmeNickel<T extends any[]>(tables: T, liveNi?: string | null, prevLive?: string | null): T {
+  if (liveNi == null || liveNi === '') return tables;
+  const ours = (v: any) => v == null || v === '' || v === prevLive;
+  const stale = (v: any) => ours(v) && v !== liveNi;
+  let touched = false;
+  const next = (tables || []).map((t: any) => {
+    const costStale = stale(t?.prices?.ni);
+    const salesStale = stale(t?.salesPrices?.ni);
+    if (!costStale && !salesStale) return t;
+    touched = true;
+    return {
+      ...t,
+      ...(costStale && { prices: { ...t.prices, ni: liveNi } }),
+      ...(salesStale && { salesPrices: { ...t.salesPrices, ni: liveNi } }),
+    };
+  });
+  return (touched ? next : tables) as T;
 }
 
 export function blankRow(elements: any[]) {
@@ -73,6 +114,20 @@ export function useMaterials() {
   }, [query.data]);
 
   const nilmePrice = Number((settings as any)?.formulasCalc?.general?.nilme) || undefined;
+
+  // Live LME nickel, rounded the way web rounds it (page.js:108). `lastLive` holds
+  // the previous value we wrote so seedLmeNickel can tell "our" price from a typed
+  // one — without it, every poll would overwrite a negotiated price.
+  const { prices: metalPrices } = useMetalPrices();
+  const lastLive = useRef<string | null>(null);
+  useEffect(() => {
+    const ni = metalPrices.find((m) => m.key === 'LME-NI' || m.symbol === 'Ni');
+    if (ni?.price == null) return;
+    const liveNi = String(Math.round(ni.price));
+    const prev = lastLive.current;
+    lastLive.current = liveNi;
+    setTables((prevTables) => seedLmeNickel(prevTables, liveNi, prev));
+  }, [metalPrices]);
 
   const mutate = (fn: (prev: any[]) => any[]) => {
     setTables(fn);
