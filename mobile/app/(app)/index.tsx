@@ -4,7 +4,7 @@ import { router, Redirect } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { StatCard, Text, Card, AreaChart, ProgressBar, Select, SectionHeader, SkeletonList, ErrorState } from '@/components/ui';
+import { StatCard, Text, Card, ProgressBar, Select, SectionHeader, SkeletonList, ErrorState } from '@/components/ui';
 import { PeriodSelector } from '@/components/PeriodSelector';
 import { useTheme } from '@/theme/ThemeProvider';
 import { useAuth } from '@/store/auth';
@@ -182,56 +182,20 @@ export default function Dashboard() {
             <ErrorState message={(error as Error)?.message || 'Failed to load dashboard data.'} onRetry={refetch} />
           ) : data ? (
             <View style={{ gap: 14 }}>
-              {/* Revenue / Costs / Profit — web's 3-series hero chart. All three are
-                  DEAL basis (contract month + contract rate), which is why revenue
-                  here is dealRevenueByMonth, not the invoice-dated series. */}
-              {data.dealRevenueByMonth.some((v) => v !== 0) && (
-                <Card>
-                  <SectionHeader title="Revenue, costs & profit" subtitle="Sold basis · unsold stock excluded" />
-                  <View style={{ flexDirection: 'row', gap: 14, marginBottom: 6 }}>
-                    {[
-                      { k: 'Revenue', c: colors.primary },
-                      { k: 'Costs', c: colors.negative },
-                      { k: 'Profit', c: colors.positive },
-                    ].map((l) => (
-                      <View key={l.k} style={{ flexDirection: 'row', alignItems: 'center', gap: 5 }}>
-                        <View style={{ width: 9, height: 9, borderRadius: 5, borderWidth: 2, borderColor: l.c }} />
-                        <Text variant="caption" tone="muted">{l.k}</Text>
-                      </View>
-                    ))}
-                  </View>
-                  <AreaChart
-                    data={data.dealRevenueByMonth}
-                    labels={['J', 'F', 'M', 'A', 'M', 'J', 'J', 'A', 'S', 'O', 'N', 'D']}
-                    tooltipLabels={MONTHS}
-                    color={colors.primary}
-                    formatY={(v) => fmtAutoKM(v, 1)}
-                    series={[
-                      {
-                        name: 'Costs',
-                        color: colors.negative,
-                        data: data.cogsByMonth.map((c, i) => c + data.expensesByMonth[i]),
-                      },
-                      { name: 'Profit', color: colors.positive, data: data.profitByMonth, dashed: true },
-                    ]}
-                  />
-                </Card>
-              )}
-
-              {/* Invoiced revenue trend — kept as a separate card because it is a
-                  different basis (invoice month) from the chart above. */}
-              {data.revenueByMonth.some((v) => v > 0) && (
-                <Card onPress={() => router.push('/(app)/invoices')}>
-                  <SectionHeader title="Revenue trend" subtitle="Invoiced by month" />
-                  <AreaChart
-                    data={data.revenueByMonth}
-                    labels={['J', 'F', 'M', 'A', 'M', 'J', 'J', 'A', 'S', 'O', 'N', 'D']}
-                    tooltipLabels={MONTHS}
-                    color={colors.primary}
-                    formatY={(v) => fmtAutoKM(v, 1)}
-                  />
-                </Card>
-              )}
+              {/* Removed on client request (2026-08-17): the "Revenue, costs & profit"
+                  3-series chart and the "Revenue trend" card.
+                  On a phone the three overlaid series were unreadable — the legend
+                  collided with the plot and the dashed profit line was easily misread
+                  as data ending rather than flattening. The same figures are stated
+                  exactly, and unambiguously, by the Net Profit / COGS / Avg-Profit-per-MT
+                  tiles immediately below, which is how a small screen should carry them.
+                  Web keeps its version of the 3-series chart (dashboard/page.js:1689),
+                  where the width makes it legible; "Revenue trend" had no web
+                  counterpart at all, so dropping it moved mobile TOWARDS parity.
+                  The underlying series (dealRevenueByMonth, cogsByMonth, profitByMonth,
+                  revenueByMonth) are still computed and still covered by the parity
+                  suite — nothing was deleted from the data layer, so restoring either
+                  card is a UI change only. */}
 
               {/* Sold-basis P&L — web's Net Profit / COGS / Expenses / Storage /
                   Avg-Profit-per-MT KPIs. Deal basis: attributed to the CONTRACT
