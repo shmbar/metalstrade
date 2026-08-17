@@ -2,6 +2,12 @@ import React, { useEffect, useContext, useState } from 'react';
 import { SettingsContext } from "../contexts/useSettingsContext";
 import { CheckCircle2, XCircle } from 'lucide-react';
 
+// Bottom-LEFT, not bottom-right: every page's action row (Save, PDF, Duplicate,
+// + Invoice from…) lives bottom-right, and so do the chat launcher and the ⌘K
+// hint, so a toast there covers the buttons you just pressed. --sidebar-w keeps
+// it off the nav — the sidebar's bottom-left corner holds the fixed user pill.
+const TOAST_LEFT = 'calc(var(--sidebar-w) + 1rem)';
+
 const Toast = () => {
     const { setToast, toast } = useContext(SettingsContext);
     const [secondaryToast, setSecondaryToast] = useState(false);
@@ -30,9 +36,9 @@ const Toast = () => {
     return (
         <div>
             {toast?.show && (
-                <div className={`bottom-4 right-4 z-toast fixed rounded-2xl overflow-hidden border bg-[var(--bg-card)] text-[var(--ink)]
+                <div className={`bottom-4 z-toast fixed rounded-2xl overflow-hidden border bg-[var(--bg-card)] text-[var(--ink)]
                 ${toast?.clr === 'success' ? 'border-[var(--ok-border)]' : 'border-[var(--bad-border)]'}`}
-                    style={{ boxShadow: 'var(--shadow-md)', animation: 'toast-slide-in 0.3s cubic-bezier(0.16,1,0.3,1) both' }}>
+                    style={{ left: TOAST_LEFT, boxShadow: 'var(--shadow-md)', animation: 'toast-slide-in 0.3s cubic-bezier(0.16,1,0.3,1) both' }}>
                     <div className='gap-3 flex responsiveTextTitle font-medium px-4 py-3 items-center'>
                         {toast?.clr === 'success'
                             ? <CheckCircle2 size={18} className='text-[var(--ok-text)] flex-shrink-0' />
@@ -53,8 +59,8 @@ const Toast = () => {
                 </div>
             )}
             {secondaryToast && toast?.clr === 'success' && (
-                <div className="gap-3 flex responsiveTextTitle font-medium px-4 py-3 bottom-4 right-4 z-toast fixed rounded-2xl items-center fadeInToast border border-[var(--line)] bg-[var(--bg-card)] text-[var(--ink-secondary)]"
-                    style={{ boxShadow: 'var(--shadow-md)' }}>
+                <div className="gap-3 flex responsiveTextTitle font-medium px-4 py-3 bottom-4 z-toast fixed rounded-2xl items-center fadeInToast border border-[var(--line)] bg-[var(--bg-card)] text-[var(--ink-secondary)]"
+                    style={{ left: TOAST_LEFT, boxShadow: 'var(--shadow-md)' }}>
                     <CheckCircle2 size={16} className='text-[var(--brand)] flex-shrink-0' />
                     <div>Please verify the saved data again!</div>
                 </div>

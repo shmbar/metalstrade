@@ -1,6 +1,6 @@
 
 "use client";
-import { useState, useContext, useMemo } from "react";
+import { useState, useContext, useMemo, useEffect } from "react";
 import {
   Search, X, LayoutDashboard, Bot, FileText, Truck, Receipt, Wallet,
   Calculator, FileSearch, ClipboardCheck, Landmark, Boxes, FilePlus,
@@ -65,6 +65,16 @@ export default function Sidebar() {
   const handleSectionToggle = (section) => {
     setOpenSections((prev) => ({ ...prev, [section]: !prev[section] }));
   };
+
+  // Publish the nav's own width so viewport-fixed overlays (the toast) can start
+  // where the content does. Only the collapsed override lives here — the
+  // expanded default and the below-md zero are in globals.css, so the var is
+  // right on the first paint too.
+  useEffect(() => {
+    const root = document.documentElement;
+    if (collapsed) root.style.setProperty("--sidebar-w-desktop", "60px");
+    else root.style.removeProperty("--sidebar-w-desktop");
+  }, [collapsed]);
 
   const anyDropdownOpen = collapsibleSections.some((s) => openSections[s]);
 

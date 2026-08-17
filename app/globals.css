@@ -300,6 +300,13 @@
   --z-tooltip: 400;      /* hover tooltips — must clear modals                 */
   --z-command: 500;      /* command palette, full-screen PDF/document viewers  */
 
+  /* Sidebar footprint, published so viewport-fixed overlays can clear the nav
+     instead of landing on top of it. The nav's bottom-left corner is taken by
+     the fixed user pill, so a bottom-left toast has to start after this. 0 here
+     because the sidebar is display:none below md; SideBar.js overrides
+     --sidebar-w-desktop when it collapses. */
+  --sidebar-w: 0px;
+
   /* shadcn/Radix design tokens — referenced by tailwind.config.js (hsl(var(--x)))
      and the components/ui/* primitives. Mapped to the brand palette so bg-primary,
      text-muted-foreground, border-input, ring-ring, hover:bg-accent, etc. resolve
@@ -383,6 +390,16 @@
     --fs-stat:    1.5rem;    /* 24 — held at cap */
     --fs-display: 2rem;      /* 32 — marketing only */
     --fs-hero:    3rem;      /* 48 — marketing only */
+  }
+}
+
+/* The sidebar only takes up space from md up — below that it is display:none and
+   SideBarMini owns the top bar, so a fixed overlay can hug the true left edge.
+   The default here mirrors the expanded width in SideBar.js; that component
+   overrides --sidebar-w-desktop with 60px while collapsed. */
+@media (min-width: 768px) {
+  :root {
+    --sidebar-w: var(--sidebar-w-desktop, clamp(190px, 15vw, 220px));
   }
 }
 
@@ -1144,6 +1161,19 @@ textarea:focus-visible,
 
 .fadeInToast {
   animation: fadeIn 1s;
+}
+
+/* The toast asked for both of these but neither existed, so it appeared with no
+   entrance and a progress bar frozen at full width. Slide comes from the LEFT
+   now that the toast is anchored bottom-left, mirroring notifPopIn/notifBar. */
+@keyframes toast-slide-in {
+  from { opacity: 0; transform: translateX(-28px) scale(0.97); }
+  to   { opacity: 1; transform: translateX(0) scale(1); }
+}
+
+@keyframes toast-bar {
+  from { width: 100%; }
+  to   { width: 0%; }
 }
 
 /******** toast ****/
