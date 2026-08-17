@@ -93,6 +93,14 @@ export default function AppLayout() {
         name="stocks"
         options={{ title: 'Stocks', tabBarIcon: tabIcon('cube', colors.tabActive), href: accountingOnly ? null : undefined }}
       />
+      {/* Client feedback: "they need to see balance separate from invoices". The
+          figures existed only inside Invoices Review's second tab and Cashflow,
+          both two taps deep under More, so answering "what are we owed?" meant
+          reading an invoice list and adding up. It earns a tab of its own. */}
+      <Tabs.Screen
+        name="balances"
+        options={{ title: 'Balances', tabBarIcon: tabIcon('wallet', colors.tabActive), href: accountingOnly ? null : undefined }}
+      />
       {/* Routable but not shown in the tab bar (opened from More). */}
       <Tabs.Screen name="cashflow" options={{ href: null }} />
       <Tabs.Screen name="incoterms" options={{ href: null }} />

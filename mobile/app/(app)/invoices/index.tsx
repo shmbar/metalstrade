@@ -31,7 +31,9 @@ export default function InvoicesList() {
   const { settings } = useSettings();
   const { data: invoices, isLoading, isError, error, refetch } = useInvoices();
   // Dashboard tiles deep-link here with ?filter=Unpaid (drill-through).
-  const { filter: filterParam } = useLocalSearchParams<{ filter?: string }>();
+  // Dashboard tiles deep-link with ?filter=Unpaid; the Balances tab deep-links
+  // with ?client=<name> so a balance leads straight to the invoices behind it.
+  const { filter: filterParam, client: clientParam } = useLocalSearchParams<{ filter?: string; client?: string }>();
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState<Filter>(
     FILTERS.includes(filterParam as Filter) ? (filterParam as Filter) : 'All'
@@ -46,6 +48,7 @@ export default function InvoicesList() {
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
     const list = views.filter((v) => {
+      if (clientParam && v.clientName !== clientParam) return false;
       if (filter === 'Unpaid' && v.status !== 'Unpaid') return false;
       if (filter === 'Partial' && v.status !== 'Partial') return false;
       if (filter === 'Paid' && v.status !== 'Paid') return false;
@@ -55,7 +58,7 @@ export default function InvoicesList() {
     if (sort === 'total') return [...list].sort((a, b) => b.total - a.total);
     if (sort === 'balance') return [...list].sort((a, b) => b.balance - a.balance);
     return [...list].sort((a, b) => (b.dateIso || '').localeCompare(a.dateIso || ''));
-  }, [views, search, filter, sort]);
+  }, [views, search, filter, sort, clientParam]);
 
   // Per-currency outstanding across the filtered set (never summed across $/€).
   const outstanding = useMemo(() => {

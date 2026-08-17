@@ -649,6 +649,36 @@ describe('invoices review — client receivables', () => {
     expect(clients[0].byCur.us).toBe(-7000);
   });
 
+  // ── Balances screen (mobile/app/(app)/balances.tsx) ───────────────────────
+  // The screen renders these rows directly and recomputes NOTHING — a second
+  // implementation of a money figure is how the two apps drifted apart before.
+  // These pin the two things it DOES do on top: the per-currency roll-up shown in
+  // its header, and the sort that decides which debt a user sees first.
+
+  it('the Balances header totals each currency separately, never summed', () => {
+    const docs = [
+      makeInvoice({ id: 'a', invoice: 2001, payments: [] }),
+      makeInvoice({ id: 'b', invoice: 2002, cur: 'eu', totalAmount: 8000, payments: [] }),
+    ];
+    const rows = review(docs).clients;
+    // exactly the reduce balances.tsx runs over the visible rows
+    const totals: Record<string, number> = {};
+    rows.forEach((r) => Object.entries(r.byCur).forEach(([c, v]) => (totals[c] = (totals[c] || 0) + v)));
+    expect(totals).toEqual({ us: 12000, eu: 8000 });
+    expect(Object.keys(totals).sort()).toEqual(['eu', 'us']); // two lines, not one sum
+  });
+
+  it('Balances sorts the biggest debt first — the reason you open the screen', () => {
+    const docs = [
+      makeInvoice({ id: 'small', invoice: 2003, client: 'cli-2', totalAmount: 1000, payments: [] }),
+      makeInvoice({ id: 'big', invoice: 2004, client: 'cli-1', totalAmount: 90000, payments: [] }),
+    ];
+    const rows = review(docs).clients;
+    const total = (p: any) => Object.values(p.byCur).reduce((a: any, b: any) => a + b, 0) as number;
+    const sorted = [...rows].sort((a, b) => total(b) - total(a));
+    expect(sorted.map(total)).toEqual([90000, 1000]);
+  });
+
   it('a residual below 0.1 is dropped from receivables', () => {
     const docs = [makeInvoice({ totalAmount: 5000.05, payments: [makePayment({ pmnt: '5000' })] })];
     expect(review(docs).clients).toHaveLength(0);

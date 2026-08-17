@@ -54,7 +54,7 @@ export default defineConfig({
   ...base,
   test: {
     ...baseTest,
-    include: ['**/__tests__/smoke/**/*.smoke.ts'],
+    include: ['**/__tests__/smoke/**/*.smoke.ts','**/__tests__/perf/**/*.smoke.ts'],
     env: readEnvFiles(['./mobile/.env', './mobile/.env.local', './.env', './.env.local']),
     // One connection, one sign-in, sequential reads — no point parallelising, and it
     // keeps the printed report readable.
