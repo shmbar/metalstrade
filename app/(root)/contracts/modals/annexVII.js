@@ -3,23 +3,28 @@ import { Selector } from '@components/selectors/selectShad';
 import { PdfAnnexVII } from './pdf/pdfAnnexVII';
 import { FileText } from 'lucide-react';
 
-const Field = ({ label, name, value, onChange, placeholder = '', wide = false }) => (
-    <div className={wide ? 'md:col-span-2' : ''}>
-        <label className="block responsiveText font-medium text-[var(--chathams-blue)] mb-0.5">{label}</label>
+/* Most of these fields hold a phone number, a date or a 5-character waste code, so a
+   two-column grid gave each of them ~490px of an 1040px dialog and made the form twice
+   as tall as it needed to be. Four columns, with a span for the few that hold an
+   address or a description. */
+const SPAN = { 1: '', 2: 'sm:col-span-2', 3: 'sm:col-span-2 lg:col-span-3', 4: 'sm:col-span-2 lg:col-span-4' };
+
+const Field = ({ label, name, value, onChange, placeholder = '', span = 1 }) => (
+    <div className={SPAN[span] || SPAN[1]}>
+        <label className="block responsiveText font-medium text-[var(--ink-muted)] mb-1">{label}</label>
         <input
             name={name}
             value={value || ''}
             onChange={onChange}
             placeholder={placeholder}
-            className="border border-[var(--line)] rounded-lg px-3 h-7 responsiveTextInput w-full
-                focus:outline-none focus:ring-1 focus:ring-[var(--endeavour)]"
+            className="input h-7"
             style={{ fontFamily: 'inherit' }}
         />
     </div>
 );
 
 const SectionLabel = ({ text }) => (
-    <p className="md:col-span-2 responsiveText font-medium text-[var(--endeavour)] mt-2 border-b border-[var(--bg-subtle)] pb-0.5">{text}</p>
+    <p className={`${SPAN[4]} responsiveText font-medium text-[var(--endeavour)] mt-1.5 border-b border-[var(--line)] pb-0.5`}>{text}</p>
 );
 
 const AnnexVII = ({ valueInv, setValueInv, compData, settings, valueCon }) => {
@@ -189,7 +194,7 @@ const AnnexVII = ({ valueInv, setValueInv, compData, settings, valueCon }) => {
             {/* Template selector */}
             {templates.length > 0 && (
                 <div className="mb-3 flex items-center gap-2">
-                    <label className="responsiveText font-medium text-[var(--chathams-blue)] whitespace-nowrap">Load Template:</label>
+                    <label className="responsiveText font-medium text-[var(--ink-muted)] whitespace-nowrap">Load Template</label>
                     <div className="w-64">
                         <Selector
                             arr={templates}
@@ -203,7 +208,7 @@ const AnnexVII = ({ valueInv, setValueInv, compData, settings, valueCon }) => {
                 </div>
             )}
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-3 gap-y-2">
 
                 {/* Section 3: Quantity */}
                 <SectionLabel text="Section 3 — Actual Quantity" />
@@ -213,9 +218,9 @@ const AnnexVII = ({ valueInv, setValueInv, compData, settings, valueCon }) => {
                 {/* Section 5a: First Carrier */}
                 <SectionLabel text="Section 5(a) — First Carrier" />
                 {carriers.length > 0 && (
-                    <div className="md:col-span-2">
-                        <label className="block responsiveText font-medium text-[var(--chathams-blue)] mb-0.5">Pick Carrier</label>
-                        <div className="w-64">
+                    <div>
+                        <label className="block responsiveText font-medium text-[var(--ink-muted)] mb-1">Pick Carrier</label>
+                        <div>
                             <Selector
                                 arr={carrierSortedArr}
                                 value={{ carrier1Id: ax.carrier1Id || '' }}
@@ -228,20 +233,20 @@ const AnnexVII = ({ valueInv, setValueInv, compData, settings, valueCon }) => {
                     </div>
                 )}
                 <Field label="Carrier Name" name="carrier1Name" value={ax.carrier1Name} onChange={handleInput} />
-                <Field label="Carrier Address" name="carrier1Address" value={ax.carrier1Address} onChange={handleInput} />
+                <Field label="Carrier Address" name="carrier1Address" value={ax.carrier1Address} onChange={handleInput} span={2} />
                 <Field label="Contact Person" name="carrier1Contact" value={ax.carrier1Contact} onChange={handleInput} />
                 <Field label="Tel." name="carrier1Tel" value={ax.carrier1Tel} onChange={handleInput} />
                 <Field label="Fax" name="carrier1Fax" value={ax.carrier1Fax} onChange={handleInput} />
                 <Field label="E-Mail" name="carrier1Email" value={ax.carrier1Email} onChange={handleInput} />
-                <Field label="Means of Transport" name="carrier1Transport" value={ax.carrier1Transport} onChange={handleInput} />
+                <Field label="Means of Transport" name="carrier1Transport" value={ax.carrier1Transport} onChange={handleInput} span={2} />
                 <Field label="Date of Transfer" name="carrier1Date" value={ax.carrier1Date} onChange={handleInput} placeholder="dd.mm.yyyy" />
 
                 {/* Section 5b: Second Carrier */}
                 <SectionLabel text="Section 5(b) — Second Carrier (optional)" />
                 {carriers.length > 0 && (
-                    <div className="md:col-span-2">
-                        <label className="block responsiveText font-medium text-[var(--chathams-blue)] mb-0.5">Pick Carrier</label>
-                        <div className="w-64">
+                    <div>
+                        <label className="block responsiveText font-medium text-[var(--ink-muted)] mb-1">Pick Carrier</label>
+                        <div>
                             <Selector
                                 arr={carrierSortedArr}
                                 value={{ carrier2Id: ax.carrier2Id || '' }}
@@ -254,18 +259,18 @@ const AnnexVII = ({ valueInv, setValueInv, compData, settings, valueCon }) => {
                     </div>
                 )}
                 <Field label="Carrier Name" name="carrier2Name" value={ax.carrier2Name} onChange={handleInput} />
-                <Field label="Carrier Address" name="carrier2Address" value={ax.carrier2Address} onChange={handleInput} />
+                <Field label="Carrier Address" name="carrier2Address" value={ax.carrier2Address} onChange={handleInput} span={2} />
                 <Field label="Contact Person" name="carrier2Contact" value={ax.carrier2Contact} onChange={handleInput} />
                 <Field label="Tel." name="carrier2Tel" value={ax.carrier2Tel} onChange={handleInput} />
                 <Field label="Fax" name="carrier2Fax" value={ax.carrier2Fax} onChange={handleInput} />
                 <Field label="E-Mail" name="carrier2Email" value={ax.carrier2Email} onChange={handleInput} />
-                <Field label="Means of Transport" name="carrier2Transport" value={ax.carrier2Transport} onChange={handleInput} />
+                <Field label="Means of Transport" name="carrier2Transport" value={ax.carrier2Transport} onChange={handleInput} span={2} />
                 <Field label="Date of Transfer" name="carrier2Date" value={ax.carrier2Date} onChange={handleInput} placeholder="dd.mm.yyyy" />
 
                 {/* Section 8 + 9: Recovery operation & Waste description */}
                 <SectionLabel text="Section 8–9 — Recovery Operation & Waste Description" />
                 <Field label="R-Code / D-Code (field 8)" name="rDCode" value={ax.rDCode} onChange={handleInput} placeholder="e.g. R4" />
-                <Field label="Waste Description (field 9)" name="wasteDescription" value={ax.wasteDescription} onChange={handleInput} placeholder="e.g. Ni Cr Turnings" />
+                <Field label="Waste Description (field 9)" name="wasteDescription" value={ax.wasteDescription} onChange={handleInput} placeholder="e.g. Ni Cr Turnings" span={3} />
 
                 {/* Section 10: Waste codes */}
                 <SectionLabel text="Section 10 — Waste Identification Codes" />
@@ -277,7 +282,7 @@ const AnnexVII = ({ valueInv, setValueInv, compData, settings, valueCon }) => {
 
                 {/* vi) National Code — HS picker or free-text */}
                 <div>
-                    <label className="block responsiveText font-medium text-[var(--chathams-blue)] mb-0.5">vi) National Code (HS)</label>
+                    <label className="block responsiveText font-medium text-[var(--ink-muted)] mb-1">vi) National Code (HS)</label>
                     {hsArr.length > 0 ? (
                         <Selector
                             arr={hsArr}
@@ -293,8 +298,7 @@ const AnnexVII = ({ valueInv, setValueInv, compData, settings, valueCon }) => {
                             value={ax.nationalCode || ''}
                             onChange={handleInput}
                             placeholder="e.g. 7503"
-                            className="border border-[var(--line)] rounded-lg px-3 h-7 responsiveTextInput w-full
-                                focus:outline-none focus:ring-1 focus:ring-[var(--endeavour)]"
+                            className="input h-7"
                             style={{ fontFamily: 'inherit' }}
                         />
                     )}
