@@ -34,7 +34,7 @@ import { X, Save, Eraser, FileText, FileUp, Trash, PanelTopOpen, Banknote, Copy,
 import LoadingButton from '../../../../components/LoadingButton'
 
 // Settings-style form spec (shared with the standalone Invoices modal)
-const labelCls = 'responsiveText font-semibold uppercase tracking-[0.04em] text-[var(--ink-muted)] mb-1';
+const labelCls = 'responsiveText font-medium text-[var(--ink-muted)] mb-1';
 const panelCls = 'border border-[var(--line)] rounded-2xl bg-[var(--bg-card)] p-3';
 const panelTtl = 'responsiveTextTitle font-semibold mb-3 text-[var(--ink)] font-display';
 
@@ -362,7 +362,7 @@ const ContractModal = () => {
 
 				<div className='grid grid-cols-12 gap-3 pt-1'>
 					<div className={`col-span-1 ${panelCls}`}>
-						<p className={panelTtl}>{getTtl('Invoices', ln)}:</p>
+						<p className={panelTtl}>{getTtl('Invoices', ln)}</p>
 						{valueCon.invoices.length > 0 &&
 							<ul className="flex flex-col overflow-auto rounded-2xl divide-y max-h-32" >
 								{valueCon.invoices.map((x, i) => {
@@ -382,7 +382,7 @@ const ContractModal = () => {
 							</ul>}
 					</div>
 					<div className={`col-span-3 ${panelCls}`}>
-						<p className={labelCls}>{getTtl('Consignee', ln)}:</p>
+						<p className={labelCls}>{getTtl('Consignee', ln)}</p>
 						<div>
 							<Selector arr={clts} value={valueInv}
 								onChange={(e) => handleChange(e, 'client')}
@@ -403,7 +403,7 @@ const ContractModal = () => {
 						{!fnl ?
 							<div className='mt-2 flex flex-col gap-1.5'>
 								<div className='flex flex-col'>
-									<p className={labelCls}>Client Contract #:</p>
+									<p className={labelCls}>Client Contract #</p>
 									<input className="input" name='clientContractNo'
 										value={valueInv.clientContractNo || ''} onChange={handleClientContractNo} />
 								</div>
@@ -429,7 +429,7 @@ const ContractModal = () => {
 							</div>
 							:
 							<div className='mt-2 flex flex-col'>
-								<p className={labelCls}>Client Contract #:</p>
+								<p className={labelCls}>Client Contract #</p>
 								<p className='responsiveText text-[var(--ink)]'>{(Array.isArray(salesContracts) ? salesContracts : []).find(s => s.id === valueInv.salesContractId)?.contractNo || valueInv.clientContractNo || '—'}</p>
 							</div>
 						}
@@ -443,7 +443,7 @@ const ContractModal = () => {
 						)}
 					</div>
 					<div className={`col-span-2 ${panelCls} flex flex-col`}>
-						<p className={labelCls}>{getTtl('Invoice Type', ln)}:</p>
+						<p className={labelCls}>{getTtl('Invoice Type', ln)}</p>
 						{!fnl ?
 							<div>
 								<InvoiceType setSelected={selectInvType} plans={settings.InvTypes.InvTypes} value={valueInv} ln={ln} />
@@ -456,7 +456,7 @@ const ContractModal = () => {
 						}
 					</div>
 					<div className={`col-span-2 ${panelCls} flex flex-col`}>
-						<p className={panelTtl}>{getTtl('PO', ln)}#:</p>
+						<p className={panelTtl}>{getTtl('PO', ln)}#</p>
 						{valueInv.productsDataInvoice.length > 0 && <ul className="flex flex-col rounded-2xl divide-y max-h-20 overflow-y-auto" >
 							{poArr.map((x, i) => {
 								return (
@@ -472,7 +472,7 @@ const ContractModal = () => {
 					</div>
 					<div className={`col-span-4 ${panelCls} flex flex-col gap-3`}>
 						<div className='flex flex-col'>
-							<p className={labelCls}>{getTtl('Date', ln)}:</p>
+							<p className={labelCls}>{getTtl('Date', ln)}</p>
 							{!fnl ?
 								<>
 									<Datepicker useRange={false}
@@ -502,7 +502,7 @@ const ContractModal = () => {
 								</p>
 							</div>
 							<div className='flex flex-col'>
-								<p className={labelCls}>{getTtl('Status', ln)}:</p>
+								<p className={labelCls}>{getTtl('Status', ln)}</p>
 								<p className='responsiveText font-medium'>
 									{!fnl ? 'Draft' : fnl && !valueInv.canceled ? 'Finalized' : (fnl && valueInv.canceled) && 'Canceled'}
 								</p>
@@ -515,7 +515,7 @@ const ContractModal = () => {
 				<div className='grid grid-cols-1 md:grid-cols-3 gap-3 pt-2'>
 					<div className={`${panelCls} flex flex-col gap-3`}>
 						<div className='flex flex-col'>
-							<p className={labelCls}>{getTtl('Shipment', ln)}:</p>
+							<p className={labelCls}>{getTtl('Shipment', ln)}</p>
 							<Selector arr={settings.Shipment.Shipment} value={valueInv}
 								onChange={(e) => handleChange(e, 'shpType')}
 								name='shpType'
@@ -524,7 +524,7 @@ const ContractModal = () => {
 						</div>
 
 						<div className='flex flex-col'>
-							<p className={labelCls}>{getTtl('Origin', ln)}:</p>
+							<p className={labelCls}>{getTtl('Origin', ln)}</p>
 							<Selector arr={[...settings.Origin.Origin, { id: 'empty', origin: '...Empty' }]}
 								value={valueInv}
 								onChange={(e) => handleChange(e, 'origin')}
@@ -532,14 +532,14 @@ const ContractModal = () => {
 								clear={clear} />
 						</div>
 						<div className='flex flex-col'>
-							<p className={labelCls}>{getTtl('Delivery Terms', ln)}:</p>
+							<p className={labelCls}>{getTtl('Delivery Terms', ln)}</p>
 							<Selector arr={settings['Delivery Terms']['Delivery Terms']} value={valueInv}
 								onChange={(e) => handleChange(e, 'delTerm')}
 								name='delTerm'
 								clear={clear} />
 						</div>
 						<div className='flex flex-col'>
-							<p className={labelCls}>{getTtl('Delivery Date', ln)}:</p>
+							<p className={labelCls}>{getTtl('Delivery Date', ln)}</p>
 							<Datepicker useRange={false}
 								asSingle={true}
 								value={valueInv.delDate}
@@ -553,14 +553,14 @@ const ContractModal = () => {
 
 					<div className={`${panelCls} flex flex-col gap-3`}>
 						<div className='flex flex-col'>
-							<p className={labelCls}>{getTtl('POL', ln)}:</p>
+							<p className={labelCls}>{getTtl('POL', ln)}</p>
 							<Selector arr={settings.POL.POL} value={valueInv}
 								onChange={(e) => handleChange(e, 'pol')}
 								name='pol'
 								clear={clear} />
 						</div>
 						<div className='flex flex-col'>
-							<p className={labelCls}>{getTtl('POD', ln)}:</p>
+							<p className={labelCls}>{getTtl('POD', ln)}</p>
 							<Selector arr={settings.POD.POD} value={valueInv}
 								onChange={(e) => handleChange(e, 'pod')}
 								name='pod'
@@ -568,7 +568,7 @@ const ContractModal = () => {
 						</div>
 						{(valueInv.invType === '1111' || valueInv.invType === 'Invoice') &&
 							<div className='flex flex-col'>
-								<p className={labelCls}>{getTtl('Packing', ln)}:</p>
+								<p className={labelCls}>{getTtl('Packing', ln)}</p>
 								<Selector arr={settings.Packing.Packing} value={valueInv}
 									onChange={(e) => handleChange(e, 'packing')}
 									name='packing'
@@ -578,21 +578,21 @@ const ContractModal = () => {
 
 					<div className={`${panelCls} flex flex-col gap-3`}>
 						<div className='flex flex-col'>
-							<p className={labelCls}>{getTtl('totalNet', ln)}:</p>
+							<p className={labelCls}>{getTtl('totalNet', ln)}</p>
 							<p className='responsiveText text-[var(--ink)]'>
 								{NetWTKgs}
 							</p>
 						</div>
 						{(valueInv.invType === '1111' || valueInv.invType === 'Invoice') &&
 							<div className='flex flex-col'>
-								<p className={`${labelCls} ${(secondRule || fifthRule) ? 'opacity-50' : ''}`}>{getTtl('totalTare', ln)}:</p>
+								<p className={`${labelCls} ${(secondRule || fifthRule) ? 'opacity-50' : ''}`}>{getTtl('totalTare', ln)}</p>
 								<p className={`responsiveText ${parseInt(TotalTarre) < 0 ? 'text-red-400 font-medium' : 'text-[var(--ink)]'}`}>{secondRule || fifthRule ? '' : TotalTarre}</p>
 							</div>
 						}
 
 						<div className='flex flex-col'>
 							<p className={`${labelCls} ${(fourthRule || fifthRule) ? 'opacity-50' : ''}`}>
-								{thirdRule ? 'QTY Ingots' : getTtl('totalGross', ln)}:</p>
+								{thirdRule ? 'QTY Ingots' : getTtl('totalGross', ln)}</p>
 							<div>{(fourthRule || fifthRule) ? '' :
 								<div className='w-full'>
 									{!fnl ?
@@ -606,7 +606,7 @@ const ContractModal = () => {
 
 						{(valueInv.invType === '1111' || valueInv.invType === 'Invoice') &&
 							<div className='flex flex-col'>
-								<p className={`${labelCls} ${(fourthRule || thirdRule) ? 'opacity-50' : ''}`}>{getTtl('totalPack', ln)}:</p>
+								<p className={`${labelCls} ${(fourthRule || thirdRule) ? 'opacity-50' : ''}`}>{getTtl('totalPack', ln)}</p>
 								<div>{(fourthRule || thirdRule) ? '' :
 									<div className='w-full'>
 										{!fnl ?
@@ -623,7 +623,7 @@ const ContractModal = () => {
 
 				<div className='grid grid-cols-1 md:grid-cols-2 gap-3 mt-2'>
 					<div className={`${panelCls} flex flex-col`}>
-						<p className={labelCls}>{getTtl('Bank Account', ln)}:</p>
+						<p className={labelCls}>{getTtl('Bank Account', ln)}</p>
 						<Selector arr={settings['Bank Account']['Bank Account']} value={valueInv}
 							onChange={(e) => handleChange(e, 'bankNname')}
 							name='bankNname'
@@ -631,7 +631,7 @@ const ContractModal = () => {
 					</div>
 
 					<div className={`col-span-1 ${panelCls} flex flex-col`}>
-						<p className={labelCls}>HS Code:</p>
+						<p className={labelCls}>HS Code</p>
 						<div className='flex gap-2 w-full'>
 							<div className='flex-1 min-w-0'>
 								<Selector arr={settings.Hs.Hs.map(item => {
@@ -674,7 +674,7 @@ const ContractModal = () => {
 					</div>
 
 					<div className={`md:col-span-2 ${panelCls} flex flex-col`}>
-						<p className={labelCls}>{getTtl('Comments', ln)}:</p>
+						<p className={labelCls}>{getTtl('Comments', ln)}</p>
 						<textarea rows="2" name="comments"
 							className='input p-1'
 							style={{ fontSize: 'var(--fs-input)', fontFamily: 'inherit', height: valueInv.remarks.length === 0 ? '40px' : valueInv.remarks.length * 40 + 'px' }}
@@ -684,7 +684,7 @@ const ContractModal = () => {
 					</div>
 
 					<div className={`md:col-span-1 ${panelCls} flex flex-col`}>
-						<p className={labelCls}>{getTtl('Currency', ln)}:</p>
+						<p className={labelCls}>{getTtl('Currency', ln)}</p>
 						<Selector arr={settings.Currency.Currency} value={valueInv}
 							onChange={(e) => handleChange(e, 'cur')}
 							name='cur'
@@ -699,7 +699,7 @@ const ContractModal = () => {
 				<Expenses showExpenses={showExpenses} />
 				<Payments showPayments={showPayments} />
 
-				<div className="mt-3 flex flex-wrap justify-end gap-2 pt-3 border-t border-[var(--line)]">
+				<div className="sticky bottom-0 z-sticky bg-[var(--bg-card)] mt-3 flex flex-wrap justify-end gap-2 pt-3 pb-2 border-t border-[var(--line)]">
 					<Tltip direction='top' tltpText='Clear form'>
 						<button
 							className="whiteButton py-1"
@@ -916,12 +916,12 @@ const ContractModal = () => {
 					doAction={() => cancelInvoice(uidCollection)} />
 
 				{showHistory && (
-					<Modal isOpen={showHistory} setIsOpen={setShowHistory} title='Activity / History' w='max-w-2xl'>
+					<Modal isOpen={showHistory} setIsOpen={setShowHistory} title='Activity / History' size='md'>
 						<ActivityLog entityType='invoice' entityId={valueInv.id} />
 					</Modal>
 				)}
 				{showComments && (
-					<Modal isOpen={showComments} setIsOpen={setShowComments} title={`Comments — Invoice #${valueInv.invoice ?? ''}`} w='max-w-2xl'>
+					<Modal isOpen={showComments} setIsOpen={setShowComments} title={`Comments — Invoice #${valueInv.invoice ?? ''}`} size='md'>
 						<CommentThread entityType='invoice' entityId={valueInv.id} entityLabel={`Invoice #${valueInv.invoice ?? ''}`} />
 					</Modal>
 				)}

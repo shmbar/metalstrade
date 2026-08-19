@@ -338,16 +338,18 @@ const ContractModal = () => {
 
 
 	const panelCls = 'border border-[var(--line)] rounded-2xl bg-[var(--bg-card)] p-3';
-	const titleCls = 'responsiveTextTitle font-semibold mb-3 text-[var(--ink)] font-display';
-	const labelCls = 'responsiveText font-semibold uppercase tracking-[0.04em] text-[var(--ink-muted)] mb-1';
-	const inputCls = 'w-full h-8 px-3 rounded-control border border-[var(--line-strong)] bg-[var(--bg-card)] text-[var(--ink)] responsiveTextTitle outline-none transition-colors focus:border-[var(--brand)] focus:ring-[3px] focus:ring-[var(--brand-soft)]';
+	const titleCls = 'responsiveTextTitle font-semibold mb-2 text-[var(--ink)] font-display';
+	const labelCls = 'responsiveText font-medium text-[var(--ink-muted)] mb-1';
+	// One control class for the whole form — the datepicker used to carry its own copy
+	// that differed from .input in padding and type size, inside the same card.
+	const inputCls = 'input';
 
 	return (
 		<div className="px-1">
-			<div className='grid grid-cols-1 md:grid-cols-6 gap-3 pt-1'>
+			<div className='grid grid-cols-1 md:grid-cols-5 gap-2.5 pt-1'>
 				<div className={`md:col-span-3 ${panelCls}`}>
 					<p className={titleCls}>Parties</p>
-					<p className={labelCls}>{getTtl('Supplier Name', ln)}:</p>
+					<p className={labelCls}>{getTtl('Supplier Name', ln)}</p>
 					<div className='flex flex-col md:flex-row gap-3 items-start md:items-center'>
 						<div className='flex-1 min-w-0 w-full'>
 							<Selector arr={sups} value={valueCon}
@@ -372,8 +374,8 @@ const ContractModal = () => {
 						</>
 					)}
 					{valueCon.showOriginSupplier &&
-						<div className='flex flex-col pt-3 w-full'>
-							<p className={labelCls}>Original Supplier:</p>
+						<div className='flex flex-col pt-2.5 w-full'>
+							<p className={labelCls}>Original Supplier</p>
 							<div className='w-full min-w-0 max-w-[18rem]'>
 								<Selector
 									arr={settings.Supplier.Supplier
@@ -387,17 +389,14 @@ const ContractModal = () => {
 						</div>
 					}
 				</div>
-				<div className={`hidden md:flex md:col-span-1 ${panelCls}`}>
-
-				</div>
 				<div className={`md:col-span-2 ${panelCls}`}>
 					<p className={titleCls}>Order</p>
-					<p className={labelCls}>{getTtl('PoOrderNo', ln)}:</p>
+					<p className={labelCls}>{getTtl('PoOrderNo', ln)}</p>
 					<div className='w-full'>
 						<input className="input" name='order' value={valueCon.order} onChange={handleValue} />
 						<ErrDiv field='order' errors={errors} ln={ln} />
 					</div>
-					<p className={`${labelCls} mt-3`}>{getTtl('Date', ln)}:</p>
+					<p className={`${labelCls} mt-3`}>{getTtl('Date', ln)}</p>
 					<div className='w-full '>
 						<Datepicker useRange={false}
 							asSingle={true}
@@ -411,11 +410,11 @@ const ContractModal = () => {
 					</div>
 				</div>
 			</div>
-			<div className='grid grid-cols-1 md:grid-cols-3 gap-3 pt-2'>
+			<div className='grid grid-cols-1 md:grid-cols-3 gap-2.5 pt-2'>
 				<div className={panelCls}>
 					<p className={titleCls}>Shipping</p>
 					<div className='flex flex-col'>
-						<p className={labelCls}>{getTtl('Shipment', ln)}:</p>
+						<p className={labelCls}>{getTtl('Shipment', ln)}</p>
 						<div className='w-full min-w-0'>
 							<Selector arr={settings.Shipment.Shipment} value={valueCon}
 								onChange={(e) => handleChange(e, 'shpType')}
@@ -424,8 +423,8 @@ const ContractModal = () => {
 							<ErrDiv field='shpType' errors={errors} ln={ln} />
 						</div>
 					</div>
-					<div className='flex flex-col pt-3'>
-						<p className={labelCls}>{getTtl('Origin', ln)}:</p>
+					<div className='flex flex-col pt-2.5'>
+						<p className={labelCls}>{getTtl('Origin', ln)}</p>
 						<div className='w-full min-w-0'>
 							<Selector arr={[...settings.Origin.Origin, { id: 'empty', origin: '...Empty' }]} value={valueCon}
 								onChange={(e) => handleChange(e, 'origin')}
@@ -433,8 +432,8 @@ const ContractModal = () => {
 								clear={clear} />
 						</div>
 					</div>
-					<div className='flex flex-col pt-3'>
-						<p className={labelCls}>{getTtl('Delivery Terms', ln)}:</p>
+					<div className='flex flex-col pt-2.5'>
+						<p className={labelCls}>{getTtl('Delivery Terms', ln)}</p>
 						<div className='w-full min-w-0'>
 							<Selector arr={settings['Delivery Terms']['Delivery Terms']} value={valueCon}
 								onChange={(e) => handleChange(e, 'delTerm')}
@@ -447,7 +446,7 @@ const ContractModal = () => {
 				<div className={panelCls}>
 					<p className={titleCls}>Ports & Packing</p>
 					<div className='flex flex-col'>
-						<p className={labelCls}>{getTtl('POL', ln)}:</p>
+						<p className={labelCls}>{getTtl('POL', ln)}</p>
 						<div className='w-full min-w-0'>
 							<Selector arr={settings.POL.POL} value={valueCon}
 								onChange={(e) => handleChange(e, 'pol')}
@@ -455,8 +454,8 @@ const ContractModal = () => {
 								clear={clear} />
 						</div>
 					</div>
-					<div className='flex flex-col pt-3'>
-						<p className={labelCls}>{getTtl('POD', ln)}:</p>
+					<div className='flex flex-col pt-2.5'>
+						<p className={labelCls}>{getTtl('POD', ln)}</p>
 						<div className='w-full min-w-0'>
 							<Selector arr={settings.POD.POD} value={valueCon}
 								onChange={(e) => handleChange(e, 'pod')}
@@ -464,8 +463,8 @@ const ContractModal = () => {
 								clear={clear} disabled={firstRule} />
 						</div>
 					</div>
-					<div className='flex flex-col pt-3'>
-						<p className={labelCls}>{getTtl('Packing', ln)}:</p>
+					<div className='flex flex-col pt-2.5'>
+						<p className={labelCls}>{getTtl('Packing', ln)}</p>
 						<div className='w-full min-w-0'>
 							<Selector arr={settings.Packing.Packing} value={valueCon}
 								onChange={(e) => handleChange(e, 'packing')}
@@ -478,7 +477,7 @@ const ContractModal = () => {
 				<div className={panelCls}>
 					<p className={titleCls}>Container & Delivery</p>
 					<div className='flex flex-col'>
-						<p className={labelCls}>{getTtl('Container Type', ln)}:</p>
+						<p className={labelCls}>{getTtl('Container Type', ln)}</p>
 						<div className='w-full min-w-0'>
 							<Selector arr={settings['Container Type']['Container Type']} value={valueCon}
 								onChange={(e) => handleChange(e, 'contType')}
@@ -486,8 +485,8 @@ const ContractModal = () => {
 								clear={clear} />
 						</div>
 					</div>
-					<div className='flex flex-col pt-3'>
-						<p className={labelCls}>{getTtl('Size', ln)}:</p>
+					<div className='flex flex-col pt-2.5'>
+						<p className={labelCls}>{getTtl('Size', ln)}</p>
 						<div className='w-full min-w-0'>
 							<Selector arr={settings.Size.Size} value={valueCon}
 								onChange={(e) => handleChange(e, 'size')}
@@ -495,8 +494,8 @@ const ContractModal = () => {
 								clear={clear} />
 						</div>
 					</div>
-					<div className='flex flex-col pt-3'>
-						<p className={labelCls}>{getTtl('Delivery Time', ln)}:</p>
+					<div className='flex flex-col pt-2.5'>
+						<p className={labelCls}>{getTtl('Delivery Time', ln)}</p>
 						{!valueCon.isDeltimeText ?
 							<div className='w-full min-w-0'>
 								<Selector arr={[...settings['Delivery Time']['Delivery Time'], { deltime: '..Edit Text', id: 'EditTextDelTime' }]}
@@ -519,7 +518,7 @@ const ContractModal = () => {
 			</div>
 
 			<div className={`mt-2 w-full ${panelCls}`}>
-				<p className={labelCls}>{getTtl('Payment Terms', ln)}:</p>
+				<p className={labelCls}>{getTtl('Payment Terms', ln)}</p>
 				<div className='w-full '>
 					{!valueCon.isTermPmntText ?
 						<Selector arr={[...settings['Payment Terms']['Payment Terms'], { termPmnt: '..Edit Text', id: 'EditTextTermPmnt' }]}
@@ -539,7 +538,7 @@ const ContractModal = () => {
 				</div>
 			</div>
 
-			<div className='grid grid-cols-1 md:grid-cols-4 gap-3 pt-2'>
+			<div className='grid grid-cols-1 md:grid-cols-4 gap-2.5 pt-2'>
 				<div className='md:col-span-3'>
 					<div className={`w-full ${panelCls}`}>
 						<ProductsTable value={valueCon} setValue={setValueCon} currency={settings.Currency.Currency}
@@ -550,7 +549,7 @@ const ContractModal = () => {
 				</div>
 				<div className={`md:col-span-1 ${panelCls}`}>
 					<div className='flex flex-col'>
-						<p className={labelCls}>{getTtl('Currency', ln)}:</p>
+						<p className={labelCls}>{getTtl('Currency', ln)}</p>
 						<div className='w-full min-w-0'>
 							<Selector arr={settings.Currency.Currency} value={valueCon}
 								onChange={(e) => handleChange(e, 'cur')}
@@ -559,8 +558,8 @@ const ContractModal = () => {
 							<ErrDiv field='cur' errors={errors} ln={ln} />
 						</div>
 					</div>
-					<div className='flex flex-col pt-3'>
-						<p className={labelCls}>{getTtl('Quantity', ln)}:</p>
+					<div className='flex flex-col pt-2.5'>
+						<p className={labelCls}>{getTtl('Quantity', ln)}</p>
 						<div className='w-full min-w-0'>
 							<Selector arr={settings.Quantity.Quantity} value={valueCon}
 								onChange={(e) => handleChange(e, 'qTypeTable')}
@@ -571,7 +570,7 @@ const ContractModal = () => {
 				</div>
 			</div>
 
-			<div className='grid grid-cols-1 md:grid-cols-4 gap-3 pt-2'>
+			<div className='grid grid-cols-1 md:grid-cols-4 gap-2.5 pt-2'>
 				<div className='md:col-span-3'>
 					<div className={`mt-2 w-full ${panelCls}`}>
 						<Remarks settings={settings} value={valueCon} setValue={setValueCon} />
@@ -581,7 +580,7 @@ const ContractModal = () => {
 					</div>
 				</div>
 				<div className={`md:col-span-1 mt-2 ${panelCls}`}>
-					<p className={labelCls}>{getTtl('Comments', ln)}:</p>
+					<p className={labelCls}>{getTtl('Comments', ln)}</p>
 					<textarea rows="5" name="comments"
 						className="input h-24 p-1 !rounded-lg resize-none w-full"
 						style={{ fontFamily: 'inherit' }}
@@ -597,7 +596,7 @@ const ContractModal = () => {
 
 
 
-			<div className="mt-3 flex flex-wrap justify-end gap-2 pt-3 border-t border-[var(--line)]">
+			<div className="sticky bottom-0 z-sticky bg-[var(--bg-card)] mt-3 flex flex-wrap justify-end gap-2 pt-3 pb-2 border-t border-[var(--line)]">
 				<Tltip direction='top' tltpText='Preview the PO exactly as the supplier receives it — no download'>
 						<button
 							className="whiteButton py-1"
@@ -786,12 +785,12 @@ const ContractModal = () => {
 				ttl={getTtl('Duplicate Contract', ln)} txt={getTtl('duplicateConfirmationTxt', ln)}
 				doAction={() => duplicate(uidCollection)} />
 			{showHistory && (
-				<Modal isOpen={showHistory} setIsOpen={setShowHistory} title='Activity / History' w='max-w-2xl'>
+				<Modal isOpen={showHistory} setIsOpen={setShowHistory} title='Activity / History' size='md'>
 					<ActivityLog entityType='contract' entityId={valueCon.id} />
 				</Modal>
 			)}
 			{showComments && (
-				<Modal isOpen={showComments} setIsOpen={setShowComments} title={`Comments — PO ${valueCon.order ?? ''}`} w='max-w-2xl'>
+				<Modal isOpen={showComments} setIsOpen={setShowComments} title={`Comments — PO ${valueCon.order ?? ''}`} size='md'>
 					<CommentThread entityType='contract' entityId={valueCon.id} entityLabel={`PO ${valueCon.order ?? ''}`} />
 				</Modal>
 			)}

@@ -1,4 +1,4 @@
-'use client';import { useContext, useEffect, useState, useMemo } from 'react';
+'use client';import { useContext, useEffect, useState, useMemo, useRef } from 'react';
 
 import { NumericFormat } from 'react-number-format';
 import { useRouter } from 'next/navigation';
@@ -30,6 +30,12 @@ const SalesContracts = () => {
         isOpenSC, setIsOpenSC, addSalesContract } = useContext(SalesContractsContext);
     const { uidCollection } = UserAuth();
     const router = useRouter();
+    /* Rows open on double-click (contracts/newTable.js), but the Purchase Contract cell is a
+       link that navigates on single click — so double-clicking that one cell fired the link
+       AND opened the row, landing you on /contracts instead of on the sales contract. Hold the
+       navigation for one double-click interval and drop it if a second click arrives. */
+    const poNavTimer = useRef(null);
+    useEffect(() => () => clearTimeout(poNavTimer.current), []);
 
     const [filteredData, setFilteredData] = useState([]);
     const [highlightId, setHighlightId] = useState(null);
@@ -130,7 +136,12 @@ const SalesContracts = () => {
                     if (!link?.order) return <span style={{ color: 'var(--regent-gray)' }}>—</span>;
                     return (
                         <button type="button"
-                            onClick={(e) => { e.stopPropagation(); router.push(`/contracts?openId=${link.id}`); }}
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                clearTimeout(poNavTimer.current);
+                                poNavTimer.current = setTimeout(() => router.push(`/contracts?openId=${link.id}`), 250);
+                            }}
+                            onDoubleClick={() => clearTimeout(poNavTimer.current)}
                             title={link.derived ? 'From the sales invoice this contract shipped under' : 'Linked on this sales contract'}
                             className="underline underline-offset-2"
                             style={{ color: 'var(--chathams-blue)', fontWeight: 500, fontStyle: link.derived ? 'italic' : 'normal' }}>

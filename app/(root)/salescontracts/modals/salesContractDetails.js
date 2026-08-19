@@ -127,7 +127,7 @@ const SalesContractDetails = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-1.5 pt-2">
                 {/* Client */}
                 <div className="lg:col-span-2 border border-[var(--line)] p-2 rounded-2xl">
-                    <p className="responsiveText text-[var(--port-gore)] font-medium">{getTtl('Consignee', ln)}:</p>
+                    <p className="responsiveText text-[var(--ink-muted)] font-medium">{getTtl('Consignee', ln)}</p>
                     <Selector arr={clts} value={valueSC} onChange={(e) => handleChange(e, 'client')}
                         name='client' clear={clear} />
                     <ErrDiv field='client' errors={errors} />
@@ -142,7 +142,7 @@ const SalesContractDetails = () => {
 
                 {/* Contract # */}
                 <div className="border border-[var(--line)] p-2 rounded-2xl flex flex-col">
-                    <p className="responsiveText text-[var(--port-gore)] font-medium indent-1">Sales Contract #:</p>
+                    <p className="responsiveText text-[var(--ink-muted)] font-medium indent-1">Sales Contract #</p>
                     <input className="input shadow-sm h-8 responsiveTextInput w-full mt-1" name='contractNo'
                         value={valueSC.contractNo} onChange={handleValue} />
                     <ErrDiv field='contractNo' errors={errors} />
@@ -150,7 +150,7 @@ const SalesContractDetails = () => {
 
                 {/* Date */}
                 <div className="border border-[var(--line)] p-2 rounded-2xl flex flex-col">
-                    <p className="responsiveText text-[var(--port-gore)] font-medium indent-1">{getTtl('Date', ln)}:</p>
+                    <p className="responsiveText text-[var(--ink-muted)] font-medium indent-1">{getTtl('Date', ln)}</p>
                     <div className="mt-1">
                         <Datepicker useRange={false} asSingle={true} value={valueSC.dateRange}
                             popoverDirection='down' onChange={handleDate} displayFormat={"DD-MMM-YYYY"}
@@ -166,7 +166,7 @@ const SalesContractDetails = () => {
             <div className="border border-[var(--line)] p-2 rounded-2xl mt-1.5">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
                     <div className="flex flex-col">
-                        <p className="responsiveText text-[var(--port-gore)] font-medium indent-1">Purchase Contract:</p>
+                        <p className="responsiveText text-[var(--ink-muted)] font-medium indent-1">Purchase Contract</p>
                         <div className="mt-1">
                             <Selector arr={poOptions} value={{ poId }} onChange={linkPo}
                                 name='poId' secondaryName='poLabel' clear={unlinkPo} />
@@ -192,7 +192,7 @@ const SalesContractDetails = () => {
                         )}
                     </div>
                     <div className="flex flex-col">
-                        <p className="responsiveText text-[var(--port-gore)] font-medium indent-1">{getTtl('Supplier', ln)}:</p>
+                        <p className="responsiveText text-[var(--ink-muted)] font-medium indent-1">{getTtl('Supplier', ln)}</p>
                         {supplier ? (
                             <>
                                 <p className="pl-1 mt-1 responsiveText font-medium text-[var(--ink)]">{supplier.nname || supplier.supplier}</p>
@@ -212,7 +212,7 @@ const SalesContractDetails = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 mt-1.5">
                 {/* Currency */}
                 <div className="border border-[var(--line)] p-2 rounded-2xl flex items-center gap-3">
-                    <p className="responsiveText text-[var(--port-gore)] font-medium whitespace-nowrap">{getTtl('Currency', ln)}:</p>
+                    <p className="responsiveText text-[var(--ink-muted)] font-medium whitespace-nowrap">{getTtl('Currency', ln)}</p>
                     <div className="flex-1 min-w-0 max-w-[12rem]">
                         <Selector arr={settings.Currency.Currency} value={valueSC}
                             onChange={(e) => handleChange(e, 'cur')} name='cur' clear={clear} />
@@ -222,7 +222,7 @@ const SalesContractDetails = () => {
 
                 {/* Quantity unit */}
                 <div className="border border-[var(--line)] p-2 rounded-2xl flex items-center gap-3">
-                    <p className="responsiveText text-[var(--port-gore)] font-medium whitespace-nowrap">{getTtl('QTY', ln)}:</p>
+                    <p className="responsiveText text-[var(--ink-muted)] font-medium whitespace-nowrap">{getTtl('QTY', ln)}</p>
                     <div className="flex-1 min-w-0 max-w-[12rem]">
                         <Selector arr={settings.Quantity?.Quantity || []} value={valueSC}
                             onChange={(e) => handleChange(e, 'qTypeTable')} name='qTypeTable' clear={clear} />
@@ -232,13 +232,13 @@ const SalesContractDetails = () => {
 
             {/* Materials */}
             <div className="border border-[var(--line)] p-2 rounded-2xl mt-1.5">
-                <p className="responsiveText text-[var(--port-gore)] font-medium mb-2 indent-1">Materials:</p>
+                <p className="responsiveText text-[var(--ink-muted)] font-medium mb-2 indent-1">Materials</p>
                 <SalesProductsTable value={valueSC} setValue={setValueSC} />
             </div>
 
             {/* Comments */}
             <div className="border border-[var(--line)] p-2 rounded-2xl mt-1.5">
-                <p className="responsiveText text-[var(--port-gore)] font-medium">{getTtl('Comments', ln)}:</p>
+                <p className="responsiveText text-[var(--ink-muted)] font-medium">{getTtl('Comments', ln)}</p>
                 <textarea rows="2" name="comments"
                     className="input w-full p-1.5 !rounded-2xl mt-1"
                     style={{ fontSize: 'var(--fs-input)', fontFamily: 'inherit' }}
@@ -246,7 +246,7 @@ const SalesContractDetails = () => {
             </div>
 
             {/* Actions */}
-            <div className="p-1.5 pl-2 flex gap-2 flex-wrap justify-center md:justify-start">
+            <div className="sticky bottom-0 z-sticky bg-[var(--bg-card)] mt-3 flex flex-wrap justify-end gap-2 pt-3 pb-2 border-t border-[var(--line)]">
                 <Tltip direction='top' tltpText='Save / update sales contract'>
                     <button type="button" className="blackButton py-1 disabled:opacity-50 disabled:cursor-not-allowed"
                         onClick={save} disabled={isButtonDisabled}>

@@ -260,7 +260,7 @@ const StockAudit = ({ isOpen, setIsOpen, stockData, settings, onDataChanged }) =
   }
 
   return (
-    <Modal isOpen={isOpen} setIsOpen={setIsOpen} title="Stock Audit" w="max-w-7xl">
+    <Modal isOpen={isOpen} setIsOpen={setIsOpen} title="Stock Audit" size="xl">
       <div className="p-4">
         <p className="responsiveTextTable mb-3" style={{ color: 'var(--regent-gray)' }}>
           Scanned {audit.total} stock records. The <b>Leftovers</b> tab lists every remaining balance and lets you write off the ones that are not factual; the other tabs are read-only reports — use record IDs / PO# / dates to fix entries in the corresponding contract or invoice.

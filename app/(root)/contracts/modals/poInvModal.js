@@ -408,7 +408,7 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowStockModal }) => {
         setValueCon({ ...valueCon, poInvoices: newArr });
     }
     return (
-        <Modal isOpen={isOpen} setIsOpen={setIsOpen} title={getTtl('POInvoices', ln)} w='max-w-7xl'>
+        <Modal isOpen={isOpen} setIsOpen={setIsOpen} title={getTtl('POInvoices', ln)} size='xl'>
             <div className='flex flex-col p-1 justify-between gap-2'>
                 {valueCon.poInvoices.map((x, i) => {
 

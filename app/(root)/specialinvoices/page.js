@@ -329,7 +329,7 @@ const SpecialInvoices = () => {
                             </div>
                         </div>
                         {detail && (
-                            <Modal isOpen={!!detail} setIsOpen={() => setDetail(null)} title='Misc Invoice' w='max-w-lg'>
+                            <Modal isOpen={!!detail} setIsOpen={() => setDetail(null)} title='Misc Invoice' size='sm'>
                                 <div className='p-4 grid grid-cols-2 gap-x-4 gap-y-2.5'>
                                     {[
                                         ['Company', detail.compName],

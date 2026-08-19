@@ -307,7 +307,7 @@ const NotificationBell = () => {
                 {effectiveUnreadCount > 0 && (
                     <span
                         className='absolute top-0.5 right-0.5 min-w-[15px] h-[15px] px-1 rounded-full text-[var(--on-brand)] flex items-center justify-center'
-                        style={{ background: 'var(--bad-text)', fontSize: 'var(--fs-caption)', fontWeight: 700, lineHeight: 1, boxShadow: '0 0 0 2px var(--bg-card)' }}
+                        style={{ background: 'var(--bad-text)', fontSize: 'var(--fs-caption)', fontWeight: 600, lineHeight: 1, boxShadow: '0 0 0 2px var(--bg-card)' }}
                     >
                         {effectiveUnreadCount > 99 ? "99+" : effectiveUnreadCount}
                     </span>

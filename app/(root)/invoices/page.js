@@ -813,7 +813,7 @@ const Invoices = () => {
 								isOpen={openAlert}
 								setIsOpen={setOpenAlert}
 								title='Notification for delayed response'
-								w='max-w-2xl'
+								size='md'
 							>
 								<DlayedResponse alertArr={alertArr} setAlertArr={setAlertArr} />
 							</Modal>

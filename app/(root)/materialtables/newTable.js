@@ -473,8 +473,7 @@ const Customtable = ({
                         {/* Shipment container reference */}
                         <div className="flex items-center gap-1.5">
                             <span
-                                className="responsiveTextTable font-medium uppercase text-[var(--ink-muted)]"
-                                style={{ letterSpacing: '0.04em' }}
+                                className="responsiveTextTable font-medium text-[var(--ink-muted)]"
                                 title="Shipment container reference number (e.g. TCKU1234567)"
                             >Shipment #</span>
                             <input
@@ -501,7 +500,7 @@ const Customtable = ({
                                         padding: '6px', minWidth: '160px',
                                         display: 'flex', flexDirection: 'column', gap: '1px',
                                     }}>
-                                        <p className="responsiveTextTable font-medium uppercase" style={{ color: 'var(--ink-muted)', letterSpacing: '0.04em', padding: '3px 10px 5px' }}>Price presets</p>
+                                        <p className="responsiveTextTable font-medium" style={{ color: 'var(--ink-muted)', padding: '3px 10px 5px' }}>Price presets</p>
                                         {PRESETS.map(p => (
                                             <button
                                                 key={p.label}
@@ -559,7 +558,7 @@ const Customtable = ({
             {elements.length > 0 && (
                 <div style={{ background: 'var(--bg-subtle)', borderBottom: '1px solid var(--line)', padding: '6px 12px' }}>
                     <div className="responsiveTextTable" style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', alignItems: 'center' }}>
-                        <span className="responsiveTextTable font-medium uppercase" style={{ color: 'var(--ink-muted)', letterSpacing: '0.04em', minWidth: '32px' }}>$/MT</span>
+                        <span className="responsiveTextTable font-medium" style={{ color: 'var(--ink-muted)', minWidth: '32px' }}>$/MT</span>
                         {elements.filter(el => priceKeys ? priceKeys.includes(el.key) : el.key !== 'fe').map(el => {
                             const isNi = el.key === 'ni'
                             const focused = focusedPrice === el.key
@@ -571,8 +570,8 @@ const Customtable = ({
                                     borderRadius: 'var(--radius-control)', padding: '2px 10px', minWidth: '68px',
                                 }}>
                                     <span style={{
-                                        fontSize: 'var(--fs-table)', fontWeight: '600', textTransform: 'uppercase',
-                                        letterSpacing: '0.04em', minWidth: '16px',
+                                        fontSize: 'var(--fs-table)', fontWeight: '600',
+                                        minWidth: '16px',
                                         color: isNi ? 'var(--brand)' : 'var(--ink-muted)',
                                     }}>
                                         {el.label}
@@ -623,7 +622,7 @@ const Customtable = ({
             {elements.length > 0 && (
                 <div style={{ background: 'var(--ok-bg)', borderBottom: '1px solid var(--line)', padding: '6px 12px' }}>
                     <div className="responsiveTextTable" style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', alignItems: 'center' }}>
-                        <span className="responsiveTextTable font-medium uppercase" style={{ color: 'var(--ok-strong)', letterSpacing: '0.04em', minWidth: '48px' }}>Sales</span>
+                        <span className="responsiveTextTable font-medium" style={{ color: 'var(--ok-strong)', minWidth: '48px' }}>Sales</span>
 
                         {/* Preset picker — sets which elements the sale price is built from */}
                         <div style={{ position: 'relative' }}>
@@ -636,7 +635,7 @@ const Customtable = ({
                             </button>
                             {showSalesPresets && (
                                 <div style={{ ...popStyle, left: 0, padding: '6px', minWidth: '160px', display: 'flex', flexDirection: 'column', gap: '1px' }}>
-                                    <p className="responsiveTextTable font-medium uppercase" style={{ color: 'var(--ink-muted)', letterSpacing: '0.04em', padding: '4px 10px' }}>Sales preset</p>
+                                    <p className="responsiveTextTable font-medium" style={{ color: 'var(--ink-muted)', padding: '4px 10px' }}>Sales preset</p>
                                     {PRESETS.map(p => (
                                         <button
                                             key={p.label}
@@ -665,8 +664,8 @@ const Customtable = ({
                                     borderRadius: 'var(--radius-control)', padding: '2px 10px', minWidth: '68px',
                                 }}>
                                     <span style={{
-                                        fontSize: 'var(--fs-table)', fontWeight: '600', textTransform: 'uppercase',
-                                        letterSpacing: '0.04em', minWidth: '16px',
+                                        fontSize: 'var(--fs-table)', fontWeight: '600',
+                                        minWidth: '16px',
                                         color: isNi ? 'var(--ok-strong)' : 'var(--ink-muted)',
                                     }}>
                                         {el.label}
@@ -733,7 +732,7 @@ const Customtable = ({
                                                     color: 'var(--ink)',
                                                     padding: '5px 5px', fontWeight: '500', fontSize: 'inherit',
                                                     textAlign: (colId === 'material' || colId === 'container') ? 'left' : 'center',
-                                                    letterSpacing: '0.03em', whiteSpace: 'nowrap', border: 'none',
+                                                    whiteSpace: 'nowrap', border: 'none',
                                                     minWidth: colId === 'material' ? '150px' : colId === 'del' ? '26px' : colId === 'container' ? '88px' : colId === 'kgs' ? '68px' : colId === 'costPmt' || colId === 'costTotal' ? '70px' : '50px',
                                                 }
 
@@ -899,13 +898,13 @@ const Customtable = ({
                                     const focused = focusedCell === ck
                                     if (isCost) return (
                                         <div key={cell.id} className="flex justify-between items-center pb-2" style={{ borderBottom: '1px solid var(--line)' }}>
-                                            <span style={{ color: 'var(--ink-muted)', fontSize: 'var(--fs-caption)', fontWeight: '500', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{cell.column.columnDef.header}</span>
+                                            <span style={{ color: 'var(--ink-muted)', fontSize: 'var(--fs-caption)', fontWeight: '500' }}>{cell.column.columnDef.header}</span>
                                             <span className="responsiveTextTable" style={{ color: TONES.green.text, fontWeight: '600' }}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</span>
                                         </div>
                                     )
                                     return (
                                         <div key={cell.id} className="flex flex-col space-y-1 pb-2 last:pb-0" style={{ borderBottom: '1px solid var(--line)' }}>
-                                            <div style={{ color: 'var(--ink-muted)', fontSize: 'var(--fs-caption)', fontWeight: '500', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{cell.column.columnDef.header}</div>
+                                            <div style={{ color: 'var(--ink-muted)', fontSize: 'var(--fs-caption)', fontWeight: '500' }}>{cell.column.columnDef.header}</div>
                                             <div style={{
                                                 backgroundColor: focused ? 'var(--bg-card)' : 'var(--bg-subtle)',
                                                 border: `1px solid ${focused ? 'var(--brand)' : isFe ? 'var(--brand-border)' : 'var(--line-strong)'}`,

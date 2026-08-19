@@ -3,7 +3,7 @@ import SalesContractDetails from './salesContractDetails'
 
 const DataModal = ({ isOpen, setIsOpen, title }) => {
     return (
-        <Modal isOpen={isOpen} setIsOpen={setIsOpen} title={title}>
+        <Modal isOpen={isOpen} setIsOpen={setIsOpen} title={title} size='xl'>
             <SalesContractDetails />
         </Modal>
     )

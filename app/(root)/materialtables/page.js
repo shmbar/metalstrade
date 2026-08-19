@@ -446,14 +446,17 @@ const MaterialTables = () => {
     }, [data])
 
     return (
-        <div className="w-full">
+        <div className="w-full" style={{ background: "var(--bg-subtle)" }}>
             <div className="mx-auto w-full max-w-full px-1 md:px-2 pb-4 mt-[72px]">
                 {Object.keys(settings).length === 0 ? <TableSkeleton /> :
                     <>
                         <Toast />
                         <VideoLoader loading={loading} fullScreen={true} />
-                        <div className="w-full mt-2">
-                            <div className="page-header flex flex-wrap items-end justify-between gap-2 pb-3">
+                        {/* Main Card — the shell the other 18 pages use. This page used to
+                            float its header and table cards straight on the background, which
+                            is why it read as a different app. */}
+                        <div className="page-card rounded-2xl p-3 sm:p-5 mt-8 border border-[var(--line)] shadow-card w-full bg-[var(--bg-card)]">
+                            <div className="flex flex-wrap items-end justify-between gap-2 pb-3">
                                 <div>
                                     <h1 className="text-display">{getTtl('Material Tables', ln)}</h1>
                                     <p className="responsiveTextInput text-[var(--ink-muted)] mt-0.5">Element composition & pricing</p>
@@ -476,7 +479,7 @@ const MaterialTables = () => {
                                        past this radius, so it now lives on the table itself
                                        (rounded-b-2xl on its scroll box in newTable.js) where it
                                        does that job without trapping popovers. */
-                                    <div key={table.id} className="mb-3 bg-[var(--bg-card)] rounded-2xl border border-[var(--line)] shadow-card">
+                                    <div key={table.id} className="mb-3 bg-[var(--bg-card)] rounded-2xl border border-[var(--line)]">
                                         <Table
                                             data={table.data}
                                             table1={table}
@@ -527,7 +530,7 @@ const MaterialTables = () => {
                             </div>
                             {(data.length > 0 && !Object.values(totals).some(v => isNaN(v))) && (
                                 <div className="w-full pt-1">
-                                    <div className="bg-[var(--bg-card)] rounded-2xl border border-[var(--line)] shadow-card overflow-hidden">
+                                    <div className="bg-[var(--bg-card)] rounded-2xl border border-[var(--line)] overflow-hidden">
                                         <TableTotals data={[totals]} columns={totalsColumns} />
                                     </div>
                                 </div>

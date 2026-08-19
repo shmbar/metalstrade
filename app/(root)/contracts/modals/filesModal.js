@@ -44,7 +44,7 @@ const DataModal = ({ isOpen, setIsOpen, valueCon, setToast }) => {
 
 
     return (
-        <Modal isOpen={isOpen} setIsOpen={setIsOpen} title={getTtl('Contract files', ln)} w='max-w-4xl'>
+        <Modal isOpen={isOpen} setIsOpen={setIsOpen} title={getTtl('Contract files', ln)} size='lg'>
             <div className='flex flex-wrap p-2 justify-between gap-2'>
 
                 <div className='max-w-md grow '>

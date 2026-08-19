@@ -16,6 +16,7 @@ import { setMonthsInvoices, calContracts } from './funcs'
 import { getTtl } from '@utils/languages';
 import DateRangePicker from '@components/dateRangePicker';
 import TooltipComp from '@components/tooltip';
+import Tltip from '@components/tlTip';
 // MarketsTicker pulls in ~250 inlined flag images (react-world-flags); load it
 // off the first-paint critical path so it doesn't bloat the dashboard bundle.
 const MarketsTicker = dynamic(() => import('@components/Dashboard/MarketsTicker'), { ssr: false });
@@ -24,7 +25,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { TONES } from '@components/statusUtils';
 import ProgressBar from '@components/ProgressBar';
 import Avatar from '@components/Avatar';
-import { Gauge, Receipt, Percent, Truck, Warehouse, TrendingUp, FileWarning, Ship } from 'lucide-react';
+import { Gauge, Receipt, Percent, Truck, Warehouse, TrendingUp, FileWarning, Ship, Building2, Info } from 'lucide-react';
 
 import { HorizontalBar } from './charts';
 
@@ -158,9 +159,9 @@ const solidColor = (c) =>
    shipment percentage (the one figure here with a natural visual form), and a
    red chip for the overdue count, which is the most actionable number on the row
    and was previously 9.5px grey, indistinguishable from "freight expense types". */
-function SummaryTile({ label, value, note, tone, icon: Icon, toneKey = 'gray', progress, progressTone, chip }) {
+function SummaryTile({ label, value, note, tone, icon: Icon, toneKey = 'gray', progress, progressTone, chip, info }) {
   const t = TONES[toneKey] || TONES.gray;
-  return (
+  const tile = (
     <div className="bg-[var(--bg-card)] p-3 flex flex-col gap-2 min-w-0 hover:bg-[var(--bg-subtle)] transition-colors">
       <div className="flex items-center gap-2 min-w-0">
         <span
@@ -170,7 +171,8 @@ function SummaryTile({ label, value, note, tone, icon: Icon, toneKey = 'gray', p
         >
           {Icon ? <Icon size={13} strokeWidth={2} /> : null}
         </span>
-        <span className="text-caption truncate" title={label}>{label}</span>
+        <span className="text-caption truncate" title={info ? undefined : label}>{label}</span>
+        {info && <Info size={11} strokeWidth={2} className="shrink-0 text-[var(--ink-muted)]" aria-hidden />}
       </div>
       <span
         className="numeric leading-none truncate"
@@ -199,6 +201,10 @@ function SummaryTile({ label, value, note, tone, icon: Icon, toneKey = 'gray', p
       )}
     </div>
   );
+  /* Every figure on this page now carries the definition it is computed from — the
+     labels alone were ambiguous ("Expenses" reads as all expenses when it means
+     contract expenses, "Profit" reads as net when it is before overheads). */
+  return info ? <Tltip direction="top" tltpText={info}>{tile}</Tltip> : tile;
 }
 
 function StatKpiCard({
@@ -208,6 +214,7 @@ function StatKpiCard({
   accent = 'var(--brand)',
   icon,
   goodWhenUp = true,
+  info,
 }) {
   const series = useMemo(
     () => (Array.isArray(chartData) ? chartData : Object.values(chartData || {})).map(Number),
@@ -240,6 +247,13 @@ function StatKpiCard({
           <span className="responsiveTextTable font-medium text-[var(--regent-gray)] leading-tight">
             {title}
           </span>
+          {info && (
+            <Tltip direction="top" tltpText={info}>
+              <span className="shrink-0 cursor-help text-[var(--ink-muted)] hover:text-[var(--ink)] transition-colors">
+                <Info size={12} strokeWidth={2} />
+              </span>
+            </Tltip>
+          )}
         </div>
 
         {/* Hero number */}
@@ -961,10 +975,14 @@ const Dash = () => {
   const [rawContracts, setRawContracts] = useState([]);     // contracts enriched with invoicesData
   const [rawRecvInvoices, setRawRecvInvoices] = useState([]);
   const [rawMiscInvoices, setRawMiscInvoices] = useState([]); // P1 misc invoices, not linked to contracts
+  const [rawCompanyExpenses, setRawCompanyExpenses] = useState([]); // company-level overheads
 
   const [fSupplier, setFSupplier] = useState('');
   const [fClient, setFClient] = useState('');
   const [fMaterial, setFMaterial] = useState('');
+  const [fCurrency, setFCurrency] = useState('');
+  const [fOrigin, setFOrigin] = useState('');
+  const [fDelTerm, setFDelTerm] = useState('');
 
   useEffect(() => {
 
@@ -992,6 +1010,13 @@ const Dash = () => {
         start: dateSelect?.start || `${year}-01-01`,
         end: dateSelect?.end || `${year}-12-31`,
       });
+      /* Company-level overheads. This page never loaded them, so every expense figure
+         on it was cost-of-trade only — /companyexpenses showed spend the dashboard's
+         "Expenses" did not include. Same collection and date window that page uses. */
+      const coExpPromise = loadCompanyExpenses(uidCollection, 'companyExpenses', {
+        start: dateSelect?.start || `${year}-01-01`,
+        end: dateSelect?.end || `${year}-12-31`,
+      });
 
       const dtContracts = await contractsPromise;
       // Batch ALL contracts' invoice lookups into one pass instead of one query per
@@ -1004,6 +1029,9 @@ const Dash = () => {
 
       const misc = await miscPromise;
       setRawMiscInvoices(Array.isArray(misc) ? misc.filter(Boolean) : []);
+
+      const coExp = await coExpPromise;
+      setRawCompanyExpenses(Array.isArray(coExp) ? coExp.filter(Boolean) : []);
 
       setLoading(false);
     };
@@ -1055,19 +1083,43 @@ const Dash = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [rawContracts, rawRecvInvoices, dateSelect, settings]);
 
-  // Apply the active Supplier / Material / Client filters to the raw contracts.
+  /* Currency / Origin / Delivery Terms all sit on the contract as a settings id, so one
+     pass builds all three: collect the ids actually present in the period and resolve each
+     to its label, dropping any that no longer resolve. */
+  const { currencyOptions, originOptions, delTermOptions } = useMemo(() => {
+    const build = (field, group, labelKey) => {
+      const ids = [...new Set(rawContracts.map(c => c[field]).filter(Boolean))];
+      return ids
+        .map(id => ({ value: id, label: settings?.[group]?.[group]?.find(o => o.id === id)?.[labelKey] || '' }))
+        .filter(o => o.label)
+        .sort((a, b) => a.label.localeCompare(b.label));
+    };
+    return {
+      currencyOptions: build('cur', 'Currency', 'cur'),
+      originOptions: build('origin', 'Origin', 'origin'),
+      delTermOptions: build('delTerm', 'Delivery Terms', 'delTerm'),
+    };
+  }, [rawContracts, settings]);
+
+  // Apply the active Supplier / Material / Client / Currency / Origin / Terms filters.
   const filteredContracts = useMemo(() => {
     return rawContracts.filter(c => {
       if (fSupplier && c.supplier !== fSupplier) return false;
       if (fMaterial && !(c.productsData || []).some(p => (p.description || '') === fMaterial)) return false;
       if (fClient && !(c.invoicesData || []).some(group => group.some(inv => resolveClientName(inv.client) === fClient))) return false;
+      if (fCurrency && c.cur !== fCurrency) return false;
+      if (fOrigin && c.origin !== fOrigin) return false;
+      if (fDelTerm && c.delTerm !== fDelTerm) return false;
       return true;
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [rawContracts, fSupplier, fMaterial, fClient, settings]);
+  }, [rawContracts, fSupplier, fMaterial, fClient, fCurrency, fOrigin, fDelTerm, settings]);
 
-  const filtersActive = !!(fSupplier || fClient || fMaterial);
-  const clearFilters = () => { setFSupplier(''); setFClient(''); setFMaterial(''); };
+  const filtersActive = !!(fSupplier || fClient || fMaterial || fCurrency || fOrigin || fDelTerm);
+  const clearFilters = () => {
+    setFSupplier(''); setFClient(''); setFMaterial('');
+    setFCurrency(''); setFOrigin(''); setFDelTerm('');
+  };
 
   // Aggregates — recomputed only when the filtered set (or settings) changes.
   const conAgg = useMemo(() => calContracts(filteredContracts, settings, companyRate), [filteredContracts, settings, companyRate]);
@@ -1095,7 +1147,7 @@ const Dash = () => {
     }
     // Supplier/Material filters only resolve through a loaded contract; Client matches
     // the invoice directly (same behaviour as the Receivables card).
-    const allowedPO = (fSupplier || fMaterial) ? new Set(filteredContracts.map(c => c.id)) : null;
+    const allowedPO = (fSupplier || fMaterial || fCurrency || fOrigin || fDelTerm) ? new Set(filteredContracts.map(c => c.id)) : null;
     const groups = {};
     rawRecvInvoices.forEach(inv => {
       const d = !inv?.final ? inv?.dateRange?.startDate : inv?.date;
@@ -1122,7 +1174,7 @@ const Dash = () => {
     }));
     return { byMonth, total };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [rawRecvInvoices, settings, companyRate, dateSelect, fClient, fSupplier, fMaterial, filteredContracts]);
+  }, [rawRecvInvoices, settings, companyRate, dateSelect, fClient, fSupplier, fMaterial, fCurrency, fOrigin, fDelTerm, filteredContracts]);
 
   const totalMT = conAgg.totalMT || 0;
   const shippedMT = Math.min(conAgg.shippedMT || 0, totalMT); // never exceed purchased
@@ -1135,8 +1187,13 @@ const Dash = () => {
   const expByType = conAgg.expByType || {};
   const materialSold = conAgg.materialSold || {};
   // Storage + warehouse spend (the storage-cost buckets), for the dashboard tile.
-  const storageSpend = Object.entries(expByType).reduce((s, [lbl, v]) =>
-    ['storage', 'warehouse'].includes(String(lbl).toLowerCase()) ? s + v : s, 0);
+  /* Substring, not exact — the same way the freight and commission tiles match. The
+     shipped expense types include storageStuffing and freightStorageStuffing
+     (components/const.js); an exact [storage, warehouse] match dropped both silently. */
+  const storageSpend = Object.entries(expByType).reduce((s, [lbl, v]) => {
+    const l = String(lbl).toLowerCase();
+    return (l.includes('storage') || l.includes('warehouse')) ? s + v : s;
+  }, 0);
   /* conAgg.storageByMonth is no longer read here — it existed only to feed the
      "Storage Spend" sparkline, which the Warehouse summary tile replaced. Left
      in place in funcs.js: it is a cheap accumulator and other callers may want
@@ -1207,6 +1264,30 @@ const Dash = () => {
   const totalInvoices = useMemo(() => sumObj(dataInvoices), [dataInvoices]);
   const totalContracts = useMemo(() => sumObj(dataContracts), [dataContracts]);
   const totalExpenses = useMemo(() => sumObj(dataExpenses), [dataExpenses]);
+
+  /* Overheads, converted to USD on the same rule as everything else on this page.
+     Deliberately kept SEPARATE from totalExpenses rather than folded in: contract
+     expenses are attributable to a trade and drive the per-MT metrics, overheads are
+     not, and merging them would silently change what those existing figures mean. */
+  const companyExpAgg = useMemo(() => {
+    const byMonth = Object.fromEntries(Array.from({ length: 12 }, (_, i) => [i + 1, 0]));
+    let total = 0;
+    (rawCompanyExpenses || []).forEach(r => {
+      const amt = parseFloat(r?.amount);
+      if (!Number.isFinite(amt)) return;
+      const rate = parseFloat(r?.euroToUSD);
+      const mult = companyRate > 0 ? companyRate : (rate > 0 ? rate : 1);
+      const usd = r?.cur === 'us' ? amt : amt * mult;
+      total += usd;
+      const m = Number(String(r?.date || '').substring(5, 7));
+      if (m >= 1 && m <= 12) byMonth[m] += usd;
+    });
+    return { total, byMonth, count: (rawCompanyExpenses || []).length };
+  }, [rawCompanyExpenses, companyRate]);
+
+  /* totalPL is revenue − cost of sold − contract expenses, i.e. BEFORE overheads.
+     The donut used to label that figure "Net Profit", which it is not. */
+  const netProfit = useMemo(() => totalPL - companyExpAgg.total, [totalPL, companyExpAgg]);
 
   /* ── Business-summary tiles ────────────────────────────────────────────────
      Both of these RESHAPE numbers that already exist for display; neither
@@ -1379,16 +1460,20 @@ const Dash = () => {
     },
   };
 
-  // ── Revenue breakdown donut (Cost of Sold / Expenses / Profit = Revenue) ──
-  const profitForArc = Math.max(Number(totalPL) || 0, 0);
+  /* ── Revenue breakdown donut ──
+     Revenue = cost of sold + contract expenses + company overheads + net profit. The
+     overhead slice is new: without it the arcs did not sum to revenue and the profit
+     slice was labelled "Net" while still being gross of overheads. */
+  const profitForArc = Math.max(Number(netProfit) || 0, 0);
   const donutData = {
-    labels: ['Cost of Goods Sold', 'Other Expenses', 'Net Profit'],
+    labels: ['Cost of Goods Sold', 'Contract Expenses', 'Company Expenses', 'Net Profit'],
     datasets: [{
-      data: [cogs, totalExpenses, profitForArc],
+      data: [cogs, totalExpenses, companyExpAgg.total, profitForArc],
       // Canvas cannot parse var() — every colour here must be resolved first.
       backgroundColor: [
         cssVar('--primary-bright', '#2563eb'),
         cssVar('--pink-text', '#db2777'),
+        cssVar('--warn-text', '#b45309'),
         cssVar('--ok-text', '#16a34a'),
       ],
       borderColor: cssVar('--on-brand', '#ffffff'),
@@ -1426,8 +1511,9 @@ const Dash = () => {
 
   const donutLegend = [
     { label: 'Cost of Goods Sold', value: cogs, color: 'var(--brand)' },
-    { label: 'Other Expenses', value: totalExpenses, color: 'var(--pink-text)' },
-    { label: 'Net Profit', value: totalPL, color: 'var(--ok-text)' },
+    { label: 'Contract Expenses', value: totalExpenses, color: 'var(--pink-text)' },
+    { label: 'Company Expenses', value: companyExpAgg.total, color: 'var(--warn-text)' },
+    { label: 'Net Profit', value: netProfit, color: 'var(--ok-text)' },
   ];
 
   // Ranking data sources
@@ -1487,7 +1573,7 @@ const Dash = () => {
                 {filtersActive && (
                   <span className="inline-flex items-center justify-center rounded-full text-[var(--on-brand)] font-semibold"
                     style={{ background: 'var(--endeavour)', minWidth: 15, height: 15, fontSize: 'var(--fs-caption)', padding: '0 4px' }}>
-                    {[fSupplier, fClient, fMaterial].filter(Boolean).length}
+                    {[fSupplier, fClient, fMaterial, fCurrency, fOrigin, fDelTerm].filter(Boolean).length}
                   </span>
                 )}
               </span>
@@ -1501,6 +1587,15 @@ const Dash = () => {
               <FilterSelect label="Material" value={fMaterial} onChange={setFMaterial}
                 icon={<svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9L12 3z" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" /><path d="M12 12l8-4.5M12 12v9M12 12L4 7.5" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" /></svg>}
                 options={materialOptions.map(o => ({ value: o, label: o }))} />
+              <FilterSelect label="Currency" value={fCurrency} onChange={setFCurrency}
+                icon={<svg width="13" height="13" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="1.8" /><path d="M15 9.5c-.6-1-1.7-1.5-3-1.5-1.7 0-3 .9-3 2s1.3 2 3 2 3 .9 3 2-1.3 2-3 2c-1.3 0-2.4-.5-3-1.5M12 6v12" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" /></svg>}
+                options={currencyOptions} />
+              <FilterSelect label="Origin" value={fOrigin} onChange={setFOrigin}
+                icon={<svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M12 21s7-5.6 7-11a7 7 0 1 0-14 0c0 5.4 7 11 7 11z" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" /><circle cx="12" cy="10" r="2.5" stroke="currentColor" strokeWidth="1.8" /></svg>}
+                options={originOptions} />
+              <FilterSelect label="Terms" value={fDelTerm} onChange={setFDelTerm}
+                icon={<svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8l-5-5z" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" /><path d="M14 3v5h5M9 13h6M9 17h4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" /></svg>}
+                options={delTermOptions} />
 
               {filtersActive && (
                 <button onClick={clearFilters} className="ml-auto whiteButton">
@@ -1538,7 +1633,7 @@ const Dash = () => {
                 for "$1.24K" and nothing else. Four across gives two comfortable
                 rows at the width most people actually use. */}
             <div className="rounded-card border border-[var(--line)] shadow-card overflow-hidden" style={{ background: 'var(--line)' }}>
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-8 gap-px">
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-px">
               {/* AVERAGE RATE = average purchase cost per MT.
                   There is no metric called "Average Rate" in the app, and the
                   phrase could mean four different numbers, so this is a decision
@@ -1553,20 +1648,34 @@ const Dash = () => {
                   the same reason the three duplicated KPI cards were. */}
               <SummaryTile
                 label="Average Rate"
+                info="Total contract purchase value divided by tonnage purchased, for the selected period. This is a purchase cost per MT, not a sale price."
                 icon={Gauge}
                 toneKey="blue"
                 value={fmtAutoKM(avgCostPerMT)}
                 note="purchase cost per MT"
               />
               <SummaryTile
-                label="Expenses"
+                label="Contract Expenses"
+                info="Expenses recorded against the contracts in this period — freight, storage, commission and every other type — converted to USD. Company overheads are counted separately."
                 icon={Receipt}
                 toneKey="amber"
                 value={fmtAutoKM(totalExpenses)}
-                note="all types, period"
+                note="freight, storage, commission…"
+              />
+              {/* Overheads, from the companyExpenses collection the /companyexpenses
+                  page reads. Separate tile, not merged into the one above: the two
+                  answer different questions and only one of them is cost of trade. */}
+              <SummaryTile
+                label="Company Expenses"
+                info="Overheads from the Company Expenses page for this period, converted to USD. They belong to no single contract, so they are excluded from the per-MT figures."
+                icon={Building2}
+                toneKey="amber"
+                value={fmtAutoKM(companyExpAgg.total)}
+                note={`${companyExpAgg.count} recorded, period`}
               />
               <SummaryTile
                 label="Commission"
+                info="The part of contract expenses whose type name contains 'commission'."
                 icon={Percent}
                 toneKey="blue"
                 value={fmtAutoKM(commissionSpend)}
@@ -1574,6 +1683,7 @@ const Dash = () => {
               />
               <SummaryTile
                 label="Freight"
+                info="The part of contract expenses whose type name contains 'freight'."
                 icon={Truck}
                 toneKey="blue"
                 value={fmtAutoKM(freightTotal)}
@@ -1581,21 +1691,33 @@ const Dash = () => {
               />
               <SummaryTile
                 label="Warehouse"
+                info="The part of contract expenses whose type name contains 'storage' or 'warehouse'. Combined freight-storage types are counted here and under Freight."
                 icon={Warehouse}
                 toneKey="gray"
                 value={fmtAutoKM(storageSpend)}
                 note="storage + warehouse"
               />
               <SummaryTile
-                label="Profit"
+                label="Gross Profit"
+                info="Sales revenue minus the cost of the material actually sold, minus contract expenses. Unsold stock is inventory rather than a cost, so it is excluded. Before company overheads."
                 icon={TrendingUp}
                 value={fmtAutoKM(totalPL)}
-                note="sold basis, period"
+                note="sold basis, before overheads"
                 toneKey={totalPL < 0 ? 'red' : 'green'}
                 tone={totalPL < 0 ? 'var(--danger-text)' : undefined}
               />
               <SummaryTile
+                label="Net Profit"
+                info="Gross profit minus company expenses."
+                icon={TrendingUp}
+                value={fmtAutoKM(netProfit)}
+                note="after company expenses"
+                toneKey={netProfit < 0 ? 'red' : 'green'}
+                tone={netProfit < 0 ? 'var(--danger-text)' : undefined}
+              />
+              <SummaryTile
                 label="Unpaid Invoices"
+                info="Issued sales invoices still carrying a balance, totalled per currency. An invoice and its credit or final note count once. Drafts and cancelled invoices are excluded."
                 icon={FileWarning}
                 value={unpaidSummary.amounts.join(' · ')}
                 note={`${unpaidSummary.count} open`}
@@ -1610,6 +1732,7 @@ const Dash = () => {
                   moved into the note, where it has room. */}
               <SummaryTile
                 label="Shipment Status"
+                info="Tonnage shipped as a share of tonnage purchased in this period."
                 icon={Ship}
                 value={`${shipmentSummary.pct}%`}
                 note={shipmentSummary.note}
@@ -1626,6 +1749,7 @@ const Dash = () => {
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 mb-5">
             <StatKpiCard
               title="Sales Revenue"
+              info="Sales invoices dated in this period, converted to USD. An invoice superseded by a credit or final note counts once; drafts and cancelled invoices are excluded."
               value={fmtAutoKM(invoiceRevAgg.total)}
               chartData={invoiceRevAgg.byMonth}
               accent="var(--ok-text)"
@@ -1633,6 +1757,7 @@ const Dash = () => {
             />
             <StatKpiCard
               title="Cost of Goods Sold"
+              info="Purchase cost of the material actually sold, apportioned per contract by the share of its tonnage that shipped. Unsold material is inventory, not a cost."
               value={fmtAutoKM(cogs)}
               chartData={cogsByMonth}
               accent="var(--bad-text)"
@@ -1641,6 +1766,7 @@ const Dash = () => {
             />
             <StatKpiCard
               title="MT Purchased"
+              info="Total contracted tonnage in this period, with KGS and LB quantities converted to MT."
               value={`${new Intl.NumberFormat('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(totalMT)} MT`}
               chartData={dataContracts}
               accent="var(--brand)"
@@ -1653,6 +1779,7 @@ const Dash = () => {
                 shrunk — two fewer chart.js instances on first paint. */}
             <StatKpiCard
               title="Avg Profit / MT"
+              info="Gross profit divided by tonnage shipped — profit per MT actually sold, not per MT purchased."
               value={fmtAutoKM(avgProfitPerMT)}
               chartData={dataPL}
               accent="var(--warn-text)"

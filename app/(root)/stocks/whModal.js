@@ -213,11 +213,11 @@ const WHvModal = ({ isOpen, setIsOpen, item, setItem, data, setData }) => {
     // whitespace-nowrap was pushing these captions out of their column: several of
     // them sit in a md:col-span-1 (1/12 of the row), so "Description:" could not
     // fit on one line and overflowed the field below it. Let them wrap.
-    const labelCls = 'responsiveText font-semibold uppercase tracking-[0.04em] text-[var(--ink-muted)] mb-1'
+    const labelCls = 'responsiveText font-medium text-[var(--ink-muted)] mb-1'
     const inputCls = 'w-full rounded-control border border-[var(--line-strong)] bg-[var(--bg-card)] text-[var(--ink)] responsiveTextInput h-8 px-2 focus:outline-none focus:ring-[3px] focus:ring-[var(--brand-soft)] focus:border-[var(--brand)] disabled:opacity-70'
 
     return (
-        <Modal isOpen={isOpen} setIsOpen={setIsOpen} title={getTtl('Materials Breakdown', ln)} w='max-w-4xl'>
+        <Modal isOpen={isOpen} setIsOpen={setIsOpen} title={getTtl('Materials Breakdown', ln)} size='lg'>
 
             {/* Info fields */}
             <div className='grid grid-cols-12 gap-3 p-3 m-3 rounded-2xl border border-[var(--line)]' style={{ background: 'var(--bg-subtle)' }}>

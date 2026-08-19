@@ -258,7 +258,7 @@ const SharedStock = () => {
     // Same stacked caption every form in the app uses: 11px, uppercase, muted,
     // sitting ABOVE its control — never inline to its left, which overlaps the
     // field once the row gets narrow.
-    const labelCls = 'responsiveText font-semibold uppercase tracking-[0.04em] text-[var(--ink-muted)] mb-1 block';
+    const labelCls = 'responsiveText font-medium text-[var(--ink-muted)] mb-1 block';
 
     if (loading) return <div className='p-6'><TableSkeleton rows={6} title={false} /></div>;
 
@@ -304,7 +304,7 @@ const SharedStock = () => {
                 </>
             )}
 
-            <Modal isOpen={open} setIsOpen={setOpen} title={lot.id ? 'Edit shared stock' : 'Add shared stock'} w='max-w-2xl'>
+            <Modal isOpen={open} setIsOpen={setOpen} title={lot.id ? 'Edit shared stock' : 'Add shared stock'} size='md'>
                 <div className='p-3'>
                     <div className='grid grid-cols-1 sm:grid-cols-2 gap-3'>
                         <div className='sm:col-span-2 rounded-2xl border border-[var(--line)] bg-[var(--bg-subtle)] p-2.5'>

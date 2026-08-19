@@ -7,6 +7,11 @@ import {
 
 const Tltip = ({ children, direction, tltpText, show }) => {
     const isString = typeof tltpText === 'string' || typeof tltpText === 'number'
+    /* Radix's popper wrapper carries min-width: max-content, which beats the content's
+       max-w — a sentence-length tooltip rendered as one 800px+ line off the side of the
+       screen. Giving the inner span an explicit width makes max-content resolve TO that
+       width, so the text wraps. Short labels keep hugging their content. */
+    const longText = isString && String(tltpText).length > 60
     // For plain text tooltips we'll keep the colored background.
     // For complex JSX tooltips (tables/lists) remove outer padding so internal markup controls spacing.
     const contentClass = isString
@@ -21,7 +26,7 @@ const Tltip = ({ children, direction, tltpText, show }) => {
                 <TooltipContent className={contentClass} 
                 side={direction} >
                     {isString ? (
-                        <span className="text-[var(--tooltip-ink)] responsiveTextTable capitalize font-normal">{tltpText}</span>
+                        <span className={`text-[var(--tooltip-ink)] responsiveTextTable first-letter:uppercase font-normal ${longText ? 'block w-[26rem] max-w-[80vw] whitespace-normal leading-snug' : ''}`}>{tltpText}</span>
                     ) : (
                         // allow JSX/tooltip content (tables, lists) to render unwrapped
                         tltpText

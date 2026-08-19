@@ -39,7 +39,7 @@ const ExpenseFilesModal = ({ isOpen, setIsOpen, folderId, setToast }) => {
     }
 
     return (
-        <Modal isOpen={isOpen} setIsOpen={setIsOpen} title={getTtl('Expense files', ln)} w='max-w-4xl'>
+        <Modal isOpen={isOpen} setIsOpen={setIsOpen} title={getTtl('Expense files', ln)} size='lg'>
             <div className='px-2 pt-1'>
                 <p className='responsiveTextTable text-[var(--regent-gray)]'>
                     {isGeneral

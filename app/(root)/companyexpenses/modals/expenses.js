@@ -90,14 +90,14 @@ const Expenses = ({setIsOpen}) => {
                 <div className='grid grid-cols-1 md:grid-cols-12 gap-3 w-full p-2'>
                     <div className='md:col-span-4 px-2'>
                         <div>
-                            <p className='responsiveText font-semibold uppercase tracking-[0.04em] text-[var(--ink-muted)] mb-1'>{getTtl('Expense Invoice', ln)}</p>
+                            <p className='responsiveText font-medium text-[var(--ink-muted)] mb-1'>{getTtl('Expense Invoice', ln)}</p>
                             <div className='w-full '>
                                 <input className="input" name='expense' value={valueExp.expense} onChange={handleValue} />
                                 <ErrDiv field='expense' errors={errorsExp} ln={ln} />
                             </div>
                         </div>
                         <div className='pt-1'>
-                            <p className='responsiveText font-semibold uppercase tracking-[0.04em] text-[var(--ink-muted)] mb-1'>{getTtl('Date', ln)}:</p>
+                            <p className='responsiveText font-medium text-[var(--ink-muted)] mb-1'>{getTtl('Date', ln)}</p>
                             <Datepicker useRange={false}
                                 asSingle={true}
                                 value={valueExp.dateRange}
@@ -109,7 +109,7 @@ const Expenses = ({setIsOpen}) => {
                             <ErrDiv field='date' errors={errorsExp} ln={ln} />
                         </div>
                         <div className='pt-1'>
-                            <p className='responsiveText font-semibold uppercase tracking-[0.04em] text-[var(--ink-muted)] mb-1'>{getTtl('Amount', ln)}:</p>
+                            <p className='responsiveText font-medium text-[var(--ink-muted)] mb-1'>{getTtl('Amount', ln)}</p>
                             <div className='w-full '>
                                 <input type='number' className="input" name='amount' value={valueExp.amount} onChange={handleValue} />
                                 <ErrDiv field='amount' errors={errorsExp} ln={ln} />
@@ -118,7 +118,7 @@ const Expenses = ({setIsOpen}) => {
                     </div>
                     <div className='md:col-span-4 px-2'>
                         <div>
-                            <p className='responsiveText font-semibold uppercase tracking-[0.04em] text-[var(--ink-muted)] mb-1'>{getTtl('Vendor', ln)}:</p>
+                            <p className='responsiveText font-medium text-[var(--ink-muted)] mb-1'>{getTtl('Vendor', ln)}</p>
                             <div className='w-full '>
                                 <Selector arr={sups} value={valueExp}
                                     onChange={(e) => handleChange(e, 'supplier')}
@@ -128,7 +128,7 @@ const Expenses = ({setIsOpen}) => {
                             </div>
                         </div>
                         <div className='pt-1'>
-                            <p className='responsiveText font-semibold uppercase tracking-[0.04em] text-[var(--ink-muted)] mb-1'>{getTtl('Expense Type', ln)}:</p>
+                            <p className='responsiveText font-medium text-[var(--ink-muted)] mb-1'>{getTtl('Expense Type', ln)}</p>
                             <div className='w-full '>
                                 <Selector arr={settings.Expenses.Expenses} value={valueExp}
                                     onChange={(e) => handleChange(e, 'expType')}
@@ -139,7 +139,7 @@ const Expenses = ({setIsOpen}) => {
                         </div>
                         <div className='pt-1 gap-3 flex'>
                             <div className='flex-1'>
-                                <p className='responsiveText font-semibold uppercase tracking-[0.04em] text-[var(--ink-muted)] mb-1'>{getTtl('Currency', ln)}:</p>
+                                <p className='responsiveText font-medium text-[var(--ink-muted)] mb-1'>{getTtl('Currency', ln)}</p>
                                 <div className='w-full'>
                                     <Selector arr={settings.Currency.Currency} value={valueExp}
                                         onChange={(e) => handleChange(e, 'cur')}
@@ -149,7 +149,7 @@ const Expenses = ({setIsOpen}) => {
                                 </div>
                             </div>
                             <div className='flex-1'>
-                                <p className='responsiveText font-semibold uppercase tracking-[0.04em] text-[var(--ink-muted)] mb-1'>{getTtl('Payment', ln)}:</p>
+                                <p className='responsiveText font-medium text-[var(--ink-muted)] mb-1'>{getTtl('Payment', ln)}</p>
                                 <div className='w-full'>
                                     <Selector arr={settings.ExpPmnt.ExpPmnt} value={valueExp}
                                         onChange={(e) => handleChange(e, 'paid')}
@@ -160,7 +160,7 @@ const Expenses = ({setIsOpen}) => {
                         </div>
                     </div>
                     <div className='md:col-span-4 px-2'>
-                        <p className='responsiveText font-semibold uppercase tracking-[0.04em] text-[var(--ink-muted)] mb-1'>{getTtl('Comments', ln)}:</p>
+                        <p className='responsiveText font-medium text-[var(--ink-muted)] mb-1'>{getTtl('Comments', ln)}</p>
                         <div>
                             <textarea rows="5" name="comments"
                                 className="w-full h-28 px-3 py-2 rounded-control border border-[var(--line-strong)] bg-[var(--bg-card)] text-[var(--ink)] responsiveTextTitle outline-none transition-colors focus:border-[var(--brand)] focus:ring-[3px] focus:ring-[var(--brand-soft)] resize-y"

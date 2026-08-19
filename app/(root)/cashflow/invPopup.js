@@ -109,7 +109,7 @@ function SupplierDocPreview({ inv, onClose, settings, gisAccount }) {
             <DialogContent className="p-0 overflow-hidden flex flex-col" style={{
                 maxWidth: 'min(95vw, 860px)',
                 maxHeight: '92vh',
-                borderRadius: '16px',
+                borderRadius: 'var(--radius-card)',
                 border: '1px solid var(--line)',
                 boxShadow: 'var(--shadow-md)',
                 fontFamily: "var(--font-jakarta), 'Plus Jakarta Sans', sans-serif",
@@ -135,7 +135,7 @@ function SupplierDocPreview({ inv, onClose, settings, gisAccount }) {
                     </div>
                     <span style={{
                         padding: '3px 10px', borderRadius: '12px',
-                        fontSize: 'var(--fs-table)', fontWeight: '700',
+                        fontSize: 'var(--fs-table)', fontWeight: '600',
                         background: statusBg, color: statusFg,
                     }}>{status}</span>
                 </div>
@@ -164,10 +164,10 @@ function SupplierDocPreview({ inv, onClose, settings, gisAccount }) {
                         {/* Supplier (From) + Invoice details */}
                         <div className="flex justify-between items-start mb-4 flex-wrap gap-x-6 gap-y-2">
                             <div style={{ minWidth: '200px' }}>
-                                <p style={{ fontSize: 'var(--fs-table)', fontWeight: '700', borderBottom: '1px solid var(--chathams-blue)', display: 'inline-block', paddingBottom: '1px', marginBottom: '4px' }}>
+                                <p style={{ fontSize: 'var(--fs-table)', fontWeight: '600', borderBottom: '1px solid var(--chathams-blue)', display: 'inline-block', paddingBottom: '1px', marginBottom: '4px' }}>
                                     From (Supplier):
                                 </p>
-                                <p style={{ fontSize: 'var(--fs-table)', fontWeight: '700' }}>{supplier?.nname || inv.supplierName || ''}</p>
+                                <p style={{ fontSize: 'var(--fs-table)', fontWeight: '600' }}>{supplier?.nname || inv.supplierName || ''}</p>
                                 <p style={{ fontSize: 'var(--fs-table)' }}>{supplier?.street || ''}</p>
                                 <p style={{ fontSize: 'var(--fs-table)' }}>{supplier?.city || ''}</p>
                                 <p style={{ fontSize: 'var(--fs-table)' }}>{supplier?.country || ''}</p>
@@ -177,15 +177,15 @@ function SupplierDocPreview({ inv, onClose, settings, gisAccount }) {
                                 <table style={{ fontSize: 'var(--fs-table)', borderCollapse: 'collapse' }}>
                                     <tbody>
                                         <tr>
-                                            <td style={{ fontWeight: '700', paddingRight: '12px', paddingBottom: '3px' }}>Invoice No:</td>
+                                            <td style={{ fontWeight: '600', paddingRight: '12px', paddingBottom: '3px' }}>Invoice No:</td>
                                             <td style={{ paddingBottom: '3px' }}>{invNo}</td>
                                         </tr>
                                         <tr>
-                                            <td style={{ fontWeight: '700', paddingRight: '12px', paddingBottom: '3px' }}>Contract #:</td>
+                                            <td style={{ fontWeight: '600', paddingRight: '12px', paddingBottom: '3px' }}>Contract #:</td>
                                             <td style={{ paddingBottom: '3px' }}>{inv.order || ''}</td>
                                         </tr>
                                         <tr>
-                                            <td style={{ fontWeight: '700', paddingRight: '12px', paddingBottom: '3px' }}>Date:</td>
+                                            <td style={{ fontWeight: '600', paddingRight: '12px', paddingBottom: '3px' }}>Date:</td>
                                             <td style={{ paddingBottom: '3px' }}>{invDate ? dateFormat(invDate, 'dd.mm.yy') : ''}</td>
                                         </tr>
                                     </tbody>
@@ -356,7 +356,7 @@ function ClientDocPreview({ inv, onClose, settings, compData, gisAccount }) {
             <DialogContent className="p-0 overflow-hidden flex flex-col" style={{
                 maxWidth: 'min(95vw, 860px)',
                 maxHeight: '92vh',
-                borderRadius: '16px',
+                borderRadius: 'var(--radius-card)',
                 border: '1px solid var(--line)',
                 boxShadow: 'var(--shadow-md)',
                 fontFamily: "var(--font-jakarta), 'Plus Jakarta Sans', sans-serif",
@@ -397,7 +397,7 @@ function ClientDocPreview({ inv, onClose, settings, compData, gisAccount }) {
                         </button>
                         <span style={{
                             padding: '3px 10px', borderRadius: '12px',
-                            fontSize: 'var(--fs-table)', fontWeight: '700',
+                            fontSize: 'var(--fs-table)', fontWeight: '600',
                             background: cStatusBg, color: cStatusFg,
                         }}>{cStatus}</span>
                     </div>
@@ -428,10 +428,10 @@ function ClientDocPreview({ inv, onClose, settings, compData, gisAccount }) {
                         {/* ── Consignee + Invoice details ── */}
                         <div className="flex justify-between items-start mb-4 flex-wrap gap-x-6 gap-y-2">
                             <div style={{ minWidth: '200px' }}>
-                                <p style={{ fontSize: 'var(--fs-table)', fontWeight: '700', borderBottom: '1px solid var(--chathams-blue)', display: 'inline-block', paddingBottom: '1px', marginBottom: '4px' }}>
+                                <p style={{ fontSize: 'var(--fs-table)', fontWeight: '600', borderBottom: '1px solid var(--chathams-blue)', display: 'inline-block', paddingBottom: '1px', marginBottom: '4px' }}>
                                     Consignee:
                                 </p>
-                                <p style={{ fontSize: 'var(--fs-table)', fontWeight: '700' }}>{client?.nname || inv.clientName || ''}</p>
+                                <p style={{ fontSize: 'var(--fs-table)', fontWeight: '600' }}>{client?.nname || inv.clientName || ''}</p>
                                 <p style={{ fontSize: 'var(--fs-table)' }}>{client?.street || ''}</p>
                                 <p style={{ fontSize: 'var(--fs-table)' }}>{client?.city || ''}</p>
                                 <p style={{ fontSize: 'var(--fs-table)' }}>{client?.country || ''}</p>
@@ -441,16 +441,16 @@ function ClientDocPreview({ inv, onClose, settings, compData, gisAccount }) {
                                 <table style={{ fontSize: 'var(--fs-table)', borderCollapse: 'collapse' }}>
                                     <tbody>
                                         <tr>
-                                            <td style={{ fontWeight: '700', paddingRight: '12px', paddingBottom: '3px' }}>{getInvTypeLabel(inv)}</td>
+                                            <td style={{ fontWeight: '600', paddingRight: '12px', paddingBottom: '3px' }}>{getInvTypeLabel(inv)}</td>
                                             <td style={{ paddingBottom: '3px' }}>{invNo}</td>
                                         </tr>
                                         <tr>
-                                            <td style={{ fontWeight: '700', paddingRight: '12px', paddingBottom: '3px' }}>Date:</td>
+                                            <td style={{ fontWeight: '600', paddingRight: '12px', paddingBottom: '3px' }}>Date:</td>
                                             <td style={{ paddingBottom: '3px' }}>{invDate ? dateFormat(invDate, 'dd.mm.yy') : ''}</td>
                                         </tr>
                                         {poList.length > 0 && (
                                             <tr>
-                                                <td style={{ fontWeight: '700', paddingRight: '12px', paddingBottom: '3px', verticalAlign: 'top' }}>PO#:</td>
+                                                <td style={{ fontWeight: '600', paddingRight: '12px', paddingBottom: '3px', verticalAlign: 'top' }}>PO#:</td>
                                                 <td style={{ paddingBottom: '3px' }}>
                                                     {poList.map((p, i) => <div key={i}>{p}</div>)}
                                                 </td>
@@ -467,9 +467,9 @@ function ClientDocPreview({ inv, onClose, settings, compData, gisAccount }) {
                             <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
                                 <table style={{ borderCollapse: 'collapse' }}>
                                     <tbody>
-                                        {shipDisplay && <tr><td style={{ fontWeight: '700', paddingRight: '10px', paddingBottom: '3px', whiteSpace: 'nowrap' }}>Shipment:</td><td style={{ paddingBottom: '3px', whiteSpace: 'nowrap' }}>{shipDisplay}</td></tr>}
-                                        {originDisplay && <tr><td style={{ fontWeight: '700', paddingRight: '10px', paddingBottom: '3px', whiteSpace: 'nowrap' }}>Origin:</td><td style={{ paddingBottom: '3px', whiteSpace: 'nowrap' }}>{originDisplay}</td></tr>}
-                                        {delTermDisplay && <tr><td style={{ fontWeight: '700', paddingRight: '10px', paddingBottom: '3px', whiteSpace: 'nowrap' }}>Delivery Terms:</td><td style={{ paddingBottom: '3px', whiteSpace: 'nowrap' }}>{delTermDisplay}</td></tr>}
+                                        {shipDisplay && <tr><td style={{ fontWeight: '600', paddingRight: '10px', paddingBottom: '3px', whiteSpace: 'nowrap' }}>Shipment:</td><td style={{ paddingBottom: '3px', whiteSpace: 'nowrap' }}>{shipDisplay}</td></tr>}
+                                        {originDisplay && <tr><td style={{ fontWeight: '600', paddingRight: '10px', paddingBottom: '3px', whiteSpace: 'nowrap' }}>Origin:</td><td style={{ paddingBottom: '3px', whiteSpace: 'nowrap' }}>{originDisplay}</td></tr>}
+                                        {delTermDisplay && <tr><td style={{ fontWeight: '600', paddingRight: '10px', paddingBottom: '3px', whiteSpace: 'nowrap' }}>Delivery Terms:</td><td style={{ paddingBottom: '3px', whiteSpace: 'nowrap' }}>{delTermDisplay}</td></tr>}
                                     </tbody>
                                 </table>
                             </div>
@@ -477,9 +477,9 @@ function ClientDocPreview({ inv, onClose, settings, compData, gisAccount }) {
                             <div style={{ display: 'flex', justifyContent: 'center' }}>
                                 <table style={{ borderCollapse: 'collapse' }}>
                                     <tbody>
-                                        {polDisplay && <tr><td style={{ fontWeight: '700', paddingRight: '10px', paddingBottom: '3px', whiteSpace: 'nowrap' }}>POL:</td><td style={{ paddingBottom: '3px', whiteSpace: 'nowrap' }}>{polDisplay}</td></tr>}
-                                        {podDisplay && <tr><td style={{ fontWeight: '700', paddingRight: '10px', paddingBottom: '3px', whiteSpace: 'nowrap' }}>POD:</td><td style={{ paddingBottom: '3px', whiteSpace: 'nowrap' }}>{podDisplay}</td></tr>}
-                                        {isInvoice && packingDisplay && <tr><td style={{ fontWeight: '700', paddingRight: '10px', paddingBottom: '3px', whiteSpace: 'nowrap' }}>Packing:</td><td style={{ paddingBottom: '3px', whiteSpace: 'nowrap' }}>{packingDisplay}</td></tr>}
+                                        {polDisplay && <tr><td style={{ fontWeight: '600', paddingRight: '10px', paddingBottom: '3px', whiteSpace: 'nowrap' }}>POL:</td><td style={{ paddingBottom: '3px', whiteSpace: 'nowrap' }}>{polDisplay}</td></tr>}
+                                        {podDisplay && <tr><td style={{ fontWeight: '600', paddingRight: '10px', paddingBottom: '3px', whiteSpace: 'nowrap' }}>POD:</td><td style={{ paddingBottom: '3px', whiteSpace: 'nowrap' }}>{podDisplay}</td></tr>}
+                                        {isInvoice && packingDisplay && <tr><td style={{ fontWeight: '600', paddingRight: '10px', paddingBottom: '3px', whiteSpace: 'nowrap' }}>Packing:</td><td style={{ paddingBottom: '3px', whiteSpace: 'nowrap' }}>{packingDisplay}</td></tr>}
                                     </tbody>
                                 </table>
                             </div>
@@ -487,10 +487,10 @@ function ClientDocPreview({ inv, onClose, settings, compData, gisAccount }) {
                             <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
                                 <table style={{ borderCollapse: 'collapse' }}>
                                     <tbody>
-                                        <tr><td style={{ fontWeight: '700', paddingRight: '10px', paddingBottom: '3px', whiteSpace: 'nowrap' }}>Total Net WT Kgs:</td><td style={{ paddingBottom: '3px' }}>{NetWTKgsTmp > 0 ? NetWTKgs : ''}</td></tr>
-                                        {!secondRule && !fifthRule && isInvoice && <tr><td style={{ fontWeight: '700', paddingRight: '10px', paddingBottom: '3px', whiteSpace: 'nowrap' }}>Total Tarre WT Kgs:</td><td style={{ paddingBottom: '3px' }}>{TotalTarre}</td></tr>}
-                                        {!fourthRule && !fifthRule && inv.ttlGross && <tr><td style={{ fontWeight: '700', paddingRight: '10px', paddingBottom: '3px', whiteSpace: 'nowrap' }}>{thirdRule ? 'QTY Ingots:' : 'Total Gross WT Kgs:'}</td><td style={{ paddingBottom: '3px' }}>{TotalGross}</td></tr>}
-                                        {isInvoice && !secondRule && inv.ttlPackages && <tr><td style={{ fontWeight: '700', paddingRight: '10px', paddingBottom: '3px', whiteSpace: 'nowrap' }}>Total Packages:</td><td style={{ paddingBottom: '3px' }}>{inv.ttlPackages}</td></tr>}
+                                        <tr><td style={{ fontWeight: '600', paddingRight: '10px', paddingBottom: '3px', whiteSpace: 'nowrap' }}>Total Net WT Kgs:</td><td style={{ paddingBottom: '3px' }}>{NetWTKgsTmp > 0 ? NetWTKgs : ''}</td></tr>
+                                        {!secondRule && !fifthRule && isInvoice && <tr><td style={{ fontWeight: '600', paddingRight: '10px', paddingBottom: '3px', whiteSpace: 'nowrap' }}>Total Tarre WT Kgs:</td><td style={{ paddingBottom: '3px' }}>{TotalTarre}</td></tr>}
+                                        {!fourthRule && !fifthRule && inv.ttlGross && <tr><td style={{ fontWeight: '600', paddingRight: '10px', paddingBottom: '3px', whiteSpace: 'nowrap' }}>{thirdRule ? 'QTY Ingots:' : 'Total Gross WT Kgs:'}</td><td style={{ paddingBottom: '3px' }}>{TotalGross}</td></tr>}
+                                        {isInvoice && !secondRule && inv.ttlPackages && <tr><td style={{ fontWeight: '600', paddingRight: '10px', paddingBottom: '3px', whiteSpace: 'nowrap' }}>Total Packages:</td><td style={{ paddingBottom: '3px' }}>{inv.ttlPackages}</td></tr>}
                                     </tbody>
                                 </table>
                             </div>

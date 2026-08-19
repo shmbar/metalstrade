@@ -30,17 +30,17 @@ const Page = () => {
 
     return (
         <div>
-            <div className="p-1">
+            <div className="p-3">
                 <div className="w-full px-0 ">
                     <Tab.Group >
-                        <Tab.List className="inline-flex space-x-1 p-0.5 rounded-lg bg-[var(--bg-subtle)] border border-[var(--line)]">
+                        <Tab.List className="inline-flex space-x-0.5 p-0.5 mb-2 rounded-lg bg-[var(--bg-subtle)] border border-[var(--line)]">
                             {tabs.map((z, i) => (
                                 <Tab
                                     disabled={((i === 1 || i === 2 || i === 3 || i === 4) && valueCon.id === '') || isButtonDisabled}
                                     key={z}
                                     className={({ selected }) =>
                                         classNames(
-                                            'rounded-lg py-1.5 px-4 responsiveTextInput font-medium leading-4 transition-colors whitespace-nowrap',
+                                            'rounded-lg py-1 px-3 responsiveTextInput font-medium leading-4 transition-colors whitespace-nowrap',
                                             'focus:outline-none disabled:opacity-40',
                                             selected
                                                 ? 'bg-[var(--bg-card)] text-[var(--ink)] shadow-card'

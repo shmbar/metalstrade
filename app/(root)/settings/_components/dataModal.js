@@ -4,7 +4,7 @@ import UserData from './userData';
 
 const DataModal = ({ isOpen, setIsOpen, title, data, setData, user, setUser, Delete }) => {
     return (
-        <Modal isOpen={isOpen} setIsOpen={setIsOpen} title={title} w='max-w-md' >
+        <Modal isOpen={isOpen} setIsOpen={setIsOpen} title={title} size='sm' >
             <UserData setIsOpen={setIsOpen} data={data} setData={setData} 
             user={user} setUser={setUser} />
         </Modal>

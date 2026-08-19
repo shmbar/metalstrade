@@ -192,6 +192,20 @@ export const setMonthsInvoices = (data, settings, companyRate = 0) => {
     return { accumulatedPmnt, pieArrClnts /*, accumulatedActualPmnt */}
 }
 
+/* Month an expense belongs to. Contract expenses carry their own required date, but
+   this used to bucket them by the CONTRACT start month — a December cost on a January
+   contract landed in January and skewed the monthly profit line. Trust the expense date
+   only when it falls in the contract year, so a stray date cannot move spend out of the
+   loaded period; the annual total is identical either way. */
+const expenseMonth = (obj, contract, fallback) => {
+    const d = obj?.date || obj?.dateRange?.startDate
+    if (typeof d !== 'string' || d.length < 7) return fallback
+    const yr = String(contract?.dateRange?.startDate || '').substring(0, 4)
+    if (yr && d.substring(0, 4) !== yr) return fallback
+    const m = Number(d.substring(5, 7))
+    return m >= 1 && m <= 12 ? m : fallback
+}
+
 export const calContracts = (data, settings, companyRate = 0) => {
 
     let accumulatedPmnt = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].reduce((o, key) => ({ ...o, [key]: 0 }), {})
@@ -263,15 +277,17 @@ export const calContracts = (data, settings, companyRate = 0) => {
         }
 
         //expenses — total, by month, and by type
-        x.expenses.forEach(obj => {
+        ;(x.expenses || []).forEach(obj => {
             if (obj && !isNaN(parseFloat(obj.amount))) {
                 const m2 = obj.cur === 'us' ? 1 : mult
                 const amt = parseFloat(obj.amount) * m2
-                accumulatedExp[month] += amt
+                const expMonth = expenseMonth(obj, x, month)
+                accumulatedExp[expMonth] += amt
                 if (freightIds.has(obj.expType)) freightTotal += amt
                 const lbl = expLabel(obj.expType)
                 expByType[lbl] = (expByType[lbl] || 0) + amt
-                if (['storage', 'warehouse'].includes(String(lbl).toLowerCase())) storageByMonth[month] += amt
+                const lblLower = String(lbl).toLowerCase()
+                if (lblLower.includes('storage') || lblLower.includes('warehouse')) storageByMonth[expMonth] += amt
             }
         })
     })

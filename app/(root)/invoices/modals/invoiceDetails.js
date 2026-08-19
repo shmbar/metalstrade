@@ -33,7 +33,7 @@ import LoadingButton from '../../../../components/LoadingButton'
 import { TbStackPush } from "react-icons/tb";
 
 // Settings-style form spec (shared with the contract modal's invoice tab)
-const labelCls = 'responsiveText font-semibold uppercase tracking-[0.04em] text-[var(--ink-muted)] mb-1';
+const labelCls = 'responsiveText font-medium text-[var(--ink-muted)] mb-1';
 const panelCls = 'border border-[var(--line)] rounded-2xl bg-[var(--bg-card)] p-3';
 const panelTtl = 'responsiveTextTitle font-semibold mb-3 text-[var(--ink)] font-display';
 
