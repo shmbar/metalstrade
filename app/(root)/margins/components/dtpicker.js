@@ -23,16 +23,18 @@ const getDateValue = (props) =>
    cell contributes no horizontal padding, which leaves ~85px of content box:
    the date can't reach the button at any rung of the type ladder.
 
-   responsiveTextTableTitle, NOT responsiveText. This is a table cell like every
-   other one in the row, but it was the only one still reading its size off the
-   body rung after the rest of the body band moved to the caption rung — 11px
-   against 9px, which is exactly why the date column looked a size up in every
-   row. The two global datepicker rules that force --fs-body !important are
+   The rule is that this matches its row, not that it takes any particular rung.
+   The row used to sit on the caption rung and this followed it there; the row is
+   now on --fs-table, because the figure inputs and selects were rendering a size
+   below their own headers. So this follows again. Its column went to 110px at the
+   same time: a date one rung larger needs the room, and an <input> clips its text
+   rather than overflowing. The two global datepicker rules that force
+   --fs-body !important are
    keyed to .header-datepicker / .react-tailwindcss-datepicker-container, and
    this picker carries neither (containerClassName replaces the library's
    default class list), so the class here is what actually decides the size. */
 const DATE_INPUT_CLASS =
-    'responsiveTextTableTitle h-7 py-0 px-3 w-full bg-transparent border-0 outline-none cursor-pointer text-[var(--brand)] text-center';
+    'responsiveTextTable h-7 py-0 px-3 w-full bg-transparent border-0 outline-none cursor-pointer text-[var(--brand)] text-center';
 
 /* Positioning note.
    This component used to hand-position the popup: a MutationObserver watched for

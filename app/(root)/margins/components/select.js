@@ -39,7 +39,7 @@ const SelectEnt = memo(({ props, data, handleChangeSelect, month, name, plHolder
                         className="
                           group w-full flex items-center justify-between
                           bg-transparent rounded-control px-2
-                          responsiveTextTableTitle
+                          responsiveTextTable
                           text-[var(--ink)]
                           border border-transparent
                           hover:border-[var(--line-strong)] hover:bg-[var(--bg-card)]

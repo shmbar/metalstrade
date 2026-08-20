@@ -38,7 +38,7 @@ const INPUT_CLASS = `
   bg-transparent
   rounded-control
   px-1
-  responsiveTextTableTitle
+  responsiveTextTable
   !text-[var(--ink)]
   border border-transparent
   outline-none

@@ -59,14 +59,14 @@ import Tltip from "../../../components/tlTip";
 // in 11%, Margin 10 in 9% — so a point each from Supplier, Margin, Total Margin
 // and Remaining buys Qty and Open Ship a point each and Description two.
 const COLUMN_CONFIGS = {
-    'drag-handle': { pct: '2%',  align: 'center' },
+    'drag-handle': { w: '30px',  align: 'center' },
     // 9%, not 6%: at 6% the cell was ~75px, and once the cell padding and the
     // clear button's gutter came off it the date input had ~55px of content box
     // for a "DD.MM.YY" that measures ~58px on a wide viewport — so the year was
     // clipped. Wide enough that the date never meets the button, with margin for
     // the narrower table box a 14" laptop gives it.
-    'date':        { pct: '9%',  align: 'center' },
-    'purchase':    { pct: '7%',  align: 'right'  },
+    'date':        { w: '110px', align: 'center' },
+    'purchase':    { w: '86px',  align: 'right'  },
     // Free text, so it overflows at any width the table can afford and the input
     // scrolls — but it is the column users actually read, so it takes the points
     // nobody else needed rather than staying the tightest fit that works. It is
@@ -74,22 +74,22 @@ const COLUMN_CONFIGS = {
     // text that runs on still reads as text and scrolls in its input, whereas a
     // clipped entity name reads as the wrong entity and a clipped date loses its
     // year outright. One point to Client, one to Date.
-    'description': { pct: '15%', align: 'left'   },
-    'supplier':    { pct: '11%', align: 'left'   },
+    'description': { w: 'auto',  align: 'left'   },
+    'supplier':    { w: '138px', align: 'left'   },
     // Now that neither entity column truncates, this has to hold its longest
     // name outright rather than the "SJM" / "Oryx" short ones — "Iberinox" was
     // rendering as "Iberi…" at 7%. The point comes from Description.
-    'client':      { pct: '8%',  align: 'left'   },
-    'margin':      { pct: '9%',  align: 'right'  },
-    'totalMargin': { pct: '11%', align: 'right'  },
-    'shipped':     { pct: '5%',  align: 'right'  },
+    'client':      { w: '112px', align: 'left'   },
+    'margin':      { w: '100px', align: 'right'  },
+    'totalMargin': { w: '120px', align: 'right'  },
+    'shipped':     { w: '82px',  align: 'right'  },
     // 8%: a figure must never truncate. "190.000" is seven characters and was
     // losing its last one at 7% — and a cut number is worse than cut text,
     // because "190.00" is itself a valid reading and nothing signals the loss.
-    'openShip':    { pct: '8%',  align: 'right'  },
-    'remaining':   { pct: '8%',  align: 'right'  },
-    'gis':         { pct: '4%',  align: 'center' },
-    'del':         { pct: '3%',  align: 'center' },
+    'openShip':    { w: '94px',  align: 'right'  },
+    'remaining':   { w: '94px',  align: 'right'  },
+    'gis':         { w: '46px',  align: 'center' },
+    'del':         { w: '34px',  align: 'center' },
 };
 
 // Cells whose content is a figure inside a full-width <input>. The input brings
@@ -136,7 +136,6 @@ const DraggableRow = memo(function DraggableRow({ row, props, cName }) {
     >
       {row.getVisibleCells().map((cell) => {
         const columnConfig = COLUMN_CONFIGS[cell.column.id] || {};
-        const cellWidth = columnConfig.width || "auto";
         const cellAlign = columnConfig.align || "left";
 
         return (
@@ -146,7 +145,7 @@ const DraggableRow = memo(function DraggableRow({ row, props, cName }) {
               height: "32px",
               padding: FIGURE_COLUMNS.has(cell.column.id) ? "3px 0" : "3px 1px",
               verticalAlign: "middle",
-              width: columnConfig.pct || 'auto',
+              width: columnConfig.w || 'auto',
               overflow: cell.column.id === "date" ? "visible" : "hidden",
             }}
             className={cn(
@@ -264,7 +263,7 @@ const DraggableRow = memo(function DraggableRow({ row, props, cName }) {
                     className={cn(
                       // px-0: read-only, so there is no hover/focus box for the
                       // padding to clear, and the figure needs every pixel.
-                      "w-full min-w-0 bg-transparent border-none outline-none px-0 text-center responsiveTextTableTitle ",
+                      "w-full min-w-0 bg-transparent border-none outline-none px-0 text-center responsiveTextTable ",
                       cell.column.id === "remaining" && Number(cell.getValue()) > 0
                         ? "text-[var(--bad-text)]"
                         : "text-[var(--ink)]"
@@ -284,7 +283,7 @@ const DraggableRow = memo(function DraggableRow({ row, props, cName }) {
                 decimalScale={currs.includes(cell.column.id) ? 2 : 3}
                 fixedDecimalScale
                 className={cn(
-                  "w-full min-w-0 bg-transparent border-none outline-none px-0 text-center responsiveTextTableTitle ",
+                  "w-full min-w-0 bg-transparent border-none outline-none px-0 text-center responsiveTextTable ",
                   ["openShip", "remaining"].includes(cell.column.id) && Number(cell.getValue()) > 0
                     ? "text-[var(--bad-text)]"
                     : "text-[var(--ink)]"
@@ -429,7 +428,7 @@ const Customtable = (props) => {
        wrap "QTY (MT)" and "OPEN SHIP" onto a second line. The labels are
        centred, so they need no padding to sit off the column edge. */
     padding: '4px 0',
-    width: (COLUMN_CONFIGS[header.column.id] || {}).pct || 'auto',
+    width: (COLUMN_CONFIGS[header.column.id] || {}).w || 'auto',
   }}
   className={cn(
     'bg-[var(--bg-subtle)] text-[var(--ink-muted)] border-b border-b-[var(--line)]',
