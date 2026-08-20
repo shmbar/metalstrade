@@ -713,11 +713,11 @@ const Customtable = ({
                     clipping the square table corners from the card wrapper in page.js —
                     which had to stop clipping so the preset dropdowns could escape. */}
                 <div className="overflow-auto dashboard-scroll rounded-b-2xl" style={{ maxHeight: '700px' }}>
+                    <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
                     <table className="w-full responsiveTextTable" style={{ tableLayout: 'auto', borderCollapse: 'separate', borderSpacing: 0, fontFamily: 'inherit' }}>
 
                         {/* THEAD */}
                         <thead>
-                            <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
                                 <SortableContext items={elementKeys} strategy={horizontalListSortingStrategy}>
                                     {table.getHeaderGroups().map(hg => (
                                         <tr key={hg.id}>
@@ -791,7 +791,6 @@ const Customtable = ({
                                         </tr>
                                     ))}
                                 </SortableContext>
-                            </DndContext>
                         </thead>
 
                         {/* TBODY */}
@@ -877,6 +876,7 @@ const Customtable = ({
                             </tfoot>
                         )}
                     </table>
+                    </DndContext>
                 </div>
             </div>
 
@@ -898,13 +898,13 @@ const Customtable = ({
                                     const focused = focusedCell === ck
                                     if (isCost) return (
                                         <div key={cell.id} className="flex justify-between items-center pb-2" style={{ borderBottom: '1px solid var(--line)' }}>
-                                            <span style={{ color: 'var(--ink-muted)', fontSize: 'var(--fs-caption)', fontWeight: '500' }}>{cell.column.columnDef.header}</span>
+                                            <span className='uppercase tracking-wider' style={{ color: 'var(--ink-muted)', fontSize: 'var(--fs-caption)', fontWeight: '500' }}>{cell.column.columnDef.header}</span>
                                             <span className="responsiveTextTable" style={{ color: TONES.green.text, fontWeight: '600' }}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</span>
                                         </div>
                                     )
                                     return (
                                         <div key={cell.id} className="flex flex-col space-y-1 pb-2 last:pb-0" style={{ borderBottom: '1px solid var(--line)' }}>
-                                            <div style={{ color: 'var(--ink-muted)', fontSize: 'var(--fs-caption)', fontWeight: '500' }}>{cell.column.columnDef.header}</div>
+                                            <div className='uppercase tracking-wider' style={{ color: 'var(--ink-muted)', fontSize: 'var(--fs-caption)', fontWeight: '500' }}>{cell.column.columnDef.header}</div>
                                             <div style={{
                                                 backgroundColor: focused ? 'var(--bg-card)' : 'var(--bg-subtle)',
                                                 border: `1px solid ${focused ? 'var(--brand)' : isFe ? 'var(--brand-border)' : 'var(--line-strong)'}`,
