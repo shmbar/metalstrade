@@ -896,6 +896,12 @@
 import { useState } from "react";
 
 // Shared styling (style-only constants — no logic)
+/* Composition and Price share one column width so their Ni/Cr/Mo/Fe line up with
+   each other, and it is sized to the widest value EITHER can hold — a price like
+   "$57,408.30" at --fs-input with tabular figures. At 85px the cell left ~76px of
+   content box for a value that measures ~78px, so prices sat on the edge of being
+   clipped while the percentages beside them used barely half their cell. 104px
+   clears the longest price with room and keeps both grids aligned. */
 const headCell = "py-1.5 text-center responsiveTextTable font-semibold uppercase tracking-[0.04em] text-[var(--ink-muted)]";
 const labelCls = "responsiveTextTable font-semibold uppercase tracking-[0.04em] text-[var(--ink-muted)] mb-1.5";
 const inputCell = "w-full h-8 rounded-control bg-[var(--bg-subtle)] border border-[var(--line-strong)] text-center responsiveTextInput tabular-nums font-medium text-[var(--bad-text)] focus:outline-none focus:border-[var(--brand)] focus:ring-2 focus:ring-[var(--brand-soft)] transition-colors";
@@ -940,13 +946,13 @@ const Fenicr = ({ value, handleChange, focusedField, setFocusedField, addComma }
                                 <div>
                                     <p className={labelCls}>Composition</p>
                                     <div className="rounded-2xl border border-[var(--line)] overflow-hidden w-fit bg-[var(--bg-card)]">
-                                        <div className="grid grid-cols-[85px_85px_85px_85px] bg-[var(--bg-subtle)] border-b border-[var(--line)]">
+                                        <div className="grid grid-cols-[104px_104px_104px_104px] bg-[var(--bg-subtle)] border-b border-[var(--line)]">
                                             <div className={headCell}>Ni</div>
                                             <div className={headCell}>Cr</div>
                                             <div className={headCell}>Mo</div>
                                             <div className={headCell}>Fe</div>
                                         </div>
-                                        <div className="grid grid-cols-[85px_85px_85px_85px] bg-[var(--bg-card)]">
+                                        <div className="grid grid-cols-[104px_104px_104px_104px] bg-[var(--bg-card)]">
                                             <div className="p-1">
                                                 <input type="text" className={inputCell}
                                                     value={value?.fenicr?.ni + '%'} name="ni"
@@ -979,13 +985,13 @@ const Fenicr = ({ value, handleChange, focusedField, setFocusedField, addComma }
                                 <div>
                                     <p className={labelCls}>Price</p>
                                     <div className="rounded-2xl border border-[var(--line)] overflow-hidden w-fit bg-[var(--bg-card)]">
-                                        <div className="grid grid-cols-[85px_85px_85px_85px] bg-[var(--bg-subtle)] border-b border-[var(--line)]">
+                                        <div className="grid grid-cols-[104px_104px_104px_104px] bg-[var(--bg-subtle)] border-b border-[var(--line)]">
                                             <div className={headCell}>Ni</div>
                                             <div className={headCell}>Cr</div>
                                             <div className={headCell}>Mo</div>
                                             <div className={headCell}>Fe</div>
                                         </div>
-                                        <div className="grid grid-cols-[85px_85px_85px_85px] bg-[var(--bg-card)]">
+                                        <div className="grid grid-cols-[104px_104px_104px_104px] bg-[var(--bg-card)]">
                                             <div className="p-1">
                                                 <input readOnly className={computedInput}
                                                     value={formatCurrency((value.general?.nilme * value.fenicr?.formulaNiCost / 100).toFixed(2))}
@@ -1070,13 +1076,13 @@ const Fenicr = ({ value, handleChange, focusedField, setFocusedField, addComma }
                                 <div>
                                     <p className={labelCls}>Composition</p>
                                     <div className="rounded-2xl border border-[var(--line)] overflow-hidden w-fit bg-[var(--bg-card)]">
-                                        <div className="grid grid-cols-[85px_85px_85px_85px] bg-[var(--bg-subtle)] border-b border-[var(--line)]">
+                                        <div className="grid grid-cols-[104px_104px_104px_104px] bg-[var(--bg-subtle)] border-b border-[var(--line)]">
                                             <div className={headCell}>Ni</div>
                                             <div className={headCell}>Cr</div>
                                             <div className={headCell}>Mo</div>
                                             <div className={headCell}>Fe</div>
                                         </div>
-                                        <div className="grid grid-cols-[85px_85px_85px_85px] bg-[var(--bg-card)]">
+                                        <div className="grid grid-cols-[104px_104px_104px_104px] bg-[var(--bg-card)]">
                                             <div className="p-1"><div className={computedCell}>{value?.fenicr?.ni}%</div></div>
                                             <div className="p-1"><div className={computedCell}>{value?.fenicr?.cr}%</div></div>
                                             <div className="p-1"><div className={computedCell}>{value?.fenicr?.mo}%</div></div>
@@ -1087,13 +1093,13 @@ const Fenicr = ({ value, handleChange, focusedField, setFocusedField, addComma }
                                 <div>
                                     <p className={labelCls}>Price</p>
                                     <div className="rounded-2xl border border-[var(--line)] overflow-hidden w-fit bg-[var(--bg-card)]">
-                                        <div className="grid grid-cols-[85px_85px_85px_85px] bg-[var(--bg-subtle)] border-b border-[var(--line)]">
+                                        <div className="grid grid-cols-[104px_104px_104px_104px] bg-[var(--bg-subtle)] border-b border-[var(--line)]">
                                             <div className={headCell}>Ni</div>
                                             <div className={headCell}>Cr</div>
                                             <div className={headCell}>Mo</div>
                                             <div className={headCell}>Fe</div>
                                         </div>
-                                        <div className="grid grid-cols-[85px_85px_85px_85px] bg-[var(--bg-card)]">
+                                        <div className="grid grid-cols-[104px_104px_104px_104px] bg-[var(--bg-card)]">
                                             <div className="p-1"><div className={computedCell}>{formatCurrency((value.general?.nilme * value.fenicr?.formulaNiPrice / 100).toFixed(2))}</div></div>
                                             <div className="p-1"><div className={computedCell}>{formatCurrency((value.general?.chargeCrLb * value.general?.mt * value.fenicr?.crPriceArgus / 100).toFixed(2))}</div></div>
                                             <div className="p-1"><div className={computedCell}>{formatCurrency((value.general?.MoOxideLb * value.fenicr?.moPriceArgus * value.general?.mt / 100).toFixed(2))}</div></div>
