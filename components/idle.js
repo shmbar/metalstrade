@@ -3,7 +3,6 @@ import { useEffect, useState, Fragment } from 'react'
 import { useIdleTimer } from 'react-idle-timer'
 import { Dialog, Transition, TransitionChild, DialogPanel, DialogTitle } from '@headlessui/react'
 import { UserAuth } from "../contexts/useAuthContext";
-import { useRouter } from "next/navigation";
 
 const timeout = 7200_000 //2 hours — matches the session cap in useAuthContext
 const promptBeforeIdle = 30_000
@@ -11,7 +10,6 @@ const promptBeforeIdle = 30_000
 export default function App() {
 
     const [remaining, setRemaining] = useState(timeout)
-    const router = useRouter()
     const { SignOut } = UserAuth();
   
     // "Remember me" sessions are meant to stay logged in (Google-like) — the no-activity
@@ -29,8 +27,7 @@ export default function App() {
     }
 
     const LogOut = async () => {
-        router.push("/");
-        await SignOut();
+        await SignOut('/signin?expired=1');
     }
 
     const onActive = () => {

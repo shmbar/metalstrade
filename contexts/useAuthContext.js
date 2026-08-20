@@ -117,7 +117,7 @@ const AuthContextProvider = ({ children }) => {
   }
 */
 
-  const SignOut = useCallback(async () => {
+  const SignOut = useCallback(async (dest = '/') => {
     // Keep the sign-in page's email prefill across logout — wiping it made every
     // logout look like "Remember me forgot me".
     const savedEmail = localStorage.getItem('email');
@@ -131,8 +131,10 @@ const AuthContextProvider = ({ children }) => {
     setUser(null);
     if (window.__resetLogoutTimer) window.__resetLogoutTimer();
     await signOut(auth).catch(() => {});
-    // Force reload to clear any cached state and ensure full session expiry
-    window.location.replace("/");
+    // Force reload to clear any cached state and ensure full session expiry.
+    // Deliberate logout goes home; an expiry passes /signin so the user lands on the
+    // form with a reason instead of on the marketing page wondering what happened.
+    window.location.replace(typeof dest === 'string' && dest.startsWith('/') ? dest : '/');
   }, [])
 
   // Only set loadingPage to false after both Firebase user and uidCollection are loaded

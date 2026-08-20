@@ -12,8 +12,16 @@ import imsLogo from '../../../public/logo/logoNew.svg';
 export default function SignInPage() {
   const { SignIn, user, err } = UserAuth();
   const router = useRouter();
+  /* Set by the inactivity logout — see components/idle.js. Read from location rather
+     than useSearchParams(): that hook forces a client-side-rendering bail unless the page
+     is wrapped in <Suspense>, which made /signin intermittently 404. */
+  const [expired, setExpired] = useState(false);
 
   const [showPassword, setShowPassword] = useState(false);
+
+  useEffect(() => {
+    setExpired(new URLSearchParams(window.location.search).get('expired') === '1');
+  }, []);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [remember, setRemember] = useState(false);
@@ -99,7 +107,9 @@ export default function SignInPage() {
               <Image src={imsLogo} alt="IMS Logo" width={90} height={44} priority className="mb-1" />
             </div>
             <h1 className="responsiveTextStat font-bold text-[var(--chathams-blue)]">Welcome back</h1>
-            <p className="responsiveTextTitle text-[var(--text-faint)] mt-0.5">Sign in to your IMS account to continue</p>
+            <p className="responsiveTextTitle text-[var(--text-faint)] mt-0.5">
+              {expired ? 'Your session timed out after 2 hours of inactivity. Sign in to continue.' : 'Sign in to your IMS account to continue'}
+            </p>
           </div>
 
           {/* Form */}
