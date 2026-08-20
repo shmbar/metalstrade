@@ -43,28 +43,38 @@ import { dataIds } from "./funcs";
 import CheckBox from "../../../components/checkbox";
 import Tltip from "../../../components/tlTip";
 
-// Percentage-based widths so table fills available space responsively.
-// They sum to exactly 100, so under `tableLayout: fixed` each column gets the
-// width written here — nothing left over for the browser to redistribute.
+// Fixed widths, sized to what each column HOLDS — not to a share of the screen.
 //
-// The budget follows the widest string a column can hold — INCLUDING its header,
-// which the first pass overlooked. Money columns run to 13 characters
-// ("$1,931,250.00") and the width to hold them came out of Qty and Open Ship,
-// which left neither able to fit its own label: "QTY (MT)" and "OPEN SHIP" broke
-// across two lines while every other header sat on one, and Open Ship's figures
-// lost their last digit ("20.000" read "20.00").
+// These were percentages summing to 100. That guarantees two faults at once: a
+// checkbox needs ~46px on a 13" screen and ~46px on a 27" one, so 4% was 48px at
+// 1200 and 90px at 2250 — a cell mostly made of air on a large monitor — while
+// the same percentages left the text columns short on a 14".
 //
-// The money columns were over-provisioned for it. At these widths each still
-// clears its widest value with room to spare — Total Margin holds 13 characters
-// in 11%, Margin 10 in 9% — so a point each from Supplier, Margin, Total Margin
-// and Remaining buys Qty and Open Ship a point each and Description two.
+// Each width below clears its widest content INCLUDING its own header, which is
+// what actually governs the figure columns: "TOTAL MARGIN" is wider than
+// "$282,000.00", and "QTY (MT)" and "OPEN SHIP" wrapped onto a second line when
+// they were budgeted off their values alone.
+//
+// Description is the only free-text column, so it alone states no width and
+// takes whatever is left: ~160px on a 14", ~570px at 1920, ~1210px at 2560.
+//
+// Why stated widths and not min-widths: this table is `table-layout: fixed`, and
+// not by choice made here. ../contracts/style.css — imported at the top of this
+// file, and global once loaded — carries a bare `table { table-layout: fixed }`
+// plus `table th, table td { padding: .25rem .5rem !important }`. Under fixed
+// layout a column with no stated width takes an equal share of the table, so
+// min-widths are simply ignored: dropping to min-width gave thirteen identical
+// 93px columns. Every column that must not collapse therefore states a width.
+//
+// The tableLayout below is set explicitly rather than inherited from that
+// stylesheet, so this table keeps working if the import ever goes.
 const COLUMN_CONFIGS = {
     'drag-handle': { w: '30px',  align: 'center' },
-    // 9%, not 6%: at 6% the cell was ~75px, and once the cell padding and the
-    // clear button's gutter came off it the date input had ~55px of content box
-    // for a "DD.MM.YY" that measures ~58px on a wide viewport — so the year was
-    // clipped. Wide enough that the date never meets the button, with margin for
-    // the narrower table box a 14" laptop gives it.
+    // 110px: the cell padding and the clear button's gutter come off this before
+    // the date input sees it, and DD.MM.YY measures ~58px at this rung. Narrower
+    // and the year is clipped outright — an <input> cuts its text rather than
+    // overflowing it, so nothing on screen signals the loss.
+
     'date':        { w: '110px', align: 'center' },
     'purchase':    { w: '86px',  align: 'right'  },
     // Free text, so it overflows at any width the table can afford and the input
@@ -73,18 +83,18 @@ const COLUMN_CONFIGS = {
     // also the column those points come back OUT of, for the same reason: free
     // text that runs on still reads as text and scrolls in its input, whereas a
     // clipped entity name reads as the wrong entity and a clipped date loses its
-    // year outright. One point to Client, one to Date.
+    // year outright.
     'description': { w: 'auto',  align: 'left'   },
     'supplier':    { w: '138px', align: 'left'   },
     // Now that neither entity column truncates, this has to hold its longest
     // name outright rather than the "SJM" / "Oryx" short ones — "Iberinox" was
-    // rendering as "Iberi…" at 7%. The point comes from Description.
+    // rendering as "Iberi…" when this was tighter.
     'client':      { w: '112px', align: 'left'   },
     'margin':      { w: '100px', align: 'right'  },
     'totalMargin': { w: '120px', align: 'right'  },
     'shipped':     { w: '82px',  align: 'right'  },
-    // 8%: a figure must never truncate. "190.000" is seven characters and was
-    // losing its last one at 7% — and a cut number is worse than cut text,
+    // A figure must never truncate: "190.000" is seven characters and lost its
+    // last one when this was tighter. A cut number is worse than cut text,
     // because "190.00" is itself a valid reading and nothing signals the loss.
     'openShip':    { w: '94px',  align: 'right'  },
     'remaining':   { w: '94px',  align: 'right'  },
@@ -142,8 +152,7 @@ const DraggableRow = memo(function DraggableRow({ row, props, cName }) {
           <TableCell
             key={cell.id}
             style={{
-              height: "32px",
-              padding: FIGURE_COLUMNS.has(cell.column.id) ? "3px 0" : "3px 1px",
+              // padding comes from .custom-table td
               verticalAlign: "middle",
               width: columnConfig.w || 'auto',
               overflow: cell.column.id === "date" ? "visible" : "hidden",
@@ -400,19 +409,17 @@ const Customtable = (props) => {
             sensors={sensors}
         >
             <div className="flex flex-col relative w-full">
-                {/* The one size that reaches cell content carrying no ladder class
-                    of its own. It was a hardcoded 0.75rem, which pinned those cells
-                    at 12px on every screen while everything around them ramped; it
-                    reads the caption rung now so the whole body band agrees. */}
-                <style jsx global>{`
-                    .margins-data-table tbody td { font-size: var(--fs-caption); }
-                `}</style>
+                {/* No local type rule: .custom-table below sets th and td together,
+                    the same definition the other fourteen tables read. */}
                 {/* margins-table-scroll: globals.css lifts this clip while a date
                     picker is open, so the calendar is not cut off at the bottom edge. */}
                 <div className="margins-table-scroll rounded-lg border border-[var(--line)] overflow-x-auto relative shadow-card">
                     {/* Desktop Table - Compact Heights */}
-                    <div className="hidden sm:block w-full min-w-[900px]">
-                        <Table className="w-full margins-data-table" style={{ borderSpacing: '0 1px', tableLayout: 'fixed' }}>
+                    <div className="hidden sm:block w-full min-w-[900px] custom-table">
+                        {/* Fixed layout, stated here rather than inherited from ../contracts/style.css.
+                            The widths below are what each column holds; Description states none
+                            and takes the remainder. */}
+                        <Table className="w-full margins-data-table" style={{ tableLayout: 'fixed' }}>
                             <TableHeader>
                                 <TableRow>
                                     {table.getHeaderGroups().map((headerGroup) =>
@@ -423,20 +430,16 @@ const Customtable = (props) => {
   key={header.id}
   style={{
     height: '36px',
-    /* No side padding: under `tableLayout: fixed` a column gets exactly its
-       percentage, so 6px a side was 12px the label could not use — enough to
-       wrap "QTY (MT)" and "OPEN SHIP" onto a second line. The labels are
-       centred, so they need no padding to sit off the column edge. */
-    padding: '4px 0',
     width: (COLUMN_CONFIGS[header.column.id] || {}).w || 'auto',
   }}
   className={cn(
-    'bg-[var(--bg-subtle)] text-[var(--ink-muted)] border-b border-b-[var(--line)]',
+    /* Background, border, uppercase, tracking, size and weight all come from
+       .custom-table th now — only the corner rounding is local. */
     idx === 0 ? 'rounded-tl-lg' : '',
     idx === arr.length - 1 ? 'rounded-tr-lg' : ''
   )}
 >
-  <div className="w-full flex items-center justify-center whitespace-nowrap font-medium uppercase tracking-[0.04em] responsiveTextTable">
+  <div className="w-full flex items-center justify-center whitespace-nowrap">
     {header.isPlaceholder
       ? null
       : flexRender(header.column.columnDef.header, header.getContext())}
