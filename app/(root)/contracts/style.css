@@ -23,8 +23,11 @@
   }
   @media screen and (max-width: 450px) {
 
+    /* Was 1.3em. `em` compounds against whatever the parent happens to be, so
+       the same caption rendered a different size on each page that mounted it —
+       the relative-unit version of the leak documented further down. */
     table caption {
-      font-size: 1.3em;
+      font-size: var(--fs-title);
     }
 
     table thead {
@@ -40,7 +43,8 @@
 
 
     table td {
-      font-size: .8em;
+      /* Was .8em — 8px against the 10px band, below the ladder's floor. */
+      font-size: var(--fs-caption);
       text-align: right;
 
       justify-content: space-between;
@@ -149,29 +153,54 @@ tr[aria-selected="true"] {
   background: var(--brand-soft);
 }
 
-/* Compact table styles for larger screens */
 @media (min-width: 640px) {
-  table thead th {
-    padding: 0.35rem 0.5rem !important;
-  }
-  table tbody td {
-    padding: 0.25rem 0.5rem !important;
-    line-height: 1.1 !important;
-  }
   .qs-checkbox { width: 16px; height: 16px; }
 }
 
-/* Uniform table layout and cell padding across material tables */
-.table-cell-uniform, .table_cell, table th, table td {
+/* ── REMOVED 2026-08-21: bare-element table rules ────────────────────────────
+   This file is a PLAIN css import (not a module), and it is imported by seven
+   files across analysis, stocks, specialinvoices, invoicesstatement, margins
+   and settings. In the App Router that makes it a GLOBAL stylesheet: once any
+   one of those routes is visited, these rules stay in the document for the rest
+   of the SPA session and apply to every table in the app.
+
+   Three rules were written as bare element selectors, so they leaked:
+
+     @media (min-width: 640px) { table thead th { padding: .35rem .5rem !important }
+                                 table tbody td { padding: .25rem .5rem !important;
+                                                  line-height: 1.1 !important } }
+     .table-cell-uniform, .table_cell, table th, table td
+                                     { padding: .25rem .5rem !important }
+     table                           { table-layout: fixed; width: 100% }
+
+   Two things were wrong with that:
+
+   1. The padding beat `.custom-table th/td` in globals.css — the band the whole
+      consolidation exists to enforce — because of `!important`. Cells rendered
+      4px/8px here and 6px/8px everywhere else. And since it depended on whether
+      an importing route had been visited yet, the SAME page changed density
+      based on navigation order: contracts loaded fresh differed from contracts
+      reached via margins. That is the drift Zak kept seeing and we could not
+      reproduce.
+
+   2. `table-layout: fixed` contradicts the standing rule that columns are px
+      sized to content, never a share of the screen. Under fixed layout a column
+      with no stated width takes an equal share, which is why margins had to
+      state a width for all thirteen of its columns (see the note in its
+      newTable.js) — it was working around this line, not choosing it.
+
+   Both are now governed by globals.css instead. The tables that genuinely want
+   fixed layout already say so locally: margins states tableLayout 'fixed',
+   analysis and stocks/sumtables state 'auto'.
+
+   The opt-in HALF of that padding rule is kept below. A class selector only
+   matches elements that asked for it, so it cannot leak the way a bare `table
+   td` does — the cells carrying it (analysis, tablePnl, totalPnlTable) keep the
+   padding they have always had. */
+.table-cell-uniform, .table_cell {
   padding: 0.25rem 0.5rem !important;
   vertical-align: middle;
   box-sizing: border-box;
-}
-
-/* Prefer fixed layout so column widths are stable and aligned */
-table {
-  table-layout: fixed;
-  width: 100%;
 }
 
 /* Ensure inputs and inline elements inside table cells align with cell padding */

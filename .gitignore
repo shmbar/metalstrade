@@ -46,3 +46,7 @@ utils/skey.json
 service-account.json
 tests/artifacts/
 backups/
+
+# firebase admin service account — full project access, never commit
+serviceAccountKey.json
+*serviceAccount*.json

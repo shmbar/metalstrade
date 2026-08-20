@@ -4,6 +4,16 @@ import { createContext, useContext, useEffect, useState, useMemo, useCallback } 
 import { onAuthStateChanged, signInWithEmailAndPassword, signOut, setPersistence, browserLocalPersistence, browserSessionPersistence } from 'firebase/auth'
 import { auth } from '../utils/firebase'
 import { loadDataSettings, logEvent } from '../utils/utils'
+import { ensureSuperAdminClaim } from '../actions/pass'
+import {
+  canAccess,
+  canManageUsers as canManageUsersFor,
+  isSuperAdmin as isSuperAdminFor,
+  landingPage as landingPageFor,
+  normalizeRole,
+  resolvePages,
+  roleLabel,
+} from '../utils/permissions'
 
 import { useRouter, usePathname } from "next/navigation";
 import { SettingsContext } from "../contexts/useSettingsContext";
@@ -30,6 +40,10 @@ const AuthContextProvider = ({ children }) => {
   const { setCompData, updateSettings, uidCollection, setUidCollection } = useContext(SettingsContext);
 
   const [userTitle, setUserTitle] = useState(null)
+  // Full custom-claim payload — { uidCollection, role, title, pages }. Access
+  // decisions read this rather than `userTitle` alone, so a per-user page list
+  // is available everywhere the role is.
+  const [claims, setClaims] = useState(null)
   const pathName = usePathname()
 
   const gisAccount = uidCollection=== 'aB3dE7FgHi9JkLmNoPqRsTuVwGIS' ?  true: false
@@ -116,6 +130,17 @@ const AuthContextProvider = ({ children }) => {
 
   }
 */
+
+  // The proof of identity server actions require. Every call to actions/pass.js
+  // sends this so the server can verify who is asking instead of trusting the
+  // uidCollection in the payload.
+  const getIdToken = useCallback(async () => {
+    try {
+      return auth.currentUser ? await auth.currentUser.getIdToken() : null;
+    } catch {
+      return null;
+    }
+  }, [])
 
   const SignOut = useCallback(async (dest = '/') => {
     // Keep the sign-in page's email prefill across logout — wiping it made every
@@ -211,35 +236,103 @@ const AuthContextProvider = ({ children }) => {
   }, [uidCollection]);
 
 
-  useEffect(() => {
-    const getUidCollection = async () => {
-      try {
-        if (!user) {
-          setUidCollection(null);
-          setUserTitle(null);
-          return;
-        }
-        const idTokenResult = await auth.currentUser.getIdTokenResult();
-        const uidCollection = idTokenResult.claims.uidCollection;
-    
-        setUidCollection(uidCollection);
-        const userTitl1 = idTokenResult?.claims?.title;
-        setUserTitle(userTitl1);
-      } catch (error) {
+  // Reads the custom claims off the ID token. `force` fetches a fresh token from
+  // Firebase — needed after an admin changes someone's role or pages, since a
+  // cached token keeps the OLD permissions until it rotates (up to an hour).
+  const readClaims = useCallback(async (force = false) => {
+    try {
+      if (!auth.currentUser) {
         setUidCollection(null);
         setUserTitle(null);
-        console.error(error);
+        setClaims(null);
+        return;
       }
-    };
-    getUidCollection();
-  }, [user]);
+      const idTokenResult = await auth.currentUser.getIdTokenResult(force);
+      const c = idTokenResult?.claims || {};
+      setUidCollection(c.uidCollection);
+      setClaims({
+        uidCollection: c.uidCollection,
+        role: c.role,
+        title: c.title,
+        pages: c.pages,
+      });
+      // Keep `userTitle` on the legacy labels ('Admin'/'User'/…) that call sites
+      // already compare against, but derive it from the normalized role so an
+      // account claimed as 'accounting' and one as 'Accounting' behave alike.
+      setUserTitle(roleLabel(c.role || c.title));
+    } catch (error) {
+      setUidCollection(null);
+      setUserTitle(null);
+      setClaims(null);
+      console.error(error);
+    }
+  }, [setUidCollection]);
 
+  useEffect(() => {
+    if (!user) {
+      setUidCollection(null);
+      setUserTitle(null);
+      setClaims(null);
+      return;
+    }
+    readClaims(false);
+  }, [user, readClaims, setUidCollection]);
+
+  // Self-heal the super-admin claim once per session. The workspace owner and any
+  // address in SUPER_ADMIN_EMAILS are super admins by definition; this is what
+  // writes that into their token so the UI can offer them the role controls.
+  useEffect(() => {
+    if (!user || !uidCollection) return;
+    let cancelled = false;
+    (async () => {
+      const token = await getIdToken();
+      if (!token || cancelled) return;
+      const res = await ensureSuperAdminClaim(token).catch(() => null);
+      if (res?.changed && !cancelled) readClaims(true);
+    })();
+    return () => { cancelled = true; };
+  }, [user, uidCollection, getIdToken, readClaims]);
+
+  // Pick up permission changes without forcing a re-login: refresh the token
+  // when the tab regains focus, at most once every 2 minutes.
+  useEffect(() => {
+    if (!user) return;
+    let last = 0;
+    const onFocus = () => {
+      if (Date.now() - last < 120_000) return;
+      last = Date.now();
+      readClaims(true);
+    };
+    window.addEventListener('focus', onFocus);
+    return () => window.removeEventListener('focus', onFocus);
+  }, [user, readClaims]);
+
+
+  // ── Access control, derived once and shared ────────────────────────────────
+  // `can('cashflow')` is the single question every gate asks: the sidebar to
+  // decide what to list, the layout to decide what to render, a page to decide
+  // whether to show an admin-only column.
+  const access = useMemo(() => {
+    const uid = user?.uid || '';
+    const c = claims || {};
+    const superAdmin = Boolean(user) && isSuperAdminFor(c, uid);
+    return {
+      role: superAdmin ? 'superadmin' : normalizeRole(c.role || c.title),
+      superAdmin,
+      isAdmin: superAdmin || normalizeRole(c.role || c.title) === 'admin',
+      canManageUsers: Boolean(user) && canManageUsersFor(c, uid),
+      allowedPages: resolvePages(c, uid),
+      can: (pageKey) => canAccess(c, pageKey, uid),
+      landingPage: landingPageFor(c, uid),
+      refreshAccess: () => readClaims(true),
+    };
+  }, [user, claims, readClaims]);
 
   // Memoized: consumers (every page + layout) re-render only when auth state truly
   // changes, not whenever this provider re-renders from Settings churn.
   const value = useMemo(
-    () => ({ user, SignIn, err, SignOut, loadingPage, uidCollection, gisAccount, userTitle, currentUser, logActivity }),
-    [user, SignIn, err, SignOut, loadingPage, uidCollection, gisAccount, userTitle, currentUser, logActivity]
+    () => ({ user, SignIn, err, SignOut, loadingPage, uidCollection, gisAccount, userTitle, currentUser, logActivity, claims, getIdToken, ...access }),
+    [user, SignIn, err, SignOut, loadingPage, uidCollection, gisAccount, userTitle, currentUser, logActivity, claims, getIdToken, access]
   )
 
   return (

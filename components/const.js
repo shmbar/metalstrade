@@ -8,7 +8,10 @@ import {
 
 const navIcon = (Icon) => <Icon size={16} strokeWidth={1.75} />;
 
-export const sideBar = (userTitle, gisAccount) => {
+// `can(pageKey)` comes from UserAuth() and answers the per-user permission
+// question. It's optional so older call sites keep working, but without it the
+// nav shows everything — pass it.
+export const sideBar = (userTitle, gisAccount, can) => {
 
     const sb = [
         {
@@ -62,18 +65,32 @@ export const sideBar = (userTitle, gisAccount) => {
         {
             ttl: 'IMS Summary',
             items: [
-                ...(userTitle === 'Admin'
-                    ? [{ item: gisAccount ? 'Gis Admin' : 'Sharon Admin', img: navIcon(TrendingUp), page: 'margins' }]
-                    : []),
+                { item: gisAccount ? 'Gis Admin' : 'Sharon Admin', img: navIcon(TrendingUp), page: 'margins' },
                 { item: 'Cashflow', img: navIcon(CircleDollarSign), page: 'cashflow' },
-                ...(userTitle === 'Admin'
-                    ? [{ item: 'Formulas Calc', img: navIcon(Sigma), page: 'formulas' }]
-                    : []),
+                { item: 'Formulas Calc', img: navIcon(Sigma), page: 'formulas' },
             ]
         }
     ];
 
-    return sb;
+    // Margins and Formulas used to be filtered right here on `userTitle === 'Admin'`.
+    // That rule now lives in the permission defaults (utils/permissions.js), so an
+    // admin can grant either one to an individual member without a code change —
+    // and every other page is filterable the same way.
+    if (typeof can !== 'function') return sb;
+
+    return sb
+        .map((section) => ({
+            ...section,
+            items: section.items
+                .map((item) => (
+                    item.subItems
+                        ? { ...item, subItems: item.subItems.filter((s) => can(s.page)) }
+                        : item
+                ))
+                // A dropdown whose children are all forbidden is just a dead arrow.
+                .filter((item) => (item.subItems ? item.subItems.length > 0 : can(item.page))),
+        }))
+        .filter((section) => section.items.length > 0);
 };
 
 
@@ -487,8 +504,8 @@ export const relStts = [{ id: 'sdfhg', status: 'Released' },
 { id: '45rts', status: 'Conditional release' },
 { id: 'tyj67', status: 'Unconditional release' }]
 
-export const Titles = [
-    { id: 'ew4j5hfs', title: 'Admin' },
-    { id: '4354354', title: 'User' },
-    { id: '45345634', title: 'Accounting' },
-]
+// `Titles` (the id/title pairs behind the old user dropdown) has been removed.
+// Roles live in utils/permissions.js as ROLES now: keyed by a stable role string
+// rather than a random id, and carrying their default page sets with them. Import
+// ROLES from there — re-exporting it under the old name would only hand callers
+// the old name with a different shape.

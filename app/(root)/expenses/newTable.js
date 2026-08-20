@@ -997,12 +997,20 @@ const Customtable = ({
                 style={{ tableLayout: 'auto', borderCollapse: 'collapse' }}
               >
                 <thead>
-                  {/* Summary green — Total $ */}
+                  {/* Total $ band. Was --ok-border green over a --line-strong grey.
+                      The green carried no meaning here — a totals row is structure,
+                      not a status — and it was the only surface on the page outside
+                      the violet base, so both bands moved into the brand family:
+                      --violet-border for USD, the lighter --bg-sunken for EUR. They
+                      separate by value now, not by hue, which is what keeps them
+                      readable as two rows (--line-strong sat too close to
+                      --violet-border to do that job). Same pairing on
+                      companyexpenses and specialinvoices. */}
                   <tr className="summary-bar-row">
                     <td
                       colSpan={totalCols}
                       style={{
-                        backgroundColor: 'var(--ok-border)',
+                        backgroundColor: 'var(--violet-border)',
                         border: 'none',
                         padding: 0,
                         height: '26px',
@@ -1013,7 +1021,7 @@ const Customtable = ({
                       <span className="responsiveTextTable" style={{
                         position: 'absolute', left: '14px', top: '50%',
                         transform: 'translateY(-50%)',
-                        fontWeight: '500', color: 'var(--chathams-blue)', whiteSpace: 'nowrap',
+                        fontWeight: '500', color: 'var(--brand-strong)', whiteSpace: 'nowrap',
                       }}>
                         Total $:
                       </span>
@@ -1023,7 +1031,7 @@ const Customtable = ({
                           left: `${currencyColCenter}px`,
                           top: '50%',
                           transform: 'translate(-50%, -50%)',
-                          fontWeight: '500', color: 'var(--chathams-blue)', whiteSpace: 'nowrap',
+                          fontWeight: '500', color: 'var(--brand-strong)', whiteSpace: 'nowrap',
                         }}>
                           USD
                         </span>
@@ -1034,7 +1042,7 @@ const Customtable = ({
                           left: `${amountColCenter}px`,
                           top: '50%',
                           transform: 'translate(-50%, -50%)',
-                          fontWeight: '500', color: 'var(--chathams-blue)', whiteSpace: 'nowrap',
+                          fontWeight: '500', color: 'var(--brand-strong)', whiteSpace: 'nowrap',
                         }}>
                           {summaryUSD.amount}
                         </span>
@@ -1042,12 +1050,12 @@ const Customtable = ({
                     </td>
                   </tr>
 
-                  {/* Summary blue — Total € */}
+                  {/* Total € band — the neutral half of the pair. */}
                   <tr className="summary-bar-row">
                     <td
                       colSpan={totalCols}
                       style={{
-                        backgroundColor: 'var(--line-strong)',
+                        backgroundColor: 'var(--bg-sunken)',
                         border: 'none',
                         padding: 0,
                         height: '26px',
@@ -1241,13 +1249,13 @@ const Customtable = ({
             {/* Mobile summary bars */}
             <div className="mb-2">
               <div className="flex items-center justify-between px-4 py-2"
-                style={{ backgroundColor: 'var(--ok-border)' }}>
-                <span className="responsiveTextTable" style={{ fontWeight: '400', color: 'var(--chathams-blue)' }}>Total $:</span>
-                <span className="responsiveTextTable" style={{ fontWeight: '400', color: 'var(--chathams-blue)' }}>USD</span>
-                <span className="responsiveTextTable" style={{ fontWeight: '400', color: 'var(--chathams-blue)' }}>{summaryUSD.amount}</span>
+                style={{ backgroundColor: 'var(--violet-border)' }}>
+                <span className="responsiveTextTable" style={{ fontWeight: '400', color: 'var(--brand-strong)' }}>Total $:</span>
+                <span className="responsiveTextTable" style={{ fontWeight: '400', color: 'var(--brand-strong)' }}>USD</span>
+                <span className="responsiveTextTable" style={{ fontWeight: '400', color: 'var(--brand-strong)' }}>{summaryUSD.amount}</span>
               </div>
               <div className="flex items-center justify-between px-4 py-2"
-                style={{ backgroundColor: 'var(--line-strong)' }}>
+                style={{ backgroundColor: 'var(--bg-sunken)' }}>
                 <span className="responsiveTextTable" style={{ fontWeight: '400', color: 'var(--chathams-blue)' }}>Total €:</span>
                 <span className="responsiveTextTable" style={{ fontWeight: '400', color: 'var(--chathams-blue)' }}>EUR</span>
                 <span className="responsiveTextTable" style={{ fontWeight: '400', color: 'var(--chathams-blue)' }}>{summaryEUR.amount}</span>

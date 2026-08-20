@@ -100,7 +100,7 @@ const Cashflow = () => {
     // whole Firestore load cascade twice (first pass with the wrong single year).
     const [yr, setYr] = useState([currentYear - 1, currentYear])
     const [incoming, setIncoming] = useState();
-    const { uidCollection, userTitle, gisAccount } = UserAuth();
+    const { uidCollection, userTitle, gisAccount, isAdmin } = UserAuth();
     const [initialData, setInitialData] = useState([]);
     const [stockData1, setStockData1] = useState([])
     const [stockData2, setStockData2] = useState([])
@@ -146,6 +146,12 @@ const Cashflow = () => {
     const [stocksSortName2, setStocksSortName2] = useState(false)
 
     const [clientsData, setClientsData] = useState([])
+    // Mirrors clientsData synchronously. savePmntClient is called once per client
+    // inside a single autosave commit; reading/writing state through this ref means
+    // iteration N+1 sees the rows iteration N already removed, instead of recomputing
+    // from a stale render value and putting them back.
+    const clientsDataRef = useRef(clientsData);
+    clientsDataRef.current = clientsData;
     const [clientSort, setClientSort] = useState(true)
     const [clientSort1, setClientSort1] = useState(true)
     const [clientSortName, setClientSortName] = useState(false)
@@ -659,7 +665,7 @@ const Cashflow = () => {
 
     const savePmntClient = async (clientId) => {
 
-        let tmpArr = clientsData.filter(x => x.client === clientId && x.checked)
+        let tmpArr = clientsDataRef.current.filter(x => x.client === clientId && x.checked)
         let dt = dateFormat(new Date(), 'yyyy-mm-dd')
 
 
@@ -693,7 +699,9 @@ const Cashflow = () => {
             success && setToast({ show: true, text: getTtl('Payments successfully saved!', ln), clr: 'success' })
         }
 
-        let newArr = clientsData.filter(z => !tmpArr.map(x => x.id).includes(z.id))
+        const savedIds = tmpArr.map(x => x.id)
+        let newArr = clientsDataRef.current.filter(z => !savedIds.includes(z.id))
+        clientsDataRef.current = newArr
         setClientsData(newArr)
 
         setClientInvoices1(getTotals(newArr.filter(z => z.payments.length > 0)))
@@ -849,6 +857,7 @@ const Cashflow = () => {
     const [savedFlash, setSavedFlash] = useState(false);
     const [autoCancelled, setAutoCancelled] = useState(false);
     const [countdown, setCountdown] = useState(6);
+    const countdownRef = useRef(6);
 
     // Shared Stock (IMS + GIS) — the joint pool, shown as its own cashflow card.
     // Informational: the pool has no purchase invoices, so it joins no
@@ -872,21 +881,26 @@ const Cashflow = () => {
         };
     }, [clientsData, supPaymentsData, expensesAll]);
 
+    // Re-entrancy guard. autoSaving is React state, so two calls made before the
+    // re-render both read it as false and both commit — which is exactly what the
+    // timer used to do. A ref flips synchronously, so the second call bails.
+    const committingRef = useRef(false);
+
     // Refreshed every render so the commit always uses the current save closures.
     const commitRef = useRef(null);
-    commitRef.current = async (opts = {}) => {
-        if (autoSaving || pendingChecked.total === 0) return;
+    commitRef.current = async () => {
+        if (committingRef.current || pendingChecked.total === 0) return;
+        committingRef.current = true;
         setAutoSaving(true);
         try {
             if (pendingChecked.exps.length) await savePmntExp(expensesAll);
             if (pendingChecked.sups.length) await savePmntSupplier(supPaymentsData);
+            // EVERY pending client group, always. Saving one group per countdown used
+            // to dribble the rest out over 6s cycles each, and anything still pending
+            // when the user left the page was lost. savePmntClient chains through
+            // clientsDataRef, so the groups no longer overwrite each other's removals.
             const clientIds = [...new Set(pendingChecked.clients.map(x => x.client))];
-            if (opts.allClients) {
-                // Final flush (page going away): the per-cycle state-refresh concern
-                // doesn't apply to an unmounting page — save EVERY pending client
-                // group now, or the ones after the first are lost with the navigation.
-                for (const cid of clientIds) await savePmntClient(cid);
-            } else if (clientIds.length) await savePmntClient(clientIds[0]);
+            for (const cid of clientIds) await savePmntClient(cid);
             setSavedFlash(true);
             setTimeout(() => setSavedFlash(false), 2500);
         } catch (e) {
@@ -895,8 +909,10 @@ const Cashflow = () => {
             // failure. Keep the ticks, stop the loop, tell the user.
             setToast({ show: true, text: `Autosave failed — payments NOT saved yet. Press "Save now" to retry. (${e?.message || e})`, clr: 'fail' });
             setAutoCancelled(true);
+            countdownRef.current = 6;
             setCountdown(6);
         } finally {
+            committingRef.current = false;
             setAutoSaving(false);
         }
     };
@@ -923,26 +939,30 @@ const Cashflow = () => {
             document.removeEventListener('visibilitychange', onVis);
             window.removeEventListener('beforeunload', warn);
             // Unmount = in-app navigation away from Cashflow — final flush, every group.
-            if (pendingRef.current.total > 0 && !cancelledRef.current && !savingRef.current) {
-                commitRef.current?.({ allClients: true });
+            if (pendingRef.current.total > 0 && !cancelledRef.current) {
+                commitRef.current?.();
             }
         };
     }, []);
 
-    // Re-arm the countdown whenever the ticked set changes.
+    // Ticking again un-pauses; the timer effect below owns the countdown itself.
     useEffect(() => {
         setAutoCancelled(false);
-        if (pendingChecked.sig) setCountdown(6);
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [pendingChecked.sig]);
 
     useEffect(() => {
         if (!pendingChecked.sig || autoCancelled || autoSaving) return;
+        countdownRef.current = 6;
+        setCountdown(6);
+        // The commit fires from the interval callback, not from inside a setState
+        // updater: React is free to invoke an updater more than once, and when it did,
+        // two commits ran concurrently and wrote the same payment twice.
         const t = setInterval(() => {
-            setCountdown(c => {
-                if (c <= 1) { clearInterval(t); commitRef.current?.(); return 0; }
-                return c - 1;
-            });
+            const next = countdownRef.current - 1;
+            countdownRef.current = next;
+            setCountdown(next);
+            if (next <= 0) { clearInterval(t); commitRef.current?.(); }
         }, 1000);
         return () => clearInterval(t);
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -1127,7 +1147,7 @@ const Cashflow = () => {
     const expensesKpi = (expenses || []).reduce((t, o) => t + (parseFloat(o.amount) || 0), 0);
     const fmtUsd = (n) => '$' + Number(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     const kpiItems = [
-        ...(userTitle === 'Admin' ? [{
+        ...(isAdmin ? [{
             label: 'Total Balance',
             value: (totalLeft || 0) - (totalRight || 0),
             format: fmtUsd, icon: Banknote,
@@ -1147,9 +1167,10 @@ const Cashflow = () => {
                         <Toast />
                         <AutosavePill
                             mode={autoSaving ? 'saving' : (pendingChecked.total > 0 && !autoCancelled) ? 'pending' : (pendingChecked.total > 0 && autoCancelled) ? 'paused' : savedFlash ? 'saved' : null}
-                            text={autoSaving ? 'Saving payments…' : savedFlash ? 'Payments saved'
-                                : (pendingChecked.total > 0 && autoCancelled) ? `Autosave paused — ${pendingChecked.total} payment${pendingChecked.total > 1 ? 's' : ''} pending`
-                                    : `Recording ${pendingChecked.total} payment${pendingChecked.total > 1 ? 's' : ''}`}
+                            text={autoSaving ? 'Saving payments…'
+                                : (pendingChecked.total > 0 && !autoCancelled) ? `Recording ${pendingChecked.total} payment${pendingChecked.total > 1 ? 's' : ''}`
+                                    : (pendingChecked.total > 0 && autoCancelled) ? `Autosave paused — ${pendingChecked.total} payment${pendingChecked.total > 1 ? 's' : ''} pending`
+                                        : 'Payments saved'}
                             countdown={countdown}
                             onSaveNow={() => commitRef.current?.()}
                             onCancel={() => setAutoCancelled(true)}
@@ -1274,7 +1295,7 @@ const Cashflow = () => {
                                 </div>
                             ) : (
                                 <>
-                                    {userTitle === 'Admin' &&
+                                    {isAdmin &&
                                         <div className="w-full p-2 mb-2">
                                             <div className="flex gap-2">
                                                 <span className="responsiveText font-semibold items-center flex w-44 text-[var(--chathams-blue)]">Future</span>
@@ -1587,7 +1608,7 @@ const Cashflow = () => {
 
                                                 <div>
                                                     {
-                                                        userTitle === 'Admin' &&
+                                                        isAdmin &&
                                                         <div className='mt-1 p-1'>
                                                             <SectionHeader icon={Banknote} title="Financing">
                                                                 <button
@@ -1819,7 +1840,7 @@ const Cashflow = () => {
 
                                                 <div className="p-2 bg-[var(--bg-card)] mb-3 flex flex-col cf-card">
                                                     {
-                                                        userTitle === 'Admin' &&
+                                                        isAdmin &&
                                                         <div className='mt-1 p-1'>
                                                             <SectionHeader icon={Banknote} title="Financing">
                                                                 <button
@@ -1874,7 +1895,7 @@ const Cashflow = () => {
                                             </div>
                                         </div>
 
-                                        {userTitle === 'Admin' && (
+                                        {isAdmin && (
                                             <div className="mt-1 w-full border border-[var(--line)] rounded-2xl p-2">
 
                                                 {/* TOTALS AND BALANCE IN ONE ROW */}

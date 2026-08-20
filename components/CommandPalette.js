@@ -9,6 +9,8 @@ import {
   Building2, FlaskConical, ArrowRight, Search,
 } from 'lucide-react';
 import { useGlobalSearch } from '../contexts/useGlobalSearchContext';
+import { UserAuth } from '../contexts/useAuthContext';
+import { pageKeyFromPath } from '../utils/permissions';
 
 // Pages reachable via Cmd-K. Order = display order. Icons are decorative.
 const NAV_ITEMS = [
@@ -34,6 +36,11 @@ export default function CommandPalette() {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState('');
   const { items } = useGlobalSearch();
+  const { can } = UserAuth() || {};
+
+  // Cmd-K is a second front door to every route, so it answers to the same
+  // permissions as the sidebar — otherwise a hidden page is one keystroke away.
+  const navItems = NAV_ITEMS.filter(({ route }) => (can ? can(pageKeyFromPath(route)) : true));
 
   // Global Cmd-K / Ctrl-K shortcut. We attach at document level so it works
   // regardless of which input is currently focused.
@@ -144,7 +151,7 @@ export default function CommandPalette() {
                SEMIBOLD when the source only ever asked for a sentence-case label. */
             className="px-2 py-1"
           >
-            {NAV_ITEMS.map(({ label, route, icon: Icon, keywords }) => (
+            {navItems.map(({ label, route, icon: Icon, keywords }) => (
               <Command.Item
                 key={route}
                 value={`${label} ${keywords}`}

@@ -277,19 +277,44 @@ gate('raw-hex', 'Raw hex colour (use a var(--token) from globals.css)', (file, s
     return hits;
 }, false);
 
+/* The marketing surface is deliberately off the app ladder. globals.css says so
+   itself where it declares the rungs: --fs-display and --fs-hero are "marketing
+   only" and are NOT capped, "because the reference ramps with Tailwind's
+   text-3xl/4xl/5xl and ends up LARGER than this ladder". These are the public
+   pages and the components only they mount — not app chrome. */
+const MARKETING = /^(app\/\(public\)\/|app\/page\.js$|components\/(Hero|Features|Testimonial|CTA|Footer|Navbar)\/)/;
+
 /* 4. Off-ladder type. Sizes come from --fs-*, reachable as classes or vars. */
 gate('type-ladder', 'Off-ladder font size (use --fs-* or a .responsiveText* class)', (file, src) => {
-    if (TOKEN_SOURCES.has(file)) return [];
+    if (TOKEN_SOURCES.has(file) || MARKETING.test(file)) return [];
     const hits = [];
+    const isCss = file.endsWith('.css');
     src.split('\n').forEach((l, i) => {
-        if (/^\s*(\/\/|\/?\*)/.test(l)) return;
-        const cls = l.match(/\b(?:text-(?:xs|sm|base|lg|xl))\b|\btext-\[\d+(?:px|rem)\]/);
-        const inline = l.match(/fontSize:\s*['"`]\d+(?:px|rem)['"`]/);
-        if (cls) hits.push(`${file}:${i + 1}: ${cls[0]}`);
-        else if (inline) hits.push(`${file}:${i + 1}: ${inline[0]}`);
+        if (/^\s*(\/\/|\/?\*|\*)/.test(l)) return;
+        /* Tailwind's named steps run xs…9xl, not xs…xl. Stopping at `xl` meant
+           `text-2xl` and up matched nothing, because `text-` then `2xl` fails
+           the alternation and the \b never anchors. */
+        const cls = l.match(/\b(?:text-(?:xs|sm|base|lg|[2-9]?xl))\b/);
+        /* Arbitrary values carry decimals and em as well as whole px/rem:
+           text-[0.78rem] and text-[.8em] both slipped a \d+(px|rem) test. */
+        const arb = l.match(/\btext-\[[0-9.]+(?:px|rem|em|pt|%)\]/);
+        /* fontSize in JS. Anything that is not a --fs-* token is off-ladder,
+           including clamp() — nine of those on the dashboard scaled with the
+           VIEWPORT while the rest of the app stepped at breakpoints, and the
+           old `['"]\d+(px|rem)['"]` test could not see a single one. `inherit`
+           is legitimate: it defers to the ladder rather than leaving it. */
+        const js = isCss ? null : l.match(/fontSize:\s*(['"`])((?!inherit)(?:(?!\1).)*)\1/);
+        const jsBad = js && !/var\(\s*--fs-/.test(js[2]) ? js[0] : null;
+        /* font-size in CSS files other than the token sources. These were fully
+           invisible before: the gate only ever looked for JS spellings, so
+           `font-size: 0.78rem` in a stylesheet passed every scan. */
+        const css = isCss ? l.match(/font-size:\s*([^;}]+)/) : null;
+        const cssBad = css && !/var\(\s*--fs-|inherit/.test(css[1]) ? css[0].trim() : null;
+        const hit = cls?.[0] || arb?.[0] || jsBad || cssBad;
+        if (hit) hits.push(`${file}:${i + 1}: ${hit}`);
     });
     return hits;
-}, false);
+});
 
 // ── run ─────────────────────────────────────────────────────────────────────
 let failed = 0;
@@ -308,6 +333,14 @@ for (const g of gates) {
         console.log(`RESULT: ${hits.length}`);
         failed += hits.length;
     } else {
+        /* Print the hits, then RESULT: 0. Advisory used to print the count line
+           ALONE, so its findings were not merely non-blocking — they were
+           invisible, and `RESULT: 0` read as "this gate found nothing". That is
+           how nine off-ladder clamp() sizes on the dashboard survived being
+           reported as clean. Non-blocking should mean "does not stop a commit",
+           never "does not tell you". */
+        hits.slice(0, 40).forEach(h => console.log(`  advisory  ${h}`));
+        if (hits.length > 40) console.log(`  advisory  … and ${hits.length - 40} more`);
         console.log(`RESULT: 0`);
         advisory += hits.length;
     }

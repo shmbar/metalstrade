@@ -162,28 +162,35 @@ const Customtable = ({
            below them — three identical rows.
            Tokens follow the 2026-08-08 client revision: a totals row is a summary,
            not a status, so these are quiet fills rather than a saturated green, and
-           --ok-border / --line-strong are border tokens, not surfaces. */
-        .summary-green {
-          background-color: var(--ok-bg);
-          color: var(--ok-strong);
+           --ok-border / --line-strong are border tokens, not surfaces.
+
+           2026-08-20: the --ok-* green went too. A totals band is not "good news",
+           it is structure, and green was the one hue on these pages sitting outside
+           the violet base. Both bands are now the brand family: the USD band takes
+           --violet-border, the EUR band the neutral --bg-sunken one step lighter, so
+           they stay tellable apart by value rather than by hue. The class names said
+           "green"/"blue" and no longer described anything, hence usd/eur. */
+        .summary-usd {
+          background-color: var(--violet-border);
+          color: var(--brand-strong);
           font-weight: 500;
         }
         /* Only the horizontal rule is suppressed, so the two totals bands read as
            one block. A blanket "border: none" also removed the column dividers the
            global grid draws (the :where(thead th) rules in globals.css), which left
            these two rows as the only ones in the table without them. */
-        .summary-green th {
-          background-color: var(--ok-bg) !important;
-          color: var(--ok-strong) !important;
+        .summary-usd th {
+          background-color: var(--violet-border) !important;
+          color: var(--brand-strong) !important;
           border-bottom: 0 !important;
         }
 
-        .summary-blue {
+        .summary-eur {
           background-color: var(--bg-sunken);
           color: var(--ink);
           font-weight: 500;
         }
-        .summary-blue th {
+        .summary-eur th {
           background-color: var(--bg-sunken) !important;
           color: var(--ink) !important;
           border-bottom: 0 !important;
@@ -256,7 +263,7 @@ const Customtable = ({
                    <thead>
               {table.getHeaderGroups().map(hdGroup => (
                 <Fragment key={hdGroup.id + '-totals'}>
-                  <tr className="summary-green">
+                  <tr className="summary-usd">
                     {hdGroup.headers.map(header => (
                       <th key={header.id} className="py-1.5">
                         {header.id === 'supplier' ? 'Total $:' :
@@ -269,7 +276,7 @@ const Customtable = ({
                       </th>
                     ))}
                   </tr>
-                  <tr className="summary-blue">
+                  <tr className="summary-eur">
                     {hdGroup.headers.map(header => (
                       <th key={header.id} className="py-1.5">
                         {header.id === 'supplier' ? 'Total —:' :

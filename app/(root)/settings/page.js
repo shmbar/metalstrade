@@ -27,10 +27,12 @@ const Page = () => {
 
   const { compData, loading } = useContext(SettingsContext);
   const ln = compData?.lng || 'English';
-  const { userTitle } = UserAuth();
+  const { canManageUsers } = UserAuth();
 
   let tabs = ['Company Details', 'Setup', 'Suppliers', 'Clients', 'Bank Account', 'Stocks', 'Documents', 'Email Setup']
-  if (userTitle === 'Admin') tabs.push('Users');
+  // Super Admins and Admins both manage people; the role hierarchy inside the
+  // tab decides who each of them is allowed to touch.
+  if (canManageUsers) tabs.push('Users');
 
   const SetDiv = (x) => {
     if (x === 0) {

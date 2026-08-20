@@ -49,7 +49,7 @@ export default function Sidebar() {
 
   const pathName = usePathname();
   const { setDates, compData } = useContext(SettingsContext);
-  const { userTitle, user, gisAccount } = UserAuth();
+  const { userTitle, user, gisAccount, can } = UserAuth();
   const ln = compData?.lng || "English";
   
   const collapsibleSections = [];
@@ -94,11 +94,11 @@ export default function Sidebar() {
     });
   };
 
-  // ── Build a flat list of ALL searchable links from sideBar(userTitle, gisAccount) ─────────────────
+  // ── Build a flat list of ALL searchable links from sideBar(userTitle, gisAccount, can) ─────────────────
   // Include Settings as well since it's manually appended in IMS Summary
   const allLinks = useMemo(() => {
     const links = [];
-    sideBar(userTitle, gisAccount).forEach((section) => {
+    sideBar(userTitle, gisAccount, can).forEach((section) => {
       section.items.forEach((item) => {
         if (item.hasDropdown) {
           item.subItems?.forEach((sub) => {
@@ -110,9 +110,11 @@ export default function Sidebar() {
       });
     });
     // Add Settings manually
-    links.push({ item: "Settings", page: "settings", section: "IMS Summary" });
+    if (!can || can("settings")) links.push({ item: "Settings", page: "settings", section: "IMS Summary" });
     return links;
-  }, []);
+    // Rebuild when permissions change — this list was memoized on [] and so kept
+    // serving the previous user's links after a role change or account switch.
+  }, [userTitle, gisAccount, can]);
 
   // ── Filter links based on search query ───────────────────────────────────────
   const searchResults = useMemo(() => {
@@ -319,7 +321,7 @@ export default function Sidebar() {
             ) : (
 
               /* ── NORMAL SIDEBAR MODE ───────────────────────────────────────── */
-              sideBar(userTitle, gisAccount).map((section, i) => {
+              sideBar(userTitle, gisAccount, can).map((section, i) => {
                 const isCollapsible = collapsibleSections.includes(section.ttl);
                 const isOpen = openSections[section.ttl];
                 const sectionHasActiveItem =
@@ -431,7 +433,7 @@ export default function Sidebar() {
                         })}
 
                         {/* Settings link inside IMS Summary */}
-                        {section.ttl === "IMS Summary" && (
+                        {section.ttl === "IMS Summary" && (!can || can("settings")) && (
                           <Link href="/settings" onClick={setDates}>
                             <Tltip direction="right" tltpText={getTtl("Settings", ln)} show={collapsed}>
                               <div
@@ -479,7 +481,7 @@ export default function Sidebar() {
                     {user?.displayName || user?.email?.split('@')[0] || 'User'}
                   </span>
                 )}
-                {!collapsed && (
+                {!collapsed && (!can || can("settings")) && (
                   <Link href="/settings" style={{ display: "flex", alignItems: "center", justifyContent: "center", color: "var(--ink-muted)" }}>
                     <Settings size={16} strokeWidth={1.75} style={{ marginLeft: 4, cursor: "pointer" }} />
                   </Link>

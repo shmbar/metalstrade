@@ -1,41 +1,11 @@
-'use client'
-
-import { createNewUser, setUidCollection, getAllUsers, updateUser } from "../../../actions/pass"
-import { UserAuth } from "../../../contexts/useAuthContext";
-
-
-
-const UserProfile = () => {
-
-  const { uidCollection } = UserAuth();
-
-  const getUsers = async () => {
-    let tmp = await getAllUsers(uidCollection)
-    console.log(tmp);
-  }
-
-  return (
-    <div>
-
-      <form action={createNewUser}>
-        <button type="submit" className="px-2 py-2 bg-slate-100 justify-center flex">Set New Pass</button>
-      </form>
-
-      <form action={setUidCollection} className="pt-4">
-        <button type="submit" className="px-2 py-2 bg-slate-100 justify-center flex">Set only UidCollection</button>
-      </form>
-
-      <form action={getUsers} className="pt-4">
-        <button type="submit" className="px-2 py-2 bg-slate-100 justify-center flex">Get all Users</button>
-      </form>
-
-      <form action={()=>updateUser("cn2tuYJE1YW3xwIC6YoLIjmYe8r1")} className="pt-4">
-        <button type="submit" className="px-2 py-2 bg-slate-100 justify-center flex">Update User</button>
-      </form>
-
-
-    </div>
-  )
+// Retired. This was a dev scratchpad that wired unauthenticated buttons straight
+// to the Firebase Admin actions in actions/pass.js — create any user, stamp any
+// uidCollection, list every account in the project, with no sign-in required.
+// User management now lives in Settings → Users, where every action verifies the
+// caller's ID token.
+//
+// Left as an inert placeholder rather than a notFound() so the route still
+// prerenders as a plain static page. Safe to delete this folder outright.
+export default function RetiredPassesRoute() {
+  return null;
 }
-
-export default UserProfile;

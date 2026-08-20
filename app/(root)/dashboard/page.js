@@ -259,7 +259,7 @@ function StatKpiCard({
         {/* Hero number */}
         <div
           className="mt-2 font-semibold text-[var(--port-gore)] leading-none"
-          style={{ fontSize: 'clamp(1.15rem, 0.9rem + 0.7vw, 1.6rem)', fontFamily: 'var(--font-jakarta), Manrope, sans-serif', fontVariantNumeric: 'tabular-nums' }}
+          style={{ fontSize: 'var(--fs-stat)', fontFamily: 'var(--font-jakarta), Manrope, sans-serif', fontVariantNumeric: 'tabular-nums' }}
         >
           {value}
         </div>
@@ -366,7 +366,7 @@ function ReceivablesSplitCard({ byCur = {} }) {
           </div>
           <div className="text-right flex-shrink-0">
             {totalsLine.map((t, i) => (
-              <div key={i} className="font-semibold text-[var(--port-gore)] leading-tight" style={{ fontSize: 'clamp(0.95rem, 0.8rem + 0.5vw, 1.35rem)', fontFamily: 'var(--font-jakarta), Manrope, sans-serif', fontVariantNumeric: 'tabular-nums' }}>{t}</div>
+              <div key={i} className="font-semibold text-[var(--port-gore)] leading-tight" style={{ fontSize: 'var(--fs-substat)', fontFamily: 'var(--font-jakarta), Manrope, sans-serif', fontVariantNumeric: 'tabular-nums' }}>{t}</div>
             ))}
           </div>
         </div>
@@ -384,7 +384,7 @@ function ReceivablesSplitCard({ byCur = {} }) {
             </div>
             <div className="mt-1 leading-tight" style={{ color: 'var(--ok-text)' }}>
               {amountsFor('finalized').map((a, i) => (
-                <div key={i} className="font-semibold" style={{ fontSize: 'clamp(0.9rem, 0.78rem + 0.4vw, 1.15rem)', fontFamily: 'var(--font-jakarta), Manrope, sans-serif', fontVariantNumeric: 'tabular-nums' }}>{a}</div>
+                <div key={i} className="font-semibold" style={{ fontSize: 'var(--fs-substat)', fontFamily: 'var(--font-jakarta), Manrope, sans-serif', fontVariantNumeric: 'tabular-nums' }}>{a}</div>
               ))}
             </div>
             <div className="responsiveTextTableTitle text-[var(--regent-gray)] mt-1">{finCount} invoice{finCount === 1 ? '' : 's'} · after final invoice</div>
@@ -396,7 +396,7 @@ function ReceivablesSplitCard({ byCur = {} }) {
             </div>
             <div className="mt-1 leading-tight" style={{ color: 'var(--warn-text)' }}>
               {amountsFor('provisional').map((a, i) => (
-                <div key={i} className="font-semibold" style={{ fontSize: 'clamp(0.9rem, 0.78rem + 0.4vw, 1.15rem)', fontFamily: 'var(--font-jakarta), Manrope, sans-serif', fontVariantNumeric: 'tabular-nums' }}>{a}</div>
+                <div key={i} className="font-semibold" style={{ fontSize: 'var(--fs-substat)', fontFamily: 'var(--font-jakarta), Manrope, sans-serif', fontVariantNumeric: 'tabular-nums' }}>{a}</div>
               ))}
             </div>
             <div className="responsiveTextTableTitle text-[var(--regent-gray)] mt-1">{provCount} invoice{provCount === 1 ? '' : 's'} · before final invoice</div>
@@ -731,7 +731,7 @@ function TonnageCard({ purchased = 0, shipped = 0, pending = 0 }) {
                 <span className="rounded-full shrink-0" style={{ width: 8, height: 8, backgroundColor: p.dot }} />
                 <span className="responsiveTextTable font-semibold tracking-wide" style={{ color: p.color }}>{p.label}</span>
               </div>
-              <div className="font-semibold mt-1 leading-none" style={{ color: p.color, fontSize: 'clamp(0.95rem, 0.8rem + 0.5vw, 1.25rem)', fontFamily: 'var(--font-jakarta), Manrope, sans-serif', fontVariantNumeric: 'tabular-nums' }}>{fmtMT(p.value)}</div>
+              <div className="font-semibold mt-1 leading-none" style={{ color: p.color, fontSize: 'var(--fs-substat)', fontFamily: 'var(--font-jakarta), Manrope, sans-serif', fontVariantNumeric: 'tabular-nums' }}>{fmtMT(p.value)}</div>
             </div>
           ))}
         </div>
@@ -810,7 +810,7 @@ function MiscInvoicesCard({ byCur = {}, byCat = {}, count = 0 }) {
                       <span className="rounded-full shrink-0" style={{ width: 8, height: 8, backgroundColor: c.dot }} />
                       <span className="responsiveTextTable font-semibold tracking-wide truncate" style={{ color: c.color }}>{c.label.toUpperCase()}</span>
                     </div>
-                    <div className="font-semibold mt-1 leading-none truncate" style={{ color: c.color, fontSize: 'clamp(0.8rem, 0.65rem + 0.4vw, 1rem)', fontFamily: 'var(--font-jakarta), Manrope, sans-serif', fontVariantNumeric: 'tabular-nums' }}>
+                    <div className="font-semibold mt-1 leading-none truncate" style={{ color: c.color, fontSize: 'var(--fs-page)', fontFamily: 'var(--font-jakarta), Manrope, sans-serif', fontVariantNumeric: 'tabular-nums' }}>
                       {ents.length === 0 ? '—' : ents.map(([cur, v]) => fmtCur(cur, v)).join(' / ')}
                     </div>
                     <div className="leading-none mt-1" style={{ fontSize: 'var(--fs-caption)', color: 'var(--regent-gray)' }}>{c.count} inv · {c.sharePct.toFixed(0)}%</div>
@@ -851,9 +851,9 @@ function UnsoldStockCard({ value = 0, mt = 0 }) {
           </span>
           <span className="responsiveTextTable font-medium text-[var(--regent-gray)] leading-tight">Unsold Stock · not a cost</span>
         </div>
-        <div className="font-semibold text-[var(--port-gore)] leading-none mt-1" style={{ fontSize: 'clamp(1.15rem, 0.9rem + 0.7vw, 1.6rem)', fontFamily: 'var(--font-jakarta), Manrope, sans-serif', fontVariantNumeric: 'tabular-nums' }}>{fmtAutoKM(value)}</div>
+        <div className="font-semibold text-[var(--port-gore)] leading-none mt-1" style={{ fontSize: 'var(--fs-stat)', fontFamily: 'var(--font-jakarta), Manrope, sans-serif', fontVariantNumeric: 'tabular-nums' }}>{fmtAutoKM(value)}</div>
         <div className="rounded-lg p-2.5 mt-auto" style={{ backgroundColor: 'var(--warn-bg)', boxShadow: 'inset 0 0 0 1px var(--warn-border)' }}>
-          <div className="font-semibold leading-none" style={{ color: 'var(--warn-text)', fontSize: 'clamp(0.95rem, 0.8rem + 0.5vw, 1.25rem)', fontFamily: 'var(--font-jakarta), Manrope, sans-serif', fontVariantNumeric: 'tabular-nums' }}>{fmtMT(mt)}</div>
+          <div className="font-semibold leading-none" style={{ color: 'var(--warn-text)', fontSize: 'var(--fs-substat)', fontFamily: 'var(--font-jakarta), Manrope, sans-serif', fontVariantNumeric: 'tabular-nums' }}>{fmtMT(mt)}</div>
           <div className="responsiveTextTableTitle text-[var(--regent-gray)] mt-1">in stock · capital tied up, excluded from profit</div>
         </div>
       </div>
@@ -1844,7 +1844,7 @@ const Dash = () => {
                   <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none"
                     style={{ opacity: donutHover ? 0 : 1, transition: 'opacity 120ms ease' }}>
                     <span className="responsiveTextTable text-[var(--regent-gray)]">Revenue</span>
-                    <span className="font-semibold text-[var(--port-gore)]" style={{ fontSize: 'clamp(1rem, 0.8rem + 0.6vw, 1.35rem)', fontFamily: 'var(--font-jakarta), Manrope, sans-serif', fontVariantNumeric: 'tabular-nums' }}>
+                    <span className="font-semibold text-[var(--port-gore)]" style={{ fontSize: 'var(--fs-substat)', fontFamily: 'var(--font-jakarta), Manrope, sans-serif', fontVariantNumeric: 'tabular-nums' }}>
                       {fmtAutoKM(totalInvoices)}
                     </span>
                   </div>

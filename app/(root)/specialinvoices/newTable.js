@@ -183,10 +183,16 @@ const Customtable = ({
                    "good", it just means "this row is a summary".
                    Both are now quiet fills; they stay tellable apart by tint plus a
                    semibold label, not by hue strength. Contrast measured: 8.2:1 and
-                   11:1 respectively. */
-                .summary-green-si {
-                    background-color: var(--ok-bg);
-                    color: var(--ok-strong);
+                   11:1 respectively.
+
+                   2026-08-20: the remaining --ok-* tint went as well — the band was
+                   still the only green surface on the page and still meant nothing by
+                   it. Both bands now sit in the brand family, separated by value
+                   (--violet-border over the lighter neutral --bg-sunken) instead of
+                   by hue. Names follow: usd/eur, not green/blue. */
+                .summary-usd-si {
+                    background-color: var(--violet-border);
+                    color: var(--brand-strong);
                     font-weight: 500;
                 }
                 /* Only the horizontal rule is suppressed — the two bands read as one
@@ -194,18 +200,18 @@ const Customtable = ({
                    column dividers the global grid draws (the :where(thead th) rules in
                    globals.css), which is what left this table's summary band without
                    the vertical rules every other page has. */
-                .summary-green-si th {
-                    background-color: var(--ok-bg) !important;
-                    color: var(--ok-strong) !important;
+                .summary-usd-si th {
+                    background-color: var(--violet-border) !important;
+                    color: var(--brand-strong) !important;
                     border-bottom: 0 !important;
                 }
 
-                .summary-blue-si {
+                .summary-eur-si {
                     background-color: var(--bg-sunken);
                     color: var(--ink);
                     font-weight: 500;
                 }
-                .summary-blue-si th {
+                .summary-eur-si th {
                     background-color: var(--bg-sunken) !important;
                     color: var(--ink) !important;
                     border-bottom: 0 !important;
@@ -260,7 +266,7 @@ const Customtable = ({
                                                 const usdTotal = table.getFilteredRowModel().rows.reduce((s, r) => { const o = r.original; return (o.cur === 'us' || o.cur === 'USD') ? s + (o.total * 1 || 0) : s; }, 0);
                                                 const usdWeight = table.getFilteredRowModel().rows.reduce((s, r) => { const o = r.original; return (o.cur === 'us' || o.cur === 'USD') ? s + (o.qnty * 1 || 0) : s; }, 0);
                                                 return (
-                                                    <tr className="summary-green-si">
+                                                    <tr className="summary-usd-si">
                                                         {group.headers.map(header => (
                                                             <th key={header.id} style={{ padding: '6px 8px' }}>
                                                                 {header.id === 'compName' ? 'Total $:' :
@@ -277,7 +283,7 @@ const Customtable = ({
                                                 const eurTotal = table.getFilteredRowModel().rows.reduce((s, r) => { const o = r.original; return (o.cur === 'eu' || o.cur === 'EUR') ? s + (o.total * 1 || 0) : s; }, 0);
                                                 const eurWeight = table.getFilteredRowModel().rows.reduce((s, r) => { const o = r.original; return (o.cur === 'eu' || o.cur === 'EUR') ? s + (o.qnty * 1 || 0) : s; }, 0);
                                                 return (
-                                                    <tr className="summary-blue-si">
+                                                    <tr className="summary-eur-si">
                                                         {group.headers.map(header => (
                                                             <th key={header.id} style={{ padding: '6px 8px' }}>
                                                                 {header.id === 'compName' ? 'Total EUR:' :

@@ -17,7 +17,7 @@ import { getTtl } from "../../../utils/languages";
 const SideBarMini = () => {
   const pathName = usePathname();
   const router = useRouter();
-  const { SignOut, user, userTitle, gisAccount } = UserAuth();
+  const { SignOut, user, userTitle, gisAccount, can } = UserAuth();
   const { setDates, compData } = useContext(SettingsContext);
   const ln = compData?.lng || 'English';
   const placeholderText = getTtl('Search anything...', ln) || 'Search...';
@@ -176,7 +176,7 @@ const SideBarMini = () => {
     <p className='responsiveText text-[var(--ink-muted)] truncate'>{user?.email || ''}</p>
   </div>
   <ul className="flex-1 divide-[var(--line)] divide-y">
-    {sideBar(userTitle, gisAccount).map((x, i) => (
+    {sideBar(userTitle, gisAccount, can).map((x, i) => (
       <div key={i} className="py-2">
         {x.ttl && (
           <div className='font-semibold uppercase text-[var(--ink-muted)] px-4 pb-2 pt-3' style={{letterSpacing: '0.06em', fontSize: 'var(--fs-table)'}}>

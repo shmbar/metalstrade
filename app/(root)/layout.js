@@ -5,7 +5,9 @@ import Spinner from '../../components/spinner';
 import { UserAuth } from "../../contexts/useAuthContext";
 import Idle from '../../components/idle.js'
 import { MainNav } from './_components/MainNav';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
+import { useEffect } from 'react';
+import { pageKeyFromPath } from '../../utils/permissions';
 import { Analytics } from "@vercel/analytics/next"
 import FloatingChat from '../../components/FloatingChat';
 import GlobalSearchLoader from '../../utils/globalSearch/GlobalSearchLoader'
@@ -18,8 +20,21 @@ export default function MyLayout({
 }) {
 
 	const auth = UserAuth() || {};
-	const { user, loadingPage, userTitle } = auth;
+	const { user, loadingPage, can, landingPage } = auth;
 	const pathname = usePathname();
+	const router = useRouter();
+
+	const pageKey = pageKeyFromPath(pathname);
+	const allowed = typeof can === 'function' ? can(pageKey) : true;
+
+	// Bounce anyone who lands on a page they aren't permitted to see. Hiding a
+	// link in the sidebar was never enough — the URL still worked. This is the
+	// gate that actually holds, and it sends them somewhere they CAN use rather
+	// than to a dead end.
+	useEffect(() => {
+		if (loadingPage || !user || allowed) return;
+		router.replace(landingPage || '/dashboard');
+	}, [loadingPage, user, allowed, landingPage, router]);
 
 	// Step 1: If loading, show spinner
 	if (loadingPage) {
@@ -31,9 +46,10 @@ export default function MyLayout({
 		return <Spinner />;
 	}
 
-	// Step 3: If user is accounting and not on /accounting, show nothing
-	if (userTitle === 'accounting' && pathname !== '/accounting') {
-		return null;
+	// Step 3: Not permitted here — hold the spinner while the effect above
+	// redirects, so the page's own content never flashes on screen first.
+	if (!allowed) {
+		return <Spinner />;
 	}
 
 	// Step 4: Render layout for authenticated users

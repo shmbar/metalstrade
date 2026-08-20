@@ -263,6 +263,13 @@
   --fs-input:   0.75rem;   /* 12px — labels, controls         */
   --fs-title:   0.8125rem; /* 13px — card / section titles    */
   --fs-page:    1rem;      /* 16px — page titles              */
+  /* The gap between --fs-page and --fs-stat was 4-8px wide, and the dashboard
+     needed three tiers of figure inside it: a hero number, the secondary
+     figures beside it, and a currency detail line. Having no rung there is why
+     dashboard/page.js grew nine hand-rolled clamp() sizes that scaled with the
+     VIEWPORT while every other page stepped at the breakpoints — so the two
+     drifted apart as the window resized. One rung closes it. */
+  --fs-substat: 1.125rem;  /* 18px — secondary KPI figures    */
   --fs-stat:    1.25rem;   /* 20px — KPI figures              */
   --fs-display: 1.375rem;  /* 22px — marketing section heads  */
   --fs-hero:    1.875rem;  /* 30px — marketing hero headline  */
@@ -361,6 +368,7 @@
     --fs-input:   0.8125rem; /* 13 — reference cap reached */
     --fs-title:   0.875rem;  /* 14 */
     --fs-page:    1rem;      /* 16 — reference cap reached */
+    --fs-substat: 1.1875rem; /* 19 */
     --fs-stat:    1.375rem;  /* 22 */
     --fs-display: 1.5625rem; /* 25 — marketing only */
     --fs-hero:    2.25rem;   /* 36 — marketing only */
@@ -374,6 +382,7 @@
     --fs-input:   0.8125rem; /* 13 — held at cap */
     --fs-title:   0.875rem;  /* 14 — reference cap reached (its text-sm) */
     --fs-page:    1rem;      /* 16 — held at cap */
+    --fs-substat: 1.25rem;   /* 20 — cap reached */
     --fs-stat:    1.5rem;    /* 24 — reference cap reached */
     --fs-display: 1.75rem;   /* 28 — marketing only */
     --fs-hero:    2.625rem;  /* 42 — marketing only */
@@ -387,6 +396,7 @@
     --fs-input:   0.8125rem; /* 13 — held at cap */
     --fs-title:   0.875rem;  /* 14 — held at cap */
     --fs-page:    1rem;      /* 16 — held at cap */
+    --fs-substat: 1.25rem;   /* 20 — held at cap */
     --fs-stat:    1.5rem;    /* 24 — held at cap */
     --fs-display: 2rem;      /* 32 — marketing only */
     --fs-hero:    3rem;      /* 48 — marketing only */
@@ -510,6 +520,7 @@ html.dark img[src*="/_next/static/media/logo"][src$=".svg"] {
 .responsiveTextInput      { font-size: var(--fs-input); }
 .responsiveTextTitle      { font-size: var(--fs-title); }
 .responsiveTextPage       { font-size: var(--fs-page); }
+.responsiveTextSubstat    { font-size: var(--fs-substat); }
 .responsiveTextStat       { font-size: var(--fs-stat); }
 .responsiveTextDisplay    { font-size: var(--fs-display); }
 .responsiveTextHero       { font-size: var(--fs-hero); }

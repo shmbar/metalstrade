@@ -121,7 +121,7 @@ const Customtable = ({
             cell: (props) => {
                 const v = props.getValue()
                 if (!v) return <p></p>
-                return <p className="responsiveTextTable" style={{ color: TONES.green.text }}>
+                return <p className="responsiveTextTable" style={{ color: 'var(--pink-text)' }}>
                     ${new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(v)}
                 </p>
             },
@@ -141,7 +141,7 @@ const Customtable = ({
             cell: (props) => {
                 const v = props.getValue()
                 if (!v) return <p></p>
-                return <p className="responsiveTextTable" style={{ color: TONES.green.text, fontWeight: '500' }}>
+                return <p className="responsiveTextTable" style={{ color: 'var(--pink-text)', fontWeight: '500' }}>
                     ${new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(v)}
                 </p>
             },
@@ -312,15 +312,21 @@ const Customtable = ({
        table in the app (see .custom-table in globals.css). Meaning is carried where
        it is actually needed and nowhere else: the computed columns keep a quiet
        tint so a derived figure is distinguishable from an entered one, and Fe keeps
-       one because it is the auto-calculated remainder. */
+       one because it is the auto-calculated remainder.
+
+       2026-08-20: the cost columns were TONES.green and green said nothing here —
+       a cost is not "good", it is just the other half of the cost/sales pair. They
+       take --pink-* instead, which the token file keeps expressly as a non-status
+       hue, so the pair now reads cost=plum / sales=violet with no status colour
+       borrowed for structure. */
     const hdrBg = (colId) => {
-        if (colId === 'costPmt' || colId === 'costTotal') return TONES.green.bg
+        if (colId === 'costPmt' || colId === 'costTotal') return 'var(--pink-bg)'
         if (colId === 'salesMt' || colId === 'salesTotal') return 'var(--brand-soft)'
         if (colId === 'fe') return 'var(--bg-sunken)'
         return 'var(--bg-subtle)'
     }
     const ftrBg = (colId) => {
-        if (colId === 'costPmt' || colId === 'costTotal') return TONES.green.bg
+        if (colId === 'costPmt' || colId === 'costTotal') return 'var(--pink-bg)'
         if (colId === 'salesMt' || colId === 'salesTotal') return 'var(--brand-soft)'
         if (colId === 'fe') return 'var(--bg-sunken)'
         return 'var(--bg-subtle)'
@@ -617,12 +623,17 @@ const Customtable = ({
             {/* ── Sales price bar ($/MT per element) ──────────────────────────
                 A mirror of the price bar above, writing to salesPrices. Same preset
                 mechanism, its own selection: a purchase preset and a sale preset are
-                not usually the same set of elements. Tinted with --ok-* so the two
-                bars are tellable apart at a glance without reading the labels. */}
+                not usually the same set of elements. It used to be tinted --ok-* to
+                stay tellable apart from the price bar, but that put a green band on
+                the page meaning nothing more than "this is the other bar", and it
+                contradicted the sales COLUMNS, which were already --brand-soft. The
+                bar now carries the same violet as the columns it feeds, and the
+                price bar above stays the neutral --bg-subtle: the two are separated
+                by tinted-vs-neutral rather than by two competing hues. */}
             {elements.length > 0 && (
-                <div style={{ background: 'var(--ok-bg)', borderBottom: '1px solid var(--line)', padding: '6px 12px' }}>
+                <div style={{ background: 'var(--brand-soft)', borderBottom: '1px solid var(--line)', padding: '6px 12px' }}>
                     <div className="responsiveTextTable" style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', alignItems: 'center' }}>
-                        <span className="responsiveTextTable font-medium" style={{ color: 'var(--ok-strong)', minWidth: '48px' }}>Sales</span>
+                        <span className="responsiveTextTable font-medium" style={{ color: 'var(--brand-strong)', minWidth: '48px' }}>Sales</span>
 
                         {/* Preset picker — sets which elements the sale price is built from */}
                         <div style={{ position: 'relative' }}>
@@ -660,13 +671,13 @@ const Customtable = ({
                                 <div key={el.key} style={{
                                     display: 'flex', alignItems: 'center', gap: '4px',
                                     background: 'var(--bg-card)',
-                                    border: `1px solid ${isNi ? 'var(--ok-border)' : 'var(--line)'}`,
+                                    border: `1px solid ${isNi ? 'var(--brand-border)' : 'var(--line)'}`,
                                     borderRadius: 'var(--radius-control)', padding: '2px 10px', minWidth: '68px',
                                 }}>
                                     <span style={{
                                         fontSize: 'var(--fs-table)', fontWeight: '600',
                                         minWidth: '16px',
-                                        color: isNi ? 'var(--ok-strong)' : 'var(--ink-muted)',
+                                        color: isNi ? 'var(--brand-strong)' : 'var(--ink-muted)',
                                     }}>
                                         {el.label}
                                     </span>
@@ -685,7 +696,7 @@ const Customtable = ({
                                     />
                                     {isNi && (
                                         <>
-                                            <span style={{ fontSize: 'var(--fs-caption)', color: 'var(--ok-strong)', opacity: 0.55, fontWeight: '600' }}>LME</span>
+                                            <span style={{ fontSize: 'var(--fs-caption)', color: 'var(--brand-strong)', opacity: 0.55, fontWeight: '600' }}>LME</span>
                                             <span style={{ fontSize: 'var(--fs-table)', color: 'var(--ink-muted)', margin: '0 2px' }}>×</span>
                                             <input
                                                 value={salesNiPercent}
@@ -694,10 +705,10 @@ const Customtable = ({
                                                 style={{
                                                     fontSize: 'inherit', fontWeight: '600', width: '28px', textAlign: 'center',
                                                     background: 'transparent', border: 'none', outline: 'none',
-                                                    color: 'var(--ok-strong)',
+                                                    color: 'var(--brand-strong)',
                                                 }}
                                             />
-                                            <span className="responsiveTextTable" style={{ color: 'var(--ok-strong)', fontWeight: '600' }}>%</span>
+                                            <span className="responsiveTextTable" style={{ color: 'var(--brand-strong)', fontWeight: '600' }}>%</span>
                                         </>
                                     )}
                                 </div>
@@ -815,7 +826,7 @@ const Customtable = ({
                                                         >×</button>
                                                     </div>
                                                 ) : isCost ? (
-                                                    <div style={{ backgroundColor: TONES.green.bg, border: `1px solid ${TONES.green.border}`, borderRadius: '8px', padding: '2px 6px', display: 'flex', alignItems: 'center', justifyContent: 'center', minWidth: '62px', minHeight: '23px' }}>
+                                                    <div style={{ backgroundColor: 'var(--pink-bg)', border: '1px solid var(--pink-border)', borderRadius: '8px', padding: '2px 6px', display: 'flex', alignItems: 'center', justifyContent: 'center', minWidth: '62px', minHeight: '23px' }}>
                                                         {flexRender(cell.column.columnDef.cell, cell.getContext())}
                                                     </div>
                                                 ) : (
@@ -899,7 +910,7 @@ const Customtable = ({
                                     if (isCost) return (
                                         <div key={cell.id} className="flex justify-between items-center pb-2" style={{ borderBottom: '1px solid var(--line)' }}>
                                             <span className='uppercase tracking-wider' style={{ color: 'var(--ink-muted)', fontSize: 'var(--fs-caption)', fontWeight: '500' }}>{cell.column.columnDef.header}</span>
-                                            <span className="responsiveTextTable" style={{ color: TONES.green.text, fontWeight: '600' }}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</span>
+                                            <span className="responsiveTextTable" style={{ color: 'var(--pink-text)', fontWeight: '600' }}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</span>
                                         </div>
                                     )
                                     return (
