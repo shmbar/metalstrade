@@ -75,10 +75,10 @@ const SelectEnt = memo(({ props, data, handleChangeSelect, month, name, plHolder
                       <Command className="bg-transparent">
                         <CommandInput
                           placeholder="Search..."
-                          className="responsiveTextInput h-8"
+                          className="responsiveTextTable h-8"
                         />
                         <CommandList style={{ maxHeight: '200px' }}>
-                          <CommandEmpty className="py-3 text-center responsiveText text-[var(--ink-muted)]">
+                          <CommandEmpty style={{ fontSize: 'var(--fs-table)' }} className="py-3 text-center text-[var(--ink-muted)]">
                             No match
                           </CommandEmpty>
                           <CommandGroup>
@@ -90,7 +90,15 @@ const SelectEnt = memo(({ props, data, handleChangeSelect, month, name, plHolder
                                   handleChangeSelect(z.id, props.row.original.id, month, name);
                                   setOpen(false);
                                 }}
-                                className="responsiveText px-2 py-1.5 hover:bg-[var(--bg-subtle)] cursor-pointer text-[var(--ink)] data-[selected=true]:bg-[var(--brand-soft)] data-[selected=true]:text-[var(--brand)]"
+                                /* Inline, not a class. ui/command.tsx hardcodes
+                                   responsiveTextTitle inside CommandItem's own cn(), and
+                                   tailwind-merge does not dedupe two custom classes — so
+                                   both land on the element and the one defined later in
+                                   globals.css wins, which is Title. The options rendered
+                                   14px against 11px cells. Same trap selectShad documents
+                                   for ui/select.tsx, same escape: a style beats a class. */
+                                style={{ fontSize: 'var(--fs-table)' }}
+                                className="px-2 py-1.5 hover:bg-[var(--bg-subtle)] cursor-pointer text-[var(--ink)] data-[selected=true]:bg-[var(--brand-soft)] data-[selected=true]:text-[var(--brand)]"
                               >
                                 <Check
                                   className={cn(
@@ -111,7 +119,7 @@ const SelectEnt = memo(({ props, data, handleChangeSelect, month, name, plHolder
               {fullName && !open && (
                 <TooltipContent
                   side="top"
-                  className="bg-[var(--tooltip-bg)] text-[var(--tooltip-ink)] responsiveTextInput rounded-lg px-2.5 py-1 border border-[var(--tooltip-border)] shadow-pop"
+                  className="bg-[var(--tooltip-bg)] text-[var(--tooltip-ink)] responsiveTextTable rounded-lg px-2.5 py-1 border border-[var(--tooltip-border)] shadow-pop"
                   style={{ fontFamily: "var(--font-jakarta), 'Plus Jakarta Sans', sans-serif" }}
                 >
                   {fullName}
