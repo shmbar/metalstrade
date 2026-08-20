@@ -151,7 +151,7 @@ const Payments = ({ showPayments }) => {
             <div className=' flex gap-3 p-2 w-full'>
 
                 <div className=' p-2 h-fit'>
-                    <p className='responsiveText font-medium text-[var(--chathams-blue)] responsiveTextInput'>{getTtl('Payments', ln)}:</p>
+                    <p className='responsiveText font-medium text-[var(--chathams-blue)] responsiveTextInput'>{getTtl('Payments', ln)}</p>
 
                     {valueInv.payments.map((x, i) => {
                         return (
@@ -160,7 +160,7 @@ const Payments = ({ showPayments }) => {
                                     <ChkBox checked={checkedItems.includes(x.id)} size='h-5 w-5' onChange={() => checkItem(x.id)} />
                                 </div>
                                 <div>
-                                    <p className='flex responsiveText font-medium whitespace-nowrap text-[var(--chathams-blue)] responsiveTextInput'>{getTtl('Date', ln)}:</p>
+                                    <p className='flex responsiveText font-medium whitespace-nowrap text-[var(--chathams-blue)] responsiveTextInput'>{getTtl('Date', ln)}</p>
                                     <Datepicker useRange={false}
                                         asSingle={true}
                                         value={x.date}
@@ -171,7 +171,7 @@ const Payments = ({ showPayments }) => {
                                     />
                                 </div>
                                 <div >
-                                    <p className='flex responsiveText font-medium whitespace-nowrap text-[var(--chathams-blue)] responsiveTextInput'>{getTtl('Actual Payment', ln)}:</p>
+                                    <p className='flex responsiveText font-medium whitespace-nowrap text-[var(--chathams-blue)] responsiveTextInput'>{getTtl('Actual Payment', ln)}</p>
                                     <div className='flex'>
                                         <input type='text' className="number-separator input shadow-lg h-7 -mt-[0.03rem] responsiveTextInput" style={{ fontFamily: 'inherit' }} name='pmnt'
                                             value={addComma(x.pmnt)} onChange={e => handleValue(e, i)} />

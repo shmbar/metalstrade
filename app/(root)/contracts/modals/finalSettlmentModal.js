@@ -204,7 +204,7 @@ const FinalSettlmentModal = ({ isOpen, setIsOpen, setShowPoInvModal }) => {
                                     <ChkBox checked={checkedItems.includes(x.id)} size='h-5 w-5' onChange={() => checkItem(x.id)} />
                                 </div>
                                 <div className='w-full'>
-                                    <p className='flex responsiveTextTable font-medium whitespace-nowrap text-[var(--chathams-blue)]' >{getTtl('Description', ln)}:</p>
+                                    <p className='flex responsiveTextTable font-medium whitespace-nowrap text-[var(--chathams-blue)]' >{getTtl('Description', ln)}</p>
                                     <div className='flex'>
                                         <input type='text' className="number-separator input border-slate-300 h-7 responsiveTextTable shadow-lg" name='descriptionText' style={{ fontFamily: 'inherit' }}
                                             value={x.descriptionText} onChange={e => handleValue(e, i)} />
@@ -227,7 +227,7 @@ const FinalSettlmentModal = ({ isOpen, setIsOpen, setShowPoInvModal }) => {
                                 </div>
                             </div>
                             <div className='col-span-1'>
-                                <p className='flex responsiveTextTable font-medium whitespace-nowrap text-[var(--chathams-blue)]' >Advised Price:</p>
+                                <p className='flex responsiveTextTable font-medium whitespace-nowrap text-[var(--chathams-blue)]' >Advised Price</p>
                                 <div className='flex flex-col'>
                                     <input type='text' className="number-separator input h-7  shadow-lg border-slate-300 responsiveTextTable" name='unitPrc'
                                         value={addComma(x.unitPrc, true)} onChange={e => handleValue(e, i)}
@@ -236,7 +236,7 @@ const FinalSettlmentModal = ({ isOpen, setIsOpen, setShowPoInvModal }) => {
                             </div>
 
                             <div className='col-span-1'>
-                                <p className='flex responsiveTextTable font-medium whitespace-nowrap text-[var(--chathams-blue)]' >Received Price:</p>
+                                <p className='flex responsiveTextTable font-medium whitespace-nowrap text-[var(--chathams-blue)]' >Received Price</p>
                                 <div className='flex flex-col'>
                                     <input type='text' className="number-separator input h-7 border-slate-300 responsiveTextTable shadow-lg" name='unitPrcFinal' style={{ fontFamily: 'inherit' }}
                                         value={addComma(x.unitPrcFinal, true)} onChange={e => handleValue(e, i)}
@@ -245,7 +245,7 @@ const FinalSettlmentModal = ({ isOpen, setIsOpen, setShowPoInvModal }) => {
                             </div>
 
                             <div className='col-span-1'>
-                                <p className='flex responsiveTextTable font-medium whitespace-nowrap text-[var(--chathams-blue)]' >{getTtl('Total', ln)}:</p>
+                                <p className='flex responsiveTextTable font-medium whitespace-nowrap text-[var(--chathams-blue)]' >{getTtl('Total', ln)}</p>
                                 <div className='flex'>
                                     <input type='text' disabled className="number-separator input border-slate-300 h-7 responsiveTextTable" name='finaltotal'
                                         value={addComma(x.finaltotal, true, 'finaltotal')} />
@@ -253,7 +253,7 @@ const FinalSettlmentModal = ({ isOpen, setIsOpen, setShowPoInvModal }) => {
                             </div>
 
                             <div className='col-span-1'>
-                                <p className='flex responsiveTextTable font-medium whitespace-nowrap text-[var(--chathams-blue)]' >{getTtl('Invoice', ln)}#:</p>
+                                <p className='flex responsiveTextTable font-medium whitespace-nowrap text-[var(--chathams-blue)]' >{getTtl('Invoice', ln)}#</p>
                                 <div className='flex'>
                                     <input type='text' disabled className="number-separator input border-slate-300 h-7 responsiveTextTable truncate" name='total'
                                         defaultValue={x?.poInvoices[0]?.inv} />
@@ -261,7 +261,7 @@ const FinalSettlmentModal = ({ isOpen, setIsOpen, setShowPoInvModal }) => {
                             </div>
 
                             <div className='col-span-3'>
-                                <p className='flex responsiveTextTable font-medium whitespace-nowrap text-[var(--chathams-blue)]' >{getTtl('Remarks', ln)}:</p>
+                                <p className='flex responsiveTextTable font-medium whitespace-nowrap text-[var(--chathams-blue)]' >{getTtl('Remarks', ln)}</p>
                                 <div className='flex'>
                                     <input type='text' className="shadow-lg input border-slate-300 h-7 responsiveTextTable truncate" name='remark' style={{ fontFamily: 'inherit' }}
                                         value={x?.remark} onChange={e => handleValue(e, i)} />
@@ -280,7 +280,7 @@ const FinalSettlmentModal = ({ isOpen, setIsOpen, setShowPoInvModal }) => {
                 <div className='border border-[var(--line)] rounded-2xl bg-[var(--bg-card)] p-3'>
                     <div className='flex items-center justify-between mb-2'>
                         <span className='responsiveText font-semibold text-[var(--chathams-blue)]'>Settlement summary</span>
-                        <button type='button' onClick={addCalc} className='flex items-center gap-1 rounded-lg px-3 h-7 text-[var(--on-brand)] hover:opacity-90' style={{ fontSize: 'var(--fs-body)', background: 'var(--endeavour)' }}>
+                        <button type='button' onClick={addCalc} className='blackButton'>
                             <Plus className='w-3 h-3' /> Add calculation
                         </button>
                     </div>

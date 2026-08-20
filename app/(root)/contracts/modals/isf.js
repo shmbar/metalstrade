@@ -2,23 +2,27 @@ import { Selector } from '@components/selectors/selectShad';
 import { PdfISF } from './pdf/pdfISF';
 import { FileText } from 'lucide-react';
 
-const Field = ({ label, name, value, onChange, placeholder = '', wide = false }) => (
-    <div className={wide ? 'md:col-span-2' : ''}>
-        <label className="block responsiveText font-medium text-[var(--chathams-blue)] mb-0.5">{label}</label>
+/* Mirrors annexVII.js — the two render in the same accordion, so they share a layout
+   vocabulary: four columns, a span for the fields that hold prose, and the app’s own
+   .input rather than a hand-rolled border and focus ring. */
+const SPAN = { 1: '', 2: 'sm:col-span-2', 3: 'sm:col-span-2 lg:col-span-3', 4: 'sm:col-span-2 lg:col-span-4' };
+
+const Field = ({ label, name, value, onChange, placeholder = '', span = 1 }) => (
+    <div className={SPAN[span] || SPAN[1]}>
+        <label className="block responsiveText font-medium text-[var(--ink-muted)] mb-1">{label}</label>
         <input
             name={name}
             value={value || ''}
             onChange={onChange}
             placeholder={placeholder}
-            className="border border-[var(--line)] rounded-lg px-3 h-7 responsiveTextInput w-full
-                focus:outline-none focus:ring-1 focus:ring-[var(--endeavour)]"
+            className="input h-7"
             style={{ fontFamily: 'inherit' }}
         />
     </div>
 );
 
 const SectionLabel = ({ text }) => (
-    <p className="md:col-span-2 responsiveText font-medium text-[var(--endeavour)] mt-2 border-b border-[var(--bg-subtle)] pb-0.5">{text}</p>
+    <p className={`${SPAN[4]} responsiveText font-medium text-[var(--endeavour)] mt-1.5 border-b border-[var(--line)] pb-0.5`}>{text}</p>
 );
 
 const SHIPMENT_TYPES = ['FCL', 'LCL', 'BULK', 'CONSOL'];
@@ -78,7 +82,7 @@ const ISF = ({ valueInv, setValueInv, compData, settings, valueCon }) => {
             {/* Template selector */}
             {templates.length > 0 && (
                 <div className="mb-3 flex items-center gap-2">
-                    <label className="responsiveText font-medium text-[var(--chathams-blue)] whitespace-nowrap">Load Template:</label>
+                    <label className="responsiveText font-medium text-[var(--ink-muted)] whitespace-nowrap">Load Template</label>
                     <div className="w-64">
                         <Selector
                             arr={templates}
@@ -93,7 +97,7 @@ const ISF = ({ valueInv, setValueInv, compData, settings, valueCon }) => {
             )}
 
             {/* Auto-populated info */}
-            <div className="md:col-span-2 bg-[var(--bg-subtle)] border border-[var(--bg-subtle)] rounded-2xl p-2 mb-3">
+            <div className="bg-[var(--bg-subtle)] border border-[var(--bg-subtle)] rounded-2xl p-2 mb-3">
                 <p className="responsiveText font-medium text-[var(--endeavour)] mb-1.5">Auto-populated from Contract / Invoice</p>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-2 responsiveText text-[var(--port-gore)]">
                     <div><span className="font-medium">Seller (our company):</span> {compData.name || '—'}</div>
@@ -102,14 +106,14 @@ const ISF = ({ valueInv, setValueInv, compData, settings, valueCon }) => {
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-3 gap-y-2">
 
                 {/* Part I */}
                 <SectionLabel text="Part I — Shipment Info" />
 
                 {/* Shipment Type */}
-                <div>
-                    <label className="block responsiveText font-medium text-[var(--chathams-blue)] mb-0.5">Shipment Type</label>
+                <div className={SPAN[2]}>
+                    <label className="block responsiveText font-medium text-[var(--ink-muted)] mb-1">Shipment Type</label>
                     <div className="flex gap-2 flex-wrap">
                         {SHIPMENT_TYPES.map(type => (
                             <button
@@ -127,8 +131,8 @@ const ISF = ({ valueInv, setValueInv, compData, settings, valueCon }) => {
                 </div>
 
                 {/* Ship To override */}
-                <div>
-                    <label className="block responsiveText font-medium text-[var(--chathams-blue)] mb-0.5">Ship To / ISF Importer (override)</label>
+                <div className={SPAN[2]}>
+                    <label className="block responsiveText font-medium text-[var(--ink-muted)] mb-1">Ship To / ISF Importer (override)</label>
                     <Selector
                         arr={clts.filter(c => !c.deleted).sort((a, b) => (a.nname || '').localeCompare(b.nname || ''))}
                         value={isf}
@@ -151,8 +155,8 @@ const ISF = ({ valueInv, setValueInv, compData, settings, valueCon }) => {
                 <Field label="Bill of Lading Number" name="blNum" value={isf.blNum} onChange={handleInput} />
 
                 {/* BL Type */}
-                <div className="md:col-span-2">
-                    <label className="block responsiveText font-medium text-[var(--chathams-blue)] mb-0.5">B/L Type</label>
+                <div className={SPAN[2]}>
+                    <label className="block responsiveText font-medium text-[var(--ink-muted)] mb-1">B/L Type</label>
                     <div className="flex gap-2 flex-wrap">
                         {BL_TYPES.map(type => (
                             <button
@@ -173,13 +177,13 @@ const ISF = ({ valueInv, setValueInv, compData, settings, valueCon }) => {
                 <SectionLabel text="Part IV — Commodity" />
 
                 <Field label="HTS-6 Commodity Code" name="htsCommodityCode" value={isf.htsCommodityCode} onChange={handleInput} placeholder="e.g. 7503.00" />
-                <Field label="Item Description" name="itemDescription" value={isf.itemDescription} onChange={handleInput} placeholder="e.g. Ni Cr Stainless Steel Turnings" />
+                <Field label="Item Description" name="itemDescription" value={isf.itemDescription} onChange={handleInput} placeholder="e.g. Ni Cr Stainless Steel Turnings" span={3} />
 
                 {/* Part V */}
                 <SectionLabel text="Part V — Notification Emails" />
 
-                <Field label="Email Address 1" name="email1" value={isf.email1} onChange={handleInput} placeholder="e.g. compliance@company.com" />
-                <Field label="Email Address 2" name="email2" value={isf.email2} onChange={handleInput} />
+                <Field label="Email Address 1" name="email1" value={isf.email1} onChange={handleInput} placeholder="e.g. compliance@company.com" span={2} />
+                <Field label="Email Address 2" name="email2" value={isf.email2} onChange={handleInput} span={2} />
             </div>
         </div>
     );

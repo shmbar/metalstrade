@@ -111,6 +111,10 @@ const StorageCosts = () => {
     const [year, setYear] = useState('all');        // 'all' or 'YYYY' — page-local period filter
     const [edits, setEdits] = useState({});         // id -> { storageWh, storageMonth } (triage drafts)
     const [savingId, setSavingId] = useState(null);
+    // Triage-table filters. The year filter above scopes the whole page; these narrow
+    // the "needs tagging" list, which is the part you actually work through row by row.
+    const [triageSupplier, setTriageSupplier] = useState('');
+    const [triageQ, setTriageQ] = useState('');
 
     const expTypes = settings?.Expenses?.Expenses || [];
     const warehouses = settings?.Stocks?.Stocks || [];
@@ -169,6 +173,28 @@ const StorageCosts = () => {
 
     const tagged = useMemo(() => expenses.filter(e => e.storageWh && e.storageMonth), [expenses]);
     const untagged = useMemo(() => expenses.filter(e => !(e.storageWh && e.storageMonth)), [expenses]);
+
+    // Only offer suppliers that appear in the untagged list, so the dropdown can never
+    // select its way to an empty table.
+    const triageSuppliers = useMemo(() => {
+        const ids = [...new Set(untagged.map(e => e.supplier).filter(Boolean))];
+        return ids
+            .map(id => ({ id, _label: settings.Supplier?.Supplier?.find(sp => sp.id === id)?.nname || '' }))
+            .filter(o => o._label)
+            .sort((a, b) => a._label.localeCompare(b._label));
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [untagged, settings]);
+
+    const untaggedShown = useMemo(() => {
+        const q = triageQ.trim().toLowerCase();
+        return untagged.filter(e => {
+            if (triageSupplier && e.supplier !== triageSupplier) return false;
+            if (!q) return true;
+            const sup = settings.Supplier?.Supplier?.find(sp => sp.id === e.supplier)?.nname || '';
+            return `${e.expense || ''} ${sup}`.toLowerCase().includes(q);
+        });
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [untagged, triageSupplier, triageQ, settings]);
 
     // Aggregate tagged cost & MT per warehouse, plus an overall monthly $/MT rate.
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -362,6 +388,29 @@ const StorageCosts = () => {
                         <span className="rounded-lg px-2 py-0.5 font-semibold" style={{ fontSize: 'var(--fs-table)', background: untagged.length ? 'var(--warn-bg)' : 'var(--ok-bg)', color: untagged.length ? 'var(--warn-text)' : 'var(--ok-text)', boxShadow: `inset 0 0 0 1px ${untagged.length ? 'var(--warn-border)' : 'var(--ok-border)'}` }}>
                             {untagged.length}
                         </span>
+                        {untagged.length > 1 && (
+                            <div className="flex items-center gap-2">
+                                <input
+                                    value={triageQ}
+                                    onChange={(e) => setTriageQ(e.target.value)}
+                                    placeholder="Search invoice or supplier"
+                                    className="input h-7"
+                                    style={{ width: 190 }}
+                                />
+                                {triageSuppliers.length > 1 && (
+                                    <div style={{ minWidth: 150 }}>
+                                        <Selector
+                                            arr={[{ id: '', _label: 'All suppliers' }, ...triageSuppliers]}
+                                            value={{ triageSupplier }}
+                                            onChange={(v) => setTriageSupplier(v || '')}
+                                            name='triageSupplier'
+                                            secondaryName='_label'
+                                            classes="h-7"
+                                        />
+                                    </div>
+                                )}
+                            </div>
+                        )}
                         {actuals.count > 0 && (
                             <div className="ml-auto flex items-center gap-2 flex-1 justify-end">
                                 <div className="h-1.5 rounded-full overflow-hidden bg-[var(--bg-sunken)] w-full" style={{ boxShadow: 'inset 0 0 0 1px var(--line)', maxWidth: 160 }}>
@@ -372,9 +421,11 @@ const StorageCosts = () => {
                         )}
                     </div>
 
-                    {untagged.length === 0 ? (
+                    {untaggedShown.length === 0 ? (
                         <div className="px-4 py-8 text-center responsiveTextTable text-[var(--regent-gray)]">
-                            All storage invoices in this period are tagged. 🎉
+                            {untagged.length === 0
+                                ? 'All storage invoices in this period are tagged. 🎉'
+                                : 'No untagged invoice matches this filter.'}
                         </div>
                     ) : (
                         <div className="overflow-x-auto">
@@ -391,7 +442,7 @@ const StorageCosts = () => {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {untagged.map(e => {
+                                    {untaggedShown.map(e => {
                                         const d = draftOf(e);
                                         const ready = d.storageWh && d.storageMonth;
                                         return (

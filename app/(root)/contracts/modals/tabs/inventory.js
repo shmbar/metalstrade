@@ -171,12 +171,12 @@ const Inventory = () => {
 
                 <div className='w-full text-right h-4 -mt-2'>-</div>
                 <div className='flex justify-between'>
-                    <p className='responsiveTextTable font-medium text-[var(--chathams-blue)] w-full'>{getTtl('Invoices summary', ln)}:</p>
+                    <p className='responsiveTextTable font-medium text-[var(--chathams-blue)] w-full'>{getTtl('Invoices summary', ln)}</p>
                     <p className='responsiveTextTable text-[var(--port-gore)] whitespace-nowrap'>{frm(Total(data, 'productsDataInvoice', 'qnty'))}</p>
                 </div>
                 <div className='pt-1.5 border-t border-slate-500'></div>
                 <div className='flex justify-between font-bold'>
-                    <p className='responsiveTextTable font-medium text-[var(--chathams-blue)] full'>{getTtl('Remaining QTY', ln)} / MT:</p>
+                    <p className='responsiveTextTable font-medium text-[var(--chathams-blue)] full'>{getTtl('Remaining QTY', ln)} / MT</p>
                     <p className={`responsiveTextTable whitespace-nowrap ${(setNum(totalInvWeight, valueCon, settings) - Total(data, 'productsDataInvoice', 'qnty')) > 0 ? 'text-red-600' : 'text-[var(--port-gore)]'}`}>{loading ? '' : frm(setNum(totalInvWeight, valueCon, settings) -
                         Total(data, 'productsDataInvoice', 'qnty'))}</p>
                 </div>

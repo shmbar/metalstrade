@@ -58,7 +58,7 @@ const FinalRemarks = ({ value, setValue }) => {
     return (
         <div className={`${value?.finalSRemarks?.length>0 ? 'max-w-4xl' : 'max-w-xs'}`}>
             <div className='flex items-center justify-between'>
-                <p className='flex items-center responsiveTextTitle font-medium pl-2'>{getTtl('Remarks', ln)}:</p>
+                <p className='flex items-center responsiveTextTitle font-medium pl-2'>{getTtl('Remarks', ln)}</p>
 
                 <div className='group relative '>
                     <button className="text-[var(--on-brand)]  flex items-center justify-center gap-1.5 px-2 

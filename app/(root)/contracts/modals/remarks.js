@@ -61,7 +61,7 @@ const Remraks = ({ value, setValue, ln }) => {
     return (
         <div className={`${value.remarks.length > 0 ? 'max-w-5xl' : 'max-w-xs'}`}>
             <div className='flex items-center justify-between'>
-                <p className='flex items-center responsiveText font-medium pl-2 text-[var(--chathams-blue)]'>{getTtl('Remarks', ln)}:</p>
+                <p className='flex items-center responsiveText font-medium pl-2 text-[var(--chathams-blue)]'>{getTtl('Remarks', ln)}</p>
 
                 {!value.final && <div className='group relative '>
                     <Button className="h-7 px-2"

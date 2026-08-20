@@ -112,7 +112,7 @@ const Expenses = ({ showExpenses }) => {
         ${showExpenses ? 'flex animated-div' : 'hidden'}`} style={{background:'var(--bg-subtle)'}}>
             <div className='grid grid-cols-1 md:grid-cols-4 gap-3 p-2 w-full'>
                 <div className='md:col-span-1 border border-[var(--line)] rounded-2xl p-2 h-fit'>
-                    <p className='responsiveText font-medium' style={{color:'var(--chathams-blue)'}}>{getTtl('Expenses', ln)}:</p>
+                    <p className='responsiveText font-medium' style={{color:'var(--chathams-blue)'}}>{getTtl('Expenses', ln)}</p>
                     {valueInv.expenses.length > 0 &&
                         <ul className="flex flex-col mt-1 overflow-auto rounded-2xl divide-y" style={{border:'1px solid var(--line)'}}>
                             {valueInv.expenses.map((x, i) => {
@@ -135,14 +135,14 @@ const Expenses = ({ showExpenses }) => {
                     <div className='grid grid-cols-1 md:grid-cols-3 gap-3 w-full'>
                         <div className='px-2'>
                             <div>
-                                <p className='flex responsiveText font-medium whitespace-nowrap' style={{color:'var(--chathams-blue)'}}>{getTtl('Expense Invoice', ln)}:</p>
+                                <p className='flex responsiveText font-medium whitespace-nowrap' style={{color:'var(--chathams-blue)'}}>{getTtl('Expense Invoice', ln)}</p>
                                 <div className='w-full '>
                                     <input className="input shadow-lg h-8 w-full" style={{ fontFamily: 'inherit' }} name='expense' value={valueExp.expense} onChange={handleValue} />
                                     <ErrDiv field='expense' errors={errorsExp} />
                                 </div>
                             </div>
                             <div className='pt-1'>
-                                <p className='flex responsiveText font-medium whitespace-nowrap' style={{color:'var(--chathams-blue)'}}>{getTtl('Date', ln)}:</p>
+                                <p className='flex responsiveText font-medium whitespace-nowrap' style={{color:'var(--chathams-blue)'}}>{getTtl('Date', ln)}</p>
                                 <Datepicker useRange={false}
                                     asSingle={true}
                                     value={valueExp.dateRange}
@@ -154,7 +154,7 @@ const Expenses = ({ showExpenses }) => {
                                 <ErrDiv field='date' errors={errorsExp} />
                             </div>
                             <div className='pt-1'>
-                                <p className='flex responsiveText font-medium whitespace-nowrap' style={{color:'var(--chathams-blue)'}}>{getTtl('Amount', ln)}:</p>
+                                <p className='flex responsiveText font-medium whitespace-nowrap' style={{color:'var(--chathams-blue)'}}>{getTtl('Amount', ln)}</p>
                                 <div className='w-full '>
                                     <input type='number' className="input shadow-lg h-8 w-full" style={{ fontFamily: 'inherit' }} name='amount' value={valueExp.amount} onChange={handleValue} />
                                     <ErrDiv field='amount' errors={errorsExp} />
@@ -163,7 +163,7 @@ const Expenses = ({ showExpenses }) => {
                         </div>
                         <div className='px-2'>
                             <div>
-                                <p className='flex responsiveText font-medium whitespace-nowrap' style={{color:'var(--chathams-blue)'}}>{getTtl('Vendor', ln)}:</p>
+                                <p className='flex responsiveText font-medium whitespace-nowrap' style={{color:'var(--chathams-blue)'}}>{getTtl('Vendor', ln)}</p>
                                 <div className='w-full '>
                                     <Selector arr={sups} value={valueExp}
                                         onChange={(e) => handleChange(e, 'supplier')}
@@ -174,7 +174,7 @@ const Expenses = ({ showExpenses }) => {
                                 </div>
                             </div>
                             <div className='pt-1'>
-                                <p className='flex responsiveText font-medium whitespace-nowrap' style={{color:'var(--chathams-blue)'}}>{getTtl('Expense Type', ln)}:</p>
+                                <p className='flex responsiveText font-medium whitespace-nowrap' style={{color:'var(--chathams-blue)'}}>{getTtl('Expense Type', ln)}</p>
                                 <div className='w-full '>
                                     <Selector arr={settings.Expenses.Expenses} value={valueExp}
                                         onChange={(e) => handleChange(e, 'expType')}
@@ -185,7 +185,7 @@ const Expenses = ({ showExpenses }) => {
                             </div>
                             <div className='pt-1 gap-3 flex'>
                                 <div className='flex-1'>
-                                    <p className='flex responsiveText font-medium whitespace-nowrap' style={{color:'var(--chathams-blue)'}}>{getTtl('Currency', ln)}:</p>
+                                    <p className='flex responsiveText font-medium whitespace-nowrap' style={{color:'var(--chathams-blue)'}}>{getTtl('Currency', ln)}</p>
                                     <div className='w-full'>
                                         <Selector arr={settings.Currency.Currency} value={valueExp}
                                             onChange={(e) => handleChange(e, 'cur')}
@@ -195,7 +195,7 @@ const Expenses = ({ showExpenses }) => {
                                     </div>
                                 </div>
                                 <div className='flex-1'>
-                                    <p className='flex responsiveText font-medium whitespace-nowrap' style={{color:'var(--chathams-blue)'}}>{getTtl('Payment', ln)}:</p>
+                                    <p className='flex responsiveText font-medium whitespace-nowrap' style={{color:'var(--chathams-blue)'}}>{getTtl('Payment', ln)}</p>
                                     <div className='w-full'>
                                         <Selector arr={settings.ExpPmnt.ExpPmnt} value={valueExp}
                                             onChange={(e) => handleChange(e, 'paid')}
@@ -206,7 +206,7 @@ const Expenses = ({ showExpenses }) => {
                             </div>
                         </div>
                         <div className='px-2'>
-                            <p className='flex responsiveText font-medium whitespace-nowrap' style={{color:'var(--chathams-blue)'}}>{getTtl('Comments', ln)}:</p>
+                            <p className='flex responsiveText font-medium whitespace-nowrap' style={{color:'var(--chathams-blue)'}}>{getTtl('Comments', ln)}</p>
                             <div>
                                 <textarea rows="5" name="comments"
                                     className="input shadow-lg h-24 px-3 py-2 !rounded-2xl w-full"

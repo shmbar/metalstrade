@@ -76,7 +76,7 @@ const FindInvoiceModal = ({ open, setOpen, uidCollection, value, setValue }) => 
         <Modal isOpen={open} setIsOpen={setOpen} title="Find Invoice" size="sm">
             <div className="flex flex-col gap-3 p-3">
                 <div className="flex flex-col gap-1">
-                    <p className="responsiveTextInput font-medium text-[var(--chathams-blue)]">Invoice Number:</p>
+                    <p className="responsiveTextInput font-medium text-[var(--chathams-blue)]">Invoice Number</p>
                     <input
                         className="input responsiveTextInput border-[var(--line)] bg-[var(--bg-card)] w-40"
                         value={invoice}
@@ -85,7 +85,7 @@ const FindInvoiceModal = ({ open, setOpen, uidCollection, value, setValue }) => 
                     />
                 </div>
                 <div className="flex flex-col gap-1">
-                    <p className="responsiveTextInput font-medium text-[var(--chathams-blue)]">Year:</p>
+                    <p className="responsiveTextInput font-medium text-[var(--chathams-blue)]">Year</p>
                     <input
                         className="input responsiveTextInput border-[var(--line)] bg-[var(--bg-card)] w-20"
                         value={year}

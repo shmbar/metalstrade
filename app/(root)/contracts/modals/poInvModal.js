@@ -426,12 +426,12 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowStockModal }) => {
                                     }
                                     <div className='gap-3 flex'>
                                         <div className=''>
-                                            <p className='flex responsiveTextTable font-medium whitespace-nowrap text-[var(--chathams-blue)]' > {getTtl('PurchaseInv', ln)}#:</p>
+                                            <p className='flex responsiveTextTable font-medium whitespace-nowrap text-[var(--chathams-blue)]' > {getTtl('PurchaseInv', ln)}#</p>
                                             <input type='text' className="number-separator input h-7 shadow-lg responsiveTextTable" name='inv'
                                                 value={x.inv} onChange={e => handleValue(e, x)} />
                                         </div>
                                         <div className=''>
-                                            <p className='flex responsiveTextTable font-medium whitespace-nowrap text-[var(--chathams-blue)]' >{getTtl('InvoiceValue', ln)}:</p>
+                                            <p className='flex responsiveTextTable font-medium whitespace-nowrap text-[var(--chathams-blue)]' >{getTtl('InvoiceValue', ln)}</p>
                                             <input type='text' className="number-separator input h-7 shadow-lg responsiveTextTable" name='invValue'
                                                 value={addComma(x.invValue, true)} onChange={e => handleValue(e, x)} />
                                         </div>
@@ -443,7 +443,7 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowStockModal }) => {
                                                 value={addComma(x.pmnt || 0, true, 'total')} disabled />
                                         </div>
                                         <div className=''>
-                                            <p className='flex responsiveTextTable font-medium whitespace-nowrap text-[var(--chathams-blue)]' >{getTtl('Balance', ln)}:</p>
+                                            <p className='flex responsiveTextTable font-medium whitespace-nowrap text-[var(--chathams-blue)]' >{getTtl('Balance', ln)}</p>
                                             <div className='flex pr-3'>
                                                 <input type='text' disabled className="number-separator input border-slate-300 h-7 responsiveTextTable" name='blnc'
                                                     style={{ color: Number(x.blnc) > 0 ? 'var(--bad-text)' : undefined }}
@@ -457,7 +457,7 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowStockModal }) => {
                                             </div>
                                         </div>
                                         <div className=''>
-                                            <p className='flex responsiveTextTable font-medium whitespace-nowrap text-[var(--chathams-blue)]'>Draft:</p>
+                                            <p className='flex responsiveTextTable font-medium whitespace-nowrap text-[var(--chathams-blue)]'>Draft</p>
                                             <label className='flex items-center gap-1.5 h-7 cursor-pointer' title='Draft — keep this purchase invoice off the Cashflow'>
                                                 <input type='checkbox' checked={!!x.draft} onChange={() => toggleDraft(x)} className='w-4 h-4 accent-[var(--endeavour)]' />
                                                 <span className='responsiveTextTable' style={{ color: x.draft ? 'var(--warn-text)' : 'var(--regent-gray)' }}>{x.draft ? 'Hidden from Cashflow' : 'On Cashflow'}</span>
@@ -477,10 +477,10 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowStockModal }) => {
                                     return (
                                         <div key={k}>
                                             <div className='p-1 pl-28 flex items-center gap-6 flex-wrap'>
-                                                <p className='responsiveTextTable text-[var(--regent-gray)]'>Payment #{k + 1}:</p>
+                                                <p className='responsiveTextTable text-[var(--regent-gray)]'>Payment #{k + 1}</p>
 
                                                 <div className='md:max-w-36 pt-2 md:pt-0'>
-                                                    <p className='flex responsiveTextTable font-medium whitespace-nowrap text-[var(--chathams-blue)]' >{getTtl('Payment Date', ln)}:</p>
+                                                    <p className='flex responsiveTextTable font-medium whitespace-nowrap text-[var(--chathams-blue)]' >{getTtl('Payment Date', ln)}</p>
                                                     <div className='flex flex-col'>
                                                         <Datepicker useRange={false}
                                                             asSingle={true}
@@ -494,7 +494,7 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowStockModal }) => {
                                                 </div>
 
                                                 <div className=''>
-                                                    <p className='flex responsiveTextTable font-medium whitespace-nowrap text-[var(--chathams-blue)]' >Payment %:</p>
+                                                    <p className='flex responsiveTextTable font-medium whitespace-nowrap text-[var(--chathams-blue)]' >Payment %</p>
                                                     <div className='flex'>
                                                         <input type='text' className="number-separator input h-7  shadow-lg responsiveTextTable w-20" name='pmntPerc'
                                                             value={y.pmntPerc} onChange={e => handleValuePerc(e, x, y)} />

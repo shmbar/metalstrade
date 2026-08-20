@@ -75,6 +75,7 @@ const Cashflow = () => {
     const { valueExp, setValueExp, isOpen, setIsOpen } = useContext(ExpensesContext);
     const { blankInvoice } = useContext(InvoiceContext);
     const [invPreview, setInvPreview] = useState(null);
+    const [nameQ, setNameQ] = useState('');
     const openInvModal = (z, type) => {
         const supplierName = type === 'supplier'
             ? settings.Supplier?.Supplier?.find(s => s.id === z.supplier)?.nname
@@ -122,6 +123,20 @@ const Cashflow = () => {
     const [expensesAll, setExpensesAll] = useState([])
     const [financedRight, setFinancedRight] = useState([])
     const [totalRight, setTotalRight] = useState('')
+
+    /* Rows across all eight sections key off either x.client or x.supplier, so one
+       resolver covers them. Returns the array untouched when the box is empty, so an
+       unused search costs nothing. */
+    const rowName = (x) =>
+        x?.supplierName ||
+        settings?.Client?.Client?.find(z => z.id === x?.client)?.nname ||
+        settings?.Supplier?.Supplier?.find(z => z.id === x?.supplier)?.nname ||
+        settings?.Stocks?.Stocks?.find(z => z.id === x?.stock)?.nname || '';
+    const byName = (arr) => {
+        const t = nameQ.trim().toLowerCase();
+        if (!t) return arr || [];
+        return (arr || []).filter(x => rowName(x).toLowerCase().includes(t));
+    };
 
     const [stocksSort, setStocksSort] = useState(true)
     const [stocksSort1, setStocksSort1] = useState(true)
@@ -1147,6 +1162,22 @@ const Cashflow = () => {
                                     <p className="responsiveTextInput text-[var(--ink-muted)] mt-0.5">Cash position across stocks, clients, suppliers & expenses</p>
                                 </div>
                                 <div className="flex items-center gap-2 group">
+                                    {/* A find tool, not a scope: totalLeft/totalRight are computed from the
+                                        full period and deliberately do NOT move with this box, so the cash
+                                        position stays honest while you look someone up. Said out loud below,
+                                        because "filter" would otherwise imply the totals had narrowed too. */}
+                                    <input
+                                        value={nameQ}
+                                        onChange={(e) => setNameQ(e.target.value)}
+                                        placeholder="Find a client, supplier or stock"
+                                        className="input h-8"
+                                        style={{ width: 210 }}
+                                    />
+                                    {nameQ.trim() && (
+                                        <span className="responsiveTextTable text-[var(--ink-muted)] whitespace-nowrap">
+                                            rows only — totals cover the full period
+                                        </span>
+                                    )}
                                     <Tltip direction='bottom' tltpText='Export the current cashflow tables to Excel'>
                                         <button
                                             type="button"
@@ -1198,7 +1229,7 @@ const Cashflow = () => {
                                         <div className="text-[var(--ink-muted)] responsiveText py-4 text-center">No unsold stocks</div>
                                     ) : (
                                         <>
-                                            {stockDataNoSold.map((x, i) => (
+                                            {byName(stockDataNoSold).map((x, i) => (
                                                 <div className="bg-[var(--bg-card)] py-0.5 px-0 rounded-2xl hover:bg-[var(--bg-subtle)] transition-colors" key={i}>
                                                     <MyAccordion title={
                                                         <div className="flex w-full justify-between">
@@ -1292,7 +1323,7 @@ const Cashflow = () => {
                                                         {stocksSortName ? <FaSortAmountDown className="scale-[0.9] text-[var(--ink-muted)] hover:text-[var(--ink)] cursor-pointer" onClick={() => sortStocksName()} /> : <FaSortAmountUpAlt className="scale-[0.9] text-[var(--ink-muted)] hover:text-[var(--ink)] cursor-pointer" onClick={() => sortStocksName()} />}
                                                         {stocksSort ? <FaSortAmountDown className="scale-[0.9] text-[var(--ink-muted)] hover:text-[var(--ink)] cursor-pointer" onClick={() => sortStocks()} /> : <FaSortAmountUpAlt className="scale-[0.9] text-[var(--ink-muted)] hover:text-[var(--ink)] cursor-pointer" onClick={() => sortStocks()} />}
                                                     </SectionHeader>
-                                                    {stockData1.map((x, i) => {
+                                                    {byName(stockData1).map((x, i) => {
                                                         return (
                                                             <div className="bg-[var(--bg-card)] py-0.5 px-0 rounded-2xl hover:bg-[var(--bg-subtle)] transition-colors" key={i}>
                                                                 <MyAccordion title={
@@ -1354,7 +1385,7 @@ const Cashflow = () => {
                                                         {stocksSort1 ? <FaSortAmountDown className="scale-[0.9] text-[var(--ink-muted)] hover:text-[var(--ink)] cursor-pointer" onClick={() => sortStocks1()} /> : <FaSortAmountUpAlt className="scale-[0.9] text-[var(--ink-muted)] hover:text-[var(--ink)] cursor-pointer" onClick={() => sortStocks1()} />}
                                                     </SectionHeader>
 
-                                                    {stockData2.map((x, i) => {
+                                                    {byName(stockData2).map((x, i) => {
                                                         return (
                                                             <div className="bg-[var(--bg-card)] py-0.5 px-0 rounded-2xl hover:bg-[var(--bg-subtle)] transition-colors" key={i}>
                                                                 <MyAccordion title={
@@ -1445,7 +1476,7 @@ const Cashflow = () => {
                                                         </div>
                                                     </div>
 
-                                                    {clientInvoices2.map((x, i) => {
+                                                    {byName(clientInvoices2).map((x, i) => {
                                                         return (
                                                             <div className="bg-[var(--surface-card)] py-0.5 px-0 hover:bg-[var(--surface-header)] transition-colors" key={i}>
                                                                 <MyAccordion title={
@@ -1502,7 +1533,7 @@ const Cashflow = () => {
                                                         {clientSort ? <FaSortAmountDown className="scale-[0.9] text-[var(--ink-muted)] hover:text-[var(--ink)] cursor-pointer" onClick={() => sortClients(0)} /> : <FaSortAmountUpAlt className="scale-[0.9] text-[var(--ink-muted)] hover:text-[var(--ink)] cursor-pointer" onClick={() => sortClients(0)} />}
                                                     </SectionHeader>
 
-                                                    {clientInvoices1.map((x, i) => {
+                                                    {byName(clientInvoices1).map((x, i) => {
                                                         return (
                                                             <div className="bg-[var(--bg-card)] py-0.5 px-0 rounded-2xl hover:bg-[var(--bg-subtle)] transition-colors" key={i}>
                                                                 <MyAccordion title={
@@ -1620,7 +1651,7 @@ const Cashflow = () => {
 
 
 
-                                                    {supPayments2.map((x, i) => {
+                                                    {byName(supPayments2).map((x, i) => {
                                                         return (
                                                             <div className="bg-[var(--bg-card)] py-0.5 px-0 rounded-2xl hover:bg-[var(--bg-subtle)] transition-colors" key={i}>
                                                                 <MyAccordion title={
@@ -1680,7 +1711,7 @@ const Cashflow = () => {
 
 
 
-                                                    {supPayments1.map((x, i) => {
+                                                    {byName(supPayments1).map((x, i) => {
                                                         return (
                                                             <div className="bg-[var(--bg-card)] py-0.5 px-0 rounded-2xl hover:bg-[var(--bg-subtle)] transition-colors" key={i}>
                                                                 <MyAccordion title={
@@ -1737,7 +1768,7 @@ const Cashflow = () => {
                                                         {expensesSort ? <FaSortAmountDown className="scale-[0.9] text-[var(--ink-muted)] hover:text-[var(--ink)] cursor-pointer" onClick={() => sortExpenses()} /> : <FaSortAmountUpAlt className="scale-[0.9] text-[var(--ink-muted)] hover:text-[var(--ink)] cursor-pointer" onClick={() => sortExpenses()} />}
                                                     </SectionHeader>
 
-                                                    {expenses.map((x, i) => {
+                                                    {byName(expenses).map((x, i) => {
                                                         return (
                                                             <div className="bg-[var(--bg-card)] py-0.5 px-0 rounded-2xl hover:bg-[var(--bg-subtle)] transition-colors" key={i}>
                                                                 <MyAccordion title={

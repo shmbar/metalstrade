@@ -58,7 +58,7 @@ const PriceRemarks = ({ value, setValue }) => {
     return (
         <div className={"w-full"}>
             <div className='flex items-center justify-between'>
-                <p className='flex items-center responsiveText font-medium pl-2'>{getTtl('PriceFormula', ln)}:</p>
+                <p className='flex items-center responsiveText font-medium pl-2'>{getTtl('PriceFormula', ln)}</p>
 
                 <div className='group relative '>
                     <Button className="h-7 px-2"
