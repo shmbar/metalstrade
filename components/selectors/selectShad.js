@@ -118,7 +118,7 @@ export function Selector({ arr, value, onChange, name, clear, disabled, secondar
                         )
                     })}
                     {searchable && shown.length === 0 && (
-                        <div className="px-3 py-2 responsiveText text-[var(--regent-gray)]">No matches</div>
+                        <div className="px-3 py-2 responsiveTextInput text-[var(--regent-gray)]">No matches</div>
                     )}
                 </SelectGroup>
             </SelectContent>

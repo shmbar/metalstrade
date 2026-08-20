@@ -20,7 +20,7 @@ import { sortArr } from '../utils/utils';
    colour passed via classes2 lands on the same element as the hardcoded one and
    which wins is decided by Tailwind's output order, not by the caller. */
 const MyCombobox = ({ data, setValue, value, name, classes, disabled, classes1, classes2, dis,
-    sizeClass = 'responsiveText', toneClass = 'text-[var(--endeavour)]' }) => {
+    sizeClass = 'responsiveTextInput', toneClass = 'text-[var(--endeavour)]' }) => {
 
     const newArr = [{ id: '00000', [name]: 'Select' }, ...sortArr(data.filter(x => !x.deleted), name)]
 
@@ -96,9 +96,9 @@ const MyCombobox = ({ data, setValue, value, name, classes, disabled, classes1, 
             <Combobox by="id" value={selected} onChange={(e) => setSelection(e)} disabled={disabled} >
                 <div className="relative my-1">
                     <div className={`relative w-full cursor-default overflow-hidden rounded-full bg-[var(--bg-card)] text-left
-                     focus:outline-none responsiveText border border-[var(--line)] hover:border-[var(--endeavour)] transition-colors h-8 ${classes}`}>
+                     focus:outline-none responsiveTextInput border border-[var(--line)] hover:border-[var(--endeavour)] transition-colors h-8 ${classes}`}>
                         <ComboboxInput
-                            className={`w-full py-2 pl-3 pr-10 responsiveText ${classes2} leading-5 ${toneClass} focus:outline-none`}
+                            className={`w-full py-2 pl-3 pr-10 responsiveTextInput ${classes2} leading-5 ${toneClass} focus:outline-none`}
                             style={{ fontSize: 'inherit' }}
                             displayValue={(value) => (data.find(y => y.id === value[name]) || {})[name] || value[name]}
                             onChange={(event) => setQuery(event.target.value)}
@@ -129,10 +129,10 @@ const MyCombobox = ({ data, setValue, value, name, classes, disabled, classes1, 
                       
                         <ComboboxOptions anchor="bottom" className={`absolute left-0 z-dropdown w-[var(--input-width)]
                         [--anchor-gap:var(--spacing-1)] empty:hidden
-                        mt-1 max-h-60 rounded-2xl bg-[var(--bg-card)] py-1 responsiveText shadow-lg border border-[var(--bg-subtle)] focus:outline-none
+                        mt-1 max-h-60 rounded-2xl bg-[var(--bg-card)] py-1 responsiveTextInput shadow-lg border border-[var(--bg-subtle)] focus:outline-none
                         ${classes1} dropDownHeight`}>
                             {filteredData.length === 0 && query !== '' ? (
-                                <div className="relative cursor-default select-none py-2 px-4 text-[var(--regent-gray)] responsiveText">
+                                <div className="relative cursor-default select-none py-2 px-4 text-[var(--regent-gray)] responsiveTextInput">
                                     Nothing found.
                                 </div>
                             ) : (
@@ -140,7 +140,7 @@ const MyCombobox = ({ data, setValue, value, name, classes, disabled, classes1, 
                                     <ComboboxOption
                                         key={x.id}
                                         className={({ active }) =>
-                                            `relative cursor-default select-none py-1 responsiveText ${classes2} pl-10 pr-4 ${active ? 'bg-[var(--bg-subtle)] text-[var(--endeavour)]' : 'text-[var(--port-gore)]'}
+                                            `relative cursor-default select-none py-1 responsiveTextInput ${classes2} pl-10 pr-4 ${active ? 'bg-[var(--bg-subtle)] text-[var(--endeavour)]' : 'text-[var(--port-gore)]'}
                                             `
                                         }
                                         value={x}
