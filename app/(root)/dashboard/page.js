@@ -1141,6 +1141,7 @@ const Dash = () => {
   const invoiceRevAgg = useMemo(() => {
     const byMonth = Object.fromEntries(Array.from({ length: 12 }, (_, i) => [i + 1, 0]));
     let total = 0;
+    let missingInvRate = 0;
     const start = dateSelect?.start, end = dateSelect?.end;
     if (!Array.isArray(rawRecvInvoices) || !settings?.Currency?.Currency || !start || !end) {
       return { byMonth, total };
@@ -1167,12 +1168,13 @@ const Dash = () => {
       const curId = !inv.final ? inv.cur : settings.Currency.Currency.find(x => x.cur === inv.cur?.cur)?.id;
       const rate = parseFloat(inv.euroToUSD);
       const mult = companyRate > 0 ? companyRate : (rate > 0 ? rate : 1);
+      if (curId !== 'us' && !(companyRate > 0) && !(rate > 0)) missingInvRate++;
       const usd = curId === 'us' ? amt : amt * mult;
       const d = !inv.final ? inv.dateRange.startDate : inv.date;
       const m = Number(String(d).substring(5, 7));
       if (m >= 1 && m <= 12) { byMonth[m] += usd; total += usd; }
     }));
-    return { byMonth, total };
+    return { byMonth, total, missingInvRate };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [rawRecvInvoices, settings, companyRate, dateSelect, fClient, fSupplier, fMaterial, fCurrency, fOrigin, fDelTerm, filteredContracts]);
 
@@ -1272,17 +1274,19 @@ const Dash = () => {
   const companyExpAgg = useMemo(() => {
     const byMonth = Object.fromEntries(Array.from({ length: 12 }, (_, i) => [i + 1, 0]));
     let total = 0;
+    let missingCoRate = 0;
     (rawCompanyExpenses || []).forEach(r => {
       const amt = parseFloat(r?.amount);
       if (!Number.isFinite(amt)) return;
       const rate = parseFloat(r?.euroToUSD);
       const mult = companyRate > 0 ? companyRate : (rate > 0 ? rate : 1);
       const usd = r?.cur === 'us' ? amt : amt * mult;
+      if (r?.cur !== 'us' && !(companyRate > 0) && !(rate > 0)) missingCoRate++;
       total += usd;
       const m = Number(String(r?.date || '').substring(5, 7));
       if (m >= 1 && m <= 12) byMonth[m] += usd;
     });
-    return { total, byMonth, count: (rawCompanyExpenses || []).length };
+    return { total, byMonth, missingCoRate, count: (rawCompanyExpenses || []).length };
   }, [rawCompanyExpenses, companyRate]);
 
   /* totalPL is revenue − cost of sold − contract expenses, i.e. BEFORE overheads.
@@ -1607,11 +1611,15 @@ const Dash = () => {
           </m.div>
 
           {/* FX data-gap warning — a missing rate is counted at 1:1, not silently zeroed */}
-          {missingRate > 0 && (
+          {(missingRate > 0 || companyExpAgg.missingCoRate > 0 || invoiceRevAgg.missingInvRate > 0) && (
             <div className="mb-4 flex items-center gap-2 rounded-2xl px-3 py-2" style={{ background: 'var(--warn-bg)', border: '1px solid var(--warn-border)' }}>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" className="flex-shrink-0" style={{ color: 'var(--warn-text)' }}><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" /><path d="M12 9v4m0 4h.01" stroke="currentColor" strokeWidth="2" strokeLinecap="round" /></svg>
               <span className="responsiveTextTable" style={{ color: 'var(--warn-text)' }}>
-                {missingRate} EUR contract{missingRate === 1 ? '' : 's'} missing an FX rate — counted at 1:1, so USD totals may be understated. Set the EUR→USD rate on those contracts for accurate figures.
+                {[
+                  missingRate > 0 && `${missingRate} EUR contract${missingRate === 1 ? '' : 's'}`,
+                  companyExpAgg.missingCoRate > 0 && `${companyExpAgg.missingCoRate} EUR company expense${companyExpAgg.missingCoRate === 1 ? '' : 's'}`,
+                  invoiceRevAgg.missingInvRate > 0 && `${invoiceRevAgg.missingInvRate} EUR sales invoice${invoiceRevAgg.missingInvRate === 1 ? '' : 's'}`,
+                ].filter(Boolean).join(' and ')} missing an FX rate — counted at 1:1, so USD totals may be understated. Set the company EUR→USD rate in Settings, or a rate on each record, for accurate figures.
               </span>
             </div>
           )}
