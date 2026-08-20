@@ -1664,6 +1664,18 @@ div.relative.w-full.text-gray-700 > div.absolute.z-10:not(.right-0) > div.absolu
   font-weight: 500;
 }
 
+/* The button band, in one place. .blackButton and friends declare this same 0.75rem
+   above; ui/button.jsx (the shadcn primitive, used in 19 files) was on the caption
+   rung instead — 10px against their 12px — so the app had two button sizes depending
+   on which one a screen happened to use. Both must stay in step.
+
+   NOT named text-*: tailwind-merge reads any text-<word> as a text-COLOUR utility, so
+   a class called .text-button was dropped from cn() the moment a variant set
+   text-[var(--on-brand)] — the button then fell back to the inherited 16px. */
+.button-band {
+  font-size: 0.75rem; /* 12px fixed — matches .blackButton / .whiteButton */
+}
+
 .tnum {
   font-variant-numeric: tabular-nums;
 }
