@@ -33,7 +33,7 @@ const newContract = {
     dateRange: { startDate: null, endDate: null }, date: '', supplier: '',
     shpType: '', origin: '', delTerm: '', pol: '', pod: '', packing: '', contType: '',
     size: '', deltime: '', cur: '', qTypeTable: '', remarks: [], priceRemarks: [], invoices: [], expenses: [],
-    productsData: [], termPmnt: '',
+    productsData: [], termPmnt: '', priceMode: 'unit',
     conStatus: '', poInvoices: [], comments: '', stock: []
 }
 

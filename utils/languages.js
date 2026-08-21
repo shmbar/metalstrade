@@ -169,6 +169,7 @@ const TitlesArr = [
 
     { 'Description': ['Description', 'Материал'] },
     { 'UnitPrice': ['Unit Price', 'Цена единицы'] },
+    { 'PricePerContent': ['Price per content', 'Цена за содержание'] },
     { 'PurchaseInv': ['Purchase Inv', 'Покупка Счет'] },
     { 'InvoiceValue': ['Invoice Value', 'Стоимость счета'] },
     { 'Payment': ['Payment', 'Оплата'] },

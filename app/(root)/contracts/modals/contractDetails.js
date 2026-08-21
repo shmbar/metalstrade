@@ -56,12 +56,15 @@ const ContractModal = () => {
 				const number = values[1];
 				const number1 = values[2];
 				const formattedNumber = new Intl.NumberFormat('en-US', { minimumFractionDigits: 3 }).format(number);
-				const formattedNumber1 = isNaN(number1 * 1) ? number1 :
-					new Intl.NumberFormat('en-US', {
-						style: 'currency',
-						currency: valueCon.cur !== '' ? getD(settings.Currency.Currency, valueCon, 'cur') : 'USD',
-						minimumFractionDigits: 2
-					}).format(number1);
+				// Priced on element content: the PO defers to the Price Remarks printed below the
+				// table instead of quoting a per-unit figure. Stored prices are left alone.
+				const formattedNumber1 = valueCon.priceMode === 'content' ? 'See below*' :
+					isNaN(number1 * 1) ? number1 :
+						new Intl.NumberFormat('en-US', {
+							style: 'currency',
+							currency: valueCon.cur !== '' ? getD(settings.Currency.Currency, valueCon, 'cur') : 'USD',
+							minimumFractionDigits: 2
+						}).format(number1);
 				return [index + 1, values[0], formattedNumber, formattedNumber1];
 			});
 

@@ -339,12 +339,29 @@ const useInvoiceState = () => {
 
                 //save data again, to keep invoice integer and not string
                 let valCon1 = await loadInvoice(uidCollection, 'contracts', tmpValue.poSupplier)
-                let tmpArr1 = valCon1.invoices.map((k) => (k.id === tmpValue.id ?
-                    {
-                        ...k, invoice: k.invoice * 1
-                    } : k));
-                let tmpObj = { ...valCon1, invoices: tmpArr1 }
-                await saveData(uidCollection, 'contracts', tmpObj)
+                // The contract may be gone (a PO deleted while its invoice still points at it).
+                // That must not abort the invoice's own save further down.
+                if (valCon1?.id) {
+                    const invsCon = Array.isArray(valCon1.invoices) ? valCon1.invoices : [];
+                    let tmpArr1 = invsCon.map((k) => (k.id === tmpValue.id ?
+                        {
+                            ...k, invoice: k.invoice * 1
+                        } : k));
+                    // Upsert, not just update: the PO→invoice back-link is a second copy of
+                    // the link that only invoice.poSupplier holds authoritatively. A plain
+                    // .map() silently no-ops when the entry is missing, so a contract that
+                    // ever lost the entry could never regain it — the invoice opened fine from
+                    // the Invoices side while the PO showed no invoices at all. Appending here
+                    // makes every save self-heal that drift.
+                    if (!invsCon.some((k) => k.id === tmpValue.id)) {
+                        tmpArr1 = [...tmpArr1, {
+                            id: tmpValue.id, invoice: tmpValue.invoice * 1,
+                            date: tmpValue.dateRange.startDate, invType: tmpValue.invType,
+                        }];
+                    }
+                    let tmpObj = { ...valCon1, invoices: tmpArr1 }
+                    await saveData(uidCollection, 'contracts', tmpObj)
+                }
                 ///////////////////
 
                 //save Stock

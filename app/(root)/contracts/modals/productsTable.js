@@ -21,6 +21,11 @@ const KG_PER_MT = 1000;         // 1 metric tonne = 1000 kg
 // 1 MT expressed in each unit (weight). Used as a common pivot for unit<->unit conversion.
 const W_FACTOR = { mt: 1, kg: KG_PER_MT, lb: LB_PER_MT };
 const UNIT_LABEL = { mt: 'MT', kg: 'KGS', lb: 'LB' };
+// Contracts priced on element content (Ni/Cr/Mo) have no single unit price to print, so the
+// column defers to the Price Remarks block that prints right under the table on the PO PDF.
+// Display-only, exactly like the unit/currency overlay above: unitPrc keeps its stored number
+// so margins, derived invoices and stock are untouched, and switching back reveals it again.
+const SEE_BELOW = 'See below*';
 // Display decimals per weight unit (kg/lb numbers are larger, so fewer decimals).
 const Q_DEC = { mt: 3, kg: 1, lb: 1 };
 
@@ -254,13 +259,33 @@ const ProductsTable = ({ value, setValue, currency, quantityTable, setShowPoInvM
     }
 
     const checkIfAlllowed = () => value.id !== ''
+    // Pricing basis for this PO. Absent on every contract written before this existed, so the
+    // unit-price default has to come from the falsy case rather than from a stored value.
+    const priceMode = value.priceMode === 'content' ? 'content' : 'unit';
+    const perContent = priceMode === 'content';
     //overflow-x-auto
 
     return (
         <div className="w-full justify-center flex">
             <div className="flex flex-col w-full">
-                <div className="flex items-center justify-end gap-3 mb-1.5 responsiveTextTable flex-wrap">
-                    <span className="text-[var(--regent-gray)] font-medium">View in:</span>
+                <div className="flex items-center gap-3 mb-1.5 responsiveTextTable flex-wrap">
+                    <span className="text-[var(--regent-gray)] font-medium">{getTtl('Price', ln)}:</span>
+                    <div className="inline-flex rounded-lg border border-[var(--line-strong)] overflow-hidden">
+                        {[['unit', getTtl('UnitPrice', ln)], ['content', getTtl('PricePerContent', ln)]].map(([m, label]) => (
+                            <button key={m} type="button" onClick={() => setValue({ ...value, priceMode: m })}
+                                className={`px-2.5 py-0.5 font-semibold transition-colors border-l first:border-l-0 border-[var(--line-strong)] ${priceMode === m ? 'bg-[var(--endeavour)] text-[var(--on-brand)]' : 'bg-[var(--bg-subtle)] text-[var(--chathams-blue)] hover:bg-[var(--bg-subtle)]'}`}>
+                                {label}
+                            </button>
+                        ))}
+                    </div>
+                    {perContent && (
+                        <Tltip direction='right' tltpText={`The Unit Price column prints as "${SEE_BELOW}" on the PO — spell the actual basis out in Price Remarks, which print directly below the table. Your entered prices are kept, not erased: switch back to Unit price and they reappear.`}>
+                            <span className="text-[var(--endeavour)] font-semibold cursor-help whitespace-nowrap">
+                                prints as &ldquo;{SEE_BELOW}&rdquo; · set the basis in Price Remarks
+                            </span>
+                        </Tltip>
+                    )}
+                    <span className="ml-auto text-[var(--regent-gray)] font-medium">View in:</span>
                     <div className="inline-flex rounded-lg border border-[var(--line-strong)] overflow-hidden">
                         {['mt', 'kg', 'lb'].map((u) => (
                             <button key={u} type="button" onClick={() => setViewUnit(u)}
@@ -379,17 +404,22 @@ const ProductsTable = ({ value, setValue, currency, quantityTable, setShowPoInvM
                                                                     {value1}</span>
                                                             </div>
                                                         ) : key === 'unitPrc' ?
-                                                            isNaN(obj[key] * 1) ?
-                                                                obj[key] :
-                                                                <NumericFormat
-                                                                    value={toDispPrice(obj[key])}
-                                                                    displayType="text"
-                                                                    thousandSeparator
-                                                                    allowNegative={false}
-                                                                    prefix={viewSymbol}
-                                                                    decimalScale='2'
-                                                                    fixedDecimalScale
-                                                                />
+                                                            // Mode wins over a hand-typed price: POs that predate this were given
+                                                            // text like "$2,200*" by hand, and switching to Price per content is
+                                                            // how those get migrated onto the real setting.
+                                                            perContent ?
+                                                                <span className="text-[var(--ink-secondary)] font-medium">{SEE_BELOW}</span> :
+                                                                isNaN(obj[key] * 1) ?
+                                                                    obj[key] :
+                                                                    <NumericFormat
+                                                                        value={toDispPrice(obj[key])}
+                                                                        displayType="text"
+                                                                        thousandSeparator
+                                                                        allowNegative={false}
+                                                                        prefix={viewSymbol}
+                                                                        decimalScale='2'
+                                                                        fixedDecimalScale
+                                                                    />
                                                             : key === 'qnty' ? (
                                                                 <NumericFormat
                                                                     value={toDispQnty(obj[key])}
