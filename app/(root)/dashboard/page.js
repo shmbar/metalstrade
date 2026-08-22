@@ -846,14 +846,18 @@ function UnsoldStockCard({ value = 0, mt = 0 }) {
     >
       <div className="p-4 flex flex-col gap-2 h-full">
         <div className="flex items-center gap-2">
-          <span className="inline-flex items-center justify-center rounded-lg flex-shrink-0" style={{ background: 'color-mix(in srgb, var(--warn-text) 10%, transparent)', color: 'var(--warn-text)', width: 30, height: 30 }}>
+          {/* Neutral, not caution. The card's own copy says "not a cost" and
+              "excluded from profit" — this is parked capital, an informational
+              state, and painting it ochre made the dashboard's largest warm
+              block out of something that isn't a warning at all. */}
+          <span className="inline-flex items-center justify-center rounded-lg flex-shrink-0" style={{ background: 'color-mix(in srgb, var(--neutral-text) 10%, transparent)', color: 'var(--neutral-text)', width: 30, height: 30 }}>
             <svg width="16" height="16" fill="none" viewBox="0 0 24 24"><path d="M3 7l9-4 9 4-9 4-9-4z" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" /><path d="M3 7v10l9 4 9-4V7" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" /></svg>
           </span>
           <span className="responsiveTextTable font-medium text-[var(--regent-gray)] leading-tight">Unsold Stock · not a cost</span>
         </div>
         <div className="font-semibold text-[var(--port-gore)] leading-none mt-1" style={{ fontSize: 'var(--fs-stat)', fontFamily: 'var(--font-jakarta), Manrope, sans-serif', fontVariantNumeric: 'tabular-nums' }}>{fmtAutoKM(value)}</div>
-        <div className="rounded-lg p-2.5 mt-auto" style={{ backgroundColor: 'var(--warn-bg)', boxShadow: 'inset 0 0 0 1px var(--warn-border)' }}>
-          <div className="font-semibold leading-none" style={{ color: 'var(--warn-text)', fontSize: 'var(--fs-substat)', fontFamily: 'var(--font-jakarta), Manrope, sans-serif', fontVariantNumeric: 'tabular-nums' }}>{fmtMT(mt)}</div>
+        <div className="rounded-lg p-2.5 mt-auto" style={{ backgroundColor: 'var(--neutral-bg)', boxShadow: 'inset 0 0 0 1px var(--neutral-border)' }}>
+          <div className="font-semibold leading-none" style={{ color: 'var(--neutral-text)', fontSize: 'var(--fs-substat)', fontFamily: 'var(--font-jakarta), Manrope, sans-serif', fontVariantNumeric: 'tabular-nums' }}>{fmtMT(mt)}</div>
           <div className="responsiveTextTableTitle text-[var(--regent-gray)] mt-1">in stock · capital tied up, excluded from profit</div>
         </div>
       </div>
@@ -1469,17 +1473,23 @@ const Dash = () => {
      overhead slice is new: without it the arcs did not sum to revenue and the profit
      slice was labelled "Net" while still being gross of overheads. */
   const profitForArc = Math.max(Number(netProfit) || 0, 0);
+  /* The first three slices are all COST. They used to be three unrelated hues
+     (lifted brand, plum, ochre), which made the donut read as four peer
+     categories rather than "what it cost" against "what's left". They are now
+     three steps of the brand ramp, so the violet mass IS the cost and the green
+     arc is the profit. That also retires the last decorative use of --warn-text
+     on this page: Company Expenses is a category, not a caution state.
+     Side effect worth noting — the legend below used --brand for slice 1 while
+     the canvas drew --primary-bright, so the dot never matched its wedge. Both
+     now read from this one array. */
+  const costRamp = brandRamp(3);
   const donutData = {
     labels: ['Cost of Goods Sold', 'Contract Expenses', 'Company Expenses', 'Net Profit'],
     datasets: [{
       data: [cogs, totalExpenses, companyExpAgg.total, profitForArc],
       // Canvas cannot parse var() — every colour here must be resolved first.
-      backgroundColor: [
-        cssVar('--primary-bright', '#2563eb'),
-        cssVar('--pink-text', '#db2777'),
-        cssVar('--warn-text', '#b45309'),
-        cssVar('--ok-text', '#16a34a'),
-      ],
+      // brandRamp already returns resolved hex, so only --ok-text needs cssVar.
+      backgroundColor: [...costRamp, cssVar('--ok-text', '#16a34a')],
       borderColor: cssVar('--on-brand', '#ffffff'),
       borderWidth: 2,
       hoverOffset: 6,
@@ -1514,9 +1524,9 @@ const Dash = () => {
   };
 
   const donutLegend = [
-    { label: 'Cost of Goods Sold', value: cogs, color: 'var(--brand)' },
-    { label: 'Contract Expenses', value: totalExpenses, color: 'var(--pink-text)' },
-    { label: 'Company Expenses', value: companyExpAgg.total, color: 'var(--warn-text)' },
+    { label: 'Cost of Goods Sold', value: cogs, color: costRamp[0] },
+    { label: 'Contract Expenses', value: totalExpenses, color: costRamp[1] },
+    { label: 'Company Expenses', value: companyExpAgg.total, color: costRamp[2] },
     { label: 'Net Profit', value: netProfit, color: 'var(--ok-text)' },
   ];
 
@@ -1790,7 +1800,11 @@ const Dash = () => {
               info="Gross profit divided by tonnage shipped — profit per MT actually sold, not per MT purchased."
               value={fmtAutoKM(avgProfitPerMT)}
               chartData={dataPL}
-              accent="var(--warn-text)"
+              /* Was --warn-text, which said "caution" about a profit figure.
+                 Teal sits next to --ok-text without repeating it: Sales Revenue
+                 above is the green one, and this row now reads money-in (green /
+                 teal), money-out (red), volume (violet). */
+              accent="var(--teal-text)"
               icon={<svg width="16" height="16" fill="none" viewBox="0 0 24 24"><path d="M3 17l4-4 4 4 4-8 4 4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>}
             />
           </div>

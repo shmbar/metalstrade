@@ -86,8 +86,11 @@ const DARK_STATUS = {
   'ok-text': '#74B896', 'ok-strong': '#9CCFB4',                 /* 7.4:1 */
   'danger-soft': '#241819', 'danger-bg': '#2E1D1E', 'danger-border': '#4E3032',
   'danger-text': '#DE8A88', 'danger-strong': '#EDACA9',         /* 6.6:1 */
-  'warn-soft': '#201D14', 'warn-bg': '#272317', 'warn-border': '#423C24',
-  'warn-text': '#D4BA7C', 'warn-strong': '#E3D2A6',             /* 9.1:1 */
+  /* Hue moved 43° → 34° in step with the light re-cut in globals.css, lightness
+     held. Dark mode never looked muddy — a light gold reads as gold — so this is
+     only here to keep the family one hue across both modes. */
+  'warn-soft': '#1F1A14', 'warn-bg': '#272017', 'warn-border': '#423524',
+  'warn-text': '#D5B17B', 'warn-strong': '#E5CBA4',             /* 8.5:1 */
   /* The violet family is the brand family — keep it in step with --brand dark. */
   'violet-soft': '#1C1834', 'violet-bg': '#22203E', 'violet-border': '#3D3768',
   'violet-text': '#A99EF5', 'violet-strong': '#C4BCFF',

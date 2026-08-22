@@ -85,12 +85,20 @@
   --danger-strong: #7A2B2D;
   /* Caution — partial / pending / provisional. Ochre, NOT orange: this is the
      family the client named first, and the old #9A6215 on #FDF3E1 was the
-     brightest thing on any screen. --warn-text on --warn-bg = 5.0:1 */
-  --warn-soft: #F8F6F1;
-  --warn-bg: #EFEADD;
-  --warn-border: #D9CFB4;
-  --warn-text: #75612F;
-  --warn-strong: #574719;
+     brightest thing on any screen.
+     Re-cut 2026-08-22, hue 43° → 34°. The muting was right but the hue was not:
+     desaturated yellow is khaki, so the family read as dirt rather than ochre.
+     Yellow is the one hue that cannot be darkened without losing its identity,
+     which is why dark mode — where the same family is a LIGHT gold — never had
+     this problem, and why the fix is hue, not lightness. Lightness is unchanged,
+     so this is NOT a walk back toward the brightness the client capped: the text
+     sits at L 33% / S 52% against that rejected #9A6215's L 34% / S 76%.
+     --warn-text on --warn-bg = 5.2:1 (was 5.0:1) */
+  --warn-soft: #FBF8F4;
+  --warn-bg: #F5EBDB;
+  --warn-border: #E1CBAD;
+  --warn-text: #805A28;
+  --warn-strong: #61421A;
   /* The violet family IS the brand family in this system. */
   --violet-soft: #F6F4FE;
   --violet-bg: #EEEBFC;
