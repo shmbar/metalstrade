@@ -1466,7 +1466,7 @@ const Cashflow = () => {
                                                         <MyAccordion title={
                                                             <div className="flex w-full justify-between">
                                                                 <div className="responsiveText font-medium text-[var(--port-gore)] items-center flex outline-none whitespace-normal break-words min-w-0">
-                                                                    Joint inventory pool · {sharedStock.length} lot{sharedStock.length !== 1 ? 's' : ''}
+                                                                    Shared Inventory · {sharedStock.length} lot{sharedStock.length !== 1 ? 's' : ''}
                                                                 </div>
                                                                 <div className="leading-4 2xl:leading-6">
                                                                     <NumericFormat
