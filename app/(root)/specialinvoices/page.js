@@ -21,6 +21,11 @@ import Modal from '../../../components/modal';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../../components/ui/select';
 import { NameCell } from '../../../components/Avatar';
 
+// Rows of the detail panel that hold an entity NAME, and so get the initial-avatar
+// chip. Keyed by the panel's own label because that panel is built from label/value
+// pairs rather than from the column defs.
+const ENTITY_FIELDS = new Set(['Company', 'Supplier', 'Original supplier']);
+
 // Manual IMS category buckets for Misc Invoices (client request: personal / random / shipments).
 const MISC_CATS = [
     { id: 'personal', label: 'Personal' },
@@ -181,7 +186,7 @@ const SpecialInvoices = () => {
     };
 
     let propDefaults = Object.keys(settings).length === 0 ? [] : [
-        { accessorKey: 'compName', header: 'Company Name', cell: (props) => <p>{props.getValue()}</p> },
+        { accessorKey: 'compName', header: 'Company Name', cell: (props) => <NameCell name={props.getValue()} /> },
         {
             accessorKey: 'date', header: getTtl('Date', ln), cell: (props) => <p>{dateFormat(props.getValue(), 'dd.mm.yy')}</p>,
             meta: {
@@ -354,7 +359,15 @@ const SpecialInvoices = () => {
                                     ].map(([k, v]) => (
                                         <div key={k} className='flex flex-col'>
                                             <span className='uppercase tracking-wide text-[var(--regent-gray)]' style={{ fontSize: 'var(--fs-caption)' }}>{k}</span>
-                                            <span className='text-[var(--port-gore)] font-medium break-words responsiveTextTable'>{(v === 0 ? '0' : v) || '—'}</span>
+                                            {/* The three entity rows carry the same chip their table
+                                                columns do — this panel is the row, opened up. `detail`
+                                                is a formatted row (the table is fed getFormatted), so
+                                                these are resolved names, not ids. */}
+                                            {ENTITY_FIELDS.has(k) && v ? (
+                                                <NameCell name={v} maxWidth={null} className='font-medium' />
+                                            ) : (
+                                                <span className='text-[var(--port-gore)] font-medium break-words responsiveTextTable'>{(v === 0 ? '0' : v) || '—'}</span>
+                                            )}
                                         </div>
                                     ))}
                                 </div>
