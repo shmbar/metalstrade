@@ -3,7 +3,7 @@
 import { NumericFormat } from 'react-number-format';
 import { useRouter } from 'next/navigation';
 import dateFormat from 'dateformat';
-import Avatar from '../../../components/Avatar';
+import { NameCell } from '../../../components/Avatar';
 import Customtable from '../contracts/newTable';
 import MyDetailsModal from './modals/dataModal.js';
 import { SettingsContext } from "../../../contexts/useSettingsContext";
@@ -125,7 +125,7 @@ const SalesContracts = () => {
             { accessorKey: 'contractNo', header: 'Contract #', meta: { excludeFromQuickSum: true } },
             {
                 accessorKey: 'client', header: getTtl('Consignee', ln),
-                cell: (props) => <span>{gQ(props.getValue(), 'Client', 'nname') || gQ(props.getValue(), 'Client', 'client')}</span>,
+                cell: (props) => <NameCell name={gQ(props.getValue(), 'Client', 'nname') || gQ(props.getValue(), 'Client', 'client')} />,
                 meta: { excludeFromQuickSum: true }
             },
             {
@@ -154,16 +154,12 @@ const SalesContracts = () => {
             {
                 id: 'supplier', header: getTtl('Supplier', ln),
                 accessorFn: (c) => poLinkFor(c)?.supplier || '',
-                cell: (props) => {
-                    const name = props.getValue();
-                    if (!name) return <span style={{ color: 'var(--regent-gray)' }}>—</span>;
-                    return (
-                        <span className="inline-flex items-center gap-1.5 max-w-40">
-                            <Avatar name={String(name)} size={18} />
-                            <span className="truncate">{name}</span>
-                        </span>
-                    );
-                },
+                cell: (props) => (
+                    <NameCell
+                        name={props.getValue()}
+                        fallback={<span style={{ color: 'var(--regent-gray)' }}>—</span>}
+                    />
+                ),
                 meta: { excludeFromQuickSum: true },
             },
             {

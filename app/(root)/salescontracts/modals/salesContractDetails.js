@@ -12,6 +12,7 @@ import { validate, ErrDiv, loadData } from '@utils/utils';
 import { getTtl } from '@utils/languages';
 import { Selector } from '@components/selectors/selectShad';
 import Tltip from '@components/tlTip';
+import { NameCell } from '@components/Avatar';
 import Spinner from '@components/spinner';
 import ModalToAction from '@components/modalToProceed';
 import DocumentImportOverlay from '@components/DocumentImportOverlay';
@@ -195,7 +196,9 @@ const SalesContractDetails = () => {
                         <p className="responsiveText text-[var(--ink-muted)] font-medium indent-1">{getTtl('Supplier', ln)}</p>
                         {supplier ? (
                             <>
-                                <p className="pl-1 mt-1 responsiveText font-medium text-[var(--ink)]">{supplier.nname || supplier.supplier}</p>
+                                <p className="pl-1 mt-1 responsiveText font-medium text-[var(--ink)]">
+                                    <NameCell name={supplier.nname || supplier.supplier} maxWidth={null} />
+                                </p>
                                 <p className="pl-1 responsiveText text-[var(--regent-gray)]">{supplier.street}</p>
                                 <p className="pl-1 responsiveText text-[var(--regent-gray)]">{supplier.city}</p>
                                 <p className="pl-1 responsiveText text-[var(--regent-gray)]">{supplier.country}</p>

@@ -19,6 +19,7 @@ import { Plus, Share2, Save, Trash2 } from 'lucide-react';
 import Customtable from './newTable';
 import GradeTable from './sumtables/gradeTable';
 import Modal from '@components/modal';
+import { NameCell } from '@components/Avatar';
 import { Selector } from '@components/selectors/selectShad';
 import { SettingsContext } from '@contexts/useSettingsContext';
 import { UserAuth } from '@contexts/useAuthContext';
@@ -136,7 +137,7 @@ const SharedStock = () => {
             accessorKey: 'qnty', header: getTtl('Quantity', ln) || 'Quantity',
             cell: p => <NumericFormat value={p.getValue()} displayType='text' thousandSeparator decimalScale={3} />,
         },
-        { accessorKey: 'stockName', header: getTtl('warehouse', ln) || 'Warehouse' },
+        { accessorKey: 'stockName', header: getTtl('warehouse', ln) || 'Warehouse', cell: p => <NameCell name={p.getValue()} /> },
         {
             accessorKey: 'unitPrc', header: getTtl('UnitPrice', ln) || 'Unit Price',
             cell: p => <NumericFormat value={p.getValue()} displayType='text' thousandSeparator prefix={curSym(p.row.original.cur)} decimalScale={2} />,
@@ -145,7 +146,7 @@ const SharedStock = () => {
             accessorKey: 'total', header: getTtl('Total', ln) || 'Total',
             cell: p => <NumericFormat value={p.getValue()} displayType='text' thousandSeparator prefix={curSym(p.row.original.cur)} decimalScale={2} />,
         },
-        { accessorKey: 'supplierName', header: getTtl('Supplier', ln) || 'Supplier' },
+        { accessorKey: 'supplierName', header: getTtl('Supplier', ln) || 'Supplier', cell: p => <NameCell name={p.getValue()} /> },
         { accessorKey: 'status', header: 'Shipment', cell: p => p.getValue() || '—' },
         {
             accessorKey: 'ownersLabel', header: 'Owners',

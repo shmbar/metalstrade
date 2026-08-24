@@ -193,6 +193,7 @@ const Contracts = () => {
 			header: 'Original supplier',
 			cell: EditableSelectCell,
 			meta: {
+				avatar: true,
 				options: (settings.Supplier?.Supplier ?? [])
 					.filter(s => !s.deleted)
 					.sort((a, b) => (a.nname || '').localeCompare(b.nname || ''))

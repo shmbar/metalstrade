@@ -28,6 +28,7 @@ import SumTableClient from '../invoicesstatement/sumtables/sumTablesClients'
 import { TableSkeleton } from "../../../components/skeletons";
 import VideoLoader from '../../../components/videoLoader';
 import Tltip from '../../../components/tlTip';
+import { NameCell } from '../../../components/Avatar';
 
 const TotalInvoicePayments = (data) => {
   let accumulatedPmnt = 0;
@@ -637,6 +638,7 @@ const Shipments = () => {
     }, //false
     {
       accessorKey: 'supplier', header: getTtl('Supplier', ln),
+      cell: (props) => <NameCell name={props.getValue()} />,
       meta: {
         filterVariant: 'selectSupplier',
       },
@@ -662,7 +664,9 @@ const Shipments = () => {
 
     { accessorKey: 'invoice', header: getTtl('Invoice', ln),  cell: (props) => <div>{String(props.getValue()).padStart(4, "0") }</div>, meta: { excludeFromQuickSum: true } },
     {
-      accessorKey: 'client', header: getTtl('Consignee', ln), meta: {
+      accessorKey: 'client', header: getTtl('Consignee', ln),
+      cell: (props) => <NameCell name={props.getValue()} />,
+      meta: {
         filterVariant: 'selectClient',
       },
     },
@@ -762,7 +766,9 @@ const Shipments = () => {
 
   let propDefaultsStatement = Object.keys(settings).length === 0 ? [] : [
     {
-      accessorKey: 'supplier', header: getTtl('Supplier', ln), meta: {
+      accessorKey: 'supplier', header: getTtl('Supplier', ln),
+      cell: (props) => <NameCell name={props.getValue()} />,
+      meta: {
         filterVariant: 'selectSupplier',
       },
     },
@@ -796,7 +802,9 @@ const Shipments = () => {
       filterFn: 'dateBetweenFilterFn'
     },
     {
-      accessorKey: 'client', header: getTtl('Consignee', ln), meta: {
+      accessorKey: 'client', header: getTtl('Consignee', ln),
+      cell: (props) => <NameCell name={props.getValue()} />,
+      meta: {
         filterVariant: 'selectClient',
       },
     },

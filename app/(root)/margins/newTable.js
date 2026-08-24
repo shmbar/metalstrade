@@ -85,11 +85,15 @@ const COLUMN_CONFIGS = {
     // clipped entity name reads as the wrong entity and a clipped date loses its
     // year outright.
     'description': { w: 'auto',  align: 'left'   },
-    'supplier':    { w: '138px', align: 'left'   },
+    // +24px on each entity column: both now carry the initial-avatar chip that
+    // every other supplier/client column in the app carries (18px + a 6px gap).
+    // That chip is width the NAME can't use, so it is added to the column rather
+    // than taken out of the text budget the two comments below describe.
+    'supplier':    { w: '162px', align: 'left'   },
     // Now that neither entity column truncates, this has to hold its longest
     // name outright rather than the "SJM" / "Oryx" short ones — "Iberinox" was
     // rendering as "Iberi…" when this was tighter.
-    'client':      { w: '112px', align: 'left'   },
+    'client':      { w: '136px', align: 'left'   },
     'margin':      { w: '100px', align: 'right'  },
     'totalMargin': { w: '120px', align: 'right'  },
     'shipped':     { w: '82px',  align: 'right'  },

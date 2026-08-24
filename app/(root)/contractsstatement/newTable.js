@@ -32,6 +32,7 @@ import FiltersIcon from '../../../components/table/filters/filters';
 import ResetFilterTableIcon from '../../../components/table/filters/resetTabe';
 import dateBetweenFilterFn from '../../../components/table/filters/date-between-filter';
 import { labelAwareGlobalFilter } from '../../../components/table/filters/labelAwareGlobalFilter';
+import { NameCell } from '../../../components/Avatar';
 
 
 // Expandable detail for a contract line: warehouse lots + shipments
@@ -61,7 +62,7 @@ const DetailPanel = ({ lots = [], shipments = [] }) => {
                 <tr key={i} style={{ borderTop: '1px solid var(--line)' }}>
                   <td style={cellSt}>{fmt(l.qnty)} MT</td>
                   <td style={cellSt}>{lotChip(l.status)}</td>
-                  <td style={cellSt}>{l.consignee || '—'}</td>
+                  <td style={cellSt}><NameCell name={l.consignee} fallback="—" /></td>
                   <td style={cellSt}>{l.salesPo || '—'}</td>
                 </tr>
               ))}
@@ -79,7 +80,7 @@ const DetailPanel = ({ lots = [], shipments = [] }) => {
               {shipments.map((s, i) => (
                 <tr key={i} style={{ borderTop: '1px solid var(--line)' }}>
                   <td style={cellSt}>{s.invoice || '—'}</td>
-                  <td style={cellSt}>{s.consignee || '—'}</td>
+                  <td style={cellSt}><NameCell name={s.consignee} fallback="—" /></td>
                   <td style={cellSt}>{s.po || '—'}</td>
                   <td style={cellSt}>{s.destination || '—'}</td>
                   <td style={cellSt}>{fmt(s.qnty)} MT</td>

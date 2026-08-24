@@ -25,6 +25,7 @@ import Tltip from '../../../components/tlTip';
 import { v4 as uuidv4 } from 'uuid';
 import TableTotals from './totals/tableTotals';
 import { TbLayoutGridAdd } from "react-icons/tb";
+import { NameCell } from '../../../components/Avatar';
 
 
 const Expenses = () => {
@@ -147,7 +148,9 @@ const Expenses = () => {
     const propDefaults = useMemo(() => Object.keys(settings).length === 0 ? [] : [
         { accessorKey: 'lstSaved', header: getTtl('Last Saved', ln), cell: (props) => <p>{dateFormat(props.getValue(), 'dd-mmm-yy HH:MM')}</p>, meta: { excludeFromQuickSum: true } },
         {
-            accessorKey: 'supplier', header: getTtl('Vendor', ln), meta: {
+            accessorKey: 'supplier', header: getTtl('Vendor', ln),
+            cell: (props) => <NameCell name={props.getValue()} />,
+            meta: {
                 filterVariant: 'selectSupplier',
             },
         },
@@ -244,6 +247,7 @@ const Expenses = () => {
     let colsTotals = Object.keys(settings).length === 0 ? [] : [
         {
             accessorKey: 'supplier', header: getTtl('Vendor', ln),
+            cell: (props) => <NameCell name={props.getValue()} />,
         },
         {
             accessorKey: 'amount', header: getTtl('Amount', ln),

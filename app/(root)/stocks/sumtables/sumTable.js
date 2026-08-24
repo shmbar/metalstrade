@@ -2,6 +2,7 @@ import React from 'react'
 import CustomtableTotals from './tableTotals';
 import { getTtl } from '@utils/languages';
 import { sortArr } from '@utils/utils';
+import { NameCell } from '@components/Avatar';
 
 const sumTable = ({ sumData, loading, settings, ln, dataTable }) => {
 
@@ -21,7 +22,7 @@ const sumTable = ({ sumData, loading, settings, ln, dataTable }) => {
     }
 
     let propDefaults = Object.keys(settings).length === 0 ? [] : [
-        { accessorKey: 'stock', header: getTtl('Stock', ln) },
+        { accessorKey: 'stock', header: getTtl('Stock', ln), cell: (props) => <NameCell name={props.getValue()} /> },
         { accessorKey: 'qTypeTable', header: getTtl('WeightType', ln), cell: (props) => <div>{props.getValue()}</div> },
         { accessorKey: 'qnty', header: getTtl('Quantity', ln), cell: (props) => <p>{showWeight(props)}</p> },
         { accessorKey: 'total', header: getTtl('Total', ln), cell: (props) => <p>{showAmount(props)}</p> },

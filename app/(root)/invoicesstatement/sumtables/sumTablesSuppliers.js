@@ -1,6 +1,7 @@
 import React from 'react'
 import CustomtableTotals from './newTableTotals';
 import { getTtl } from '../../../../utils/languages';
+import { NameCell } from '../../../../components/Avatar';
 
 const sumTables = ({ dtSumSupplers, loading, settings, ln, dataTable, rmrk }) => {
 
@@ -13,7 +14,7 @@ const sumTables = ({ dtSumSupplers, loading, settings, ln, dataTable, rmrk }) =>
     }
 
     let propDefaults = Object.keys(settings).length === 0 ? [] : [
-        { accessorKey: 'supplier', header: getTtl('Supplier', ln) },
+        { accessorKey: 'supplier', header: getTtl('Supplier', ln), cell: (props) => <NameCell name={props.getValue()} /> },
         { accessorKey: 'invAmount', header: getTtl('Invoices amount', ln), cell: (props) => <div>{showAmount(props)}</div> },
         { accessorKey: 'pmntAmount', header: getTtl('Prepayment', ln), cell: (props) => <div>{props.getValue() === '' ? '' : showAmount(props)}</div> },
         { accessorKey: 'blnc', header: getTtl('Balance', ln), cell: (props) => <div>{props.getValue() === '' ? '' : showAmount(props)}</div> },

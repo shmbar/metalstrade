@@ -12,6 +12,7 @@ import { sortArr } from "../../../../utils/utils";
 import { ChevronDown, Check } from "lucide-react";
 import React, { memo, useState } from "react";
 import { cn } from "../../../../lib/utils";
+import Avatar from "../../../../components/Avatar";
 
 const getCellValue = (props) =>
     typeof props.getValue === 'function' ? props.getValue() : props.value;
@@ -58,11 +59,16 @@ const SelectEnt = memo(({ props, data, handleChangeSelect, month, name, plHolder
                             Dropping overflow:hidden here also stops the trigger
                             clipping descenders — see the leading note in
                             globals.css under the cell line-height floor. */}
+                        {/* The chip sits INSIDE the centred span rather than
+                            beside it, so a chosen name still reads as one
+                            centred unit and an empty cell centres its
+                            placeholder exactly as it did before. */}
                         <span className={cn(
-                          "flex-1 text-center",
+                          "flex-1 flex items-center justify-center gap-1.5",
                           !fullName && "text-[var(--ink-muted)]"
                         )}>
-                          {fullName || plHolder}
+                          {fullName && <Avatar name={fullName} size={18} />}
+                          <span>{fullName || plHolder}</span>
                         </span>
                         <ChevronDown className="size-3 opacity-0 group-hover:opacity-50 ml-1 shrink-0 transition-opacity" />
                       </button>
@@ -106,6 +112,7 @@ const SelectEnt = memo(({ props, data, handleChangeSelect, month, name, plHolder
                                     cellValue === z.id ? "opacity-100" : "opacity-0"
                                   )}
                                 />
+                                <Avatar name={z.nname} size={18} className="mr-1.5" />
                                 {z.nname}
                               </CommandItem>
                             ))}

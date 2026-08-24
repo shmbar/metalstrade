@@ -23,6 +23,7 @@ import AnnexVII from '../../contracts/modals/annexVII'
 import ISF from '../../contracts/modals/isf'
 import { validate, ErrDiv } from '../../../../utils/utils'
 import { getTtl } from '../../../../utils/languages.js';
+import { NameCell } from '../../../../components/Avatar';
 import { useRouter } from 'next/navigation.js';
 import { ContractsContext } from "../../../../contexts/useContractsContext";
 import dateFormat from 'dateformat';
@@ -307,7 +308,9 @@ const InvoiceModal = () => {
 								name='client'
 								clear={clear} />
 							:
-							<p className='responsiveText font-medium text-[var(--ink)]'>{valueInv.client.client}</p>
+							<p className='responsiveText font-medium text-[var(--ink)]'>
+								<NameCell name={valueInv.client.client} maxWidth={null} />
+							</p>
 						}
 						<ErrDiv field='client' errors={errors} />
 					</div>

@@ -6,6 +6,7 @@ import ModalToDelete from '../../../../components/modalToProceed';
 import { UserAuth } from "../../../../contexts/useAuthContext";
 import { getTtl } from '../../../../utils/languages';
 import Tltip from '../../../../components/tlTip';
+import Avatar from '../../../../components/Avatar';
 import { Selector } from '@components/selectors/selectShad';
 import { CirclePlus, PenLine, Trash, Paintbrush   } from 'lucide-react';
 
@@ -99,7 +100,8 @@ const Stocks = () => {
                     {sortArr((settings?.Stocks?.Stocks ?? []).filter(x => !x.deleted), 'stock').map((x, i) => (
                         <li key={i} onClick={() => SelectStock(x)}
                             className={`cursor-pointer flex items-center gap-x-2 py-2 px-4 responsiveText text-[var(--ink)] responsiveTextInput rounded-lg hover:bg-[var(--bg-subtle)] ${value.id === x.id && 'font-medium bg-[var(--bg-card)]'}`}>
-                            {x.stock}
+                            <Avatar name={x.nname || x.stock} size={20} />
+                            <span className="truncate">{x.stock}</span>
                         </li>
                     ))}
                 </ul>

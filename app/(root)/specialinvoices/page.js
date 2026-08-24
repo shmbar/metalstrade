@@ -19,6 +19,7 @@ import { TableSkeleton } from "../../../components/skeletons";
 import VideoLoader from '../../../components/videoLoader';
 import Modal from '../../../components/modal';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../../components/ui/select';
+import { NameCell } from '../../../components/Avatar';
 
 // Manual IMS category buckets for Misc Invoices (client request: personal / random / shipments).
 const MISC_CATS = [
@@ -190,11 +191,16 @@ const SpecialInvoices = () => {
         },
         {
             accessorKey: 'supplier',
-            header: getTtl('Supplier', ln), meta: {
+            header: getTtl('Supplier', ln),
+            cell: (props) => <NameCell name={props.getValue()} />,
+            meta: {
                 filterVariant: 'selectSupplier',
             },
         },
-        { accessorKey: 'originSupplier', header: 'Original supplier' },
+        {
+            accessorKey: 'originSupplier', header: 'Original supplier',
+            cell: (props) => <NameCell name={props.getValue()} />,
+        },
         { accessorKey: 'order', header: getTtl('PO', ln) + '#', meta: { excludeFromQuickSum: true } },
         { accessorKey: 'salesInvoice', header: 'Sales Invoice', meta: { excludeFromQuickSum: true } },
         { accessorKey: 'invoice', header: getTtl('Invoice', ln), meta: { excludeFromQuickSum: true } },
@@ -257,7 +263,7 @@ const SpecialInvoices = () => {
     let colsTotals = Object.keys(settings).length === 0 ? [] : [
         {
             accessorKey: 'supplier', header: getTtl('Supplier', ln),
-            cell: (props) => <p>{gQ(props.getValue('supplier'), 'Supplier', 'nname') || props.getValue('supplier')}</p>
+            cell: (props) => <NameCell name={gQ(props.getValue(), 'Supplier', 'nname') || props.getValue()} />
         },
         {
             accessorKey: 'total', header: getTtl('Total', ln),

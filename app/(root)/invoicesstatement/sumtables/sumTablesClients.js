@@ -1,6 +1,7 @@
 import React from 'react'
 import CustomtableTotals from './newTableTotals';
 import { getTtl } from '../../../../utils/languages';
+import { NameCell } from '../../../../components/Avatar';
 
 const sumTables = ({dtSumClients, loading, settings, ln, dataTable, rmrk}) => {
 
@@ -13,7 +14,7 @@ const sumTables = ({dtSumClients, loading, settings, ln, dataTable, rmrk}) => {
     }
 
     let propDefaults = Object.keys(settings).length === 0 ? [] : [
-        { accessorKey: 'client', header: getTtl('Consignee', ln), },
+        { accessorKey: 'client', header: getTtl('Consignee', ln), cell: (props) => <NameCell name={props.getValue()} /> },
         { accessorKey: 'totalInvoices', header: getTtl('Amount', ln), cell: (props) => <div>{props.getValue() === '' ? '' : showAmount(props)}</div> },
         { accessorKey: 'totalPmnts', header: getTtl('Payment', ln), cell: (props) => <div>{props.getValue() === '' ? '' : showAmount(props)}</div> },
         { accessorKey: 'inDebt', header: getTtl('Initial Debt', ln), cell: (props) => <div>{props.getValue() === '' ? '' : showAmount(props)}</div> },

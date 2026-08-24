@@ -379,6 +379,7 @@ const Accounting = () => {
       header: getTtl('Supplier', ln),
       cell: EditableSelectCell,
       meta: {
+        avatar: true,
         options: settings.Supplier?.Supplier?.map(s => ({
           value: s.id,
           label: s.nname
@@ -407,6 +408,7 @@ const Accounting = () => {
       header: getTtl('Consignee', ln),
       cell: EditableSelectCell,
       meta: {
+        avatar: true,
         options: settings.Client?.Client?.map(c => ({
           value: c.id,
           label: c.nname

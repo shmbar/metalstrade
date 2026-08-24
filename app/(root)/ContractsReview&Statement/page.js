@@ -33,6 +33,7 @@ import { Switch } from "../../../components/ui/switch";
 import React from "react";
 import VideoLoader from '../../../components/videoLoader';
 import { TableSkeleton } from "../../../components/skeletons";
+import { NameCell } from '../../../components/Avatar';
 
 // ── Statement roll-up indicators ───────────────────────────────────────────
 const fmtMT = (n) => new Intl.NumberFormat('en-US', { maximumFractionDigits: 2 }).format(Number(n) || 0);
@@ -76,12 +77,16 @@ const ProgressBar = ({ shipped, total }) => {
 };
 
 // Clean vertical stack for multi-value cells (consignee, PO, destination, invoice)
-const StackCell = ({ value }) => {
+// `avatar` is opt-in: this cell also stacks PO numbers, destinations and invoice
+// numbers, and only the consignee column holds names worth chipping.
+const StackCell = ({ value, avatar = false }) => {
     const arr = Array.isArray(value) ? value : (value ? [value] : []);
     if (arr.length === 0) return '';
     return (
         <div className="flex flex-col items-center gap-0.5">
-            {arr.map((v, i) => <div key={i} className="whitespace-nowrap">{v}</div>)}
+            {arr.map((v, i) => avatar
+                ? <NameCell key={i} name={v} maxWidth={null} />
+                : <div key={i} className="whitespace-nowrap">{v}</div>)}
         </div>
     );
 };
@@ -535,7 +540,9 @@ const ContractsMerged = () => {
         },
         { accessorKey: 'order', header: getTtl('PO', ln) + '#', ttl: <span className='font-medium'>{getTtl('Total', ln) + ':'}</span>, meta: { excludeFromQuickSum: true } },
         {
-            accessorKey: 'supplier', header: getTtl('Supplier', ln), meta: {
+            accessorKey: 'supplier', header: getTtl('Supplier', ln),
+            cell: (props) => <NameCell name={props.getValue()} />,
+            meta: {
                 filterVariant: 'selectSupplier',
             },
         },
@@ -644,6 +651,7 @@ const ContractsMerged = () => {
         },
         {
             accessorKey: 'supplier', header: getTtl('Supplier', ln),
+            cell: (props) => <NameCell name={props.getValue()} />,
             meta: {
                 filterVariant: 'selectSupplier',
             },
@@ -651,7 +659,7 @@ const ContractsMerged = () => {
         {
             accessorKey: 'client', header: getTtl('Consignee', ln),
             filterFn: arrayIncludesString,
-            cell: (props) => <StackCell value={props.getValue()} />,
+            cell: (props) => <StackCell value={props.getValue()} avatar />,
         },
         { accessorKey: 'poWeight', header: getTtl('Quantity', ln), cell: (props) => <p>{showWeight(props.getValue())}</p> },
         { accessorKey: 'description', header: getTtl('Description', ln), cell: (props) => <p className='text-wrap w-20  md:w-64'>{props.getValue()}</p> },
@@ -695,7 +703,7 @@ const ContractsMerged = () => {
     let colsTotals = Object.keys(settings).length === 0 ? [] : [
         {
             accessorKey: 'supplier', header: getTtl('Vendor', ln),
-            cell: (props) => <p>{gQ(props.getValue('supplier'), 'Supplier', 'nname')}</p>
+            cell: (props) => <NameCell name={gQ(props.getValue(), 'Supplier', 'nname')} />
         },
         { accessorKey: 'poWeight', header: getTtl('Quantity', ln), cell: (props) => <p>{showWeight(props.getValue())}</p> },
         { accessorKey: 'shiipedWeight', header: getTtl('Shipped Weight', ln) + ' MT', cell: (props) => <p>{showWeight(props.getValue())}</p> },

@@ -22,6 +22,7 @@ import { NumericFormat } from 'react-number-format';
 import { Warehouse, Save, Boxes, AlertTriangle, Check, Receipt, Calendar, ChevronLeft, ChevronRight } from 'lucide-react';
 import { TableSkeleton } from "../../../components/skeletons";
 import { Selector } from '../../../components/selectors/selectShad';
+import { NameCell } from '../../../components/Avatar';
 
 const fmtUsd = (v) => `$${new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(v || 0)}`;
 const fmtMt = (v) => new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 }).format(v || 0);
@@ -308,7 +309,9 @@ const StorageCosts = () => {
                                 ? <span className="responsiveTextTable text-[var(--regent-gray)]">No stock on hand</span>
                                 : actuals.whMt.map(w => (
                                     <div key={w.id} className="flex items-center justify-between" style={{ fontSize: 'var(--fs-body)' }}>
-                                        <span className="text-[var(--port-gore)] truncate pr-2">{w.name || '—'}</span>
+                                        <span className="text-[var(--port-gore)] truncate pr-2">
+                                            <NameCell name={w.name} size={16} fallback="—" />
+                                        </span>
                                         <span className="font-medium text-[var(--chathams-blue)] whitespace-nowrap">{fmtMt(w.mt)} MT</span>
                                     </div>
                                 ))}
@@ -449,7 +452,9 @@ const StorageCosts = () => {
                                             <tr key={e.id} className="border-t border-[var(--bg-subtle)]">
                                                 <td className="px-3 py-2 whitespace-nowrap text-[var(--port-gore)]">{(typeof e.date === 'string' ? e.date : '').substring(0, 10)}</td>
                                                 <td className="px-3 py-2 text-[var(--port-gore)] max-w-[12rem] truncate">{e.expense || '—'}</td>
-                                                <td className="px-3 py-2 text-[var(--port-gore)]">{settings.Supplier?.Supplier?.find(s => s.id === e.supplier)?.nname || '—'}</td>
+                                                <td className="px-3 py-2 text-[var(--port-gore)]">
+                                                    <NameCell name={settings.Supplier?.Supplier?.find(s => s.id === e.supplier)?.nname} fallback="—" />
+                                                </td>
                                                 <td className="px-3 py-2 text-right whitespace-nowrap text-[var(--port-gore)]">
                                                     <NumericFormat value={parseFloat(e.amount) || 0} displayType="text" thousandSeparator prefix={e.cur === 'us' ? '$' : '€'} decimalScale={2} fixedDecimalScale />
                                                 </td>

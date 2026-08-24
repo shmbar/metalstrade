@@ -2,6 +2,7 @@
 import { useState, useContext } from 'react';
 import { getD } from '../utils/utils.js';
 import { SettingsContext } from "../contexts/useSettingsContext";
+import { NameCell } from './Avatar';
 
 const frmNum = (value, obj, settings) => {
 	return new Intl.NumberFormat('en-US', {
@@ -69,7 +70,7 @@ const Customtable = ({ data, propDefaults, val, mult }) => {
 		const tmp = cols.find(y => y.field === x);
 
 	
-		return x === 'client' ? obj.final ? obj.client.client : settings.Client.Client.find(z => z.id === obj.client)?.nname :
+		return x === 'client' ? <NameCell name={obj.final ? obj.client.client : settings.Client.Client.find(z => z.id === obj.client)?.nname} /> :
 			x === 'invoice' ? obj[x] + getprefixInv(obj) :
 				x === 'totalAmount' || x === 'totalPrepayment' || x === 'amount' ? frmNum(obj[x], obj, settings) :
 					x === 'prepaidPer' ? isNaN(obj.totalPrepayment / obj.totalAmount) ? '-' : ((obj.totalPrepayment / obj.totalAmount) * 100).toFixed(1) + '%' :

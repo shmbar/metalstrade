@@ -806,7 +806,7 @@ export const StocksUnSold = ({ supplier, stockDataAllArray, settings, uidCollect
                                     <Tltip direction='top' tltpText={z.description || ''}><span className={`block truncate cursor-default ${indent ? 'pl-4' : ''}`}>{z.description}</span></Tltip>
                                 </td>
                                 <td className="text-left w-20">
-                                    <Tltip direction='top' tltpText={z.stockName || ''}><span className="block truncate cursor-default">{z.stockName}</span></Tltip>
+                                    <Tltip direction='top' tltpText={z.stockName || ''}><span className="flex items-center gap-1.5 min-w-0 cursor-default"><Avatar name={z.stockName} size={18} /><span className="block truncate">{z.stockName}</span></span></Tltip>
                                 </td>
                                 <td className="text-left">{
                                     <NumericFormat

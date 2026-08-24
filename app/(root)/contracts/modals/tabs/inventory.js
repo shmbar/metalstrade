@@ -5,6 +5,7 @@ import { getD, getInvoices, loadStockData } from '@utils/utils'
 import { UserAuth } from "@contexts/useAuthContext";
 import dateFormat from "dateformat";
 import { getTtl } from '@utils/languages';
+import { NameCell } from '@components/Avatar';
 
 const frm = (val) => {
 
@@ -142,8 +143,8 @@ const Inventory = () => {
 
     const showDetail = (obj, x, i) => {
 
-        return x === 'client' ? obj.final ? obj.client.nname :
-            settings.Client.Client.find(z => z.id === obj.client)?.nname :
+        return x === 'client' ? <NameCell name={obj.final ? obj.client.nname :
+            settings.Client.Client.find(z => z.id === obj.client)?.nname} /> :
             x === 'invoice' ? obj[x] + getprefixInv(obj) :
                 x === 'd' ? dateFormat(obj.d, 'dd-mmm-yyyy') :
                     x === 'shipped' ? obj.canceled ? 0 : frm(obj.productsDataInvoice.map(x => x.qnty)

@@ -32,6 +32,7 @@ import { splitStatusOf } from '../../../utils/splitUtils';
 import { ensureSplitNotificationsBatch } from '../../../utils/utils';
 import { Split, Wallet, Factory } from 'lucide-react';
 import KpiStrip from '../../../components/KpiStrip';
+import { NameCell } from '../../../components/Avatar';
 
 
 
@@ -230,6 +231,7 @@ const Expenses = () => {
 			header: getTtl('Vendor', ln),
 			cell: EditableSelectCell,
 			meta: {
+				avatar: true,
 				filterVariant: 'selectSupplier',
 				options: settings.Supplier?.Supplier?.map(s => ({ value: s.id, label: s.nname })) ?? []
 			}
@@ -321,7 +323,7 @@ const Expenses = () => {
 	let colsTotals = Object.keys(settings).length === 0 ? [] : [
 		{
 			accessorKey: 'supplier', header: getTtl('Vendor', ln),
-			cell: (props) => <p>{gQ(props.getValue('supplier'), 'Supplier', 'nname')}</p>
+			cell: (props) => <NameCell name={gQ(props.getValue(), 'Supplier', 'nname')} />
 		},
 		{
 			accessorKey: 'amount', header: getTtl('Amount', ln),
