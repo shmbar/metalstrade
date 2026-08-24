@@ -21,7 +21,7 @@ import { loadData, loadAllStockData, updateExpenseField } from '../../../utils/u
 import { UNIT, ym, toUsd, mtInWh, isStorageType, computeStorageMetric } from './storageUtils';
 import { NumericFormat } from 'react-number-format';
 import dateFormat from 'dateformat';
-import { Warehouse, Save, Boxes, AlertTriangle, Check, Receipt, Calendar, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Warehouse, Save, Boxes, AlertTriangle, Check, Receipt, Calendar, ChevronDown, ChevronLeft, ChevronRight } from 'lucide-react';
 import { TableSkeleton } from "../../../components/skeletons";
 import { Selector } from '../../../components/selectors/selectShad';
 import { NameCell } from '../../../components/Avatar';
@@ -132,6 +132,7 @@ const StorageCosts = () => {
     // the "needs tagging" list, which is the part you actually work through row by row.
     const [triageSupplier, setTriageSupplier] = useState('');
     const [triageQ, setTriageQ] = useState('');
+    const [showIdleWh, setShowIdleWh] = useState(false); // warehouses with no spend and no stock
     // Both tables sort on click. Separate state per table so sorting one doesn't
     // reorder the other, and neither starts sorted — each opens in its natural
     // order (years newest-first, invoices as loaded).
@@ -280,7 +281,14 @@ const StorageCosts = () => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [warehouses, metric, lots]);
 
-    const whShown = whSort.sortKey ? sortRows(whRows, whSort.sortKey, whSort.sortDir) : whRows;
+    // 52 warehouses are configured and only a handful are ever in play, so the table
+    // opens on the ones that have something to say — storage spend, or stock standing
+    // in them right now — and the all-zero rest fold away behind one line. Showing all
+    // 52 by default buried the four rows the page is actually about.
+    const whActive = useMemo(() => whRows.filter(r => r._cost > 0 || r._mtNow > 0.01), [whRows]);
+    const whIdle = whRows.length - whActive.length;
+    const whBase = showIdleWh ? whRows : whActive;
+    const whShown = whSort.sortKey ? sortRows(whBase, whSort.sortKey, whSort.sortDir) : whBase;
 
     // Why a warehouse shows no $/MT. The two gaps are not the same problem and the fix
     // differs: an untagged warehouse is something you finish in the table below, whereas
@@ -421,15 +429,29 @@ const StorageCosts = () => {
                     </div>
                 </div>
 
-                {/* Every warehouse, with the reason next to any that has no rate yet. */}
+                {/* The breakdown behind the headline card, so it sits directly under it.
+
+                    This spent a version below the tagging table, on the reasoning that work
+                    outranks reference. Wrong way round: tagging is a chore that is MEANT to
+                    run out — finish it and that table collapses to one "all tagged" line —
+                    whereas this is what the page is for, and it is here permanently. Laying
+                    the page out around the temporary half put the answer below the errand.
+
+                    What made it feel wrong at the top was 52 rows of dashes, and the idle
+                    fold below fixes that directly; moving the section was treating the
+                    symptom. */}
                 <div className="rounded-2xl border border-[var(--line)] bg-[var(--bg-card)] overflow-hidden mb-5">
                     <div className="flex items-center gap-2 px-4 py-2.5" style={{ background: 'var(--bg-subtle)' }}>
                         <Warehouse className="w-4 h-4 text-[var(--endeavour)]" />
                         <span className="responsiveText font-semibold text-[var(--chathams-blue)]">By warehouse</span>
-                        <span className="responsiveTextTable text-[var(--regent-gray)] ml-1 hidden sm:inline">— all {whRows.length} warehouse{whRows.length === 1 ? '' : 's'}, rate where both inputs exist</span>
+                        <span className="responsiveTextTable text-[var(--regent-gray)] ml-1 hidden sm:inline">
+                            — {whActive.length} with spend or stock{whIdle > 0 ? `, ${whIdle} idle` : ''}
+                        </span>
                     </div>
                     {whRows.length === 0 ? (
                         <div className="px-4 py-6 text-center responsiveTextTable text-[var(--regent-gray)]">No warehouses set up yet — add them under Settings → Stocks.</div>
+                    ) : whShown.length === 0 ? (
+                        <div className="px-4 py-6 text-center responsiveTextTable text-[var(--regent-gray)]">No warehouse has storage spend or stock in this period.</div>
                     ) : (
                         <div className="overflow-x-auto">
                             {/* Fixed px for the five bounded columns; the reason is the one free-text
@@ -470,6 +492,14 @@ const StorageCosts = () => {
                                 </tbody>
                             </table>
                         </div>
+                    )}
+                    {whIdle > 0 && (
+                        <button type="button" onClick={() => setShowIdleWh(v => !v)}
+                            className="w-full flex items-center justify-center gap-1.5 px-4 py-2 border-t border-[var(--bg-subtle)] hover:bg-[var(--bg-subtle)] transition-colors"
+                            style={{ fontSize: 'var(--fs-table)', color: 'var(--regent-gray)' }}>
+                            <ChevronDown className={`w-3.5 h-3.5 transition-transform ${showIdleWh ? 'rotate-180' : ''}`} />
+                            {showIdleWh ? 'Hide' : 'Show'} {whIdle} warehouse{whIdle === 1 ? '' : 's'} with no spend and no stock
+                        </button>
                     )}
                 </div>
 
