@@ -85,15 +85,29 @@ const COLUMN_CONFIGS = {
     // clipped entity name reads as the wrong entity and a clipped date loses its
     // year outright.
     'description': { w: 'auto',  align: 'left'   },
-    // +24px on each entity column: both now carry the initial-avatar chip that
-    // every other supplier/client column in the app carries (18px + a 6px gap).
-    // That chip is width the NAME can't use, so it is added to the column rather
-    // than taken out of the text budget the two comments below describe.
-    'supplier':    { w: '162px', align: 'left'   },
-    // Now that neither entity column truncates, this has to hold its longest
-    // name outright rather than the "SJM" / "Oryx" short ones — "Iberinox" was
-    // rendering as "Iberi…" when this was tighter.
-    'client':      { w: '136px', align: 'left'   },
+    // Both entity columns carry the initial-avatar chip every other
+    // supplier/client column in the app carries, and both are budgeted the same
+    // way: NAME WIDTH + 72px of chrome. The 72px is fixed and none of it is
+    // available to the text — 16px cell padding, 16px button padding, 16px for
+    // the (always-reserved, hover-revealed) chevron, and 24px for the 18px chip
+    // plus its 6px gap.
+    //
+    // Name widths are measured, not estimated, in Plus Jakarta Sans at
+    // --fs-table's largest rung (12px, which is what every breakpoint from 1600
+    // up renders): "Metalfund (Igor)" is 91px and the "Select Supplier"
+    // placeholder is 87px, so 104px of text budget clears both with slack. At
+    // 162px it cleared neither — the text budget came to exactly 90px and the
+    // name wrapped mid-token onto a second line.
+    'supplier':    { w: '176px', align: 'left'   },
+    // Same arithmetic, and deliberately NOT trimmed to the minimum that fits:
+    // the 72px chrome figure comes off a rebuilt trigger and measures ~2px
+    // optimistic against the real cell, so both columns keep a double-digit
+    // slack instead of the 1-3px that "just fits" would leave. 84px of budget
+    // here, against a 73px "Select Client" placeholder and a 63px longest name
+    // ("Chemetals"). This still has to hold
+    // its longest name outright rather than the "SJM" / "Oryx" short ones —
+    // "Iberinox" was rendering as "Iberi…" when this was tighter.
+    'client':      { w: '156px', align: 'left'   },
     'margin':      { w: '100px', align: 'right'  },
     'totalMargin': { w: '120px', align: 'right'  },
     'shipped':     { w: '82px',  align: 'right'  },

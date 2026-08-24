@@ -20,7 +20,16 @@ const hashName = (s) => {
 };
 
 const initialsOf = (name) => {
-    const words = String(name).trim().split(/\s+/).filter(Boolean);
+    // Punctuation is stripped BEFORE the split, not after: "Metalfund (Igor)"
+    // splits on whitespace into ["Metalfund", "(Igor)"], and taking the raw first
+    // character of each gave a chip reading "M(" — a bracket, not an initial.
+    // Bracketed contacts and hyphenated names are both common here, so this reads
+    // letters and digits only and lets "Han-Mu" fall through as one word.
+    const words = String(name)
+        .replace(/[^\p{L}\p{N}\s]+/gu, ' ')
+        .trim()
+        .split(/\s+/)
+        .filter(Boolean);
     if (!words.length) return '?';
     if (words.length === 1) return words[0].slice(0, 2).toUpperCase();
     return (words[0][0] + words[1][0]).toUpperCase();
