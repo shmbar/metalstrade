@@ -23,6 +23,7 @@ import { NumericFormat } from 'react-number-format';
 import dateFormat from 'dateformat';
 import { Warehouse, Save, Boxes, AlertTriangle, Check, Receipt, Calendar, ChevronDown, ChevronLeft, ChevronRight } from 'lucide-react';
 import { TableSkeleton } from "../../../components/skeletons";
+import Tltip from '../../../components/tlTip';
 import { Selector } from '../../../components/selectors/selectShad';
 import { NameCell } from '../../../components/Avatar';
 import { SortTh, sortRows, useSortState } from '@components/table/sorting';
@@ -485,7 +486,13 @@ const StorageCosts = () => {
                                                 <td className="px-2 py-1.5 text-right text-[var(--port-gore)] numeric">{fmtMt(r._mtMonths)}</td>
                                                 <td className="px-2 py-1.5 text-right text-[var(--port-gore)] numeric">{fmtMt(r._mtNow)}</td>
                                                 <td className="px-2 py-1.5 text-right font-medium text-[var(--chathams-blue)] numeric">{rateStr(r.rate)}</td>
-                                                <td className="px-2 py-1.5 truncate" title={why} style={{ color: 'var(--regent-gray)' }}>{why || ''}</td>
+                                                <td className="px-2 py-1.5" style={{ color: 'var(--regent-gray)' }}>
+                                                    {why && (
+                                                        <Tltip direction='top' tltpText={why}>
+                                                            <span className="block truncate">{why}</span>
+                                                        </Tltip>
+                                                    )}
+                                                </td>
                                             </tr>
                                         );
                                     })}
@@ -660,11 +667,14 @@ const StorageCosts = () => {
                                                         and a click target that overlaps them is how the sales-
                                                         contracts double-click bug happened. */}
                                                     {e.expense
-                                                        ? <button type="button" onClick={() => openExpense(e)} title={`Open expense ${e.expense}`}
-                                                            className="block w-full truncate text-left underline underline-offset-2 hover:opacity-70 transition-opacity"
-                                                            style={{ color: 'var(--chathams-blue)', fontWeight: 500 }}>
-                                                            {e.expense}
-                                                        </button>
+                                                        ? <Tltip direction='top' tltpText={`Open expense ${e.expense}`}>
+                                                            <button type="button" onClick={() => openExpense(e)}
+                                                                className="block w-full truncate text-left underline underline-offset-2 hover:opacity-70 transition-opacity"
+                                                                aria-label={`Open expense ${e.expense}`}
+                                                                style={{ color: 'var(--chathams-blue)', fontWeight: 500 }}>
+                                                                {e.expense}
+                                                            </button>
+                                                        </Tltip>
                                                         : <span style={{ color: 'var(--regent-gray)' }}>—</span>}
                                                 </td>
                                                 <td className="px-2 py-1.5 text-[var(--port-gore)]">

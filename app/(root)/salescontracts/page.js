@@ -177,24 +177,26 @@ const SalesContracts = () => {
                             {/* Text, not a control: this has to stay double-clickable so the row
                                 still opens the sales contract from here like it does anywhere
                                 else. Italic still marks a link the invoices inferred. */}
-                            <span title={link.derived ? 'From the sales invoice this contract shipped under' : 'Linked on this sales contract'}
-                                style={{ color: 'var(--chathams-blue)', fontWeight: 500, fontStyle: link.derived ? 'italic' : 'normal' }}>
-                                {link.order}
-                            </span>
-                            <button type="button"
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    router.push(`/contracts?openId=${link.id}`);
-                                }}
-                                /* Stops the row seeing a double-click on this control, so it can
-                                   never navigate and open the popup at the same time. */
-                                onDoubleClick={(e) => e.stopPropagation()}
-                                title={`Open purchase contract ${link.order}`}
-                                aria-label={`Open purchase contract ${link.order}`}
-                                className="shrink-0 rounded p-0.5 transition-colors hover:bg-[var(--bg-subtle)]"
-                                style={{ color: 'var(--endeavour)' }}>
-                                <ExternalLink className="w-3 h-3" />
-                            </button>
+                            <Tltip direction='top' tltpText={link.derived ? 'From the sales invoice this contract shipped under' : 'Linked on this sales contract'}>
+                                <span style={{ color: 'var(--chathams-blue)', fontWeight: 500, fontStyle: link.derived ? 'italic' : 'normal' }}>
+                                    {link.order}
+                                </span>
+                            </Tltip>
+                            <Tltip direction='top' tltpText={`Open purchase contract ${link.order}`}>
+                                <button type="button"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        router.push(`/contracts?openId=${link.id}`);
+                                    }}
+                                    /* Stops the row seeing a double-click on this control, so it can
+                                       never navigate and open the popup at the same time. */
+                                    onDoubleClick={(e) => e.stopPropagation()}
+                                    aria-label={`Open purchase contract ${link.order}`}
+                                    className="shrink-0 rounded p-0.5 transition-colors hover:bg-[var(--bg-subtle)]"
+                                    style={{ color: 'var(--endeavour)' }}>
+                                    <ExternalLink className="w-3 h-3" />
+                                </button>
+                            </Tltip>
                         </span>
                     );
                 },
@@ -253,7 +255,9 @@ const SalesContracts = () => {
                 cell: (props) => {
                     const v = props.getValue();
                     return v
-                        ? <span className="block max-w-40 truncate mx-auto" title={v} style={{ color: 'var(--chathams-blue)', fontWeight: 500 }}>{v}</span>
+                        ? <Tltip direction='top' tltpText={v}>
+                            <span className="block max-w-40 truncate mx-auto" style={{ color: 'var(--chathams-blue)', fontWeight: 500 }}>{v}</span>
+                        </Tltip>
                         : <span style={{ color: 'var(--regent-gray)' }}>—</span>;
                 },
                 enableColumnFilter: false,
