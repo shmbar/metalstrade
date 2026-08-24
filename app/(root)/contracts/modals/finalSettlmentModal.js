@@ -9,8 +9,9 @@ import { getD, loadStockData, validate, reOrderTableFinal } from '@utils/utils'
 import { getTtl } from '@utils/languages';
 import FinalSetRemarks from './finalSettlmentRemarks.js';
 import Tltip from '@components/tlTip.js';
-import { Save, FileText, Plus, X } from "lucide-react"
+import { Save, FileText, X } from 'lucide-react';
 import { Button } from '@components/ui/button';
+import { BtnIcon } from '@components/buttonIcons';
 
 function countDecimalDigits(inputString) {
 
@@ -281,7 +282,7 @@ const FinalSettlmentModal = ({ isOpen, setIsOpen, setShowPoInvModal }) => {
                     <div className='flex items-center justify-between mb-2'>
                         <span className='responsiveText font-semibold text-[var(--chathams-blue)]'>Settlement summary</span>
                         <button type='button' onClick={addCalc} className='blackButton'>
-                            <Plus className='w-3 h-3' /> Add calculation
+                            <BtnIcon action="add" /> Add calculation
                         </button>
                     </div>
                     <div className='flex flex-col gap-1.5'>

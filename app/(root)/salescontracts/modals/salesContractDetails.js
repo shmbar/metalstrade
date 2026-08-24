@@ -2,9 +2,7 @@
 import { useContext, useEffect, useMemo, useState } from 'react'
 import Datepicker from "react-tailwindcss-datepicker";
 import dateFormat from 'dateformat';
-import { VscSaveAs, VscClose } from 'react-icons/vsc';
-import { FileText, Copy, Trash2, Link2 } from 'lucide-react';
-import { RiRefreshLine } from "react-icons/ri";
+import { Link2 } from 'lucide-react';
 import { SettingsContext } from "@contexts/useSettingsContext";
 import { SalesContractsContext } from "@contexts/useSalesContractsContext";
 import { UserAuth } from "@contexts/useAuthContext";
@@ -18,6 +16,7 @@ import Spinner from '@components/spinner';
 import ModalToAction from '@components/modalToProceed';
 import DocumentImportOverlay from '@components/DocumentImportOverlay';
 import SalesProductsTable from '../components/productsTable';
+import { BtnIcon } from '@components/buttonIcons';
 
 const SalesContractDetails = () => {
 
@@ -256,33 +255,32 @@ const SalesContractDetails = () => {
                 <Tltip direction='top' tltpText='Save / update sales contract'>
                     <button type="button" className="blackButton py-1 disabled:opacity-50 disabled:cursor-not-allowed"
                         onClick={save} disabled={isButtonDisabled}>
-                        <VscSaveAs className='size-4' />
+                        <BtnIcon action={isButtonDisabled ? 'saving' : 'save'} spin={isButtonDisabled} />
                         {isButtonDisabled ? getTtl('saving', ln) : getTtl('save', ln)}
-                        {isButtonDisabled && <RiRefreshLine className='animate-spin' />}
                     </button>
                 </Tltip>
                 <Tltip direction='top' tltpText='Read materials, weights & prices from an uploaded contract'>
                     <button type="button" className="whiteButton py-1" onClick={() => setShowDocImport(true)}>
-                        <FileText className='size-4' /> Read from contract
+                        <BtnIcon action="autofill" /> Read from contract
                     </button>
                 </Tltip>
                 {valueSC.id !== '' && (
                     <Tltip direction='top' tltpText='Duplicate this sales contract'>
                         <button type="button" className="whiteButton py-1" onClick={duplicate}>
-                            <Copy className='size-4' /> {getTtl('Duplicate', ln) || 'Duplicate'}
+                            <BtnIcon action="duplicate" /> {getTtl('Duplicate', ln) || 'Duplicate'}
                         </button>
                     </Tltip>
                 )}
                 {valueSC.id !== '' && (
                     <Tltip direction='top' tltpText='Delete this sales contract'>
                         <button type="button" className="whiteButton py-1" onClick={() => setIsDeleteOpen(true)}>
-                            <Trash2 className='size-4' /> {getTtl('Delete', ln)}
+                            <BtnIcon action="delete" /> {getTtl('Delete', ln)}
                         </button>
                     </Tltip>
                 )}
                 <Tltip direction='top' tltpText='Close form'>
                     <button type="button" className="whiteButton py-1" onClick={() => setIsOpenSC(false)}>
-                        <VscClose className='size-4' /> {getTtl('Close', ln)}
+                        <BtnIcon action="close" /> {getTtl('Close', ln)}
                     </button>
                 </Tltip>
             </div>

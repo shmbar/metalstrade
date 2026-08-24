@@ -15,7 +15,6 @@ import dateFormat from "dateformat";
 import { EXD } from './excel'
 import { getTtl } from '../../../utils/languages';
 import DateRangePicker from '../../../components/dateRangePicker';
-import { FaFilePdf } from 'react-icons/fa';
 import { PdfAccountStatement } from '../contracts/modals/pdf/pdfAccountStatement';
 import Tooltip from '../../../components/tooltip';
 import Tltip from '../../../components/tlTip';
@@ -25,6 +24,7 @@ import Datepicker from "react-tailwindcss-datepicker";
 import { disabledDates } from './disabledDates';
 import { TableSkeleton } from "../../../components/skeletons";
 import { Selector } from '@components/selectors/selectShad';
+import { BtnIcon } from '@components/buttonIcons';
 
 const fieldOrder = [
   "invoice",
@@ -406,7 +406,7 @@ const AccountStatement = () => {
                     , settings, compData, selectedClient.client, totals, gisAccount)
                   }
                 >
-                  <FaFilePdf />
+                  <BtnIcon action="pdf" />
                   PDF
                 </button>
               </Tltip>

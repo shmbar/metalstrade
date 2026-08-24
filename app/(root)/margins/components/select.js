@@ -49,7 +49,13 @@ const SelectEnt = memo(({ props, data, handleChangeSelect, month, name, plHolder
                           focus:outline-none
                           transition-colors
                         "
-                        style={{ minHeight: '26px' }}
+                        /* min-height, not the .cell-control fixed height: this
+                           trigger deliberately wraps long names instead of
+                           truncating them (see the note below), so it has to be
+                           free to grow past the band. 26px hardcoded here was
+                           the reason a margins row stood 2px taller than the
+                           same row on every other page. */
+                        style={{ minHeight: 'var(--h-cell-control)' }}
                       >
                         {/* No `truncate`. A supplier/client name is an identifier,
                             not prose: "Iberi…" and "Iberinox" are different

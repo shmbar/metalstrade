@@ -5,17 +5,15 @@ import Datepicker from "react-tailwindcss-datepicker";
 import { Selector } from '../../../../components/selectors/selectShad.js'
 import { SettingsContext } from "../../../../contexts/useSettingsContext";
 import { InvoiceContext } from "../../../../contexts/useInvoiceContext";
-import { IoAddCircleOutline } from 'react-icons/io5';
-import { AiOutlineClear } from 'react-icons/ai';
-import { MdDeleteOutline } from 'react-icons/md';
 import { validate, ErrDiv } from '../../../../utils/utils'
 import { UserAuth } from "../../../../contexts/useAuthContext";
 import { getTtl } from '../../../../utils/languages';
 import Tltip from '../../../../components/tlTip';
-import { Loader2, Sparkles, CheckCircle2, FileText, Paperclip } from 'lucide-react';
+import { Loader2, Sparkles, CheckCircle2 } from 'lucide-react';
 import { authedFetch } from '../../../../utils/aiClient';
 import DocumentImportOverlay from '../../../../components/DocumentImportOverlay';
 import ExpenseFilesModal from './filesModal';
+import { BtnIcon } from '@components/buttonIcons';
 
 const Expenses = () => {
 
@@ -131,13 +129,13 @@ const Expenses = () => {
             <div className='flex items-center justify-end gap-2 mx-2 mt-2'>
                 <Tltip direction='top' tltpText='Attach the expense invoice PDF/image. Saved to a folder for this expense, or the general expenses folder for new entries.'>
                     <button type='button' onClick={() => setShowFiles(true)} className='whiteButton'>
-                        <Paperclip className='w-3 h-3' />
+                        <BtnIcon action="files" />
                         Files
                     </button>
                 </Tltip>
                 <Tltip direction='top' tltpText='Drop a supplier invoice/proforma PDF — AI extracts amount, vendor, date, currency and auto-links to the contract by PO number.'>
                     <button type='button' onClick={() => setShowDocImport(true)} className='blackButton'>
-                        <FileText className='w-3 h-3' />
+                        <BtnIcon action="autofill" />
                         Autofill from supplier invoice
                     </button>
                 </Tltip>
@@ -277,7 +275,7 @@ const Expenses = () => {
                             style={{ color: 'var(--bad-text)', borderColor: 'var(--bad-border)' }}
                             onClick={() => deleteExpenseFromExpPage(uidCollection)}
                         >
-                            <MdDeleteOutline className='scale-110' />
+                            <BtnIcon action="delete" />
                             {getTtl('Delete', ln)}
                         </button>
                     </Tltip>
@@ -285,7 +283,7 @@ const Expenses = () => {
                 <div className='flex-1' />
                 <Tltip direction='top' tltpText='Clear form'>
                     <button className="whiteButton" onClick={blankExpense}>
-                        <AiOutlineClear className='scale-110' />
+                        <BtnIcon action="clear" />
                         {getTtl('Clear', ln)}
                     </button>
                 </Tltip>
@@ -294,7 +292,7 @@ const Expenses = () => {
                         className="blackButton"
                         onClick={() => saveData_ExpenseExpenses(uidCollection, valueInv, setValueInv)}
                     >
-                        <IoAddCircleOutline className='scale-110' />
+                        <BtnIcon action="save" />
                         {getTtl('save', ln)}
                     </button>
                 </Tltip>

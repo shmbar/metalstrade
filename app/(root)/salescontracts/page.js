@@ -18,9 +18,9 @@ import { getTtl } from '../../../utils/languages';
 import Toast from '../../../components/toast.js';
 import { TableSkeleton } from "../../../components/skeletons";
 import Tltip from '../../../components/tlTip';
-import { TbLayoutGridAdd } from "react-icons/tb";
 import { ExternalLink } from 'lucide-react';
 import { invoiceQtyBySalesContract } from '../../../utils/salesLink';
+import { BtnIcon } from '@components/buttonIcons';
 
 // Total contracted weight of a sales contract = sum of its product-line quantities.
 const contractQty = (c) => (c.productsData || []).reduce((s, r) => s + (parseFloat(r.qnty) || 0), 0);
@@ -371,7 +371,7 @@ const SalesContracts = () => {
                                 extraActions={
                                     <Tltip direction='bottom' tltpText='Create new sales contract'>
                                         <button type="button" onClick={addSalesContract} className="whiteButton whitespace-nowrap">
-                                            <TbLayoutGridAdd className="w-3.5 h-3.5 flex-shrink-0" />
+                                            <BtnIcon action="newRecord" />
                                             <span>New Sales Contract</span>
                                         </button>
                                     </Tltip>

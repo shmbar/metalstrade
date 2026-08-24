@@ -9,6 +9,7 @@ import dateFormat from 'dateformat'
 import { filteredArray, saveStockIn } from '@utils/utils'
 import { SettingsContext } from '@contexts/useSettingsContext'
 import { UserAuth } from '@contexts/useAuthContext'
+import { BtnIcon } from '@components/buttonIcons'
 
 const tabs = [
   { id: 'left', label: 'Leftovers (net > 0)' },
@@ -300,6 +301,7 @@ const StockAudit = ({ isOpen, setIsOpen, stockData, settings, onDataChanged }) =
                   ? { background: 'var(--bad-text)', color: 'var(--on-brand)', borderColor: 'var(--bad-text)' }
                   : { background: "var(--brand)", color: "var(--on-brand)", borderColor: "var(--brand)" }}
               >
+                <BtnIcon action={writing ? 'saving' : armed ? 'confirm' : 'delete'} spin={writing} />
                 {writing ? 'Writing off…'
                   : armed ? `Confirm — write off ${sel.length} item${sel.length > 1 ? 's' : ''} (OUT dated today)`
                     : `Write off selected (${sel.length})`}

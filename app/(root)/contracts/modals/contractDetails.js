@@ -20,13 +20,14 @@ import FinalSettlmentModal from './finalSettlmentModal.js';
 import CheckBox from '@components/checkbox.js';
 import Tltip from '@components/tlTip.js';
 import { Selector } from '@components/selectors/selectShad';
-import { X, Save, LoaderCircle, FileText, Trash, Copy, SendToBack, Database, Files, Eye, History, MessageSquare } from "lucide-react"
+import { X, Save, Copy, History } from 'lucide-react';
 import DocumentImportOverlay from '@components/DocumentImportOverlay';
 import PdfPreview from '@components/PdfPreview';
 import Modal from '@components/modal';
 import ActivityLog from '@components/ActivityLog';
 import CommentThread from '@components/CommentThread';
 import { v4 as uuidv4 } from 'uuid';
+import { BtnIcon } from '@components/buttonIcons';
 
 const ContractModal = () => {
 
@@ -609,14 +610,14 @@ const ContractModal = () => {
 							className="whiteButton py-1"
 							onClick={openPoPreview}
 						>
-							<Eye className='size-4' />
+							<BtnIcon action="preview" />
 							Preview
 						</button>
 					</Tltip>
 					{valueCon.id !== '' && (
 						<Tltip direction='top' tltpText='View the activity / change history for this contract'>
 							<button className="whiteButton py-1" onClick={() => setShowHistory(true)}>
-								<History className='size-4' />
+								<BtnIcon action="history" />
 								History
 							</button>
 						</Tltip>
@@ -624,7 +625,7 @@ const ContractModal = () => {
 					{valueCon.id !== '' && (
 						<Tltip direction='top' tltpText='Comments & team discussion for this contract'>
 							<button className="whiteButton py-1" onClick={() => setShowComments(true)}>
-								<MessageSquare className='size-4' />
+								<BtnIcon action="comments" />
 								Comments
 							</button>
 						</Tltip>
@@ -654,7 +655,7 @@ const ContractModal = () => {
 								})
 							, settings, compData, gisAccount)}
 					>
-						<FileText className='size-4' />
+						<BtnIcon action="pdf" />
 						PDF
 					</button>
 				</Tltip>
@@ -664,7 +665,7 @@ const ContractModal = () => {
 						onClick={() => setShowFilesModal(true)}
 						disabled={!valueCon.id}
 					>
-						<Database className='size-4' />
+						<BtnIcon action="attachments" />
 						{getTtl('Attachments', ln)}
 					</button>
 				</Tltip>
@@ -677,7 +678,7 @@ const ContractModal = () => {
 								className="whiteButton py-1 !text-[var(--bad-text)] hover:!bg-[var(--bad-bg)] hover:!border-[var(--bad-border)]"
 								onClick={() => setIsDeleteOpen(true)}
 							>
-								<Trash className='size-4' />
+								<BtnIcon action="delete" />
 								{getTtl('Delete', ln)}
 							</button>
 						</Tltip>
@@ -689,7 +690,7 @@ const ContractModal = () => {
 							className="whiteButton py-1 flex"
 							onClick={() => setIsDuplicateOpen(true)}
 						>
-							<Copy className='size-4' />
+							<BtnIcon action="duplicate" />
 							{getTtl('Duplicate Contract', ln)}
 						</button>
 					</Tltip>
@@ -699,7 +700,7 @@ const ContractModal = () => {
 						className="whiteButton py-1 flex"
 						onClick={() => setShowFinalSettlmntModal(true)}
 					>
-						<SendToBack className='size-4' />
+						<BtnIcon action="settlement" />
 						{getTtl('FinalSettlmnt', ln)}
 					</button>
 				</Tltip>
@@ -708,7 +709,7 @@ const ContractModal = () => {
 						className="whiteButton py-1 flex"
 						onClick={() => CopyIMSGIS()}
 					>
-						<Files className='size-4' />
+						<BtnIcon action="copy" />
 						{!gisAccount ? "Copy to GIS" : "Copy to IMS"}
 					</button>
 				</Tltip>
@@ -717,7 +718,7 @@ const ContractModal = () => {
 						className="whiteButton py-1 flex"
 						onClick={() => setShowDocImport(true)}
 					>
-						<FileText className='size-4' />
+						<BtnIcon action="autofill" />
 						Autofill from supplier proforma
 					</button>
 				</Tltip>
@@ -727,8 +728,8 @@ const ContractModal = () => {
 							className="whiteButton py-1 flex"
 							onClick={createInvoiceFromContract}
 						>
-							<Files className='size-4' />
-							+ Invoice from this contract
+							<BtnIcon action="invoice" />
+							Invoice from this contract
 						</button>
 					</Tltip>
 				)}
@@ -737,7 +738,7 @@ const ContractModal = () => {
 						className="whiteButton py-1"
 						onClick={() => setIsOpenCon(false)}
 					>
-						<X className='size-4' />
+						<BtnIcon action="close" />
 						{getTtl('Close', ln)}
 					</button>
 				</Tltip>
@@ -747,9 +748,8 @@ const ContractModal = () => {
 						onClick={btnClck}
 						disabled={isButtonDisabled}
 					>
-						<Save className='size-4' />
+						<BtnIcon action={isButtonDisabled ? 'saving' : 'save'} spin={isButtonDisabled} />
 						{isButtonDisabled ? getTtl('saving', ln) : getTtl('save', ln)}
-						{isButtonDisabled && <LoaderCircle className='animate-spin' />}
 					</button>
 				</Tltip>
 			</div>

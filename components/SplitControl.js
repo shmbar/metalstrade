@@ -11,8 +11,9 @@
 // optimistic state update. Notifications are generic and handled here.
 import { useState } from 'react';
 import { createPortal } from 'react-dom';
-import { Split, X, Check, Loader2, RotateCcw } from 'lucide-react';
+import { Split, X, Loader2 } from 'lucide-react';
 import StatusBadge from './StatusBadge';
+import { BtnIcon } from './buttonIcons';
 import { SPLIT_DEFAULT_RATIO, computeShares, curSymbol, splitStatusOf } from '../utils/splitUtils';
 import { ensureSplitNotification, clearSplitNotification } from '../utils/utils';
 
@@ -228,16 +229,17 @@ export default function SplitControl({
 
             <div className="flex items-center gap-2 px-4 py-3" style={{ borderTop: '1px solid var(--bg-subtle)' }}>
               <button type="button" onClick={saveSplit} disabled={busy} className="blackButton py-1 disabled:opacity-50">
-                {busy ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Check className="w-3.5 h-3.5" />}
+                <BtnIcon action={busy ? 'saving' : 'save'} spin={busy} />
                 Save split
               </button>
               {status === 'done' && (
                 <button type="button" onClick={reopen} disabled={busy} className="whiteButton py-1 disabled:opacity-50">
-                  <RotateCcw className="w-3.5 h-3.5" />
+                  <BtnIcon action="reopen" />
                   Reopen
                 </button>
               )}
               <button type="button" onClick={() => setOpen(false)} disabled={busy} className="whiteButton py-1 ml-auto disabled:opacity-50">
+                <BtnIcon action="cancel" />
                 Cancel
               </button>
             </div>

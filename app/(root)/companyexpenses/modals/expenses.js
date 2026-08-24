@@ -7,9 +7,10 @@ import { UserAuth } from "@contexts/useAuthContext";
 import { getTtl } from '@utils/languages';
 import Tltip from '@components/tlTip';
 import { Selector } from '@components/selectors/selectShad.js';
-import { Save, Eraser, Trash, Copy, Truck, FileText } from "lucide-react"
+import { Save, Copy } from 'lucide-react';
 import FindInvoiceModal from './findInvoiceModal';
 import DocumentImportOverlay from '@components/DocumentImportOverlay';
+import { BtnIcon } from '@components/buttonIcons';
 
 const Expenses = ({setIsOpen}) => {
 
@@ -67,7 +68,7 @@ const Expenses = ({setIsOpen}) => {
                         onClick={() => setShowDocImport(true)}
                         className='blackButton'
                     >
-                        <FileText className='w-3 h-3' />
+                        <BtnIcon action="autofill" />
                         Autofill from PDF
                     </button>
                 </Tltip>
@@ -178,7 +179,7 @@ const Expenses = ({setIsOpen}) => {
                         onClick={saveExpense}
                         disabled={isPending}
                     >
-                        <Save className='size-4' />
+                        <BtnIcon action="save" />
                         {getTtl('save', ln)}
                     </button>
                 </Tltip>
@@ -187,7 +188,7 @@ const Expenses = ({setIsOpen}) => {
                         className="whiteButton"
                         onClick={blankExpense}
                     >
-                        <Eraser className='size-4' />
+                        <BtnIcon action="clear" />
                         {getTtl('Clear', ln)}
                     </button>
                 </Tltip>
@@ -196,7 +197,7 @@ const Expenses = ({setIsOpen}) => {
                         className="whiteButton"
                         onClick={() => deleteCompExp(uidCollection)}
                     >
-                        <Trash className='size-4' />
+                        <BtnIcon action="delete" />
                         {getTtl('Delete', ln)}
                     </button>
                 </Tltip>
@@ -206,7 +207,7 @@ const Expenses = ({setIsOpen}) => {
                             className="whiteButton"
                             onClick={() => copyTomisc(uidCollection)}
                         >
-                            <Copy className='size-4' />
+                            <BtnIcon action="copy" />
                             Copy to misc invoices
                         </button>
                     </Tltip>
@@ -217,7 +218,7 @@ const Expenses = ({setIsOpen}) => {
                         className="whiteButton"
                         onClick={() => setDialogShipment(true)}
                     >
-                        <Truck className='size-4' />
+                        <BtnIcon action="shipment" />
                         Move to shipment
                     </button>
                 </Tltip>

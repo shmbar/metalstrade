@@ -1,17 +1,13 @@
 ﻿import { useState, useContext, useEffect } from 'react';
 import { SettingsContext } from "../../../../contexts/useSettingsContext";
 import { v4 as uuidv4 } from 'uuid';
-import { IoAddCircleOutline } from 'react-icons/io5';
-import { MdDeleteOutline } from 'react-icons/md';
 import { validate, ErrDiv, sortArr } from '../../../../utils/utils'
 import ModalToDelete from '../../../../components/modalToProceed';
 import { UserAuth } from "../../../../contexts/useAuthContext";
 import { getTtl } from '../../../../utils/languages';
 import Tltip from '../../../../components/tlTip';
-import { FiUpload } from 'react-icons/fi';
-import { RiEraserLine } from 'react-icons/ri';
-import { CirclePlus, PenLine, Trash, Paintbrush   } from 'lucide-react';
 import Avatar from '../../../../components/Avatar';
+import { BtnIcon } from '@components/buttonIcons';
 
 
 const Suppliers = () => {
@@ -97,23 +93,23 @@ const Suppliers = () => {
                 <div className='pb-4 mt-1 w-full gap-4 flex flex-wrap'>
                     <Tltip direction='top' tltpText='Add new supplier'>
                         <button className={`supplierAddButton ${disabledButton ? 'cursor-not-allowed' : ''}`} disabled={disabledButton} onClick={addItem}>
-                            <CirclePlus size={12} />  {getTtl('Add', ln)}
+                            <BtnIcon action="add" />  {getTtl('Add', ln)}
                         </button>
                     </Tltip>
                     <Tltip direction='top' tltpText='Update supplier data'>
                         <button className='supplierButton' onClick={updateList}>
-                            <PenLine size={12} />
+                            <BtnIcon action="update" />
                             {getTtl('Update', ln)}
                         </button>
                     </Tltip>
                     <Tltip direction='top' tltpText='Delete supplier'>
                         <button className='supplierButton' onClick={() => setIsDeleteOpen(true)} disabled={!value.id}>
-                            <Trash size={12} />  {getTtl('Delete', ln)}
+                            <BtnIcon action="delete" />  {getTtl('Delete', ln)}
                         </button>
                     </Tltip>
                     <Tltip direction='top' tltpText='Clear form'>
                         <button className='supplierButton' onClick={clickClear}>
-                            <Paintbrush size={12} />{getTtl('Clear', ln)}
+                            <BtnIcon action="clear" />{getTtl('Clear', ln)}
                         </button>
                     </Tltip>
                 </div>

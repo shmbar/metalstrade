@@ -15,7 +15,7 @@ import { useContext, useEffect, useMemo, useState } from 'react';
 import { NumericFormat } from 'react-number-format';
 import { v4 as uuidv4 } from 'uuid';
 import dateFormat from 'dateformat';
-import { Plus, Share2, Save, Trash2 } from 'lucide-react';
+import { Share2, Save, Trash2 } from 'lucide-react';
 import Customtable from './newTable';
 import GradeTable from './sumtables/gradeTable';
 import Modal from '@components/modal';
@@ -27,6 +27,7 @@ import { loadSharedStock, saveSharedStock, deleteSharedStock, loadAllStockData, 
 import { getTtl } from '@utils/languages';
 import { TableSkeleton } from "@components/skeletons";
 import { TONES } from '@components/statusUtils';
+import { BtnIcon } from '@components/buttonIcons';
 
 const OWNERS = ['IMS', 'GIS'];
 // financedBy = who PAID for the lot ('IMS' | 'GIS' | 'BOTH') — distinct from
@@ -270,8 +271,8 @@ const SharedStock = () => {
                     <Share2 className='w-4 h-4 text-[var(--brand)]' />
                     <span>Inventory shared between IMS &amp; GIS · {rows.length} lot{rows.length !== 1 ? 's' : ''} · {new Intl.NumberFormat('en-US', { maximumFractionDigits: 3 }).format(totalMt)} MT</span>
                 </div>
-                <button onClick={openAdd} className='blackButton flex items-center gap-1 responsiveTextInput'>
-                    <Plus className='w-3.5 h-3.5' /> Add shared stock
+                <button onClick={openAdd} className='blackButton responsiveTextInput'>
+                    <BtnIcon action="add" />Add shared stock
                 </button>
             </div>
 
@@ -384,9 +385,9 @@ const SharedStock = () => {
                             </button>
                         ) : <span />}
                         <div className='flex items-center gap-2'>
-                            <button onClick={() => setOpen(false)} className='whiteButton responsiveTextInput'>Cancel</button>
-                            <button onClick={save} disabled={saving} className='blackButton flex items-center gap-1 responsiveTextInput disabled:opacity-50'>
-                                <Save className='w-3.5 h-3.5' /> {saving ? 'Saving…' : 'Save'}
+                            <button onClick={() => setOpen(false)} className='whiteButton responsiveTextInput'><BtnIcon action="cancel" />Cancel</button>
+                            <button onClick={save} disabled={saving} className='blackButton responsiveTextInput disabled:opacity-50'>
+                                <BtnIcon action={saving ? 'saving' : 'save'} spin={saving} />{saving ? 'Saving…' : 'Save'}
                             </button>
                         </div>
                     </div>

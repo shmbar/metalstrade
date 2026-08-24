@@ -6,8 +6,8 @@ import ModalToDelete from '../../../../components/modalToProceed';
 import { UserAuth } from "../../../../contexts/useAuthContext";
 import { getTtl } from '../../../../utils/languages';
 import Tltip from '../../../../components/tlTip';
-import { CirclePlus, PenLine, Trash, Paintbrush   } from 'lucide-react';
 import Avatar from '../../../../components/Avatar';
+import { BtnIcon } from '@components/buttonIcons';
 
 
 const Clients = () => {
@@ -94,23 +94,23 @@ const Clients = () => {
                 <div className='pb-2 rounded-2xl mt-1 w-full gap-4 flex flex-wrap'>
                     <Tltip direction='top' tltpText='Add new client'>
                         <button className={`supplierAddButton ${disabledButton ? 'cursor-not-allowed' : ''}`} disabled={disabledButton} onClick={addItem}>
-                            <CirclePlus size={12} />  {getTtl('Add', ln)}
+                            <BtnIcon action="add" />  {getTtl('Add', ln)}
                         </button>
                     </Tltip>
                     <Tltip direction='top' tltpText='Update client data'>
                         <button className='supplierButton' onClick={updateList}>
-                            <PenLine size={12} />
+                            <BtnIcon action="update" />
                             {getTtl('Update', ln)}
                         </button>
                     </Tltip>
                     <Tltip direction='top' tltpText='Delete client'>
                         <button className='supplierButton' onClick={() => setIsDeleteOpen(true)} disabled={!value.id}>
-                            <Trash size={12} />{getTtl('Delete', ln)}
+                            <BtnIcon action="delete" />{getTtl('Delete', ln)}
                         </button>
                     </Tltip>
                     <Tltip direction='top' tltpText='Clear form'>
                         <button className='supplierButton' onClick={clickClear}>
-                            <Paintbrush size={12} />{getTtl('Clear', ln)}
+                            <BtnIcon action="clear" />{getTtl('Clear', ln)}
                         </button>
                     </Tltip>
                 </div>

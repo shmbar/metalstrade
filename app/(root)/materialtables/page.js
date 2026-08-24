@@ -16,6 +16,7 @@ import { delCompExp, loadMaterials, saveMaterials, loadDataSettings } from "../.
 import { DEFAULT_ELEMENTS, UNIT_LABELS, TO_KGS, FROM_KGS } from './constants';
 import useMetalPrices from '../../../hooks/useMetalPrices';
 import LoadingButton from '../../../components/LoadingButton';
+import { BtnIcon } from '../../../components/buttonIcons';
 
 function countDecimalDigits(str) {
     const match = str.match(/(?:\.(\d+))?(?:[eE]([+-]?\d+))?$/)
@@ -463,7 +464,7 @@ const MaterialTables = () => {
                                 </div>
                                 <div className="flex items-center gap-2">
                                     <button onClick={addTable} className="blackButton">
-                                        + {getTtl('Add Table', ln) || 'Add Table'}
+                                        <BtnIcon action="add" />{getTtl('Add Table', ln) || 'Add Table'}
                                     </button>
                                     <LoadingButton variant="secondary" onClick={saveTable}>
                                         {getTtl('Save', ln) || 'Save'}

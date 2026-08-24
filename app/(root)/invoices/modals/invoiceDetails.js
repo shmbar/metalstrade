@@ -8,11 +8,7 @@ import { PdfFnlCncl } from '../../contracts/modals/pdfInvoiceFnlCncl.js';
 import ProductsTable from '../../contracts/modals/productsTableInvoice.js';
 import ModalToAction from '../../../../components/modalToProceed';
 import { VscSaveAs } from 'react-icons/vsc';
-import { VscClose } from 'react-icons/vsc';
-import { FaFilePdf } from 'react-icons/fa';
-import { GiMoneyStack } from 'react-icons/gi'
 import InvoiceType from './invoiceType.js'
-import { FaFileContract } from "react-icons/fa";
 
 import Expenses from '../../contracts/modals/expenses'
 import Payments from '../../contracts/modals/payments.js'
@@ -33,7 +29,7 @@ import Tltip from '../../../../components/tlTip.js';
 import { Selector } from '../../../../components/selectors/selectShad.js';
 import { ChevronDown, ChevronUp, ScrollText } from 'lucide-react';
 import LoadingButton from '../../../../components/LoadingButton'
-import { TbStackPush } from "react-icons/tb";
+import { BtnIcon } from '@components/buttonIcons';
 
 // Settings-style form spec (shared with the contract modal's invoice tab)
 const labelCls = 'responsiveText font-medium text-[var(--ink-muted)] mb-1';
@@ -702,7 +698,7 @@ const InvoiceModal = () => {
 						type="button"
 						className="whiteButton py-1" onClick={() => setIsOpen(false)}
 					>
-						<VscClose className='size-4' />
+						<BtnIcon action="close" />
 						{getTtl('Close', ln)}
 					</button>
 				</Tltip>
@@ -780,7 +776,7 @@ const InvoiceModal = () => {
 						}
 					}}
 					>
-						<FaFilePdf className='size-4' />
+						<BtnIcon action="pdf" />
 						PDF
 					</button>
 				</Tltip>
@@ -790,7 +786,7 @@ const InvoiceModal = () => {
 							type="button"
 							className="whiteButton py-1" onClick={() => setShowPmntExp('exp')}
 						>
-							<TbStackPush className='size-4' />
+							<BtnIcon action="expenses" />
 							{getTtl('Expenses', ln)}
 						</button>
 					</Tltip>
@@ -800,7 +796,7 @@ const InvoiceModal = () => {
 						type="button"
 						className="whiteButton py-1" onClick={() => setShowPmntExp('pmnt')}
 					>
-						<GiMoneyStack className='size-4' />
+						<BtnIcon action="payments" />
 						{getTtl('Payments', ln)}
 					</button>}
 				</Tltip>
@@ -810,7 +806,7 @@ const InvoiceModal = () => {
 						className="whiteButton py-1"
 						onClick={() => moveToContracts()}
 					>
-						<FaFileContract className='size-4' />
+						<BtnIcon action="contract" />
 						{getTtl('Contract', ln)}
 					</button>
 				</Tltip>

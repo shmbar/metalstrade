@@ -23,17 +23,17 @@ const DlayedResponse = ({ alertArr, setAlertArr }) => {
         <div className='p-4'>
             <div className=" overflow-x-auto">
                 <div className="border border-[var(--line)] rounded-2xl overflow-hidden">
-                    <table id='my-table' className="table-fixed min-w-full divide-y divide-[var(--line)]">
+                    <table id='my-table' className="custom-table cells-left table-fixed min-w-full divide-y divide-[var(--line)]">
                         <thead style={{ background: 'var(--bg-subtle)' }}>
                             <tr>
-                                <th scope="col" className="w-0/12 py-2 px-4 text-left responsiveTextTable font-medium text-[var(--chathams-blue)]">Supplier</th>
-                                <th scope="col" className="w-0/12 pr-1 py-2 text-left responsiveTextTable font-medium text-[var(--chathams-blue)]">
+                                <th scope="col" className="w-0/12 responsiveTextTable font-medium text-[var(--chathams-blue)]">Supplier</th>
+                                <th scope="col" className="w-0/12 responsiveTextTable font-medium text-[var(--chathams-blue)]">
                                     Contract</th>
-                                <th scope="col" className="w-0/12 pr-1 py-2 text-left responsiveTextTable font-medium text-[var(--chathams-blue)]">
+                                <th scope="col" className="w-0/12 responsiveTextTable font-medium text-[var(--chathams-blue)]">
                                     Date</th>
-                                <th scope="col" className="w-20 pr-1 py-2 text-left responsiveTextTable font-medium flex text-[var(--chathams-blue)]">
+                                <th scope="col" className="w-20 responsiveTextTable font-medium flex text-[var(--chathams-blue)]">
                                     Days from Date</th>
-                                <th scope="col" className="w-20 pr-1 py-2 text-left responsiveTextTable font-medium text-[var(--chathams-blue)]">
+                                <th scope="col" className="w-20 responsiveTextTable font-medium text-[var(--chathams-blue)]">
                                     Keep Alerting</th>
                             </tr>
                         </thead>
@@ -41,22 +41,22 @@ const DlayedResponse = ({ alertArr, setAlertArr }) => {
                             {alertArr.map((obj, i) => {
                                 return (
                                     <tr key={i} className="hover:bg-[var(--bg-subtle)]/40 transition-colors duration-150">
-                                        <td className="py-2 pl-4">
+                                        <td>
                                             <div className="flex items-center h-5 responsiveTextTable text-[var(--chathams-blue)]">
                                                 {settings.Supplier.Supplier.find(z => z.id === obj.supplier)?.nname}
                                             </div>
                                         </td>
-                                        <td className="px-1 py-2">
+                                        <td>
                                             <div className="flex items-center h-5 responsiveTextTable text-[var(--chathams-blue)]">
                                                 {obj.order}
                                             </div>
                                         </td>
-                                        <td className="px-1 py-2">
+                                        <td>
                                             <div className="flex items-center h-5 responsiveTextTable text-[var(--chathams-blue)]">
                                                 {dateFormat(obj.dateRange?.endDate, 'dd.mm.yy')}
                                             </div>
                                         </td>
-                                        <td className="px-1 py-2">
+                                        <td>
                                             <div className="flex items-center h-5 responsiveTextTable text-[var(--chathams-blue)]">
                                                 {(() => {
                                                     const date2 = new Date(obj.dateRange?.endDate);
@@ -68,7 +68,7 @@ const DlayedResponse = ({ alertArr, setAlertArr }) => {
                                                 })()}
                                             </div>
                                         </td>
-                                        <td className="px-1 py-2">
+                                        <td>
                                             <div className="flex items-center h-5 responsiveTextTable">
                                                 <CheckBox checked={obj.alert} size='h-4 w-4' onChange={() => { setAlert(obj) }} />
                                             </div>

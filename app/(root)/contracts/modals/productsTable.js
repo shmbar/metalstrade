@@ -6,9 +6,10 @@ import { getD, reOrderTableCon } from '@utils/utils.js';
 import { CalculateNum } from '@components/calculate';
 import { SettingsContext } from "@contexts/useSettingsContext";
 import { getTtl } from '@utils/languages.js';
-import { ScrollText, Warehouse, Trash, CirclePlus, ChevronDown, MoveRight } from "lucide-react"
+import { ChevronDown, MoveRight } from 'lucide-react';
 import Tltip from '@components/tlTip'
 import { getCur } from '@components/exchangeApi'
+import { BtnIcon } from '@components/buttonIcons';
 
 // The PO stores weight (qnty) and price (unitPrc) in the contract's OWN unit/currency
 // (its Quantity selector + Currency = the "base"). Every other view in the app — the PO PDF,
@@ -461,7 +462,7 @@ const ProductsTable = ({ value, setValue, currency, quantityTable, setShowPoInvM
                             className="blackButton py-1"
                             onClick={() => addItem()}
                         >
-                            <CirclePlus className='size-4' />
+                            <BtnIcon action="add" />
                             {getTtl('Add', ln)}
                         </button>
                     </Tltip>
@@ -470,7 +471,7 @@ const ProductsTable = ({ value, setValue, currency, quantityTable, setShowPoInvM
                             className="whiteButton py-1"
                             onClick={() => delItem()}
                         >
-                            <Trash className='size-4' />
+                            <BtnIcon action="delete" />
                             {getTtl('Delete', ln)}
                         </button>
                     </Tltip>
@@ -480,7 +481,7 @@ const ProductsTable = ({ value, setValue, currency, quantityTable, setShowPoInvM
                             onClick={openInvoicesModal}
                             disabled={!value.productsData.map(x => x.description).some(item => item !== '')}
                         >
-                            <ScrollText className='size-4' />
+                            <BtnIcon action="invoices" />
                             {getTtl('Invoices', ln)}
                         </button>
                     </Tltip>
@@ -490,7 +491,7 @@ const ProductsTable = ({ value, setValue, currency, quantityTable, setShowPoInvM
                             disabled={!checkIfAlllowed()}
                             onClick={() => setShowStockModal(true)}
                         >
-                            <Warehouse className='size-4' />
+                            <BtnIcon action="stocks" />
                             {getTtl('Stocks', ln)}
                         </button>
                     </Tltip>

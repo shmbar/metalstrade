@@ -11,8 +11,9 @@ import { getTtl } from '@utils/languages';
 import CheckBox from '@components/checkbox.js';
 import FindCOntract4Materials from '@components/findContract4Materials';
 import { Selector } from '@components/selectors/selectShad';
-import { CirclePlus, ShieldCheck, Import, Trash } from "lucide-react"
+import { Import } from 'lucide-react';
 import Tltip from '@components/tlTip'
+import { BtnIcon } from '@components/buttonIcons';
 
 
 const cols = ['container', 'qnty', 'unitPrc', 'total', 'stock', 'stockValue']
@@ -792,7 +793,7 @@ const ProductsTable = ({ value, setValue, currency, settings, uidCollection, set
                                 className="blackButton py-1"
                                 onClick={() => addItem()}
                             >
-                                <CirclePlus className='size-4' />
+                                <BtnIcon action="add" />
                                 {getTtl('Add', ln)}
                             </button>
                         </Tltip>
@@ -801,7 +802,7 @@ const ProductsTable = ({ value, setValue, currency, settings, uidCollection, set
                                 className="whiteButton py-1"
                                 onClick={() => delItem()}
                             >
-                                <Trash className='size-4' />
+                                <BtnIcon action="delete" />
                                 {getTtl('Delete', ln)}
                             </button>
                         </Tltip>
@@ -811,7 +812,7 @@ const ProductsTable = ({ value, setValue, currency, settings, uidCollection, set
                                     className="whiteButton py-1"
                                     onClick={() => { setCertOpen(!certOpen) }}
                                 >
-                                    <ShieldCheck className='size-4' />
+                                    <BtnIcon action="certs" />
                                     Certs
                                 </button>
                             </Tltip>
@@ -821,7 +822,7 @@ const ProductsTable = ({ value, setValue, currency, settings, uidCollection, set
                                 className="whiteButton py-1"
                                 onClick={() => setOpenFindContract(true)}
                             >
-                                <Import className='size-4' />
+                                <BtnIcon action="import" />
                                 Import
                             </button>
                         </Tltip>

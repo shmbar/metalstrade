@@ -2,20 +2,18 @@ import { useContext, useState } from 'react'
 import Datepicker from "react-tailwindcss-datepicker";
 import { SettingsContext } from "@contexts/useSettingsContext";
 import { InvoiceContext } from "@contexts/useInvoiceContext";
-import { IoAddCircleOutline } from 'react-icons/io5';
 import { MdPayments } from 'react-icons/md';
 import { ContractsContext } from "@contexts/useContractsContext";
 import dateFormat from "dateformat";
 import { UserAuth } from "@contexts/useAuthContext";
 
 import ChkBox from '@components/checkbox';
-import { VscSaveAs } from 'react-icons/vsc';
 import { v4 as uuidv4 } from 'uuid';
-import { VscArchive } from 'react-icons/vsc';
 import { usePathname } from 'next/navigation';
 import { getTtl } from '@utils/languages';
 import { deleteNotification } from '@utils/utils';
 import Tltip from '@components/tlTip';
+import { BtnIcon } from '@components/buttonIcons';
 
 function countDecimalDigits(inputString) {
     const match = inputString.match(/(?:\.(\d+))?(?:[eE]([+-]?\d+))?$/);
@@ -193,7 +191,7 @@ const Payments = ({ showPayments }) => {
                                 className="blackButton py-1 font-light"
                                 onClick={saveD}
                             >
-                                <VscSaveAs className='scale-110' />
+                                <BtnIcon action="save" />
                                 {getTtl('save', ln)}
                             </button>
                         </Tltip>
@@ -202,7 +200,7 @@ const Payments = ({ showPayments }) => {
                                 className="whiteButton py-1"
                                 onClick={addItem}
                             >
-                                <IoAddCircleOutline className='scale-110' />
+                                <BtnIcon action="add" />
                                 {getTtl('Add', ln)}
                             </button>
                         </Tltip>
@@ -211,7 +209,7 @@ const Payments = ({ showPayments }) => {
                                 className=" whiteButton py-1"
                                 onClick={deleteItems}
                             >
-                                <VscArchive className='scale-110' />
+                                <BtnIcon action="delete" />
                                 {getTtl('Delete', ln)}
                             </button>
                         </Tltip>

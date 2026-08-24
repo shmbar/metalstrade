@@ -18,9 +18,10 @@ import Tltip from "../../../components/tlTip";
 import FirstPart from "./firstpart";
 import ThirdPart from "./thirdpart";
 import dateFormat from "dateformat";
-import { AlertTriangle, Loader2, X, ChevronDown, ChevronUp, Info, GripVertical, Search, Undo2 } from 'lucide-react';
+import { AlertTriangle, Loader2, X, ChevronDown, ChevronUp, Info, GripVertical, Search } from 'lucide-react';
 import { authedFetch } from '../../../utils/aiClient';
 import { TONES } from '../../../components/statusUtils';
+import { BtnIcon } from '../../../components/buttonIcons';
 
 // needed for table body level scope DnD setup
 import {
@@ -616,7 +617,7 @@ const Margins = () => {
                                                 disabled={explaining}
                                                 className='blackButton disabled:opacity-60'
                                             >
-                                                {explaining ? <Loader2 className='w-3 h-3 animate-spin' /> : null}
+                                                <BtnIcon action={explaining ? 'saving' : 'ai'} spin={explaining} />
                                                 Explain with AI
                                                 {explainOpen
                                                     ? <ChevronUp className='w-3 h-3' />
@@ -725,7 +726,7 @@ const Margins = () => {
                                         disabled={data.length >= 12}
                                         onClick={addMonth}
                                     >
-                                        Add month
+                                        <BtnIcon action="add" />Add month
                                     </button>
 
                                     {autoSaving ? (
@@ -748,7 +749,7 @@ const Margins = () => {
                                         className="blackButton"
                                         onClick={saveData}
                                     >
-                                        Save
+                                        <BtnIcon action="save" />Save
                                     </button>
 
                                     {/* Undo — next to Save, per the client's request */}
@@ -760,7 +761,7 @@ const Margins = () => {
                                                 onClick={undo}
                                                 className='whiteButton'
                                             >
-                                                <Undo2 className='w-3 h-3' /> Undo
+                                                <BtnIcon action="undo" /> Undo
                                             </button>
                                         </Tltip>
                                     )}

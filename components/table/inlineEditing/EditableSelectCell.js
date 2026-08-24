@@ -212,7 +212,7 @@ export default function EditableSelectCell({ getValue, row, column, table }) {
           <Listbox.Button
             ref={buttonRef}
             onClick={handleOpen}
-            className="w-full cursor-pointer rounded-2xl py-1.5 pl-3 pr-8 text-left responsiveTextInput flex items-center"
+            className="cell-control w-full cursor-pointer rounded-2xl py-1.5 pl-3 pr-8 text-left responsiveTextInput flex items-center"
             aria-label={column?.columnDef?.header || "Select option"}
           >
             <span className="flex-1 block truncate overflow-hidden text-ellipsis text-left">

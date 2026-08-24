@@ -2,9 +2,9 @@ import Modal from "@components/modal"
 import { ContractsContext } from "@contexts/useContractsContext"
 import { delCompExp, getInvoices, loadInvoice, saveData } from "@utils/utils"
 import { useContext, useState } from "react"
-import { CircleX, Search } from 'lucide-react';
 import { SettingsContext } from "@contexts/useSettingsContext";
 import { ExpensesContext } from "@contexts/useExpensesContext";
+import { BtnIcon } from '@components/buttonIcons';
 
 const FindInvoiceModal = ({ open, setOpen, uidCollection, value, setValue }) => {
 
@@ -102,14 +102,14 @@ const FindInvoiceModal = ({ open, setOpen, uidCollection, value, setValue }) => 
                         className="blackButton py-1 responsiveTextInput"
                         onClick={findInvoice}
                     >
-                        <Search size={14} className="" />     Find
+                        <BtnIcon action="find" />     Find
                     </button>
                     <button
                         type="button"
                         className="whiteButton py-1 responsiveTextInput"
                         onClick={() => setOpen(false)}
                     >
-                        <CircleX size={14} className="text-[var(--chathams-blue)]" />  Close
+                        <BtnIcon action="close" />  Close
                     </button>
                 </div>
             </div>

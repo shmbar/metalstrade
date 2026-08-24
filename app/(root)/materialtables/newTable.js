@@ -826,7 +826,7 @@ const Customtable = ({
                                                         >×</button>
                                                     </div>
                                                 ) : isCost ? (
-                                                    <div style={{ backgroundColor: 'var(--pink-bg)', border: '1px solid var(--pink-border)', borderRadius: '8px', padding: '2px 6px', display: 'flex', alignItems: 'center', justifyContent: 'center', minWidth: '62px', minHeight: '23px' }}>
+                                                    <div style={{ backgroundColor: 'var(--pink-bg)', border: '1px solid var(--pink-border)', borderRadius: '8px', padding: '2px 6px', display: 'flex', alignItems: 'center', justifyContent: 'center', minWidth: '62px', minHeight: 'var(--h-cell-control)' }}>
                                                         {flexRender(cell.column.columnDef.cell, cell.getContext())}
                                                     </div>
                                                 ) : (
@@ -838,7 +838,7 @@ const Customtable = ({
                                                         display: 'flex', alignItems: 'center',
                                                         justifyContent: isLeft ? 'flex-start' : 'center',
                                                         minWidth: colId === 'material' ? '150px' : colId === 'container' ? '78px' : colId === 'kgs' ? '62px' : '44px',
-                                                        minHeight: '23px',
+                                                        minHeight: 'var(--h-cell-control)',
                                                         transition: 'border-color 0.15s, box-shadow 0.15s',
                                                     }}>
                                                         <input

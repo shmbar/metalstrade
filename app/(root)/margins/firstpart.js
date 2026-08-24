@@ -28,13 +28,13 @@ const FirstPart = ({ incoming, outStandingShip, purchase, totalMargin, shipped }
                 displayType="text"
                 thousandSeparator
                 allowNegative
-                prefix={'$'}
+                suffix={' MT'}
                 decimalScale={0}
                 fixedDecimalScale={false}
             />,
         },
         {
-            label: "Quantity (MT)",
+            label: "Quantity",
             icon: Scale,
             tone: TONES.gray,
             value: <NumericFormat
@@ -44,6 +44,7 @@ const FirstPart = ({ incoming, outStandingShip, purchase, totalMargin, shipped }
                 allowNegative
                 decimalScale={0}
                 fixedDecimalScale={false}
+                suffix={' MT'}
             />,
         },
         {
@@ -71,6 +72,7 @@ const FirstPart = ({ incoming, outStandingShip, purchase, totalMargin, shipped }
                 allowNegative
                 decimalScale={0}
                 fixedDecimalScale={false}
+                suffix={' MT'}
             />,
         },
     ];

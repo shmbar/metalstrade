@@ -32,8 +32,8 @@ import InvPopup from "./invPopup";
 import ForecastPanel from "./ForecastPanel";
 import SumBasket from "./sumBasket";
 import { exportCashflowToExcel } from "./excel";
-import { FiDownload } from "react-icons/fi";
 import KpiStrip from "../../../components/KpiStrip";
+import { BtnIcon } from "../../../components/buttonIcons";
 import Avatar from "../../../components/Avatar";
 import { Boxes, Users, Factory, Wallet, Banknote } from "lucide-react";
 
@@ -1205,7 +1205,7 @@ const Cashflow = () => {
                                             onClick={handleExportCashflow}
                                             className="whiteButton"
                                         >
-                                            <FiDownload className="scale-110" /> Export
+                                            <BtnIcon action="export" /> Export
                                         </button>
                                     </Tltip>
                                     <YearSelect yr={yr} setYr={setYr} />
@@ -1327,10 +1327,10 @@ const Cashflow = () => {
                                                 })}
                                             <div className="flex gap-2 my-1">
                                                 <Tltip direction='bottom' tltpText='Save added data'>
-                                                    <button type="button" className="blackButton" onClick={saveInitData}>Save</button>
+                                                    <button type="button" className="blackButton" onClick={saveInitData}><BtnIcon action="save" />Save</button>
                                                 </Tltip>
                                                 <Tltip direction='bottom' tltpText='Add new item'>
-                                                    <button type="button" className="whiteButton" onClick={addItem}>Add</button>
+                                                    <button type="button" className="whiteButton" onClick={addItem}><BtnIcon action="add" />Add</button>
                                                 </Tltip>
                                             </div>
                                         </div>
@@ -1616,7 +1616,7 @@ const Cashflow = () => {
                                                                     className="blackButton"
                                                                     onClick={() => setFinancedLeft([...financedLeft, { title: '', num: '' }])}
                                                                 >
-                                                                    Add
+                                                                    <BtnIcon action="add" />Add
                                                                 </button>
                                                             </SectionHeader>
                                                             <div className="py-0 px-0 mb-1 ">
@@ -1848,7 +1848,7 @@ const Cashflow = () => {
                                                                     className="blackButton"
                                                                     onClick={() => setFinancedRight([...financedRight, { title: '', num: '' }])}
                                                                 >
-                                                                    Add
+                                                                    <BtnIcon action="add" />Add
                                                                 </button>
                                                             </SectionHeader>
                                                             <div className="flex gap-1 mt-1 pt-2 flex-col" >

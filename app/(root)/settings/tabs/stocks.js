@@ -8,7 +8,7 @@ import { getTtl } from '../../../../utils/languages';
 import Tltip from '../../../../components/tlTip';
 import Avatar from '../../../../components/Avatar';
 import { Selector } from '@components/selectors/selectShad';
-import { CirclePlus, PenLine, Trash, Paintbrush   } from 'lucide-react';
+import { BtnIcon } from '@components/buttonIcons';
 
 
 const Stocks = () => {
@@ -111,23 +111,23 @@ const Stocks = () => {
                 <div className='pb-2 rounded-2xl mt-1 w-full gap-4 flex flex-wrap h-fit'>
                     <Tltip direction='top' tltpText='Add new stock'>
                         <button className={`supplierAddButton ${disabledButton ? 'cursor-not-allowed' : ''}`} disabled={disabledButton} onClick={addItem}>
-                            <CirclePlus size={12} />   {getTtl('Add', ln)}
+                            <BtnIcon action="add" />   {getTtl('Add', ln)}
                         </button>
                     </Tltip>
                     <Tltip direction='top' tltpText='Update stock data'>
                         <button className='supplierButton' onClick={updateList}>
-                            <PenLine size={12} />
+                            <BtnIcon action="update" />
                             {getTtl('Update', ln)}
                         </button>
                     </Tltip>
                     <Tltip direction='top' tltpText='Delete stock'>
                         <button className='supplierButton' onClick={() => setIsDeleteOpen(true)} disabled={!value.id}>
-                            <Trash size={12} /> {getTtl('Delete', ln)}
+                            <BtnIcon action="delete" /> {getTtl('Delete', ln)}
                         </button>
                     </Tltip>
                     <Tltip direction='top' tltpText='Clear form'>
                         <button className='supplierButton' onClick={clickClear}>
-                            <Paintbrush  size={12} />{getTtl('Clear', ln)}
+                            <BtnIcon action="clear" />{getTtl('Clear', ln)}
                         </button>
                     </Tltip>
                 </div>

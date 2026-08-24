@@ -30,10 +30,11 @@ import DocumentImportOverlay from '@components/DocumentImportOverlay';
 import Modal from '@components/modal';
 import ActivityLog from '@components/ActivityLog';
 import CommentThread from '@components/CommentThread';
-import { X, Save, Eraser, FileText, FileUp, Trash, PanelTopOpen, Banknote, Copy, ClipboardCheck, ChevronDown, ChevronUp, ScrollText, History, MessageSquare } from "lucide-react";
+import { Save, Copy, ChevronDown, ChevronUp, ScrollText, History } from 'lucide-react';
 import LoadingButton from '../../../../components/LoadingButton'
 import { invoiceQtyBySalesContract, salesContractIdsOf, withSalesContractLabels } from '@utils/salesLink';
 import SalesSplitSummary from '@components/invoices/SalesSplitSummary';
+import { BtnIcon } from '@components/buttonIcons';
 
 // Settings-style form spec (shared with the standalone Invoices modal)
 const labelCls = 'responsiveText font-medium text-[var(--ink-muted)] mb-1';
@@ -725,7 +726,7 @@ const ContractModal = () => {
 							className="whiteButton py-1"
 							onClick={clearForm}
 						>
-							<Eraser className='size-4' />
+							<BtnIcon action="clear" />
 							{fnl ? 'New' : getTtl('Clear', ln)}
 						</button>
 					</Tltip>
@@ -735,7 +736,7 @@ const ContractModal = () => {
 								className="whiteButton py-1"
 								onClick={() => setShowDocImport(true)}
 							>
-								<FileUp className='size-4' />
+								<BtnIcon action="autofill" />
 								Autofill from customer PO
 							</button>
 						</Tltip>}
@@ -744,14 +745,14 @@ const ContractModal = () => {
 							className="whiteButton py-1"
 							onClick={() => setIsOpenCon(false)}
 						>
-							<X className='size-4' />
+							<BtnIcon action="close" />
 							{getTtl('Close', ln)}
 						</button>
 					</Tltip>
 					{valueInv.id !== '' && (
 						<Tltip direction='top' tltpText='View the activity / change history for this invoice'>
 							<button className="whiteButton py-1" onClick={() => setShowHistory(true)}>
-								<History className='size-4' />
+								<BtnIcon action="history" />
 								History
 							</button>
 						</Tltip>
@@ -759,7 +760,7 @@ const ContractModal = () => {
 					{valueInv.id !== '' && (
 						<Tltip direction='top' tltpText='Comments & team discussion for this invoice'>
 							<button className="whiteButton py-1" onClick={() => setShowComments(true)}>
-								<MessageSquare className='size-4' />
+								<BtnIcon action="comments" />
 								Comments
 							</button>
 						</Tltip>
@@ -835,7 +836,7 @@ const ContractModal = () => {
 
 							}
 						>
-							<FileText className='size-4' />
+							<BtnIcon action="pdf" />
 							PDF
 						</button>
 					</Tltip>
@@ -845,7 +846,7 @@ const ContractModal = () => {
 								className="whiteButton py-1"
 								onClick={() => setIsDeleteOpen(true)}
 							>
-								<Trash className='size-4' />
+								<BtnIcon action="delete" />
 								{getTtl('Delete', ln)}
 							</button>
 						</Tltip>}
@@ -872,7 +873,7 @@ const ContractModal = () => {
 								className="whiteButton py-1"
 								onClick={() => setShowPmntExp('exp')}
 							>
-								<PanelTopOpen className='size-4' />
+								<BtnIcon action="expenses" />
 								{getTtl('Expenses', ln)}
 							</button>
 						</Tltip>}
@@ -882,7 +883,7 @@ const ContractModal = () => {
 								className="whiteButton py-1"
 								onClick={() => setShowPmntExp('pmnt')}
 							>
-								<Banknote className='size-4' />
+								<BtnIcon action="payments" />
 								{getTtl('Payments', ln)}
 							</button>
 						</Tltip>}
@@ -892,7 +893,7 @@ const ContractModal = () => {
 								className="whiteButton py-1"
 								onClick={() => copy_Invoice()}
 							>
-								<Copy className='size-4' />
+								<BtnIcon action="copy" />
 								{getTtl('Copy Invoice', ln)}
 							</button>
 						</Tltip>}
@@ -903,7 +904,7 @@ const ContractModal = () => {
 								className="whiteButton py-1 hidden md:flex"
 								onClick={() => paste_Invoice(uidCollection, valueCon, setValueCon, contractsData, setContractsData)}
 							>
-								<ClipboardCheck className='size-4' />
+								<BtnIcon action="paste" />
 								{getTtl('Paste invoice', ln)}
 							</button>
 						</Tltip>}

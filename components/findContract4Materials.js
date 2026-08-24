@@ -2,6 +2,7 @@ import Modal from "@components/modal"
 import { ContractsContext } from "@contexts/useContractsContext"
 import { loadContract } from "@utils/utils"
 import { useContext, useState } from "react"
+import { BtnIcon } from "@components/buttonIcons"
 
 
 const FindCOntract4Materials = ({ open, setOpen, uidCollection, value, setValue }) => {
@@ -58,14 +59,14 @@ const FindCOntract4Materials = ({ open, setOpen, uidCollection, value, setValue 
                         className="blackButton py-1 responsiveTextInput"
                         onClick={findContract}
                     >
-                        Find
+                        <BtnIcon action="find" />Find
                     </button>
                     <button
                         type="button"
                         className="whiteButton py-1 responsiveTextInput"
                         onClick={() => setOpen(false)}
                     >
-                        Close
+                        <BtnIcon action="close" />Close
                     </button>
                 </div>
             </div>

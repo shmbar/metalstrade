@@ -21,6 +21,7 @@ import SumTable from './sumtables/sumTable'
 import GradeTable from './sumtables/gradeTable'
 import StorageAging from './storageAging'
 import StockAudit from './stockAudit'
+import { BtnIcon } from '../../../components/buttonIcons'
 import { isNumber } from 'mathjs';
 import dateFormat from 'dateformat';
 
@@ -374,7 +375,7 @@ const Stocks = () => {
                 className="whiteButton whitespace-nowrap"
                 title="Stock Audit"
               >
-                Stock Audit
+                <BtnIcon action="audit" />Stock Audit
               </button>
             </div>
 

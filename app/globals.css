@@ -182,6 +182,27 @@
   --radius-control: 10px;
   --radius-pill: 999px;
 
+  /* ── Button icon size ─────────────────────────────────────────────────────
+     ONE size for the glyph inside .blackButton / .whiteButton / .supplierButton
+     / .supplierAddButton. The call sites previously each picked their own —
+     size-4 (16px), w-3.5 (14px), w-3 (12px), size={12}, size={14} and
+     scale-110 all coexisted, so the same Save button was a different weight on
+     every page. 14px pairs with the band's 12px label: big enough to read as an
+     icon, small enough that the label still leads. Consumed by .btn-icon and by
+     components/buttonIcons.js — never restate it at a call site. */
+  --icon-btn: 14px;
+
+  /* ── In-cell control height ───────────────────────────────────────────────
+     A control INSIDE a table cell sits on the compact rung of the band (h-7),
+     not the h-8 that .input uses in a form. The three shared in-cell controls
+     — EditableCell's input, EditableSelectCell's trigger, and the read-only
+     NumericFormats in the margins table — each carried padding but NO height,
+     so every one computed its own from padding + line-height: 15px, 23px and
+     26px, measured side by side. A row is as tall as the tallest control in
+     it, which is why the same table read at a different density on Margins,
+     Invoices and Company Expenses. Consumed by .cell-control. */
+  --h-cell-control: 24px;
+
   /* Translucent surface for the glassy topbar — built from the card colour so it
      darkens with the theme instead of staying white. */
   --glass: color-mix(in srgb, var(--surface-card) 82%, transparent);
@@ -696,6 +717,18 @@ th input, th select, th textarea, th button {
   font-variant-numeric: tabular-nums;
 }
 
+/* Left-aligned variant of the shared band. .custom-table centres, which is right
+   for figures but wrong for a table of identifiers (supplier, contract no.) —
+   and a bare Tailwind `text-left` on the cell is (0,1,0), so it LOSES to
+   .custom-table th/td at (0,1,1). That is why the alert popups kept their own
+   bespoke padding instead of opting in: centring was the only thing stopping
+   them, so they opted out of the band entirely and drifted on padding too.
+   (0,2,1) here, so it wins over the band without touching anything else. */
+.custom-table.cells-left th,
+.custom-table.cells-left td {
+  text-align: left;
+}
+
 /* ── .detail-popup-table: THE hover-detail popup band ────────────────────────
    Five summary cards open a hover popup listing the rows behind a figure —
    stocks, expenses, companyexpenses, contractsstatement (also mounted by
@@ -923,6 +956,28 @@ thead th {
     @apply bg-[var(--brand)] hover:bg-[var(--brand-strong)] text-[var(--on-brand)] flex items-center gap-2 justify-center rounded-control border-0 px-3 h-8 font-medium focus:outline-none transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed;
     font-size: 0.75rem; /* 12px fixed — matches the reference */
     box-shadow: var(--shadow-xs);
+  }
+
+  /* The glyph that leads a button label. One size (--icon-btn), never shrunk by
+     flex, and it does not carry its own colour — it inherits the button's, so a
+     primary button's icon is on-brand and a secondary button's is ink without
+     either being stated twice. Lucide renders width/height as ATTRIBUTES, which
+     any class beats, so this wins over whatever size an icon shipped with. */
+  .btn-icon {
+    width: var(--icon-btn);
+    height: var(--icon-btn);
+    flex: none;
+  }
+
+  /* The one height for a control that lives in a table cell. Put it on the
+     input / trigger itself, not the cell — the cell's own padding is already
+     set by the :where(th, td) floor above, and doubling the two is what made
+     rows drift apart in the first place. Keeps its own padding for the text
+     inset; only the height is fixed. */
+  .cell-control {
+    height: var(--h-cell-control);
+    min-height: var(--h-cell-control);
+    line-height: normal;
   }
 
   /* Focus ring — one definition, visible in both modes. Applied to every

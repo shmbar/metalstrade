@@ -1,5 +1,9 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Defaults to .next, exactly as before. Set NEXT_DIST_DIR to give a second
+  // dev server or a one-off build its OWN output dir — two Next processes
+  // sharing .next corrupt each other's chunks and produce phantom errors.
+  distDir: process.env.NEXT_DIST_DIR || '.next',
   eslint: {
     ignoreDuringBuilds: true,
   },

@@ -1,8 +1,9 @@
 'use client'
 import { v4 as uuidv4 } from 'uuid';
 import { NumericFormat } from 'react-number-format';
-import { CirclePlus, Trash } from 'lucide-react';
+import { Trash } from 'lucide-react';
 import Tltip from '@components/tlTip';
+import { BtnIcon } from '@components/buttonIcons';
 
 // Lightweight product-line editor for a client sales contract: description, weight (qnty),
 // unit price and a computed line total. Deliberately simpler than the supplier-contract
@@ -110,7 +111,7 @@ const SalesProductsTable = ({ value, setValue }) => {
             <div className="mt-3">
                 <Tltip direction='top' tltpText='Add a material line'>
                     <button className="blackButton py-1" onClick={addItem}>
-                        <CirclePlus className='size-4' /> Add
+                        <BtnIcon action="add" /> Add
                     </button>
                 </Tltip>
             </div>

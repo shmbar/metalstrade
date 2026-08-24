@@ -326,7 +326,7 @@ const DraggableRow = memo(function DraggableRow({ row, props, cName }) {
                     className={cn(
                       // px-0: read-only, so there is no hover/focus box for the
                       // padding to clear, and the figure needs every pixel.
-                      "w-full min-w-0 bg-transparent border-none outline-none px-0 text-center responsiveTextTable ",
+                      "cell-control w-full min-w-0 bg-transparent border-none outline-none px-0 text-center responsiveTextTable ",
                       cell.column.id === "remaining" && Number(cell.getValue()) > 0
                         ? "text-[var(--bad-text)]"
                         : "text-[var(--ink)]"
@@ -346,7 +346,7 @@ const DraggableRow = memo(function DraggableRow({ row, props, cName }) {
                 decimalScale={currs.includes(cell.column.id) ? 2 : 3}
                 fixedDecimalScale
                 className={cn(
-                  "w-full min-w-0 bg-transparent border-none outline-none px-0 text-center responsiveTextTable ",
+                  "cell-control w-full min-w-0 bg-transparent border-none outline-none px-0 text-center responsiveTextTable ",
                   ["openShip", "remaining"].includes(cell.column.id) && Number(cell.getValue()) > 0
                     ? "text-[var(--bad-text)]"
                     : "text-[var(--ink)]"

@@ -4,7 +4,8 @@ import { v4 as uuidv4 } from 'uuid';
 import { sortArr } from '../utils/utils'
 import { SettingsContext } from "../contexts/useSettingsContext";
 import { getTtl } from "../utils/languages";
-import { CirclePlus , PenLine, Trash } from 'lucide-react';
+import { PenLine, Trash } from 'lucide-react';
+import { BtnIcon } from './buttonIcons';
 
 const List = ({ list, updateList, ttl, name }) => {
 
@@ -79,7 +80,7 @@ const List = ({ list, updateList, ttl, name }) => {
                 <p className='flex items-center responsiveText font-medium pl-2 text-[var(--endeavour)]' >{ttl!=='Hs' ? getTtl(ttl, ln): ttl}:</p>
                 <button className="blackButton py-1"
                     onClick={() => addItem()}>
-                    <CirclePlus size={12} /> {getTtl('Add', ln)}
+                    <BtnIcon action="add" /> {getTtl('Add', ln)}
                 </button>
             </div>
 

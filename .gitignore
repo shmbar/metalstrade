@@ -50,3 +50,8 @@ backups/
 # firebase admin service account — full project access, never commit
 serviceAccountKey.json
 *serviceAccount*.json
+
+# Alternate Next build dirs from NEXT_DIST_DIR (see next.config.mjs). A second
+# dev server or a one-off build needs its own output; that output is 100MB+ of
+# generated chunks and must never be committed.
+/.next-*/

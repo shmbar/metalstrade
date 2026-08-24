@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { detectNumericCols } from './detectNumericCols';
 import { useQuickSum } from './useQuickSum';
+import { BtnIcon } from '../../buttonIcons';
 
 /**
  * QuickSumButton — toggle + columns picker, sits inline in the icons row
@@ -113,7 +114,7 @@ export function QuickSumButton({
             : 'whiteButton whitespace-nowrap'}
         title="Quick Sum"
       >
-        Quick Sum
+        <BtnIcon action="sum" />Quick Sum
       </button>
 
       {enabled && (

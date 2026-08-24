@@ -1,7 +1,6 @@
 'use client';import { useContext, useEffect, useState, useCallback, useMemo } from 'react';
 import Customtable from './newTable';
 
-import { IoAnalyticsOutline } from "react-icons/io5";
 import KpiStrip from '../../../components/KpiStrip';
 import { FileText, CheckCircle2, CircleDashed, Factory } from 'lucide-react';
 import MyDetailsModal from './modals/dataModal.js'
@@ -31,7 +30,7 @@ import EditableCell from '../../../components/table/inlineEditing/EditableCell';
 import EditableSelectCell from '../../../components/table/inlineEditing/EditableSelectCell';
 import { updateContractField } from '../../../utils/utils';
 import { useGlobalSearch } from '../../../contexts/useGlobalSearchContext';
-import { TbLayoutGridAdd } from "react-icons/tb";
+import { BtnIcon } from '@components/buttonIcons';
 
 const Contracts = () => {
 
@@ -398,7 +397,7 @@ const Contracts = () => {
 												className="whiteButton whitespace-nowrap"
 
 											>
-												<TbLayoutGridAdd className="w-3.5 h-3.5 flex-shrink-0" />
+												<BtnIcon action="newRecord" />
 												<span>{getTtl('New Contract', ln)}</span>
 											</button>
 										</Tltip>
@@ -409,7 +408,7 @@ const Contracts = () => {
 												className="whiteButton whitespace-nowrap"
 
 											>
-												<IoAnalyticsOutline className="w-3.5 h-3.5 flex-shrink-0" />
+												<BtnIcon action="analysis" />
 												<span>{getTtl('Weight Analysis', ln)}</span>
 											</button>
 										</Tltip>

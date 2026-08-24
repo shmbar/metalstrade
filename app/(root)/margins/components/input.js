@@ -33,6 +33,7 @@ const showAmount = (nStr) => {
 // border, and 7px a side was coming straight off the digits' width.
 //
 const INPUT_CLASS = `
+  cell-control
   w-full
   min-w-0
   bg-transparent
@@ -52,7 +53,10 @@ const INPUT_CLASS = `
   transition-colors
 `;
 
-const INPUT_STYLE = { minHeight: '26px', fontVariantNumeric: 'tabular-nums' };
+// Height comes from .cell-control in INPUT_CLASS above — this is an <input>,
+// which never wraps, so it takes the band's fixed height rather than a
+// min-height. It was a hardcoded 26px, 2px off every other in-cell control.
+const INPUT_STYLE = { fontVariantNumeric: 'tabular-nums' };
 
 export const Input = function Input({ props, handleChange, month, name, styles, addCur, placeholder }) {
   const inputRef = useRef(null);

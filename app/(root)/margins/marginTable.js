@@ -5,6 +5,7 @@ import { FiMinusCircle, FiTrash2 } from "react-icons/fi";
 import Customtable from './newTable';
 import { NumericFormat } from "react-number-format";
 import { updateOpenMonth } from '../../../utils/utils';
+import { BtnIcon } from '../../../components/buttonIcons';
 
 const MarginTable = memo(function MarginTable(props) {
     let { month, year, addItem, deleteMonth, openMonth, uidCollection } = props
@@ -198,7 +199,7 @@ const MarginTable = memo(function MarginTable(props) {
                                     className="whiteButton"
                                     onClick={() => addItem(month)}
                                 >
-                                    Add
+                                    <BtnIcon action="add" />Add
                                 </button>
                                 <button
                                     className="p-1.5 rounded-lg transition-colors duration-150 hover:bg-[var(--bad-bg)]"

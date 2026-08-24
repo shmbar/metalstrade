@@ -10,6 +10,7 @@ import TotalPnlTable from './totalPnlTable'
 import TableIbvPurchs from './refPurchaseInvoices'
 import { getTtl } from '@utils/languages';
 import { Selector } from '@components/selectors/selectShad';
+import { BtnIcon } from '@components/buttonIcons';
 
 
 const setNum = (value, contractValue, settings) => {
@@ -241,7 +242,7 @@ const PNL = () => {
             className='blackButton h-7 px-4 rounded-lg'
             onClick={() => saveContractStatus(uidCollection)}
           >
-            {getTtl('save', ln)}
+            <BtnIcon action="save" />{getTtl('save', ln)}
           </button>
         </div>
       </div>

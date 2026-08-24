@@ -25,6 +25,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { TONES } from '@components/statusUtils';
 import ProgressBar from '@components/ProgressBar';
 import Avatar from '@components/Avatar';
+import { BtnIcon } from '@components/buttonIcons';
 import { Gauge, Receipt, Percent, Truck, Warehouse, TrendingUp, FileWarning, Ship, Building2, Info } from 'lucide-react';
 
 import { HorizontalBar } from './charts';
@@ -1613,7 +1614,7 @@ const Dash = () => {
 
               {filtersActive && (
                 <button onClick={clearFilters} className="ml-auto whiteButton">
-                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" /></svg>
+                  <BtnIcon action="clear" />
                   Clear all
                 </button>
               )}
