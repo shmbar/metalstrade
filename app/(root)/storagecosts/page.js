@@ -21,7 +21,7 @@ import { loadData, loadAllStockData, updateExpenseField } from '../../../utils/u
 import { UNIT, ym, toUsd, mtInWh, isStorageType, computeStorageMetric } from './storageUtils';
 import { NumericFormat } from 'react-number-format';
 import dateFormat from 'dateformat';
-import { Warehouse, Save, Boxes, AlertTriangle, Check, Receipt, Calendar, ChevronDown, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Warehouse, Save, Boxes, AlertTriangle, Check, Receipt, Calendar, ChevronDown, ChevronLeft, ChevronRight, Loader2, Undo2 } from 'lucide-react';
 import { TableSkeleton } from "../../../components/skeletons";
 import Tltip from '../../../components/tlTip';
 import { Selector } from '../../../components/selectors/selectShad';
@@ -129,6 +129,13 @@ const StorageCosts = () => {
     const [year, setYear] = useState('all');        // 'all' or 'YYYY' — page-local period filter
     const [edits, setEdits] = useState({});         // id -> { storageWh, storageMonth } (triage drafts)
     const [savingId, setSavingId] = useState(null);
+    // id -> the warehouse/month the invoice had BEFORE you saved. Saving used to be
+    // final the instant you clicked: the row met the "tagged" test, dropped straight
+    // out of the list, and a mis-click was gone with nowhere to click back. So a saved
+    // row now stays exactly where it was, showing what it saved and an Undo, and this
+    // holds the values Undo puts back. It is not a timed toast on purpose — you keep
+    // your place in the list and there is no countdown to lose.
+    const [justSaved, setJustSaved] = useState({});
     // Triage-table filters. The year filter above scopes the whole page; these narrow
     // the "needs tagging" list, which is the part you actually work through row by row.
     const [triageSupplier, setTriageSupplier] = useState('');
@@ -213,6 +220,13 @@ const StorageCosts = () => {
 
     const tagged = useMemo(() => expenses.filter(e => e.storageWh && e.storageMonth), [expenses]);
     const untagged = useMemo(() => expenses.filter(e => !(e.storageWh && e.storageMonth)), [expenses]);
+    // What the table lists: everything still untagged, PLUS anything saved in this
+    // sitting. `untagged` stays the true count, so the badge and the progress bar go on
+    // measuring work left rather than rows on screen.
+    const triageList = useMemo(
+        () => expenses.filter(e => !(e.storageWh && e.storageMonth) || justSaved[e.id]),
+        [expenses, justSaved]
+    );
 
     // Only offer suppliers that appear in the untagged list, so the dropdown can never
     // select its way to an empty table.
@@ -227,14 +241,14 @@ const StorageCosts = () => {
 
     const untaggedShown = useMemo(() => {
         const q = triageQ.trim().toLowerCase();
-        return untagged.filter(e => {
+        return triageList.filter(e => {
             if (triageSupplier && e.supplier !== triageSupplier) return false;
             if (!q) return true;
             const sup = settings.Supplier?.Supplier?.find(sp => sp.id === e.supplier)?.nname || '';
             return `${e.expense || ''} ${sup}`.toLowerCase().includes(q);
         });
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [untagged, triageSupplier, triageQ, settings]);
+    }, [triageList, triageSupplier, triageQ, settings]);
 
     // Aggregate tagged cost & MT per warehouse, plus an overall monthly $/MT rate.
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -348,11 +362,30 @@ const StorageCosts = () => {
     const saveTag = async (e) => {
         const d = draftOf(e);
         if (!d.storageWh || !d.storageMonth) return;
+        // Captured before the write, from the RECORD rather than the draft — the draft
+        // is pre-filled with a suggested warehouse and the invoice's own month, so
+        // undoing to it would put back a guess instead of the blank you started from.
+        const before = { storageWh: e.storageWh || '', storageMonth: e.storageMonth || '' };
         setSavingId(e.id);
         try {
             await updateExpenseField(uidCollection, e.id, e.date, { storageWh: d.storageWh, storageMonth: d.storageMonth });
             setAllExpenses(prev => prev.map(x => x.id === e.id ? { ...x, storageWh: d.storageWh, storageMonth: d.storageMonth } : x));
             setEdits(prev => { const n = { ...prev }; delete n[e.id]; return n; });
+            setJustSaved(prev => ({ ...prev, [e.id]: before }));
+        } finally { setSavingId(null); }
+    };
+
+    const undoTag = async (e) => {
+        const before = justSaved[e.id];
+        if (!before) return;
+        setSavingId(e.id);
+        try {
+            await updateExpenseField(uidCollection, e.id, e.date, before);
+            setAllExpenses(prev => prev.map(x => x.id === e.id ? { ...x, ...before } : x));
+            // Put the choice back in the draft rather than discarding it: you undid a
+            // save, not the twenty seconds of picking that led to it.
+            setEdits(prev => ({ ...prev, [e.id]: { storageWh: e.storageWh || '', storageMonth: e.storageMonth || '' } }));
+            setJustSaved(prev => { const n = { ...prev }; delete n[e.id]; return n; });
         } finally { setSavingId(null); }
     };
 
@@ -624,7 +657,7 @@ const StorageCosts = () => {
                                 right edge. An invoice number is short and bounded like everything
                                 else here, so it is fixed too and a trailing spacer takes the slack
                                 — the same shape the per-year table already uses. */}
-                            <table className="w-full table-fixed" style={{ fontSize: 'var(--fs-table)', minWidth: 960 }}>
+                            <table className="w-full table-fixed" style={{ fontSize: 'var(--fs-table)', minWidth: 900 }}>
                                 <colgroup>
                                     <col style={{ width: 84 }} />
                                     <col style={{ width: 140 }} />
@@ -632,7 +665,7 @@ const StorageCosts = () => {
                                     <col style={{ width: 112 }} />
                                     <col style={{ width: 176 }} />
                                     <col style={{ width: 144 }} />
-                                    <col style={{ width: 108 }} />
+                                    <col style={{ width: 48 }} />
                                     <col />
                                 </colgroup>
                                 <thead>
@@ -655,8 +688,11 @@ const StorageCosts = () => {
                                 <tbody>
                                     {triageRows.map(({ row: e, draft: d, _dateStr }) => {
                                         const ready = d.storageWh && d.storageMonth;
+                                        const saved = justSaved[e.id];
+                                        const busy = savingId === e.id;
                                         return (
-                                            <tr key={e.id} className="border-t border-[var(--bg-subtle)]">
+                                            <tr key={e.id} className="border-t border-[var(--bg-subtle)]"
+                                                style={saved ? { background: 'var(--ok-bg)' } : undefined}>
                                                 {/* dd.mm.yy — what expenses, company expenses and global search
                                                     all print. This cell held the app's only ISO date. */}
                                                 <td className="px-2 py-1.5 whitespace-nowrap text-[var(--port-gore)] numeric">{_dateStr ? dateFormat(_dateStr, 'dd.mm.yy') : '—'}</td>
@@ -684,25 +720,53 @@ const StorageCosts = () => {
                                                     <NumericFormat value={parseFloat(e.amount) || 0} displayType="text" thousandSeparator prefix={e.cur === 'us' ? '$' : '€'} decimalScale={2} fixedDecimalScale />
                                                 </td>
                                                 <td className="px-2 py-1.5">
-                                                    <Selector
-                                                        arr={whOptions}
-                                                        value={{ storageWh: d.storageWh }}
-                                                        onChange={(id) => setDraft(e.id, { storageWh: id })}
-                                                        name='storageWh'
-                                                        secondaryName='_label'
-                                                        clear={() => setDraft(e.id, { storageWh: '' })}
-                                                        classes="h-7"
-                                                    />
+                                                    {/* Once saved the two fields stop being editable and simply
+                                                        state what was written — an inert row is what makes it
+                                                        obvious the click landed, without it vanishing. */}
+                                                    {saved ? (
+                                                        <span className="inline-flex items-center gap-1.5 min-w-0" style={{ color: 'var(--ok-text)' }}>
+                                                            <Check className="w-3.5 h-3.5 shrink-0" />
+                                                            <span className="truncate">{whName(e.storageWh) || '—'}</span>
+                                                        </span>
+                                                    ) : (
+                                                        <Selector
+                                                            arr={whOptions}
+                                                            value={{ storageWh: d.storageWh }}
+                                                            onChange={(id) => setDraft(e.id, { storageWh: id })}
+                                                            name='storageWh'
+                                                            secondaryName='_label'
+                                                            clear={() => setDraft(e.id, { storageWh: '' })}
+                                                            classes="h-7"
+                                                        />
+                                                    )}
                                                 </td>
                                                 <td className="px-2 py-1.5">
-                                                    <MonthPickerPill value={d.storageMonth} onChange={(v) => setDraft(e.id, { storageMonth: v })} />
+                                                    {saved
+                                                        ? <span style={{ color: 'var(--ok-text)' }}>{fmtMonth(e.storageMonth) || '—'}</span>
+                                                        : <MonthPickerPill value={d.storageMonth} onChange={(v) => setDraft(e.id, { storageMonth: v })} />}
                                                 </td>
                                                 <td className="px-2 py-1.5">
-                                                    <button type="button" disabled={!ready || savingId === e.id} onClick={() => saveTag(e)}
-                                                        className="inline-flex items-center gap-1 rounded-lg px-2 h-7 text-[var(--on-brand)] font-medium disabled:opacity-40"
-                                                        style={{ fontSize: 'var(--fs-body)', background: 'var(--endeavour)' }}>
-                                                        <Save className="w-3 h-3" /> {savingId === e.id ? 'Saving…' : 'Save'}
-                                                    </button>
+                                                    {/* Icon only. The word "Save" repeated down twenty rows is a
+                                                        label on a button whose icon already says it, and it cost
+                                                        60px of every row's width. The tooltip carries the words
+                                                        for anyone who wants them; aria-label carries them always. */}
+                                                    {saved ? (
+                                                        <Tltip direction='top' tltpText='Undo — put this invoice back to untagged'>
+                                                            <button type="button" disabled={busy} onClick={() => undoTag(e)} aria-label="Undo this save"
+                                                                className="inline-flex items-center justify-center rounded-lg w-7 h-7 border transition-colors disabled:opacity-40 hover:bg-[var(--bg-card)]"
+                                                                style={{ borderColor: 'var(--ok-border)', color: 'var(--ok-text)' }}>
+                                                                {busy ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Undo2 className="w-3.5 h-3.5" />}
+                                                            </button>
+                                                        </Tltip>
+                                                    ) : (
+                                                        <Tltip direction='top' tltpText={ready ? 'Save this warehouse and month' : 'Pick a warehouse and a month first'}>
+                                                            <button type="button" disabled={!ready || busy} onClick={() => saveTag(e)} aria-label="Save"
+                                                                className="inline-flex items-center justify-center rounded-lg w-7 h-7 text-[var(--on-brand)] disabled:opacity-40"
+                                                                style={{ background: 'var(--endeavour)' }}>
+                                                                {busy ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />}
+                                                            </button>
+                                                        </Tltip>
+                                                    )}
                                                 </td>
                                                 <td className="px-2 py-1.5" />
                                             </tr>

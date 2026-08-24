@@ -1,4 +1,4 @@
-'use client';import { useContext, useEffect, useState, useMemo } from 'react';
+'use client';import { useContext, useEffect, useState, useMemo, useCallback } from 'react';
 
 import { NumericFormat } from 'react-number-format';
 import { useRouter } from 'next/navigation';
@@ -6,10 +6,14 @@ import dateFormat from 'dateformat';
 import { NameCell } from '../../../components/Avatar';
 import Customtable from '../contracts/newTable';
 import MyDetailsModal from './modals/dataModal.js';
+import PurchaseContractModal from '../contracts/modals/dataModal.js';
 import { SettingsContext } from "../../../contexts/useSettingsContext";
 import { SalesContractsContext } from "../../../contexts/useSalesContractsContext";
+import { ContractsContext } from "../../../contexts/useContractsContext";
+import { InvoiceContext } from "../../../contexts/useInvoiceContext";
+import { ExpensesContext } from "../../../contexts/useExpensesContext";
 import { UserAuth } from "../../../contexts/useAuthContext";
-import { loadData } from '../../../utils/utils';
+import { loadData, loadDocsByIdBatched } from '../../../utils/utils';
 import { getTtl } from '../../../utils/languages';
 import Toast from '../../../components/toast.js';
 import { TableSkeleton } from "../../../components/skeletons";
@@ -30,6 +34,9 @@ const SalesContracts = () => {
     const { settings, dateSelect, setDateYr, setLoading, ln } = useContext(SettingsContext);
     const { valueSC, setValueSC, salesContractsData, setSalesContractsData,
         isOpenSC, setIsOpenSC, addSalesContract } = useContext(SalesContractsContext);
+    const { valueCon, setValueCon, isOpenCon, setIsOpenCon, setContractsData } = useContext(ContractsContext);
+    const { blankInvoice, setIsInvCreationCNFL } = useContext(InvoiceContext);
+    const { blankExpense } = useContext(ExpensesContext);
     const { uidCollection } = UserAuth();
     const router = useRouter();
     /* Rows open on double-click (contracts/newTable.js), and the Purchase Contract cell used
@@ -47,9 +54,17 @@ const SalesContracts = () => {
        half a second of lag on an ordinary link click.
 
        So the gesture is no longer ambiguous: the PO number is now plain text, double-
-       clickable like every other cell, and the jump to /contracts moved onto its own small
-       control beside it. A click there means one thing only, it happens immediately, and it
-       swallows dblclick so it can never open the row as well. No timer, no race. */
+       clickable like every other cell, and the link control moved onto its own small button
+       beside it. A click there means one thing only, it happens immediately, and it
+       swallows dblclick so it can never open the row as well. No timer, no race.
+
+       That control no longer navigates, either. Routing to /contracts?openId= tore the user
+       off this page — the table, its filters and the date range all reloaded — just to read
+       one PO, which still read as "it jumps back to Contracts". The purchase-contract popup
+       is the same shared ContractsContext modal the Contracts page renders, so it opens here
+       instead, over the sales-contract table, and closing it leaves the page exactly as it
+       was. Navigation survives only as the fallback for a PO outside the loaded window that
+       cannot be fetched by id. */
 
     const [filteredData, setFilteredData] = useState([]);
     const [highlightId, setHighlightId] = useState(null);
@@ -128,6 +143,42 @@ const SalesContracts = () => {
         Load();
     }, [dateSelect, uidCollection]);
 
+    /* Opens a linked purchase contract in the Contracts popup without leaving this page.
+       The modal reads the shared ContractsContext, so the whole selection the Contracts page
+       makes has to be reproduced here — including contractsData, which is not cosmetic:
+       useContractsState.saveData decides "new or existing" by looking the open contract up in
+       that list, so an empty one would save an edited PO under a fresh uuid. The POs this page
+       already loaded are the list. */
+    const openPurchaseContract = useCallback(async (link) => {
+        let con = poById[link.id];
+        // A PO outside this page's window (an invoice can point at one) is fetched by id —
+        // the link carries the date the year-partitioned collection needs to find it.
+        if (!con && link.date) {
+            const index = await loadDocsByIdBatched(uidCollection, 'contracts', [{ id: link.id, date: link.date }]);
+            con = index[link.id];
+        }
+        if (!con) { router.push(`/contracts?openId=${link.id}`); return; }
+
+        const others = Object.values(poById).filter(c => c.id !== con.id);
+        setContractsData([...others, con]);
+        setValueCon(con.finalSRemarks == null ? { ...con, finalSRemarks: [] } : con);
+        setDateYr(con.dateRange?.startDate?.substring(0, 4));
+        blankInvoice();
+        blankExpense();
+        setIsInvCreationCNFL(false);
+        setIsOpenCon(true);
+    }, [poById, uidCollection, router, setContractsData, setValueCon, setDateYr,
+        blankInvoice, blankExpense, setIsInvCreationCNFL, setIsOpenCon]);
+
+    /* Editing the PO in that popup — its order number above all — has to show in the column
+       that opened it. Navigating used to hide this: you came back to a page that had reloaded.
+       Staying put means the row would otherwise keep the number the PO had before the edit
+       until the next load, so the closed popup folds its contract back into the map. */
+    useEffect(() => {
+        if (isOpenCon) return;
+        setPoById(prev => (valueCon?.id && prev[valueCon.id]) ? { ...prev, [valueCon.id]: valueCon } : prev);
+    }, [isOpenCon]);
+
     const propDefaults = useMemo(() => {
         if (Object.keys(settings).length === 0) return [];
 
@@ -142,6 +193,8 @@ const SalesContracts = () => {
             return {
                 id: src.id,
                 order: con?.order || src.order || '',
+                // Which year-partition the PO lives in, for the fetch-by-id fallback.
+                date: con?.dateRange?.startDate || con?.date || src.date || '',
                 supplier: gQ(con?.supplier || src.supplier, 'Supplier', 'nname'),
                 derived: !manual,
             };
@@ -186,7 +239,7 @@ const SalesContracts = () => {
                                 <button type="button"
                                     onClick={(e) => {
                                         e.stopPropagation();
-                                        router.push(`/contracts?openId=${link.id}`);
+                                        openPurchaseContract(link);
                                     }}
                                     /* Stops the row seeing a double-click on this control, so it can
                                        never navigate and open the popup at the same time. */
@@ -284,7 +337,7 @@ const SalesContracts = () => {
                 enableColumnFilter: false,
             },
         ];
-    }, [settings, ln, shippedByContract, invoicesByContract, poById, poFromInvoices, router]);
+    }, [settings, ln, shippedByContract, invoicesByContract, poById, poFromInvoices, openPurchaseContract]);
 
     const invisible = {};
 
@@ -331,6 +384,18 @@ const SalesContracts = () => {
                                 isOpen={isOpenSC}
                                 setIsOpen={setIsOpenSC}
                                 title={!valueSC.id ? 'New Sales Contract' : `Sales Contract: ${valueSC.contractNo}`}
+                            />
+                        )}
+
+                        {/* The linked purchase contract, opened over this page instead of on
+                            /contracts. Same component and same context the Contracts page uses,
+                            so every tab in it — invoices, shipments, inventory — behaves
+                            identically; only the page underneath is different. */}
+                        {valueCon && (
+                            <PurchaseContractModal
+                                isOpen={isOpenCon}
+                                setIsOpen={setIsOpenCon}
+                                title={`${getTtl('Contract No', ln)}: ${valueCon.order}`}
                             />
                         )}
                     </>
