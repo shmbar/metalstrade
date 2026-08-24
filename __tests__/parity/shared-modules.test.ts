@@ -1747,7 +1747,7 @@ describe('meta — Tier 3 drift alarms on the rules the goldens above encode', (
     ['utils/splitUtils.js', 'computeShares', '890c9e7a8b34'],
     ['app/(root)/contractsstatement/soldStatus.js', 'computeLineSold', '7f39e341a1b5'],
     ['app/(root)/contractsstatement/soldStatus.js', 'lineStatus', 'e4008353ac00'],
-    ['app/(root)/storagecosts/storageUtils.js', 'computeStorageMetric', '604a5beec817'],
+    ['app/(root)/storagecosts/storageUtils.js', 'computeStorageMetric', 'dd00ae771434'],
     ['app/(root)/storagecosts/storageUtils.js', 'mtInWh', 'fe44f0afab48'],
     ['utils/notificationPriority.js', 'priorityOf', '9607cd8bc88e'],
   ])('%s %s has not drifted', (file, symbol, hash) => {

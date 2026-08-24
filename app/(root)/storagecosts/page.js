@@ -12,9 +12,10 @@
 //    dates aren't reliably tracked yet, so this uses current sold status as a proxy — an
 //    honest v1 that improves once out-dates are captured.
 //  • The week/month/year toggle just re-expresses the monthly rate (×1, ÷4.345, ×12).
-import { useContext, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom';
 import { SettingsContext } from "../../../contexts/useSettingsContext";
+import { ExpensesContext } from "../../../contexts/useExpensesContext";
 import { UserAuth } from "../../../contexts/useAuthContext";
 import { loadData, loadAllStockData, updateExpenseField } from '../../../utils/utils';
 import { UNIT, ym, toUsd, mtInWh, isStorageType, computeStorageMetric } from './storageUtils';
@@ -25,6 +26,7 @@ import { TableSkeleton } from "../../../components/skeletons";
 import { Selector } from '../../../components/selectors/selectShad';
 import { NameCell } from '../../../components/Avatar';
 import { SortTh, sortRows, useSortState } from '@components/table/sorting';
+import ExpenseModal from '../expenses/modals/dataModal.js';
 
 const fmtUsd = (v) => `$${new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(v || 0)}`;
 const fmtMt = (v) => new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 }).format(v || 0);
@@ -111,8 +113,13 @@ function MonthPickerPill({ value, onChange }) {
 }
 
 const StorageCosts = () => {
-    const { settings } = useContext(SettingsContext);
+    const { settings, setDateYr } = useContext(SettingsContext);
     const { uidCollection } = UserAuth();
+    // An invoice number opens the real expense record in the app's own expense modal
+    // — the same one /expenses uses — rather than a second, divergent copy of it.
+    // ExpensesProvider wraps the whole app, so all this page supplies is the row to
+    // open and a reload for when the modal closes.
+    const { valueExp, setValueExp, isOpen: expOpen, setIsOpen: setExpOpen } = useContext(ExpensesContext);
 
     const [allExpenses, setAllExpenses] = useState([]); // storage-type expenses across recent years
     const [lots, setLots] = useState([]);           // all stock lots
@@ -130,6 +137,7 @@ const StorageCosts = () => {
     // order (years newest-first, invoices as loaded).
     const yearSort = useSortState();
     const triageSort = useSortState();
+    const whSort = useSortState();
 
     const expTypes = settings?.Expenses?.Expenses || [];
     const warehouses = settings?.Stocks?.Stocks || [];
@@ -139,22 +147,35 @@ const StorageCosts = () => {
 
     // Load storage expenses across recent years (this page has its own year filter, independent of
     // the global date range) plus all stock, so we can show per-year figures and a summary table.
-    useEffect(() => {
-        const Load = async () => {
-            if (!uidCollection || Object.keys(settings).length === 0) return;
-            setLoading(true);
-            const thisYr = new Date().getFullYear();
-            const [exp, allLots] = await Promise.all([
-                loadData(uidCollection, 'expenses', { start: `${thisYr - 9}-01-01`, end: `${thisYr}-12-31` }),
-                loadAllStockData(uidCollection),
-            ]);
-            setAllExpenses((exp || []).filter(e => isStorageType(e, expTypes)));
-            setLots((allLots || []).filter(Boolean));
-            setLoading(false);
-        };
-        Load();
+    const load = useCallback(async () => {
+        if (!uidCollection || Object.keys(settings).length === 0) return;
+        setLoading(true);
+        const thisYr = new Date().getFullYear();
+        const [exp, allLots] = await Promise.all([
+            loadData(uidCollection, 'expenses', { start: `${thisYr - 9}-01-01`, end: `${thisYr}-12-31` }),
+            loadAllStockData(uidCollection),
+        ]);
+        setAllExpenses((exp || []).filter(e => isStorageType(e, expTypes)));
+        setLots((allLots || []).filter(Boolean));
+        setLoading(false);
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [uidCollection, settings]);
+
+    useEffect(() => { load(); }, [load]);
+
+    // Reload once the expense modal closes: it can edit or delete the record, and
+    // every Firestore write busts the shared load cache, so a plain re-read is fresh.
+    const expWasOpen = useRef(false);
+    useEffect(() => {
+        if (expWasOpen.current && !expOpen) load();
+        expWasOpen.current = expOpen;
+    }, [expOpen, load]);
+
+    const openExpense = (e) => {
+        setValueExp(e);
+        setDateYr((e.dateRange?.startDate || (typeof e.date === 'string' ? e.date : '')).substring(0, 4));
+        setExpOpen(true);
+    };
 
     // The year a storage invoice belongs to = its covered month if tagged, else its date.
     // (storageMonth/date are string-safe here; ym already coerces non-strings.)
@@ -231,6 +252,47 @@ const StorageCosts = () => {
 
     const factor = UNIT.find(u => u.key === unit).factor;
     const rateStr = (monthlyRate) => monthlyRate == null ? '—' : `${fmtUsd(monthlyRate * factor)}/MT`;
+
+    // One row per warehouse — EVERY warehouse, not only the ones that happen to have a
+    // tagged invoice. The four cards this replaced could only ever show warehouses that
+    // already had a rate, so a warehouse you were looking for simply wasn't on the page,
+    // and the ones that were showed a bare "—" with no way to tell what was missing.
+    const whRows = useMemo(() => {
+        const tagged = Object.fromEntries(metric.rows.map(r => [r.wh, r]));
+        return warehouses
+            .filter(w => w && w.id && !w.deleted)
+            .map(w => {
+                const m = tagged[w.id];
+                return {
+                    id: w.id,
+                    _name: whName(w.id),
+                    _cost: m?.cost || 0,
+                    _mtMonths: m?.mt || 0,
+                    _mtNow: mtInWh(lots, w.id, ''),
+                    rate: m?.rate ?? null,
+                    // -1 so sortRows orders "no rate" as a value instead of comparing null
+                    // as the string "null".
+                    _rate: m?.rate ?? -1,
+                    months: m?.months || [],
+                };
+            })
+            .sort((a, b) => (b._cost - a._cost) || (b._mtNow - a._mtNow) || a._name.localeCompare(b._name));
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [warehouses, metric, lots]);
+
+    const whShown = whSort.sortKey ? sortRows(whRows, whSort.sortKey, whSort.sortDir) : whRows;
+
+    // Why a warehouse shows no $/MT. The two gaps are not the same problem and the fix
+    // differs: an untagged warehouse is something you finish in the table below, whereas
+    // cost with no MT-months means the stock records show nothing standing in that
+    // warehouse for the months the terminal billed — a data question, not a tagging one.
+    const whyNoRate = (r) => {
+        if (r._cost <= 0) return 'No storage invoice tagged here yet';
+        if (r._mtMonths > 0) return '';
+        const ms = r.months.map(fmtMonth).filter(Boolean);
+        const when = ms.length ? ms.slice(0, 3).join(', ') + (ms.length > 3 ? `, +${ms.length - 3} more` : '') : 'the months billed';
+        return `Billed for ${when} — no stock recorded here ${ms.length === 1 ? 'that month' : 'in those months'}`;
+    };
 
     // Suggest a warehouse for an untagged invoice by reusing the one already chosen for
     // another storage invoice from the same supplier (a terminal maps to one warehouse).
@@ -335,8 +397,16 @@ const StorageCosts = () => {
                     </div>
                 </div>
 
-                {/* Real actuals — exact figures from your expenses & stock, shown even before tagging */}
+                {/* Three figures, all real: the rate the page exists to produce, and the two
+                    actuals behind it that need no tagging at all. */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3 mb-3">
+                    <div className="rounded-2xl p-4 text-[var(--on-brand)]" style={{ background: 'linear-gradient(135deg, var(--endeavour), var(--chathams-blue))' }}>
+                        <div className="flex items-center gap-1.5 opacity-90" style={{ fontSize: 'var(--fs-table)' }}><Boxes className="w-3.5 h-3.5" /> Avg storage cost {UNIT.find(u => u.key === unit).label}</div>
+                        <div className="font-bold mt-1" style={{ fontSize: 'var(--fs-display)' }}>{rateStr(metric.overall)}</div>
+                        <div className="opacity-80 mt-0.5" style={{ fontSize: 'var(--fs-table)' }}>
+                            {fmtUsd(metric.totalCost)} tagged · {new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 }).format(metric.totalMt)} MT-months
+                        </div>
+                    </div>
                     <div className="rounded-2xl p-4 bg-[var(--bg-card)] border border-[var(--line)] shadow-sm">
                         <div className="flex items-center gap-1.5 text-[var(--regent-gray)]" style={{ fontSize: 'var(--fs-table)' }}><Receipt className="w-3.5 h-3.5" /> Storage spend · {year === 'all' ? 'all years' : year}</div>
                         <div className="font-bold mt-1 text-[var(--chathams-blue)]" style={{ fontSize: 'var(--fs-display)' }}>{fmtUsd(actuals.totalSpend)}</div>
@@ -349,42 +419,56 @@ const StorageCosts = () => {
                         <div className="font-bold mt-1 text-[var(--chathams-blue)]" style={{ fontSize: 'var(--fs-display)' }}>{fmtMt(actuals.totalMt)} MT</div>
                         <div className="text-[var(--regent-gray)] mt-0.5" style={{ fontSize: 'var(--fs-table)' }}>{actuals.whMt.length} warehouse{actuals.whMt.length === 1 ? '' : 's'} with stock</div>
                     </div>
-                    <div className="rounded-2xl p-4 bg-[var(--bg-card)] border border-[var(--line)] shadow-sm">
-                        <div className="flex items-center gap-1.5 text-[var(--regent-gray)] mb-1" style={{ fontSize: 'var(--fs-table)' }}><Warehouse className="w-3.5 h-3.5" /> By warehouse (MT now)</div>
-                        <div className="flex flex-col gap-0.5 max-h-[4.5rem] overflow-y-auto pr-1">
-                            {actuals.whMt.length === 0
-                                ? <span className="responsiveTextTable text-[var(--regent-gray)]">No stock on hand</span>
-                                : actuals.whMt.map(w => (
-                                    <div key={w.id} className="flex items-center justify-between" style={{ fontSize: 'var(--fs-body)' }}>
-                                        <span className="text-[var(--port-gore)] truncate pr-2">
-                                            <NameCell name={w.name} size={16} fallback="—" />
-                                        </span>
-                                        <span className="font-medium text-[var(--chathams-blue)] whitespace-nowrap">{fmtMt(w.mt)} MT</span>
-                                    </div>
-                                ))}
-                        </div>
-                    </div>
                 </div>
 
-                {/* Overall + per-warehouse rate cards (require warehouse+month tagging) */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3 mb-5">
-                    <div className="rounded-2xl p-4 text-[var(--on-brand)]" style={{ background: 'linear-gradient(135deg, var(--endeavour), var(--chathams-blue))' }}>
-                        <div className="flex items-center gap-1.5 opacity-90" style={{ fontSize: 'var(--fs-table)' }}><Boxes className="w-3.5 h-3.5" /> Avg storage cost {UNIT.find(u => u.key === unit).label}</div>
-                        <div className="font-bold mt-1" style={{ fontSize: 'var(--fs-stat)' }}>{rateStr(metric.overall)}</div>
-                        <div className="opacity-80 mt-0.5" style={{ fontSize: 'var(--fs-table)' }}>
-                            {fmtUsd(metric.totalCost)} tagged · {new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 }).format(metric.totalMt)} MT-months
-                        </div>
+                {/* Every warehouse, with the reason next to any that has no rate yet. */}
+                <div className="rounded-2xl border border-[var(--line)] bg-[var(--bg-card)] overflow-hidden mb-5">
+                    <div className="flex items-center gap-2 px-4 py-2.5" style={{ background: 'var(--bg-subtle)' }}>
+                        <Warehouse className="w-4 h-4 text-[var(--endeavour)]" />
+                        <span className="responsiveText font-semibold text-[var(--chathams-blue)]">By warehouse</span>
+                        <span className="responsiveTextTable text-[var(--regent-gray)] ml-1 hidden sm:inline">— all {whRows.length} warehouse{whRows.length === 1 ? '' : 's'}, rate where both inputs exist</span>
                     </div>
-                    {metric.rows.map(r => (
-                        <div key={r.wh} className="rounded-2xl p-4 bg-[var(--bg-card)] border border-[var(--line)] shadow-sm">
-                            <div className="flex items-center gap-1.5 text-[var(--regent-gray)]" style={{ fontSize: 'var(--fs-table)' }}><Warehouse className="w-3.5 h-3.5" /> {r.name}</div>
-                            <div className="font-bold mt-1 text-[var(--chathams-blue)]" style={{ fontSize: 'var(--fs-stat)' }}>{rateStr(r.rate)}</div>
-                            <div className="text-[var(--regent-gray)] mt-0.5" style={{ fontSize: 'var(--fs-table)' }}>{fmtUsd(r.cost)} · {new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 }).format(r.mt)} MT-months</div>
-                        </div>
-                    ))}
-                    {metric.rows.length === 0 && (
-                        <div className="sm:col-span-2 xl:col-span-3 rounded-2xl p-4 bg-[var(--bg-card)] border border-dashed border-[var(--line)] flex items-center text-[var(--regent-gray)] responsiveTextTable">
-                            No storage invoices tagged yet for this period — tag some below to see the rate.
+                    {whRows.length === 0 ? (
+                        <div className="px-4 py-6 text-center responsiveTextTable text-[var(--regent-gray)]">No warehouses set up yet — add them under Settings → Stocks.</div>
+                    ) : (
+                        <div className="overflow-x-auto">
+                            {/* Fixed px for the five bounded columns; the reason is the one free-text
+                                column and takes the slack. */}
+                            <table className="w-full table-fixed" style={{ fontSize: 'var(--fs-table)', minWidth: 912 }}>
+                                <colgroup>
+                                    <col style={{ width: 200 }} />
+                                    <col style={{ width: 132 }} />
+                                    <col style={{ width: 116 }} />
+                                    <col style={{ width: 108 }} />
+                                    <col style={{ width: 172 }} />
+                                    <col />
+                                </colgroup>
+                                <thead>
+                                    <tr className="text-left uppercase text-[var(--ink-muted)]" style={{ background: "var(--bg-subtle)", fontSize: "var(--fs-table)", letterSpacing: "0.04em" }}>
+                                        <SortTh colKey="_name" label="Warehouse" sort={whSort} idle className="px-2 py-1 font-medium whitespace-nowrap" />
+                                        <SortTh colKey="_cost" label="Tagged spend" sort={whSort} idle className="px-2 py-1 font-medium text-right whitespace-nowrap" />
+                                        <SortTh colKey="_mtMonths" label="MT-months" sort={whSort} idle className="px-2 py-1 font-medium text-right whitespace-nowrap" />
+                                        <SortTh colKey="_mtNow" label="MT now" sort={whSort} idle className="px-2 py-1 font-medium text-right whitespace-nowrap" />
+                                        <SortTh colKey="_rate" label={`Avg cost ${UNIT.find(u => u.key === unit).label}`} sort={whSort} idle className="px-2 py-1 font-medium text-right whitespace-nowrap" />
+                                        <th className="px-2 py-1 font-medium whitespace-nowrap">Why blank</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {whShown.map(r => {
+                                        const why = whyNoRate(r);
+                                        return (
+                                            <tr key={r.id} className="border-t border-[var(--bg-subtle)]">
+                                                <td className="px-2 py-1.5 text-[var(--port-gore)]"><NameCell name={r._name} size={16} fallback="—" maxWidth={182} /></td>
+                                                <td className="px-2 py-1.5 text-right text-[var(--port-gore)] numeric">{r._cost > 0 ? fmtUsd(r._cost) : '—'}</td>
+                                                <td className="px-2 py-1.5 text-right text-[var(--port-gore)] numeric">{fmtMt(r._mtMonths)}</td>
+                                                <td className="px-2 py-1.5 text-right text-[var(--port-gore)] numeric">{fmtMt(r._mtNow)}</td>
+                                                <td className="px-2 py-1.5 text-right font-medium text-[var(--chathams-blue)] numeric">{rateStr(r.rate)}</td>
+                                                <td className="px-2 py-1.5 truncate" title={why} style={{ color: 'var(--regent-gray)' }}>{why || ''}</td>
+                                            </tr>
+                                        );
+                                    })}
+                                </tbody>
+                            </table>
                         </div>
                     )}
                 </div>
@@ -496,19 +580,23 @@ const StorageCosts = () => {
                         <div className="overflow-x-auto">
                             {/* Fixed px per column, each sized to its own content plus its own
                                 header — a date is eight characters wide whatever the monitor is.
-                                Only the invoice number is genuinely free text, so it is the one
-                                auto column and absorbs all the slack; minWidth is the six fixed
-                                widths (808) plus a floor for it, so the table scrolls at a narrow
-                                viewport rather than crushing the one column that can't take it. */}
-                            <table className="w-full table-fixed" style={{ fontSize: 'var(--fs-table)', minWidth: 980 }}>
+
+                                Invoice used to be the auto column, and on a wide monitor it took
+                                every spare pixel: ~800px of white space holding "20232492", which
+                                is what made the table read as sparse and pushed Warehouse off the
+                                right edge. An invoice number is short and bounded like everything
+                                else here, so it is fixed too and a trailing spacer takes the slack
+                                — the same shape the per-year table already uses. */}
+                            <table className="w-full table-fixed" style={{ fontSize: 'var(--fs-table)', minWidth: 960 }}>
                                 <colgroup>
                                     <col style={{ width: 84 }} />
-                                    <col />
+                                    <col style={{ width: 140 }} />
                                     <col style={{ width: 184 }} />
                                     <col style={{ width: 112 }} />
                                     <col style={{ width: 176 }} />
                                     <col style={{ width: 144 }} />
                                     <col style={{ width: 108 }} />
+                                    <col />
                                 </colgroup>
                                 <thead>
                                     <tr className="text-left uppercase text-[var(--ink-muted)]" style={{ background: "var(--bg-subtle)", fontSize: "var(--fs-table)", letterSpacing: "0.04em" }}>
@@ -524,6 +612,7 @@ const StorageCosts = () => {
                                         <SortTh colKey="_wh" label="Warehouse" sort={triageSort} idle className="px-2 py-1 font-medium whitespace-nowrap" />
                                         <SortTh colKey="_month" label="Month covered" sort={triageSort} idle className="px-2 py-1 font-medium whitespace-nowrap" />
                                         <th className="px-2 py-1"></th>
+                                        <th className="px-2 py-1"></th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -534,7 +623,20 @@ const StorageCosts = () => {
                                                 {/* dd.mm.yy — what expenses, company expenses and global search
                                                     all print. This cell held the app's only ISO date. */}
                                                 <td className="px-2 py-1.5 whitespace-nowrap text-[var(--port-gore)] numeric">{_dateStr ? dateFormat(_dateStr, 'dd.mm.yy') : '—'}</td>
-                                                <td className="px-2 py-1.5 text-[var(--port-gore)] truncate" title={e.expense || ''}>{e.expense || '—'}</td>
+                                                <td className="px-2 py-1.5">
+                                                    {/* A single click opens the expense itself, in the same modal
+                                                        /expenses uses. Deliberately a control rather than a row
+                                                        handler: the row already holds two dropdowns and a button,
+                                                        and a click target that overlaps them is how the sales-
+                                                        contracts double-click bug happened. */}
+                                                    {e.expense
+                                                        ? <button type="button" onClick={() => openExpense(e)} title={`Open expense ${e.expense}`}
+                                                            className="block w-full truncate text-left underline underline-offset-2 hover:opacity-70 transition-opacity"
+                                                            style={{ color: 'var(--chathams-blue)', fontWeight: 500 }}>
+                                                            {e.expense}
+                                                        </button>
+                                                        : <span style={{ color: 'var(--regent-gray)' }}>—</span>}
+                                                </td>
                                                 <td className="px-2 py-1.5 text-[var(--port-gore)]">
                                                     <NameCell name={settings.Supplier?.Supplier?.find(s => s.id === e.supplier)?.nname} fallback="—" maxWidth={166} />
                                                 </td>
@@ -562,6 +664,7 @@ const StorageCosts = () => {
                                                         <Save className="w-3 h-3" /> {savingId === e.id ? 'Saving…' : 'Save'}
                                                     </button>
                                                 </td>
+                                                <td className="px-2 py-1.5" />
                                             </tr>
                                         );
                                     })}
@@ -570,6 +673,10 @@ const StorageCosts = () => {
                         </div>
                     )}
                 </div>
+
+                {valueExp && (
+                    <ExpenseModal isOpen={expOpen} setIsOpen={setExpOpen} title={`Expense: ${valueExp.expense || ''}`} />
+                )}
 
                 <p className="responsiveTextTable text-[var(--regent-gray)] mt-4 pl-1">
                     Note: MT stored is estimated from each lot&apos;s arrival date and current sold status (exit dates aren&apos;t tracked yet), so the rate is a close approximation. Only <b>storage</b> and <b>warehouse</b> expense types are counted.

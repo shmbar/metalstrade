@@ -1,4 +1,4 @@
-'use client';import { useContext, useEffect, useState, useMemo, useRef } from 'react';
+'use client';import { useContext, useEffect, useState, useMemo } from 'react';
 
 import { NumericFormat } from 'react-number-format';
 import { useRouter } from 'next/navigation';
@@ -15,6 +15,7 @@ import Toast from '../../../components/toast.js';
 import { TableSkeleton } from "../../../components/skeletons";
 import Tltip from '../../../components/tlTip';
 import { TbLayoutGridAdd } from "react-icons/tb";
+import { ExternalLink } from 'lucide-react';
 import { invoiceQtyBySalesContract } from '../../../utils/salesLink';
 
 // Total contracted weight of a sales contract = sum of its product-line quantities.
@@ -31,12 +32,24 @@ const SalesContracts = () => {
         isOpenSC, setIsOpenSC, addSalesContract } = useContext(SalesContractsContext);
     const { uidCollection } = UserAuth();
     const router = useRouter();
-    /* Rows open on double-click (contracts/newTable.js), but the Purchase Contract cell is a
-       link that navigates on single click — so double-clicking that one cell fired the link
-       AND opened the row, landing you on /contracts instead of on the sales contract. Hold the
-       navigation for one double-click interval and drop it if a second click arrives. */
-    const poNavTimer = useRef(null);
-    useEffect(() => () => clearTimeout(poNavTimer.current), []);
+    /* Rows open on double-click (contracts/newTable.js), and the Purchase Contract cell used
+       to be a link that navigated on single click — so one gesture over that cell had two
+       meanings and the cell had to guess which it was. It guessed by holding the navigation
+       for 250ms and dropping it if a second click arrived, but Windows' GetDoubleClickTime
+       defaults to 500ms and Chrome takes the OS value: an ordinary double-click there
+       navigated before its second click had even landed, so the sales-contract popup opened
+       and was instantly thrown away by a navigation already in flight. That is the "it jumps
+       back to Contracts" report.
+
+       A longer hold only moves the edge. The interval is a user setting with no API to read,
+       so every timeout is a guess that some machine loses — measured with real mouse events,
+       a 500ms hold still navigated on a 450ms double-click — and each correct guess costs
+       half a second of lag on an ordinary link click.
+
+       So the gesture is no longer ambiguous: the PO number is now plain text, double-
+       clickable like every other cell, and the jump to /contracts moved onto its own small
+       control beside it. A click there means one thing only, it happens immediately, and it
+       swallows dblclick so it can never open the row as well. No timer, no race. */
 
     const [filteredData, setFilteredData] = useState([]);
     const [highlightId, setHighlightId] = useState(null);
@@ -160,18 +173,29 @@ const SalesContracts = () => {
                     const link = poLinkFor(props.row.original);
                     if (!link?.order) return <span style={{ color: 'var(--regent-gray)' }}>—</span>;
                     return (
-                        <button type="button"
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                clearTimeout(poNavTimer.current);
-                                poNavTimer.current = setTimeout(() => router.push(`/contracts?openId=${link.id}`), 250);
-                            }}
-                            onDoubleClick={() => clearTimeout(poNavTimer.current)}
-                            title={link.derived ? 'From the sales invoice this contract shipped under' : 'Linked on this sales contract'}
-                            className="underline underline-offset-2"
-                            style={{ color: 'var(--chathams-blue)', fontWeight: 500, fontStyle: link.derived ? 'italic' : 'normal' }}>
-                            {link.order}
-                        </button>
+                        <span className="inline-flex items-center gap-1">
+                            {/* Text, not a control: this has to stay double-clickable so the row
+                                still opens the sales contract from here like it does anywhere
+                                else. Italic still marks a link the invoices inferred. */}
+                            <span title={link.derived ? 'From the sales invoice this contract shipped under' : 'Linked on this sales contract'}
+                                style={{ color: 'var(--chathams-blue)', fontWeight: 500, fontStyle: link.derived ? 'italic' : 'normal' }}>
+                                {link.order}
+                            </span>
+                            <button type="button"
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    router.push(`/contracts?openId=${link.id}`);
+                                }}
+                                /* Stops the row seeing a double-click on this control, so it can
+                                   never navigate and open the popup at the same time. */
+                                onDoubleClick={(e) => e.stopPropagation()}
+                                title={`Open purchase contract ${link.order}`}
+                                aria-label={`Open purchase contract ${link.order}`}
+                                className="shrink-0 rounded p-0.5 transition-colors hover:bg-[var(--bg-subtle)]"
+                                style={{ color: 'var(--endeavour)' }}>
+                                <ExternalLink className="w-3 h-3" />
+                            </button>
+                        </span>
                     );
                 },
                 meta: { excludeFromQuickSum: true },

@@ -67,6 +67,10 @@ export const computeStorageMetric = ({ tagged = [], lots = [], whName = () => ''
     });
     const rows = Object.entries(perWh).map(([wh, v]) => ({
         wh, name: whName(wh) || '—', cost: v.cost, mt: v.mtMonths,
+        // The months this warehouse was actually billed for. Carried out so a
+        // warehouse with cost but no MT-months can say WHICH months found no stock,
+        // instead of rendering a bare dash that reads as a broken page.
+        months: [...v.months].sort(),
         rate: v.mtMonths > 0 ? v.cost / v.mtMonths : null, // $/MT/month
     })).sort((a, b) => (b.rate || 0) - (a.rate || 0));
     const totalCost = rows.reduce((s, r) => s + r.cost, 0);
