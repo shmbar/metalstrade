@@ -15,13 +15,14 @@ import Toast from '../../../components/toast.js';
 import { TableSkeleton } from "../../../components/skeletons";
 import Tltip from '../../../components/tlTip';
 import { TbLayoutGridAdd } from "react-icons/tb";
+import { invoiceQtyBySalesContract } from '../../../utils/salesLink';
 
 // Total contracted weight of a sales contract = sum of its product-line quantities.
 const contractQty = (c) => (c.productsData || []).reduce((s, r) => s + (parseFloat(r.qnty) || 0), 0);
 
-// Shipped weight on an invoice = sum of its line quantities (service lines 's' excluded).
-const invoiceQty = (inv) => (inv.productsDataInvoice || [])
-    .reduce((s, r) => s + (r.qnty === 's' ? 0 : (parseFloat(r.qnty) || 0)), 0);
+// Shipped weight now comes from utils/salesLink, which splits an invoice's line
+// quantities across the client POs those lines are sold against. The local
+// whole-invoice invoiceQty() it replaced could only credit one contract.
 
 const SalesContracts = () => {
 
@@ -80,15 +81,27 @@ const SalesContracts = () => {
                     loadData(uidCollection, 'invoices', { start: `${minY}-01-01`, end: `${maxY}-12-31` }),
                     loadData(uidCollection, 'contracts', { start: `${minY - 1}-01-01`, end: `${maxY}-12-31` }),
                 ]);
+                // An invoice can cover more than one client PO, with the split recorded on
+                // its LINES, so shipped tonnage is credited per line rather than dumping
+                // the invoice total onto a single contract. utils/salesLink falls back to
+                // the invoice-level link for untagged rows, so an invoice that has not
+                // been split still lands entirely on the same contract as before.
                 invoices
-                    .filter(inv => inv.salesContractId && !inv.canceled)
+                    .filter(inv => inv && !inv.canceled)
                     .forEach(inv => {
-                        map[inv.salesContractId] = (map[inv.salesContractId] || 0) + invoiceQty(inv);
-                        if (inv.invoice !== undefined && inv.invoice !== '') {
-                            (invMap[inv.salesContractId] ||= []).push(`${inv.invoice}${suffix(inv.invType)}`);
-                        }
-                        if (inv.poSupplier?.id && !poMap[inv.salesContractId]) {
-                            poMap[inv.salesContractId] = inv.poSupplier;
+                        const byScTmp = invoiceQtyBySalesContract(inv);
+                        for (const scId of Object.keys(byScTmp)) {
+                            map[scId] = (map[scId] || 0) + byScTmp[scId];
+                            if (inv.invoice !== undefined && inv.invoice !== '') {
+                                const label = `${inv.invoice}${suffix(inv.invType)}`;
+                                // One invoice number per contract even when several of its
+                                // lines point at the same PO.
+                                const list = (invMap[scId] ||= []);
+                                if (!list.includes(label)) list.push(label);
+                            }
+                            if (inv.poSupplier?.id && !poMap[scId]) {
+                                poMap[scId] = inv.poSupplier;
+                            }
                         }
                     });
                 (purchaseContracts || []).forEach(c => { if (c?.id) conMap[c.id] = c; });

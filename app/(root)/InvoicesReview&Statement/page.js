@@ -29,6 +29,8 @@ import { TableSkeleton } from "../../../components/skeletons";
 import VideoLoader from '../../../components/videoLoader';
 import Tltip from '../../../components/tlTip';
 import { NameCell } from '../../../components/Avatar';
+import KpiStrip from '../../../components/KpiStrip';
+import { Receipt, Wallet, TrendingDown, Scale } from 'lucide-react';
 
 const TotalInvoicePayments = (data) => {
   let accumulatedPmnt = 0;
@@ -910,6 +912,27 @@ const Shipments = () => {
     setIsOpenCon(true);
   };
 
+  // KPI strip — the four headline figures from the TOTAL $ band, lifted into the
+  // same reference-style cards accounting and cashflow use. They read off the
+  // same `totals` the band does, so they move with the filters and the date
+  // range instead of being a second, drifting summary.
+  // USD only: the band renders `ttlUS ?? ttlEU`, i.e. the euro totals are a
+  // per-column fallback and never a row of their own, so a euro card would be
+  // showing a figure the table never shows.
+  const ttlUs = totals[0]?.us;
+  const fmtUsd = (n) => '$' + Number(n || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const kpiItems = [
+    { label: getTtl('invValueSale', ln), value: ttlUs?.totalAmount || 0, format: fmtUsd, icon: Receipt, tone: 'blue' },
+    {
+      label: getTtl('Prepaid Amount', ln), value: ttlUs?.totalPrepayment1 || 0, format: fmtUsd, icon: Wallet, tone: 'green',
+      // The prepaid share is a percentage, not money — it belongs under the
+      // amount it qualifies rather than in a card of its own.
+      sub: ttlUs?.prepaidPer && ttlUs.prepaidPer !== '-' ? `${getTtl('Prepaid', ln)} %: ${ttlUs.prepaidPer}` : undefined,
+    },
+    { label: getTtl('Debt Balance', ln), value: ttlUs?.debtBlnc || 0, format: fmtUsd, icon: TrendingDown, tone: 'red' },
+    { label: getTtl('Deviation', ln), value: ttlUs?.deviation || 0, format: fmtUsd, icon: Scale, tone: 'amber' },
+  ];
+
   return (
     <div className="w-full " style={{ background: "var(--bg-subtle)" }}>
       <div className="mx-auto w-full max-w-full px-1 md:px-2 pb-4 mt-[72px]">
@@ -964,6 +987,9 @@ const Shipments = () => {
               {/* Review Tab Content */}
               {activeTab === 'review' && (
                 <div className='mt-2'>
+                  {/* Compact size: these run to eight figures, and the 24px default
+                      crowds the card — the same reason cashflow is compact. */}
+                  <KpiStrip items={kpiItems} size="compact" />
                   <Customtable data={loading ? [] : getFormatted(dataTable)} columns={propDefaults} SelectRow={SelectRow}
                     setFilteredData={setFilteredData} valCur={valCur}
                     setValCur={setValCur} invisible={invisible}

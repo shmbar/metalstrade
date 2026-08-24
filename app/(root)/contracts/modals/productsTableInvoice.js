@@ -23,7 +23,7 @@ const cols = ['container', 'qnty', 'unitPrc', 'total', 'stock', 'stockValue']
 const round2 = (n) => Math.round((Number(n) || 0) * 100) / 100;
 
 const ProductsTable = ({ value, setValue, currency, settings, uidCollection, setDeleteProducts, materialsArr,
-    certOpen, setCertOpen
+    certOpen, setCertOpen, salesContracts = []
 }) => {
 
     const [checkedItems, setCheckedItems] = useState([]);
@@ -59,7 +59,10 @@ const ProductsTable = ({ value, setValue, currency, settings, uidCollection, set
             ...value.productsDataInvoice,
             {
                 id: uuidv4(), po: '', descriptionId: '', container: '', qnty: '0', unitPrc: '0', total: 0,
-                descriptionText: '', mtrlStatus: 'select', stock: '', stockValue: ''
+                descriptionText: '', mtrlStatus: 'select', stock: '', stockValue: '',
+                // Empty = "follow the invoice's own Sales Contract link". Only a row
+                // deliberately tagged to a different client PO carries a value here.
+                salesContractId: ''
             },
         ];
         setValue({ ...value, productsDataInvoice: newArr });
@@ -344,6 +347,19 @@ const ProductsTable = ({ value, setValue, currency, settings, uidCollection, set
 
     }
 
+    // Per-line client PO. Deliberately NOT routed through handleChange above: that one
+    // re-queries stock availability for the row, which has nothing to do with which
+    // sales contract the line is sold against.
+    const handleSalesContract = (id, indx) => {
+        const products = [...value.productsDataInvoice];
+        products[indx] = { ...products[indx], salesContractId: id || '' };
+        setValue(prev => ({ ...prev, productsDataInvoice: products }));
+    };
+
+    // Clearing a line returns it to the invoice-level link rather than to "none", which
+    // is what the empty value means everywhere else in this feature.
+    const clearSalesContract = (_name, indx) => handleSalesContract('', indx);
+
     const handleChangeStockAvailability = async (e, name, indx) => {
         const current = value.productsDataInvoice[indx];
 
@@ -377,7 +393,13 @@ const ProductsTable = ({ value, setValue, currency, settings, uidCollection, set
                                         Cert</th>}
                                     <th scope="col" className="w-[9%] py-1 px-1 text-left responsiveTextTable font-medium text-[var(--chathams-blue)]">
                                         {getTtl('PO', ln)}#</th>
-                                    <th scope="col" className="w-[32%] px-1 py-1 text-left responsiveTextTable font-medium text-[var(--chathams-blue)]">
+                                    {/* Client PO per line, so one invoice can cover two or more sales
+                                        contracts and each is credited only with its own tonnage.
+                                        The 11% comes out of Description (32→25) and Stock (13→9);
+                                        the row still totals 100%. */}
+                                    <th scope="col" className="w-[11%] px-1 py-1 text-left responsiveTextTable font-medium text-[var(--chathams-blue)]">
+                                        Sales PO</th>
+                                    <th scope="col" className="w-[25%] px-1 py-1 text-left responsiveTextTable font-medium text-[var(--chathams-blue)]">
                                         {getTtl('Description', ln)}</th>
                                     <th scope="col" className="w-[11%] px-1 py-1 text-left responsiveTextTable font-medium text-[var(--chathams-blue)]">
                                         {contTitle}</th>
@@ -389,7 +411,7 @@ const ProductsTable = ({ value, setValue, currency, settings, uidCollection, set
                                     <th scope="col" className="w-[9%] px-1 py-1 text-left responsiveTextTable font-medium text-[var(--chathams-blue)]">
                                         <div>{getTtl('Total', ln)} <span className='responsiveTextTable'>
                                             {c !== '' ? '(' + c + ')' : ''}</span></div></th>
-                                    <th scope="col" className="w-[13%] px-1 py-1 text-left responsiveTextTable font-medium text-[var(--chathams-blue)]">
+                                    <th scope="col" className="w-[9%] px-1 py-1 text-left responsiveTextTable font-medium text-[var(--chathams-blue)]">
                                         {getTtl('Stock', ln)}</th>
                                     <th scope="col" className="w-[9%] px-1 py-1 text-left responsiveTextTable font-medium text-[var(--chathams-blue)]">
                                         {getTtl('Available Quantity', ln)} (MT)</th>
@@ -437,6 +459,35 @@ const ProductsTable = ({ value, setValue, currency, settings, uidCollection, set
                                                         ref={inputRef}
                                                     />
                                                 ) : obj['po']
+                                                }
+                                            </td>
+                                            {/* Sales PO. An untagged row shows the invoice's own link greyed
+                                                out — it IS what the row counts against, so showing it blank
+                                                would misread as "not linked". Tagging a row only matters when
+                                                the invoice covers more than one client PO. */}
+                                            <td
+                                                data-label='salesContractId'
+                                                className="px-1 py-1 responsiveTextTable text-[var(--port-gore)]"
+                                            >
+                                                {!fnl ?
+                                                    <Tltip direction='top' tltpText={obj.salesContractId
+                                                        ? 'This line is sold against its own client PO.'
+                                                        : "Follows the invoice's Sales Contract. Set one here only if this line belongs to a different client PO."}>
+                                                        <div className='w-full min-w-0'>
+                                                            <Selector
+                                                                arr={salesContracts}
+                                                                value={{ salesContractId: obj.salesContractId || value.salesContractId || '' }}
+                                                                onChange={(e) => handleSalesContract(e, i)}
+                                                                name='salesContractId'
+                                                                secondaryName='contractNo'
+                                                                clear={clearSalesContract}
+                                                                row={i}
+                                                                classes={obj.salesContractId ? '' : 'text-[var(--ink-muted)]'}
+                                                            />
+                                                        </div>
+                                                    </Tltip>
+                                                    :
+                                                    <span>{salesContracts.find(s => s.id === (obj.salesContractId || value.salesContractId))?.contractNo || ''}</span>
                                                 }
                                             </td>
                                             <td

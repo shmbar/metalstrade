@@ -24,6 +24,8 @@ import ISF from '../../contracts/modals/isf'
 import { validate, ErrDiv } from '../../../../utils/utils'
 import { getTtl } from '../../../../utils/languages.js';
 import { NameCell } from '../../../../components/Avatar';
+import { invoiceQtyBySalesContract, salesContractIdsOf } from '../../../../utils/salesLink';
+import SalesSplitSummary from '../../../../components/invoices/SalesSplitSummary';
 import { useRouter } from 'next/navigation.js';
 import { ContractsContext } from "../../../../contexts/useContractsContext";
 import dateFormat from 'dateformat';
@@ -72,12 +74,19 @@ const InvoiceModal = () => {
 			setSalesContracts(dt);
 
 			const invs = await loadData(uidCollection, 'invoices', { start: `${y - 1}-01-01`, end: `${y + 1}-12-31` });
+			// Per LINE, not per invoice: an invoice split across two client POs must
+			// credit each with only its own tonnage, or a PO looks fully shipped on
+			// the back of cargo that went to the other one. utils/salesLink falls back
+			// to the invoice-level link for untagged rows, so invoices that predate
+			// per-line tagging still total exactly as they did.
 			const map = {};
 			(invs || [])
-				.filter(i => i && i.salesContractId && !i.canceled && i.id !== valueInv.id)
+				.filter(i => i && !i.canceled && i.id !== valueInv.id)
 				.forEach(i => {
-					map[i.salesContractId] = (map[i.salesContractId] || 0) + (i.productsDataInvoice || [])
-						.reduce((s, r) => s + (r.qnty === 's' ? 0 : (parseFloat(r.qnty) || 0)), 0);
+					const byScTmp = invoiceQtyBySalesContract(i);
+					for (const scId of Object.keys(byScTmp)) {
+						map[scId] = (map[scId] || 0) + byScTmp[scId];
+					}
 				});
 			setShippedBySc(map);
 		};
@@ -111,6 +120,19 @@ const InvoiceModal = () => {
 		const mine = notShipped.filter(sc => !sc.client || sc.client === valueInv.client || sc.id === valueInv.salesContractId);
 		scOptions = mine.length ? mine : notShipped;
 	}
+
+	// Options for the PER-LINE Sales PO picker. Same filtered list the header link uses,
+	// plus any contract a line already points at — otherwise a tag would vanish from its
+	// own dropdown the moment that contract counted as fully shipped, and the row would
+	// look unset while still counting against it.
+	const linkedIds = salesContractIdsOf(valueInv);
+	const scLineOptions = [
+		...scOptions,
+		...linkedIds
+			.filter(id => !scOptions.some(o => o.id === id))
+			.map(id => scAll.find(sc => sc.id === id))
+			.filter(Boolean),
+	];
 
 	// Auto-match the typed Client Contract # to a sales contract (prefer same client).
 	const autoMatchSalesContract = (typed) => {
@@ -429,11 +451,13 @@ const InvoiceModal = () => {
 										<p className='responsiveText text-[var(--regent-gray)] pl-1 pt-0.5'>No auto-match — pick one or create it.</p>}
 								</>
 							}
+							<SalesSplitSummary inv={valueInv} contracts={scAll} />
 						</div>
 						:
-						<p className='responsiveText text-[var(--ink)]'>
+						<div className='responsiveText text-[var(--ink)]'>
 							{salesContracts.find(s => s.id === valueInv.salesContractId)?.contractNo || valueInv.clientContractNo}
-						</p>
+							<SalesSplitSummary inv={valueInv} contracts={scAll} />
+						</div>
 					}
 				</div>
 			</div>
@@ -627,6 +651,7 @@ const InvoiceModal = () => {
 							currency={settings.Currency.Currency} uidCollection={uidCollection}
 							settings={settings} setDeleteProducts={setDeleteProducts}
 							materialsArr={(valueInv.productsData || []).map(x => ({ id: x.id, description: x.description }))}
+							salesContracts={scLineOptions}
 						/>
 					</div>
 				</div>

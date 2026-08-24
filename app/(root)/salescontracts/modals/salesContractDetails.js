@@ -13,6 +13,7 @@ import { getTtl } from '@utils/languages';
 import { Selector } from '@components/selectors/selectShad';
 import Tltip from '@components/tlTip';
 import { NameCell } from '@components/Avatar';
+import { invoiceLinksSalesContract } from '@utils/salesLink';
 import Spinner from '@components/spinner';
 import ModalToAction from '@components/modalToProceed';
 import DocumentImportOverlay from '@components/DocumentImportOverlay';
@@ -57,8 +58,10 @@ const SalesContractDetails = () => {
                 valueSC.id ? loadData(uidCollection, 'invoices', range) : Promise.resolve([]),
             ]);
             setPurchaseContracts(cons || []);
+            // invoiceLinksSalesContract, not `i.salesContractId === id`: an invoice can
+            // now reach this contract through a line-level tag as well as the header link.
             const hit = (invs || []).find(i =>
-                i && i.salesContractId === valueSC.id && !i.canceled && i.poSupplier?.id);
+                i && invoiceLinksSalesContract(i, valueSC.id) && !i.canceled && i.poSupplier?.id);
             setPoFromInvoice(hit ? { ...hit.poSupplier, invoice: hit.invoice } : null);
         };
         load();

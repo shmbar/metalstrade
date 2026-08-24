@@ -141,6 +141,15 @@ declare module '@shared/soldStatus' {
   export function lineStatus(args?: { shipmentStatus?: string; rollup?: any }): { key: string; label: string; isShipment: boolean };
 }
 
+declare module '@shared/salesLink' {
+  export function lineQty(row?: any): number;
+  export function lineSalesContractId(inv?: any, row?: any): string;
+  export function salesContractIdsOf(inv?: any): string[];
+  export function invoiceQtyBySalesContract(inv?: any): Record<string, number>;
+  export function invoiceQtyForSalesContract(inv?: any, salesContractId?: string): number;
+  export function invoiceLinksSalesContract(inv?: any, salesContractId?: string): boolean;
+}
+
 declare module '@shared/storageUtils' {
   export const STORAGE_LABELS: string[];
   export const EUR_USD: number;

@@ -5,6 +5,7 @@ import { useSettings } from '@/store/settings';
 import { loadData } from '@/data/firestore';
 import { saveSalesContract, deleteSalesContract, SALES_CONTRACT_REQUIRED } from '@/data/writes';
 import { num } from '@shared/finance';
+import { invoiceQtyBySalesContract } from '@shared/salesLink';
 import { arr } from '@/lib/guard';
 
 // Sales contracts (sell-side) from the `salescontracts` collection, with shipped
@@ -25,14 +26,16 @@ export function useSalesContracts() {
         const minY = Math.min(...years.map(Number));
         const maxY = Math.max(...years.map(Number));
         const invoices = await loadData<any>(uid, 'invoices', { start: `${minY}-01-01`, end: `${maxY}-12-31` });
+        // Per LINE — an invoice can cover several client POs, with the split recorded
+        // on its rows. @shared/salesLink is the verbatim port of utils/salesLink.js,
+        // so mobile and web credit shipped tonnage identically.
         invoices
-          .filter((inv) => inv.salesContractId && !inv.canceled)
+          .filter((inv) => inv && !inv.canceled)
           .forEach((inv) => {
-            const q = arr<any>(inv.productsDataInvoice).reduce(
-              (s: number, r: any) => s + (r.qnty === 's' ? 0 : num(r.qnty)),
-              0
-            );
-            shipped[inv.salesContractId] = (shipped[inv.salesContractId] || 0) + q;
+            const byQty = invoiceQtyBySalesContract(inv);
+            for (const scId of Object.keys(byQty)) {
+              shipped[scId] = (shipped[scId] || 0) + byQty[scId];
+            }
           });
       }
       return { contracts, shipped };

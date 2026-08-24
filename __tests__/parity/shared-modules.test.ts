@@ -105,6 +105,7 @@ const IDENTICAL_PAIRS: Array<[mobile: string, web: string]> = [
   ['mobile/src/shared/notificationRouting.js', 'utils/notificationRouting.js'],
   ['mobile/src/shared/fxRates.js', 'utils/fxRates.js'],
   ['mobile/src/shared/languages.js', 'utils/languages.js'],
+  ['mobile/src/shared/salesLink.js', 'utils/salesLink.js'],
 ];
 
 /** The deliberate exception — see the Tier 4 block at the bottom of this file. */

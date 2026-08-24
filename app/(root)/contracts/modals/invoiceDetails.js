@@ -32,6 +32,8 @@ import ActivityLog from '@components/ActivityLog';
 import CommentThread from '@components/CommentThread';
 import { X, Save, Eraser, FileText, FileUp, Trash, PanelTopOpen, Banknote, Copy, ClipboardCheck, ChevronDown, ChevronUp, ScrollText, History, MessageSquare } from "lucide-react";
 import LoadingButton from '../../../../components/LoadingButton'
+import { invoiceQtyBySalesContract, salesContractIdsOf } from '@utils/salesLink';
+import SalesSplitSummary from '@components/invoices/SalesSplitSummary';
 
 // Settings-style form spec (shared with the standalone Invoices modal)
 const labelCls = 'responsiveText font-medium text-[var(--ink-muted)] mb-1';
@@ -282,12 +284,15 @@ const ContractModal = () => {
 			setSalesContracts(await loadData(uidCollection, 'salescontracts', { start: `${y - 1}-01-01`, end: `${y + 1}-12-31` }));
 
 			const invs = await loadData(uidCollection, 'invoices', { start: `${y - 1}-01-01`, end: `${y + 1}-12-31` });
+			// Per LINE — see the matching note in invoices/modals/invoiceDetails.js.
 			const map = {};
 			(invs || [])
-				.filter(i => i && i.salesContractId && !i.canceled && i.id !== valueInv.id)
+				.filter(i => i && !i.canceled && i.id !== valueInv.id)
 				.forEach(i => {
-					map[i.salesContractId] = (map[i.salesContractId] || 0) + (i.productsDataInvoice || [])
-						.reduce((s, r) => s + (r.qnty === 's' ? 0 : (parseFloat(r.qnty) || 0)), 0);
+					const byScTmp = invoiceQtyBySalesContract(i);
+					for (const scId of Object.keys(byScTmp)) {
+						map[scId] = (map[scId] || 0) + byScTmp[scId];
+					}
 				});
 			setShippedBySc(map);
 		};
@@ -319,6 +324,15 @@ const ContractModal = () => {
 		const mine = notShipped.filter(sc => !sc.client || sc.client === valueInv.client || sc.id === valueInv.salesContractId);
 		scOptions = mine.length ? mine : notShipped;
 	}
+	// Options for the PER-LINE Sales PO picker — see the matching note in
+	// invoices/modals/invoiceDetails.js.
+	const scLineOptions = [
+		...scOptions,
+		...salesContractIdsOf(valueInv)
+			.filter(id => !scOptions.some(o => o.id === id))
+			.map(id => scAll.find(sc => sc.id === id))
+			.filter(Boolean),
+	];
 	const autoMatchSalesContract = (typed) => {
 		const target = normalizeNo(typed);
 		if (!target) return '';
@@ -425,12 +439,14 @@ const ContractModal = () => {
 												<p className='responsiveText text-[var(--regent-gray)] pl-1 pt-0.5'>No auto-match — pick one or create it.</p>}
 										</>
 									}
+									<SalesSplitSummary inv={valueInv} contracts={scAll} />
 								</div>
 							</div>
 							:
 							<div className='mt-2 flex flex-col'>
 								<p className={labelCls}>Client Contract #</p>
 								<p className='responsiveText text-[var(--ink)]'>{(Array.isArray(salesContracts) ? salesContracts : []).find(s => s.id === valueInv.salesContractId)?.contractNo || valueInv.clientContractNo || '—'}</p>
+								<SalesSplitSummary inv={valueInv} contracts={scAll} />
 							</div>
 						}
 						{fnl && (
@@ -664,6 +680,7 @@ const ContractModal = () => {
 						setDeleteProducts={setDeleteProducts} settings={settings}
 						materialsArr={(valueCon.productsData || []).map(x => ({ id: x.id, description: x.description }))}
 						certOpen={certOpen} setCertOpen={setCertOpen}
+						salesContracts={scLineOptions}
 					/>
 				</div>
 
