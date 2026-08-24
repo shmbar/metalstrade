@@ -288,7 +288,7 @@ export const Pdf = async (valueCon, arrTable, settings, compData, gisAccount, mo
         startY: 125,
         headStyles: { fillColor: [9, 110, 182], textColor: [255, 255, 255], fontSize: 8, halign: 'center', font: 'PoppinsB', borderRadius: '10px' },
         bodyStyles: { fontSize: 8, font: 'Plus Jakarta Sans', textColor: [32, 55, 100] },
-        head: [['#', 'Description', 'Quantity', 'Unit Price'],
+        head: [['#', 'Description', 'Quantity', valueCon.priceMode === 'content' ? 'Price per content' : 'Unit Price'],
         ['', '', `${valueCon.qTypeTable && getD(settings.Quantity.Quantity, valueCon, 'qTypeTable')}`,
             `${valueCon.cur && getD(settings.Currency.Currency, valueCon, 'cur')}`
         ]],

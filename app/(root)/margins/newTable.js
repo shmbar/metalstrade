@@ -42,6 +42,8 @@ import { cn } from "@lib/utils";
 import { dataIds } from "./funcs";
 import CheckBox from "../../../components/checkbox";
 import Tltip from "../../../components/tlTip";
+import EmptyState from "../../../components/EmptyState";
+import { getTtl } from "../../../utils/languages";
 
 // Fixed widths, sized to what each column HOLDS — not to a share of the screen.
 //
@@ -56,18 +58,30 @@ import Tltip from "../../../components/tlTip";
 // they were budgeted off their values alone.
 //
 // Description is the only free-text column, so it alone states no width and
-// takes whatever is left: ~160px on a 14", ~570px at 1920, ~1210px at 2560.
+// takes whatever is left — the container minus the 1176px the twelve stated
+// columns add up to.
 //
-// Why stated widths and not min-widths: this table is `table-layout: fixed`, and
-// not by choice made here. ../contracts/style.css — imported at the top of this
-// file, and global once loaded — carries a bare `table { table-layout: fixed }`
-// plus `table th, table td { padding: .25rem .5rem !important }`. Under fixed
-// layout a column with no stated width takes an equal share of the table, so
-// min-widths are simply ignored: dropping to min-width gave thirteen identical
-// 93px columns. Every column that must not collapse therefore states a width.
+// WHY THIS TABLE IS `table-layout: fixed` WHEN EVERY OTHER TABLE IS `auto`.
+// The original reason is gone: ../contracts/style.css used to carry a bare
+// `table { table-layout: fixed }` that leaked to every page, and this file was
+// working around it. That rule was removed on 2026-08-21. The reason it stays
+// fixed HERE is its own: this is the only data table whose cells are form
+// CONTROLS rather than text — a date picker, seven <input>s and two select
+// triggers per row. Under `auto`, a column's width is driven by the intrinsic
+// width of the control inside it, not by the value, and measuring it that way
+// (1400px container, this row shape) gives:
 //
-// The tableLayout below is set explicitly rather than inherited from that
-// stylesheet, so this table keeps working if the import ever goes.
+//   auto   date=136 purchase=136 description=136 margin=136 shipped=136 …
+//   fixed  every column an equal 108px share unless it states a width
+//
+// So `auto` would hand each numeric column ~136px — far more than the ~92px its
+// figures need — while starving Description, the one column that should grow,
+// down to 136px as well. Neither layout sizes these columns for us, and fixed at
+// least lets the widths below say what each column actually holds. That is also
+// why min-widths are not an option: under fixed they are ignored outright.
+//
+// The tableLayout below is stated explicitly rather than inherited, so this
+// table keeps working regardless of what the shared stylesheet does.
 const COLUMN_CONFIGS = {
     'drag-handle': { w: '30px',  align: 'center' },
     // 110px: the cell padding and the clear button's gutter come off this before
@@ -76,7 +90,8 @@ const COLUMN_CONFIGS = {
     // overflowing it, so nothing on screen signals the loss.
 
     'date':        { w: '110px', align: 'center' },
-    'purchase':    { w: '86px',  align: 'right'  },
+    // QUANTITY BAND — see the currency band below for how both bands are sized.
+    'purchase':    { w: '92px',  align: 'right'  },
     // Free text, so it overflows at any width the table can afford and the input
     // scrolls — but it is the column users actually read, so it takes the points
     // nobody else needed rather than staying the tightest fit that works. It is
@@ -108,25 +123,37 @@ const COLUMN_CONFIGS = {
     // its longest name outright rather than the "SJM" / "Oryx" short ones —
     // "Iberinox" was rendering as "Iberi…" when this was tighter.
     'client':      { w: '156px', align: 'left'   },
-    'margin':      { w: '100px', align: 'right'  },
-    'totalMargin': { w: '120px', align: 'right'  },
-    'shipped':     { w: '82px',  align: 'right'  },
-    // A figure must never truncate: "190.000" is seven characters and lost its
-    // last one when this was tighter. A cut number is worse than cut text,
-    // because "190.00" is itself a valid reading and nothing signals the loss.
-    'openShip':    { w: '94px',  align: 'right'  },
-    'remaining':   { w: '94px',  align: 'right'  },
+    // TWO BANDS, NOT SEVEN INDIVIDUAL FITS. Columns holding the same KIND of
+    // value are the same width, so the eye reads one grid instead of six
+    // different ones — margin / totalMargin / remaining are currency, purchase /
+    // shipped / openShip are MT.
+    //
+    // Everything below is MEASURED in the browser at the 12px rung (the cap
+    // every breakpoint from 1600 up renders) and includes the standard 16px of
+    // `.custom-table td` padding. Each band takes the LARGER of two minimums,
+    // because either can bind and they trade places between columns:
+    //
+    //   band      widest value          widest header
+    //   currency  "$375,000.00"  95px   "TOTAL MARGIN"  108px  -> header wins
+    //   quantity  "1,200.000"    78px   "OPEN SHIP"      85px  -> header wins
+    //
+    // Currency 116px, quantity 92px: 8px and 7px clear of the headers, 21px and
+    // 14px clear of the values.
+    //
+    // The value figure is why `remaining` moved at all. It was 94px and needed
+    // 95. A read-only <input> clips to its content box instead of overflowing,
+    // so that ONE pixel was silently eating the last digit — "$180,000.00"
+    // rendered as "$180,000." with nothing on screen to signal the loss, and it
+    // only showed above 1600px, because the 11px rung fits where the 12px rung
+    // does not.
+    'margin':      { w: '116px', align: 'right'  },
+    'totalMargin': { w: '116px', align: 'right'  },
+    'shipped':     { w: '92px',  align: 'right'  },
+    'openShip':    { w: '92px',  align: 'right'  },
+    'remaining':   { w: '116px', align: 'right'  },
     'gis':         { w: '46px',  align: 'center' },
     'del':         { w: '34px',  align: 'center' },
 };
-
-// Cells whose content is a figure inside a full-width <input>. The input brings
-// its own gutters, so the cell's 1px of side padding is width the number can't
-// use — and an <input> clips its text to the content box instead of overflowing
-// it, which turns "slightly too narrow" into a silently missing digit.
-const FIGURE_COLUMNS = new Set([
-    'date', 'purchase', 'margin', 'totalMargin', 'shipped', 'openShip', 'remaining',
-]);
 
 
 const DraggableRow = memo(function DraggableRow({ row, props, cName }) {
@@ -446,8 +473,11 @@ const Customtable = (props) => {
                                             return (
                                               <TableHead
   key={header.id}
+  /* Width only. The 36px height that used to sit here made this the one header
+     band in the app sized by a stated height instead of by `.custom-table th`'s
+     4px/8px padding, so margins' header row stood ~10px taller than every other
+     page's. Row height is the padding's job. */
   style={{
-    height: '36px',
     width: (COLUMN_CONFIGS[header.column.id] || {}).w || 'auto',
   }}
   className={cn(
@@ -479,11 +509,14 @@ const Customtable = (props) => {
                                         ))) :
                                         (
                                             <TableRow>
-                                                <TableCell
-                                                    colSpan={columns.length}
-                                                    className="responsiveText text-center text-[var(--ink-muted)] py-10"
-                                                >
-                                                    No results found.
+                                                {/* Same empty state as contracts, stocks and the rest —
+                                                    icon, message and hint from one component, instead of
+                                                    a bare "No results found." at a different type size. */}
+                                                <TableCell colSpan={columns.length}>
+                                                    <EmptyState
+                                                        message={getTtl('No data available', ln)}
+                                                        hint="Try adjusting your filters or date range"
+                                                    />
                                                 </TableCell>
                                             </TableRow>
                                         )
@@ -508,19 +541,17 @@ const Customtable = (props) => {
                                                 return (
                                                     <TableCell
                                                         key={`footer-${footer.id}`}
-                                                        style={{
-                                                            height: '36px',
-                                                            // Same deal as the body: a totals figure is the
-                                                            // widest string in its column, so the figure
-                                                            // columns keep their side padding at 0.
-                                                            padding: FIGURE_COLUMNS.has(accessorKey) ? '4px 0' : '4px 6px',
-                                                            verticalAlign: 'middle'
-                                                        }}
+                                                        /* Padding, size and height all come from `.custom-table td`,
+                                                           the same band the body rows read. This used to state its own
+                                                           36px height and squeeze the figure columns to `4px 0` to buy
+                                                           the totals room they no longer need — the currency band is
+                                                           now wide enough to hold "$677,475.00" WITH the standard 8px
+                                                           gutters, so the footer can stop being a special case. */
+                                                        style={{ verticalAlign: 'middle' }}
                                                         className={cn(
                                                             columnConfig.align === 'right' && 'text-right',
                                                             columnConfig.align === 'center' && 'text-center',
-                                                            'border-t border-t-[var(--line-strong)]',
-                                                            'responsiveTextTable'
+                                                            'border-t border-t-[var(--line-strong)]'
                                                         )}
                                                     >
                                                         {["totalMargin", "remaining", "purchase", "openShip"].includes(accessorKey) && (

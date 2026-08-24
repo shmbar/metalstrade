@@ -105,7 +105,8 @@ const ProductsTable = ({ value, setValue, currency, quantityTable, setShowPoInvM
             return;
         }
 
-        setValue1(object.eq && key === 'unitPrc' ? object.eq : obj[key]); // raw base value
+        // ?? '' keeps the input controlled: contentPrc is absent until it is first typed in.
+        setValue1(object.eq && key === 'unitPrc' ? object.eq : (obj[key] ?? '')); // raw base value
         setEdit({ status: true, id: obj['id'], header: key });
         setInputUnit(baseUnit); // default entry unit = the contract's base unit
     };
@@ -329,8 +330,11 @@ const ProductsTable = ({ value, setValue, currency, quantityTable, setShowPoInvM
                                         <div>   {getTtl('Quantity', ln)} <span className={`font-medium ${viewUnit ? 'text-[var(--endeavour)]' : ''}`}>
                                             {qtyHeaderLabel ? '(' + qtyHeaderLabel + ')' : ''}</span></div></th>
                                     <th scope="col" className="w-2/12 px-1 py-1 text-left responsiveTextTable font-medium text-[var(--chathams-blue)]" >
-                                        <div>{getTtl('UnitPrice', ln)} <span className={`font-medium ${(viewUnit || viewCur) ? 'text-[var(--endeavour)]' : ''}`}>
-                                            {priceHeaderLabel ? '(' + priceHeaderLabel + ')' : ''}</span></div></th>
+                                        <div>{perContent ? getTtl('PricePerContent', ln) : getTtl('UnitPrice', ln)} <span className={`font-medium ${(viewUnit || viewCur) ? 'text-[var(--endeavour)]' : ''}`}>
+                                            {/* The per-MT suffix would misdescribe a content-based price, so only the
+                                                currency stays once the column is no longer a unit price. */}
+                                            {perContent ? (baseCode ? '(' + baseCode + ')' : '')
+                                                : (priceHeaderLabel ? '(' + priceHeaderLabel + ')' : '')}</span></div></th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-[var(--line)] relative">
@@ -349,16 +353,23 @@ const ProductsTable = ({ value, setValue, currency, quantityTable, setShowPoInvM
                                             </td>
                                             {Object.keys(obj)
                                                 .slice(1)
-                                                .map((key) => (
+                                                // contentPrc rides inside the price cell — it must not become a column
+                                                // of its own, since the columns are just the product object's keys.
+                                                .filter((key) => key !== 'contentPrc')
+                                                .map((key) => {
+                                                    // In per-content mode the price cell edits contentPrc (free text)
+                                                    // instead of unitPrc, so the stored number is never overwritten.
+                                                    const editKey = perContent && key === 'unitPrc' ? 'contentPrc' : key;
+                                                    return (
                                                     <td
                                                         key={key}
                                                         data-label={key}
                                                         className="px-1 py-1 responsiveTextTable text-[var(--port-gore)] whitespace-normal tableStyle relative overflow-visible"
-                                                        onClick={() => handleDoubleClick(obj, key)}
+                                                        onClick={() => handleDoubleClick(obj, editKey)}
                                                     >
                                                         {edit.status &&
                                                             edit.id === obj['id'] &&
-                                                            edit.header === key ? (
+                                                            edit.header === editKey ? (
                                                             <div className='group relative whitespace-normal flex items-center gap-1'>
                                                                 <input
                                                                     className="input flex-1 min-w-0 border rounded-lg border-slate-400 h-7
@@ -367,7 +378,7 @@ const ProductsTable = ({ value, setValue, currency, quantityTable, setShowPoInvM
                                                                     onKeyDown={handleKeyPress}
                                                                     value={value1}
                                                                     maxLength={70}
-                                                                    name={key}
+                                                                    name={editKey}
                                                                     onChange={(e) => setInput(e)}
                                                                     ref={inputRef}
                                                                     type='text'
@@ -406,9 +417,12 @@ const ProductsTable = ({ value, setValue, currency, quantityTable, setShowPoInvM
                                                         ) : key === 'unitPrc' ?
                                                             // Mode wins over a hand-typed price: POs that predate this were given
                                                             // text like "$2,200*" by hand, and switching to Price per content is
-                                                            // how those get migrated onto the real setting.
+                                                            // how those get migrated onto the real setting. "See below*" is only
+                                                            // the default — click the cell to write the basis in directly.
                                                             perContent ?
-                                                                <span className="text-[var(--ink-secondary)] font-medium">{SEE_BELOW}</span> :
+                                                                (String(obj.contentPrc ?? '').trim()
+                                                                    ? <span className="font-medium">{obj.contentPrc}</span>
+                                                                    : <span className="text-[var(--ink-secondary)] font-medium">{SEE_BELOW}</span>) :
                                                                 isNaN(obj[key] * 1) ?
                                                                     obj[key] :
                                                                     <NumericFormat
@@ -432,7 +446,8 @@ const ProductsTable = ({ value, setValue, currency, quantityTable, setShowPoInvM
                                                             ) : obj[key]
                                                         }
                                                     </td>
-                                                ))}
+                                                    );
+                                                })}
                                         </tr>
                                     );
                                 })}

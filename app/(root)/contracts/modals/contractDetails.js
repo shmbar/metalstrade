@@ -51,14 +51,18 @@ const ContractModal = () => {
 	// Build the PO product-table rows exactly as the PO PDF generator expects them.
 	// Shared by both the Preview and the Download (PDF) buttons so they can't drift.
 	const buildPoTable = () =>
-		reOrderTableCon(valueCon.productsData.filter(x => !x.import)).map(({ ['id']: _, ...rest }) => rest).map(obj => Object.values(obj))
-			.map((values, index) => {
+		reOrderTableCon(valueCon.productsData.filter(x => !x.import)).map(({ ['id']: _, ...rest }) => rest)
+			.map((row, index) => {
+				// Keep the positional read the table has always used (description, qnty, unitPrc
+				// are the first three keys) while still reaching contentPrc by name.
+				const values = Object.values(row);
 				const number = values[1];
 				const number1 = values[2];
 				const formattedNumber = new Intl.NumberFormat('en-US', { minimumFractionDigits: 3 }).format(number);
-				// Priced on element content: the PO defers to the Price Remarks printed below the
-				// table instead of quoting a per-unit figure. Stored prices are left alone.
-				const formattedNumber1 = valueCon.priceMode === 'content' ? 'See below*' :
+				// Priced on element content: print whatever basis was typed into the cell, and
+				// fall back to deferring to the Price Remarks below. Stored prices are left alone.
+				const formattedNumber1 = valueCon.priceMode === 'content'
+					? (String(row.contentPrc ?? '').trim() || 'See below*') :
 					isNaN(number1 * 1) ? number1 :
 						new Intl.NumberFormat('en-US', {
 							style: 'currency',
