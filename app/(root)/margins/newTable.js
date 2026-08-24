@@ -58,8 +58,11 @@ import { getTtl } from "../../../utils/languages";
 // they were budgeted off their values alone.
 //
 // Description is the only free-text column, so it alone states no width and
-// takes whatever is left — the container minus the 1176px the twelve stated
-// columns add up to.
+// takes whatever is left — the container minus the 1212px the twelve stated
+// columns add up to. Under fixed layout that remainder can go to nearly ZERO,
+// so its floor is enforced by the table wrapper's min-w-[1392px] (= 1212 + a
+// 180px floor) rather than here. Anything widened below must move that number
+// too, or Description is what pays for it.
 //
 // WHY THIS TABLE IS `table-layout: fixed` WHEN EVERY OTHER TABLE IS `auto`.
 // The original reason is gone: ../contracts/style.css used to carry a bare
@@ -91,7 +94,7 @@ const COLUMN_CONFIGS = {
 
     'date':        { w: '110px', align: 'center' },
     // QUANTITY BAND — see the currency band below for how both bands are sized.
-    'purchase':    { w: '92px',  align: 'right'  },
+    'purchase':    { w: '104px', align: 'right'  },
     // Free text, so it overflows at any width the table can afford and the input
     // scrolls — but it is the column users actually read, so it takes the points
     // nobody else needed rather than staying the tightest fit that works. It is
@@ -128,28 +131,34 @@ const COLUMN_CONFIGS = {
     // different ones — margin / totalMargin / remaining are currency, purchase /
     // shipped / openShip are MT.
     //
-    // Everything below is MEASURED in the browser at the 12px rung (the cap
-    // every breakpoint from 1600 up renders) and includes the standard 16px of
-    // `.custom-table td` padding. Each band takes the LARGER of two minimums,
-    // because either can bind and they trade places between columns:
+    // Every figure below is MEASURED in a browser at the 12px rung (the cap from
+    // 1600px up), WITH ../contracts/style.css loaded — that file is what these
+    // cells actually render under, and measuring without it reads ~16px
+    // optimistic on the editable columns. Each band takes the LARGEST minimum
+    // across its columns, because the binding constraint moves around:
     //
-    //   band      widest value          widest header
-    //   currency  "$375,000.00"  95px   "TOTAL MARGIN"  108px  -> header wins
-    //   quantity  "1,200.000"    78px   "OPEN SHIP"      85px  -> header wins
+    //   band      column        kind      needs   why
+    //   currency  totalMargin   readonly   102    "$1,190,000.00"
+    //             margin        editable   102    "$1,200,000" + 16px padding
+    //             (header)                 108    "TOTAL MARGIN"      <- binds
+    //   quantity  purchase      editable    94    "1,200.000" + 16px padding <-
+    //             openShip      readonly    71
+    //             (header)                  85    "OPEN SHIP"
     //
-    // Currency 116px, quantity 92px: 8px and 7px clear of the headers, 21px and
-    // 14px clear of the values.
+    // Currency 116px, quantity 104px — 8px and 19px clear of the headers, 14px
+    // and 10px clear of the values.
     //
-    // The value figure is why `remaining` moved at all. It was 94px and needed
-    // 95. A read-only <input> clips to its content box instead of overflowing,
-    // so that ONE pixel was silently eating the last digit — "$180,000.00"
-    // rendered as "$180,000." with nothing on screen to signal the loss, and it
-    // only showed above 1600px, because the 11px rung fits where the 12px rung
-    // does not.
+    // "editable" vs "readonly" is not cosmetic: `table td input` in
+    // contracts/style.css forces 8px of side padding on a field the user types
+    // in, so an editable column needs 16px more than a read-only one showing the
+    // same string. A read-only <input> clips to its content box rather than
+    // overflowing, which is why every miss here fails SILENTLY — the old 94px
+    // `remaining` rendered "$180,000.00" as "$180,000.", and the old 120px
+    // `totalMargin` rendered "$1,190,000.00" as "$1,190,000.0C".
     'margin':      { w: '116px', align: 'right'  },
     'totalMargin': { w: '116px', align: 'right'  },
-    'shipped':     { w: '92px',  align: 'right'  },
-    'openShip':    { w: '92px',  align: 'right'  },
+    'shipped':     { w: '104px', align: 'right'  },
+    'openShip':    { w: '104px', align: 'right'  },
     'remaining':   { w: '116px', align: 'right'  },
     'gis':         { w: '46px',  align: 'center' },
     'del':         { w: '34px',  align: 'center' },
@@ -460,10 +469,25 @@ const Customtable = (props) => {
                     picker is open, so the calendar is not cut off at the bottom edge. */}
                 <div className="margins-table-scroll rounded-lg border border-[var(--line)] overflow-x-auto relative shadow-card">
                     {/* Desktop Table - Compact Heights */}
-                    <div className="hidden sm:block w-full min-w-[900px] custom-table">
-                        {/* Fixed layout, stated here rather than inherited from ../contracts/style.css.
-                            The widths below are what each column holds; Description states none
-                            and takes the remainder. */}
+                    {/* min-w is DERIVED, not chosen: the twelve stated columns in
+                        COLUMN_CONFIGS total 1176px, and Description needs a 180px floor
+                        (its longest value, "59Ni 12Cr 3.8Mo 11Co Tngs", measures 164px at
+                        the 12px rung). 1212 + 180 = 1392.
+
+                        It was 900px, which is BELOW the stated total — and under fixed
+                        layout the auto column absorbs the entire shortfall, so Description
+                        silently collapsed to ~42px on a 1280 screen and showed one or two
+                        characters. Every other column looked right, which is exactly why it
+                        read as "the description column is broken" rather than "the table is
+                        too wide". Past this floor the parent's overflow-x-auto scrolls, the
+                        way every other wide table in the app already behaves.
+
+                        KEEP THIS IN STEP with COLUMN_CONFIGS: widen a column there and this
+                        number has to move by the same amount, or Description pays for it. */}
+                    <div className="hidden sm:block w-full min-w-[1392px] custom-table">
+                        {/* Fixed layout — see the note above COLUMN_CONFIGS for why this
+                            table is the one that keeps it. The widths there are what each
+                            column holds; Description states none and takes the remainder. */}
                         <Table className="w-full margins-data-table" style={{ tableLayout: 'fixed' }}>
                             <TableHeader>
                                 <TableRow>

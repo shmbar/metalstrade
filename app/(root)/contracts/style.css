@@ -203,8 +203,34 @@ tr[aria-selected="true"] {
   box-sizing: border-box;
 }
 
-/* Ensure inputs and inline elements inside table cells align with cell padding */
-.table_cell input, table td input, .table-cell-uniform input {
+/* Ensure inputs and inline elements inside table cells align with cell padding.
+   ── :not([type=checkbox]):not([type=radio]) — added 2026-08-24 ───────────────
+   `table td input` is a BARE element selector in a plain (non-module) import, so
+   like the three rules removed on 2026-08-21 it applies to every table on all
+   seven routes that pull this file in. Carrying `!important`, it beat the
+   `px-0` / `size-4` utilities on a CHECKBOX and forced 4px/8px of TEXT padding
+   onto it: a 14x14 round checkbox rendered 18x14, i.e. a wide rounded rectangle
+   rather than a circle with a tick in it. That is what "the GIS box is large and
+   not a circle" on /margins was.
+   A checkbox is not a text input — it has no text to inset, no text colour to
+   set and no text-field focus ring — so the three bare rules in this block now
+   exclude checkbox and radio. Text inputs are untouched, which is why this is
+   safe across all seven routes without revisiting each one.
+
+   ── :not([readonly]) — added 2026-08-24 ─────────────────────────────────────
+   Same rule, second victim. A READ-ONLY input in a table cell is a display
+   element, not a field: several tables render a figure through
+   `<NumericFormat displayType="input" readOnly>` precisely so it inherits the
+   cell's type, and set `px-0` on it because there is no hover or focus box for
+   padding to clear and the number needs every pixel. `!important` on a bare
+   selector beat that utility and took 16px off the text budget, which is what
+   was clipping margins' figures — "$1,190,000.00" rendered as "$1,190,000.0C"
+   and "$180,000.00" as "$180,000.", with no visual signal, because an <input>
+   clips its text to the content box instead of overflowing it.
+   Fields the user types into still get their padding. */
+.table_cell input:not([type="checkbox"]):not([type="radio"]):not([readonly]),
+table td input:not([type="checkbox"]):not([type="radio"]):not([readonly]),
+.table-cell-uniform input:not([type="checkbox"]):not([type="radio"]):not([readonly]) {
   padding: 0.25rem 0.5rem !important;
   margin: 0 !important;
   box-sizing: border-box;
@@ -229,20 +255,26 @@ tr[aria-selected="true"] {
   text-align: left !important;
 }
 
-/* Inputs inside table cells: readable color and consistent box-sizing */
-.table-cell-uniform td input,
-.table_cell input,
-table td input {
+/* Inputs inside table cells: readable color and consistent box-sizing.
+   Checkbox/radio and read-only excluded — see the note on the padding rule
+   above. The colour here is `!important` on a bare selector, so it also beat any
+   per-cell text colour a table set with a utility class: margins colours a
+   negative Open Ship / Remaining with `text-[var(--bad-text)]` on a read-only
+   input, and this rule was quietly repainting it --port-gore. A field the user
+   types into still gets the readable ink. */
+.table-cell-uniform td input:not([type="checkbox"]):not([type="radio"]):not([readonly]),
+.table_cell input:not([type="checkbox"]):not([type="radio"]):not([readonly]),
+table td input:not([type="checkbox"]):not([type="radio"]):not([readonly]) {
   color: var(--port-gore) !important;
   background-clip: padding-box;
   box-sizing: border-box;
 }
 
 /* Blue border + subtle blue focus ring on edit (click/focus) for every table cell input */
-.table-cell-uniform td input:focus,
-.table_cell input:focus,
-table td input:focus,
-.table-cell-uniform td input:focus-visible {
+.table-cell-uniform td input:not([type="checkbox"]):not([type="radio"]):not([readonly]):focus,
+.table_cell input:not([type="checkbox"]):not([type="radio"]):not([readonly]):focus,
+table td input:not([type="checkbox"]):not([type="radio"]):not([readonly]):focus,
+.table-cell-uniform td input:not([type="checkbox"]):not([type="radio"]):not([readonly]):focus-visible {
   border-color: var(--endeavour) !important;
   outline: none !important;
   box-shadow: 0 0 0 3px var(--brand-soft) !important;
