@@ -19,16 +19,25 @@ import { UserAuth } from "../../../contexts/useAuthContext";
 import { loadData, loadAllStockData, updateExpenseField } from '../../../utils/utils';
 import { UNIT, ym, toUsd, mtInWh, isStorageType, computeStorageMetric } from './storageUtils';
 import { NumericFormat } from 'react-number-format';
+import dateFormat from 'dateformat';
 import { Warehouse, Save, Boxes, AlertTriangle, Check, Receipt, Calendar, ChevronLeft, ChevronRight } from 'lucide-react';
 import { TableSkeleton } from "../../../components/skeletons";
 import { Selector } from '../../../components/selectors/selectShad';
 import { NameCell } from '../../../components/Avatar';
+import { SortTh, sortRows, useSortState } from '@components/table/sorting';
 
 const fmtUsd = (v) => `$${new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(v || 0)}`;
 const fmtMt = (v) => new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 }).format(v || 0);
 
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-const MONTHS_FULL = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+
+// 'YYYY-MM' -> 'Dec 2023'. Every other date in the app is written dd.mm.yy
+// (expenses, company expenses, global search), so a full "December 2023" here
+// read as a different app. An abbreviated month is as close as a month-only
+// value gets to that, and it costs ~50px of column width.
+const fmtMonth = (v) => (typeof v === 'string' && v.length >= 7)
+    ? `${MONTHS[parseInt(v.slice(5, 7), 10) - 1] || '?'} ${v.slice(0, 4)}`
+    : '';
 
 // App-styled month picker (no native browser picker). value: 'YYYY-MM' | '' ; onChange('YYYY-MM').
 // Rendered through a portal so the triage table's horizontal scroll container can't clip it.
@@ -63,10 +72,10 @@ function MonthPickerPill({ value, onChange }) {
     return (
         <>
             <button ref={btnRef} type="button" onClick={openPicker}
-                className="flex items-center gap-2 rounded-lg bg-[var(--bg-subtle)] border border-[var(--line-strong)] px-2 h-7 hover:border-[var(--endeavour)] transition-colors"
-                style={{ fontSize: 'var(--fs-body)', color: value ? 'var(--chathams-blue)' : 'var(--regent-gray)', minWidth: 140 }}>
+                className="flex w-full items-center gap-1.5 rounded-lg bg-[var(--bg-subtle)] border border-[var(--line-strong)] px-2 h-7 hover:border-[var(--endeavour)] transition-colors"
+                style={{ fontSize: 'var(--fs-body)', color: value ? 'var(--chathams-blue)' : 'var(--regent-gray)' }}>
                 <Calendar className="w-3.5 h-3.5 text-[var(--endeavour)] shrink-0" />
-                <span className="flex-1 text-left whitespace-nowrap">{value ? `${MONTHS_FULL[selMonth - 1]} ${selYear}` : 'Pick month'}</span>
+                <span className="flex-1 text-left whitespace-nowrap">{value ? fmtMonth(value) : 'Pick month'}</span>
             </button>
             {open && typeof document !== 'undefined' && createPortal(
                 <>
@@ -116,6 +125,11 @@ const StorageCosts = () => {
     // the "needs tagging" list, which is the part you actually work through row by row.
     const [triageSupplier, setTriageSupplier] = useState('');
     const [triageQ, setTriageQ] = useState('');
+    // Both tables sort on click. Separate state per table so sorting one doesn't
+    // reorder the other, and neither starts sorted — each opens in its natural
+    // order (years newest-first, invoices as loaded).
+    const yearSort = useSortState();
+    const triageSort = useSortState();
 
     const expTypes = settings?.Expenses?.Expenses || [];
     const warehouses = settings?.Stocks?.Stocks || [];
@@ -168,7 +182,9 @@ const StorageCosts = () => {
                 const taggedY = list.filter(e => e.storageWh && e.storageMonth);
                 const m = computeStorageMetric({ tagged: taggedY, lots, whName });
                 const spend = list.reduce((s, e) => s + toUsd(parseFloat(e.amount) || 0, e.cur), 0);
-                return { year: y, spend, count: list.length, taggedCount: taggedY.length, mtMonths: m.totalMt, rate: m.overall };
+                // _rate mirrors rate but writes -1 for null: sortRows would otherwise
+                // compare an untagged year's null as the string "null".
+                return { year: y, spend, count: list.length, taggedCount: taggedY.length, mtMonths: m.totalMt, rate: m.overall, _rate: m.overall ?? -1 };
             });
     }, [allExpenses, lots, warehouses]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -226,6 +242,37 @@ const StorageCosts = () => {
         const base = prev[id] || { storageWh: e.storageWh || suggestWh(e), storageMonth: e.storageMonth || ym(e.date) };
         return { ...prev, [id]: { ...base, ...patch } };
     });
+
+    // Decorated rows for the triage table. Sorting runs on these resolved fields
+    // rather than the raw record: the record holds supplier and warehouse as ids,
+    // and the amount can be in either currency, so sorting it raw would order by
+    // uuid and compare EUR against USD. Dates become plain integers (20231205)
+    // because sortRows reads '2023-12-05' as the number 2023, which ties every
+    // date in a year.
+    const triageRows = useMemo(() => {
+        const rows = untaggedShown.map(e => {
+            const d = draftOf(e);
+            const dateStr = typeof e.date === 'string' ? e.date.substring(0, 10) : '';
+            return {
+                row: e,
+                draft: d,
+                _date: Number(dateStr.replace(/-/g, '')) || 0,
+                _dateStr: dateStr,
+                _invoice: e.expense || '',
+                _supplier: settings.Supplier?.Supplier?.find(sp => sp.id === e.supplier)?.nname || '',
+                _amount: toUsd(parseFloat(e.amount) || 0, e.cur),
+                _wh: whName(d.storageWh),
+                _month: Number((d.storageMonth || '').replace(/-/g, '')) || 0,
+            };
+        });
+        return triageSort.sortKey ? sortRows(rows, triageSort.sortKey, triageSort.sortDir) : rows;
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [untaggedShown, edits, expenses, warehouses, settings, triageSort.sortKey, triageSort.sortDir]);
+
+    const yearRows = useMemo(
+        () => (yearSort.sortKey ? sortRows(perYear, yearSort.sortKey, yearSort.sortDir) : perYear),
+        [perYear, yearSort.sortKey, yearSort.sortDir]
+    );
 
     const saveTag = async (e) => {
         const d = draftOf(e);
@@ -353,26 +400,41 @@ const StorageCosts = () => {
                         <div className="px-4 py-6 text-center responsiveTextTable text-[var(--regent-gray)]">No storage invoices yet.</div>
                     ) : (
                         <div className="overflow-x-auto">
-                            <table className="w-full" style={{ fontSize: 'var(--fs-table)' }}>
+                            {/* Every column here has a bounded maximum, so every column is a
+                                fixed px width sized to its own header and figures — a year is
+                                a year on a 13" screen and on a 27" one. The trailing spacer
+                                column takes the slack a percentage width used to hand to the
+                                data columns. */}
+                            <table className="w-full table-fixed" style={{ fontSize: 'var(--fs-table)', minWidth: 680 }}>
+                                <colgroup>
+                                    <col style={{ width: 72 }} />
+                                    <col style={{ width: 140 }} />
+                                    <col style={{ width: 116 }} />
+                                    <col style={{ width: 172 }} />
+                                    <col style={{ width: 152 }} />
+                                    <col />
+                                </colgroup>
                                 <thead>
                                     <tr className="text-left uppercase text-[var(--ink-muted)]" style={{ background: "var(--bg-subtle)", fontSize: "var(--fs-table)", letterSpacing: "0.04em" }}>
-                                        <th className="px-3 py-2 font-medium">Year</th>
-                                        <th className="px-3 py-2 font-medium text-right">Storage spend</th>
-                                        <th className="px-3 py-2 font-medium text-right">MT-months</th>
-                                        <th className="px-3 py-2 font-medium text-right">Avg storage cost {UNIT.find(u => u.key === unit).label}</th>
-                                        <th className="px-3 py-2 font-medium text-right">Invoices (tagged)</th>
+                                        <SortTh colKey="year" label="Year" sort={yearSort} idle className="px-2 py-1 font-medium whitespace-nowrap" />
+                                        <SortTh colKey="spend" label="Storage spend" sort={yearSort} idle className="px-2 py-1 font-medium text-right whitespace-nowrap" />
+                                        <SortTh colKey="mtMonths" label="MT-months" sort={yearSort} idle className="px-2 py-1 font-medium text-right whitespace-nowrap" />
+                                        <SortTh colKey="_rate" label={`Avg cost ${UNIT.find(u => u.key === unit).label}`} sort={yearSort} idle className="px-2 py-1 font-medium text-right whitespace-nowrap" />
+                                        <SortTh colKey="count" label="Invoices (tagged)" sort={yearSort} idle className="px-2 py-1 font-medium text-right whitespace-nowrap" />
+                                        <th className="px-2 py-1" />
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {perYear.map(r => (
+                                    {yearRows.map(r => (
                                         <tr key={r.year}
                                             onClick={() => setYear(year === r.year ? 'all' : r.year)}
                                             className={`border-t border-[var(--bg-subtle)] cursor-pointer transition-colors ${year === r.year ? 'bg-[var(--bg-subtle)]' : 'hover:bg-[var(--bg-subtle)]'}`}>
-                                            <td className="px-3 py-2 text-[var(--chathams-blue)]">{r.year}</td>
-                                            <td className="px-3 py-2 text-right text-[var(--port-gore)]">{fmtUsd(r.spend)}</td>
-                                            <td className="px-3 py-2 text-right text-[var(--port-gore)]">{new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 }).format(r.mtMonths)}</td>
-                                            <td className="px-3 py-2 text-right text-[var(--chathams-blue)]">{rateStr(r.rate)}</td>
-                                            <td className="px-3 py-2 text-right text-[var(--port-gore)]">{r.count} ({r.taggedCount})</td>
+                                            <td className="px-2 py-1.5 text-[var(--chathams-blue)]">{r.year}</td>
+                                            <td className="px-2 py-1.5 text-right text-[var(--port-gore)] numeric">{fmtUsd(r.spend)}</td>
+                                            <td className="px-2 py-1.5 text-right text-[var(--port-gore)] numeric">{new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 }).format(r.mtMonths)}</td>
+                                            <td className="px-2 py-1.5 text-right text-[var(--chathams-blue)] numeric">{rateStr(r.rate)}</td>
+                                            <td className="px-2 py-1.5 text-right text-[var(--port-gore)] numeric">{r.count} ({r.taggedCount})</td>
+                                            <td className="px-2 py-1.5" />
                                         </tr>
                                     ))}
                                 </tbody>
@@ -424,7 +486,7 @@ const StorageCosts = () => {
                         )}
                     </div>
 
-                    {untaggedShown.length === 0 ? (
+                    {triageRows.length === 0 ? (
                         <div className="px-4 py-8 text-center responsiveTextTable text-[var(--regent-gray)]">
                             {untagged.length === 0
                                 ? 'All storage invoices in this period are tagged. 🎉'
@@ -432,33 +494,54 @@ const StorageCosts = () => {
                         </div>
                     ) : (
                         <div className="overflow-x-auto">
-                            <table className="w-full" style={{ fontSize: 'var(--fs-table)' }}>
+                            {/* Fixed px per column, each sized to its own content plus its own
+                                header — a date is eight characters wide whatever the monitor is.
+                                Only the invoice number is genuinely free text, so it is the one
+                                auto column and absorbs all the slack; minWidth is the six fixed
+                                widths (808) plus a floor for it, so the table scrolls at a narrow
+                                viewport rather than crushing the one column that can't take it. */}
+                            <table className="w-full table-fixed" style={{ fontSize: 'var(--fs-table)', minWidth: 980 }}>
+                                <colgroup>
+                                    <col style={{ width: 84 }} />
+                                    <col />
+                                    <col style={{ width: 184 }} />
+                                    <col style={{ width: 112 }} />
+                                    <col style={{ width: 176 }} />
+                                    <col style={{ width: 144 }} />
+                                    <col style={{ width: 108 }} />
+                                </colgroup>
                                 <thead>
                                     <tr className="text-left uppercase text-[var(--ink-muted)]" style={{ background: "var(--bg-subtle)", fontSize: "var(--fs-table)", letterSpacing: "0.04em" }}>
-                                        <th className="px-3 py-2 font-medium">Date</th>
-                                        <th className="px-3 py-2 font-medium">Invoice</th>
-                                        <th className="px-3 py-2 font-medium">Supplier</th>
-                                        <th className="px-3 py-2 font-medium text-right">Amount</th>
-                                        <th className="px-3 py-2 font-medium">Warehouse</th>
-                                        <th className="px-3 py-2 font-medium">Month covered</th>
-                                        <th className="px-3 py-2"></th>
+                                        <SortTh colKey="_date" label="Date" sort={triageSort} idle className="px-2 py-1 font-medium whitespace-nowrap" />
+                                        <SortTh colKey="_invoice" label="Invoice" sort={triageSort} idle className="px-2 py-1 font-medium whitespace-nowrap" />
+                                        {/* "Billed by", not "Supplier". This column is the vendor on the
+                                            expense, and the vendor of a storage invoice is itself a
+                                            terminal — so it prints the same company as the warehouse
+                                            beside it and reads as one fact duplicated. Billed by = who
+                                            sent the invoice; Warehouse = where the material sits. */}
+                                        <SortTh colKey="_supplier" label="Billed by" sort={triageSort} idle className="px-2 py-1 font-medium whitespace-nowrap" />
+                                        <SortTh colKey="_amount" label="Amount" sort={triageSort} idle className="px-2 py-1 font-medium text-right whitespace-nowrap" />
+                                        <SortTh colKey="_wh" label="Warehouse" sort={triageSort} idle className="px-2 py-1 font-medium whitespace-nowrap" />
+                                        <SortTh colKey="_month" label="Month covered" sort={triageSort} idle className="px-2 py-1 font-medium whitespace-nowrap" />
+                                        <th className="px-2 py-1"></th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {untaggedShown.map(e => {
-                                        const d = draftOf(e);
+                                    {triageRows.map(({ row: e, draft: d, _dateStr }) => {
                                         const ready = d.storageWh && d.storageMonth;
                                         return (
                                             <tr key={e.id} className="border-t border-[var(--bg-subtle)]">
-                                                <td className="px-3 py-2 whitespace-nowrap text-[var(--port-gore)]">{(typeof e.date === 'string' ? e.date : '').substring(0, 10)}</td>
-                                                <td className="px-3 py-2 text-[var(--port-gore)] max-w-[12rem] truncate">{e.expense || '—'}</td>
-                                                <td className="px-3 py-2 text-[var(--port-gore)]">
-                                                    <NameCell name={settings.Supplier?.Supplier?.find(s => s.id === e.supplier)?.nname} fallback="—" />
+                                                {/* dd.mm.yy — what expenses, company expenses and global search
+                                                    all print. This cell held the app's only ISO date. */}
+                                                <td className="px-2 py-1.5 whitespace-nowrap text-[var(--port-gore)] numeric">{_dateStr ? dateFormat(_dateStr, 'dd.mm.yy') : '—'}</td>
+                                                <td className="px-2 py-1.5 text-[var(--port-gore)] truncate" title={e.expense || ''}>{e.expense || '—'}</td>
+                                                <td className="px-2 py-1.5 text-[var(--port-gore)]">
+                                                    <NameCell name={settings.Supplier?.Supplier?.find(s => s.id === e.supplier)?.nname} fallback="—" maxWidth={166} />
                                                 </td>
-                                                <td className="px-3 py-2 text-right whitespace-nowrap text-[var(--port-gore)]">
+                                                <td className="px-2 py-1.5 text-right whitespace-nowrap text-[var(--port-gore)] numeric">
                                                     <NumericFormat value={parseFloat(e.amount) || 0} displayType="text" thousandSeparator prefix={e.cur === 'us' ? '$' : '€'} decimalScale={2} fixedDecimalScale />
                                                 </td>
-                                                <td className="px-3 py-2">
+                                                <td className="px-2 py-1.5">
                                                     <Selector
                                                         arr={whOptions}
                                                         value={{ storageWh: d.storageWh }}
@@ -466,14 +549,15 @@ const StorageCosts = () => {
                                                         name='storageWh'
                                                         secondaryName='_label'
                                                         clear={() => setDraft(e.id, { storageWh: '' })}
+                                                        classes="h-7"
                                                     />
                                                 </td>
-                                                <td className="px-3 py-2">
+                                                <td className="px-2 py-1.5">
                                                     <MonthPickerPill value={d.storageMonth} onChange={(v) => setDraft(e.id, { storageMonth: v })} />
                                                 </td>
-                                                <td className="px-3 py-2">
+                                                <td className="px-2 py-1.5">
                                                     <button type="button" disabled={!ready || savingId === e.id} onClick={() => saveTag(e)}
-                                                        className="inline-flex items-center gap-1 rounded-lg px-3 h-7 text-[var(--on-brand)] font-medium disabled:opacity-40"
+                                                        className="inline-flex items-center gap-1 rounded-lg px-2 h-7 text-[var(--on-brand)] font-medium disabled:opacity-40"
                                                         style={{ fontSize: 'var(--fs-body)', background: 'var(--endeavour)' }}>
                                                         <Save className="w-3 h-3" /> {savingId === e.id ? 'Saving…' : 'Save'}
                                                     </button>

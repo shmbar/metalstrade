@@ -148,6 +148,8 @@ declare module '@shared/salesLink' {
   export function invoiceQtyBySalesContract(inv?: any): Record<string, number>;
   export function invoiceQtyForSalesContract(inv?: any, salesContractId?: string): number;
   export function invoiceLinksSalesContract(inv?: any, salesContractId?: string): boolean;
+  export function salesContractLabel(sc?: any, clients?: any[]): string;
+  export function withSalesContractLabels<T = any>(list?: T[], clients?: any[]): (T & { scLabel: string })[];
 }
 
 declare module '@shared/storageUtils' {

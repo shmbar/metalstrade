@@ -32,7 +32,7 @@ import ActivityLog from '@components/ActivityLog';
 import CommentThread from '@components/CommentThread';
 import { X, Save, Eraser, FileText, FileUp, Trash, PanelTopOpen, Banknote, Copy, ClipboardCheck, ChevronDown, ChevronUp, ScrollText, History, MessageSquare } from "lucide-react";
 import LoadingButton from '../../../../components/LoadingButton'
-import { invoiceQtyBySalesContract, salesContractIdsOf } from '@utils/salesLink';
+import { invoiceQtyBySalesContract, salesContractIdsOf, withSalesContractLabels } from '@utils/salesLink';
 import SalesSplitSummary from '@components/invoices/SalesSplitSummary';
 
 // Settings-style form spec (shared with the standalone Invoices modal)
@@ -326,13 +326,16 @@ const ContractModal = () => {
 	}
 	// Options for the PER-LINE Sales PO picker — see the matching note in
 	// invoices/modals/invoiceDetails.js.
-	const scLineOptions = [
+	const scLineOptions = withSalesContractLabels([
 		...scOptions,
 		...salesContractIdsOf(valueInv)
 			.filter(id => !scOptions.some(o => o.id === id))
 			.map(id => scAll.find(sc => sc.id === id))
 			.filter(Boolean),
-	];
+	], settings.Client?.Client ?? []);
+	// Header picker gets the same "number · buyer" labels — see the note in
+	// invoices/modals/invoiceDetails.js.
+	const scOptionsLabelled = withSalesContractLabels(scOptions, settings.Client?.Client ?? []);
 	const autoMatchSalesContract = (typed) => {
 		const target = normalizeNo(typed);
 		if (!target) return '';
@@ -431,9 +434,9 @@ const ContractModal = () => {
 										</span>
 										:
 										<>
-											<Selector arr={scOptions} value={valueInv}
+											<Selector arr={scOptionsLabelled} value={valueInv}
 												onChange={handleSalesContractPick}
-												name='salesContractId' secondaryName='contractNo'
+												name='salesContractId' secondaryName='scLabel'
 												clear={clear} />
 											{valueInv.clientContractNo &&
 												<p className='responsiveText text-[var(--regent-gray)] pl-1 pt-0.5'>No auto-match — pick one or create it.</p>}

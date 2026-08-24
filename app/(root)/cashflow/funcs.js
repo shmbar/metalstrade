@@ -13,39 +13,10 @@ import { ContactRoundIcon, Eraser, Save } from "lucide-react";
 import { NumericFormat } from "react-number-format";
 import DoalogModal from "./dialogSupplier";
 import DoalogModalClient from "./dialogClient";
-import SortIcon from "@components/table/SortIcon";
+import { SortTh, sortRows, useSortState } from "@components/table/sorting";
 
 
 
-const sortRows = (arr, key, dir) => {
-    if (!key) return arr;
-    return [...arr].sort((a, b) => {
-        const av = a[key], bv = b[key];
-        if (!isNaN(parseFloat(av)) && !isNaN(parseFloat(bv)))
-            return dir === 'asc' ? parseFloat(av) - parseFloat(bv) : parseFloat(bv) - parseFloat(av);
-        const as = String(av ?? ''), bs = String(bv ?? '');
-        return dir === 'asc' ? as.localeCompare(bs) : bs.localeCompare(as);
-    });
-};
-
-const SortTh = ({ colKey, label, sortKey, sortDir, onSort, className = '' }) => (
-    <th className={`cursor-pointer select-none ${className}`} onClick={() => onSort(colKey)}>
-        <span className="inline-flex items-center gap-1">
-            {label}
-            <SortIcon direction={sortKey === colKey ? sortDir : null} />
-        </span>
-    </th>
-);
-
-const useSortState = () => {
-    const [sortKey, setSortKey] = useState(null);
-    const [sortDir, setSortDir] = useState('asc');
-    const handleSort = (key) => {
-        if (sortKey === key) setSortDir(d => d === 'asc' ? 'desc' : 'asc');
-        else { setSortKey(key); setSortDir('asc'); }
-    };
-    return { sortKey, sortDir, handleSort };
-};
 
 // Composite key for the running-sum basket (ids are uuids but kind-prefixed to be safe)
 const sumKey = (kind, id) => kind + '_' + id;

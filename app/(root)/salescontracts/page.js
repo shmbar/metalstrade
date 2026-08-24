@@ -139,7 +139,19 @@ const SalesContracts = () => {
             {
                 accessorKey: 'client', header: getTtl('Consignee', ln),
                 cell: (props) => <NameCell name={gQ(props.getValue(), 'Client', 'nname') || gQ(props.getValue(), 'Client', 'client')} />,
-                meta: { excludeFromQuickSum: true }
+                meta: {
+                    excludeFromQuickSum: true,
+                    // The row stores a client ID, and labelAwareGlobalFilter resolves an id to
+                    // its label ONLY through meta.options. Without these the global search was
+                    // matching against the raw id, so typing a buyer's name returned nothing —
+                    // the reported "why can't we search sales POs by buyer/consignee?".
+                    options: (settings.Client?.Client ?? [])
+                        .filter(c => c && c.id)
+                        .map(c => ({ value: c.id, label: c.nname || c.client || '' })),
+                    // …and a proper per-column dropdown, the same control the Invoices and
+                    // Invoices Review tables already give this field.
+                    filterVariant: 'selectClient',
+                },
             },
             {
                 id: 'poOrder', header: 'Purchase Contract',

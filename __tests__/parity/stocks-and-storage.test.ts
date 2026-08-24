@@ -120,7 +120,7 @@ const HASH = {
   staleDays: 'a2e0c4822268', // app/(root)/stocks/storageAging.js:11
   demurrageDays: 'f6b09c3eafe3', // app/(root)/stocks/storageAging.js:12
   storageExpYear: '07ada9eea708', // app/(root)/storagecosts/page.js:142
-  storagePerYear: '9e8c34262df2', // app/(root)/storagecosts/page.js:157
+  storagePerYear: '564748e563bd', // app/(root)/storagecosts/page.js:157
   storageSuggestWh: 'd33cb7953f78', // app/(root)/storagecosts/page.js:193
   storageActuals: '71376076b800', // app/(root)/storagecosts/page.js:178
   storageWhName: '55be7e6bd8bc', // app/(root)/storagecosts/page.js:117

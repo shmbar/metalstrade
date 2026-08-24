@@ -24,7 +24,7 @@ import ISF from '../../contracts/modals/isf'
 import { validate, ErrDiv } from '../../../../utils/utils'
 import { getTtl } from '../../../../utils/languages.js';
 import { NameCell } from '../../../../components/Avatar';
-import { invoiceQtyBySalesContract, salesContractIdsOf } from '../../../../utils/salesLink';
+import { invoiceQtyBySalesContract, salesContractIdsOf, withSalesContractLabels } from '../../../../utils/salesLink';
 import SalesSplitSummary from '../../../../components/invoices/SalesSplitSummary';
 import { useRouter } from 'next/navigation.js';
 import { ContractsContext } from "../../../../contexts/useContractsContext";
@@ -126,13 +126,16 @@ const InvoiceModal = () => {
 	// own dropdown the moment that contract counted as fully shipped, and the row would
 	// look unset while still counting against it.
 	const linkedIds = salesContractIdsOf(valueInv);
-	const scLineOptions = [
+	const scLineOptions = withSalesContractLabels([
 		...scOptions,
 		...linkedIds
 			.filter(id => !scOptions.some(o => o.id === id))
 			.map(id => scAll.find(sc => sc.id === id))
 			.filter(Boolean),
-	];
+	], settings.Client?.Client ?? []);
+	// Header picker gets the same "number · buyer" labels, so the dropdown can be
+	// searched by consignee instead of only by contract number.
+	const scOptionsLabelled = withSalesContractLabels(scOptions, settings.Client?.Client ?? []);
 
 	// Auto-match the typed Client Contract # to a sales contract (prefer same client).
 	const autoMatchSalesContract = (typed) => {
@@ -443,9 +446,9 @@ const InvoiceModal = () => {
 								</span>
 								:
 								<>
-									<Selector arr={scOptions} value={valueInv}
+									<Selector arr={scOptionsLabelled} value={valueInv}
 										onChange={handleSalesContractPick}
-										name='salesContractId' secondaryName='contractNo'
+										name='salesContractId' secondaryName='scLabel'
 										clear={clear} />
 									{valueInv.clientContractNo &&
 										<p className='responsiveText text-[var(--regent-gray)] pl-1 pt-0.5'>No auto-match — pick one or create it.</p>}

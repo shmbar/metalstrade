@@ -29,7 +29,20 @@ export const Filter = ({ column, table, filterOn }) => {
         ) : filterVariant === 'selectClient' ? (
             <select onChange={e => column.setFilterValue(e.target.value)} value={columnFilterValue?.toString()} className={selectCls}>
                 <option value="">All</option>
-                {[...new Set(table.options.data.map(x => x.client).filter(z => z !== ''))].map(q => <option value={q} key={q}>{q}</option>)}
+                {(() => {
+                    /* Same id→label resolution selectSupplier below already does, and for the
+                       same reason. Most pages feed this table client NAMES (getFormatted
+                       resolves them first), but Sales Contracts keeps the raw client id in the
+                       row — so without meta.options this dropdown listed opaque ids. Falls back
+                       to the raw values when a column supplies no options, which is every
+                       existing call site, so their behaviour is unchanged. */
+                    const options = column.columnDef.meta?.options;
+                    if (options?.length) {
+                        const usedIds = [...new Set(table.options.data.map(x => x.client).filter(Boolean))];
+                        return options.filter(o => usedIds.includes(o.value)).map(o => <option value={o.value} key={o.value}>{o.label}</option>);
+                    }
+                    return [...new Set(table.options.data.map(x => x.client).filter(z => z !== ''))].map(q => <option value={q} key={q}>{q}</option>);
+                })()}
             </select>
         ) : filterVariant === 'selectSupplier' ? (
             <select onChange={e => column.setFilterValue(e.target.value)} value={columnFilterValue?.toString()} className={selectCls}>

@@ -58,3 +58,22 @@ export const invoiceQtyForSalesContract = (inv, salesContractId) =>
 // Does this invoice touch the given sales contract at all?
 export const invoiceLinksSalesContract = (inv, salesContractId) =>
     !!salesContractId && salesContractIdsOf(inv).includes(salesContractId);
+
+// "PB062971 · Oryx Stainless BV" — the label a sales contract is shown and SEARCHED by.
+//
+// A bare contract number is not something anyone recognises at a glance, and the
+// dropdown's type-to-filter matches the label only: with just the number, typing a
+// buyer's name found nothing, which is what "why can't we search sales POs by
+// buyer/consignee?" was about. Same reasoning, and the same separator, as the
+// purchase-PO picker in salescontracts/modals/salesContractDetails.js.
+export const salesContractLabel = (sc, clients = []) => {
+    if (!sc) return '';
+    const no = sc.contractNo || '(no number)';
+    const c = clients.find((k) => k && k.id === sc.client);
+    const who = c ? (c.nname || c.client || '') : '';
+    return who ? `${no}  ·  ${who}` : String(no);
+};
+
+// Decorate a list of sales contracts with that label, ready for <Selector secondaryName='scLabel'>.
+export const withSalesContractLabels = (list = [], clients = []) =>
+    list.map((sc) => ({ ...sc, scLabel: salesContractLabel(sc, clients) }));

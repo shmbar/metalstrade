@@ -6,6 +6,8 @@ import {
     invoiceQtyBySalesContract,
     invoiceQtyForSalesContract,
     invoiceLinksSalesContract,
+    salesContractLabel,
+    withSalesContractLabels,
 } from '../salesLink.js';
 
 // The whole point of this module is that shipped tonnage is credited to the right
@@ -89,6 +91,36 @@ describe('split across two client POs', () => {
     it('gives the header contract nothing once every line is retagged', () => {
         const retagged = { salesContractId: 'SC1', productsDataInvoice: [{ qnty: '7', salesContractId: 'SC2' }] };
         expect(invoiceQtyBySalesContract(retagged)).toEqual({ SC2: 7 });
+    });
+});
+
+describe('salesContractLabel — the text a PO is shown and searched by', () => {
+    const clients = [
+        { id: 'C1', nname: 'Oryx Stainless BV' },
+        { id: 'C2', client: 'Iberinox' },   // legacy shape: no nname
+    ];
+
+    it('carries the buyer, so the list can be searched by consignee', () => {
+        expect(salesContractLabel({ contractNo: 'PB062971', client: 'C1' }, clients))
+            .toBe('PB062971  ·  Oryx Stainless BV');
+    });
+    it('falls back to `client` when a contact has no nname', () => {
+        expect(salesContractLabel({ contractNo: 'PB1', client: 'C2' }, clients)).toBe('PB1  ·  Iberinox');
+    });
+    it('degrades to the bare number when the buyer is unknown', () => {
+        expect(salesContractLabel({ contractNo: 'PB1', client: 'nope' }, clients)).toBe('PB1');
+        expect(salesContractLabel({ contractNo: 'PB1' }, [])).toBe('PB1');
+    });
+    it('never renders an empty label', () => {
+        expect(salesContractLabel({ client: 'C1' }, clients)).toBe('(no number)  ·  Oryx Stainless BV');
+        expect(salesContractLabel(null, clients)).toBe('');
+    });
+    it('decorates a list without dropping or reordering it', () => {
+        const list = [{ id: 'a', contractNo: 'P1', client: 'C1' }, { id: 'b', contractNo: 'P2' }];
+        const out = withSalesContractLabels(list, clients);
+        expect(out.map(o => o.id)).toEqual(['a', 'b']);
+        expect(out.map(o => o.scLabel)).toEqual(['P1  ·  Oryx Stainless BV', 'P2']);
+        expect(out[0].contractNo).toBe('P1'); // original fields survive
     });
 });
 
