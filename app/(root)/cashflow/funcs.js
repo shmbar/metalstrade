@@ -356,6 +356,14 @@ export const runStocks = async (uidCollection, settings, yr, contractsData = [],
             totalObj['unitPrc'] = (isNumber(untPrc) ? untPrc : totalObj.unitPrc)
             totalObj['total'] = totalObj.unitPrc * totalObj.qnty
             totalObj['data'] = filteredData
+            // Rows group by warehouse x description only, so lots from DIFFERENT suppliers
+            // collapse together — and every non-qnty field above is last-write-wins, which
+            // silently labelled such a row with whichever lot happened to sort last (PO 240726
+            // read "GIS OU" while its contract said Stachow). Keep the distinct set so the
+            // table can say the row is mixed instead of picking one at random.
+            totalObj['supplierIds'] = [...new Set(filteredData
+                .filter(x => x.type === 'in' && x.supplier)
+                .map(x => x.supplier))]
             totalObj['date'] = dateFormat(filteredData.find(z => z.contractData)?.contractData?.date, 'dd.mm.yy')
             totalObj['cur'] = filteredData[0]['cur']
             totalObj['sType'] = settings?.Stocks?.Stocks?.find(x => x.id === totalObj.stock)?.sType || ''
@@ -534,6 +542,20 @@ const moveToContracts = async (z, ent, uidCollection, setDateSelect,
 
 }
 
+// Supplier names behind one grouped stock row. A row can cover lots from more than one
+// supplier (grouping is warehouse x description), in which case naming just one of them
+// is wrong — usually the sign of a duplicated lot, so make it visible rather than silent.
+const supplierNames = (z, settings) => {
+    const ids = z.supplierIds?.length ? z.supplierIds : [z.supplier];
+    return [...new Set(ids
+        .map(id => settings.Supplier.Supplier.find(q => q.id === id)?.nname)
+        .filter(Boolean))];
+};
+const supplierLabel = (z, settings) => {
+    const names = supplierNames(z, settings);
+    return names.length > 1 ? `Mixed (${names.length})` : (names[0] || '');
+};
+
 export const StoclToolTip = ({ stock, stockDataAll, settings, uidCollection, setDateSelect,
     setValueCon, setIsOpenCon, blankInvoice, router, sumSel = {}, toggleSum }) => {
     const { sortKey, sortDir, handleSort } = useSortState();
@@ -558,7 +580,7 @@ export const StoclToolTip = ({ stock, stockDataAll, settings, uidCollection, set
         .filter(z => z.stock === stock)
         // Group rows by contract number (PO#), matching the Unsold Stocks ordering.
         .sort((a, b) => String(a.order ?? '').localeCompare(String(b.order ?? ''), undefined, { numeric: true }))
-        .map(z => ({ ...z, _supplierName: settings.Supplier.Supplier.find(q => q.id === z.supplier)?.nname || '', _groupDesc: groupDescOf(z) }));
+        .map(z => ({ ...z, _supplierName: supplierLabel(z, settings), _groupDesc: groupDescOf(z) }));
     const filteredArr = sortKey ? sortRows(base, sortKey, sortDir) : base;
 
     const buildSumItem = (z) => ({
@@ -593,7 +615,7 @@ export const StoclToolTip = ({ stock, stockDataAll, settings, uidCollection, set
                                     onClick={() => moveToContracts(z, 'stock', uidCollection, setDateSelect,
                                         setValueCon, setIsOpenCon, blankInvoice, router, setToast)}>
                                     <Tltip direction='top' tltpText={z.order || ''}><span className="block truncate">{z.order}</span></Tltip></td>
-                                <td className="text-left w-16"><Tltip direction='top' tltpText={[settings.Supplier.Supplier.find(q => q.id === z.supplier)?.nname, settings.Supplier.Supplier.find(q => q.id === z.originSupplier)?.nname ? 'Org: ' + settings.Supplier.Supplier.find(q => q.id === z.originSupplier)?.nname : ''].filter(Boolean).join(' · ')}><span className="flex items-center gap-1.5 min-w-0 cursor-default"><Avatar name={z._supplierName} size={18} /><span className="block truncate">{z._supplierName}</span></span></Tltip></td>
+                                <td className="text-left w-16"><Tltip direction='top' tltpText={[supplierNames(z, settings).join(' + '), settings.Supplier.Supplier.find(q => q.id === z.originSupplier)?.nname ? 'Org: ' + settings.Supplier.Supplier.find(q => q.id === z.originSupplier)?.nname : ''].filter(Boolean).join(' · ')}><span className="flex items-center gap-1.5 min-w-0 cursor-default"><Avatar name={z._supplierName} size={18} /><span className="block truncate">{z._supplierName}</span></span></Tltip></td>
                                 <td className="text-left w-28 max-w-28">
                                     <Tltip direction='top' tltpText={z.descriptionName || ''}><span className={`block truncate cursor-default ${indent ? 'pl-4' : ''}`}>{z.descriptionName}</span></Tltip>
                                 </td>
