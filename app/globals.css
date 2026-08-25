@@ -729,6 +729,25 @@ th input, th select, th textarea, th button {
   text-align: left;
 }
 
+
+/* ── A totals band closes the table the way the header opens it ──────────────
+   /margins ends every month table with a totals row, and that row ALREADY asked
+   for the header shade: `bg-[var(--bg-subtle)]` sits on the footer <tr> in
+   margins/newTable.js. It never showed. `.custom-table td` above is (0,1,1) and
+   a Tailwind utility on the row is (0,1,0), so each totals cell repainted itself
+   --bg-card — and a cell's own background paints over its row's. The totals read
+   as one more body row on white, at the bottom of a table whose header sat on a
+   band. Same token as `.custom-table th`, so the two bands cannot drift apart.
+
+   Stated here rather than inline per <td>, for the reason the .custom-table
+   comment gives: a background restated on the element is invisible to a scan for
+   classes, and is exactly how a table falls out of the band. (0,1,2) — one
+   element more specific than the rule it corrects — and scoped to the margins
+   table, so no other page's footer moves. Asked for by Zak, 2026-08-25. */
+.margins-data-table tfoot td {
+  background-color: var(--bg-subtle);
+}
+
 /* ── .detail-popup-table: THE hover-detail popup band ────────────────────────
    Five summary cards open a hover popup listing the rows behind a figure —
    stocks, expenses, companyexpenses, contractsstatement (also mounted by
