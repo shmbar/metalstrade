@@ -1,5 +1,6 @@
 
 import { useState, useMemo } from 'react';
+import { ACCOUNTS } from '../utils/activeAccount';
 import { saveDataSettings } from '../utils/utils';
 
 // You can expand this hook with your actual settings logic as needed
@@ -10,9 +11,9 @@ function useSettingsState() {
     const [compData, setCompData] = useState({ lng: 'English' });
     const [loading, setLoading] = useState(false);
     const [uidCollection, setUidCollection] = useState(null)
-    const accounts=[{id:'DQ9gNTpvXqh6K9BqMTPTgCfxD2Z2', uidCollection:'DQ9gNTpvXqh6K9BqMTPTgCfxD2Z2', name:'IMS'},
-        {id:'aB3dE7FgHi9JkLmNoPqRsTuVwGIS', uidCollection:'aB3dE7FgHi9JkLmNoPqRsTuVwGIS', name:'GIS'}
-    ]
+    // One list, shared with the code that remembers which account is selected —
+    // two copies of these ids would be two places for them to drift apart.
+    const accounts = ACCOUNTS
     // Computed language value for easy access
     const ln = useMemo(() => compData?.lng || 'English', [compData?.lng]);
 

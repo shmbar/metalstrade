@@ -6,6 +6,8 @@ import {
     Field,
     ReadOnlyField,
     ResultRow,
+    TileInput,
+    TileNote,
     Legend,
     inputCell,
     computedCell,
@@ -85,6 +87,26 @@ const Stainless = ({ value, handleChange }) => {
 
     const calc = (text) => <div className={computedCell}>{text}</div>;
 
+    /* The turnings discount. It was a bare 0.92 in the source with nothing on
+       screen saying so, so the figure could not be checked or changed without a
+       deploy (Zak, 2026-08-25). It reads from state now and falls back to the
+       number that was hard-coded, so saved data quotes exactly what it did
+       before until someone edits it. */
+    const TURNINGS_DEFAULT = 92;
+    const turnPct = (name) => {
+        const v = s[name];
+        return v === '' || v === null || v === undefined || Number.isNaN(Number(v)) ? TURNINGS_DEFAULT : Number(v);
+    };
+    const turnCell = (name) => (
+        <TileInput
+            name={name}
+            value={turnPct(name).toFixed(2) + '%'}
+            onChange={(e) => set(name, e.target.value.replace('%', ''))}
+            onBlur={(e) => commit(name, e.target.value.replace('%', ''))}
+        />
+    );
+    const euroNote = <TileNote>{fmt(n(g.euroRate).toFixed(2)) + ' / €'}</TileNote>;
+
     /* Ni priced off the LME, per side. Also the basis for the $/lb hint. */
     const niCost = n(g.nilme) * n(s.formulaNiCost) / 100;
     const niSales = n(g.nilme) * n(s.formulaNiPrice) / 100;
@@ -103,18 +125,20 @@ const Stainless = ({ value, handleChange }) => {
                             <ReadOnlyField value={fmt(n(g.nilme).toFixed(2))} />
                         </Field>
                         <Field label="Formula × Ni">{pctCell('formulaNiCost')}</Field>
-                        <Field label="Cr / lb">
-                            <ReadOnlyField value={n(g.mt) ? fmt((n(s.crPrice) / n(g.mt)).toFixed(2)) : '$0'} />
-                        </Field>
-                        <Field label="Mo / lb">
-                            <ReadOnlyField value={n(g.mt) ? fmt((n(s.moPrice) / n(g.mt)).toFixed(2)) : '$0'} />
-                        </Field>
                     </>
                 }
                 results={[
-                    { label: 'Solids price', value: fmt(solidsPrice.toFixed(2)) },
-                    { label: 'Turnings price', value: fmt((solidsPrice * 0.92).toFixed(2)) },
-                    { label: 'Price / Euro', value: fmt((solidsPrice / n(g.euroRate)).toFixed(2), '€') },
+                    { label: 'Solids ($/MT)', value: fmt(solidsPrice.toFixed(2)) },
+                    {
+                        label: 'Turnings ($/MT)',
+                        value: fmt((solidsPrice * turnPct('turningsCost') / 100).toFixed(2)),
+                        note: turnCell('turningsCost'),
+                    },
+                    {
+                        label: 'Price / Euro (€/MT)',
+                        value: fmt((solidsPrice / n(g.euroRate)).toFixed(2), '€'),
+                        note: euroNote,
+                    },
                 ]}
             />
 
@@ -143,9 +167,17 @@ const Stainless = ({ value, handleChange }) => {
                     </>
                 }
                 results={[
-                    { label: 'Solids price', value: fmt(solidsPrice1.toFixed(2)) },
-                    { label: 'Turnings price', value: fmt((solidsPrice1 * 0.92).toFixed(2)) },
-                    { label: 'Price / Euro', value: fmt((solidsPrice1 / n(g.euroRate)).toFixed(2), '€') },
+                    { label: 'Solids ($/MT)', value: fmt(solidsPrice1.toFixed(2)) },
+                    {
+                        label: 'Turnings ($/MT)',
+                        value: fmt((solidsPrice1 * turnPct('turningsPrice') / 100).toFixed(2)),
+                        note: turnCell('turningsPrice'),
+                    },
+                    {
+                        label: 'Price / Euro (€/MT)',
+                        value: fmt((solidsPrice1 / n(g.euroRate)).toFixed(2), '€'),
+                        note: euroNote,
+                    },
                 ]}
             />
         </div>

@@ -13,6 +13,7 @@ import { useGlobalSearch } from '../../../contexts/useGlobalSearchContext'
 import Tltip from '../../../components/tlTip'
 import { Selector } from '@components/selectors/selectShad';
 import NotificationBell from '@components/NotificationBell';
+import { writeActiveAccount, accountName } from '../../../utils/activeAccount';
 
 // Self-contained clock: owns the 1-second interval so only this tiny component
 // re-renders each second — previously the state lived in MainNav and re-rendered
@@ -129,7 +130,9 @@ export const MainNav = () => {
 
           <div className='flex-1 min-w-0 z-50'>
             <Selector arr={accounts} value={accounts.find(x => x.id === uidCollection)}
-              onChange={(e) => setUidCollection(e)}
+              // Remember the switch, or the next token refresh (on focus) puts the
+              // user back on their home account without saying so.
+              onChange={(e) => { writeActiveAccount(e); setUidCollection(e); }}
               name='uidCollection'
               secondaryName='name'
             />

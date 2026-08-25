@@ -142,9 +142,12 @@ export const ReadOnlyField = ({ value }) => (
    The three numbers the whole page exists to produce. They used to render in
    the same 28px pill as every input on the screen, so nothing on the card said
    which figures were the answer. Label above, figure on the page rung. */
-export const ResultTile = ({ label, value }) => (
+export const ResultTile = ({ label, value, note }) => (
     <div className="min-w-0 rounded-2xl border border-[var(--brand-border)] bg-[var(--brand-soft)] px-3 py-2">
-        <p className={`${labelCls} truncate`}>{label}</p>
+        <div className="flex items-center justify-between gap-2 min-h-[var(--h-cell-control)]">
+            <span className={`${labelCls} truncate`}>{label}</span>
+            {note}
+        </div>
         <p className="responsiveTextPage font-medium tabular-nums text-[var(--brand-strong)] mt-0.5 truncate">{value}</p>
     </div>
 );
@@ -152,9 +155,26 @@ export const ResultTile = ({ label, value }) => (
 export const ResultRow = ({ tiles }) => (
     <div className="mt-auto grid grid-cols-1 sm:grid-cols-3 gap-3">
         {tiles.map((t) => (
-            <ResultTile key={t.label} label={t.label} value={t.value} />
+            <ResultTile key={t.label} label={t.label} value={t.value} note={t.note} />
         ))}
     </div>
+);
+
+/* The rate or percentage a tile's figure was worked out from, shown on the
+   tile itself (Zak, 2026-08-25). Two shapes: an editable one — the turnings
+   discount, which used to be a 0.92 buried in the source with nothing on
+   screen saying so — and a plain readout for the EUR rate. Both sit on the
+   label's line at the 24px in-cell height so the tile keeps its size. */
+export const TileInput = (props) => (
+    <input
+        type="text"
+        className="cell-control w-14 shrink-0 rounded-control border border-[var(--line-strong)] bg-[var(--bg-card)] text-center responsiveTextTable tabular-nums font-medium text-[var(--bad-text)] focus:outline-none focus:border-[var(--brand)] focus:ring-2 focus:ring-[var(--brand-soft)] transition-colors"
+        {...props}
+    />
+);
+
+export const TileNote = ({ children }) => (
+    <span className="shrink-0 responsiveTextTable tabular-nums text-[var(--ink-muted)] whitespace-nowrap">{children}</span>
 );
 
 /* ── Legend ─────────────────────────────────────────────────────────────────

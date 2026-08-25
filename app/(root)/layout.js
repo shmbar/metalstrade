@@ -13,6 +13,7 @@ import FloatingChat from '../../components/FloatingChat';
 import GlobalSearchLoader from '../../utils/globalSearch/GlobalSearchLoader'
 import CommandPalette from '../../components/CommandPalette';
 import { NotificationPopupsHost } from '../../contexts/useNotificationContext';
+import AccountSwitchGuard from '../../components/AccountSwitchGuard';
 
 
 export default function MyLayout({
@@ -56,6 +57,7 @@ export default function MyLayout({
 	return (
 		<main className="md:flex bg-[var(--bg-page)] min-h-screen">
 			<Idle />
+			<AccountSwitchGuard />
 			<div className='hidden md:flex z-10 mx-auto'>
 				<Sidebar />
 			</div>

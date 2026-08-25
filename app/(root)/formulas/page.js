@@ -11,15 +11,11 @@ import { Tab, TabPanel, TabGroup, TabList, TabPanels } from '@headlessui/react'
 import Fenicr from './tabs/fenicr';
 import SupperAlloys from './tabs/supperalloys';
 import Stainless from './tabs/stainless';
-/* Same label band as the cards below — the toolbar sits above them, so it
-   cannot be shouting while they are not. */
-import { labelCls } from './tabs/parts';
+import MarketBar from './marketBar';
 import { Button } from '../../../components/ui/button';
 import { getCur } from '../../../components/exchangeApi';
 import dateFormat from "dateformat";
 import useMetalPrices from '../../../hooks/useMetalPrices';
-import { RefreshCw } from 'lucide-react';
-import LoadingButton from '../../../components/LoadingButton';
 
 function classNames(...classes) {
 	return classes.filter(Boolean).join(' ')
@@ -159,90 +155,16 @@ const Page = () => {
 									</TabList>
 
 									{value.general != null && !loading && (
-										<div className='bg-[var(--bg-card)] rounded-2xl border border-[var(--line)] shadow-card p-4 mb-3'>
-											<div className='grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 items-end'>
-												<div className='min-w-0'>
-													<p className={`${labelCls} mb-1.5`}>Ni LME ($/MT)</p>
-													<div className='relative'>
-														<input
-															type='text'
-															className='w-full h-8 rounded-control border border-[var(--line-strong)] bg-[var(--bg-card)] pl-2.5 pr-8 responsiveTextTitle font-medium tabular-nums text-[var(--ink)] focus:outline-none focus:border-[var(--brand)] focus:ring-[3px] focus:ring-[var(--brand-soft)] transition-colors'
-															name='nilme'
-															onChange={(e) => handleChange(e, 'general')}
-															value={focusedField === 'nilme' ? value.general?.nilme || '' : addComma(value.general?.nilme || '0')}
-															onFocus={() => setFocusedField('nilme')}
-															onBlur={() => setFocusedField(null)}
-														/>
-														<button
-															onClick={refreshMetal}
-															title="Refresh live price"
-															className="absolute right-1 top-1/2 -translate-y-1/2 h-6 w-6 flex items-center justify-center rounded text-[var(--ink-muted)] hover:text-[var(--brand)] hover:bg-[var(--bg-subtle)] transition-colors"
-														>
-															<RefreshCw className={`w-3 h-3 ${metalLoading ? 'animate-spin' : ''}`} />
-														</button>
-													</div>
-												</div>
-
-												<div className='min-w-0'>
-													<p className={`${labelCls} mb-1.5`}>Mo Oxide ($/lb)</p>
-													<input
-														type='text'
-														className='w-full h-8 rounded-control border border-[var(--line-strong)] bg-[var(--bg-card)] px-2.5 responsiveTextTitle font-medium tabular-nums text-[var(--ink)] focus:outline-none focus:border-[var(--brand)] focus:ring-[3px] focus:ring-[var(--brand-soft)] transition-colors'
-														value={focusedField === 'MoOxideLb' ? value.general?.MoOxideLb || '' : addComma(value.general?.MoOxideLb || '0')}
-														name='MoOxideLb'
-														onChange={(e) => handleChange(e, 'general')}
-														onFocus={() => setFocusedField('MoOxideLb')}
-														onBlur={() => setFocusedField(null)}
-													/>
-												</div>
-
-												<div className='min-w-0'>
-													<p className={`${labelCls} mb-1.5`}>Charge Cr ($/lb)</p>
-													<input
-														type='text'
-														className='w-full h-8 rounded-control border border-[var(--line-strong)] bg-[var(--bg-card)] px-2.5 responsiveTextTitle font-medium tabular-nums text-[var(--ink)] focus:outline-none focus:border-[var(--brand)] focus:ring-[3px] focus:ring-[var(--brand-soft)] transition-colors'
-														name='chargeCrLb'
-														onChange={(e) => handleChange(e, 'general')}
-														value={focusedField === 'chargeCrLb' ? value.general?.chargeCrLb || '' : addComma(value.general?.chargeCrLb || '0')}
-														onFocus={() => setFocusedField('chargeCrLb')}
-														onBlur={() => setFocusedField(null)}
-													/>
-												</div>
-
-												<div className='min-w-0'>
-													<p className={`${labelCls} mb-1.5`}>1 MT (lb)</p>
-													<input
-														type='text'
-														className='w-full h-8 rounded-control border border-[var(--line-strong)] bg-[var(--bg-card)] px-2.5 responsiveTextTitle font-medium tabular-nums text-[var(--ink)] focus:outline-none focus:border-[var(--brand)] focus:ring-[3px] focus:ring-[var(--brand-soft)] transition-colors'
-														/* The ' Lb' suffix used to be concatenated into the VALUE of this
-														   editable input, so typing wrote "2204.62 Lb" straight back into
-														   state. The unit lives in the label now. */
-														value={value.general?.mt ?? ''}
-														name='mt'
-														onChange={(e) => handleChange(e, 'general')}
-													/>
-												</div>
-
-												<div className='min-w-0'>
-													<p className={`${labelCls} mb-1.5`}>EUR / USD</p>
-													<input
-														type='text'
-														className='w-full h-8 rounded-control border border-[var(--line-strong)] bg-[var(--bg-card)] px-2.5 responsiveTextTitle font-medium tabular-nums text-[var(--ink)] focus:outline-none focus:border-[var(--brand)] focus:ring-[3px] focus:ring-[var(--brand-soft)] transition-colors'
-														value={focusedField === 'euroRate'
-															? (value.general?.euroRate ?? '')
-															: Number(value.general?.euroRate || 0).toFixed(2)}
-														name='euroRate'
-														onChange={(e) => handleChange(e, 'general')}
-														onFocus={() => setFocusedField('euroRate')}
-														onBlur={() => setFocusedField(null)}
-													/>
-												</div>
-
-												<LoadingButton className='w-full' onClick={saveData}>
-													Save
-												</LoadingButton>
-											</div>
-										</div>
+										<MarketBar
+											value={value}
+											handleChange={handleChange}
+											focusedField={focusedField}
+											setFocusedField={setFocusedField}
+											addComma={addComma}
+											refreshMetal={refreshMetal}
+											metalLoading={metalLoading}
+											onSave={saveData}
+										/>
 									)}
 
 									<TabPanels>

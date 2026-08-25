@@ -5,6 +5,7 @@ import {
     ElementTable,
     Field,
     ResultRow,
+    TileNote,
     Legend,
     inputCell,
     computedCell,
@@ -98,9 +99,17 @@ const SupperAlloys = ({ value, handleChange }) => {
     const side = (formulaField) => {
         const base = solidsPrice * n(a[formulaField]) / 100;
         return [
-            { label: 'Solids price', value: fmt(base.toFixed(2)) },
-            { label: 'Price per MT', value: fmt((base * n(g.mt)).toFixed(2)) },
-            { label: 'Price / Euro', value: fmt((base / n(g.euroRate || 1)).toFixed(2), '€') },
+            /* This tab prices per pound, so its Solids figure is $/lb and the
+               Euro one is €/lb — only "Price per MT" is per tonne. The units are
+               in the labels now; nothing on the page used to say which was
+               which. */
+            { label: 'Solids ($/lb)', value: fmt(base.toFixed(2)) },
+            { label: 'Price per MT ($/MT)', value: fmt((base * n(g.mt)).toFixed(2)) },
+            {
+                label: 'Price / Euro (€/lb)',
+                value: fmt((base / n(g.euroRate || 1)).toFixed(2), '€'),
+                note: <TileNote>{fmt(n(g.euroRate).toFixed(2)) + ' / €'}</TileNote>,
+            },
         ];
     };
 

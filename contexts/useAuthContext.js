@@ -18,6 +18,7 @@ import {
 import { useRouter, usePathname } from "next/navigation";
 import { SettingsContext } from "../contexts/useSettingsContext";
 import BackToLoginPage from '../components/backToLoginPage'
+import { readActiveAccount } from '../utils/activeAccount'
 
 const AuthContext = createContext()
 
@@ -277,7 +278,11 @@ const AuthContextProvider = ({ children }) => {
       }
       const idTokenResult = await auth.currentUser.getIdTokenResult(force);
       const c = idTokenResult?.claims || {};
-      setUidCollection(c.uidCollection);
+      // The claim names the member's HOME account, but this runs again on every
+      // focus refresh — so it must not undo a deliberate switch in the header, or
+      // the user is snapped back mid-work and the next save lands in the account
+      // they are no longer looking at. An explicit choice wins until it is cleared.
+      setUidCollection(readActiveAccount() || c.uidCollection);
       setClaims({
         uidCollection: c.uidCollection,
         role: c.role,

@@ -6,6 +6,8 @@ import {
     Field,
     ReadOnlyField,
     ResultRow,
+    TileInput,
+    TileNote,
     Legend,
     inputCell,
     computedCell,
@@ -76,6 +78,26 @@ const Fenicr = ({ value, handleChange }) => {
 
     const calc = (text) => <div className={computedCell}>{text}</div>;
 
+    /* The turnings discount, which was a bare 0.92 (Cost) / 0.9 (Sales) in the
+       source with nothing on screen saying so — so the figure could not be
+       checked or changed without a deploy (Zak, 2026-08-25). Each side reads
+       from state and falls back to the number that was hard-coded on THAT side,
+       so saved data quotes exactly what it did before until someone edits it.
+       The 92/90 split is why the fallback is per-side rather than one constant. */
+    const turnPct = (name, fallback) => {
+        const v = f[name];
+        return v === '' || v === null || v === undefined || Number.isNaN(Number(v)) ? fallback : Number(v);
+    };
+    const turnCell = (name, fallback) => (
+        <TileInput
+            name={name}
+            value={turnPct(name, fallback).toFixed(2) + '%'}
+            onChange={(e) => set(name, e.target.value.replace('%', ''))}
+            onBlur={(e) => commit(name, e.target.value.replace('%', ''))}
+        />
+    );
+    const euroNote = <TileNote>{fmt(n(g.euroRate).toFixed(2)) + ' / €'}</TileNote>;
+
     const niCost = n(g.nilme) * n(f.formulaNiCost) / 100;
     const niSales = n(g.nilme) * n(f.formulaNiPrice) / 100;
     const perLb = (mtPrice) => (n(g.mt) ? fmt((mtPrice / n(g.mt)).toFixed(2)) + ' / lb' : '');
@@ -93,18 +115,20 @@ const Fenicr = ({ value, handleChange }) => {
                             <ReadOnlyField value={fmt(n(g.nilme).toFixed(2))} />
                         </Field>
                         <Field label="Formula × Ni">{pctCell('formulaNiCost')}</Field>
-                        <Field label="Cr / lb">
-                            <ReadOnlyField value={n(g.mt) ? fmt((n(f.crPrice) / n(g.mt)).toFixed(2)) : '$0'} />
-                        </Field>
-                        <Field label="Mo / lb">
-                            <ReadOnlyField value={n(g.mt) ? fmt((n(f.moPrice) / n(g.mt)).toFixed(2)) : '$0'} />
-                        </Field>
                     </>
                 }
                 results={[
-                    { label: 'Solids price', value: fmt(solidsPrice.toFixed(2)) },
-                    { label: 'Turnings price', value: fmt((solidsPrice * 0.92).toFixed(2)) },
-                    { label: 'Price / Euro', value: fmt((solidsPrice / n(g.euroRate)).toFixed(2), '€') },
+                    { label: 'Solids ($/MT)', value: fmt(solidsPrice.toFixed(2)) },
+                    {
+                        label: 'Turnings ($/MT)',
+                        value: fmt((solidsPrice * turnPct('turningsCost', 92) / 100).toFixed(2)),
+                        note: turnCell('turningsCost', 92),
+                    },
+                    {
+                        label: 'Price / Euro (€/MT)',
+                        value: fmt((solidsPrice / n(g.euroRate)).toFixed(2), '€'),
+                        note: euroNote,
+                    },
                 ]}
             />
 
@@ -132,13 +156,21 @@ const Fenicr = ({ value, handleChange }) => {
                         <Field label="Mo Argus">{pctCell('moPriceArgus')}</Field>
                     </>
                 }
-                /* 0.9 here against Stainless's 0.92 — the turnings discount has
-                   always differed between the two sides on this tab. Left as it
-                   was found. */
+                /* 90 here against the Cost side's 92 — the turnings discount has
+                   always differed between the two sides on this tab. It is on
+                   screen now, so the client can settle it either way. */
                 results={[
-                    { label: 'Solids price', value: fmt(solidsPrice1.toFixed(2)) },
-                    { label: 'Turnings price', value: fmt((solidsPrice1 * 0.9).toFixed(2)) },
-                    { label: 'Price / Euro', value: fmt((solidsPrice1 / n(g.euroRate)).toFixed(2), '€') },
+                    { label: 'Solids ($/MT)', value: fmt(solidsPrice1.toFixed(2)) },
+                    {
+                        label: 'Turnings ($/MT)',
+                        value: fmt((solidsPrice1 * turnPct('turningsPrice', 90) / 100).toFixed(2)),
+                        note: turnCell('turningsPrice', 90),
+                    },
+                    {
+                        label: 'Price / Euro (€/MT)',
+                        value: fmt((solidsPrice1 / n(g.euroRate)).toFixed(2), '€'),
+                        note: euroNote,
+                    },
                 ]}
             />
         </div>
