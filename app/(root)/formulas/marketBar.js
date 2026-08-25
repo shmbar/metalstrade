@@ -108,9 +108,11 @@ const MarketBar = ({
                     />
                 </div>
 
-                <LoadingButton className="ml-auto" onClick={onSave}>
-                    Save
-                </LoadingButton>
+                {/* Sits next to EUR/USD, not pinned to the card's right edge
+                    (Zak, 2026-08-26). Once the fields were sized to content, an
+                    `ml-auto` Save left ~900px of empty bar between the last
+                    figure and the button on a wide monitor. */}
+                <LoadingButton onClick={onSave}>Save</LoadingButton>
             </div>
         </div>
     );
