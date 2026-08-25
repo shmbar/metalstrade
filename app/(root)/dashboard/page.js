@@ -639,6 +639,12 @@ function PerMtStrip({ totalMT, avgExpensePerMT, avgProfitPerMT, avgFreightPerMT 
 // for "no filter" since Radix Select can't use an empty-string value.)
 function FilterSelect({ label, icon, value, onChange, options }) {
   const active = !!value;
+  /* A list with nothing to choose between — one value that every contract in the period
+     shares, or none at all — cannot change the page, so it is offered as a disabled chip
+     showing what that single value IS. Never disabled while a selection is live: the list
+     is built ignoring its own pick, so an active filter can legitimately be alone in it,
+     and disabling then would strand the user with no way to clear it. */
+  const inert = !active && options.length < 2;
   // Type-to-filter for long lists (client request: every list gets a search box).
   const [q, setQ] = useState('');
   const shown = q
@@ -646,21 +652,35 @@ function FilterSelect({ label, icon, value, onChange, options }) {
     : options;
   return (
     <Select value={value || 'all'} onValueChange={(v) => { onChange(v === 'all' ? '' : v); setQ(''); }}
-      onOpenChange={(open) => { if (!open) setQ(''); }}>
+      onOpenChange={(open) => { if (!open) setQ(''); }} disabled={inert}>
       <SelectTrigger
-        className="group h-8 w-auto min-w-[122px] max-w-[210px] gap-1.5 rounded-lg pl-2.5 pr-1.5 shadow-sm focus:ring-0 focus:ring-offset-0"
+        disabled={inert}
+        title={inert
+          ? (options.length === 1
+            ? `Every contract in view is ${options[0].label} — nothing to filter`
+            : `No ${label.toLowerCase()} recorded on the contracts in view`)
+          : undefined}
+        className="group h-8 w-auto min-w-[122px] max-w-[210px] gap-1.5 rounded-lg pl-2.5 pr-1.5 shadow-sm focus:ring-0 focus:ring-offset-0 disabled:cursor-default"
         style={{
           fontSize: 'var(--fs-body)',
           background: active ? 'var(--brand-soft)' : 'var(--bg-subtle)',
           borderColor: active ? 'var(--endeavour)' : 'var(--line-strong)',
           boxShadow: active ? 'var(--shadow-md)' : undefined,
+          opacity: inert ? 0.55 : undefined,
         }}
       >
         <span className="flex items-center gap-1.5 min-w-0">
           <span className="flex shrink-0" style={{ color: active ? 'var(--endeavour)' : 'var(--rock-blue)' }}>{icon}</span>
           <span className="font-medium shrink-0" style={{ fontSize: 'var(--fs-body)', color: 'var(--regent-gray)' }}>{label}</span>
-          <SelectValue className="font-semibold truncate"
-            style={{ fontSize: 'var(--fs-body)', color: active ? 'var(--endeavour)' : 'var(--chathams-blue)' }} />
+          {/* An inert single-value filter states the value rather than "All" — "Currency
+              USD" tells you something, "Currency All" over one greyed choice tells you
+              nothing about why it is greyed. */}
+          {inert
+            ? <span className="font-semibold truncate" style={{ fontSize: 'var(--fs-body)', color: 'var(--chathams-blue)' }}>
+              {options.length === 1 ? options[0].label : '—'}
+            </span>
+            : <SelectValue className="font-semibold truncate"
+              style={{ fontSize: 'var(--fs-body)', color: active ? 'var(--endeavour)' : 'var(--chathams-blue)' }} />}
         </span>
       </SelectTrigger>
       <SelectContent className="rounded-2xl border border-[var(--bg-subtle)] shadow-md max-h-72 min-w-[var(--radix-select-trigger-width)]">
@@ -1055,70 +1075,109 @@ const Dash = () => {
     return settings.Client?.Client?.find(c => c.id === client)?.nname || '';
   };
 
+  /* One predicate per facet, so "does this contract match filter X" is written once and
+     reused by both the filtered set and the option lists below. */
+  const facetMatch = {
+    supplier: (c, v) => c.supplier === v,
+    material: (c, v) => (c.productsData || []).some(p => (p.description || '') === v),
+    client: (c, v) => (c.invoicesData || []).some(group => group.some(inv => resolveClientName(inv.client) === v)),
+    cur: (c, v) => c.cur === v,
+    origin: (c, v) => c.origin === v,
+    delTerm: (c, v) => c.delTerm === v,
+  };
+  const activeFacets = { supplier: fSupplier, material: fMaterial, client: fClient, cur: fCurrency, origin: fOrigin, delTerm: fDelTerm };
+
+  /* Contracts passing every active filter EXCEPT the named one. That exception is what
+     makes the dropdowns cascade: the Material list is built from contracts already
+     narrowed by supplier/client/origin/…, so it offers only materials that supplier
+     actually traded — but it still ignores the material currently picked, so you can
+     switch to a different one instead of having to clear the filter first.
+     Before this, all six lists came from the unfiltered period: 192 materials stayed on
+     offer after picking a supplier who traded three of them, and every one of the other
+     189 emptied the whole dashboard. */
+  const facetPool = (except) => rawContracts.filter(c =>
+    Object.entries(activeFacets).every(([k, v]) => !v || k === except || facetMatch[k](c, v)));
+
+  // Apply the active Supplier / Material / Client / Currency / Origin / Terms filters.
+  const filteredContracts = useMemo(() => facetPool(null),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [rawContracts, fSupplier, fMaterial, fClient, fCurrency, fOrigin, fDelTerm, settings]);
+
   // Filter option lists, built from what's actually loaded so the dropdowns never
-  // show entities that aren't in the current period.
+  // show entities that aren't in the current period — or outside the other filters.
   const supplierOptions = useMemo(() => {
-    const ids = [...new Set(rawContracts.map(c => c.supplier).filter(Boolean))];
+    const ids = [...new Set(facetPool('supplier').map(c => c.supplier).filter(Boolean))];
     return ids
       .map(id => ({ id, name: settings.Supplier?.Supplier?.find(s => s.id === id)?.nname || '' }))
       .filter(o => o.name)
       .sort((a, b) => a.name.localeCompare(b.name));
-  }, [rawContracts, settings]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [rawContracts, fMaterial, fClient, fCurrency, fOrigin, fDelTerm, settings]);
 
   const materialOptions = useMemo(() => {
     const set = new Set();
-    rawContracts.forEach(c => (c.productsData || []).forEach(p => { if (p.description) set.add(p.description); }));
+    facetPool('material').forEach(c => (c.productsData || []).forEach(p => { if (p.description) set.add(p.description); }));
     return [...set].sort((a, b) => a.localeCompare(b));
-  }, [rawContracts]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [rawContracts, fSupplier, fClient, fCurrency, fOrigin, fDelTerm, settings]);
 
   const clientOptions = useMemo(() => {
+    const pool = facetPool('client');
     const set = new Set();
-    rawContracts.forEach(c => (c.invoicesData || []).forEach(group => group.forEach(inv => {
+    pool.forEach(c => (c.invoicesData || []).forEach(group => group.forEach(inv => {
       const n = resolveClientName(inv.client); if (n) set.add(n);
     })));
-    // Also harvest from the period's raw invoices — the contract→invoice join can come
-    // back empty (unlinked/legacy refs), which left this dropdown showing only "All".
+    /* Also harvest from the period's raw invoices — the contract→invoice join can come
+       back empty (unlinked/legacy refs), which left this dropdown showing only "All".
+       Only when no contract-side filter is active, though: once one is, that harvest would
+       put back the very clients the supplier/material filter just excluded. Same rule and
+       the same allowed-PO test invoiceRevAgg uses, so the list matches the card. */
+    const contractSideActive = !!(fSupplier || fMaterial || fCurrency || fOrigin || fDelTerm);
+    const allowedPO = contractSideActive ? new Set(pool.map(c => c.id)) : null;
     const start = dateSelect?.start, end = dateSelect?.end;
     (rawRecvInvoices || []).forEach(inv => {
       const d = !inv?.final ? inv?.dateRange?.startDate : inv?.date;
       if (typeof d !== 'string' || (start && d < start) || (end && d > end)) return;
+      if (allowedPO && !allowedPO.has(inv.poSupplier?.id)) return;
       const n = resolveClientName(inv.client); if (n) set.add(n);
     });
     return [...set].sort((a, b) => a.localeCompare(b));
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [rawContracts, rawRecvInvoices, dateSelect, settings]);
+  }, [rawContracts, rawRecvInvoices, dateSelect, fSupplier, fMaterial, fCurrency, fOrigin, fDelTerm, settings]);
 
   /* Currency / Origin / Delivery Terms all sit on the contract as a settings id, so one
      pass builds all three: collect the ids actually present in the period and resolve each
      to its label, dropping any that no longer resolve. */
   const { currencyOptions, originOptions, delTermOptions } = useMemo(() => {
-    const build = (field, group, labelKey) => {
-      const ids = [...new Set(rawContracts.map(c => c[field]).filter(Boolean))];
+    const build = (field, group, labelKey, except) => {
+      const ids = [...new Set(facetPool(except).map(c => c[field]).filter(Boolean))];
       return ids
         .map(id => ({ value: id, label: settings?.[group]?.[group]?.find(o => o.id === id)?.[labelKey] || '' }))
         .filter(o => o.label)
         .sort((a, b) => a.label.localeCompare(b.label));
     };
     return {
-      currencyOptions: build('cur', 'Currency', 'cur'),
-      originOptions: build('origin', 'Origin', 'origin'),
-      delTermOptions: build('delTerm', 'Delivery Terms', 'delTerm'),
+      currencyOptions: build('cur', 'Currency', 'cur', 'cur'),
+      originOptions: build('origin', 'Origin', 'origin', 'origin'),
+      delTermOptions: build('delTerm', 'Delivery Terms', 'delTerm', 'delTerm'),
     };
-  }, [rawContracts, settings]);
-
-  // Apply the active Supplier / Material / Client / Currency / Origin / Terms filters.
-  const filteredContracts = useMemo(() => {
-    return rawContracts.filter(c => {
-      if (fSupplier && c.supplier !== fSupplier) return false;
-      if (fMaterial && !(c.productsData || []).some(p => (p.description || '') === fMaterial)) return false;
-      if (fClient && !(c.invoicesData || []).some(group => group.some(inv => resolveClientName(inv.client) === fClient))) return false;
-      if (fCurrency && c.cur !== fCurrency) return false;
-      if (fOrigin && c.origin !== fOrigin) return false;
-      if (fDelTerm && c.delTerm !== fDelTerm) return false;
-      return true;
-    });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [rawContracts, fSupplier, fMaterial, fClient, fCurrency, fOrigin, fDelTerm, settings]);
+
+  /* Drop a selection the cascade has just invalidated. Picking Supplier A after Material B
+     that A never traded would otherwise leave B selected but absent from its own list, and
+     the page stuck on an empty result with no visible cause. Each list is built ignoring
+     its own selection, so a value only disappears when it is genuinely incompatible with
+     the others — which makes this safe to run on every change and unable to loop. */
+  useEffect(() => {
+    if (fSupplier && !supplierOptions.some(o => o.id === fSupplier)) setFSupplier('');
+    if (fMaterial && !materialOptions.includes(fMaterial)) setFMaterial('');
+    if (fClient && !clientOptions.includes(fClient)) setFClient('');
+    if (fCurrency && !currencyOptions.some(o => o.value === fCurrency)) setFCurrency('');
+    if (fOrigin && !originOptions.some(o => o.value === fOrigin)) setFOrigin('');
+    if (fDelTerm && !delTermOptions.some(o => o.value === fDelTerm)) setFDelTerm('');
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [supplierOptions, materialOptions, clientOptions, currencyOptions, originOptions, delTermOptions]);
 
   const filtersActive = !!(fSupplier || fClient || fMaterial || fCurrency || fOrigin || fDelTerm);
   const clearFilters = () => {
