@@ -1134,7 +1134,9 @@ const Dash = () => {
   const dataExpenses = conAgg.accumulatedExp;
   const dataPieSupps = conAgg.pieArrSupps;
   const dataInvoices = invAgg.accumulatedPmnt;
-  const dataPieClnts = invAgg.pieArrClnts;
+  /* invAgg.pieArrClnts is no longer read: the Consignees card moved to the invoice-dated
+     basis (invoiceRevAgg.byClient). invAgg is still needed for accumulatedPmnt, which is
+     the deal-basis revenue the Capital Breakdown donut and the P&L decompose. */
 
   // ── Sales Revenue, invoice-dated ──────────────────────────────────────────
   // Standard period revenue = every sales invoice DATED in the selected range,
@@ -1145,11 +1147,18 @@ const Dash = () => {
   // loaded 4-year invoice window; same supersede rule as funcs.js Total().
   const invoiceRevAgg = useMemo(() => {
     const byMonth = Object.fromEntries(Array.from({ length: 12 }, (_, i) => [i + 1, 0]));
+    /* Per-client split of THIS total, accumulated in the same pass. The Consignees card
+       used to read invAgg.pieArrClnts, which is the contract-dated basis: every invoice
+       ever raised against a contract PURCHASED in the period, whatever the invoice's own
+       date. That is a different quantity from the Sales Revenue KPI right above it, and
+       the two disagreed by eight figures on one screen. Splitting the KPI's own total
+       means the card can no longer drift from the headline it sits under. */
+    const byClient = {};
     let total = 0;
     let missingInvRate = 0;
     const start = dateSelect?.start, end = dateSelect?.end;
     if (!Array.isArray(rawRecvInvoices) || !settings?.Currency?.Currency || !start || !end) {
-      return { byMonth, total };
+      return { byMonth, total, byClient };
     }
     // Supplier/Material filters only resolve through a loaded contract; Client matches
     // the invoice directly (same behaviour as the Receivables card).
@@ -1166,7 +1175,8 @@ const Dash = () => {
       if (!(g.length === 1 || !isOriginal)) return; // original superseded by its Credit/Final note
       // fClient holds a client NAME (that's what the filter options store) — match by
       // resolved name for both draft (id) and finalized ({nname}) invoice shapes.
-      if (fClient && resolveClientName(inv.client) !== fClient) return;
+      const clientName = resolveClientName(inv.client) || 'Unassigned';
+      if (fClient && clientName !== fClient) return;
       if (allowedPO && !allowedPO.has(inv.poSupplier?.id)) return;
       const amt = parseFloat(inv.totalAmount);
       if (isNaN(amt)) return;
@@ -1177,9 +1187,13 @@ const Dash = () => {
       const usd = curId === 'us' ? amt : amt * mult;
       const d = !inv.final ? inv.dateRange.startDate : inv.date;
       const m = Number(String(d).substring(5, 7));
-      if (m >= 1 && m <= 12) { byMonth[m] += usd; total += usd; }
+      if (m >= 1 && m <= 12) {
+        byMonth[m] += usd;
+        total += usd;
+        byClient[clientName] = (byClient[clientName] || 0) + usd;
+      }
     }));
-    return { byMonth, total, missingInvRate };
+    return { byMonth, total, missingInvRate, byClient };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [rawRecvInvoices, settings, companyRate, dateSelect, fClient, fSupplier, fMaterial, fCurrency, fOrigin, fDelTerm, filteredContracts]);
 
@@ -1533,7 +1547,14 @@ const Dash = () => {
 
   // Ranking data sources
   const hbSupps = HorizontalBar(dataPieSupps || {});
-  const hbClnts = HorizontalBar(dataPieClnts || {});
+  /* Consignees ranks invoiceRevAgg.byClient, not invAgg.pieArrClnts — see the comment on
+     byClient. Sorted here rather than in the aggregator because this is the only reader. */
+  const clientRank = useMemo(() => {
+    const rows = Object.entries(invoiceRevAgg.byClient || {})
+      .filter(([, v]) => Math.abs(v) > 0.5)
+      .sort((a, b) => b[1] - a[1]);
+    return { labels: rows.map(r => r[0]), data: rows.map(r => r[1]) };
+  }, [invoiceRevAgg]);
 
   if (Object.keys(settings).length === 0) return <div className="mx-auto w-full max-w-full px-2 md:px-4 pb-4 mt-[72px]"><CardsSkeleton /></div>;
 
@@ -1718,10 +1739,10 @@ const Dash = () => {
               />
               <SummaryTile
                 label="Gross Profit"
-                info="Sales revenue minus the cost of the material actually sold, minus contract expenses. Unsold stock is inventory rather than a cost, so it is excluded. Before company overheads."
+                info="Deal basis: takes the contracts BOUGHT in this period, and from everything invoiced against them subtracts the cost of the material actually sold and the contract expenses. Unsold stock is inventory rather than a cost, so it is excluded. Before company overheads. This is a narrower revenue base than the Sales Revenue tile, which counts every invoice DATED in the period including sales of material bought earlier — the two answer different questions and will not reconcile."
                 icon={TrendingUp}
                 value={fmtAutoKM(totalPL)}
-                note="sold basis, before overheads"
+                note="deal basis, before overheads"
                 toneKey={totalPL < 0 ? 'red' : 'green'}
                 tone={totalPL < 0 ? 'var(--danger-text)' : undefined}
               />
@@ -1851,14 +1872,19 @@ const Dash = () => {
 
             <CardShell>
               <div className="p-4">
-                <SectionHeader title="Capital Breakdown" subtitle="How revenue was allocated" />
+                {/* "Deal basis" is stated because this ring decomposes a DIFFERENT revenue
+                    figure from the Sales Revenue KPI above: contracts bought in the period
+                    and everything invoiced against them, rather than invoices dated in the
+                    period. The two are legitimately different cuts, but unlabelled they
+                    read as one of them being wrong. */}
+                <SectionHeader title="Capital Breakdown" subtitle="Deal basis — how the value of contracts bought this period was allocated" />
                 {/* 200 -> 150: the legend underneath already lists every slice with
                     its value, so the ring is the redundant half of this card. */}
                 <div className="relative" style={{ height: 150 }}>
                   <Doughnut data={donutData} options={donutOptions} />
                   <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none"
                     style={{ opacity: donutHover ? 0 : 1, transition: 'opacity 120ms ease' }}>
-                    <span className="responsiveTextTable text-[var(--regent-gray)]">Revenue</span>
+                    <span className="responsiveTextTable text-[var(--regent-gray)]">Deal revenue</span>
                     <span className="font-semibold text-[var(--port-gore)]" style={{ fontSize: 'var(--fs-substat)', fontFamily: 'var(--font-jakarta), Manrope, sans-serif', fontVariantNumeric: 'tabular-nums' }}>
                       {fmtAutoKM(totalInvoices)}
                     </span>
@@ -1890,10 +1916,10 @@ const Dash = () => {
             />
             <RankingList
               title="Consignees — $"
-              subtitle="Contribution breakdown by client volume"
-              labels={hbClnts.obj.labels || []}
-              data={hbClnts.obj.datasets?.[0]?.data || []}
-              totalValue={totalInvoices}
+              subtitle="Sales revenue by client — invoices dated in the period"
+              labels={clientRank.labels}
+              data={clientRank.data}
+              totalValue={invoiceRevAgg.total}
             />
           </div>
 

@@ -97,7 +97,26 @@ const setPieArrs = (arr) => {
 // Credit note that supersedes it) so shipped MT lines up with invoiced value and never
 // double-counts an Invoice + its Final note. Quantities are treated as MT, matching how
 // the dashboard sums contract productsData.
-const sumInvProductsMT = (invoicesData) => {
+/* An invoice line names its material by descriptionId — the id of a row in productsData,
+   carried on the invoice itself and, for older invoices, only on the parent contract. The
+   line's own `description` field exists in the draft shape but is empty on every saved
+   line, and descriptionText holds heat-level detail ("24.4Ni 11.95Cr 0.48Mo Solids
+   Scrap"), one distinct string per lot — grouping on that shatters the ranking into
+   hundreds of one-offs. So: id first, both places, then the text, and only then give up.
+   Resolving through productsData also keeps this card speaking the same vocabulary as the
+   Material filter, which is built from the same field. */
+const invLineMaterial = (line, invoice, contract) => {
+    const byId = (arr) => (arr || []).find(y => y.id === line.descriptionId)?.description
+    return String(
+        byId(invoice?.productsData) || byId(contract?.productsData) || line.descriptionText || ''
+    ).trim() || 'Unspecified'
+}
+
+/* byMaterial, when passed, is filled with material -> MT off the SAME lines this function
+   totals. That is the whole point of threading it through here rather than computing it
+   separately: "Most-Sold Material" then reconciles to shipped MT by construction, and
+   there is no second rule about which invoices count that could drift away from this one. */
+const sumInvProductsMT = (invoicesData, byMaterial = null, contract = null) => {
     let mt = 0;
     (invoicesData || []).forEach(innerArray => {
         if (!Array.isArray(innerArray)) return;
@@ -110,7 +129,12 @@ const sumInvProductsMT = (invoicesData) => {
             if (!counts) return;
             (obj.productsDataInvoice || []).forEach(p => {
                 if (p && p.qnty !== 's' && p.qnty !== '' && !isNaN(parseFloat(p.qnty))) {
-                    mt += parseFloat(p.qnty);
+                    const q = parseFloat(p.qnty);
+                    mt += q;
+                    if (byMaterial) {
+                        const d = invLineMaterial(p, obj, contract);
+                        byMaterial[d] = (byMaterial[d] || 0) + q;
+                    }
                 }
             });
         });
@@ -257,7 +281,7 @@ export const calContracts = (data, settings, companyRate = 0) => {
         totalMT += contractTotalMT
         // shipped MT — invoice quantities are already recorded in MT (same basis the
         // Inventory tab subtracts against the MT purchase qty), so no unit conversion here.
-        const contractShipped = sumInvProductsMT(x.invoicesData)
+        const contractShipped = sumInvProductsMT(x.invoicesData, materialSold, x)
         shippedMT += contractShipped
 
         // SOLD-BASIS economics: only the cost of the SOLD portion is a cost; the rest is
@@ -267,14 +291,13 @@ export const calContracts = (data, settings, companyRate = 0) => {
         unsoldValue += contractPurchase * (1 - soldFrac)
         cogsByMonth[month] += contractPurchase * soldFrac
 
-        // most-sold material — attribute each contract's material tonnage by its sold fraction
-        if (Array.isArray(x.productsData)) {
-            x.productsData.forEach(p => {
-                const d = String(p.description || '').trim()
-                if (!d) return
-                materialSold[d] = (materialSold[d] || 0) + (parseFloat(p.qnty) || 0) * mtFactor * soldFrac
-            })
-        }
+        /* most-sold material is filled by sumInvProductsMT above, off the actual invoice
+           lines. It used to be estimated here instead: every PURCHASED product line of the
+           contract scaled by one contract-level soldFrac. That spread a sale across
+           materials that never shipped — buy 100 MT of A and 100 MT of B, ship only A, and
+           the card reported 50 MT of each. The invoice lines carry description and qnty
+           (contractDetails.js builds productsDataInvoice from productsData), so the real
+           split was always available; nothing needed estimating. */
 
         //expenses — total, by month, and by type
         ;(x.expenses || []).forEach(obj => {
@@ -293,9 +316,15 @@ export const calContracts = (data, settings, companyRate = 0) => {
     })
 
 
+    /* Re-key id -> display name. ADD, never assign: two supplier ids that resolve to the
+       same nname (duplicate entries in settings) used to overwrite each other, and every
+       id missing from settings collapsed onto a single `undefined` key that overwrote
+       itself once per supplier. Both silently deleted contract value from this card while
+       the header total — which comes from accumulatedPmnt — still counted it, so the
+       tiles quietly stopped summing to the total. Unknown ids now say so instead. */
     let arrTmp = Object.keys(accumulatedTop5Sup).reduce((acc, key) => {
-        const newKey = settings.Supplier.Supplier.find(x => x.id === key)?.['nname']
-        acc[newKey] = accumulatedTop5Sup[key];
+        const newKey = settings.Supplier.Supplier.find(x => x.id === key)?.['nname'] || 'Unknown supplier'
+        acc[newKey] = (acc[newKey] || 0) + accumulatedTop5Sup[key];
         return acc;
     }, {});
 

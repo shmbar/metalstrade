@@ -23,8 +23,10 @@ const sumTable = ({ sumData, loading, settings, ln, dataTable }) => {
 
     let propDefaults = Object.keys(settings).length === 0 ? [] : [
         { accessorKey: 'stock', header: getTtl('Stock', ln), cell: (props) => <NameCell name={props.getValue()} /> },
-        { accessorKey: 'qTypeTable', header: getTtl('WeightType', ln), cell: (props) => <div>{props.getValue()}</div> },
         { accessorKey: 'qnty', header: getTtl('Quantity', ln), cell: (props) => <p>{showWeight(props)}</p> },
+        // The unit reads AFTER the figure it qualifies, and meta.narrow keeps the
+        // column at the width its three-letter value needs.
+        { accessorKey: 'qTypeTable', header: getTtl('WeightType', ln), cell: (props) => <div>{props.getValue()}</div>, meta: { narrow: true } },
         { accessorKey: 'total', header: getTtl('Total', ln), cell: (props) => <p>{showAmount(props)}</p> },
 
     ];

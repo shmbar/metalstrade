@@ -197,8 +197,15 @@ const Customtable = ({
                             /* Band comes from .custom-table th — see globals.css.
                                Colour was --ink-muted, a rung lighter than the
                                standard's --ink-secondary. */
+                            /* meta.narrow = a column whose values have a bounded, tiny
+                               maximum (a unit, a currency code). width:1% under
+                               table-layout:auto shrinks it to the wider of its header and
+                               its values instead of handing it an equal share of the row,
+                               so the slack goes to the columns holding real text. */
                             style={{
-                              width: header.column.id === 'select' ? '50px' : undefined,
+                              width: header.column.id === 'select' ? '50px'
+                                : header.column.columnDef.meta?.narrow ? '1%' : undefined,
+                              whiteSpace: header.column.columnDef.meta?.narrow ? 'nowrap' : undefined,
                               cursor: header.column.getCanSort() ? 'pointer' : 'default',
                               userSelect: 'none',
                             }}
@@ -226,7 +233,8 @@ const Customtable = ({
                               style={{
                                 backgroundColor: "var(--bg-card)",
                                 borderBottom: '1px solid var(--line)',
-                                minWidth: header.column.id === 'select' ? '50px' : '90px',
+                                minWidth: header.column.id === 'select' ? '50px'
+                                  : header.column.columnDef.meta?.narrow ? '64px' : '90px',
                                 maxWidth: header.column.id === 'select' ? '50px' : 'none',
                               }}
                             >
@@ -267,8 +275,10 @@ const Customtable = ({
                             className={`px-2 py-2 transition-colors duration-150 group/cell relative cell-hover-effect`}
                             style={{
                               color: 'var(--ink)',
-                              width: cell.column.id === 'select' ? '50px' : undefined,
+                              width: cell.column.id === 'select' ? '50px'
+                                : cell.column.columnDef.meta?.narrow ? '1%' : undefined,
                               maxWidth: cell.column.id === 'select' ? '50px' : undefined,
+                              whiteSpace: cell.column.columnDef.meta?.narrow ? 'nowrap' : undefined,
                               fontWeight: '400',
                               zIndex: 1,
                             }}

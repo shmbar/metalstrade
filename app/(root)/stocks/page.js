@@ -119,7 +119,9 @@ const Stocks = () => {
     },
     { accessorKey: 'descriptionName', header: getTtl('Description', ln), cell: (props) => <p>{props.getValue()}</p> },
     { accessorKey: 'qnty', header: getTtl('Quantity', ln), cell: (props) => <p>{showWeight(props)}</p> },
-    { accessorKey: 'qTypeTable', header: getTtl('WeightType', ln), },
+    // MT / KGS / LB — the widest value is three characters, so the column takes
+    // only what its header needs and leaves the rest to Description.
+    { accessorKey: 'qTypeTable', header: getTtl('WeightType', ln), meta: { narrow: true } },
     { accessorKey: 'unitPrc', header: getTtl('UnitPrice', ln), cell: (props) => <p>{showAmount(props)}</p> },
     {
       accessorKey: 'total', header: getTtl('Total', ln), cell: (props) => <p>{showAmount(props)}</p>,

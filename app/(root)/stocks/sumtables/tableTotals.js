@@ -68,9 +68,16 @@ const Customtable = ({ data, columns, ln, ttl, settings, dataTable, rmrk }) => {
               background: 'var(--bg-subtle)',
               padding: '6px 10px',
               whiteSpace: 'nowrap',
+              width: col.meta?.narrow ? '1%' : undefined,
             }}
           >
-            {index === 0 ? config.label : index === 2 ? formatNumber(quantity) : index === 3 ? formatCurrency(total, config.code) : ''}
+            {index === 0
+              ? config.label
+              : col.accessorKey === 'qnty'
+                ? formatNumber(quantity)
+                : col.accessorKey === 'total'
+                  ? formatCurrency(total, config.code)
+                  : ''}
           </td>
         ))}
       </tr>
@@ -114,7 +121,11 @@ const Customtable = ({ data, columns, ln, ttl, settings, dataTable, rmrk }) => {
                   {hdGroup.headers.map(header => (
                     <th
                       key={header.id}
-                      style={{ whiteSpace: 'nowrap' }}
+                      /* width:1% under table-layout:auto = shrink to the widest of the
+                         header and its values, and hand the slack to the columns that
+                         hold real text. A three-letter unit was taking a quarter of
+                         the card. */
+                      style={{ whiteSpace: 'nowrap', width: header.column.columnDef.meta?.narrow ? '1%' : undefined }}
                     >
                       {header.column.getCanSort() ? (
                         <div onClick={header.column.getToggleSortingHandler()} className="flex cursor-pointer items-center gap-1 justify-center">
@@ -142,6 +153,7 @@ const Customtable = ({ data, columns, ln, ttl, settings, dataTable, rmrk }) => {
                           padding: '6px 10px',
                           borderBottom: '1px solid var(--line)',
                           whiteSpace: 'nowrap',
+                          width: cell.column.columnDef.meta?.narrow ? '1%' : undefined,
                         }}
                       >
                         <Tltip direction='right' tltpText={detailsToolTip(row, data, settings, dataTable, rmrk)}>

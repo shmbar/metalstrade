@@ -745,7 +745,10 @@ const StorageCosts = () => {
                                                         ? <span style={{ color: 'var(--ok-text)' }}>{fmtMonth(e.storageMonth) || '—'}</span>
                                                         : <MonthPickerPill value={d.storageMonth} onChange={(v) => setDraft(e.id, { storageMonth: v })} />}
                                                 </td>
-                                                <td className="px-2 py-1.5">
+                                                {/* text-center because the cell holds one 28px button and nothing
+                                                    else: a td has no alignment of its own, so the icon sat hard left
+                                                    of a 48px column with the slack all on one side. */}
+                                                <td className="px-2 py-1.5 text-center">
                                                     {/* Icon only. The word "Save" repeated down twenty rows is a
                                                         label on a button whose icon already says it, and it cost
                                                         60px of every row's width. The tooltip carries the words
