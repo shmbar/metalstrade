@@ -987,9 +987,7 @@ const Shipments = () => {
               {/* Review Tab Content */}
               {activeTab === 'review' && (
                 <div className='mt-2'>
-                  {/* Compact size: these run to eight figures, and the 24px default
-                      crowds the card — the same reason cashflow is compact. */}
-                  <KpiStrip items={kpiItems} size="compact" />
+                  <KpiStrip items={kpiItems} />
                   <Customtable data={loading ? [] : getFormatted(dataTable)} columns={propDefaults} SelectRow={SelectRow}
                     setFilteredData={setFilteredData} valCur={valCur}
                     setValCur={setValCur} invisible={invisible}

@@ -1232,7 +1232,7 @@ const Cashflow = () => {
                             </div>
 
                             {/* KPI summary strip (same values as the section totals below) */}
-                            {activeTab === 'general' && <KpiStrip items={kpiItems} size="compact" />}
+                            {activeTab === 'general' && <KpiStrip items={kpiItems} />}
 
                             {activeTab === 'unsold' ? (
                                 <div className="w-full max-w-2xl border border-[var(--line)] rounded-2xl overflow-hidden bg-[var(--bg-card)] p-4">

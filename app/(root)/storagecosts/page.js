@@ -442,23 +442,23 @@ const StorageCosts = () => {
                 {/* Three figures, all real: the rate the page exists to produce, and the two
                     actuals behind it that need no tagging at all. */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3 mb-3">
-                    <div className="rounded-2xl p-4 text-[var(--on-brand)]" style={{ background: 'linear-gradient(135deg, var(--endeavour), var(--chathams-blue))' }}>
+                    <div className="rounded-2xl px-3 py-2.5 text-[var(--on-brand)]" style={{ background: 'linear-gradient(135deg, var(--endeavour), var(--chathams-blue))' }}>
                         <div className="flex items-center gap-1.5 opacity-90" style={{ fontSize: 'var(--fs-table)' }}><Boxes className="w-3.5 h-3.5" /> Avg storage cost {UNIT.find(u => u.key === unit).label}</div>
-                        <div className="font-bold mt-1" style={{ fontSize: 'var(--fs-display)' }}>{rateStr(metric.overall)}</div>
+                        <div className="font-bold mt-0.5" style={{ fontSize: 'var(--fs-page)' }}>{rateStr(metric.overall)}</div>
                         <div className="opacity-80 mt-0.5" style={{ fontSize: 'var(--fs-table)' }}>
                             {fmtUsd(metric.totalCost)} tagged · {new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 }).format(metric.totalMt)} MT-months
                         </div>
                     </div>
-                    <div className="rounded-2xl p-4 bg-[var(--bg-card)] border border-[var(--line)] shadow-sm">
+                    <div className="rounded-2xl px-3 py-2.5 bg-[var(--bg-card)] border border-[var(--line)] shadow-sm">
                         <div className="flex items-center gap-1.5 text-[var(--regent-gray)]" style={{ fontSize: 'var(--fs-table)' }}><Receipt className="w-3.5 h-3.5" /> Storage spend · {year === 'all' ? 'all years' : year}</div>
-                        <div className="font-bold mt-1 text-[var(--chathams-blue)]" style={{ fontSize: 'var(--fs-display)' }}>{fmtUsd(actuals.totalSpend)}</div>
+                        <div className="font-bold mt-0.5 text-[var(--chathams-blue)]" style={{ fontSize: 'var(--fs-page)' }}>{fmtUsd(actuals.totalSpend)}</div>
                         <div className="text-[var(--regent-gray)] mt-0.5" style={{ fontSize: 'var(--fs-table)' }}>
                             {actuals.count} invoice{actuals.count === 1 ? '' : 's'} · {actuals.taggedCount} tagged · {actuals.count - actuals.taggedCount} to tag
                         </div>
                     </div>
-                    <div className="rounded-2xl p-4 bg-[var(--bg-card)] border border-[var(--line)] shadow-sm">
+                    <div className="rounded-2xl px-3 py-2.5 bg-[var(--bg-card)] border border-[var(--line)] shadow-sm">
                         <div className="flex items-center gap-1.5 text-[var(--regent-gray)]" style={{ fontSize: 'var(--fs-table)' }}><Boxes className="w-3.5 h-3.5" /> In storage now</div>
-                        <div className="font-bold mt-1 text-[var(--chathams-blue)]" style={{ fontSize: 'var(--fs-display)' }}>{fmtMt(actuals.totalMt)} MT</div>
+                        <div className="font-bold mt-0.5 text-[var(--chathams-blue)]" style={{ fontSize: 'var(--fs-page)' }}>{fmtMt(actuals.totalMt)} MT</div>
                         <div className="text-[var(--regent-gray)] mt-0.5" style={{ fontSize: 'var(--fs-table)' }}>{actuals.whMt.length} warehouse{actuals.whMt.length === 1 ? '' : 's'} with stock</div>
                     </div>
                 </div>
