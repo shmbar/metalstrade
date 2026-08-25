@@ -3,6 +3,8 @@ import {
   resolveDueDate,
   resolveInvoiceDate,
   groupInvoicesByNumber,
+  dedupeById,
+  savedAtMs,
 } from '../pureHelpers.js';
 
 describe('resolveDueDate', () => {
@@ -126,5 +128,53 @@ describe('project conventions (regression guards)', () => {
     // The old buggy check was `!!inv.final` — this would return false here,
     // hiding overdue invoices from the assistant. We want true.
     expect(isFinal({ final: false, draft: false })).toBe(true);
+  });
+});
+
+describe('dedupeById', () => {
+  const rows = (...pairs) => pairs.map(([id, data]) => ({ id, data }));
+
+  it('keeps every distinct document', () => {
+    expect(dedupeById(rows(['a', { n: 1 }], ['b', { n: 2 }]))).toEqual([{ n: 1 }, { n: 2 }]);
+  });
+
+  it('collapses the same document found in two year buckets', () => {
+    // Same purchase invoice, two buckets — the Cashflow double-count.
+    const stale = { order: '090426', blnc: '27982.29', lstSaved: '02-Jan-2026, 09:15' };
+    const fresh = { order: '090426', blnc: '27982.29', lstSaved: '14-Apr-2026, 17:40' };
+    expect(dedupeById(rows(['c1', stale], ['c1', fresh]))).toEqual([fresh]);
+  });
+
+  it('keeps the freshest copy whichever bucket it arrived from', () => {
+    const older = { v: 'old', lstSaved: '02-Jan-2026, 09:15' };
+    const newer = { v: 'new', lstSaved: '14-Apr-2026, 17:40' };
+    expect(dedupeById(rows(['c1', newer], ['c1', older]))).toEqual([newer]);
+  });
+
+  it('falls back to the later bucket when lstSaved is missing or unparseable', () => {
+    expect(dedupeById(rows(['c1', { v: 'early' }], ['c1', { v: 'late' }]))).toEqual([{ v: 'late' }]);
+    expect(dedupeById(rows(
+      ['c1', { v: 'early', lstSaved: 'not a date' }],
+      ['c1', { v: 'late', lstSaved: '' }],
+    ))).toEqual([{ v: 'late', lstSaved: '' }]);
+  });
+
+  it('prefers a copy with lstSaved over one without, whatever the order', () => {
+    const dated = { v: 'dated', lstSaved: '14-Apr-2026, 17:40' };
+    expect(dedupeById(rows(['c1', dated], ['c1', { v: 'bare' }]))).toEqual([dated]);
+  });
+});
+
+describe('savedAtMs', () => {
+  it('orders lstSaved stamps chronologically', () => {
+    expect(savedAtMs({ lstSaved: '14-Apr-2026, 17:40' }))
+      .toBeGreaterThan(savedAtMs({ lstSaved: '02-Jan-2026, 09:15' }));
+    expect(savedAtMs({ lstSaved: '2-Jan-2026, 9:15' })).toBe(savedAtMs({ lstSaved: '02-jan-2026, 09:15' }));
+  });
+
+  it('sorts missing and malformed stamps oldest', () => {
+    expect(savedAtMs({})).toBe(-1);
+    expect(savedAtMs(null)).toBe(-1);
+    expect(savedAtMs({ lstSaved: '14-Foo-2026, 17:40' })).toBe(-1);
   });
 });

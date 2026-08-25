@@ -38,6 +38,7 @@ import { priorityOf } from './notificationPriority';
 // compatibility — every `import { resolveDueDate } from '../utils/utils'`
 // across the app keeps working unchanged.
 export { resolveDueDate, resolveInvoiceDate, groupInvoicesByNumber, computeStockNetSummary } from './pureHelpers';
+import { dedupeById } from './pureHelpers';
 
 const storage = getStorage();
 
@@ -612,6 +613,15 @@ export const saveData = async (uidCollection, path, obj) => {
   });
 }
 
+// A record re-dated across a year boundary can survive in TWO year buckets under
+// the same document id, so a multi-year query returns it twice — see dedupeById
+// in pureHelpers.js for the full story. Same id is never two records.
+const dedupeByDocId = (snapshots) => dedupeById(
+  snapshots.flatMap(snap =>
+    snap.docs.filter(d => !d.empty).map(d => ({ id: d.id, data: d.data() }))
+  )
+);
+
 export const loadData = async (uidCollection, path, dateSelect) => {
   const startYr = parseInt(dateSelect.start?.substring(0, 4));
   const endYr = parseInt(dateSelect.end?.substring(0, 4));
@@ -629,9 +639,7 @@ export const loadData = async (uidCollection, path, dateSelect) => {
       ))
     ));
 
-    return snapshots.flatMap(snap =>
-      snap.docs.filter(doc => !doc.empty).map(doc => doc.data())
-    );
+    return dedupeByDocId(snapshots);
   });
 }
 
@@ -652,9 +660,7 @@ export const loadDataWeightAnalysis = async (uidCollection, path, dateSelect, en
     ))
   ));
 
-  return snapshots.flatMap(snap =>
-    snap.docs.filter(doc => !doc.empty).map(doc => doc.data())
-  );
+  return dedupeByDocId(snapshots);
 }
 
 export const delDoc = async (uidCollection, path, obj) => {

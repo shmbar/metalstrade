@@ -800,6 +800,48 @@ describe('pureHelpers.toIsoDate — the two stored date shapes normalise to one'
   });
 });
 
+describe('pureHelpers.savedAtMs / dedupeById — one document id is one record', () => {
+  it('parses the lstSaved stamp dateFormat writes, and sorts the unusable oldest', () => {
+    const a = both(webPure.savedAtMs, mobPure.savedAtMs, { lstSaved: '14-May-2026, 09:30' });
+    const b = both(webPure.savedAtMs, mobPure.savedAtMs, { lstSaved: '14-May-2026, 10:30' });
+    expect(b).toBeGreaterThan(a);
+    // Missing/unparseable must sort OLDEST, so a copy with no stamp never outranks one with it.
+    for (const bad of [{}, null, undefined, { lstSaved: '' }, { lstSaved: 'zzz' }, { lstSaved: '14-Foo-2026, 09:30' }]) {
+      expect(both(webPure.savedAtMs, mobPure.savedAtMs, bad)).toBe(-1);
+    }
+    expect(a).toBeGreaterThan(-1);
+  });
+
+  it('keeps the copy saved last when a re-dated record sits in two year buckets', () => {
+    // The bug this exists for: re-dating across a year boundary writes the SAME id into the
+    // new bucket while the old copy survives, so a multi-year window returns it twice and
+    // Cashflow counted one purchase invoice's balance twice.
+    const out = both(webPure.dedupeById, mobPure.dedupeById, [
+      { id: 'A', data: { lstSaved: '02-Jan-2026, 08:00', v: 'old' } },
+      { id: 'B', data: { lstSaved: '01-Feb-2026, 08:00', v: 'only' } },
+      { id: 'A', data: { lstSaved: '03-Jan-2026, 08:00', v: 'new' } },
+    ]);
+    expect(out).toHaveLength(2);
+    expect(out.find((r) => r.v === 'new')).toBeTruthy();
+    expect(out.find((r) => r.v === 'old')).toBeFalsy();
+  });
+
+  it('falls back to the later bucket when neither copy carries a usable stamp', () => {
+    // rows arrive oldest-year-first, so >= means the later bucket wins a tie.
+    expect(both(webPure.dedupeById, mobPure.dedupeById, [
+      { id: 'A', data: { v: 'earlier-bucket' } },
+      { id: 'A', data: { v: 'later-bucket' } },
+    ])).toEqual([{ v: 'later-bucket' }]);
+  });
+
+  it('ignores holes in the input rather than throwing', () => {
+    expect(both(webPure.dedupeById, mobPure.dedupeById, [null, undefined, { id: 'A', data: { v: 1 } }]))
+      .toEqual([{ v: 1 }]);
+    expect(both(webPure.dedupeById, mobPure.dedupeById, [])).toEqual([]);
+  });
+});
+
+
 describe('pureHelpers.resolveDueDate / resolveInvoiceDate — draft object vs finalized string', () => {
   it('reads the due date out of the draft object shape and the finalized string shape', () => {
     // utils/pureHelpers.js:32-36 — delDate is { startDate, endDate } on drafts, 'dd-mmm-yyyy' once
@@ -1687,7 +1729,7 @@ const SHARED_EXPORTS: Record<string, { covered: string[]; untestable?: Record<st
       toIsoDate: 're-export of pureHelpers.toIsoDate — covered there',
     },
   },
-  pureHelpers: { covered: ['computeStockNetSummary', 'groupInvoicesByNumber', 'resolveDueDate', 'resolveInvoiceDate', 'toIsoDate'] },
+  pureHelpers: { covered: ['computeStockNetSummary', 'dedupeById', 'groupInvoicesByNumber', 'resolveDueDate', 'resolveInvoiceDate', 'savedAtMs', 'toIsoDate'] },
   splitUtils: { covered: ['SPLIT_DEFAULT_RATIO', 'computeShares', 'curSymbol', 'splitNotifId', 'splitStatusOf'] },
   soldStatus: { covered: ['aggregateRollups', 'computeLineSold', 'lineStatus', 'lotIsSold', 'rollupTone'] },
   storageUtils: { covered: ['EUR_USD', 'STORAGE_LABELS', 'UNIT', 'arrivalStr', 'computeStorageMetric', 'isStorageType', 'mtInWh', 'toUsd', 'ym'] },

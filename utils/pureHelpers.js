@@ -164,3 +164,38 @@ export const computeStockNetSummary = (stockDocs, settings) => {
 
   return rows.sort((a, b) => b.qnty - a.qnty);
 };
+
+// ─── Year-bucket duplicates ───────────────────────────────────────────────────
+// Records are stored one collection per year (contracts_2025, contracts_2026, …)
+// and a multi-year page load queries every bucket in the window. Re-dating a
+// record across a year boundary writes it under the SAME document id into the new
+// year's bucket, while the copy in the old bucket only gets deleted when the save
+// flow happens to notice (it compares against the year being VIEWED, not the
+// record's own previous year — so usually it does not). Such a window then hands
+// the same record back twice, and every consumer reads it as two real rows:
+// Cashflow's Supplier - Balances listed one purchase invoice on two identical
+// lines and counted its balance twice in the supplier total.
+
+// 'dd-mmm-yyyy, HH:MM' (what dateFormat writes into lstSaved) → a comparable
+// number. Missing or unparseable sorts oldest, so a copy carrying no lstSaved
+// never outranks one that has it.
+export const savedAtMs = (rec) => {
+  const m = /^(\d{1,2})-([a-z]{3})-(\d{4})[,\s]+(\d{1,2}):(\d{2})/i.exec(rec?.lstSaved || '');
+  if (!m) return -1;
+  const month = MONTH_MAP[m[2].toLowerCase()];
+  if (!month) return -1;
+  return Date.UTC(+m[3], +month - 1, +m[1], +m[4], +m[5]);
+};
+
+// One document id is one record, never two. `rows` is [{ id, data }] in bucket
+// order (oldest year first); the copy saved last wins, falling back to the one
+// from the later year when neither carries a usable lstSaved.
+export const dedupeById = (rows) => {
+  const byId = new Map();
+  for (const row of rows) {
+    if (!row) continue;
+    const prev = byId.get(row.id);
+    if (!prev || savedAtMs(row.data) >= savedAtMs(prev)) byId.set(row.id, row.data);
+  }
+  return [...byId.values()];
+};
