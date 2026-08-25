@@ -372,30 +372,33 @@ function ReceivablesSplitCard({ byCur = {} }) {
           </div>
         </div>
 
-        {/* Proportion bar by invoice count — green (finalized) over amber (provisional) */}
-        <div className="w-full h-2 rounded-full overflow-hidden" style={{ backgroundColor: 'var(--warn-border)' }}>
-          <div className="h-full rounded-full transition-all" style={{ width: `${pctFinal}%`, backgroundColor: 'var(--ok-text)' }} />
+        {/* Proportion bar by invoice count. Finalized vs provisional is a STAGE — an
+            invoice before or after its final version — not good vs caution, and the tan
+            track under a green fill was the harshest pairing on the page. One hue, two
+            steps: filled = finalized, track = the rest still to come. */}
+        <div className="w-full h-2 rounded-full overflow-hidden" style={{ backgroundColor: 'var(--brand-soft)' }}>
+          <div className="h-full rounded-full transition-all" style={{ width: `${pctFinal}%`, backgroundColor: 'var(--brand)' }} />
         </div>
 
         <div className="grid grid-cols-2 gap-3">
-          <div className="rounded-lg p-2.5" style={{ backgroundColor: 'var(--ok-bg)', boxShadow: 'inset 0 0 0 1px var(--ok-border)' }}>
+          <div className="rounded-lg p-2.5" style={{ backgroundColor: 'var(--brand-soft)', boxShadow: 'inset 0 0 0 1px var(--brand-border)' }}>
             <div className="flex items-center gap-1.5">
-              <span className="rounded-full shrink-0" style={{ width: 8, height: 8, backgroundColor: 'var(--ok-text)' }} />
-              <span className="responsiveTextTable font-semibold tracking-wide" style={{ color: 'var(--ok-text)' }}>FINALIZED</span>
+              <span className="rounded-full shrink-0" style={{ width: 8, height: 8, backgroundColor: 'var(--brand)' }} />
+              <span className="responsiveTextTable font-semibold tracking-wide" style={{ color: 'var(--brand-strong)' }}>FINALIZED</span>
             </div>
-            <div className="mt-1 leading-tight" style={{ color: 'var(--ok-text)' }}>
+            <div className="mt-1 leading-tight" style={{ color: 'var(--brand-strong)' }}>
               {amountsFor('finalized').map((a, i) => (
                 <div key={i} className="font-semibold" style={{ fontSize: 'var(--fs-substat)', fontFamily: 'var(--font-jakarta), Manrope, sans-serif', fontVariantNumeric: 'tabular-nums' }}>{a}</div>
               ))}
             </div>
             <div className="responsiveTextTableTitle text-[var(--regent-gray)] mt-1">{finCount} invoice{finCount === 1 ? '' : 's'} · after final invoice</div>
           </div>
-          <div className="rounded-lg p-2.5" style={{ backgroundColor: 'var(--warn-bg)', boxShadow: 'inset 0 0 0 1px var(--warn-border)' }}>
+          <div className="rounded-lg p-2.5" style={{ backgroundColor: 'var(--bg-subtle)', boxShadow: 'inset 0 0 0 1px var(--line-strong)' }}>
             <div className="flex items-center gap-1.5">
-              <span className="rounded-full shrink-0" style={{ width: 8, height: 8, backgroundColor: 'var(--warn-text)' }} />
-              <span className="responsiveTextTable font-semibold tracking-wide" style={{ color: 'var(--warn-text)' }}>PROVISIONAL</span>
+              <span className="rounded-full shrink-0" style={{ width: 8, height: 8, backgroundColor: 'var(--ink-muted)' }} />
+              <span className="responsiveTextTable font-semibold tracking-wide" style={{ color: 'var(--ink-secondary)' }}>PROVISIONAL</span>
             </div>
-            <div className="mt-1 leading-tight" style={{ color: 'var(--warn-text)' }}>
+            <div className="mt-1 leading-tight" style={{ color: 'var(--ink-secondary)' }}>
               {amountsFor('provisional').map((a, i) => (
                 <div key={i} className="font-semibold" style={{ fontSize: 'var(--fs-substat)', fontFamily: 'var(--font-jakarta), Manrope, sans-serif', fontVariantNumeric: 'tabular-nums' }}>{a}</div>
               ))}
@@ -641,11 +644,16 @@ const RankingList = RankingListInner;
 // cards, in their visual language: tinted icon chip (color-mix, like
 // StatKpiCard) + dark hero number, so the two rows read as one family.
 function PerMtStrip({ totalMT, avgExpensePerMT, avgProfitPerMT, avgFreightPerMT }) {
-  const profitAccent = avgProfitPerMT >= 0 ? 'var(--ok-text)' : 'var(--danger-text)';
+  /* Only the NEGATIVE case gets a colour. CLAUDE.md: "Signed amounts colour negatives
+     only; a positive is the normal case in a ledger." A green profit figure spends the
+     reader's attention confirming that the ordinary thing happened. */
+  const negative = avgProfitPerMT < 0;
+  const profitAccent = negative ? 'var(--danger-text)' : 'var(--brand)';
 
   const metrics = [
     {
-      accent: 'var(--ok-text)',
+      // Tonnage purchased is a quantity, not a verdict — it was green for no reason.
+      accent: 'var(--brand)',
       icon: (
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
           <path d="M12 3l8 4.5v9L12 21l-8-4.5v-9L12 3z" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" />
@@ -655,7 +663,6 @@ function PerMtStrip({ totalMT, avgExpensePerMT, avgProfitPerMT, avgFreightPerMT 
       value: `${new Intl.NumberFormat('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(totalMT)} MT`,
       label: 'Total MT Purchased',
       sub: 'for selected period',
-      valueColor: 'var(--ok-text)',
     },
     /* "Avg Cost / MT" was here. It is the same figure as the Average Rate tile
        in the Business Summary above, on the same screen — so it went the way of
@@ -693,8 +700,8 @@ function PerMtStrip({ totalMT, avgExpensePerMT, avgProfitPerMT, avgFreightPerMT 
       accent: profitAccent,
       icon: (
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-          <circle cx="12" cy="12" r="10" stroke={profitAccent} strokeWidth="2" fill={avgProfitPerMT >= 0 ? 'var(--ok-bg)' : 'var(--bad-bg)'} />
-          <path d={avgProfitPerMT >= 0 ? 'M8 12l3 3 5-5' : 'M8 12l3-3 5 5'} stroke={profitAccent} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+          <circle cx="12" cy="12" r="10" stroke={profitAccent} strokeWidth="2" fill={negative ? 'var(--bad-bg)' : 'var(--brand-soft)'} />
+          <path d={negative ? 'M8 12l3-3 5 5' : 'M8 12l3 3 5-5'} stroke={profitAccent} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
       ),
       value: fmtAutoKM(avgProfitPerMT),
@@ -822,10 +829,16 @@ function FilterSelect({ label, icon, value, onChange, options }) {
 function TonnageCard({ purchased = 0, shipped = 0, pending = 0 }) {
   const pctShipped = purchased > 0 ? Math.min(100, (shipped / purchased) * 100) : 0;
   const fmtMT = (n) => `${new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 }).format(n || 0)} MT`;
+  /* Purchased / Shipped / Pending is one quantity at three stages of the SAME journey —
+     a sequential relationship, not an oppositional one. It used to be painted
+     violet / green / brown, which said shipped tonnage is good and pending tonnage is a
+     caution. Pending tonnage is just material you bought and have not shipped yet: the
+     ordinary state of a live trade, and the thing the business exists to hold.
+     One hue at three intensities instead, so the eye reads progress rather than verdict. */
   const pills = [
-    { label: 'PURCHASED', value: purchased, bg: 'var(--brand-soft)', ring: 'var(--brand-border)', dot: 'var(--brand)', color: 'var(--brand-strong)' },
-    { label: 'SHIPPED', value: shipped, bg: 'var(--ok-bg)', ring: 'var(--ok-border)', dot: 'var(--ok-text)', color: 'var(--ok-text)' },
-    { label: 'PENDING', value: pending, bg: 'var(--warn-bg)', ring: 'var(--warn-border)', dot: 'var(--warn-text)', color: 'var(--warn-text)' },
+    { label: 'PURCHASED', value: purchased, bg: 'var(--brand-soft)', ring: 'var(--brand-border)', dot: 'var(--brand-strong)', color: 'var(--brand-strong)' },
+    { label: 'SHIPPED', value: shipped, bg: 'var(--brand-soft)', ring: 'var(--brand-border)', dot: 'var(--brand)', color: 'var(--brand-strong)' },
+    { label: 'PENDING', value: pending, bg: 'var(--bg-subtle)', ring: 'var(--line-strong)', dot: 'var(--ink-muted)', color: 'var(--ink-secondary)' },
   ];
   return (
     <m.div
@@ -844,12 +857,14 @@ function TonnageCard({ purchased = 0, shipped = 0, pending = 0 }) {
             </span>
             <span className="responsiveTextTable font-medium text-[var(--regent-gray)] leading-tight">Tonnage — Purchased vs Shipped</span>
           </div>
-          <span className="responsiveTextTable font-medium" style={{ color: 'var(--ok-text)' }}>{pctShipped.toFixed(0)}% shipped</span>
+          <span className="responsiveTextTable font-medium" style={{ color: 'var(--brand-strong)' }}>{pctShipped.toFixed(0)}% shipped</span>
         </div>
 
-        {/* Shipped proportion bar — blue track (purchased) with green fill (shipped) */}
-        <div className="w-full h-2 rounded-full overflow-hidden" style={{ backgroundColor: 'var(--brand-border)' }}>
-          <div className="h-full rounded-full transition-all" style={{ width: `${pctShipped}%`, backgroundColor: 'var(--ok-text)' }} />
+        {/* Shipped proportion bar. A meter's unfilled track is a lighter step of the SAME
+            ramp as its fill — the state then reads across the whole bar. It was a green
+            fill on a brand track, two unrelated hues meeting in the middle. */}
+        <div className="w-full h-2 rounded-full overflow-hidden" style={{ backgroundColor: 'var(--brand-soft)' }}>
+          <div className="h-full rounded-full transition-all" style={{ width: `${pctShipped}%`, backgroundColor: 'var(--brand)' }} />
         </div>
 
         <div className="grid grid-cols-3 gap-2">
@@ -876,7 +891,7 @@ function MiscInvoicesCard({ byCur = {}, byCat = {}, count = 0 }) {
   const CAT_META = [
     { id: 'shipments', label: 'Shipments', bg: 'var(--brand-soft)', ring: 'var(--brand-border)', dot: 'var(--brand)', color: 'var(--brand-strong)' },
     { id: 'personal', label: 'Personal', bg: 'color-mix(in srgb, var(--brand) 10%, transparent)', ring: 'color-mix(in srgb, var(--brand) 20%, transparent)', dot: 'var(--brand)', color: 'var(--brand)' },
-    { id: 'random', label: 'Random', bg: 'var(--warn-bg)', ring: 'var(--warn-border)', dot: 'var(--warn-text)', color: 'var(--warn-text)' },
+    { id: 'random', label: 'Random', bg: 'color-mix(in srgb, var(--pink-text) 10%, transparent)', ring: 'color-mix(in srgb, var(--pink-text) 22%, transparent)', dot: 'var(--pink-text)', color: 'var(--pink-text)' },
     { id: 'uncategorized', label: 'Uncategorized', bg: 'var(--neutral-bg)', ring: 'var(--neutral-border)', dot: 'var(--ink-muted)', color: 'var(--ink-secondary)' },
   ];
   const catRows = CAT_META
@@ -996,7 +1011,22 @@ function UnsoldStockCard({ value = 0, mt = 0 }) {
 // Receivables aging — outstanding split by invoice age (0–30 / 31–60 / 61–90 / 90+),
 // per currency, colored green→red as it ages. Shows how overdue money is at a glance.
 function AgingCard({ buckets = [] }) {
-  const colors = ['var(--ok-text)', 'var(--warn-text)', 'var(--warn-text)', 'var(--bad-text)'];
+  /* Invoice age is genuinely a severity scale, so this card keeps a meaning-carrying
+     ramp — but as ONE hue running light → dark, which is what a sequential scale wants,
+     rather than the old green → brown → brown → red.
+     Two things were wrong before. 31–60 and 61–90 both used --warn-text, so a four-step
+     ramp only ever had three steps. And the amber step cannot be rescued by hue: it is
+     already at 34° (globals.css moved it there precisely because desaturated yellow is
+     khaki), so at the lightness the client's 2026-08-08 muting caps it to, it reads brown
+     and will keep reading brown. Dropping it is the only fix left.
+     0–30 is not overdue at all, so it takes neutral ink rather than green — a healthy
+     bucket is the ordinary case and does not need to be congratulated. */
+  const colors = [
+    'var(--ink-muted)',
+    'color-mix(in srgb, var(--danger-text) 45%, var(--bg-card))',
+    'var(--danger-text)',
+    'var(--danger-strong)',
+  ];
   const fmtCurKM = (cur, n) => {
     const s = cur === 'us' ? '$' : cur === 'eu' ? '€' : '';
     const v = Number(n) || 0, a = Math.abs(v);
@@ -1592,7 +1622,7 @@ const Dash = () => {
         data: profitSeries,
         // Canvas can't parse CSS var() strings — it silently fell back to black
         // (and a blank tooltip swatch). Resolve the variable to a real color.
-        borderColor: cssVar('--ok-text', '#16a34a'),
+        borderColor: cssVar('--on-brand', '#ffffff'),
         backgroundColor: 'transparent',
         borderWidth: 2,
         borderDash: [5, 4],
@@ -1683,8 +1713,8 @@ const Dash = () => {
     datasets: [{
       data: [cogs, totalExpenses, companyExpAgg.total, profitForArc],
       // Canvas cannot parse var() — every colour here must be resolved first.
-      // brandRamp already returns resolved hex, so only --ok-text needs cssVar.
-      backgroundColor: [...costRamp, cssVar('--ok-text', '#16a34a')],
+      // brandRamp already returns resolved hex, so only --teal-text needs cssVar.
+      backgroundColor: [...costRamp, cssVar('--teal-text', '#2F6560')],
       borderColor: cssVar('--on-brand', '#ffffff'),
       borderWidth: 2,
       hoverOffset: 6,
@@ -1722,7 +1752,7 @@ const Dash = () => {
     { label: 'Cost of Goods Sold', value: cogs, color: costRamp[0] },
     { label: 'Contract Expenses', value: totalExpenses, color: costRamp[1] },
     { label: 'Company Expenses', value: companyExpAgg.total, color: costRamp[2] },
-    { label: 'Net Profit', value: netProfit, color: 'var(--ok-text)' },
+    { label: 'Net Profit', value: netProfit, color: 'var(--teal-text)' },
   ];
 
   // Ranking data sources
@@ -1878,7 +1908,7 @@ const Dash = () => {
                 label="Contract Expenses"
                 info="Expenses recorded against the contracts in this period — freight, storage, commission and every other type — converted to USD. Company overheads are counted separately."
                 icon={Receipt}
-                toneKey="amber"
+                toneKey="gray"
                 value={fmtAutoKM(totalExpenses)}
                 note="freight, storage, commission…"
               />
@@ -1889,7 +1919,7 @@ const Dash = () => {
                 label="Company Expenses"
                 info="Overheads from the Company Expenses page for this period, converted to USD. They belong to no single contract, so they are excluded from the per-MT figures."
                 icon={Building2}
-                toneKey="amber"
+                toneKey="gray"
                 value={fmtAutoKM(companyExpAgg.total)}
                 note={`${companyExpAgg.count} recorded, period`}
               />
@@ -1923,7 +1953,7 @@ const Dash = () => {
                 icon={TrendingUp}
                 value={fmtAutoKM(totalPL)}
                 note="deal basis, before overheads"
-                toneKey={totalPL < 0 ? 'red' : 'green'}
+                toneKey={totalPL < 0 ? 'red' : 'blue'}
                 tone={totalPL < 0 ? 'var(--danger-text)' : undefined}
               />
               <SummaryTile
@@ -1932,7 +1962,7 @@ const Dash = () => {
                 icon={TrendingUp}
                 value={fmtAutoKM(netProfit)}
                 note="after company expenses"
-                toneKey={netProfit < 0 ? 'red' : 'green'}
+                toneKey={netProfit < 0 ? 'red' : 'blue'}
                 tone={netProfit < 0 ? 'var(--danger-text)' : undefined}
               />
               <SummaryTile
@@ -1950,16 +1980,19 @@ const Dash = () => {
                   the sidebar open, so it ran out of its own card — the exact
                   clipping the client is complaining about elsewhere. The word
                   moved into the note, where it has room. */}
+              {/* Shipping less than 100% of what you bought is not a caution — it is what
+                  a stock position looks like. This tile was the brown "30%" in the Business
+                  Summary; progress belongs on the brand ramp, like the Tonnage card it
+                  restates. */}
               <SummaryTile
                 label="Shipment Status"
                 info="Tonnage shipped as a share of tonnage purchased in this period."
                 icon={Ship}
                 value={`${shipmentSummary.pct}%`}
                 note={shipmentSummary.note}
-                toneKey={shipmentSummary.pct < 100 ? 'amber' : 'green'}
-                tone={shipmentSummary.pct < 100 ? 'var(--warn-text)' : undefined}
+                toneKey="blue"
                 progress={shipmentSummary.pct / 100}
-                progressTone={shipmentSummary.pct < 100 ? 'amber' : 'green'}
+                progressTone="blue"
               />
               </div>
             </div>
@@ -1972,7 +2005,7 @@ const Dash = () => {
               info="Sales invoices dated in this period, converted to USD. An invoice superseded by a credit or final note counts once; drafts and cancelled invoices are excluded."
               value={fmtAutoKM(invoiceRevAgg.total)}
               chartData={invoiceRevAgg.byMonth}
-              accent="var(--ok-text)"
+              accent="var(--brand)"
               icon={<svg width="16" height="16" fill="none" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="4" stroke="currentColor" strokeWidth="2" /><path d="M8 10h8M8 14h8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" /></svg>}
             />
             <StatKpiCard

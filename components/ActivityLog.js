@@ -133,17 +133,18 @@ const ActivityLog = ({ entityType, entityId, showFilters = false }) => {
         return out;
     }, [filtered]);
 
-    const pill = 'rounded-lg border border-[var(--border-divider)] bg-[var(--surface-pill)] outline-none focus:border-[var(--endeavour)]';
-
     return (
         <div className='p-3'>
             {/* Filters (global mode only) */}
             {showFilters && (
                 <div className='flex flex-wrap items-center gap-2 mb-3'>
                     {/* Shell carries the border AND the focus state, so they are classes
-                        rather than an inline style — focus-within cannot be written inline. */}
-                    <div className='flex items-center gap-1.5 px-3 py-1 flex-1 min-w-[180px] rounded-lg border border-[var(--line-strong)] bg-[var(--bg-subtle)] focus-within:border-[var(--brand)] transition-colors'>
-                        <Search className='w-3.5 h-3.5' style={{ color: 'var(--ink-muted)' }} />
+                        rather than an inline style — focus-within cannot be written inline.
+                        Content-sized, not `flex-1`: as a flex-1 field this search box grew
+                        to ~850px on a wide monitor and the three controls beside it got
+                        pushed into the far corner (Zak, 2026-08-26). */}
+                    <div className='flex items-center gap-1.5 h-8 px-2.5 w-64 max-w-full rounded-control border border-[var(--line-strong)] bg-[var(--bg-card)] focus-within:border-[var(--brand)] transition-colors'>
+                        <Search className='w-3.5 h-3.5 shrink-0' style={{ color: 'var(--ink-muted)' }} />
                         <input
                             value={q}
                             onChange={e => setQ(e.target.value)}
@@ -156,8 +157,8 @@ const ActivityLog = ({ entityType, entityId, showFilters = false }) => {
                                INSIDE the rounded shell — the doubled edge. The shell's
                                focus-within border above announces focus instead; same trade
                                globals.css already makes for the cmdk search box. */
-                            className='flex-1 bg-transparent focus-visible:outline-none'
-                            style={{ fontSize: 'var(--fs-input)', color: 'var(--port-gore)' }}
+                            className='flex-1 min-w-0 bg-transparent focus-visible:outline-none'
+                            style={{ fontSize: 'var(--fs-input)', color: 'var(--ink)' }}
                         />
                     </div>
                     {/* The app's own select, not a native <select>. A browser draws the
@@ -167,20 +168,25 @@ const ActivityLog = ({ entityType, entityId, showFilters = false }) => {
                     <div className='w-32'>
                         <Selector
                             arr={typeOptions} value={{ id: typeFilter }} name='id' secondaryName='label'
-                            onChange={setTypeFilter} sizeVar='var(--fs-input)' classes='!h-7'
+                            onChange={setTypeFilter} sizeVar='var(--fs-input)' classes='!h-8'
                         />
                     </div>
                     <div className='w-32'>
                         <Selector
                             arr={actorOptions} value={{ id: actorFilter }} name='id' secondaryName='label'
-                            onChange={setActorFilter} sizeVar='var(--fs-input)' classes='!h-7'
+                            onChange={setActorFilter} sizeVar='var(--fs-input)' classes='!h-8'
                         />
                     </div>
-                    <button onClick={load} aria-label='Refresh activity' className={`${pill} flex items-center gap-1 px-2.5 py-1 hover:border-[var(--endeavour)]`} style={{ fontSize: 'var(--fs-input)', color: 'var(--chathams-blue)' }}>
-                        <RefreshCw className='w-3 h-3' /> Refresh
+                    <button
+                        onClick={load}
+                        aria-label='Refresh activity'
+                        className='flex items-center gap-1 h-8 px-2.5 rounded-control border border-[var(--line-strong)] bg-[var(--bg-card)] text-[var(--ink-secondary)] hover:border-[var(--brand)] hover:text-[var(--brand)] transition-colors'
+                        style={{ fontSize: 'var(--fs-input)' }}
+                    >
+                        <RefreshCw className={`w-3 h-3 ${loading ? 'animate-spin' : ''}`} /> Refresh
                     </button>
                     {!loading && items.length > 0 && (
-                        <span className='ml-auto pr-1' style={{ fontSize: 'var(--fs-table)', color: 'var(--regent-gray)' }}>
+                        <span className='ml-auto pr-1 tabular-nums' style={{ fontSize: 'var(--fs-table)', color: 'var(--ink-muted)' }}>
                             {filtered.length === items.length
                                 ? `${items.length} ${items.length === 1 ? 'entry' : 'entries'}`
                                 : `${filtered.length} of ${items.length}`}
