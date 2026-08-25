@@ -5,6 +5,7 @@ import { loadActivity } from '../utils/utils';
 import { Selector } from './selectors/selectShad';
 import { FileText, Receipt, Banknote, Package, Settings as SettingsIcon, Activity, RefreshCw, Loader2, Search } from 'lucide-react';
 import { TONES } from './statusUtils';
+import { NameCell } from './Avatar';
 
 // Visual identity per entity type (aligns with the status-color system in statusUtils).
 const ENTITY_META = {
@@ -26,10 +27,6 @@ function relativeTime(ms) {
     const h = Math.floor(m / 60); if (h < 24) return `${h}h ago`;
     const d = Math.floor(h / 24); if (d < 7) return `${d}d ago`;
     return new Date(ms).toLocaleDateString();
-}
-
-function initials(name = '') {
-    return name.toString().split(/[\s@.]+/).filter(Boolean).slice(0, 2).map(s => s[0]?.toUpperCase() || '').join('') || '?';
 }
 
 const startOfDay = (d) => new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
@@ -214,56 +211,83 @@ const ActivityLog = ({ entityType, entityId, showFilters = false }) => {
                 // in dead space with a second scrollbar.
                 <div className={showFilters ? '' : 'max-h-[60vh] overflow-y-auto pr-1'}>
                     {groups.map(group => (
-                        <section key={group.key} className='mb-3 last:mb-0'>
-                            <div className='flex items-center gap-2 mb-1.5'>
-                                <span className='font-medium tracking-wide uppercase' style={{ fontSize: 'var(--fs-table)', color: 'var(--regent-gray)' }}>
+                        <section key={group.key} className='mb-2 last:mb-0'>
+                            <div className='flex items-center gap-2 mb-1'>
+                                {/* Title Case, matching every other header band since
+                                    2026-08-25 — this one was still shouting YESTERDAY. */}
+                                <span className='font-semibold' style={{ fontSize: 'var(--fs-table)', color: 'var(--ink-secondary)' }}>
                                     {group.label}
                                 </span>
-                                <span className='flex-1 h-px' style={{ background: 'var(--selago)' }} />
+                                <span className='flex-1 h-px bg-[var(--line)]' />
                             </div>
-                            <ul className='flex flex-col gap-1.5'>
+                            {/* A hairline per row, not a card per row. The message sits on the
+                                left and the record/person/time columns on the right, so on a wide
+                                monitor the eye has ~600px of white to cross — the rule is what
+                                carries it across. A vertical timeline rail was tried first and
+                                dropped: at a 32px row with a 24px dot it shows 8px of line
+                                between dots, which reads as nothing. */}
+                            <ul className='flex flex-col divide-y divide-[var(--line)] border-y border-[var(--line)]'>
                                 {group.rows.map(r => {
                                     const meta = metaFor(r.entityType);
                                     const Icon = meta.icon;
                                     return (
+                                        /* One feed, not a stack of cards. Every row used to be its
+                                           own bordered rounded-2xl box with a gap under it — twelve
+                                           boxes where the eye wanted one list, at a 44px pitch for a
+                                           single line of text. */
                                         <li
                                             key={r.id}
-                                            className='flex items-start gap-2.5 px-2.5 py-2 rounded-2xl border border-[var(--selago)] bg-[var(--surface-card)] transition-colors hover:border-[var(--border-divider)] hover:bg-[var(--surface-pill)]'
+                                            className='flex items-center gap-2.5 px-1 py-1 transition-colors hover:bg-[var(--bg-subtle)]'
                                         >
-                                            <span className='inline-flex items-center justify-center rounded-full flex-shrink-0' style={{ width: 26, height: 26, background: meta.bg }}>
-                                                <Icon className='w-3.5 h-3.5' style={{ color: meta.color }} />
+                                            <span
+                                                className='inline-flex items-center justify-center rounded-full shrink-0'
+                                                style={{ width: 24, height: 24, background: meta.bg }}
+                                                title={meta.label}
+                                            >
+                                                <Icon className='w-3 h-3' style={{ color: meta.color }} />
                                             </span>
-                                            {/* One line on wide screens — metadata right-aligned so the row
-                                                uses the full width instead of wrapping under the message. */}
-                                            <div className='min-w-0 flex-1 flex flex-col sm:flex-row sm:items-center sm:justify-between sm:gap-3'>
-                                                <p className='break-words min-w-0 flex items-center gap-1.5' style={{ fontSize: 'var(--fs-input)', color: 'var(--port-gore)' }}>
-                                                    <span className='min-w-0'>{r.message || `${meta.label} ${r.action || 'updated'}`}</span>
-                                                    {r.repeat > 1 && (
-                                                        <span
-                                                            className='flex-shrink-0 px-1.5 rounded-full font-medium'
-                                                            title={`${r.repeat} identical entries`}
-                                                            style={{ fontSize: 'var(--fs-table)', background: meta.bg, color: meta.color }}
-                                                        >
-                                                            ×{r.repeat}
-                                                        </span>
-                                                    )}
-                                                </p>
-                                                <div className='flex flex-wrap items-center gap-x-2 gap-y-0.5 mt-0.5 sm:mt-0 sm:flex-shrink-0 sm:justify-end' style={{ fontSize: 'var(--fs-table)', color: 'var(--regent-gray)' }}>
-                                                    {r.entityLabel && (
-                                                        <span className='px-1.5 py-0.5 rounded-lg' style={{ background: meta.bg, color: meta.color }}>
-                                                            {r.entityLabel}
-                                                        </span>
-                                                    )}
-                                                    <span className='inline-flex items-center gap-1'>
-                                                        <span className='inline-flex items-center justify-center rounded-full text-[var(--on-brand)]' style={{ width: 14, height: 14, fontSize: 'var(--fs-caption)', background: meta.color }}>
-                                                            {initials(r.actorName)}
-                                                        </span>
-                                                        {r.actorName || 'Unknown'}
+
+                                            {/* The ×N belongs to the sentence, so it travels with it
+                                                rather than floating out by the right-hand columns. */}
+                                            <span className='flex-1 min-w-0 flex items-center gap-1.5' style={{ fontSize: 'var(--fs-input)', color: 'var(--ink)' }}>
+                                                <span className='truncate'>{r.message || `${meta.label} ${r.action || 'updated'}`}</span>
+                                                {r.repeat > 1 && (
+                                                    <span
+                                                        className='shrink-0 px-1.5 rounded-full font-medium tabular-nums'
+                                                        title={`${r.repeat} identical entries`}
+                                                        style={{ fontSize: 'var(--fs-table)', background: meta.bg, color: meta.color }}
+                                                    >
+                                                        ×{r.repeat}
                                                     </span>
-                                                    <span>·</span>
-                                                    <span className='sm:w-16 sm:text-right' title={r.createdAt}>{relativeTime(r.createdAtMs)}</span>
-                                                </div>
-                                            </div>
+                                                )}
+                                            </span>
+
+                                            {/* Fixed widths so the record, the person and the time
+                                                read down the page as three columns. With everything
+                                                right-aligned and auto-width, a long PO number shunted
+                                                the name and the time out of line on every other row. */}
+                                            <span className='hidden md:block w-32 shrink-0 text-right truncate' style={{ fontSize: 'var(--fs-table)' }}>
+                                                {r.entityLabel && (
+                                                    <span className='px-1.5 py-0.5 rounded-lg' style={{ background: meta.bg, color: meta.color }}>
+                                                        {r.entityLabel}
+                                                    </span>
+                                                )}
+                                            </span>
+
+                                            {/* The shared chip: one colour per PERSON. This row used
+                                                to tint the avatar with the ENTITY colour, so Olga was
+                                                violet on a contract and green on an invoice. */}
+                                            <span className='hidden sm:flex w-28 shrink-0 items-center' style={{ fontSize: 'var(--fs-table)', color: 'var(--ink-muted)' }}>
+                                                <NameCell name={r.actorName || 'Unknown'} size={16} maxWidth={96} />
+                                            </span>
+
+                                            <span
+                                                className='w-14 shrink-0 text-right tabular-nums'
+                                                style={{ fontSize: 'var(--fs-table)', color: 'var(--ink-muted)' }}
+                                                title={r.createdAt}
+                                            >
+                                                {relativeTime(r.createdAtMs)}
+                                            </span>
                                         </li>
                                     );
                                 })}
