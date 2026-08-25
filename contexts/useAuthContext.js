@@ -1,6 +1,6 @@
 'use client'
 
-import { createContext, useContext, useEffect, useState, useMemo, useCallback } from 'react'
+import { createContext, useContext, useEffect, useState, useMemo, useCallback, useRef } from 'react'
 import { onAuthStateChanged, signInWithEmailAndPassword, signOut, setPersistence, browserLocalPersistence, browserSessionPersistence } from 'firebase/auth'
 import { auth } from '../utils/firebase'
 import { loadDataSettings, logEvent } from '../utils/utils'
@@ -46,6 +46,12 @@ const AuthContextProvider = ({ children }) => {
   const [claims, setClaims] = useState(null)
   const pathName = usePathname()
 
+  // True while a sign-in is in flight in THIS tab. The idle cap below is meant for a
+  // session RESTORED from persistence, never for a login happening right now — Firebase
+  // notifies auth listeners from inside signInWithEmailAndPassword, before it resolves,
+  // so the guard would otherwise run against whatever the last session left behind.
+  const signingIn = useRef(false)
+
   const gisAccount = uidCollection=== 'aB3dE7FgHi9JkLmNoPqRsTuVwGIS' ?  true: false
 
   // Acting user identity for attribution ("who did what"). Firebase displayName
@@ -75,37 +81,57 @@ const AuthContextProvider = ({ children }) => {
   }, [uidCollection, currentUser])
 
   const SignIn = useCallback(async (email, password, remember = false) => {
+    // The previous session's stamps. Restored if this attempt fails, so a wrong password
+    // can never extend the inactivity window of a session that has already expired.
+    const prevSeen = localStorage.getItem('lastSeen');
+    const prevRemember = localStorage.getItem('rememberMe');
+    signingIn.current = true;
     try {
       // "Remember me": keep the session across browser close (local) vs clear it on close
       // (session) — so an unchecked login can't auto-resume from cookie memory later.
       try {
         await setPersistence(auth, remember ? browserLocalPersistence : browserSessionPersistence);
       } catch { /* persistence not supported — fall back to default, don't block login */ }
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      sessionStorage.setItem('isLogged', true);
+      // Stamp the new session BEFORE handing over the credential: onAuthStateChanged fires
+      // while signInWithEmailAndPassword is still awaiting, and the idle guard it runs reads
+      // these two keys. Written afterwards (as they were), the guard judged a brand-new login
+      // by the PREVIOUS session's stamp and signed the user straight back out.
       localStorage.setItem('lastSeen', String(Date.now())); // starts the inactivity window
       localStorage.setItem('rememberMe', remember ? '1' : '0'); // picks the 2h vs 30-day cap on reload
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      sessionStorage.setItem('isLogged', true);
       setUser(userCredential.user);
-      // Only redirect if authenticated
-      router.push("/contracts");
+      // Where to go next is owned by the redirect effect below — a second push from here
+      // raced it, and one of the two navigations lost.
     } catch (error) {
+      if (prevSeen === null) localStorage.removeItem('lastSeen');
+      else localStorage.setItem('lastSeen', prevSeen);
+      if (prevRemember === null) localStorage.removeItem('rememberMe');
+      else localStorage.setItem('rememberMe', prevRemember);
       setErr(error.message);
+    } finally {
+      signingIn.current = false;
     }
-  }, [router])
+  }, [])
   // On mount or route change, if not authenticated, redirect to sign-in
     // Robust: Only redirect after Firebase auth state is loaded
     useEffect(() => {
       const publicRoutes = ['/', '/about', '/contact', '/signin', '/signin', '/blog', '/features', '/landing'];
+      // Logged in but still sitting on the form — send them into the app. Sole owner of
+      // the post-login redirect: SignIn and the sign-in page each fired their own push in
+      // the same commit, so three navigations raced for one login. Checked ahead of the
+      // loading gate because `user` stays undefined until Firebase reports, so this can
+      // only fire on a real session — and waiting on the claims round-trip first left a
+      // successful login parked on the sign-in page.
+      if (user && pathName === '/signin') {
+        router.replace('/dashboard');
+        return;
+      }
       if (loadingPage) return; // Wait for Firebase to finish checking
       if (!user) {
         if (!publicRoutes.includes(pathName)) {
           router.replace('/signin');
         }
-        return;
-      }
-      // If logged in and on /signin, always redirect to dashboard
-      if (user && pathName === '/signin') {
-        router.replace('/dashboard');
       }
     }, [user, pathName, loadingPage]);
   // Removed unwanted redirect to home page on refresh. Users will stay on the current page unless redirected elsewhere.
@@ -167,8 +193,10 @@ const AuthContextProvider = ({ children }) => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       // Enforce the inactivity cap on load: if a persisted session has been idle longer
       // than its window (2h normally, 30 days with "Remember me"), sign it out and require
-      // a fresh login (password) instead of auto-resuming.
-      if (currentUser) {
+      // a fresh login (password) instead of auto-resuming. A login in flight is exempt —
+      // it IS the fresh login this cap asks for, and judging it by the stamp the last
+      // session left behind is what silently bounced people back to the sign-in form.
+      if (currentUser && !signingIn.current) {
         const last = parseInt(localStorage.getItem('lastSeen') || '0', 10);
         const cap = localStorage.getItem('rememberMe') === '1' ? REMEMBERED_MAX_MS : SESSION_MAX_MS;
         if (last && Date.now() - last > cap) {

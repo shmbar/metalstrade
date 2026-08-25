@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
 import { Eye, EyeOff } from 'lucide-react';
 import { RiRefreshLine } from "react-icons/ri";
 import { UserAuth } from '../../../contexts/useAuthContext';
@@ -10,8 +9,7 @@ import Image from 'next/image';
 import imsLogo from '../../../public/logo/logoNew.svg';
 
 export default function SignInPage() {
-  const { SignIn, user, err } = UserAuth();
-  const router = useRouter();
+  const { SignIn, err } = UserAuth();
   /* Set by the inactivity logout — see components/idle.js. Read from location rather
      than useSearchParams(): that hook forces a client-side-rendering bail unless the page
      is wrapped in <Suspense>, which made /signin intermittently 404. */
@@ -35,11 +33,8 @@ export default function SignInPage() {
     }
   }, []);
 
-  useEffect(() => {
-    if (user) {
-      router.push('/dashboard');
-    }
-  }, [user, router]);
+  /* No redirect-on-user effect here. useAuthContext owns the "logged in but sitting on
+     /signin" redirect; a second push from this page raced it for the same login. */
 
   const handleSubmit = async () => {
     try {
