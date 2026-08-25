@@ -249,9 +249,9 @@ const DocumentImportOverlay = ({ documentType, suppliers, clients, currencies, e
             // Pre-select all high/medium confidence fields
             const sel = {};
             const allFields = documentType === 'contract'
-                ? ['order', 'supplier', 'date', 'currency', 'products', 'remarks']
+                ? ['order', 'supplier', 'date', 'currency', 'products', 'scalePricing', 'remarks']
                 : documentType === 'salescontract'
-                    ? ['contractNo', 'client', 'date', 'currency', 'products', 'remarks']
+                    ? ['contractNo', 'client', 'date', 'currency', 'products', 'scalePricing', 'remarks']
                     : documentType === 'expense'
                         ? ['vendorInvoiceNumber', 'supplier', 'buyerPoNumber', 'date', 'currency', 'amount', 'expenseType', 'comments']
                         : ['invoice', 'client', 'date', 'currency', 'products', 'remarks'];
@@ -310,7 +310,7 @@ const DocumentImportOverlay = ({ documentType, suppliers, clients, currencies, e
                 const extra = [];
                 if (selected.remarks && result.remarks) extra.push(String(result.remarks));
                 (result.products || []).forEach(p => { if (p.analysis) extra.push(`${p.description || 'Material'} — analysis: ${p.analysis}`); });
-                if (result.scalePricing) extra.push(`Scale prices: ${result.scalePricing}`);
+                if (selected.scalePricing && result.scalePricing) extra.push(`Scale prices: ${result.scalePricing}`);
                 if (extra.length) out.comments = extra.join('\n');
             }
         } else if (documentType === 'salescontract') {
@@ -327,7 +327,16 @@ const DocumentImportOverlay = ({ documentType, suppliers, clients, currencies, e
                     id: `doc-${i}`, description: p.description || '', qnty: p.qnty || '', unitPrc: p.unitPrc || ''
                 }));
             }
-            if (selected.remarks && result.remarks) out.comments = String(result.remarks);
+            // Same as the purchase-contract path: chemistry and scale pricing have no
+            // structured field on a sales contract either, so they ride along in comments
+            // instead of being dropped.
+            {
+                const extra = [];
+                if (selected.remarks && result.remarks) extra.push(String(result.remarks));
+                (result.products || []).forEach(p => { if (p.analysis) extra.push(`${p.description || 'Material'} — analysis: ${p.analysis}`); });
+                if (selected.scalePricing && result.scalePricing) extra.push(`Scale prices: ${result.scalePricing}`);
+                if (extra.length) out.comments = extra.join('\n');
+            }
         } else if (documentType === 'expense') {
             // Map supplier-invoice fields onto the project's Expense shape.
             // Field names mirror what hooks/useExpensesState.js uses.
@@ -494,6 +503,17 @@ const DocumentImportOverlay = ({ documentType, suppliers, clients, currencies, e
                                 </div>
                             )}
 
+                            {/* The document named US as the counterparty (buyer-issued purchase
+                                confirmation) — the server swapped in the other party on the page. */}
+                            {result.selfPartyCorrected && (
+                                <div className='flex items-start gap-2 p-2.5 rounded-lg mb-1' style={{ background: TONES.amber.bg, border: `1px solid ${TONES.amber.border}` }}>
+                                    <AlertTriangle className='w-3.5 h-3.5 flex-shrink-0 mt-0.5' style={{ color: TONES.amber.text }} />
+                                    <span style={{ fontSize: 'var(--fs-table)', color: TONES.amber.text }}>
+                                        This document names our own company as a party — it was issued by the counterparty. Confirm the {isContract || isExpense ? 'supplier' : 'client'} below is right.
+                                    </span>
+                                </div>
+                            )}
+
                             {/* Multi-invoice warning — this PDF holds more than one invoice */}
                             {isExpense && result.multipleInvoices && (
                                 <div className='flex items-start gap-2 p-2.5 rounded-lg mb-1' style={{ background: TONES.amber.bg, border: `1px solid ${TONES.amber.border}` }}>
@@ -511,6 +531,7 @@ const DocumentImportOverlay = ({ documentType, suppliers, clients, currencies, e
                                     <FieldRow label='Date' value={result.date} confidence={result.confidence?.date} selected={selected.date} onToggle={() => toggle('date')} />
                                     <FieldRow label='Currency' value={result.currencyId ? result.currencyCode : result.currencyCode ? `${result.currencyCode} (no match)` : null} confidence={result.confidence?.currency} selected={selected.currency} onToggle={() => toggle('currency')} />
                                     <FieldRow label='Products' value={result.products} confidence={result.confidence?.products} selected={selected.products} onToggle={() => toggle('products')} />
+                                    <FieldRow label='Scale prices' value={result.scalePricing} confidence='medium' selected={selected.scalePricing} onToggle={() => toggle('scalePricing')} />
                                     <FieldRow label='Notes / comments' value={result.remarks} confidence='medium' selected={selected.remarks} onToggle={() => toggle('remarks')} />
                                 </>
                             ) : isSalesContract ? (
@@ -520,6 +541,7 @@ const DocumentImportOverlay = ({ documentType, suppliers, clients, currencies, e
                                     <FieldRow label='Date' value={result.date} confidence={result.confidence?.date} selected={selected.date} onToggle={() => toggle('date')} />
                                     <FieldRow label='Currency' value={result.currencyId ? result.currencyCode : result.currencyCode ? `${result.currencyCode} (no match)` : null} confidence={result.confidence?.currency} selected={selected.currency} onToggle={() => toggle('currency')} />
                                     <FieldRow label='Materials' value={result.products} confidence={result.confidence?.products} selected={selected.products} onToggle={() => toggle('products')} />
+                                    <FieldRow label='Scale prices' value={result.scalePricing} confidence='medium' selected={selected.scalePricing} onToggle={() => toggle('scalePricing')} />
                                     <FieldRow label='Notes / comments' value={result.remarks} confidence='medium' selected={selected.remarks} onToggle={() => toggle('remarks')} />
                                 </>
                             ) : isExpense ? (

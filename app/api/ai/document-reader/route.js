@@ -3,6 +3,7 @@ import '../../../../utils/pdfPolyfill';
 import OpenAI from 'openai';
 import { guardAiRequest } from '../../../../utils/aiGuard';
 import { extractPdfText } from '../../../../utils/pdfExtract';
+import { resolveCounterparty } from '../../../../utils/docReaderParties';
 
 // Reading a multi-page / scanned document through gpt-4o routinely takes longer
 // than the platform's default function timeout — without this the client saw
@@ -75,6 +76,17 @@ export async function POST(request) {
             entityLists = `Known clients: ${clientListStr}\nKnown currencies: ${currencyList}`;
         }
 
+        // Chemistry + scale pricing sit on BOTH sides of the same trade: a supplier's
+        // purchase contract, and — when the counterparty is the one who issued the
+        // purchase confirmation — our sales contract for the very same material. Written
+        // once so the two paths can't drift apart.
+        const analysisNote = '- analysis = the ELEMENT table for that material as a compact string, e.g. "Ni min 42%, Cr min 12%, Mo min 3.5%; Cu max 0.5%, P max 0.03%, Co max 6%, Nb max 2.5%, Ti max 8%". Include every element shown (Nickel/Chrome/Molybdenum minimums and Copper/Phosphor/Cobalt/Niobium/Titan/Tungsten maximums).';
+        const scalePricingNote = '- scalePricing = the "Scale prices:" block — the per-MT-of-contained-element prices printed under or beside the base price, e.g. "Ni USD 12,800/MT Ni content; Cr USD 1,850/MT Cr content; Mo USD 30,000/MT Mo content". Column text from the price block ("7,880.00 USD/MT", "max. 0.50 %") can land between the "Scale prices:" heading and its own lines in the extracted text — collect the "<Element> <currency> <amount> per MT ... content" lines wherever they appear, not only directly under the heading. Null only if no such lines exist.';
+        // Transcription only — the route decides which of the two is the counterparty
+        // (see the self-party guard after the model call). The model never has to.
+        const partyFields = `  "issuerName": "the company on the letterhead / at the very top — the party that issued this document, verbatim or null",
+  "addresseeName": "the company this document is addressed TO (the To: / address block), verbatim or null",`;
+
         let schemaGuide;
         if (documentType === 'contract') {
             schemaGuide = `Return JSON for a purchase contract / purchase confirmation:
@@ -95,6 +107,7 @@ export async function POST(request) {
   }],
   "scalePricing": "the 'Scale prices' block (per-MT content prices), or null",
   "remarks": "delivery term, payment term and other notes",
+${partyFields}
   "confidence": { "order": "high|medium|low", "supplier": "high|medium|low", "date": "high|medium|low", "products": "high|medium|low" }
 }
 
@@ -102,8 +115,8 @@ FIELD NOTES:
 - order = the document's own "Contract No." — the reference for this purchase. Ignore "Your ref." if blank.
 - qnty/unit/unitPrc/lineTotal = the line's quantity, unit, per-unit price and money total AS PRINTED (e.g. 17399 "LB" × 0.550 = 9569.45) — see UNITS rule, the app converts.
 - Extract EVERY material line across ALL pages. A scanned bundle may contain SEVERAL invoices (one per page) — include each page's line(s) as separate products entries, not just the first page.
-- analysis = the ELEMENT table for that material as a compact string, e.g. "Ni min 42%, Cr min 12%, Mo min 3.5%; Cu max 0.5%, P max 0.03%, Co max 6%, Nb max 2.5%, Ti max 8%". Include every element shown (Nickel/Chrome/Molybdenum minimums and Copper/Phosphor/Cobalt/Niobium/Titan/Tungsten maximums).
-- scalePricing = the "Scale prices:" block, e.g. "Ni USD 12,800/MT Ni content; Cr USD 1,850/MT Cr content; Mo USD 30,000/MT Mo content".`;
+${analysisNote}
+${scalePricingNote}`;
         } else if (documentType === 'salescontract') {
             // A CLIENT sales contract: the document is a sales agreement issued to / signed with
             // a buyer (client). The contract number is the client's sales-contract reference.
@@ -111,8 +124,10 @@ FIELD NOTES:
 
 FIELD NOTES:
 - clientName = the buyer/customer COMPANY NAME (e.g. "Estma Ltd", "Exotech") — never just a street address; if only an address is visible, return null.
-- contractNo = the client's sales-contract number / reference (on a purchase order: the issuer's "Order No", e.g. 3001284).
+- contractNo = the client's sales-contract number / reference (on a purchase confirmation or purchase order: the issuer's own "Contract No." / "Order No", e.g. "PB062972", 3001284).
 - qnty in MT and unitPrc per MT (see UNITS rule).
+${analysisNote}
+${scalePricingNote}
 
 {
   "contractNo": "the sales contract number / reference string or null",
@@ -121,8 +136,10 @@ FIELD NOTES:
   "date": "YYYY-MM-DD or null",
   "currencyCode": "USD/EUR/etc or null",
   "currencyId": "matched currency id or null",
-  "products": [{ "description": "string", "qnty": number_or_null, "unitPrc": number_or_null }],
+  "products": [{ "description": "string", "qnty": number_or_null, "unitPrc": number_or_null, "analysis": "the element/chemistry spec as written, or null" }],
+  "scalePricing": "the 'Scale prices' block (per-MT content prices), or null",
   "remarks": "any notes or terms from the document",
+${partyFields}
   "confidence": { "contractNo": "high|medium|low", "client": "high|medium|low", "date": "high|medium|low", "products": "high|medium|low" }
 }`;
         } else if (documentType === 'expense') {
@@ -152,6 +169,7 @@ FIELD NOTES:
   "expenseTypeName": "best-guess category (e.g. 'Material purchase', 'Freight', 'Customs', 'Insurance') based on what is being billed",
   "expenseTypeId": "matched expense category id or null",
   "comments": "short notes — delivery / payment terms, what was billed, anything useful",
+${partyFields}
   "confidence": { "vendorInvoiceNumber": "high|medium|low", "supplier": "high|medium|low", "amount": "high|medium|low", "date": "high|medium|low", "buyerPoNumber": "high|medium|low" }
 }`;
         } else {
@@ -165,6 +183,7 @@ FIELD NOTES:
   "currencyId": "matched currency id or null",
   "products": [{ "description": "string", "qnty": number_or_null, "unitPrc": number_or_null }],
   "remarks": "any notes or payment terms",
+${partyFields}
   "confidence": { "invoice": "high|medium|low", "client": "high|medium|low", "date": "high|medium|low", "products": "high|medium|low" }
 }`;
         }
@@ -257,6 +276,10 @@ Return ONLY the JSON object, no extra text.`;
 
         guard.recordUsage(response.usage?.total_tokens);
         const result = JSON.parse(response.choices[0].message.content);
+
+        // Which of the two named parties is the counterparty is decided in code, not by
+        // the model — a buyer-issued purchase confirmation puts OUR name on the page too.
+        resolveCounterparty(result, { documentType, suppliers, clients });
 
         // Deterministic line check: when a product line carries qty, price AND total,
         // they must multiply out. Legitimate rounding is bounded by the printed price
