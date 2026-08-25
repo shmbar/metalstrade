@@ -397,7 +397,7 @@ const Customtable = ({ data, columns, invisible, SelectRow, excellReport, ln, se
                                                     style={{ borderBottom: '1px solid var(--line)' }}
                                                 >
                                                     <div 
-                                                        className="uppercase tracking-wider font-normal" 
+                                                        className="font-semibold" 
                                                         style={{
                                                             color: 'var(--regent-gray)',
                                                             fontSize: 'var(--fs-caption)'

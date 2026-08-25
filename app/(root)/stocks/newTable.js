@@ -19,7 +19,6 @@ import {
 
 import { Fragment, useEffect, useMemo, useState } from "react";
 
-import { ArrowUpDown } from "lucide-react";
 
 import { Paginator } from "../../../components/table/Paginator";
 import RowsIndicator from "../../../components/table/RowsIndicator";
@@ -207,10 +206,11 @@ const Customtable = ({
                           >
                             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
                               {flexRender(header.column.columnDef.header, header.getContext())}
-                              <SortIcon column={header.column} />
-                              {header.column.getCanSort() && !header.column.getIsSorted() && (
-                                <ArrowUpDown size={11} className="shrink-0 opacity-0 group-hover/th:opacity-50 transition-opacity" style={{ color: 'var(--ink-muted)' }} />
-                              )}
+                              {/* `idle` IS this hover affordance — it was hand-rolled
+                                  here next to the icon that already offers it, so the
+                                  unsorted state rendered two 11px boxes' worth of
+                                  layout and pushed the column title left of centre. */}
+                              <SortIcon column={header.column} idle />
                             </div>
                           </th>
                         ))}
@@ -370,7 +370,7 @@ const Customtable = ({
                           style={{ borderBottom: '1px solid var(--line)' }}
                         >
                           <div
-                            className="uppercase tracking-wider font-normal"
+                            className="font-semibold"
                             style={{
                               color: 'var(--ink-muted)',
                               fontSize: 'var(--fs-caption)'

@@ -500,13 +500,13 @@ const StorageCosts = () => {
                                     <col />
                                 </colgroup>
                                 <thead>
-                                    <tr className="text-left uppercase text-[var(--ink-muted)]" style={{ background: "var(--bg-subtle)", fontSize: "var(--fs-table)", letterSpacing: "0.04em" }}>
-                                        <SortTh colKey="_name" label="Warehouse" sort={whSort} idle className="px-2 py-1 font-medium whitespace-nowrap" />
-                                        <SortTh colKey="_cost" label="Tagged spend" sort={whSort} idle className="px-2 py-1 font-medium text-right whitespace-nowrap" />
-                                        <SortTh colKey="_mtMonths" label="MT-months" sort={whSort} idle className="px-2 py-1 font-medium text-right whitespace-nowrap" />
-                                        <SortTh colKey="_mtNow" label="MT now" sort={whSort} idle className="px-2 py-1 font-medium text-right whitespace-nowrap" />
-                                        <SortTh colKey="_rate" label={`Avg cost ${UNIT.find(u => u.key === unit).label}`} sort={whSort} idle className="px-2 py-1 font-medium text-right whitespace-nowrap" />
-                                        <th className="px-2 py-1 font-medium whitespace-nowrap">Why blank</th>
+                                    <tr className="text-left text-[var(--ink-muted)]" style={{ background: "var(--bg-subtle)", fontSize: "var(--fs-table)" }}>
+                                        <SortTh colKey="_name" label="Warehouse" sort={whSort} idle className="px-2 py-1 font-semibold whitespace-nowrap" />
+                                        <SortTh colKey="_cost" label="Tagged spend" sort={whSort} idle className="px-2 py-1 font-semibold text-right whitespace-nowrap" />
+                                        <SortTh colKey="_mtMonths" label="MT-months" sort={whSort} idle className="px-2 py-1 font-semibold text-right whitespace-nowrap" />
+                                        <SortTh colKey="_mtNow" label="MT now" sort={whSort} idle className="px-2 py-1 font-semibold text-right whitespace-nowrap" />
+                                        <SortTh colKey="_rate" label={`Avg cost ${UNIT.find(u => u.key === unit).label}`} sort={whSort} idle className="px-2 py-1 font-semibold text-right whitespace-nowrap" />
+                                        <th className="px-2 py-1 font-semibold whitespace-nowrap">Why blank</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -569,12 +569,12 @@ const StorageCosts = () => {
                                     <col />
                                 </colgroup>
                                 <thead>
-                                    <tr className="text-left uppercase text-[var(--ink-muted)]" style={{ background: "var(--bg-subtle)", fontSize: "var(--fs-table)", letterSpacing: "0.04em" }}>
-                                        <SortTh colKey="year" label="Year" sort={yearSort} idle className="px-2 py-1 font-medium whitespace-nowrap" />
-                                        <SortTh colKey="spend" label="Storage spend" sort={yearSort} idle className="px-2 py-1 font-medium text-right whitespace-nowrap" />
-                                        <SortTh colKey="mtMonths" label="MT-months" sort={yearSort} idle className="px-2 py-1 font-medium text-right whitespace-nowrap" />
-                                        <SortTh colKey="_rate" label={`Avg cost ${UNIT.find(u => u.key === unit).label}`} sort={yearSort} idle className="px-2 py-1 font-medium text-right whitespace-nowrap" />
-                                        <SortTh colKey="count" label="Invoices (tagged)" sort={yearSort} idle className="px-2 py-1 font-medium text-right whitespace-nowrap" />
+                                    <tr className="text-left text-[var(--ink-muted)]" style={{ background: "var(--bg-subtle)", fontSize: "var(--fs-table)" }}>
+                                        <SortTh colKey="year" label="Year" sort={yearSort} idle className="px-2 py-1 font-semibold whitespace-nowrap" />
+                                        <SortTh colKey="spend" label="Storage spend" sort={yearSort} idle className="px-2 py-1 font-semibold text-right whitespace-nowrap" />
+                                        <SortTh colKey="mtMonths" label="MT-months" sort={yearSort} idle className="px-2 py-1 font-semibold text-right whitespace-nowrap" />
+                                        <SortTh colKey="_rate" label={`Avg cost ${UNIT.find(u => u.key === unit).label}`} sort={yearSort} idle className="px-2 py-1 font-semibold text-right whitespace-nowrap" />
+                                        <SortTh colKey="count" label="Invoices (tagged)" sort={yearSort} idle className="px-2 py-1 font-semibold text-right whitespace-nowrap" />
                                         <th className="px-2 py-1" />
                                     </tr>
                                 </thead>
@@ -669,18 +669,18 @@ const StorageCosts = () => {
                                     <col />
                                 </colgroup>
                                 <thead>
-                                    <tr className="text-left uppercase text-[var(--ink-muted)]" style={{ background: "var(--bg-subtle)", fontSize: "var(--fs-table)", letterSpacing: "0.04em" }}>
-                                        <SortTh colKey="_date" label="Date" sort={triageSort} idle className="px-2 py-1 font-medium whitespace-nowrap" />
-                                        <SortTh colKey="_invoice" label="Invoice" sort={triageSort} idle className="px-2 py-1 font-medium whitespace-nowrap" />
+                                    <tr className="text-left text-[var(--ink-muted)]" style={{ background: "var(--bg-subtle)", fontSize: "var(--fs-table)" }}>
+                                        <SortTh colKey="_date" label="Date" sort={triageSort} idle className="px-2 py-1 font-semibold whitespace-nowrap" />
+                                        <SortTh colKey="_invoice" label="Invoice" sort={triageSort} idle className="px-2 py-1 font-semibold whitespace-nowrap" />
                                         {/* "Billed by", not "Supplier". This column is the vendor on the
                                             expense, and the vendor of a storage invoice is itself a
                                             terminal — so it prints the same company as the warehouse
                                             beside it and reads as one fact duplicated. Billed by = who
                                             sent the invoice; Warehouse = where the material sits. */}
-                                        <SortTh colKey="_supplier" label="Billed by" sort={triageSort} idle className="px-2 py-1 font-medium whitespace-nowrap" />
-                                        <SortTh colKey="_amount" label="Amount" sort={triageSort} idle className="px-2 py-1 font-medium text-right whitespace-nowrap" />
-                                        <SortTh colKey="_wh" label="Warehouse" sort={triageSort} idle className="px-2 py-1 font-medium whitespace-nowrap" />
-                                        <SortTh colKey="_month" label="Month covered" sort={triageSort} idle className="px-2 py-1 font-medium whitespace-nowrap" />
+                                        <SortTh colKey="_supplier" label="Billed by" sort={triageSort} idle className="px-2 py-1 font-semibold whitespace-nowrap" />
+                                        <SortTh colKey="_amount" label="Amount" sort={triageSort} idle className="px-2 py-1 font-semibold text-right whitespace-nowrap" />
+                                        <SortTh colKey="_wh" label="Warehouse" sort={triageSort} idle className="px-2 py-1 font-semibold whitespace-nowrap" />
+                                        <SortTh colKey="_month" label="Month covered" sort={triageSort} idle className="px-2 py-1 font-semibold whitespace-nowrap" />
                                         <th className="px-2 py-1"></th>
                                         <th className="px-2 py-1"></th>
                                     </tr>

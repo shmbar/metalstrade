@@ -104,7 +104,7 @@ const Customtable = ({ data, propDefaults, val, mult }) => {
 									<th
 										scope="col"
 										key={k}
-										className="px-3 py-1 text-left responsiveTextTable font-medium uppercase text-[var(--chathams-blue)]"
+										className="px-3 py-1 text-left responsiveTextTable font-semibold text-[var(--chathams-blue)]"
 									>
 										{y}
 									</th>

@@ -457,7 +457,7 @@ const Customtable = ({
                       if (cell.column.id === 'select') return null;
                       return (
                         <div key={cell.id} className="flex flex-col space-y-1.5 pb-2.5 last:pb-0" style={{ borderBottom: '1px solid var(--line)' }}>
-                          <div className="uppercase tracking-wider font-medium responsiveTextTable" style={{ color: 'var(--ink-muted)', fontSize: 'var(--fs-body)' }}>
+                          <div className="font-semibold responsiveTextTable" style={{ color: 'var(--ink-muted)', fontSize: 'var(--fs-body)' }}>
                             {cell.column.columnDef.header}
                           </div>
                           <div className="responsiveTextTable break-words px-1 py-1 leading-relaxed min-h-7 flex items-center"

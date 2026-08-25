@@ -71,13 +71,11 @@ const GradeTable = ({ dataTable, loading, settings }) => {
     padding: '6px 10px',
     borderBottom: '1px solid var(--line)',
     whiteSpace: 'nowrap',
-    fontWeight: 500,
+    fontWeight: 600,
     /* --fs-table, matching the responsiveTextTable cells below it. At --fs-body
        the header sat a rung ABOVE its own rows, the same inversion the detail
        popups had. */
     fontSize: 'var(--fs-table)',
-    textTransform: 'uppercase',
-    letterSpacing: '0.04em',
   }
 
   const tdStyle = {

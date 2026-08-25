@@ -358,7 +358,7 @@ const SpecialInvoices = () => {
                                         ['Category', (MISC_CATS.find(c => c.id === detail.category) || {}).label || 'Uncategorized'],
                                     ].map(([k, v]) => (
                                         <div key={k} className='flex flex-col'>
-                                            <span className='uppercase tracking-wide text-[var(--regent-gray)]' style={{ fontSize: 'var(--fs-caption)' }}>{k}</span>
+                                            <span className='font-semibold text-[var(--regent-gray)]' style={{ fontSize: 'var(--fs-caption)' }}>{k}</span>
                                             {/* The three entity rows carry the same chip their table
                                                 columns do — this panel is the row, opened up. `detail`
                                                 is a formatted row (the table is fed getFormatted), so

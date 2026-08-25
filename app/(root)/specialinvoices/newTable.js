@@ -303,7 +303,7 @@ const Customtable = ({
                                                     <tr className="summary-eur-si">
                                                         {group.headers.map(header => (
                                                             <th key={header.id} style={{ padding: '6px 8px' }}>
-                                                                {header.id === 'compName' ? 'Total EUR:' :
+                                                                {header.id === 'compName' ? 'Total €:' :
                                                                     header.id === 'qnty' ? (eurWeight % 1 === 0 ? eurWeight : eurWeight.toFixed(2)) :
                                                                         header.id === 'total' ? new Intl.NumberFormat('en-US', { style: 'currency', currency: 'EUR', minimumFractionDigits: 2 }).format(eurTotal) : ''}
                                                             </th>
@@ -551,7 +551,7 @@ const Customtable = ({
                                                     style={{ borderBottom: '1px solid var(--line)' }}
                                                 >
                                                     <div
-                                                        className="uppercase tracking-wider font-normal"
+                                                        className="font-semibold"
                                                         style={{
                                                             color: 'var(--regent-gray)',
                                                             fontSize: 'var(--fs-caption)'

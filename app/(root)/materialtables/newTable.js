@@ -48,7 +48,7 @@ function SortableHeaderCell({ id, label, style, onRemove, isFe, isStandard, sort
                     {isFe && <span className="responsiveTextTable" style={{ color: 'var(--brand-border)', marginLeft: '2px', fontStyle: 'italic' }}>auto</span>}
                     {/* This header sorts via its own sortDir state, not a TanStack
                         column, hence `direction` rather than `column`. */}
-                    <SortIcon direction={sortDir} />
+                    <SortIcon direction={sortDir} inline />
                 </span>
                 {!isStandard && (
                     <button
@@ -909,13 +909,13 @@ const Customtable = ({
                                     const focused = focusedCell === ck
                                     if (isCost) return (
                                         <div key={cell.id} className="flex justify-between items-center pb-2" style={{ borderBottom: '1px solid var(--line)' }}>
-                                            <span className='uppercase tracking-wider' style={{ color: 'var(--ink-muted)', fontSize: 'var(--fs-caption)', fontWeight: '500' }}>{cell.column.columnDef.header}</span>
+                                            <span className='font-semibold' style={{ color: 'var(--ink-muted)', fontSize: 'var(--fs-caption)', fontWeight: '600' }}>{cell.column.columnDef.header}</span>
                                             <span className="responsiveTextTable" style={{ color: 'var(--pink-text)', fontWeight: '600' }}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</span>
                                         </div>
                                     )
                                     return (
                                         <div key={cell.id} className="flex flex-col space-y-1 pb-2 last:pb-0" style={{ borderBottom: '1px solid var(--line)' }}>
-                                            <div className='uppercase tracking-wider' style={{ color: 'var(--ink-muted)', fontSize: 'var(--fs-caption)', fontWeight: '500' }}>{cell.column.columnDef.header}</div>
+                                            <div className='font-semibold' style={{ color: 'var(--ink-muted)', fontSize: 'var(--fs-caption)', fontWeight: '600' }}>{cell.column.columnDef.header}</div>
                                             <div style={{
                                                 backgroundColor: focused ? 'var(--bg-card)' : 'var(--bg-subtle)',
                                                 border: `1px solid ${focused ? 'var(--brand)' : isFe ? 'var(--brand-border)' : 'var(--line-strong)'}`,

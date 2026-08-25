@@ -71,7 +71,7 @@ const Customtable = ({ data, columns, ln, ttl, settings, dataTable, rmrk }) => {
                                 <tr key={hdGroup.id} style={{ borderBottom: '1px solid var(--selago)' }}>
                                     {hdGroup.headers.map(header =>
                                         /* Band (size, weight, colour, padding, borders,
-                                           uppercase, tracking) comes from .custom-table th.
+                                           case, tracking) comes from .custom-table th.
                                            This header was --fs-table but left-aligned at
                                            px-6, so it sat apart from every other header. */
                                         <th key={header.id} className="relative">
@@ -152,8 +152,8 @@ const Customtable = ({ data, columns, ln, ttl, settings, dataTable, rmrk }) => {
                                     <div className="space-y-2.5">
                                         {row.getVisibleCells().map((cell) => (
                                             <div key={cell.id} className="flex justify-between items-start gap-4">
-                                                <span className="responsiveTextTable uppercase tracking-wide flex-shrink-0 min-w-[100px]"
-                                                    style={{ fontWeight: 500, color: 'var(--chathams-blue)', letterSpacing: '0.05em' }}>
+                                                <span className="responsiveTextTable font-semibold flex-shrink-0 min-w-[100px]"
+                                                    style={{ fontWeight: 600, color: 'var(--chathams-blue)' }}>
                                                     {cell.column.columnDef.header}
                                                 </span>
                                                 <span className="responsiveTextTable" style={{
@@ -177,21 +177,21 @@ const Customtable = ({ data, columns, ln, ttl, settings, dataTable, rmrk }) => {
                         <div className="p-4 border-b" style={{ borderBottom: '1px solid var(--rock-blue)' }}>
                             <div className="space-y-2.5">
                                 <div className="pb-2 mb-2">
-                                    <span className="responsiveTextTable uppercase tracking-wide" style={{ fontWeight: 500, color: 'var(--chathams-blue)' }}>
-                                        Total $ (USD)
+                                    <span className="responsiveTextTable font-semibold" style={{ fontWeight: 600, color: 'var(--chathams-blue)' }}>
+                                        Total $:
                                     </span>
                                 </div>
                                 <div className="flex justify-between items-center">
-                                    <span className="responsiveTextTable" style={{ fontWeight: 500, color: 'var(--chathams-blue)' }}>{columns[1]?.header || 'Invoices'}</span>
-                                    <span className="responsiveTextTable" style={{ fontWeight: 500, color: 'var(--chathams-blue)' }}>{showAmount(usdTotals.invoices, 'usd')}</span>
+                                    <span className="responsiveTextTable" style={{ fontWeight: 600, color: 'var(--chathams-blue)' }}>{columns[1]?.header || 'Invoices'}</span>
+                                    <span className="responsiveTextTable" style={{ fontWeight: 600, color: 'var(--chathams-blue)' }}>{showAmount(usdTotals.invoices, 'usd')}</span>
                                 </div>
                                 <div className="flex justify-between items-center">
-                                    <span className="responsiveTextTable" style={{ fontWeight: 500, color: 'var(--chathams-blue)' }}>{columns[2]?.header || 'Payments'}</span>
-                                    <span className="responsiveTextTable" style={{ fontWeight: 500, color: 'var(--chathams-blue)' }}>{showAmount(usdTotals.payments, 'usd')}</span>
+                                    <span className="responsiveTextTable" style={{ fontWeight: 600, color: 'var(--chathams-blue)' }}>{columns[2]?.header || 'Payments'}</span>
+                                    <span className="responsiveTextTable" style={{ fontWeight: 600, color: 'var(--chathams-blue)' }}>{showAmount(usdTotals.payments, 'usd')}</span>
                                 </div>
                                 <div className="flex justify-between items-center">
-                                    <span className="responsiveTextTable" style={{ fontWeight: 500, color: 'var(--chathams-blue)' }}>{columns[3]?.header || 'Balance'}</span>
-                                    <span className="responsiveTextTable" style={{ fontWeight: 500, color: 'var(--chathams-blue)' }}>{showAmount(usdTotals.balance, 'usd')}</span>
+                                    <span className="responsiveTextTable" style={{ fontWeight: 600, color: 'var(--chathams-blue)' }}>{columns[3]?.header || 'Balance'}</span>
+                                    <span className="responsiveTextTable" style={{ fontWeight: 600, color: 'var(--chathams-blue)' }}>{showAmount(usdTotals.balance, 'usd')}</span>
                                 </div>
                             </div>
                         </div>
@@ -199,21 +199,21 @@ const Customtable = ({ data, columns, ln, ttl, settings, dataTable, rmrk }) => {
                         <div className="p-4" style={{ borderBottom: '1px solid var(--rock-blue)' }}>
                             <div className="space-y-2.5">
                                 <div className="pb-2 mb-2">
-                                    <span className="responsiveTextTable uppercase tracking-wide" style={{ fontWeight: 500, color: 'var(--chathams-blue)' }}>
-                                        Total € (EUR)
+                                    <span className="responsiveTextTable font-semibold" style={{ fontWeight: 600, color: 'var(--chathams-blue)' }}>
+                                        Total €:
                                     </span>
                                 </div>
                                 <div className="flex justify-between items-center">
-                                    <span className="responsiveTextTable" style={{ fontWeight: 500, color: 'var(--chathams-blue)' }}>{columns[1]?.header || 'Invoices'}</span>
-                                    <span className="responsiveTextTable" style={{ fontWeight: 500, color: 'var(--chathams-blue)' }}>{showAmount(eurTotals.invoices, 'eur')}</span>
+                                    <span className="responsiveTextTable" style={{ fontWeight: 600, color: 'var(--chathams-blue)' }}>{columns[1]?.header || 'Invoices'}</span>
+                                    <span className="responsiveTextTable" style={{ fontWeight: 600, color: 'var(--chathams-blue)' }}>{showAmount(eurTotals.invoices, 'eur')}</span>
                                 </div>
                                 <div className="flex justify-between items-center">
-                                    <span className="responsiveTextTable" style={{ fontWeight: 500, color: 'var(--chathams-blue)' }}>{columns[2]?.header || 'Payments'}</span>
-                                    <span className="responsiveTextTable" style={{ fontWeight: 500, color: 'var(--chathams-blue)' }}>{showAmount(eurTotals.payments, 'eur')}</span>
+                                    <span className="responsiveTextTable" style={{ fontWeight: 600, color: 'var(--chathams-blue)' }}>{columns[2]?.header || 'Payments'}</span>
+                                    <span className="responsiveTextTable" style={{ fontWeight: 600, color: 'var(--chathams-blue)' }}>{showAmount(eurTotals.payments, 'eur')}</span>
                                 </div>
                                 <div className="flex justify-between items-center">
-                                    <span className="responsiveTextTable" style={{ fontWeight: 500, color: 'var(--chathams-blue)' }}>{columns[3]?.header || 'Balance'}</span>
-                                    <span className="responsiveTextTable" style={{ fontWeight: 500, color: 'var(--chathams-blue)' }}>{showAmount(eurTotals.balance, 'eur')}</span>
+                                    <span className="responsiveTextTable" style={{ fontWeight: 600, color: 'var(--chathams-blue)' }}>{columns[3]?.header || 'Balance'}</span>
+                                    <span className="responsiveTextTable" style={{ fontWeight: 600, color: 'var(--chathams-blue)' }}>{showAmount(eurTotals.balance, 'eur')}</span>
                                 </div>
                             </div>
                         </div>

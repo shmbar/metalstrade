@@ -697,13 +697,22 @@ th input, th select, th textarea, th button {
   vertical-align: middle;
   padding: 4px 8px;
   font-size: var(--fs-table);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
+  /* Title Case, not ALL CAPS. Asked for by Zak, 2026-08-25: a header row of
+     block capitals shouts, and long labels ("OPERATION TIME", "DELIVERY TERMS")
+     lose their word shapes, so they read letter by letter. The labels in the
+     column defs are already written "Operation Time" / "Delivery Terms" — only
+     this rule was shouting them. Acronyms (PO#, POL, POD, ETD, ETA) stay upper
+     because that is how they are typed at the call site, which is the point:
+     case now comes from the label, not from the stylesheet.
+
+     Tracking drops with the caps. 0.04em exists to open up capitals; on
+     lowercase it just loosens the word. */
+  letter-spacing: 0;
   color: var(--ink-secondary);
-  /* 500, not 600. A column label sits above the data, not in it — at 11px
-     uppercase with 0.04em tracking it already reads as a heading, and 600 made
-     the header band heavier than the rows it describes. */
-  font-weight: 500;
+  /* 600 — the weight CLAUDE.md assigns to a label or header. It was 500 while
+     the caps carried the heading job; without them, 500 muted at 11px reads as
+     one more line of data rather than the thing naming the column. */
+  font-weight: 600;
 }
 
 .custom-table td {
@@ -779,10 +788,11 @@ th input, th select, th textarea, th button {
   vertical-align: middle;
   padding: 4px 8px;
   font-size: var(--fs-table);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
+  /* Same Title Case band as `.custom-table th` above — a popup is that table
+     opened up, so its header cannot be shouting while the table's is not. */
+  letter-spacing: 0;
   color: var(--ink-secondary);
-  font-weight: 500;
+  font-weight: 600;
   white-space: nowrap;
 }
 
@@ -1388,7 +1398,10 @@ input::-webkit-inner-spin-button {
 }
 
 .cashflow-detail-table thead th {
-  font-weight: 500;
+  /* 600 — the label weight `.custom-table th` and `.detail-popup-table th` moved
+     to when the header band came out of block capitals. These headers were
+     always Title Case, so they only needed the weight to stay in step. */
+  font-weight: 600;
   color: var(--chathams-blue);
   border-bottom: 1px solid var(--line-strong);
   padding: 4px 6px;   /* was 6px 8px */
@@ -1742,13 +1755,14 @@ div.relative.w-full.text-gray-700 > div.absolute.z-10:not(.right-0) > div.absolu
   letter-spacing: -0.01em;
 }
 
-/* Table column headers / field labels — 11px uppercase muted */
+/* Table column headers / field labels — 11px muted, Title Case.
+   Was uppercase with 0.04em tracking; it names the same things `.custom-table th`
+   does, so it follows it out of block capitals (Zak, 2026-08-25). */
 .text-caption {
   font-size: 0.6875rem;  /* 11px */
   font-weight: 600;
-  text-transform: uppercase;
   color: var(--ink-secondary);
-  letter-spacing: 0.04em;
+  letter-spacing: 0;
 }
 
 /* Chips / timestamps */

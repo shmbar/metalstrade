@@ -92,6 +92,20 @@ const FinalTh = () => (
     </th>
 );
 
+// Every summary row is titled by looking its party up in Settings, and a row
+// must never come out as a bare status dot with no name — the money is real
+// whether or not the lookup lands. Two ways it misses: a record saved before
+// `nname` (the short display name) was required, and a record whose Settings
+// entry was deleted while its contracts and balances live on. So fall back the
+// way the Settings lists themselves do — `nname || <full name>` — and when the
+// id resolves to nothing at all, say so and show the id stub, which is the only
+// handle left for tracking the party down. Expanding the row still lists its POs.
+export const entityName = (list, id, kind = 'record') => {
+    const rec = (list || []).find(z => z?.id === id);
+    if (rec) return rec.nname || rec.supplier || rec.client || rec.stock || `Unnamed ${kind}`;
+    return id ? `Unknown ${kind} · ${String(id).slice(0, 8)}` : `No ${kind}`;
+};
+
 // Aggregate finalized chip for the collapsed summary rows (per supplier / per
 // client). A party's balance usually spans several shipments, so a single
 // Yes/No is wrong here — instead we show how many of its balance lines have the
@@ -1344,7 +1358,7 @@ export const ClientDetails = ({ client, data, type, uidCollection, setDateSelect
                         <tfoot>
                             <tr className="bg-[var(--bg-subtle)]">
                                 <th></th>
-                                <th className="text-left">TOTAL</th>
+                                <th className="text-left">Total</th>
                                 <th></th>
                                 <th className="text-left">
                                     {showAmount(filteredArr.reduce((sum, item) => sum + item.totalAmount, 0), 'usd')}
@@ -1466,7 +1480,7 @@ export const ClientDetails = ({ client, data, type, uidCollection, setDateSelect
                         <tfoot>
                             <tr className="bg-[var(--bg-subtle)]">
                                 <th></th>
-                                <th className="text-left">TOTAL</th>
+                                <th className="text-left">Total</th>
                                 <th></th>
                                 <th className="text-left">
                                     {showAmount(filteredArr1.reduce((sum, item) => sum + item.totalAmount, 0), 'usd')}
@@ -1805,7 +1819,7 @@ export const SupplierDetails = ({ supplier, data, uidCollection, setDateSelect,
                 <tfoot>
                     <tr className="bg-[var(--bg-subtle)]">
                         <th></th>
-                        <th className="text-left">TOTAL</th>
+                        <th className="text-left">Total</th>
                         <th></th>
                         <th className="text-left">
                             {showAmount(filteredArr.reduce((sum, item) => sum + item.invValue * 1, 0), 'usd')}

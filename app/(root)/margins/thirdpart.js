@@ -68,7 +68,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                         >
                             {/* custom-table opts this Totals table into the app-wide
                                 table standard in globals.css, so its header band is
-                                the same 11px/500 uppercase as every other table. The
+                                the same 11px/600 Title Case as every other table. The
                                 headers below used to claim they matched newTable but
                                 carried responsiveTextInput (13px) and py-2, which made
                                 this the one header in the app two rungs too large. */}

@@ -122,7 +122,7 @@ const Customtable = ({ data, columns }) => {
                                     if (cell.column.id === 'del') return null
                                     return (
                                         <div key={cell.id} className="flex justify-between items-center">
-                                            <span style={{ color: 'var(--ink-muted)', fontSize: 'var(--fs-caption)', fontWeight: '500', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                                            <span style={{ color: 'var(--ink-muted)', fontSize: 'var(--fs-caption)', fontWeight: '600' }}>
                                                 {cell.column.columnDef.header}
                                             </span>
                                             <span className="responsiveTextTable" style={{ color: 'var(--ink)', fontSize: 'inherit', fontWeight: '400', fontVariantNumeric: 'tabular-nums' }}>

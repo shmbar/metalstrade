@@ -259,7 +259,7 @@ const Customtable = ({
                           white card, i.e. invisible, which is why the header ran into
                           the first data row. It is a real line now.
                           .text-caption gives every column header in the app the same
-                          treatment (11px, uppercase, 600, --ink-secondary) instead of
+                          treatment (11px, Title Case, 600, --ink-secondary) instead of
                           this page's own font-sans/font-medium/0.05em combination. */}
                       <tr style={{ borderBottom: '1px solid var(--line-strong)' }}>
                         {hdGroup.headers.map((header) => (
@@ -459,7 +459,7 @@ const Customtable = ({
                           style={{ borderBottom: '1px solid var(--line)' }}
                         >
                           <div 
-                            className="uppercase tracking-wider font-normal" 
+                            className="font-semibold" 
                             style={{ 
                               color: 'var(--regent-gray)',
                               fontSize: 'var(--fs-caption)'

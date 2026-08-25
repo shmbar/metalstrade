@@ -38,7 +38,7 @@ import { NameCell } from '../../../components/Avatar';
 // Expandable detail for a contract line: warehouse lots + shipments
 const DetailPanel = ({ lots = [], shipments = [] }) => {
   const fmt = (n) => new Intl.NumberFormat('en-US', { maximumFractionDigits: 3 }).format(Number(n) || 0);
-  const headSt = { border: 'none', textAlign: 'left', padding: '5px 12px', fontSize: 'var(--fs-caption)', background: 'var(--bg-subtle)', color: 'var(--regent-gray)', fontWeight: 500, letterSpacing: '0.04em' };
+  const headSt = { border: 'none', textAlign: 'left', padding: '5px 12px', fontSize: 'var(--fs-caption)', background: 'var(--bg-subtle)', color: 'var(--regent-gray)', fontWeight: 600 };
   const cellSt = { border: 'none', textAlign: 'left', padding: '5px 12px', fontSize: 'var(--fs-table)', color: 'var(--port-gore)', background: "var(--bg-card)" };
   const lotChip = (status) => {
     const s = (status || '').toLowerCase();
@@ -56,7 +56,7 @@ const DetailPanel = ({ lots = [], shipments = [] }) => {
         <div style={{ background: 'var(--bg-subtle)', color: 'var(--chathams-blue)', fontSize: 'var(--fs-table)', fontWeight: 600, padding: '5px 12px' }}>Lots in warehouse</div>
         {lots.length ? (
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-            <thead><tr><th style={headSt}>QUANTITY</th><th style={headSt}>STATUS</th><th style={headSt}>CONSIGNEE</th><th style={headSt}>SALES PO</th></tr></thead>
+            <thead><tr><th style={headSt}>Quantity</th><th style={headSt}>Status</th><th style={headSt}>Consignee</th><th style={headSt}>Sales PO</th></tr></thead>
             <tbody>
               {lots.map((l, i) => (
                 <tr key={i} style={{ borderTop: '1px solid var(--line)' }}>
@@ -75,7 +75,7 @@ const DetailPanel = ({ lots = [], shipments = [] }) => {
         <div style={{ background: 'var(--bg-subtle)', color: 'var(--chathams-blue)', fontSize: 'var(--fs-table)', fontWeight: 600, padding: '5px 12px' }}>Shipments</div>
         {shipments.length ? (
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-            <thead><tr>{['INVOICE', 'CONSIGNEE', 'PO CLIENT', 'DESTINATION', 'QTY'].map(h => <th key={h} style={headSt}>{h}</th>)}</tr></thead>
+            <thead><tr>{['Invoice', 'Consignee', 'PO Client', 'Destination', 'Qty'].map(h => <th key={h} style={headSt}>{h}</th>)}</tr></thead>
             <tbody>
               {shipments.map((s, i) => (
                 <tr key={i} style={{ borderTop: '1px solid var(--line)' }}>
@@ -633,7 +633,7 @@ const Customtable = ({
                           style={{ borderBottom: '1px solid var(--line)' }}
                         >
                           <div 
-                            className="uppercase tracking-wider font-normal" 
+                            className="font-semibold" 
                             style={{ 
                               color: 'var(--regent-gray)',
                               fontSize: 'var(--fs-caption)'
@@ -681,10 +681,10 @@ const Customtable = ({
                                 return (
                                   <div key={cell.id} className="flex justify-between items-center py-1.5 min-h-8">
                                     <span
-                                      className="responsiveTextTable font-medium uppercase pr-3"
+                                      className="responsiveTextTable font-semibold pr-3"
                                       style={{
                                         color: 'var(--regent-gray)',
-                                        letterSpacing: '0.05em'
+                                        letterSpacing: 0
                                       }}
                                     >
                                       {cell.column.columnDef.header}:

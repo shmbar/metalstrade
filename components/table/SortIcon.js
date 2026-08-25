@@ -1,4 +1,5 @@
 'use client';
+import { Fragment } from 'react';
 import { TbSortAscending, TbSortDescending } from 'react-icons/tb';
 import { ArrowUpDown } from 'lucide-react';
 
@@ -28,22 +29,59 @@ import { ArrowUpDown } from 'lucide-react';
  * the point: if the shared component only spoke TanStack, those two would have
  * stayed hand-written and drifted again, which is the whole problem being fixed.
  */
-export default function SortIcon({ column, direction, idle = false }) {
+/**
+ * The arrow takes NO layout width.
+ *
+ * Every centred header in the app is `inline-flex … justify-center gap-1` with
+ * the label and this icon inside, so flexbox centred the PAIR, not the label —
+ * the label sat half the arrow's width left of the cell's true centre. On the
+ * `idle` tables (contracts, invoices, special invoices) that happened on every
+ * column all the time, because the idle affordance is `opacity-0` until hover:
+ * invisible, but still 11px of arrow plus a 4px gap pushing every column title
+ * ~7px off centre. That is the "titles not in the centre of the cell" Zak
+ * reported. Elsewhere the same shift appeared the moment a column was sorted.
+ *
+ * So the icon is rendered inside a zero-width anchor: `w-0` removes its width,
+ * `-ml-1` cancels the parent's `gap-1` (both step 1, so they cancel exactly
+ * whatever that step measures), and the arrow itself is absolutely positioned —
+ * out of flow, so the gap does not apply to it either. Net layout contribution:
+ * nothing. The label is centred on the cell in every sort state, and the arrow
+ * still paints one gap to its right, exactly where it used to sit.
+ *
+ * `left-1` is that gap. `top-1/2 -translate-y-1/2` centres the arrow on the
+ * anchor, which is a zero-height box already vertically centred by the parent's
+ * `items-center`.
+ */
+const Anchored = ({ children }) => (
+    <span className="relative inline-block w-0 -ml-1 self-center" aria-hidden>
+        <span className="absolute left-1 top-1/2 -translate-y-1/2 flex items-center">
+            {children}
+        </span>
+    </span>
+);
+
+export default function SortIcon({ column, direction, idle = false, inline = false }) {
     const usingColumn = column !== undefined;
     if (usingColumn && !column?.getCanSort?.()) return null;
 
     const sorted = usingColumn ? column.getIsSorted() : direction;
     const active = { fontSize: 'var(--fs-title)', color: 'var(--brand)' };
+    /* `inline` opts back into taking width, for a header that has something AFTER
+       the arrow in the same flex row (materialtables' remove-column button). The
+       out-of-flow arrow would paint on top of it. */
+    const Slot = inline ? Fragment : Anchored;
 
-    if (sorted === 'asc') return <TbSortAscending className="shrink-0" style={active} />;
-    if (sorted === 'desc') return <TbSortDescending className="shrink-0" style={active} />;
+    if (sorted === 'asc') return <Slot><TbSortAscending className="shrink-0" style={active} /></Slot>;
+    if (sorted === 'desc') return <Slot><TbSortDescending className="shrink-0" style={active} /></Slot>;
 
     if (!idle) return null;
     return (
-        <ArrowUpDown
-            size={11}
-            className="shrink-0 opacity-0 group-hover/th:opacity-50 transition-opacity"
-            style={{ color: 'var(--ink-muted)' }}
-        />
+        <Slot>
+            <ArrowUpDown
+                size={11}
+                className="shrink-0 opacity-0 group-hover/th:opacity-50 transition-opacity"
+                style={{ color: 'var(--ink-muted)' }}
+            />
+        </Slot>
     );
 }

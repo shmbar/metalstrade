@@ -132,8 +132,7 @@ const Expenses = () => {
 
 
     let showAmount = (x) => {
-        const rawCur = (x.row.original.cur || '').toUpperCase();
-        const currency = rawCur === 'US' ? 'USD' : rawCur === 'EU' ? 'EUR' : (rawCur || 'USD');
+        const currency = curCode(x.row.original.cur) || 'USD';
         return new Intl.NumberFormat('en-US', {
             style: 'currency',
             currency,

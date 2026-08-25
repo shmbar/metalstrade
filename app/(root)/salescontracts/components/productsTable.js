@@ -34,8 +34,8 @@ const SalesProductsTable = ({ value, setValue }) => {
             <div className="border border-[var(--line)] rounded-lg overflow-x-auto">
                 <table className="table-fixed min-w-[640px] w-full divide-y divide-[var(--line)]">
                     <thead style={{ background: 'var(--bg-subtle)' }}>
-                        <tr className="responsiveTextTable font-medium text-[var(--chathams-blue)] text-left">
-                            <th className="w-8 px-1 py-1.5">#</th>
+                        <tr className="responsiveTextTable font-semibold text-[var(--chathams-blue)] text-left">
+                            <th className="w-8 px-1 py-1.5 text-center">#</th>
                             <th className="w-6/12 px-1 py-1.5">Description</th>
                             <th className="w-2/12 px-1 py-1.5">Quantity</th>
                             <th className="w-2/12 px-1 py-1.5">Unit Price</th>

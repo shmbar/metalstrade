@@ -580,7 +580,7 @@
 //                       return (
 //                         <div key={cell.id} className="flex flex-col space-y-1.5 pb-2.5 last:pb-0"
 //                           style={{ borderBottom: '1px solid var(--line)' }}>
-//                           <div className="uppercase tracking-wider font-normal"
+//                           <div className="font-semibold"
 //                             style={{ color: 'var(--ink-secondary)', fontSize: 'clamp(6px, 0.6vw, 7px)' }}>
 //                             {cell.column.columnDef.header}
 //                           </div>
@@ -1039,7 +1039,7 @@ const Customtable = ({
                           transform: 'translate(-50%, -50%)',
                           fontWeight: '500', color: 'var(--brand-strong)', whiteSpace: 'nowrap',
                         }}>
-                          USD
+                          $
                         </span>
                       )}
                       {amountColCenter !== null && (
@@ -1084,7 +1084,7 @@ const Customtable = ({
                           transform: 'translate(-50%, -50%)',
                           fontWeight: '500', color: 'var(--chathams-blue)', whiteSpace: 'nowrap',
                         }}>
-                          EUR
+                          €
                         </span>
                       )}
                       {amountColCenter !== null && (
@@ -1234,13 +1234,13 @@ const Customtable = ({
               <div className="flex items-center justify-between px-4 py-2"
                 style={{ backgroundColor: 'var(--violet-border)' }}>
                 <span className="responsiveTextTable" style={{ fontWeight: '400', color: 'var(--brand-strong)' }}>Total $:</span>
-                <span className="responsiveTextTable" style={{ fontWeight: '400', color: 'var(--brand-strong)' }}>USD</span>
+                <span className="responsiveTextTable" style={{ fontWeight: '400', color: 'var(--brand-strong)' }}>$</span>
                 <span className="responsiveTextTable" style={{ fontWeight: '400', color: 'var(--brand-strong)' }}>{summaryUSD.amount}</span>
               </div>
               <div className="flex items-center justify-between px-4 py-2"
                 style={{ backgroundColor: 'var(--bg-sunken)' }}>
                 <span className="responsiveTextTable" style={{ fontWeight: '400', color: 'var(--chathams-blue)' }}>Total €:</span>
-                <span className="responsiveTextTable" style={{ fontWeight: '400', color: 'var(--chathams-blue)' }}>EUR</span>
+                <span className="responsiveTextTable" style={{ fontWeight: '400', color: 'var(--chathams-blue)' }}>€</span>
                 <span className="responsiveTextTable" style={{ fontWeight: '400', color: 'var(--chathams-blue)' }}>{summaryEUR.amount}</span>
               </div>
             </div>
@@ -1286,7 +1286,7 @@ const Customtable = ({
                       return (
                         <div key={cell.id} className="flex flex-col space-y-1.5 pb-2.5 last:pb-0"
                           style={{ borderBottom: '1px solid var(--line)' }}>
-                          <div className="uppercase tracking-wider font-normal"
+                          <div className="font-semibold"
                             style={{ color: 'var(--regent-gray)', fontSize: 'var(--fs-caption)' }}>
                             {cell.column.columnDef.header}
                           </div>

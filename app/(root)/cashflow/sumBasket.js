@@ -128,7 +128,7 @@ export default function SumBasket({ items = [], onRemove, onClear }) {
             <div className="px-3 py-2.5 flex flex-col gap-1.5 bg-[var(--surface-card)]">
                 {hasUsd &&
                     <div className="flex items-center justify-between rounded-2xl px-2.5 py-1.5 bg-[var(--bg-subtle)] border border-[var(--line)]">
-                        <span className="flex items-center gap-1.5 responsiveTextTable font-semibold tracking-wide uppercase text-[var(--ink-muted)]">
+                        <span className="flex items-center gap-1.5 responsiveTextTable font-semibold text-[var(--ink-muted)]">
                             <span className="grid place-items-center w-4 h-4 rounded-full bg-[var(--brand)] text-[var(--on-brand)] responsiveTextTable font-bold leading-none">$</span>
                             {metricLabel[metric]}
                         </span>
@@ -139,7 +139,7 @@ export default function SumBasket({ items = [], onRemove, onClear }) {
                 }
                 {hasEur &&
                     <div className="flex items-center justify-between rounded-2xl px-2.5 py-1.5 bg-[var(--bg-subtle)] border border-[var(--line)]">
-                        <span className="flex items-center gap-1.5 responsiveTextTable font-semibold tracking-wide uppercase text-[var(--ink-muted)]">
+                        <span className="flex items-center gap-1.5 responsiveTextTable font-semibold text-[var(--ink-muted)]">
                             <span className="grid place-items-center w-4 h-4 rounded-full bg-[var(--brand-strong)] text-[var(--on-brand)] responsiveTextTable font-bold leading-none">€</span>
                             {metricLabel[metric]}
                         </span>

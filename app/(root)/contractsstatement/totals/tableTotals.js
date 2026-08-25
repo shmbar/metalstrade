@@ -140,7 +140,7 @@ const Customtable = ({ data, columns, expensesData, settings }) => {
                             <div className="p-4 space-y-2.5">
                                 {row.getVisibleCells().map(cell => (
                                     <div key={cell.id} className="flex flex-col space-y-1.5 pb-2.5 last:pb-0" style={{ borderBottom: '1px solid var(--line)' }}>
-                                        <div className="uppercase tracking-wider font-normal" style={{ color: 'var(--regent-gray)', fontSize: 'var(--fs-caption)' }}>
+                                        <div className="font-semibold" style={{ color: 'var(--regent-gray)', fontSize: 'var(--fs-caption)' }}>
                                             {cell.column.columnDef.header}
                                         </div>
                                         <div className="font-normal break-words px-1 py-1 leading-relaxed min-h-7 flex items-center" style={{ color: 'var(--ink)', fontSize: 'var(--fs-table)' }}>

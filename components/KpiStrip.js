@@ -43,8 +43,8 @@ export default function KpiStrip({ items = [], cols = 4 }) {
                         )}
                         <div className="min-w-0">
                             <div
-                                className="font-medium uppercase leading-tight text-[var(--ink-muted)] truncate"
-                                style={{ fontSize: 'var(--fs-table)', letterSpacing: '0.04em' }}
+                                className="font-semibold leading-tight text-[var(--ink-muted)] truncate"
+                                style={{ fontSize: 'var(--fs-table)' }}
                             >
                                 {label}
                             </div>

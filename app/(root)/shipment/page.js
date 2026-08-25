@@ -1234,7 +1234,7 @@ const ShipmentPage = () => {
                                         { label: 'Notes',         col: null       },
                                     ].map(({ label, col }) => (
                                         /* Everything about the header band — size, weight,
-                                           colour, uppercase, tracking, padding, alignment —
+                                           colour, case, tracking, padding, alignment —
                                            comes from .custom-table th in globals.css.
 
                                            Nothing here may restate it. This header used to
@@ -1283,7 +1283,7 @@ const ShipmentPage = () => {
                                                         {/* --fs-table, matching the header and the rows.
                                                             It was --fs-body, a rung above both, so the
                                                             group label was the largest text in the table. */}
-                                                        <span className='font-semibold' style={{ fontSize: 'var(--fs-table)', textTransform: 'uppercase', letterSpacing: '0.04em', color: 'var(--ink-secondary)' }}>
+                                                        <span className='font-semibold' style={{ fontSize: 'var(--fs-table)', color: 'var(--ink-secondary)' }}>
                                                             {entry.status || 'No status'}
                                                         </span>
                                                         <span className='rounded-full font-semibold px-1.5' style={{ fontSize: 'var(--fs-table)', background: "var(--bg-card)", color: 'var(--ink-muted)', border: '1px solid var(--line)' }}>
@@ -1476,7 +1476,7 @@ const ShipmentPage = () => {
                                             { label: 'Last Update',   value: relTime(contract.shipmentUpdatedAt) },
                                         ].map(({ label, value }) => (
                                             <div key={label} className="flex flex-col space-y-1 pb-2" style={{ borderBottom: '1px solid var(--bg-subtle)' }}>
-                                                <span className="responsiveTextTable uppercase tracking-wider text-[var(--regent-gray)] font-medium">{label}</span>
+                                                <span className="responsiveTextTable text-[var(--regent-gray)] font-semibold">{label}</span>
                                                 <div className="px-1 py-1 responsiveTextTable text-[var(--ink)]">
                                                     {value || '—'}
                                                 </div>
@@ -1485,7 +1485,7 @@ const ShipmentPage = () => {
 
                                         {/* Status */}
                                         <div className="flex flex-col space-y-1 pb-2" style={{ borderBottom: '1px solid var(--bg-subtle)' }}>
-                                            <span className="responsiveTextTable uppercase tracking-wider text-[var(--regent-gray)] font-medium">Status</span>
+                                            <span className="responsiveTextTable text-[var(--regent-gray)] font-semibold">Status</span>
                                             <StatusSelect
                                                 value={status}
                                                 onChange={s => handleStatusChange(contract, s)}
@@ -1494,7 +1494,7 @@ const ShipmentPage = () => {
 
                                         {/* Notes */}
                                         <div className="flex flex-col space-y-1">
-                                            <span className="responsiveTextTable uppercase tracking-wider text-[var(--regent-gray)] font-medium">Notes</span>
+                                            <span className="responsiveTextTable text-[var(--regent-gray)] font-semibold">Notes</span>
                                             <NotesCell
                                                 value={contract.shipmentNotes}
                                                 contractId={contract.id}

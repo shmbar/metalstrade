@@ -14,7 +14,7 @@ import { UserAuth } from "../../../contexts/useAuthContext";
 import { NumericFormat } from "react-number-format";
 import { MdDeleteOutline } from "react-icons/md";
 import { MdOutlineClose } from "react-icons/md";
-import { addComma, ClientDetails, clientToolTip, ExpensesToolTip, FinalSummaryBadge, getTotals, getTotalsSupPayments, runExpenses, runInvoices, runStocks, runSupPayments, SharedStockDetails, StocksUnSold, StoclToolTip, SupplierDetails, supplierToolTip } from "./funcs";
+import { addComma, ClientDetails, clientToolTip, entityName, ExpensesToolTip, FinalSummaryBadge, getTotals, getTotalsSupPayments, runExpenses, runInvoices, runStocks, runSupPayments, SharedStockDetails, StocksUnSold, StoclToolTip, SupplierDetails, supplierToolTip } from "./funcs";
 import Tltip from "../../../components/tlTip";
 import { FaSortAmountDown } from "react-icons/fa";
 import { FaSortAmountUpAlt } from "react-icons/fa";
@@ -124,14 +124,21 @@ const Cashflow = () => {
     const [financedRight, setFinancedRight] = useState([])
     const [totalRight, setTotalRight] = useState('')
 
+    // Party names for the section rows. entityName falls back past a missing
+    // short name and labels an id that no longer resolves, so no row can render
+    // as a nameless dot.
+    const supName = (id) => entityName(settings?.Supplier?.Supplier, id, 'supplier');
+    const cliName = (id) => entityName(settings?.Client?.Client, id, 'client');
+    const whName = (id) => entityName(settings?.Stocks?.Stocks, id, 'warehouse');
+
     /* Rows across all eight sections key off either x.client or x.supplier, so one
        resolver covers them. Returns the array untouched when the box is empty, so an
        unused search costs nothing. */
     const rowName = (x) =>
         x?.supplierName ||
-        settings?.Client?.Client?.find(z => z.id === x?.client)?.nname ||
-        settings?.Supplier?.Supplier?.find(z => z.id === x?.supplier)?.nname ||
-        settings?.Stocks?.Stocks?.find(z => z.id === x?.stock)?.nname || '';
+        (x?.client ? cliName(x.client) : '') ||
+        (x?.supplier ? supName(x.supplier) : '') ||
+        (x?.stock ? whName(x.stock) : '') || '';
     const byName = (arr) => {
         const t = nameQ.trim().toLowerCase();
         if (!t) return arr || [];
@@ -1109,7 +1116,9 @@ const Cashflow = () => {
         const stocksS = settings.Stocks?.Stocks || [];
         const clientsS = settings.Client?.Client || [];
         const suppliersS = settings.Supplier?.Supplier || [];
-        const nameOf = (arr, id) => arr.find(z => z.id === id)?.nname || '';
+        // Same labelling as the on-screen rows — an export row with a blank name
+        // and a real amount is worse than one that names what could not be resolved.
+        const nameOf = (arr, id) => entityName(arr, id, arr === stocksS ? 'warehouse' : arr === clientsS ? 'client' : 'supplier');
         const curOf = (cur) => cur === 'us' ? 'USD' : cur === 'eu' ? 'EUR' : (cur || '');
 
         if (activeTab === 'unsold') {
@@ -1351,8 +1360,8 @@ const Cashflow = () => {
                                                                     <div className="flex w-full justify-between">
                                                                         <div className="responsiveText items-center font-medium text-[var(--ink)] flex gap-1.5 outline-none whitespace-normal break-words min-w-0"
                                                                         >
-                                                                            <Avatar name={settings.Stocks.Stocks.find(z => z.id === x.stock)?.nname} size={18} />
-                                                                            {settings.Stocks.Stocks.find(z => z.id === x.stock)?.nname}
+                                                                            <Avatar name={whName(x.stock)} size={18} />
+                                                                            {whName(x.stock)}
                                                                         </div>
 
                                                                         <div className="leading-4 2xl:leading-6">
@@ -1413,8 +1422,8 @@ const Cashflow = () => {
                                                                     <div className="flex w-full justify-between">
                                                                         <div className="responsiveText font-medium text-[var(--ink)] items-center flex gap-1.5 outline-none whitespace-normal break-words min-w-0"
                                                                         >
-                                                                            <Avatar name={settings.Stocks.Stocks.find(z => z.id === x.stock)?.nname} size={18} />
-                                                                            {settings.Stocks.Stocks.find(z => z.id === x.stock)?.nname}
+                                                                            <Avatar name={whName(x.stock)} size={18} />
+                                                                            {whName(x.stock)}
                                                                         </div>
 
                                                                         <div className="leading-4 2xl:leading-6">
@@ -1504,8 +1513,8 @@ const Cashflow = () => {
                                                                     <div className="flex w-full justify-between">
                                                                         <div className="flex items-center gap-1.5 min-w-0">
                                                                             <div className="responsiveText text-[var(--ink)] font-medium items-center flex gap-1.5 outline-none whitespace-normal break-words min-w-0">
-                                                                                <Avatar name={settings.Client.Client.find(z => z.id === x.client)?.nname} size={18} />
-                                                                                {settings.Client.Client.find(z => z.id === x.client)?.nname}
+                                                                                <Avatar name={cliName(x.client)} size={18} />
+                                                                                {cliName(x.client)}
                                                                             </div>
                                                                             <FinalSummaryBadge finalized={x._finCount} total={x._finTotal} />
                                                                         </div>
@@ -1561,8 +1570,8 @@ const Cashflow = () => {
                                                                     <div className="flex w-full justify-between">
                                                                         <div className="flex items-center gap-1.5 min-w-0">
                                                                             <div className="responsiveText font-medium text-[var(--ink)] items-center flex gap-1.5 outline-none whitespace-normal break-words min-w-0">
-                                                                                <Avatar name={settings.Client.Client.find(z => z.id === x.client)?.nname} size={18} />
-                                                                                {settings.Client.Client.find(z => z.id === x.client)?.nname}
+                                                                                <Avatar name={cliName(x.client)} size={18} />
+                                                                                {cliName(x.client)}
                                                                             </div>
                                                                             <FinalSummaryBadge finalized={x._finCount} total={x._finTotal} />
                                                                         </div>
@@ -1679,8 +1688,8 @@ const Cashflow = () => {
                                                                     <div className="flex w-full justify-between leading-4 2xl:leading-6">
                                                                         <div className="flex items-center gap-1.5 w-full min-w-0">
                                                                             <span className="responsiveText font-medium text-[var(--ink)] items-center flex gap-1.5 outline-none whitespace-normal break-words min-w-0">
-                                                                                <Avatar name={settings.Supplier.Supplier.find(z => z.id === x.supplier)?.nname} size={18} />
-                                                                                {settings.Supplier.Supplier.find(z => z.id === x.supplier)?.nname}
+                                                                                <Avatar name={supName(x.supplier)} size={18} />
+                                                                                {supName(x.supplier)}
                                                                             </span>
                                                                             <FinalSummaryBadge finalized={x._finCount} total={x._finTotal} />
                                                                         </div>
@@ -1739,8 +1748,8 @@ const Cashflow = () => {
                                                                     <div className="flex w-full justify-between leading-4 2xl:leading-6">
                                                                         <div className="flex items-center gap-1.5 w-full min-w-0">
                                                                             <span className="responsiveText items-center font-medium text-[var(--ink)] flex gap-1.5 outline-none whitespace-normal break-words min-w-0">
-                                                                                <Avatar name={settings.Supplier.Supplier.find(z => z.id === x.supplier)?.nname} size={18} />
-                                                                                {settings.Supplier.Supplier.find(z => z.id === x.supplier)?.nname}
+                                                                                <Avatar name={supName(x.supplier)} size={18} />
+                                                                                {supName(x.supplier)}
                                                                             </span>
                                                                             <FinalSummaryBadge finalized={x._finCount} total={x._finTotal} />
                                                                         </div>
@@ -1795,8 +1804,8 @@ const Cashflow = () => {
                                                                 <MyAccordion title={
                                                                     <div className="flex justify-between leading-4 2xl:leading-6 w-full">
                                                                         <div className="responsiveText font-medium text-[var(--ink)] items-center flex gap-1.5 outline-none whitespace-normal break-words min-w-0">
-                                                                            <Avatar name={settings.Supplier.Supplier.find(z => z.id === x.supplier)?.nname} size={18} />
-                                                                            {settings.Supplier.Supplier.find(z => z.id === x.supplier)?.nname}
+                                                                            <Avatar name={supName(x.supplier)} size={18} />
+                                                                            {supName(x.supplier)}
                                                                         </div>
 
                                                                         <div className="items-center flex">

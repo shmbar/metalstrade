@@ -163,7 +163,7 @@ const cellTh = {
   color: 'var(--chathams-blue)',
   padding: '6px 10px',
   borderBottom: '1px solid var(--line)',
-  fontWeight: 500,
+  fontWeight: 600,
   textAlign: 'left',
   whiteSpace: 'nowrap',
 }
@@ -323,8 +323,8 @@ const StockAudit = ({ isOpen, setIsOpen, stockData, settings, onDataChanged }) =
                     </th>
                     <th style={cellTh}>Description</th>
                     <th style={cellTh}>Warehouse</th>
-                    <th style={cellTh}>IN</th>
-                    <th style={cellTh}>OUT</th>
+                    <th style={cellTh}>In</th>
+                    <th style={cellTh}>Out</th>
                     <th style={cellTh}>Net left</th>
                     <th style={cellTh}>Unit price</th>
                     <th style={cellTh}>Est. value</th>

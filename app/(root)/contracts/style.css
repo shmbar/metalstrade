@@ -59,8 +59,11 @@
       */
       content: attr(data-label);
       float: left;
-      font-weight: bold;
-      text-transform: uppercase;
+      /* 600, the app's label weight — `bold` is 700 here, because this is raw CSS
+         and the Tailwind remap of font-bold does not reach it. */
+      font-weight: 600;
+      /* This IS the column title, moved beside its value on a phone, so it takes
+         the same Title Case the header band above it now takes. */
     }
 
     table td:last-child {

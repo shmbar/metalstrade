@@ -203,7 +203,7 @@ const Customtable = ({ data, columns, expensesData, settings, title, filt, headi
                             <div key={row.id} className="bg-[var(--bg-card)] border border-[var(--selago)] rounded-lg p-3 shadow-sm hover:shadow-md transition-shadow">
                                 {row.getVisibleCells().map(cell => (
                                     <div key={cell.id} className="flex justify-between items-start py-2 border-b border-[var(--selago)] last:border-b-0">
-                                        <span className="responsiveTextTable font-medium uppercase w-2/5 flex-shrink-0" style={{color:'var(--chathams-blue)'}}>
+                                        <span className="responsiveTextTable font-semibold w-2/5 flex-shrink-0" style={{color:'var(--chathams-blue)'}}>
                                             {cell.column.columnDef.header}
                                         </span>
                                         <Tltip direction='left' tltpText={expensesToolTip(row, expensesData, settings, filt)}>
@@ -219,7 +219,7 @@ const Customtable = ({ data, columns, expensesData, settings, title, filt, headi
                         {/* Mobile Totals */}
                         <div className="rounded-lg p-4 mt-4 space-y-3 glass-table" style={{background:'var(--selago)', border: '1px solid var(--selago)'}}>
                             <div className="flex justify-between items-center">
-                                <span className="responsiveTextTable font-medium uppercase" style={{color:'var(--chathams-blue)'}}>Total $</span>
+                                <span className="responsiveTextTable font-semibold" style={{color:'var(--chathams-blue)'}}>Total $</span>
                                 <span className="responsiveTextTable font-medium" style={{color:'var(--chathams-blue)'}}>
                                     {showAmount(
                                         data.filter(item => item.cur === "us").reduce((sum, item) => sum * 1 + item.total * 1, 0),
@@ -228,7 +228,7 @@ const Customtable = ({ data, columns, expensesData, settings, title, filt, headi
                                 </span>
                             </div>
                             <div className="flex justify-between items-center border-t border-[var(--selago)] pt-3">
-                                <span className="responsiveTextTable font-medium uppercase" style={{color:'var(--chathams-blue)'}}>Total €</span>
+                                <span className="responsiveTextTable font-semibold" style={{color:'var(--chathams-blue)'}}>Total €</span>
                                 <span className="responsiveTextTable font-medium" style={{color:'var(--chathams-blue)'}}>
                                     {showAmount(
                                         data.filter(item => item.cur === "eu").reduce((sum, item) => sum + item.total, 0),

@@ -11,6 +11,9 @@ import { Tab, TabPanel, TabGroup, TabList, TabPanels } from '@headlessui/react'
 import Fenicr from './tabs/fenicr';
 import SupperAlloys from './tabs/supperalloys';
 import Stainless from './tabs/stainless';
+/* Same label band as the cards below — the toolbar sits above them, so it
+   cannot be shouting while they are not. */
+import { labelCls } from './tabs/parts';
 import { Button } from '../../../components/ui/button';
 import { getCur } from '../../../components/exchangeApi';
 import dateFormat from "dateformat";
@@ -109,7 +112,7 @@ const Page = () => {
 
 	const SetDiv = (x) => {
 		if (x === 0) {
-			return <Fenicr value={value} handleChange={handleChange} focusedField={focusedField} setFocusedField={setFocusedField} addComma={addComma} />
+			return <Fenicr value={value} handleChange={handleChange} />
 		} else if (x === 1) {
 			return <SupperAlloys value={value} handleChange={handleChange} />
 		} else if (x === 2) {
@@ -159,11 +162,11 @@ const Page = () => {
 										<div className='bg-[var(--bg-card)] rounded-2xl border border-[var(--line)] shadow-card p-4 mb-3'>
 											<div className='grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 items-end'>
 												<div className='min-w-0'>
-													<p className='responsiveTextTable font-semibold uppercase tracking-[0.04em] text-[var(--ink-muted)] mb-1.5'>Ni LME ($/MT)</p>
+													<p className={`${labelCls} mb-1.5`}>Ni LME ($/MT)</p>
 													<div className='relative'>
 														<input
 															type='text'
-															className='w-full h-8 rounded-control border border-[var(--line-strong)] bg-[var(--bg-card)] pl-2.5 pr-8 responsiveTextTitle font-semibold tabular-nums text-[var(--ink)] focus:outline-none focus:border-[var(--brand)] focus:ring-[3px] focus:ring-[var(--brand-soft)] transition-colors'
+															className='w-full h-8 rounded-control border border-[var(--line-strong)] bg-[var(--bg-card)] pl-2.5 pr-8 responsiveTextTitle font-medium tabular-nums text-[var(--ink)] focus:outline-none focus:border-[var(--brand)] focus:ring-[3px] focus:ring-[var(--brand-soft)] transition-colors'
 															name='nilme'
 															onChange={(e) => handleChange(e, 'general')}
 															value={focusedField === 'nilme' ? value.general?.nilme || '' : addComma(value.general?.nilme || '0')}
@@ -181,10 +184,10 @@ const Page = () => {
 												</div>
 
 												<div className='min-w-0'>
-													<p className='responsiveTextTable font-semibold uppercase tracking-[0.04em] text-[var(--ink-muted)] mb-1.5'>Mo Oxide ($/lb)</p>
+													<p className={`${labelCls} mb-1.5`}>Mo Oxide ($/lb)</p>
 													<input
 														type='text'
-														className='w-full h-8 rounded-control border border-[var(--line-strong)] bg-[var(--bg-card)] px-2.5 responsiveTextTitle font-semibold tabular-nums text-[var(--ink)] focus:outline-none focus:border-[var(--brand)] focus:ring-[3px] focus:ring-[var(--brand-soft)] transition-colors'
+														className='w-full h-8 rounded-control border border-[var(--line-strong)] bg-[var(--bg-card)] px-2.5 responsiveTextTitle font-medium tabular-nums text-[var(--ink)] focus:outline-none focus:border-[var(--brand)] focus:ring-[3px] focus:ring-[var(--brand-soft)] transition-colors'
 														value={focusedField === 'MoOxideLb' ? value.general?.MoOxideLb || '' : addComma(value.general?.MoOxideLb || '0')}
 														name='MoOxideLb'
 														onChange={(e) => handleChange(e, 'general')}
@@ -194,10 +197,10 @@ const Page = () => {
 												</div>
 
 												<div className='min-w-0'>
-													<p className='responsiveTextTable font-semibold uppercase tracking-[0.04em] text-[var(--ink-muted)] mb-1.5'>Charge Cr ($/lb)</p>
+													<p className={`${labelCls} mb-1.5`}>Charge Cr ($/lb)</p>
 													<input
 														type='text'
-														className='w-full h-8 rounded-control border border-[var(--line-strong)] bg-[var(--bg-card)] px-2.5 responsiveTextTitle font-semibold tabular-nums text-[var(--ink)] focus:outline-none focus:border-[var(--brand)] focus:ring-[3px] focus:ring-[var(--brand-soft)] transition-colors'
+														className='w-full h-8 rounded-control border border-[var(--line-strong)] bg-[var(--bg-card)] px-2.5 responsiveTextTitle font-medium tabular-nums text-[var(--ink)] focus:outline-none focus:border-[var(--brand)] focus:ring-[3px] focus:ring-[var(--brand-soft)] transition-colors'
 														name='chargeCrLb'
 														onChange={(e) => handleChange(e, 'general')}
 														value={focusedField === 'chargeCrLb' ? value.general?.chargeCrLb || '' : addComma(value.general?.chargeCrLb || '0')}
@@ -207,10 +210,10 @@ const Page = () => {
 												</div>
 
 												<div className='min-w-0'>
-													<p className='responsiveTextTable font-semibold uppercase tracking-[0.04em] text-[var(--ink-muted)] mb-1.5'>1 MT (lb)</p>
+													<p className={`${labelCls} mb-1.5`}>1 MT (lb)</p>
 													<input
 														type='text'
-														className='w-full h-8 rounded-control border border-[var(--line-strong)] bg-[var(--bg-card)] px-2.5 responsiveTextTitle font-semibold tabular-nums text-[var(--ink)] focus:outline-none focus:border-[var(--brand)] focus:ring-[3px] focus:ring-[var(--brand-soft)] transition-colors'
+														className='w-full h-8 rounded-control border border-[var(--line-strong)] bg-[var(--bg-card)] px-2.5 responsiveTextTitle font-medium tabular-nums text-[var(--ink)] focus:outline-none focus:border-[var(--brand)] focus:ring-[3px] focus:ring-[var(--brand-soft)] transition-colors'
 														/* The ' Lb' suffix used to be concatenated into the VALUE of this
 														   editable input, so typing wrote "2204.62 Lb" straight back into
 														   state. The unit lives in the label now. */
@@ -221,10 +224,10 @@ const Page = () => {
 												</div>
 
 												<div className='min-w-0'>
-													<p className='responsiveTextTable font-semibold uppercase tracking-[0.04em] text-[var(--ink-muted)] mb-1.5'>EUR / USD</p>
+													<p className={`${labelCls} mb-1.5`}>EUR / USD</p>
 													<input
 														type='text'
-														className='w-full h-8 rounded-control border border-[var(--line-strong)] bg-[var(--bg-card)] px-2.5 responsiveTextTitle font-semibold tabular-nums text-[var(--ink)] focus:outline-none focus:border-[var(--brand)] focus:ring-[3px] focus:ring-[var(--brand-soft)] transition-colors'
+														className='w-full h-8 rounded-control border border-[var(--line-strong)] bg-[var(--bg-card)] px-2.5 responsiveTextTitle font-medium tabular-nums text-[var(--ink)] focus:outline-none focus:border-[var(--brand)] focus:ring-[3px] focus:ring-[var(--brand-soft)] transition-colors'
 														value={focusedField === 'euroRate'
 															? (value.general?.euroRate ?? '')
 															: Number(value.general?.euroRate || 0).toFixed(2)}

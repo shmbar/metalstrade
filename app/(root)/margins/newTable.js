@@ -505,7 +505,7 @@ const Customtable = (props) => {
     width: (COLUMN_CONFIGS[header.column.id] || {}).w || 'auto',
   }}
   className={cn(
-    /* Background, border, uppercase, tracking, size and weight all come from
+    /* Background, border, case, tracking, size and weight all come from
        .custom-table th now — only the corner rounding is local. */
     idx === 0 ? 'rounded-tl-lg' : '',
     idx === arr.length - 1 ? 'rounded-tr-lg' : ''
