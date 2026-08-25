@@ -108,19 +108,32 @@ const useContractsState = (props) => {
                 return false;
             }
 
-            let indx = contractsData.findIndex((x) => x.id === valueCon.id); //new or existing
+            let indx = contractsData.findIndex((x) => x.id === valueCon.id);
+            // New vs existing is decided by the record's OWN id — a blank id is the
+            // only thing that means "new" (see newContract above). It must NOT be
+            // decided by membership of contractsData: that list is filled in only by
+            // the pages that LIST contracts, so opening this same modal from Cashflow
+            // (clicking a PO#) leaves it empty, and every existing contract saved from
+            // there took the "new object" branch below and was written under a fresh
+            // uuid. The result was a second document carrying the same PO number and
+            // the same purchase invoices, diverging from the original with each edit —
+            // which is how one invoice came to sit on two rows of the supplier balances.
+            const isExisting = !!valueCon.id;
             let tmpValue = {}
 
             let tmpEuToUs = await getCur(valueCon.dateRange.startDate)
 
 
-            if (indx !== -1) { //update
+            if (isExisting) { //update
                 tmpValue = {
                     ...valueCon, lstSaved: dateFormat(new Date(), "dd-mmm-yyyy, HH:MM"),
                     euroToUSD: tmpEuToUs
                 }
-                const tmpArr = contractsData.map((k) => (k.id === valueCon.id ? tmpValue : k));
-                setContractsData(tmpArr)
+                // Only the listing pages hold a list to keep in sync; from Cashflow
+                // there is none, and appending would fake a row the page never loaded.
+                if (indx !== -1) {
+                    setContractsData(contractsData.map((k) => (k.id === valueCon.id ? tmpValue : k)))
+                }
 
                 //update order number in invoices
                 let invcs = valueCon.invoices;
@@ -129,12 +142,18 @@ const useContractsState = (props) => {
                 let exps = valueCon.expenses;
                 await updatePoSupplierExp(uidCollection, valueCon, exps)
 
-                //check if a date was changed
-                if (dateYr !== valueCon.dateRange.startDate.substring(0, 4) && dateYr != null) {
-                    let dateTmp = { startDate: dateYr }
-                    let valueConTmp = ({ id: valueCon.id, date: dateTmp })
-                    await delDoc(uidCollection, 'contracts', valueConTmp)
-
+                // Date moved to another year → the document is written into that
+                // year's collection, so the copy in the old year's collection has to
+                // go or the contract exists twice. Compare against the year this
+                // record was LOADED with (dateYr is merely the year being viewed, so
+                // it said "unchanged" for exactly the edits that moved a contract into
+                // the viewed year), and pass the year as the string delDoc parses —
+                // it was being handed an object, so the delete threw and silently
+                // never ran.
+                const prevYear = contractsData[indx]?.dateRange?.startDate?.substring(0, 4) || dateYr;
+                const newYear = valueCon.dateRange.startDate.substring(0, 4);
+                if (prevYear && newYear && prevYear !== newYear) {
+                    await delDoc(uidCollection, 'contracts', { id: valueCon.id, date: prevYear })
                 }
 
             } else { //new object

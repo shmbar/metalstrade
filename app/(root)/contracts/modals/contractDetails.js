@@ -10,7 +10,7 @@ import Remarks from './remarksSelection.js'
 import PriceRemarks from './priceRemarks.js'
 import { usePathname } from 'next/navigation';
 import ModalToDelete from '@components/modalToProceed';
-import { validate, ErrDiv, reOrderTableCon, getD, sortArr, saveDatatoServer, loadStockData, saveStockIn, loadInvoice, loadDataSettings, saveMultipleData, setNewInvoiceNum } from '@utils/utils'
+import { validate, ErrDiv, reOrderTableCon, getD, sortArr, saveDatatoServer, loadStockData, saveStockIn, loadInvoice, loadData, loadDataSettings, saveMultipleData, setNewInvoiceNum } from '@utils/utils'
 import { UserAuth } from "@contexts/useAuthContext";
 import FilesModal from './filesModal.js'
 import PoInvModal from './poInvModal.js'
@@ -177,6 +177,25 @@ const ContractModal = () => {
 		}))
 	}
 
+	// The counterparty's supplier id inside the OTHER account. These constants are
+	// what this copy has always stamped, but an id only means something in the
+	// account that holds it — when the target's supplier list has no record with
+	// this id, the copied contract arrives belonging to nobody and its balances
+	// pile up in Cashflow under a nameless row. So look the counterparty up in the
+	// target's own settings and keep the constant only as the fallback.
+	const counterpartSupplierId = async (targetUid) => {
+		const fallback = gisAccount ? 'f891ad09-aa67-4ba4-83f0-abe7040e0dd2' : '0dfe23d3-3199-4556-a178-07ad52529e37';
+		const name = gisAccount ? 'gis' : 'ims';
+		try {
+			const list = (await loadDataSettings(targetUid, 'settings'))?.Supplier?.Supplier || [];
+			if (list.some(z => z?.id === fallback)) return fallback;
+			const hit = list.find(z => `${z?.nname || ''} ${z?.supplier || ''}`.toLowerCase().includes(name));
+			return hit?.id || fallback;
+		} catch {
+			return fallback;
+		}
+	};
+
 	const CopyIMSGIS = async () => {
 
 		const now = new Date();
@@ -218,6 +237,12 @@ const ContractModal = () => {
 		);
 
 
+		// One purchase-invoice line per invoice NUMBER. A source contract that
+		// carries the same invoice twice (a re-import, or a stale duplicate of the
+		// contract itself) otherwise copies both lines across and doubles the
+		// counterparty's balance in the target account — the same guard the PDF
+		// import and the mirror pull already apply before adding a line.
+		const seenInvNo = new Set();
 		const poInvoices = valueCon.invoices.map((invoice, indx) => ({
 			blnc: indvData[indx]?.balanceDue || indvData[indx]?.totalAmount,
 			id: indvData[indx]?.id || '',
@@ -225,11 +250,17 @@ const ContractModal = () => {
 			invRef: [],
 			invValue: indvData[indx]?.totalAmount || 0,
 			payments: [],
-		}));
+		})).filter(p => {
+			const key = String(p.inv || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+			if (!key) return true;               // unnumbered line — nothing to match on
+			if (seenInvNo.has(key)) return false;
+			seenInvNo.add(key);
+			return true;
+		});
 
 		const newCon = {
 			...valueCon,
-			'supplier': gisAccount ? "f891ad09-aa67-4ba4-83f0-abe7040e0dd2" : '0dfe23d3-3199-4556-a178-07ad52529e37',
+			'supplier': await counterpartSupplierId(uid),
 			'order': gisAccount ? valueCon.order?.replace("-", "") : valueCon.order?.slice(0, -2) + "-" + valueCon.order?.slice(-2),
 			'poInvoices': poInvoices.length ? poInvoices : [], 'expenses': [], lstSaved: formatted,
 			invoices: invoices1,
@@ -248,6 +279,26 @@ const ContractModal = () => {
 		}));
 
 	
+		// Refuse to open a SECOND contract in the target account for a PO it already
+		// holds. Re-copying the same contract is fine — it keeps its id and lands on
+		// the same document — but when this side has the PO twice (a duplicated
+		// contract), copying each one puts two contracts over there, both feeding
+		// their purchase invoices into the counterparty's balances. Nothing is
+		// written before this check.
+		const copyYr = newCon.dateRange?.startDate?.substring(0, 4);
+		if (copyYr) {
+			const norm = (s) => String(s || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+			const already = (await loadData(uid, 'contracts', { start: `${copyYr}-01-01`, end: `${copyYr}-12-31` }) || [])
+				.find(c => c?.id !== newCon.id && norm(c?.order) === norm(newCon.order));
+			if (already) {
+				setToast({
+					show: true, clr: 'fail',
+					text: `${gisAccount ? 'IMS' : 'GIS'} already has PO ${newCon.order} as a different contract — copy cancelled so it isn't recorded twice`,
+				});
+				return;
+			}
+		}
+
 		let success = await saveDatatoServer(uid, 'contracts', newCon)
 		await saveMultipleData(uid, 'invoices', indvData)
 		await setNewInvoiceNum(uid)
@@ -258,7 +309,7 @@ const ContractModal = () => {
 
 		stockData = stockData.map(x => ({
 			...x, client: '', poInvoice: '', poInvoices: [], status: '',
-			'supplier': gisAccount ? "f891ad09-aa67-4ba4-83f0-abe7040e0dd2" : '0dfe23d3-3199-4556-a178-07ad52529e37',
+			'supplier': newCon.supplier,   // same party the copied contract landed under
 			salesPo: '', spInv: false
 		}))
 
