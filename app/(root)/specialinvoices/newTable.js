@@ -195,15 +195,23 @@ const Customtable = ({
                     color: var(--brand-strong);
                     font-weight: 500;
                 }
-                /* Only the horizontal rule is suppressed — the two bands read as one
-                   block, separated by tint. A blanket "border: none" also killed the
-                   column dividers the global grid draws (the :where(thead th) rules in
-                   globals.css), which is what left this table's summary band without
-                   the vertical rules every other page has. */
+                /* Both rules the global grid draws on a <th> are suppressed here — the
+                   horizontal one so the two bands read as one block separated by tint,
+                   and the vertical column dividers so each band shows as a single clean
+                   run of colour.
+
+                   A totals band is not part of the grid. It is one figure with a label,
+                   laid over the columns rather than divided by them, and the dividers
+                   cut it into thirteen empty boxes with text in three of them. This
+                   matches /expenses, which gets the same look structurally: there the
+                   band is one <td colSpan> with border:none, so there are no cell edges
+                   to draw at all. Reversing an earlier call that restored the verticals
+                   for consistency with the rows below — client revision 2026-08-25. */
                 .summary-usd-si th {
                     background-color: var(--violet-border) !important;
                     color: var(--brand-strong) !important;
                     border-bottom: 0 !important;
+                    border-right: 0 !important;
                 }
 
                 .summary-eur-si {
@@ -215,6 +223,7 @@ const Customtable = ({
                     background-color: var(--bg-sunken) !important;
                     color: var(--ink) !important;
                     border-bottom: 0 !important;
+                    border-right: 0 !important;
                 }
             `}</style>
 

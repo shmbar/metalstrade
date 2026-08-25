@@ -175,14 +175,22 @@ const Customtable = ({
           color: var(--brand-strong);
           font-weight: 500;
         }
-        /* Only the horizontal rule is suppressed, so the two totals bands read as
-           one block. A blanket "border: none" also removed the column dividers the
-           global grid draws (the :where(thead th) rules in globals.css), which left
-           these two rows as the only ones in the table without them. */
+        /* Both rules the global grid draws on a <th> are suppressed here — the
+           horizontal one so the two bands read as one block, and the vertical
+           column dividers so each band shows as a single clean run of tint.
+
+           A totals band is not part of the grid. It is one figure with a label,
+           laid over the columns rather than divided by them, and the dividers cut
+           it into eleven empty boxes with text in two of them. This matches
+           /expenses, which gets the same look structurally: there the band is one
+           <td colSpan> with border:none, so there are no cell edges to draw in the
+           first place. Reversing an earlier call that kept the verticals for
+           consistency with the rows below — client revision 2026-08-25. */
         .summary-usd th {
           background-color: var(--violet-border) !important;
           color: var(--brand-strong) !important;
           border-bottom: 0 !important;
+          border-right: 0 !important;
         }
 
         .summary-eur {
@@ -194,6 +202,7 @@ const Customtable = ({
           background-color: var(--bg-sunken) !important;
           color: var(--ink) !important;
           border-bottom: 0 !important;
+          border-right: 0 !important;
         }
 
         .pagination-center {
