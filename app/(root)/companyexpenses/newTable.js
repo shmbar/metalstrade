@@ -260,7 +260,10 @@ const Customtable = ({
     borderSpacing: 0
   }}
 >
-                   <thead>
+                   {/* sticky: the whole <thead> pins — both total bands and the column
+                       labels — against the maxHeight box above, the only scrolling
+                       ancestor of this table. */}
+                   <thead className="sticky top-0 z-sticky">
               {table.getHeaderGroups().map(hdGroup => (
                 <Fragment key={hdGroup.id + '-totals'}>
                   <tr className="summary-usd">
@@ -279,7 +282,7 @@ const Customtable = ({
                   <tr className="summary-eur">
                     {hdGroup.headers.map(header => (
                       <th key={header.id} className="py-1.5">
-                        {header.id === 'supplier' ? 'Total —:' :
+                        {header.id === 'supplier' ? 'Total €:' :
                           header.id === 'cur' ? 'EUR' :
                             header.id === 'amount' ? new Intl.NumberFormat('en-US', { style: 'currency', currency: 'EUR', minimumFractionDigits: 2 }).format(
                               table.getFilteredRowModel().rows.reduce((sum, row) => {

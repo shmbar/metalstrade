@@ -996,7 +996,12 @@ const Customtable = ({
                 className="w-full"
                 style={{ tableLayout: 'auto', borderCollapse: 'collapse' }}
               >
-                <thead>
+                {/* sticky: the whole <thead> pins, not just the column labels — the
+                    two total bands are the first thing you check a figure against, so
+                    they stay in view with the header they sit above. It sticks to the
+                    maxHeight box that wraps this table, which is the only scrolling
+                    ancestor here. */}
+                <thead className="sticky top-0 z-sticky">
                   {/* Total $ band. Was --ok-border green over a --line-strong grey.
                       The green carried no meaning here — a totals row is structure,
                       not a status — and it was the only surface on the page outside

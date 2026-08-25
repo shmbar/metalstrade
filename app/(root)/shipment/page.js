@@ -882,6 +882,21 @@ const ShipmentPage = () => {
             ];
         });
 
+    /* The table's own scroll box, same as every other main table in the app.
+       This page had none: the table ran at its natural height and the page itself
+       scrolled, so a sticky header had nothing to stick to — it would have pinned
+       to the layout's scroller and slid under the fixed MainNav. With a box of its
+       own the header pins to the box, the toolbar and pagination footer stay put
+       either side of it, and the horizontal scroll the auto layout relies on lives
+       on the same element.
+
+       44 per row, not 40: a row here carries a Notes <textarea>, and grouping adds
+       section header rows to the same list, which is why this measures displayRows
+       rather than the page slice. */
+    const dynamicMaxHeight = displayRows.length > 0
+        ? `${Math.min(displayRows.length * 44 + 120, 700)}px`
+        : '320px';
+
     const getPageNumbers = () => {
         const pages = [];
         const maxVisible = 5;
@@ -1180,8 +1195,16 @@ const ShipmentPage = () => {
                     )}
 
                     {/* Table — Desktop */}
-                    <div className="custom-table hidden md:block flex-1 overflow-x-auto">
-                    <div>
+                    <div className="custom-table hidden md:block flex-1">
+                    {/* overflow-auto, not overflow-x-auto, and the maxHeight with it.
+                        overflow-x alone still made this a scroll container (a non-visible
+                        overflow on one axis forces the other to `auto`), but one that
+                        never scrolled vertically — so it swallowed the sticky header
+                        while the page scrolled behind it. */}
+                    <div
+                        className="overflow-auto dashboard-scroll"
+                        style={{ maxHeight: dynamicMaxHeight }}
+                    >
                         {/* tableLayout: auto, like every other main table in the app.
                             This was `fixed` with a hardcoded percentage per column and a
                             1300px floor, so each column got its share whether it needed it
@@ -1194,7 +1217,7 @@ const ShipmentPage = () => {
                             here: it is a <textarea>, so it wraps rather than growing, and
                             its own min-w-[160px] is its floor. */}
                         <table className="w-full" style={{ tableLayout: 'auto' }}>
-                            <thead>
+                            <thead className="sticky top-0 z-sticky">
                                 <tr>
                                     {[
                                         { label: 'Contract #',    col: 'order'    },

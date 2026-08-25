@@ -254,7 +254,15 @@ const Customtable = ({
       maxHeight: dynamicMaxHeight,
     }}
   >
-                        <div className="overflow-x-auto dashboard-scroll">
+                            {/* No scroll container of its own at this level. An
+                                `overflow-x-auto` wrapper div used to sit here, and
+                                because a non-visible overflow-x forces overflow-y to
+                                compute to `auto`, that div became the nearest scrolling
+                                ancestor of the <thead> below. The header stuck to the top
+                                of a box that never scrolls, so it scrolled away with the
+                                rows even though it was marked sticky. The scroll box is
+                                the maxHeight div above; the header sticks to that, and
+                                that box already scrolls both axes. */}
                             <table className="w-full custom-table" style={{ tableLayout: 'auto' }}>
 
                                 {/* THEAD */}
@@ -472,7 +480,6 @@ const Customtable = ({
 </tbody>
 
                             </table>
-                        </div>
                         </div>
                     </div>
 
