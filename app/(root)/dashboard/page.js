@@ -416,56 +416,142 @@ const fmtPct = (p) => {
   return `${p.toFixed(p < 10 ? 1 : 0)}%`;
 };
 
+/* 12-month trend for one ranking tile. Inline SVG — no library, no canvas; there are up
+   to 17 of these on screen and each is 12 points.
+   The series is trimmed to the last month with data ACROSS the card, not per tile, so
+   every sparkline in a card shares one x-domain and their shapes are comparable. Without
+   that trim each line would dive to zero at December of a year still in progress — a
+   cliff that is an artefact of the calendar, not of the trade. */
+function Sparkline({ series = [], accent = 'var(--brand)', w = 46, h = 15 }) {
+  const vals = (series || []).map(v => Number(v) || 0);
+  const max = Math.max(...vals, 0);
+  if (vals.length < 2 || !(max > 0)) return null;
+  const step = w / (vals.length - 1);
+  const pts = vals.map((v, i) => [i * step, h - 1.5 - (v / max) * (h - 3)]);
+  const d = pts.map((p, i) => `${i ? 'L' : 'M'}${p[0].toFixed(1)},${p[1].toFixed(1)}`).join(' ');
+  const [lx, ly] = pts[pts.length - 1];
+  return (
+    // aria-hidden: the figure and the share beside it already state the value in text.
+    <svg width={w} height={h} viewBox={`0 0 ${w} ${h}`} aria-hidden="true" className="flex-shrink-0 overflow-visible">
+      <path d={d} fill="none" stroke="var(--ink-muted)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" opacity="0.7" />
+      {/* Latest month in the accent — the de-emphasised line carries the shape, one
+          dot says where "now" is. */}
+      <circle cx={lx} cy={ly} r="2" fill={accent} />
+    </svg>
+  );
+}
+
 // One breakdown/ranking entry as a card tile.
 /* These entries used to be bar ROWS: a grey track, a fill scaled to value/max,
    and the share printed inside the fill. Zak asked for cards instead
-   (2026-08-17). Nothing is lost in the swap — the bar's LENGTH was the only
-   thing it encoded, and the ranking is now carried by reading order plus the
-   share chip, which STATES the share as a number the bar could only approximate.
-   The tile itself is the same surface the Per-MT strip uses (subtle fill, one
-   line, one radius), so the four ranking cards read as the rest of the page.
+   (2026-08-17), and the cards are right — but that swap dropped the bar's
+   LENGTH, which was the only thing separating a 74% supplier from a 0.3% one at
+   a glance. Forty-eight tiles of identical weight is what made the section read
+   flat. The length is back as the tile's own background: a wash filling to
+   value/max behind the text, so the tile IS the bar and the card layout stays.
+
+   Scaled to the LEADER, not to the total — the standard ranked-bar convention.
+   Against the total, one dominant entry (Shalex at 74%) leaves every other tile
+   an indistinguishable sliver, which is the flatness this is meant to fix. The
+   printed percentage still states the share of the whole, so nothing is lost.
 
    Two lines, not four. The first pass gave each tile a rank badge and an "of
    total" caption above the chip, and 40 tiles of that ran ~92px each — the card
    was taller than the bars it replaced, which defeats the point. Both went:
    the badge restated the reading order, and the caption labelled a percentage
-   that cannot mean anything else. What is left is name / figure / share, and
-   the tile is ~52px. */
-function RankTile({ label, value, share, color, avatar = false, delay = 0 }) {
+   that cannot mean anything else. What is left is name / figure / share. */
+function RankTile({ label, value, share, fill = 0, accent = 'var(--brand)', avatar = false, hero = false, delay = 0, series, onPick, picked = false, clamp = false }) {
+  const pct = Math.max(0, Math.min(1, Number(fill) || 0)) * 100;
+  /* Clickable tiles are real buttons, not divs with a handler — they are reached by Tab
+     and fired by Enter/Space for free, which a div would have to reimplement badly.
+     aria-label rather than title: the label span inside already owns the hover tooltip
+     (it carries the full text when a name is truncated), and a second tooltip on the
+     wrapper only fights it. */
+  const Tag = onPick ? m.button : m.div;
   return (
-    <m.div
-      className="rounded-2xl border border-[var(--line)] bg-[var(--bg-subtle)] px-2.5 py-2 flex flex-col gap-1 min-w-0 transition-colors hover:border-[var(--line-strong)]"
+    <Tag
+      {...(onPick ? { type: 'button', onClick: onPick, 'aria-label': `Filter the dashboard by ${label}`, 'aria-pressed': picked } : {})}
+      className={`relative overflow-hidden rounded-2xl border bg-[var(--bg-subtle)] px-2.5 py-2 flex flex-col gap-1 min-w-0 transition-colors ${hero ? 'col-span-2 xl:col-span-3' : ''} ${onPick ? 'text-left cursor-pointer hover:border-[var(--brand)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-soft)]' : 'hover:border-[var(--line-strong)]'} ${picked ? 'border-[var(--brand)]' : 'border-[var(--line)]'}`}
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.28, delay, ease: 'easeOut' }}
     >
-      <div className="flex items-center gap-1.5 min-w-0">
+      {/* The meter. A wash at ~14% of the accent — a tint, never a saturated
+          block, so ink on top keeps its contrast in both themes. Square at the
+          baseline (the tile's own radius clips it), 4px rounded data-end.
+          aria-hidden: the share beside it already states the value in text. */}
+      <span
+        aria-hidden="true"
+        className="absolute inset-y-0 left-0 pointer-events-none"
+        style={{
+          width: `${pct}%`,
+          background: `color-mix(in srgb, ${accent} 14%, transparent)`,
+          borderRadius: '0 4px 4px 0',
+        }}
+      />
+      <div className="relative flex items-center gap-1.5 min-w-0">
         {/* Avatar — shared component, so these chips match the supplier / client
             chips in every table and follow the theme. Rows that aren't a party
-            (expense types, materials) get the ramp shade as a dot instead. */}
+            (expense types, materials) get the accent as a dot instead. */}
         {avatar
-          ? <Avatar name={label} size={18} />
-          : <span className="rounded-full flex-shrink-0" style={{ width: 8, height: 8, background: color }} />}
-        <span className="responsiveTextTable font-medium text-[var(--regent-gray)] truncate" title={label}>{label}</span>
+          ? <Avatar name={label} size={hero ? 22 : 18} />
+          : <span className="rounded-full flex-shrink-0" style={{ width: 8, height: 8, background: accent }} />}
+        {/* Material descriptions are free-text spec strings ("62.47Ni 9.95Cr 9.04Co
+            5.91W 10.03Fe 1.61Mo .08Cu…") that a single truncated line cut to
+            uselessness. Two lines, with the row height reserved either way so a card
+            of short names and long ones still has an even grid. */}
+        <span
+          className={`responsiveTextTable font-medium text-[var(--regent-gray)] ${clamp ? 'line-clamp-2 leading-tight' : 'truncate'}`}
+          style={clamp ? { minHeight: 'calc(2 * 1.25em)' } : undefined}
+          title={label}
+        >{label}</span>
       </div>
 
-      <div className="flex items-baseline justify-between gap-1.5 min-w-0">
-        <span className="responsiveTextTitle numeric text-[var(--port-gore)] leading-none truncate" title={value}>{value}</span>
-        {/* Filled, not tinted — deliberately, and it is the ramp that decides.
-            brandRamp fits every shade to the lightest value that still carries
-            WHITE text at AA, so a ramp colour is only guaranteed legible as a
-            background. Flipping it to coloured-text-on-tint reads fine in light
-            mode and disappears in dark, where the tile drops to --bg-subtle and
-            the ramp is still a mid-violet. Filled is safe in both; it is caption
-            -sized so the figure beside it is still the louder half. */}
+      <div className="relative flex items-baseline justify-between gap-1.5 min-w-0">
         <span
-          className="responsiveTextTableTitle numeric rounded-lg px-1 py-px flex-shrink-0"
-          style={{ background: color, color: 'var(--on-brand)' }}
-        >
-          {share}
+          className={`${hero ? 'responsiveTextPage' : 'responsiveTextTitle'} numeric text-[var(--port-gore)] leading-none truncate`}
+          title={value}
+        >{value}</span>
+        <span className="flex items-center gap-1.5 flex-shrink-0">
+          <Sparkline series={series} accent={accent} w={hero ? 72 : 46} h={hero ? 18 : 15} />
+          {/* Was a solid brand pill with white text. Forty-eight of those made the
+              least important number on the card the loudest thing on the screen,
+              and it put text in the data colour — which the mark beside it now
+              carries instead. Quiet muted ink; the meter does the shouting. */}
+          <span className="responsiveTextTableTitle numeric text-[var(--regent-gray)]">{share}</span>
         </span>
       </div>
-    </m.div>
+    </Tag>
+  );
+}
+
+/* Top N plus one "others" tile. A ranked list's tail is real information — the 68
+   materials outside the top 8 are 48% of the tonnage — but it belongs as one row,
+   not as a scrollbar the reader has to discover. Returns the visible slice and the
+   folded remainder so both cards below fold identically. */
+const TAIL_AFTER = 8;
+function foldRows(rows, expanded) {
+  if (rows.length <= TAIL_AFTER + 1) return { shown: rows, hidden: [], tail: 0 };
+  const shown = expanded ? rows : rows.slice(0, TAIL_AFTER);
+  const hidden = expanded ? [] : rows.slice(TAIL_AFTER);
+  return { shown, hidden, tail: hidden.reduce((a, r) => a + (Number(r.value) || 0), 0) };
+}
+
+// The show-more / show-less control under a folded ranking list.
+function FoldToggle({ expanded, onToggle, count, amount }) {
+  return (
+    <button
+      type="button"
+      onClick={onToggle}
+      className="col-span-2 xl:col-span-3 rounded-2xl border border-dashed border-[var(--line-strong)] bg-transparent px-2.5 py-1.5 flex items-center justify-center gap-1.5 transition-colors hover:bg-[var(--bg-subtle)]"
+    >
+      <span className="responsiveTextTable font-medium text-[var(--regent-gray)]">
+        {expanded ? 'Show less' : `${count} more · ${amount}`}
+      </span>
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" style={{ transform: expanded ? 'rotate(180deg)' : undefined }}>
+        <path d="M6 9l6 6 6-6" stroke="var(--regent-gray)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+    </button>
   );
 }
 
@@ -474,23 +560,31 @@ function RankTile({ label, value, share, color, avatar = false, delay = 0 }) {
 const TILE_GRID = 'grid grid-cols-2 xl:grid-cols-3 gap-1.5';
 
 // Ranking cards (Contracts / Consignees) — one tile per party.
-function RankingList({ labels = [], data = [], title, subtitle, totalValue }) {
-  /* The colours here used to come from RANKING_PALETTE — ten fixed blues from
-     the old brand, which is why this card ignored the theme.
-     chartTheme.js exempts series palettes from theming for a good reason: in a
-     donut or a multi-line chart, colour is the ONLY thing mapping a slice to its
-     legend, so collapsing ten hues into one brand ramp destroys the encoding.
-     That reasoning does not apply here. Every tile is already labelled by name
-     and ranked by order, so the colour carried no information at all — it was
-     decoration, and decoration should follow the theme like everything else.
-     One themed shade per tile, the brand stepped deep → soft down the ranking.
-     Rebuilt on a theme switch because the page re-renders through useTheme(). */
-  const ramp = brandRamp(labels.length || 1);
-  /* Denominator for the share chip: the card's own total when it has one, so a
-     list that shows only its top entries still states each share of the WHOLE
-     rather than of the visible slice. */
+function RankingListInner({ labels = [], data = [], title, subtitle, totalValue, series = {}, onPick, picked }) {
+  /* Every tile used to take its own step off brandRamp(labels.length) — a shade
+     per RANK. Two things were wrong with that. The ramp was fitted to the row
+     COUNT, so applying a filter repainted every surviving tile and a reader who
+     had learned "Shalex is the dark one" was misled. And rank is already carried
+     by reading order, so the hue duplicated it rather than adding anything.
+     One accent for the whole card now; magnitude rides the meter behind each
+     tile, which is a length and can be compared. */
+  const [expanded, setExpanded] = useState(false);
+  /* Denominator for the printed share: the card's own total when it has one, so a
+     folded list still states each share of the WHOLE rather than of the visible
+     slice. The meter is scaled to the leader instead — see RankTile. */
   const sum = data.reduce((a, v) => a + (Number(v) || 0), 0);
   const denom = Number(totalValue) > 0 ? Number(totalValue) : sum;
+  const rows = labels.map((label, idx) => ({ label, value: Number(data[idx]) || 0 }));
+  const max = rows.reduce((m, r) => Math.max(m, r.value), 0);
+  const { shown, hidden, tail } = foldRows(rows, expanded);
+  /* One shared x-domain for every sparkline in the card: cut at the last month any
+     entity traded. Per-tile trimming would give each line its own time axis and make
+     two shapes side by side mean different things. */
+  const lastMonth = Object.values(series).reduce((last, arr) => {
+    for (let i = 11; i > last; i--) if ((arr?.[i] || 0) !== 0) return i;
+    return last;
+  }, 0);
+  const trend = (label) => (series[label] || []).slice(0, lastMonth + 1);
 
   return (
     <CardShell>
@@ -506,29 +600,42 @@ function RankingList({ labels = [], data = [], title, subtitle, totalValue }) {
           }
         />
 
-        {labels.length === 0
+        {rows.length === 0
           ? <div className="responsiveText text-[var(--regent-gray)] py-3 text-center">No data for this period</div>
           : (
-            <div className="overflow-y-auto custom-scroll" style={{ maxHeight: 330 }}>
-              <div className={TILE_GRID}>
-                {labels.map((lbl, idx) => (
-                  <RankTile
-                    key={`${lbl}-${idx}`}
-                    label={lbl}
-                    value={fmtAutoKM(data[idx] || 0)}
-                    share={fmtPct(denom > 0 ? ((data[idx] || 0) / denom) * 100 : 0)}
-                    color={ramp[idx % ramp.length]}
-                    avatar
-                    delay={idx * 0.03}
-                  />
-                ))}
-              </div>
+            <div className={TILE_GRID}>
+              {shown.map((r, idx) => (
+                <RankTile
+                  key={`${r.label}-${idx}`}
+                  label={r.label}
+                  value={fmtAutoKM(r.value)}
+                  share={fmtPct(denom > 0 ? (r.value / denom) * 100 : 0)}
+                  fill={max > 0 ? r.value / max : 0}
+                  /* Rank 1 spans the row. A ranking card that draws #1 and #12
+                     identically wastes its most valuable slot — and when the
+                     leader is 74% of the total, it IS the card's story. */
+                  hero={idx === 0 && !expanded}
+                  avatar
+                  series={trend(r.label)}
+                  onPick={onPick ? () => onPick(r.label) : undefined}
+                  picked={picked === r.label}
+                  delay={idx * 0.03}
+                />
+              ))}
+              {hidden.length > 0 && (
+                <FoldToggle expanded={false} onToggle={() => setExpanded(true)}
+                  count={hidden.length} amount={fmtAutoKM(tail)} />
+              )}
+              {expanded && rows.length > TAIL_AFTER + 1 && (
+                <FoldToggle expanded onToggle={() => setExpanded(false)} />
+              )}
             </div>
           )}
       </div>
     </CardShell>
   );
 }
+const RankingList = RankingListInner;
 
 // Per-MT unit economics — compact strip rendered right under the headline KPI
 // cards, in their visual language: tinted icon chip (color-mix, like
@@ -939,14 +1046,16 @@ function AgingCard({ buckets = [] }) {
 /* `accent` is kept in the signature so existing call sites stay valid, but the
    tiles come from the themed ramp: the brand stepped deep → soft down the list,
    instead of every entry sharing one fixed accent. */
-function BreakdownCard({ title, subtitle, entries = [], total, fmtVal, accent = 'var(--brand)' }) {
-  const ramp = brandRamp(entries.length || 1);
-  /* Share is measured against the card's own total, not the visible entries.
-     Most-Sold Material shows its top 8 out of every material shipped, so the
-     shares should add up to less than 100% — that gap is the tail, and hiding
-     it by normalising to the visible slice would overstate every tile. */
+function BreakdownCard({ title, subtitle, entries = [], total, fmtVal, accent = 'var(--brand)', onPick, picked, clamp = false }) {
+  const [expanded, setExpanded] = useState(false);
+  /* Share is measured against the card's own total, not the visible entries — so a
+     folded list's shares add up to less than 100%, and that gap IS the tail. The
+     fold toggle now states the tail outright instead of leaving it to be inferred. */
   const sum = entries.reduce((a, [, v]) => a + (Number(v) || 0), 0);
   const denom = Number(total) > 0 ? Number(total) : sum;
+  const rows = entries.map(([label, value]) => ({ label, value: Number(value) || 0 }));
+  const max = rows.reduce((m, r) => Math.max(m, r.value), 0);
+  const { shown, hidden, tail } = foldRows(rows, expanded);
 
   return (
     <CardShell>
@@ -956,22 +1065,32 @@ function BreakdownCard({ title, subtitle, entries = [], total, fmtVal, accent = 
           subtitle={subtitle}
           right={total != null ? <div className="text-right flex-shrink-0"><div className="responsiveTextTable text-[var(--regent-gray)]">Total</div><span className="responsiveTextPage font-semibold text-[var(--chathams-blue)]">{fmtVal(total)}</span></div> : null}
         />
-        {entries.length === 0
+        {rows.length === 0
           ? <div className="responsiveText text-[var(--regent-gray)] py-3 text-center">No data for this period</div>
           : (
-            <div className="overflow-y-auto custom-scroll" style={{ maxHeight: 330 }}>
-              <div className={TILE_GRID}>
-                {entries.map(([label, value], idx) => (
-                  <RankTile
-                    key={label}
-                    label={label}
-                    value={fmtVal(value)}
-                    share={fmtPct(denom > 0 ? (value / denom) * 100 : 0)}
-                    color={ramp[idx % ramp.length]}
-                    delay={idx * 0.03}
-                  />
-                ))}
-              </div>
+            <div className={TILE_GRID}>
+              {shown.map((r, idx) => (
+                <RankTile
+                  key={r.label}
+                  label={r.label}
+                  value={fmtVal(r.value)}
+                  share={fmtPct(denom > 0 ? (r.value / denom) * 100 : 0)}
+                  fill={max > 0 ? r.value / max : 0}
+                  accent={accent}
+                  hero={idx === 0 && !expanded}
+                  clamp={clamp}
+                  onPick={onPick ? () => onPick(r.label) : undefined}
+                  picked={picked === r.label}
+                  delay={idx * 0.03}
+                />
+              ))}
+              {hidden.length > 0 && (
+                <FoldToggle expanded={false} onToggle={() => setExpanded(true)}
+                  count={hidden.length} amount={fmtVal(tail)} />
+              )}
+              {expanded && rows.length > TAIL_AFTER + 1 && (
+                <FoldToggle expanded onToggle={() => setExpanded(false)} />
+              )}
             </div>
           )}
       </div>
@@ -1213,11 +1332,12 @@ const Dash = () => {
        the two disagreed by eight figures on one screen. Splitting the KPI's own total
        means the card can no longer drift from the headline it sits under. */
     const byClient = {};
+    const byClientMonth = {}; // client -> 12 buckets, for the ranking tile sparklines
     let total = 0;
     let missingInvRate = 0;
     const start = dateSelect?.start, end = dateSelect?.end;
     if (!Array.isArray(rawRecvInvoices) || !settings?.Currency?.Currency || !start || !end) {
-      return { byMonth, total, byClient };
+      return { byMonth, total, byClient, byClientMonth };
     }
     // Supplier/Material filters only resolve through a loaded contract; Client matches
     // the invoice directly (same behaviour as the Receivables card).
@@ -1250,9 +1370,10 @@ const Dash = () => {
         byMonth[m] += usd;
         total += usd;
         byClient[clientName] = (byClient[clientName] || 0) + usd;
+        (byClientMonth[clientName] ||= Array(12).fill(0))[m - 1] += usd;
       }
     }));
-    return { byMonth, total, missingInvRate, byClient };
+    return { byMonth, total, missingInvRate, byClient, byClientMonth };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [rawRecvInvoices, settings, companyRate, dateSelect, fClient, fSupplier, fMaterial, fCurrency, fOrigin, fDelTerm, filteredContracts]);
 
@@ -1972,6 +2093,15 @@ const Dash = () => {
               labels={hbSupps.obj.labels || []}
               data={hbSupps.obj.datasets?.[0]?.data || []}
               totalValue={totalContracts}
+              series={conAgg.suppSeries || {}}
+              /* The card ranks by NAME; the filter holds a supplier id. Resolve here and
+                 only offer the click when it resolves — "Unknown supplier" is a bucket of
+                 ids that are not in settings, so there is nothing to filter to. */
+              onPick={(name) => {
+                const id = settings.Supplier?.Supplier?.find(s => s.nname === name)?.id;
+                if (id) setFSupplier(fSupplier === id ? '' : id);
+              }}
+              picked={settings.Supplier?.Supplier?.find(s => s.id === fSupplier)?.nname}
             />
             <RankingList
               title="Consignees — $"
@@ -1979,10 +2109,18 @@ const Dash = () => {
               labels={clientRank.labels}
               data={clientRank.data}
               totalValue={invoiceRevAgg.total}
+              series={invoiceRevAgg.byClientMonth || {}}
+              // fClient already holds a client NAME, so this one needs no resolving.
+              onPick={(name) => setFClient(fClient === name ? '' : name)}
+              picked={fClient}
             />
           </div>
 
-          {/* EXPENSES BY TYPE + MOST-SOLD MATERIAL */}
+          {/* EXPENSES BY TYPE + MOST-SOLD MATERIAL
+              Neither passes a .slice() any more — BreakdownCard folds its own tail, so
+              the "68 more" row can state what that tail actually weighs. Most-Sold
+              Material used to stop dead at 8 rows with 48% of the tonnage unaccounted
+              for and nothing on screen saying so. */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-5">
             <BreakdownCard
               title="Expenses by Type"
@@ -1995,10 +2133,13 @@ const Dash = () => {
             <BreakdownCard
               title="Most-Sold Material"
               subtitle="By tonnage sold this period"
-              entries={Object.entries(materialSold).filter(([, v]) => v > 0.01).sort((a, b) => b[1] - a[1]).slice(0, 8)}
+              entries={Object.entries(materialSold).filter(([, v]) => v > 0.01).sort((a, b) => b[1] - a[1])}
               total={shippedMT}
               fmtVal={(v) => `${new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 }).format(v || 0)} MT`}
               accent="var(--brand)"
+              clamp
+              onPick={(name) => setFMaterial(fMaterial === name ? '' : name)}
+              picked={fMaterial}
             />
           </div>
 

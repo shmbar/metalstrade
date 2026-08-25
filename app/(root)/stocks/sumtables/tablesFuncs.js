@@ -19,6 +19,15 @@ const groupDescOf = (z) => {
 
 const num = (v) => v === '-' ? 0 : parseFloat(v) || 0
 
+/* Description is the only free-text column here and a grade name runs to 60+ chars,
+   which sized the popup past 800px and off the side of the card. Fixed width +
+   truncate, the same 260px as the Avg Cost per Grade table so the two read alike.
+   The full name goes on a native title, NOT a <Tltip>: this popup IS a Radix
+   tooltip, and opening a nested one dispatches tooltip.open, which every mounted
+   tooltip content listens for and closes itself on — the popup would vanish the
+   moment you hovered a description. */
+const DESC_W = 260
+
 const StockDetails = ({ row, settings, dataTable }) => {
     // Per-alloy rows of a PO collapse under one summary line — without this a
     // container that was invoiced per alloy floods the popup with 20+ lines.
@@ -37,7 +46,10 @@ const StockDetails = ({ row, settings, dataTable }) => {
         <tr key={key}>
             <td>{indent ? '' : z.order}</td>
             <td>{supName(z)}</td>
-            <td style={indent ? { paddingLeft: '26px', textAlign: 'left' } : undefined}>{z.descriptionName}</td>
+            <td style={indent ? { textAlign: 'left' } : undefined}>
+                <span className="block truncate" title={z.descriptionName || ''}
+                    style={{ width: `${DESC_W}px`, paddingLeft: indent ? '18px' : 0 }}>{z.descriptionName}</span>
+            </td>
             <td>
                 <NumericFormat value={z.qnty} displayType="text" thousandSeparator allowNegative decimalScale='3' fixedDecimalScale />
             </td>
@@ -66,10 +78,11 @@ const StockDetails = ({ row, settings, dataTable }) => {
                     <td>{z.order}</td>
                     <td>{supName(z)}</td>
                     <td style={{ textAlign: 'left' }}>
-                        <span className="flex items-center gap-1 font-medium" style={{ color: 'var(--chathams-blue)' }}>
-                            <span className="inline-block transition-transform" style={{ transform: isOpen ? 'rotate(90deg)' : 'none' }}>›</span>
-                            <span>{z._groupDesc}</span>
-                            <span style={{ color: 'var(--regent-gray)' }}>({grp.length})</span>
+                        <span className="flex items-center gap-1 font-medium" title={z._groupDesc}
+                            style={{ width: `${DESC_W}px`, color: 'var(--chathams-blue)' }}>
+                            <span className="inline-block shrink-0 transition-transform" style={{ transform: isOpen ? 'rotate(90deg)' : 'none' }}>›</span>
+                            <span className="block truncate min-w-0">{z._groupDesc}</span>
+                            <span className="shrink-0" style={{ color: 'var(--regent-gray)' }}>({grp.length})</span>
                         </span>
                     </td>
                     <td className="font-medium">

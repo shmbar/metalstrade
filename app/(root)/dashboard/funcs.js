@@ -237,6 +237,10 @@ export const calContracts = (data, settings, companyRate = 0) => {
     let cogsByMonth = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].reduce((o, key) => ({ ...o, [key]: 0 }), {})
     let storageByMonth = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].reduce((o, key) => ({ ...o, [key]: 0 }), {})
     let accumulatedTop5Sup = data.map(x => x.supplier).reduce((o, key) => ({ ...o, [key]: 0 }), {})
+    /* supplier id -> 12 monthly buckets, for the sparkline on each ranking tile. Same
+       contractPurchase and same month the annual total already uses, so a tile's trend
+       and its figure can never tell different stories. */
+    const suppByMonth = {}
     let totalMT = 0
     let shippedMT = 0
     let freightTotal = 0
@@ -269,6 +273,7 @@ export const calContracts = (data, settings, companyRate = 0) => {
         accumulatedPmnt[month] += contractPurchase
         //top 5 suppliers
         accumulatedTop5Sup[x.supplier] += contractPurchase
+        ;(suppByMonth[x.supplier] ||= Array(12).fill(0))[month - 1] += contractPurchase
 
         // total MT purchased — convert each contract's quantity to MT by its unit
         // (qTypeTable: KGS ÷ 1000, LB ÷ 2000), matching the Inventory tab's setNum.
@@ -330,7 +335,17 @@ export const calContracts = (data, settings, companyRate = 0) => {
 
     let pieArrSupps = setPieArrs(arrTmp)
 
-    return { accumulatedPmnt, accumulatedExp, pieArrSupps, totalMT, shippedMT, freightTotal, missingRate, cogs, unsoldValue, cogsByMonth, expByType, materialSold, storageByMonth };
+    /* The monthly series re-keyed the same way, and ADDED on collision for the same
+       reason arrTmp is: two ids sharing an nname are one row on the card, so they have
+       to be one line on its sparkline too. */
+    const suppSeries = {}
+    Object.entries(suppByMonth).forEach(([id, months]) => {
+        const name = settings.Supplier.Supplier.find(s => s.id === id)?.['nname'] || 'Unknown supplier'
+        const dst = (suppSeries[name] ||= Array(12).fill(0))
+        months.forEach((v, i) => { dst[i] += v })
+    })
+
+    return { accumulatedPmnt, accumulatedExp, pieArrSupps, suppSeries, totalMT, shippedMT, freightTotal, missingRate, cogs, unsoldValue, cogsByMonth, expByType, materialSold, storageByMonth };
 }
 
 
