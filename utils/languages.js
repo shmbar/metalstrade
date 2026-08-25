@@ -66,7 +66,10 @@ const TitlesArr = [
     { Bank: ['Bank', 'Банк'] },
     { BankNickName: ['Back Nick Name', 'Прозвище Банкa'] },
     { Note: ['Note', 'Примечание'] },
-    { Currency: ["USD/EUR", 'Валюта'] },
+    // Was "USD/EUR" in English while the Russian already said "Валюта" (= Currency),
+    // and two pages hardcoded "$/€" for the same column. One name everywhere: the
+    // column is called Currency, the cell shows the symbol.
+    { Currency: ['Currency', 'Валюта'] },
     { Address: ['Address', 'Адрес'] },
 
 

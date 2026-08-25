@@ -26,6 +26,8 @@ import { v4 as uuidv4 } from 'uuid';
 import TableTotals from './totals/tableTotals';
 import { TbLayoutGridAdd } from "react-icons/tb";
 import { NameCell } from '../../../components/Avatar';
+import CurrencyChip from '../../../components/CurrencyChip';
+import { curCode } from '../../../utils/currency';
 
 
 const Expenses = () => {
@@ -161,7 +163,7 @@ const Expenses = () => {
             },
             filterFn: 'dateBetweenFilterFn'
         },
-        { accessorKey: 'cur', header: getTtl('Currency', ln), cell: (props) => { const v = (props.getValue() || '').toUpperCase(); const isUsd = v === 'USD' || v === 'US'; const isEur = v === 'EUR' || v === 'EU'; return <span style={{ background: isUsd ? 'var(--ok-border)' : isEur ? 'var(--bg-subtle)' : 'var(--neutral-bg)', color: isUsd ? 'var(--ok-text)' : isEur ? 'var(--chathams-blue)' : 'var(--ink-secondary)', borderRadius: '8px', padding: '3px 14px', fontWeight: 500, fontSize: 'var(--fs-input)', display: 'inline-block' }}>{isUsd ? '$' : isEur ? '€' : v}</span> } },
+        { accessorKey: 'cur', header: getTtl('Currency', ln), cell: (props) => <CurrencyChip cur={props.getValue()} /> },
         {
             accessorKey: 'amount', header: getTtl('Amount', ln), cell: (props) => <p>{showAmount(props)}</p>,
             meta: {
@@ -234,8 +236,11 @@ const Expenses = () => {
     const gQ = (z, y, x) => settings[y][y].find(q => q.id === z)?.[x] || ''
 
     let showAmount1 = (x) => {
-        const rawCur = (gQ(x.row.original.cur, 'Currency', 'cur') || '').toUpperCase();
-        const currency = rawCur === 'US' ? 'USD' : rawCur === 'EU' ? 'EUR' : (rawCur || 'USD');
+        // getFormatted has already turned row.cur from the settings id into the label
+        // ("USD"/"EUR"), so the old gQ() lookup here ran a second time against a value
+        // that is no longer an id, found nothing, and fell through to 'USD' — every
+        // EUR company expense was rendered with a '$'. curCode takes either encoding.
+        const currency = curCode(x.row.original.cur) || 'USD';
         return new Intl.NumberFormat('en-US', {
             style: 'currency',
             currency,

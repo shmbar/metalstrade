@@ -32,6 +32,7 @@ import dynamic from 'next/dynamic';
 // this page's first-load bundle. It only renders when the user opens a reminder.
 const ReminderModal = dynamic(() => import('../../../components/invoices/ReminderModal'), { ssr: false });
 import StatusBadge from '../../../components/StatusBadge';
+import CurrencyChip from '../../../components/CurrencyChip';
 import { Bell, Split, Receipt, FileCheck2, FilePen, FileX2 } from 'lucide-react';
 import KpiStrip from '../../../components/KpiStrip';
 import ProgressBar from '../../../components/ProgressBar';
@@ -318,37 +319,8 @@ const Invoices = () => {
 		},
 		{
 			accessorKey: 'cur',
-			header: '$/€',
-			cell: (props) => {
-				const id = props.getValue();
-				const cur = settings?.Currency?.Currency?.find(c => c.id === id)?.cur || id || '';
-				const isUSD = cur === 'USD' || cur === '$' || cur.toLowerCase() === 'us';
-				const isEUR = cur === 'EUR' || cur === '€' || cur.toLowerCase() === 'eu';
-				const symbol = isUSD ? '$' : isEUR ? '€' : cur;
-				const bg = isUSD ? 'var(--ok-bg)' : isEUR ? 'var(--brand-soft)' : 'var(--neutral-bg)';
-				const border = isUSD ? '1px solid var(--ok-border)' : isEUR ? '1px solid var(--brand-border)' : '1px solid var(--neutral-border)';
-				const color = isUSD ? 'var(--ok-text)' : isEUR ? 'var(--brand-strong)' : 'var(--ink-secondary)';
-				return (
-					<span
-						style={{
-							backgroundColor: bg,
-							color: color,
-							border: border,
-							borderRadius: '999px',
-							padding: '3px 14px',
-							fontWeight: 500,
-							fontSize: 'var(--fs-title)',
-							display: 'inline-flex',
-							alignItems: 'center',
-							justifyContent: 'center',
-							minWidth: '36px',
-							whiteSpace: 'nowrap',
-						}}
-					>
-						{symbol}
-					</span>
-				);
-			},
+			header: getTtl('Currency', ln),
+			cell: (props) => <CurrencyChip cur={props.getValue()} />,
 			size: 100
 		},
 		{

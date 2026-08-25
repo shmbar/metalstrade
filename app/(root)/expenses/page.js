@@ -247,7 +247,7 @@ const Expenses = () => {
 		{ accessorKey: 'poSupplierOrder', header: getTtl('PoOrderNo', ln), meta: { excludeFromQuickSum: true } },
 		{
 			accessorKey: 'cur',
-			header: '$/€',
+			header: getTtl('Currency', ln),
 			cell: EditableSelectCell,
 			meta: {
 				options: settings.Currency?.Currency?.map(c => ({ value: c.id, label: c.cur })) ?? []

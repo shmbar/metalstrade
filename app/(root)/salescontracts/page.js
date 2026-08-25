@@ -21,6 +21,7 @@ import Tltip from '../../../components/tlTip';
 import { ExternalLink } from 'lucide-react';
 import { invoiceQtyBySalesContract } from '../../../utils/salesLink';
 import { BtnIcon } from '@components/buttonIcons';
+import CurrencyChip from '@components/CurrencyChip';
 
 // Total contracted weight of a sales contract = sum of its product-line quantities.
 const contractQty = (c) => (c.productsData || []).reduce((s, r) => s + (parseFloat(r.qnty) || 0), 0);
@@ -273,7 +274,7 @@ const SalesContracts = () => {
             },
             {
                 accessorKey: 'cur', header: getTtl('Currency', ln),
-                cell: (props) => <span>{gQ(props.getValue(), 'Currency', 'cur')}</span>,
+                cell: (props) => <CurrencyChip cur={props.getValue()} />,
                 meta: { excludeFromQuickSum: true }
             },
             {

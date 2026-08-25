@@ -279,7 +279,7 @@ const Customtable = ({
                     {hdGroup.headers.map(header => (
                       <th key={header.id} className="py-1.5">
                         {header.id === 'supplier' ? 'Total $:' :
-                          header.id === 'cur' ? 'USD' :
+                          header.id === 'cur' ? '$' :
                             header.id === 'amount' ? new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2 }).format(
                               table.getFilteredRowModel().rows.reduce((sum, row) => {
                                 const cur = (row.original.cur || '').toUpperCase();
@@ -292,7 +292,7 @@ const Customtable = ({
                     {hdGroup.headers.map(header => (
                       <th key={header.id} className="py-1.5">
                         {header.id === 'supplier' ? 'Total €:' :
-                          header.id === 'cur' ? 'EUR' :
+                          header.id === 'cur' ? '€' :
                             header.id === 'amount' ? new Intl.NumberFormat('en-US', { style: 'currency', currency: 'EUR', minimumFractionDigits: 2 }).format(
                               table.getFilteredRowModel().rows.reduce((sum, row) => {
                                 const cur = (row.original.cur || '').toUpperCase();

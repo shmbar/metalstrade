@@ -22,6 +22,7 @@ import { Paginator } from "../../../components/table/Paginator";
 import RowsIndicator from "../../../components/table/RowsIndicator";
 import EmptyState from "../../../components/EmptyState";
 import { TONES } from "../../../components/statusUtils";
+import CurrencyChip from "../../../components/CurrencyChip";
 
 import { SettingsContext } from "../../../contexts/useSettingsContext";
 import { usePathname } from "next/navigation";
@@ -375,35 +376,7 @@ const Customtable = ({
                             ) : (
                               <div className="flex justify-center">
                                 {isCurrency && hasValue ? (
-                                  (() => {
-                                    const val = String(value).trim();
-                                    const isUSD = val === 'USD' || val === '$' || val.toLowerCase() === 'us';
-                                    const isEUR = val === 'EUR' || val === '€' || val.toLowerCase() === 'eu';
-                                    const symbol = isUSD ? '$' : isEUR ? '€' : val;
-                                    const bg = isUSD ? TONES.green.bg : isEUR ? TONES.blue.bg : TONES.gray.bg;
-                                    const border = `1px solid ${isUSD ? TONES.green.border : isEUR ? TONES.blue.border : TONES.gray.border}`;
-                                    const color = isUSD ? TONES.green.text : isEUR ? TONES.blue.text : TONES.gray.text;
-
-                                    return (
-                                      <span
-                                        className="rounded-full responsiveTextTable font-medium"
-                                        style={{
-                                          backgroundColor: bg,
-                                          color: color,
-                                          border: border,
-                                          borderRadius: '999px',
-                                          padding: '2px 12px',
-                                          minWidth: '30px',
-                                          display: 'inline-flex',
-                                          alignItems: 'center',
-                                          justifyContent: 'center',
-                                          whiteSpace: 'nowrap',
-                                        }}
-                                      >
-                                        {symbol}
-                                      </span>
-                                    );
-                                  })()
+                                  <CurrencyChip cur={value} />
                                 ) : hasValue ? (
                                   <div
                                     className="px-1 py-1 responsiveTextTable min-w-[70px]"

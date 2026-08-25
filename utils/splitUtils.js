@@ -30,9 +30,6 @@ export const splitNotifId = (entityType, entityId) => `split:${entityType}:${ent
 
 // Display helper: the various currency encodings used across pages ('us'/'eu' ids,
 // 'USD'/'EUR', '$'/'€') → a compact symbol for share display in the badge/modal.
-export function curSymbol(cur) {
-  const c = String(cur || '').toLowerCase();
-  if (c === 'us' || c === 'usd' || c === '$') return '$';
-  if (c === 'eu' || c === 'eur' || c === '€') return '€';
-  return cur ? `${cur} ` : '';
-}
+// Re-exported rather than redefined: utils/currency.js is the one definition of
+// "what glyph does this currency show as", and this module had a second copy of it.
+export { curSymbol } from './currency';

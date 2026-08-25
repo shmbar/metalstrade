@@ -189,7 +189,7 @@ export const EXD = (dataTable, settings, name, ln, sumData, columnVisibility = {
                 { key: 'totalQnty', header: 'Total Weight (MT)', width: 18, style: styles },
                 { key: 'avgPrice', header: 'Avg Cost /MT', width: 16, style: styles },
                 { key: 'totalValue', header: 'Total Value', width: 18, style: styles },
-                { key: 'cur', header: '$/€', width: 8, style: styles },
+                { key: 'cur', header: 'Currency', width: 10, style: styles },
             ];
 
             gSheet.getRow(1).eachCell((cell) => {

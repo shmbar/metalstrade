@@ -31,6 +31,7 @@ import EditableSelectCell from '../../../components/table/inlineEditing/Editable
 import { updateContractField } from '../../../utils/utils';
 import { useGlobalSearch } from '../../../contexts/useGlobalSearchContext';
 import { BtnIcon } from '@components/buttonIcons';
+import CurrencyChip from '@components/CurrencyChip';
 
 const Contracts = () => {
 
@@ -266,7 +267,7 @@ const Contracts = () => {
 		{
 			accessorKey: 'cur',
 			header: getTtl('Currency', ln),
-			cell: (props) => <span>{gQ(props.getValue(), 'Currency', 'cur')}</span>,
+			cell: (props) => <CurrencyChip cur={props.getValue()} />,
 			meta: { excludeFromQuickSum: true }
 		},
 		{ accessorKey: 'qTypeTable', header: getTtl('QTY', ln), cell: (props) => <span>{showQTY(props)}</span> },

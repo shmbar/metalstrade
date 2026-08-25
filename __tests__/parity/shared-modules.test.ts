@@ -99,6 +99,7 @@ const IDENTICAL_PAIRS: Array<[mobile: string, web: string]> = [
   ['mobile/src/shared/finance.js', 'utils/finance.js'],
   ['mobile/src/shared/pureHelpers.js', 'utils/pureHelpers.js'],
   ['mobile/src/shared/splitUtils.js', 'utils/splitUtils.js'],
+  ['mobile/src/shared/currency.js', 'utils/currency.js'],
   ['mobile/src/shared/storageUtils.js', 'app/(root)/storagecosts/storageUtils.js'],
   ['mobile/src/shared/soldStatus.js', 'app/(root)/contractsstatement/soldStatus.js'],
   ['mobile/src/shared/notificationPriority.js', 'utils/notificationPriority.js'],

@@ -2,7 +2,7 @@ import Modal from '@components/modal.js'
 import { useContext, useState, useEffect } from 'react'
 import { SettingsContext } from "@contexts/useSettingsContext";
 import { ContractsContext } from "@contexts/useContractsContext";
-import Datepicker from "react-tailwindcss-datepicker";
+import FloatingDatepicker from '@components/FloatingDatepicker';
 import { UserAuth } from "@contexts/useAuthContext";
 
 import ChkBox from '@components/checkbox';
@@ -509,12 +509,13 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowPoInvModal }) => {
                                 name='poInvoice' classes='h-7' sizeVar='var(--fs-table)'
                             />
 
-                            <Datepicker useRange={false}
-                                asSingle={true}
+                            {/* Portalled calendar: the rows live in an overflow box inside
+                                the modal's own scroll box, and an in-place popup is clipped
+                                by both — see components/FloatingDatepicker.js. */}
+                            <FloatingDatepicker
                                 value={x.indDate}
-                                popoverDirection='down'
                                 onChange={e => handleDateChange(e, i)}
-                                displayFormat={"DD-MMM-YYYY"}
+                                displayFormat="DD-MMM-YYYY"
                                 inputClassName='input w-full h-7 responsiveTextTable'
                             />
 

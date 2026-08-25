@@ -25,6 +25,7 @@ import { disabledDates } from './disabledDates';
 import { TableSkeleton } from "../../../components/skeletons";
 import { Selector } from '@components/selectors/selectShad';
 import { BtnIcon } from '@components/buttonIcons';
+import CurrencyChip from '@components/CurrencyChip';
 
 const fieldOrder = [
   "invoice",
@@ -301,7 +302,7 @@ const AccountStatement = () => {
       },
     },
 
-    { accessorKey: 'cur', header: getTtl('Currency', ln), cell: (props) => { const v = (props.getValue() || '').toLowerCase(); const isUsd = v === 'us' || v === 'usd'; const isEur = v === 'eu' || v === 'eur'; return <span style={{ background: isUsd ? 'var(--ok-border)' : isEur ? 'var(--bg-subtle)' : 'var(--neutral-bg)', color: isUsd ? 'var(--ok-text)' : isEur ? 'var(--chathams-blue)' : 'var(--ink-secondary)', borderRadius: '8px', padding: '3px 14px', fontWeight: 500, fontSize: 'var(--fs-input)', display: 'inline-block' }}>{isUsd ? '$' : isEur ? '€' : v}</span> } },
+    { accessorKey: 'cur', header: getTtl('Currency', ln), cell: (props) => <CurrencyChip cur={props.getValue()} /> },
     {
       accessorKey: 'due', header: getTtl('DuePayment', ln), cell: (props) => <div>{dateFormat(props.getValue(), 'dd.mm.yy')} </div>,
       meta: {

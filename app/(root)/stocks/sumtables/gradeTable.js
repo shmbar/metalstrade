@@ -3,6 +3,7 @@
 import React, { useState } from 'react'
 import { ChevronRight } from 'lucide-react'
 import { NumericFormat } from 'react-number-format'
+import CurrencyChip from '../../../../components/CurrencyChip'
 
 // Group stock rows by grade (descriptionName + currency), returning total
 // quantity and the weighted average cost per MT for each grade. Shared between
@@ -118,7 +119,7 @@ const GradeTable = ({ dataTable, loading, settings }) => {
                 <th className="responsiveTextTable font-medium text-center" style={thStyle}>Total Weight (MT)</th>
                 <th className="responsiveTextTable font-medium text-center" style={thStyle}>Avg Cost /MT</th>
                 <th className="responsiveTextTable font-medium text-center" style={thStyle}>Total Value</th>
-                <th className="responsiveTextTable font-medium text-center" style={thStyle}>$/€</th>
+                <th className="responsiveTextTable font-medium text-center" style={thStyle}>Currency</th>
               </tr>
             </thead>
             <tbody>
@@ -172,7 +173,7 @@ const GradeTable = ({ dataTable, loading, settings }) => {
                       />
                     </td>
                     <td className="responsiveTextTable" style={tdStyle}>
-                      {isoCode === 'EUR' ? '€' : '$'}
+                      <CurrencyChip cur={isoCode} />
                     </td>
                   </tr>
                   {isOpen && r.suppliers.map((s, k) => (

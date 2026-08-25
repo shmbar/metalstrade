@@ -714,6 +714,7 @@ import dateBetweenFilterFn from '../../../components/table/filters/date-between-
 import { Filter } from '../../../components/table/filters/filterFunc';
 import { labelAwareGlobalFilter } from '../../../components/table/filters/labelAwareGlobalFilter';
 import { TONES } from '../../../components/statusUtils';
+import CurrencyChip from '../../../components/CurrencyChip';
 import EmptyState from '../../../components/EmptyState';
 
 const Customtable = ({
@@ -1164,8 +1165,6 @@ const Customtable = ({
                         const normalizedValue = String(resolvedLabel ?? '').trim().toLowerCase()
                         const isPaidValue = normalizedValue === 'paid'
                         const isUnpaidValue = normalizedValue === 'unpaid'
-                        const isUSDValue = ['us', 'usd', '$'].includes(normalizedValue)
-                        const isEURValue = ['eu', 'eur', '€'].includes(normalizedValue)
                         const isCompleted = cell.column.id === 'completed'
                         const isPaid      = cell.column.id === 'paid'
                         const isCurrency  = cell.column.id === 'cur'
@@ -1198,28 +1197,7 @@ const Customtable = ({
                             ) : (
                               <div className="flex justify-center">
                                 {isCurrency && hasValue ? (
-                                  (() => {
-                                    const bg = isUSDValue ? 'var(--ok-bg)' : isEURValue ? 'var(--bg-subtle)' : 'var(--line-strong)'
-                                    const border = isUSDValue ? '1px solid var(--ok-border)' : isEURValue ? '1px solid var(--line)' : '1px solid var(--neutral-border)'
-                                    const color = isUSDValue ? 'var(--ok-text)' : 'var(--chathams-blue)'
-                                    return (
-                                      <span className="rounded-full responsiveTextTable font-medium"
-                                        style={{
-                                          backgroundColor: bg,
-                                          color: color,
-                                          border: border,
-                                          borderRadius: '999px',
-                                          padding: '2px 12px',
-                                          minWidth: '30px',
-                                          display: 'inline-flex',
-                                          alignItems: 'center',
-                                          justifyContent: 'center',
-                                          whiteSpace: 'nowrap',
-                                        }}>
-                                        {isUSDValue ? '$' : isEURValue ? '€' : String(value)}
-                                      </span>
-                                    )
-                                  })()
+                                  <CurrencyChip cur={value} />
                                 ) : hasValue ? (
                                   <div className="px-1 py-1 responsiveTextTable min-w-[70px]">
                                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
@@ -1305,8 +1283,6 @@ const Customtable = ({
                       const normalizedValue = String(resolvedLabel ?? '').trim().toLowerCase()
                       const isPaidValue = normalizedValue === 'paid'
                       const isUnpaidValue = normalizedValue === 'unpaid'
-                      const isUSDValue = ['us', 'usd', '$'].includes(normalizedValue)
-                      const isEURValue = ['eu', 'eur', '€'].includes(normalizedValue)
                       return (
                         <div key={cell.id} className="flex flex-col space-y-1.5 pb-2.5 last:pb-0"
                           style={{ borderBottom: '1px solid var(--line)' }}>
@@ -1340,18 +1316,7 @@ const Customtable = ({
                                 {flexRender(cell.column.columnDef.cell, cell.getContext())}
                               </div>
                             ) : cell.column.id === 'cur' && cell.getValue() ? (
-                              <div className="w-full px-2 py-2 rounded-lg responsiveTextTable font-medium flex items-center gap-2 justify-center shadow-sm"
-                                style={{
-                                  backgroundColor:
-                                    isUSDValue ? 'var(--ok-bg)' :
-                                    isEURValue ? 'var(--bg-subtle)' : 'var(--line-strong)',
-                                  color: isUSDValue ? 'var(--ok-text)' : 'var(--chathams-blue)',
-                                  border: isUSDValue ? '1px solid var(--ok-border)' : isEURValue ? '1px solid var(--line)' : '1px solid var(--neutral-border)'
-                                }}>
-                                {isUSDValue ? '$' :
-                                 isEURValue ? '€' :
-                                 flexRender(cell.column.columnDef.cell, cell.getContext())}
-                              </div>
+                              <CurrencyChip cur={cell.getValue()} className="w-full" style={{ padding: '6px 8px' }} />
                             ) : (
                               flexRender(cell.column.columnDef.cell, cell.getContext())
                             )}
