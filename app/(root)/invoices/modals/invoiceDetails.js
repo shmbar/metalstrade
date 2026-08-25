@@ -122,10 +122,17 @@ const InvoiceModal = () => {
 	// own dropdown the moment that contract counted as fully shipped, and the row would
 	// look unset while still counting against it.
 	const linkedIds = salesContractIdsOf(valueInv);
+	// The per-line picker must NOT inherit the header dropdown's "hide fully shipped"
+	// filter. Tagging lines is usually done while correcting an invoice against a PO
+	// that already counts as closed, and hiding it made the feature unusable in exactly
+	// that case — reported as "this is a closed contract already". Same-client first,
+	// with the same escape hatches; the search box handles the longer list.
+	const scSameClient = scAll.filter(sc => !sc.client || sc.client === valueInv.client);
+	const scLineBase = !valueInv.client ? scAll : (scSameClient.length ? scSameClient : scAll);
 	const scLineOptions = withSalesContractLabels([
-		...scOptions,
+		...scLineBase,
 		...linkedIds
-			.filter(id => !scOptions.some(o => o.id === id))
+			.filter(id => !scLineBase.some(o => o.id === id))
 			.map(id => scAll.find(sc => sc.id === id))
 			.filter(Boolean),
 	], settings.Client?.Client ?? []);

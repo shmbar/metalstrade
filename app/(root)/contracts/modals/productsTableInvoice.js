@@ -155,6 +155,14 @@ const ProductsTable = ({ value, setValue, currency, settings, uidCollection, set
             let newArr = value.productsDataInvoice.map((x) =>
                 x.id === edit.id ? {
                     ...x, [edit.header]: Nm,
+                    // Typing the client's PO number on a line links that line to the matching
+                    // Sales Contract, the same way the header field already auto-matches what
+                    // is typed into "Client Contract #". Without this the number had to be
+                    // entered twice — once as text for the printed invoice, once in the picker.
+                    // Only fills a BLANK tag, so a deliberate override is never overwritten.
+                    salesContractId: (edit.header === 'po' && !x.salesContractId)
+                        ? (matchSalesContract(Nm) || x.salesContractId || '')
+                        : x.salesContractId,
                     eqUnitPrc: e.target.name === 'unitPrc' ? (isEquation ? e.target.value : null)
                         : x.eqUnitPrc ?? null,
                     eqQnty: e.target.name === 'qnty' ? (isEquation ? e.target.value : null)
@@ -361,6 +369,15 @@ const ProductsTable = ({ value, setValue, currency, settings, uidCollection, set
     // is what the empty value means everywhere else in this feature.
     const clearSalesContract = (_name, indx) => handleSalesContract('', indx);
 
+    // Tolerant number match, same normalisation the header's auto-match uses, so
+    // "pb-062971" finds "PB062971".
+    const normalizeNo = (s) => String(s || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+    const matchSalesContract = (typed) => {
+        const target = normalizeNo(typed);
+        if (!target) return '';
+        return salesContracts.find(sc => normalizeNo(sc.contractNo) === target)?.id || '';
+    };
+
     const handleChangeStockAvailability = async (e, name, indx) => {
         const current = value.productsDataInvoice[indx];
 
@@ -399,7 +416,13 @@ const ProductsTable = ({ value, setValue, currency, settings, uidCollection, set
                                         The 11% comes out of Description (32→25) and Stock (13→9);
                                         the row still totals 100%. */}
                                     <th scope="col" className="w-[11%] px-1 py-1 text-left responsiveTextTable font-medium text-[var(--chathams-blue)]">
-                                        Sales PO</th>
+                                        {/* The guidance lives here, not on the cells — a tooltip on the
+                                            dropdown itself covered the neighbouring rows and blocked the
+                                            click. A header is static, so hovering it is harmless. */}
+                                        <Tltip direction='top' tltpText={'Which client PO each line is sold against. It fills itself in from the PO# you type on the line; set it by hand only when a line belongs to a different PO than the rest of the invoice. Lines shown in italics follow the invoice’s own Sales Contract.'}>
+                                            <span className='cursor-help border-b border-dotted border-[var(--line-strong)]'>Sales PO</span>
+                                        </Tltip>
+                                    </th>
                                     <th scope="col" className="w-[25%] px-1 py-1 text-left responsiveTextTable font-medium text-[var(--chathams-blue)]">
                                         {getTtl('Description', ln)}</th>
                                     <th scope="col" className="w-[11%] px-1 py-1 text-left responsiveTextTable font-medium text-[var(--chathams-blue)]">
@@ -462,31 +485,36 @@ const ProductsTable = ({ value, setValue, currency, settings, uidCollection, set
                                                 ) : obj['po']
                                                 }
                                             </td>
-                                            {/* Sales PO. An untagged row shows the invoice's own link greyed
-                                                out — it IS what the row counts against, so showing it blank
-                                                would misread as "not linked". Tagging a row only matters when
-                                                the invoice covers more than one client PO. */}
+                                            {/* Sales PO.
+                                                NO tooltip on this cell. A Tltip wraps its child as the hover
+                                                trigger, and this child is a dropdown: at delayDuration 0 the
+                                                bubble opened the moment you moved onto the control, covered the
+                                                rows around it and swallowed the click, so the picker could not
+                                                be used at all. The explanation lives on the column HEADER, which
+                                                is static and safe to hover. Reported by the client on first use.
+
+                                                An untagged row shows the invoice's own link, muted, because that
+                                                IS what the row counts against — blank would misread as "not
+                                                linked". The clear button only appears on a row that carries its
+                                                OWN tag, since clearing an inherited value is a no-op and looked
+                                                broken ("I can't delete the selected"). */}
                                             <td
                                                 data-label='salesContractId'
                                                 className="px-1 py-1 responsiveTextTable text-[var(--port-gore)]"
                                             >
                                                 {!fnl ?
-                                                    <Tltip direction='top' tltpText={obj.salesContractId
-                                                        ? 'This line is sold against its own client PO.'
-                                                        : "Follows the invoice's Sales Contract. Set one here only if this line belongs to a different client PO."}>
-                                                        <div className='w-full min-w-0'>
-                                                            <Selector
-                                                                arr={salesContracts}
-                                                                value={{ salesContractId: obj.salesContractId || value.salesContractId || '' }}
-                                                                onChange={(e) => handleSalesContract(e, i)}
-                                                                name='salesContractId'
-                                                                secondaryName='contractNo'
-                                                                clear={clearSalesContract}
-                                                                row={i}
-                                                                classes={obj.salesContractId ? '' : 'text-[var(--ink-muted)]'}
-                                                            />
-                                                        </div>
-                                                    </Tltip>
+                                                    <div className='w-full min-w-0'>
+                                                        <Selector
+                                                            arr={salesContracts}
+                                                            value={{ salesContractId: obj.salesContractId || value.salesContractId || '' }}
+                                                            onChange={(e) => handleSalesContract(e, i)}
+                                                            name='salesContractId'
+                                                            secondaryName='scLabel'
+                                                            clear={obj.salesContractId ? clearSalesContract : undefined}
+                                                            row={i}
+                                                            classes={obj.salesContractId ? '' : 'italic opacity-70'}
+                                                        />
+                                                    </div>
                                                     :
                                                     <span>{salesContracts.find(s => s.id === (obj.salesContractId || value.salesContractId))?.contractNo || ''}</span>
                                                 }

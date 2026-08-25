@@ -327,10 +327,14 @@ const ContractModal = () => {
 	}
 	// Options for the PER-LINE Sales PO picker — see the matching note in
 	// invoices/modals/invoiceDetails.js.
+	// Not the header's "hide fully shipped" list — see the note in
+	// invoices/modals/invoiceDetails.js.
+	const scSameClient = scAll.filter(sc => !sc.client || sc.client === valueInv.client);
+	const scLineBase = !valueInv.client ? scAll : (scSameClient.length ? scSameClient : scAll);
 	const scLineOptions = withSalesContractLabels([
-		...scOptions,
+		...scLineBase,
 		...salesContractIdsOf(valueInv)
-			.filter(id => !scOptions.some(o => o.id === id))
+			.filter(id => !scLineBase.some(o => o.id === id))
 			.map(id => scAll.find(sc => sc.id === id))
 			.filter(Boolean),
 	], settings.Client?.Client ?? []);
