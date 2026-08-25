@@ -4,6 +4,14 @@ import React, { useState } from 'react'
 import { ChevronRight } from 'lucide-react'
 import { NumericFormat } from 'react-number-format'
 import CurrencyChip from '../../../../components/CurrencyChip'
+import Tltip from '../../../../components/tlTip'
+
+/* Description is the one free-text column here and a grade name runs to 60+ chars
+   ("2.13C 0.1S 1.28Co 0.49Nb 0.57Ni 3.09P 4.11Sn 0.1Ta 5.02W Granules"). Left to
+   size itself it took 395px, which pushed this card to 765px — too wide to share
+   the flex row with Summary - Stocks, so it wrapped onto its own line underneath.
+   Fixed width + truncate, full name on hover. */
+const DESC_W = 260
 
 // Group stock rows by grade (descriptionName + currency), returning total
 // quantity and the weighted average cost per MT for each grade. Shared between
@@ -131,13 +139,15 @@ const GradeTable = ({ dataTable, loading, settings }) => {
                   <tr style={{ background: 'var(--bg-card)', cursor: canExpand ? 'pointer' : 'default' }}
                     onClick={() => canExpand && toggle(key)}>
                     <td className="responsiveTextTable" style={{ ...tdStyle, textAlign: 'left', paddingLeft: '14px' }}>
-                      <span className='inline-flex items-center gap-1'>
-                        {canExpand && (
-                          <ChevronRight className='w-3 h-3 shrink-0 transition-transform'
-                            style={{ transform: isOpen ? 'rotate(90deg)' : 'none', color: 'var(--endeavour)' }} />
-                        )}
-                        {r.descriptionName}
-                      </span>
+                      <Tltip direction='top' tltpText={r.descriptionName}>
+                        <span className='flex items-center gap-1 cursor-default' style={{ width: `${DESC_W}px` }}>
+                          {canExpand && (
+                            <ChevronRight className='w-3 h-3 shrink-0 transition-transform'
+                              style={{ transform: isOpen ? 'rotate(90deg)' : 'none', color: 'var(--endeavour)' }} />
+                          )}
+                          <span className='block truncate min-w-0'>{r.descriptionName}</span>
+                        </span>
+                      </Tltip>
                     </td>
                     <td className="responsiveTextTable" style={tdStyle}>
                       <NumericFormat
@@ -177,7 +187,9 @@ const GradeTable = ({ dataTable, loading, settings }) => {
                   {isOpen && r.suppliers.map((s, k) => (
                     <tr key={`${i}-sup-${k}`} style={{ background: 'var(--surface-pill)' }}>
                       <td className="responsiveTextTable" style={{ ...tdStyle, textAlign: 'left', paddingLeft: '34px', color: 'var(--regent-gray)' }}>
-                        {s.supplier}
+                        <Tltip direction='top' tltpText={s.supplier}>
+                          <span className='block truncate cursor-default' style={{ width: `${DESC_W - 20}px` }}>{s.supplier}</span>
+                        </Tltip>
                       </td>
                       <td className="responsiveTextTable" style={{ ...tdStyle, color: 'var(--regent-gray)' }}>
                         <NumericFormat value={s.qnty} displayType="text" thousandSeparator decimalScale={3} fixedDecimalScale />
