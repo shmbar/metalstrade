@@ -155,56 +155,13 @@ const Customtable = ({
           color: var(--chathams-blue);
         }
 
-        /* The two totals bands, matching specialinvoices/newTable.js.
-           The background has to sit on the th, not the tr: .custom-table th paints
-           var(--bg-subtle) on every header cell, and a cell background covers the
-           row's. Set on the tr alone (as --ok-border / --line-strong were) it never
-           showed at all, so both bands rendered the same grey as the column header
-           below them — three identical rows.
-           Tokens follow the 2026-08-08 client revision: a totals row is a summary,
-           not a status, so these are quiet fills rather than a saturated green, and
-           --ok-border / --line-strong are border tokens, not surfaces.
-
-           2026-08-20: the --ok-* green went too. A totals band is not "good news",
-           it is structure, and green was the one hue on these pages sitting outside
-           the violet base. Both bands are now the brand family: the USD band takes
-           --violet-border, the EUR band the neutral --bg-sunken one step lighter, so
-           they stay tellable apart by value rather than by hue. The class names said
-           "green"/"blue" and no longer described anything, hence usd/eur. */
-        .summary-usd {
-          background-color: var(--violet-border);
-          color: var(--brand-strong);
-          font-weight: 500;
-        }
-        /* Both rules the global grid draws on a <th> are suppressed here — the
-           horizontal one so the two bands read as one block, and the vertical
-           column dividers so each band shows as a single clean run of tint.
-
-           A totals band is not part of the grid. It is one figure with a label,
-           laid over the columns rather than divided by them, and the dividers cut
-           it into eleven empty boxes with text in two of them. This matches
-           /expenses, which gets the same look structurally: there the band is one
-           <td colSpan> with border:none, so there are no cell edges to draw in the
-           first place. Reversing an earlier call that kept the verticals for
-           consistency with the rows below — client revision 2026-08-25. */
-        .summary-usd th {
-          background-color: var(--violet-border) !important;
-          color: var(--brand-strong) !important;
-          border-bottom: 0 !important;
-          border-right: 0 !important;
-        }
-
-        .summary-eur {
-          background-color: var(--bg-sunken);
-          color: var(--ink);
-          font-weight: 500;
-        }
-        .summary-eur th {
-          background-color: var(--bg-sunken) !important;
-          color: var(--ink) !important;
-          border-bottom: 0 !important;
-          border-right: 0 !important;
-        }
+        /* The two totals bands moved to .summary-band / .summary-band-alt in
+           globals.css on 2026-08-26 — the same rules were sitting here, in
+           specialinvoices under a -si suffix, and inline on expenses, and the
+           client asked for a fourth, fifth and sixth copy on /accounting and the
+           two review pages. The history of the tokens (why not green, why the
+           dividers are suppressed, why the fill has to sit on the th) is kept
+           with the rules there. */
 
         .pagination-center {
           display: flex;
@@ -276,7 +233,7 @@ const Customtable = ({
                    <thead className="sticky top-0 z-sticky">
               {table.getHeaderGroups().map(hdGroup => (
                 <Fragment key={hdGroup.id + '-totals'}>
-                  <tr className="summary-usd">
+                  <tr className="summary-band">
                     {hdGroup.headers.map(header => (
                       <th key={header.id} className="py-1.5">
                         {header.id === 'supplier' ? 'Total $:' :
@@ -289,7 +246,7 @@ const Customtable = ({
                       </th>
                     ))}
                   </tr>
-                  <tr className="summary-eur">
+                  <tr className="summary-band-alt">
                     {hdGroup.headers.map(header => (
                       <th key={header.id} className="py-1.5">
                         {header.id === 'supplier' ? 'Total €:' :

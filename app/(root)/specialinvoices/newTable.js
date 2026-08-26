@@ -176,54 +176,13 @@ const Customtable = ({
                 /* .custom-table th/td now live in globals.css — one definition
                    for every table in the app. */
 
-                /* Two summary bands. They were a saturated --ok-border green and a
-                   --line-strong blue, which is the "green that doesn't match" the
-                   client flagged — a green band on a totals row does not mean
-                   "good", it just means "this row is a summary".
-                   Both are now quiet fills; they stay tellable apart by tint plus a
-                   semibold label, not by hue strength. Contrast measured: 8.2:1 and
-                   11:1 respectively.
-
-                   2026-08-20: the remaining --ok-* tint went as well — the band was
-                   still the only green surface on the page and still meant nothing by
-                   it. Both bands now sit in the brand family, separated by value
-                   (--violet-border over the lighter neutral --bg-sunken) instead of
-                   by hue. Names follow: usd/eur, not green/blue. */
-                .summary-usd-si {
-                    background-color: var(--violet-border);
-                    color: var(--brand-strong);
-                    font-weight: 500;
-                }
-                /* Both rules the global grid draws on a <th> are suppressed here — the
-                   horizontal one so the two bands read as one block separated by tint,
-                   and the vertical column dividers so each band shows as a single clean
-                   run of colour.
-
-                   A totals band is not part of the grid. It is one figure with a label,
-                   laid over the columns rather than divided by them, and the dividers
-                   cut it into thirteen empty boxes with text in three of them. This
-                   matches /expenses, which gets the same look structurally: there the
-                   band is one <td colSpan> with border:none, so there are no cell edges
-                   to draw at all. Reversing an earlier call that restored the verticals
-                   for consistency with the rows below — client revision 2026-08-25. */
-                .summary-usd-si th {
-                    background-color: var(--violet-border) !important;
-                    color: var(--brand-strong) !important;
-                    border-bottom: 0 !important;
-                    border-right: 0 !important;
-                }
-
-                .summary-eur-si {
-                    background-color: var(--bg-sunken);
-                    color: var(--ink);
-                    font-weight: 500;
-                }
-                .summary-eur-si th {
-                    background-color: var(--bg-sunken) !important;
-                    color: var(--ink) !important;
-                    border-bottom: 0 !important;
-                    border-right: 0 !important;
-                }
+                /* The two summary bands moved to .summary-band /
+                   .summary-band-alt in globals.css on 2026-08-26. The -si suffix
+                   existed only because companyexpenses held an identical copy of
+                   these rules under the unsuffixed name, in a block that is also
+                   global; there is one copy now, so there is nothing left to
+                   collide with. The history of the tokens is kept with the rules
+                   there. */
             `}</style>
 
 
@@ -282,7 +241,7 @@ const Customtable = ({
                                                 const usdTotal = table.getFilteredRowModel().rows.reduce((s, r) => { const o = r.original; return (o.cur === 'us' || o.cur === 'USD') ? s + (o.total * 1 || 0) : s; }, 0);
                                                 const usdWeight = table.getFilteredRowModel().rows.reduce((s, r) => { const o = r.original; return (o.cur === 'us' || o.cur === 'USD') ? s + (o.qnty * 1 || 0) : s; }, 0);
                                                 return (
-                                                    <tr className="summary-usd-si">
+                                                    <tr className="summary-band">
                                                         {group.headers.map(header => (
                                                             <th key={header.id} style={{ padding: '6px 8px' }}>
                                                                 {header.id === 'compName' ? 'Total $:' :
@@ -299,7 +258,7 @@ const Customtable = ({
                                                 const eurTotal = table.getFilteredRowModel().rows.reduce((s, r) => { const o = r.original; return (o.cur === 'eu' || o.cur === 'EUR') ? s + (o.total * 1 || 0) : s; }, 0);
                                                 const eurWeight = table.getFilteredRowModel().rows.reduce((s, r) => { const o = r.original; return (o.cur === 'eu' || o.cur === 'EUR') ? s + (o.qnty * 1 || 0) : s; }, 0);
                                                 return (
-                                                    <tr className="summary-eur-si">
+                                                    <tr className="summary-band-alt">
                                                         {group.headers.map(header => (
                                                             <th key={header.id} style={{ padding: '6px 8px' }}>
                                                                 {header.id === 'compName' ? 'Total €:' :

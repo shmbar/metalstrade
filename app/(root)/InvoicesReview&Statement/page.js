@@ -916,9 +916,11 @@ const Shipments = () => {
   // same reference-style cards accounting and cashflow use. They read off the
   // same `totals` the band does, so they move with the filters and the date
   // range instead of being a second, drifting summary.
-  // USD only: the band renders `ttlUS ?? ttlEU`, i.e. the euro totals are a
-  // per-column fallback and never a row of their own, so a euro card would be
-  // showing a figure the table never shows.
+  // USD only, and now deliberately so rather than by accident: the table grew a
+  // euro band of its own on 2026-08-26 (it used to render `ttlUS ?? ttlEU`, so
+  // the euro totals never appeared), which means a euro figure IS on the page —
+  // in the band, one row under the dollar one. Four cards stay four cards: this
+  // strip is the HEADLINE, and eight tiles is a second table, not a summary.
   const ttlUs = totals[0]?.us;
   const fmtUsd = (n) => '$' + Number(n || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   const kpiItems = [

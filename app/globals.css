@@ -777,6 +777,56 @@ th input, th select, th textarea, th button {
   background-color: var(--bg-subtle);
 }
 
+/* ── .summary-band / .summary-band-alt: THE totals band above a table ────────
+   The band that sits ON TOP of the column headers and carries the totals for
+   the rows below. /expenses, /companyexpenses and /specialinvoices had each
+   grown their own copy of it in a `<style jsx global>` block, under three names
+   for the same two rules (.summary-usd, .summary-usd-si, and an inline object on
+   expenses). Client asked on 2026-08-26 for the same treatment on /accounting,
+   /ContractsReview&Statement and /InvoicesReview&Statement — a fourth, fifth and
+   sixth copy — so the pair lives here once instead.
+
+   Two roles, not two currencies. `.summary-band` is the primary band and
+   `.summary-band-alt` the second one under it. On a page that shows both
+   currencies at once the primary carries USD and the alt EUR; on a page with a
+   currency selector there is only ever ONE band and it takes the primary,
+   whichever currency is selected. Naming them by role rather than by USD/EUR is
+   what lets a single-currency page use them at all.
+
+   They separate by VALUE, not by hue: --violet-border over the one-step-lighter
+   neutral --bg-sunken. Both were --ok-* green until 2026-08-20 — a totals row is
+   structure, not a status, and green was the one hue on these pages sitting
+   outside the violet base.
+
+   Painted on the cells, not just the row: `.custom-table th` (0,1,1) sets its
+   own --bg-subtle, and a cell's background paints over its row's — the same trap
+   the margins footer above fell into. Both grid rules a <th> would otherwise
+   draw are suppressed so each band reads as one clean run of tint rather than
+   being cut into empty boxes with text in two of them; a totals band is one
+   figure with a label laid OVER the columns, not divided by them (client
+   revision 2026-08-25). !important because the page-level styled-jsx blocks
+   these replace are injected after this stylesheet. */
+.summary-band,
+.summary-band-alt {
+  font-weight: 500;
+}
+
+.summary-band > th,
+.summary-band > td {
+  background-color: var(--violet-border) !important;
+  color: var(--brand-strong) !important;
+  border-bottom: 0 !important;
+  border-right: 0 !important;
+}
+
+.summary-band-alt > th,
+.summary-band-alt > td {
+  background-color: var(--bg-sunken) !important;
+  color: var(--ink) !important;
+  border-bottom: 0 !important;
+  border-right: 0 !important;
+}
+
 /* ── .detail-popup-table: THE hover-detail popup band ────────────────────────
    Five summary cards open a hover popup listing the rows behind a figure —
    stocks, expenses, companyexpenses, contractsstatement (also mounted by

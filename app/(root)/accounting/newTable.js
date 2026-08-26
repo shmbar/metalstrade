@@ -127,6 +127,41 @@ const Customtable = ({ data, columns, invisible, excellReport, onCellUpdate }) =
      mount is exactly the behaviour they were complaining about. The Reset button
      still calls resetTable() on demand. */
 
+  /* Totals bands. This page had none — the only summary was the KPI strip above
+     the card, which sums BOTH currencies into one dollar figure and does not move
+     with the table's filters. Client asked on 2026-08-26 for the /expenses
+     treatment here, and /expenses' treatment is a per-currency band sitting on the
+     columns it totals.
+
+     Split by currency because a row carries its own: curEX on the debit side,
+     curINV on the credit side, so a euro expense and a dollar invoice sit in the
+     same two columns. Adding those together would produce a number in no currency
+     at all.
+
+     The `expInvoice` / `saleInvoice` guards mirror showAmountExp / showAmountInv in
+     page.js: a row with no invoice number renders a BLANK amount cell, so its
+     amount is not on screen and must not be in the total either.
+
+     getFilteredRowModel, not getRowModel: the band totals everything the filters
+     have left, not just the current page. */
+  const bandTotals = useMemo(() => {
+    const rows = table.getFilteredRowModel().rows.map(r => r.original || {})
+
+    const sum = (key, curKey, guard, cur) => rows.reduce((acc, row) => (
+      row[guard] && (row[curKey] || 'USD') === cur ? acc + (Number(row[key]) || 0) : acc
+    ), 0)
+
+    const money = (value, cur) => new Intl.NumberFormat('en-US', {
+      style: 'currency', currency: cur, minimumFractionDigits: 2,
+    }).format(value)
+
+    return ['USD', 'EUR'].map(cur => ({
+      cur,
+      amountExp: money(sum('amountExp', 'curEX', 'expInvoice', cur), cur),
+      amountInv: money(sum('amountInv', 'curINV', 'saleInvoice', cur), cur),
+    }))
+  }, [table, data, globalFilter, columnFilters])
+
   const currentRows = table.getRowModel().rows.length;
   const dynamicMaxHeight = currentRows > 0
     ? `${Math.min(currentRows * 40 + 180, 700)}px`
@@ -203,6 +238,41 @@ const Customtable = ({ data, columns, invisible, excellReport, onCellUpdate }) =
                 <thead className="sticky top-0 z-sticky">
                   {table.getHeaderGroups().map(hdGroup => (
                     <Fragment key={hdGroup.id}>
+                      {/* Totals bands — .summary-band over .summary-band-alt in
+                          globals.css, the $/€ pair /expenses carries. Client asked
+                          for the same colours here, 2026-08-26.
+
+                          The label rides in the leftmost visible column rather than a
+                          fixed one: `num` and `dateExp` can both be switched off from
+                          the column menu, and a band whose label is hidden is a row of
+                          two numbers with nothing saying what they are. `select` is
+                          skipped — it is a 50px checkbox column that only exists while
+                          Quick Sum is on, and the label does not fit in it. */}
+                      {bandTotals.map(({ cur, amountExp, amountInv }, bandIdx) => {
+                        const labelColId = hdGroup.headers.find(h => h.column.id !== 'select')?.column.id
+                        return (
+                          <tr key={cur} className={bandIdx === 0 ? 'summary-band' : 'summary-band-alt'}>
+                            {hdGroup.headers.map(header => (
+                              <th
+                                key={`${cur}-${header.id}`}
+                                style={{
+                                  minWidth: header.column.id === 'select' ? '50px' : '60px',
+                                  maxWidth: header.column.id === 'select' ? '50px' : 'none',
+                                  padding: '5px 8px',
+                                  whiteSpace: 'nowrap',
+                                  boxShadow: 'none',
+                                  borderRadius: 0,
+                                }}
+                              >
+                                {header.column.id === labelColId ? `${getTtl('Total', ln)} ${cur === 'EUR' ? '€' : '$'}:` :
+                                  header.column.id === 'amountExp' ? amountExp :
+                                    header.column.id === 'amountInv' ? amountInv : ''}
+                              </th>
+                            ))}
+                          </tr>
+                        )
+                      })}
+
                       <tr style={{ borderBottom: '1px solid rgba(var(--surface-card-rgb), 0.2)' }}>
                         {hdGroup.headers.map(header => (
                           <th

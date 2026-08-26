@@ -177,7 +177,7 @@ const Expenses = () => {
             enableGlobalFilter: false,
             enableSorting: false,
             meta: { excludeFromQuickSum: true },
-            size: 170,
+            size: 130,
             cell: (props) => {
                 const r = props.row.original;
                 return (

@@ -217,43 +217,55 @@ const Customtable = ({
                 <thead className="sticky top-0 z-sticky">
                   {table.getHeaderGroups().map(hdGroup => (
                     <Fragment key={hdGroup.id}>
-                      {/* TOTALS BAND.
-                          This was `var(--ok-border)` — a full-width GREEN band across
-                          the top of the page. That is the green the client called out:
-                          --ok-border is the "paid / positive" status colour, and a
-                          totals row is not a status. It is emphasis, so it takes the
-                          neutral emphasis surface (--bg-sunken) that every other
-                          highlighted row in the app uses.
-                          Padding 10/8 -> 4/6 and the 2px rule -> 1px, in line with the
-                          rest of the density pass. */}
-                      <tr style={{ background: 'var(--bg-sunken)', borderBottom: '1px solid var(--line-strong)' }}>
-                        {hdGroup.headers.map((header) => (
-                          <th
-                            key={`total-${header.id}`}
-                            className="responsiveTextTable"
-                            style={{
-                              color: 'var(--ink)',
-                              backgroundColor: 'var(--bg-sunken)',
-                              /* nowrap came from .numeric, which also forced 600 inside a
-                                 th and made this totals row the heaviest text in the app.
-                                 Weight now comes from .custom-table th (500) like every
-                                 other totals row; the no-break guard stays, explicitly. */
-                              whiteSpace: 'nowrap',
-                              minWidth: header.column.id === 'select' ? '50px' : '60px',
-                              maxWidth: header.column.id === 'select' ? '50px' : 'none',
-                              padding: '4px 6px',
-                              border: 'none',
-                              boxShadow: 'none',
-                              borderRadius: 0,
-                              letterSpacing: '0.02em',
-                              textAlign: 'center',
-                              fontSize: 'var(--fs-table)',
-                            }}
-                          >
-                            {(header.column.columnDef.ttlUS ?? header.column.columnDef.ttlEU ?? header.column.columnDef.ttl) || ''}
-                          </th>
-                        ))}
-                      </tr>
+                      {/* TOTALS BANDS — the $/€ pair, .summary-band over
+                          .summary-band-alt in globals.css, the same treatment
+                          /expenses, /companyexpenses and /specialinvoices carry.
+                          Client, 2026-08-26.
+
+                          There were TWO totals to show and only ONE row to show them
+                          in: every money column on this page defines `ttlUS` AND
+                          `ttlEU`, and the band rendered `ttlUS ?? ttlEU` — a
+                          per-column fallback, so the euro figure only ever appeared
+                          in a column that happened to have no dollar figure. The
+                          Excel export has written both rows all along (excel.js
+                          writes "Total $:" then "Total €:"), so the sheet showed a
+                          euro line the screen did not. One band per currency now,
+                          same order as the export.
+
+                          The single band was --bg-sunken for both roles — before that
+                          --ok-border, the "paid/positive" status green the client
+                          called out. Neither said anything; the pair separates by
+                          value, primary over alt. */}
+                      {[
+                        { role: 'summary-band', key: 'ttlUS' },
+                        { role: 'summary-band-alt', key: 'ttlEU' },
+                      ].map(({ role, key }) => (
+                        <tr key={role} className={role}>
+                          {hdGroup.headers.map((header) => (
+                            <th
+                              key={`${key}-${header.id}`}
+                              className="responsiveTextTable"
+                              style={{
+                                /* nowrap came from .numeric, which also forced 600 inside a
+                                   th and made this totals row the heaviest text in the app.
+                                   Weight now comes from .summary-band (500) like every
+                                   other totals row; the no-break guard stays, explicitly. */
+                                whiteSpace: 'nowrap',
+                                minWidth: header.column.id === 'select' ? '50px' : '60px',
+                                maxWidth: header.column.id === 'select' ? '50px' : 'none',
+                                padding: '4px 6px',
+                                boxShadow: 'none',
+                                borderRadius: 0,
+                                letterSpacing: '0.02em',
+                                textAlign: 'center',
+                                fontSize: 'var(--fs-table)',
+                              }}
+                            >
+                              {(header.column.columnDef[key] ?? '') || ''}
+                            </th>
+                          ))}
+                        </tr>
+                      ))}
 
                       {/* COLUMN LABELS. The rule under this row was
                           rgba(--surface-card-rgb, 0.2) — white at 20% opacity on a

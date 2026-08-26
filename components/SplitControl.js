@@ -2,17 +2,23 @@
 // Reusable IMS/GIS split control for a single expense/invoice row.
 //
 // Renders one of three compact states inside a table cell:
-//   none    → "Put under control" button (flags the row for splitting)
+//   none    → icon-only split button (flags the row for splitting)
 //   pending → amber "Pending split" badge (click → calculate) + remove (×)
 //   done    → green "Split r/r" badge (click → edit / reopen)
+//
+// The "none" state used to spell out "Put under control" in the cell, which set the
+// width of the whole IMS/GIS column for the sake of a button most rows never need.
+// It is a glyph now; the wording lives in the tooltip, so the column can be sized to
+// the badges the other two states actually show.
 //
 // Persistence is delegated to the host page via `onPersist(splitObjOrNull)` so each
 // page keeps its own Firestore write (expenses_/companyExpenses/invoices_) and
 // optimistic state update. Notifications are generic and handled here.
 import { useState } from 'react';
 import { createPortal } from 'react-dom';
-import { Split, X, Loader2 } from 'lucide-react';
+import { X } from 'lucide-react';
 import StatusBadge from './StatusBadge';
+import Tltip from './tlTip';
 import { BtnIcon } from './buttonIcons';
 import { SPLIT_DEFAULT_RATIO, computeShares, curSymbol, splitStatusOf } from '../utils/splitUtils';
 import { ensureSplitNotification, clearSplitNotification } from '../utils/utils';
@@ -114,55 +120,67 @@ export default function SplitControl({
 
   const preview = computeShares(amount, Math.min(100, Math.max(0, Number(ratio) || 0)));
 
+  // The tooltip is the only label the button has now, so it names the record it is
+  // about rather than always saying "invoice" — this control also sits on the two
+  // expense pages.
+  const noun = entityType === 'invoice' ? 'invoice'
+    : entityType === 'companyexpense' ? 'company expense'
+      : 'expense';
+
   return (
     <div className="flex items-center justify-center gap-1" onClick={(e) => e.stopPropagation()}>
       {status === 'none' && (
-        <button
-          type="button"
-          onClick={putUnderControl}
-          disabled={busy}
-          title="Put under control — flag this invoice for IMS/GIS split"
-          className="inline-flex items-center gap-1 rounded-full transition-colors disabled:opacity-50"
-          style={{ fontSize: 'var(--fs-table)', padding: '3px 10px', color: 'var(--endeavour)', background: 'var(--bg-subtle)', border: '1px solid var(--line-strong)' }}
-        >
-          {busy ? <Loader2 className="w-3 h-3 animate-spin" /> : <Split className="w-3 h-3" />}
-          Put under control
-        </button>
+        <Tltip tltpText={`Put under control — flag this ${noun} for the IMS/GIS split`}>
+          <button
+            type="button"
+            onClick={putUnderControl}
+            disabled={busy}
+            aria-label="Put under control"
+            className="cell-control inline-flex items-center justify-center rounded-control transition-colors disabled:opacity-50"
+            style={{ width: 'var(--h-cell-control)', color: 'var(--endeavour)', background: 'var(--bg-subtle)', border: '1px solid var(--line-strong)' }}
+          >
+            <BtnIcon action={busy ? 'saving' : 'split'} spin={busy} />
+          </button>
+        </Tltip>
       )}
 
       {status === 'pending' && (
         <>
-          <button
-            type="button"
-            onClick={openModal}
-            disabled={busy}
-            title="Pending IMS/GIS split — click to calculate"
-            className="rounded-full focus:outline-none focus:ring-2 focus:ring-[var(--endeavour)]/30"
-          >
-            <StatusBadge label="Pending split" tone="amber" />
-          </button>
-          <button
-            type="button"
-            onClick={removeControl}
-            disabled={busy}
-            title="Remove from control"
-            className="p-0.5 rounded-full hover:bg-[var(--bad-bg)] disabled:opacity-50"
-          >
-            <X className="w-3 h-3" style={{ color: 'var(--warn-text)' }} />
-          </button>
+          <Tltip tltpText="Pending IMS/GIS split — click to calculate">
+            <button
+              type="button"
+              onClick={openModal}
+              disabled={busy}
+              className="rounded-control focus:outline-none focus:ring-2 focus:ring-[var(--endeavour)]/30"
+            >
+              <StatusBadge label="Pending split" tone="amber" />
+            </button>
+          </Tltip>
+          <Tltip tltpText="Remove from control">
+            <button
+              type="button"
+              onClick={removeControl}
+              disabled={busy}
+              aria-label="Remove from control"
+              className="cell-clear disabled:opacity-50"
+            >
+              <BtnIcon action="close" />
+            </button>
+          </Tltip>
         </>
       )}
 
       {status === 'done' && (
-        <button
-          type="button"
-          onClick={openModal}
-          disabled={busy}
-          title={`Split done — IMS ${sym}${fmt(existing.imsShare)} · GIS ${sym}${fmt(existing.gisShare)} (click to edit)`}
-          className="rounded-full focus:outline-none focus:ring-2 focus:ring-[var(--endeavour)]/30"
-        >
-          <StatusBadge tone="green" label={`Split ${existing.ratio ?? SPLIT_DEFAULT_RATIO}/${100 - (existing.ratio ?? SPLIT_DEFAULT_RATIO)}`} />
-        </button>
+        <Tltip tltpText={`Split done — IMS ${sym}${fmt(existing.imsShare)} · GIS ${sym}${fmt(existing.gisShare)} (click to edit)`}>
+          <button
+            type="button"
+            onClick={openModal}
+            disabled={busy}
+            className="rounded-control focus:outline-none focus:ring-2 focus:ring-[var(--endeavour)]/30"
+          >
+            <StatusBadge tone="green" label={`Split ${existing.ratio ?? SPLIT_DEFAULT_RATIO}/${100 - (existing.ratio ?? SPLIT_DEFAULT_RATIO)}`} />
+          </button>
+        </Tltip>
       )}
 
       {open && typeof document !== 'undefined' && createPortal(

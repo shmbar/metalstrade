@@ -53,6 +53,7 @@ import {
   ShieldCheck,
   Sigma,
   Sparkles,
+  Split,
   Trash,
   TrendingUp,
   Truck,
@@ -114,7 +115,9 @@ export const ACTION_ICONS = {
   audit: ClipboardList,
   analysis: TrendingUp,
   sum: Sigma,
-  split: Copy,
+  // The IMS/GIS split — a branch, not a Copy. It is now the whole label on the
+  // "put under control" button, so the glyph has to carry the meaning alone.
+  split: Split,
   ai: Sparkles,
   history: History,
   comments: MessageSquare,

@@ -37,6 +37,9 @@ const Customtable = ({
   excellReport,
   cb,
   setFilteredData,
+  /* Already passed by page.js — it was just never picked up here, which is how
+     the totals band ended up guessing its own currency. */
+  valCur,
   ln
 }) => {
 
@@ -138,45 +141,43 @@ const Customtable = ({
     const totalPayments = sum('payments')
     const totalExpenses = sum('expenses1')
 
-    const getTtlSample = (columnId) => {
-      const col = table.getAllLeafColumns().find((column) => column.id === columnId)
-      return col?.columnDef?.ttl
-    }
+    /* The currency comes from the page's selector, the same `valCur` every body
+       cell is formatted with. It used to be GUESSED from a sibling column's `ttl`
+       string: "if it contains '—' it is EUR". That character is an EM DASH, not a
+       euro sign, so the test could never pass — Intl never emits one — and the
+       band formatted as USD however the selector was set, printing "$" over a
+       table of "€". Reading the selector directly is both correct and one
+       fewer indirection. */
+    const currency = valCur?.cur === 'eu' ? 'EUR' : 'USD'
 
-    const inferCurrency = (sample) => {
-      if (typeof sample !== 'string') return 'USD'
-      if (sample.includes('—')) return 'EUR'
-      return 'USD'
-    }
-
-    const formatAmount = (value, sample) => {
-      const currency = inferCurrency(sample)
-      return new Intl.NumberFormat('en-US', {
-        style: 'currency',
-        currency,
-        minimumFractionDigits: 2,
-      }).format(Number(value) || 0)
-    }
+    const formatAmount = (value) => new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency,
+      minimumFractionDigits: 2,
+    }).format(Number(value) || 0)
 
     const prepaidPer = totalInvoices === 0
       ? '-'
       : `${((totalPrepayment / totalInvoices) * 100).toFixed(2)}%`
 
     return {
-      order: <span className='font-medium'>{getTtl('Total', ln) + ':'}</span>,
-      conValue: formatAmount(totalContracts, getTtlSample('conValue')),
-      totalInvoices: formatAmount(totalInvoices, getTtlSample('totalInvoices')),
-      deviation: formatAmount(totalDeviation, getTtlSample('deviation')),
+      /* Label carries the symbol, as it does on /expenses — with one band and a
+         selector above it, the symbol is the only thing saying which currency
+         these figures are in. */
+      order: <span className='font-medium'>{`${getTtl('Total', ln)} ${currency === 'EUR' ? '€' : '$'}:`}</span>,
+      conValue: formatAmount(totalContracts),
+      totalInvoices: formatAmount(totalInvoices),
+      deviation: formatAmount(totalDeviation),
       prepaidPer,
-      totalPrepayment1: formatAmount(totalPrepayment, getTtlSample('totalPrepayment1')),
-      inDebt: formatAmount(totalInvoices - totalPrepayment, getTtlSample('inDebt')),
-      payments: formatAmount(totalPayments, getTtlSample('payments')),
-      debtaftr: formatAmount(totalPrepayment - totalPayments, getTtlSample('debtaftr')),
-      debtBlnc: formatAmount(totalInvoices - totalPayments, getTtlSample('debtBlnc')),
-      expenses1: formatAmount(totalExpenses, getTtlSample('expenses1')),
-      profit: formatAmount(totalInvoices - totalContracts - totalExpenses, getTtlSample('profit')),
+      totalPrepayment1: formatAmount(totalPrepayment),
+      inDebt: formatAmount(totalInvoices - totalPrepayment),
+      payments: formatAmount(totalPayments),
+      debtaftr: formatAmount(totalPrepayment - totalPayments),
+      debtBlnc: formatAmount(totalInvoices - totalPayments),
+      expenses1: formatAmount(totalExpenses),
+      profit: formatAmount(totalInvoices - totalContracts - totalExpenses),
     }
-  }, [table, data, globalFilter, columnFilters, ln])
+  }, [table, data, globalFilter, columnFilters, ln, valCur])
 
   useEffect(() => {
     setFilteredData(table.getFilteredRowModel().rows.map(x => x.original))
@@ -253,22 +254,27 @@ const Customtable = ({
                 <thead className="sticky top-0 z-sticky">
                   {table.getHeaderGroups().map(hdGroup => (
                     <Fragment key={hdGroup.id}>
-                                            {/* Totals Row */}
-                                            <tr style={{ 
-                                              background: 'var(--bg-subtle)',
-                                              
-                                            }}>
+                                            {/* Totals band — .summary-band in globals.css, the same
+                                                violet band /expenses puts over its columns. It was
+                                                --bg-subtle, i.e. the EXACT shade of the column
+                                                headers directly beneath it, so the one row on the
+                                                page carrying every figure the page exists to show
+                                                read as a second header. Client, 2026-08-26.
+                                                Only one band here, not the $/€ pair: this page has
+                                                a currency selector, so it shows one currency at a
+                                                time and the band follows it. */}
+                                            <tr className="summary-band">
                                               {hdGroup.headers.map((header, idx) => (
                                                 <th
                                                   key={`total-${header.id}`}
-                                                  /* Band comes from .custom-table th — see
-                                                     globals.css. Colour was full ink against
-                                                     the standard's --ink-secondary. */
+                                                  /* Padding 10px -> 5px: at 10 the band was taller
+                                                     than the header and both data rows put together.
+                                                     Matches the 5px the header row below it gets. */
                                                   style={{
-                                                    border: 'none',
                                                     boxShadow: 'none',
                                                     borderRadius: 0,
-                                                    padding: '10px 8px',
+                                                    padding: '5px 8px',
+                                                    whiteSpace: 'nowrap',
                                                   }}
                                                 >
                                                   {(totalsByColumn?.[header.column.id] ?? header.column.columnDef.ttl) || ''}
