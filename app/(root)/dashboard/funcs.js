@@ -248,6 +248,11 @@ export const calContracts = (data, settings, companyRate = 0) => {
     let cogs = 0          // cost of SOLD material only (sold-basis P&L)
     let unsoldValue = 0   // purchase value of unsold material — stock, NOT a cost/loss
     const expByType = {}  // expense label -> total (freight, warehouse, commission, …)
+    /* expense label -> the individual rows behind that total, so the card can open a
+       breakdown instead of being a dead end. Collected in the SAME loop and from the same
+       `amt`, so the popup's figures add up to the tile's by construction — a second pass
+       over the data could drift from it the moment either rule changed. */
+    const expDetails = {}
     const materialSold = {} // material description -> sold MT
 
     // Expense-type ids whose label looks like freight (freight, freightReloadCourier, …),
@@ -314,6 +319,14 @@ export const calContracts = (data, settings, companyRate = 0) => {
                 if (freightIds.has(obj.expType)) freightTotal += amt
                 const lbl = expLabel(obj.expType)
                 expByType[lbl] = (expByType[lbl] || 0) + amt
+                ;(expDetails[lbl] ||= []).push({
+                    supplier: x.supplier,                       // id — resolved to a name at render
+                    order: x.order || '',                       // PO number
+                    usd: amt,                                   // converted, matches the tile
+                    amount: parseFloat(obj.amount),             // as entered
+                    cur: obj.cur || 'us',
+                    date: obj.date || obj.dateRange?.startDate || '',
+                })
                 const lblLower = String(lbl).toLowerCase()
                 if (lblLower.includes('storage') || lblLower.includes('warehouse')) storageByMonth[expMonth] += amt
             }
@@ -345,7 +358,7 @@ export const calContracts = (data, settings, companyRate = 0) => {
         months.forEach((v, i) => { dst[i] += v })
     })
 
-    return { accumulatedPmnt, accumulatedExp, pieArrSupps, suppSeries, totalMT, shippedMT, freightTotal, missingRate, cogs, unsoldValue, cogsByMonth, expByType, materialSold, storageByMonth };
+    return { accumulatedPmnt, accumulatedExp, pieArrSupps, suppSeries, totalMT, shippedMT, freightTotal, missingRate, cogs, unsoldValue, cogsByMonth, expByType, expDetails, materialSold, storageByMonth };
 }
 
 

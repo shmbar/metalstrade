@@ -12,7 +12,10 @@ import {
   DialogFooter,
 } from "@components/ui/dialog"
 
-const MyModal = ({ isDeleteOpen, setIsDeleteOpen, ttl, txt, doAction }) => {
+// `details` is optional: a node listing exactly what a destructive action will
+// take with it. A confirmation that only asks "are you sure?" cannot be answered
+// honestly when the action reaches records the user can't see from here.
+const MyModal = ({ isDeleteOpen, setIsDeleteOpen, ttl, txt, details, doAction }) => {
   const { compData } = useContext(SettingsContext)
   const ln = compData.lng
 
@@ -37,6 +40,8 @@ const MyModal = ({ isDeleteOpen, setIsDeleteOpen, ttl, txt, doAction }) => {
         <p className="responsiveTextTitle text-[var(--endeavour)] mt-2">
           {txt}
         </p>
+
+        {details}
 
         <DialogFooter className="flex gap-4 mt-4">
           <button

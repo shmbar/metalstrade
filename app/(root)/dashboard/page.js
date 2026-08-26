@@ -25,6 +25,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { TONES } from '@components/statusUtils';
 import ProgressBar from '@components/ProgressBar';
 import Avatar from '@components/Avatar';
+import Modal from '@components/modal';
 import { BtnIcon } from '@components/buttonIcons';
 import { Gauge, Receipt, Percent, Truck, Warehouse, TrendingUp, FileWarning, Ship, Building2, Info } from 'lucide-react';
 
@@ -376,17 +377,17 @@ function ReceivablesSplitCard({ byCur = {} }) {
             invoice before or after its final version — not good vs caution, and the tan
             track under a green fill was the harshest pairing on the page. One hue, two
             steps: filled = finalized, track = the rest still to come. */}
-        <div className="w-full h-2 rounded-full overflow-hidden" style={{ backgroundColor: 'var(--brand-soft)' }}>
-          <div className="h-full rounded-full transition-all" style={{ width: `${pctFinal}%`, backgroundColor: 'var(--brand)' }} />
+        <div className="w-full h-2 rounded-full overflow-hidden" style={{ backgroundColor: 'var(--ok-bg)' }}>
+          <div className="h-full rounded-full transition-all" style={{ width: `${pctFinal}%`, backgroundColor: 'var(--ok-text)' }} />
         </div>
 
         <div className="grid grid-cols-2 gap-3">
-          <div className="rounded-lg p-2.5" style={{ backgroundColor: 'var(--brand-soft)', boxShadow: 'inset 0 0 0 1px var(--brand-border)' }}>
+          <div className="rounded-lg p-2.5" style={{ backgroundColor: 'var(--ok-bg)', boxShadow: 'inset 0 0 0 1px var(--ok-border)' }}>
             <div className="flex items-center gap-1.5">
-              <span className="rounded-full shrink-0" style={{ width: 8, height: 8, backgroundColor: 'var(--brand)' }} />
-              <span className="responsiveTextTable font-semibold tracking-wide" style={{ color: 'var(--brand-strong)' }}>FINALIZED</span>
+              <span className="rounded-full shrink-0" style={{ width: 8, height: 8, backgroundColor: 'var(--ok-text)' }} />
+              <span className="responsiveTextTable font-semibold tracking-wide" style={{ color: 'var(--ok-text)' }}>FINALIZED</span>
             </div>
-            <div className="mt-1 leading-tight" style={{ color: 'var(--brand-strong)' }}>
+            <div className="mt-1 leading-tight" style={{ color: 'var(--ok-text)' }}>
               {amountsFor('finalized').map((a, i) => (
                 <div key={i} className="font-semibold" style={{ fontSize: 'var(--fs-substat)', fontFamily: 'var(--font-jakarta), Manrope, sans-serif', fontVariantNumeric: 'tabular-nums' }}>{a}</div>
               ))}
@@ -418,6 +419,121 @@ const fmtPct = (p) => {
   if (p < 0.1) return '<0.1%';
   return `${p.toFixed(p < 10 ? 1 : 0)}%`;
 };
+
+/* The rows behind one "Expenses by Type" tile — which suppliers the spend went to, on
+   which PO, for how much. The tile used to be a dead end: it told you Commission was
+   $315.67K and gave you nowhere to go with that.
+   Grouped by supplier rather than listed flat, because "which companies" is the question
+   being asked; each group opens to its individual PO lines. Rows come from the same pass
+   that built the tile's total, so the figures cannot disagree. */
+function ExpenseDrillModal({ label, rows = [], settings, isOpen, setIsOpen }) {
+  const supplierName = (id) => settings?.Supplier?.Supplier?.find(s => s.id === id)?.nname || 'Unknown supplier';
+  const groups = useMemo(() => {
+    const by = {};
+    rows.forEach(r => {
+      const name = supplierName(r.supplier);
+      (by[name] ||= { name, total: 0, lines: [] });
+      by[name].total += Number(r.usd) || 0;
+      by[name].lines.push(r);
+    });
+    return Object.values(by)
+      .map(g => ({ ...g, lines: g.lines.sort((a, b) => (b.usd || 0) - (a.usd || 0)) }))
+      .sort((a, b) => b.total - a.total);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [rows, settings]);
+  const total = groups.reduce((a, g) => a + g.total, 0);
+  const curSym = (c) => (c === 'us' ? '$' : c === 'eu' ? '€' : c === 'gb' ? '£' : '');
+
+  return (
+    <Modal isOpen={isOpen} setIsOpen={setIsOpen} size="lg"
+      title={label || 'Expenses'}
+      subtitle={`${rows.length} expense${rows.length === 1 ? '' : 's'} across ${groups.length} supplier${groups.length === 1 ? '' : 's'} · ${fmtAutoKM(total)}`}>
+      <div className="p-4 flex flex-col gap-3">
+        {groups.length === 0
+          ? <div className="responsiveText text-[var(--regent-gray)] py-6 text-center">No expenses of this type in the period</div>
+          : groups.map(g => (
+            <div key={g.name} className="rounded-2xl border border-[var(--line)] overflow-hidden">
+              <div className="flex items-center justify-between gap-2 px-3 py-2 bg-[var(--bg-subtle)]">
+                <span className="flex items-center gap-1.5 min-w-0">
+                  <Avatar name={g.name} size={18} />
+                  <span className="responsiveTextTable font-semibold text-[var(--ink)] truncate">{g.name}</span>
+                  <span className="responsiveTextTableTitle text-[var(--regent-gray)] flex-shrink-0">
+                    · {g.lines.length} line{g.lines.length === 1 ? '' : 's'}
+                  </span>
+                </span>
+                <span className="responsiveTextTable numeric font-semibold text-[var(--ink)] flex-shrink-0">{fmtAutoKM(g.total)}</span>
+              </div>
+              <table className="w-full">
+                <thead>
+                  <tr>
+                    <th className="responsiveTextTableTitle text-left text-[var(--regent-gray)] font-medium px-3 py-1">PO</th>
+                    <th className="responsiveTextTableTitle text-left text-[var(--regent-gray)] font-medium px-3 py-1">Date</th>
+                    <th className="responsiveTextTableTitle text-right text-[var(--regent-gray)] font-medium px-3 py-1">As entered</th>
+                    <th className="responsiveTextTableTitle text-right text-[var(--regent-gray)] font-medium px-3 py-1">USD</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {g.lines.map((r, i) => (
+                    <tr key={i}>
+                      <td className="responsiveTextTable px-3 py-1 text-[var(--ink-secondary)]">{r.order || '—'}</td>
+                      <td className="responsiveTextTable px-3 py-1 text-[var(--ink-secondary)]">{r.date || '—'}</td>
+                      {/* "As entered" is shown beside the USD figure so a EUR expense is
+                          visibly a EUR expense — the page converts everything to USD and
+                          that conversion is exactly where the FX warning above bites. */}
+                      <td className="responsiveTextTable numeric px-3 py-1 text-right text-[var(--regent-gray)]">
+                        {curSym(r.cur)}{new Intl.NumberFormat('en-US', { maximumFractionDigits: 2 }).format(r.amount || 0)}
+                      </td>
+                      <td className="responsiveTextTable numeric px-3 py-1 text-right text-[var(--ink)]">{fmtAutoKM(r.usd)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ))}
+      </div>
+    </Modal>
+  );
+}
+
+/* A labelled band of the dashboard, stating the window its cards actually cover.
+   This page shows THREE different windows at once — contracts DATED in the period,
+   invoices DATED in the period, and open balances AS OF TODAY — and until this went in,
+   nothing on screen said which was which. That is what made a correct page read as a
+   broken one: receivables not moving when you change the date picker looks like a bug
+   right up until the card admits it has no period of its own. */
+function BandHeader({ title, subtitle, period, muted = false, open, onToggle }) {
+  const collapsible = typeof onToggle === 'function';
+  const Title = collapsible ? 'button' : 'div';
+  return (
+    <div className="flex items-baseline justify-between gap-3 flex-wrap mb-3">
+      <Title
+        {...(collapsible ? { type: 'button', onClick: onToggle, 'aria-expanded': open } : {})}
+        className={`min-w-0 text-left ${collapsible ? 'cursor-pointer group' : ''}`}
+      >
+        <h3 className="text-title text-[var(--ink)] flex items-center gap-1.5">
+          {collapsible && (
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" className="flex-shrink-0 transition-transform"
+              style={{ transform: open ? undefined : 'rotate(-90deg)' }} aria-hidden="true">
+              <path d="M6 9l6 6 6-6" stroke="var(--ink-muted)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          )}
+          {title}
+        </h3>
+        {subtitle && <p className="responsiveTextTable text-[var(--regent-gray)] mt-0.5">{subtitle}</p>}
+      </Title>
+      <span
+        className="responsiveTextTableTitle rounded-lg px-2 py-1 flex-shrink-0 border font-medium"
+        style={{
+          background: muted ? 'var(--bg-subtle)' : 'var(--brand-soft)',
+          borderColor: muted ? 'var(--line-strong)' : 'var(--brand-border)',
+          color: muted ? 'var(--ink-secondary)' : 'var(--brand-strong)',
+        }}
+      >
+        {period}
+      </span>
+    </div>
+  );
+}
 
 /* 12-month trend for one ranking tile. Inline SVG — no library, no canvas; there are up
    to 17 of these on screen and each is 12 points.
@@ -648,7 +764,7 @@ function PerMtStrip({ totalMT, avgExpensePerMT, avgProfitPerMT, avgFreightPerMT 
      only; a positive is the normal case in a ledger." A green profit figure spends the
      reader's attention confirming that the ordinary thing happened. */
   const negative = avgProfitPerMT < 0;
-  const profitAccent = negative ? 'var(--danger-text)' : 'var(--brand)';
+  const profitAccent = negative ? 'var(--danger-text)' : 'var(--ok-figure)';
 
   const metrics = [
     {
@@ -700,7 +816,7 @@ function PerMtStrip({ totalMT, avgExpensePerMT, avgProfitPerMT, avgFreightPerMT 
       accent: profitAccent,
       icon: (
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-          <circle cx="12" cy="12" r="10" stroke={profitAccent} strokeWidth="2" fill={negative ? 'var(--bad-bg)' : 'var(--brand-soft)'} />
+          <circle cx="12" cy="12" r="10" stroke={profitAccent} strokeWidth="2" fill={negative ? 'var(--bad-bg)' : 'var(--ok-bg)'} />
           <path d={negative ? 'M8 12l3-3 5 5' : 'M8 12l3 3 5-5'} stroke={profitAccent} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
       ),
@@ -826,7 +942,7 @@ function FilterSelect({ label, icon, value, onChange, options }) {
 }
 
 // Purchased vs Shipped vs Pending tonnage, with a shipped-progress bar.
-function TonnageCard({ purchased = 0, shipped = 0, pending = 0 }) {
+function TonnageCard({ purchased = 0, shipped = 0, pending = 0, unsoldValue = 0 }) {
   const pctShipped = purchased > 0 ? Math.min(100, (shipped / purchased) * 100) : 0;
   const fmtMT = (n) => `${new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 }).format(n || 0)} MT`;
   /* Purchased / Shipped / Pending is one quantity at three stages of the SAME journey —
@@ -837,7 +953,7 @@ function TonnageCard({ purchased = 0, shipped = 0, pending = 0 }) {
      One hue at three intensities instead, so the eye reads progress rather than verdict. */
   const pills = [
     { label: 'PURCHASED', value: purchased, bg: 'var(--brand-soft)', ring: 'var(--brand-border)', dot: 'var(--brand-strong)', color: 'var(--brand-strong)' },
-    { label: 'SHIPPED', value: shipped, bg: 'var(--brand-soft)', ring: 'var(--brand-border)', dot: 'var(--brand)', color: 'var(--brand-strong)' },
+    { label: 'SHIPPED', value: shipped, bg: 'var(--ok-bg)', ring: 'var(--ok-border)', dot: 'var(--ok-text)', color: 'var(--ok-text)' },
     { label: 'PENDING', value: pending, bg: 'var(--bg-subtle)', ring: 'var(--line-strong)', dot: 'var(--ink-muted)', color: 'var(--ink-secondary)' },
   ];
   return (
@@ -857,14 +973,14 @@ function TonnageCard({ purchased = 0, shipped = 0, pending = 0 }) {
             </span>
             <span className="responsiveTextTable font-medium text-[var(--regent-gray)] leading-tight">Tonnage — Purchased vs Shipped</span>
           </div>
-          <span className="responsiveTextTable font-medium" style={{ color: 'var(--brand-strong)' }}>{pctShipped.toFixed(0)}% shipped</span>
+          <span className="responsiveTextTable font-medium" style={{ color: 'var(--ok-text)' }}>{pctShipped.toFixed(0)}% shipped</span>
         </div>
 
         {/* Shipped proportion bar. A meter's unfilled track is a lighter step of the SAME
             ramp as its fill — the state then reads across the whole bar. It was a green
             fill on a brand track, two unrelated hues meeting in the middle. */}
-        <div className="w-full h-2 rounded-full overflow-hidden" style={{ backgroundColor: 'var(--brand-soft)' }}>
-          <div className="h-full rounded-full transition-all" style={{ width: `${pctShipped}%`, backgroundColor: 'var(--brand)' }} />
+        <div className="w-full h-2 rounded-full overflow-hidden" style={{ backgroundColor: 'var(--ok-bg)' }}>
+          <div className="h-full rounded-full transition-all" style={{ width: `${pctShipped}%`, backgroundColor: 'var(--ok-text)' }} />
         </div>
 
         <div className="grid grid-cols-3 gap-2">
@@ -878,6 +994,19 @@ function TonnageCard({ purchased = 0, shipped = 0, pending = 0 }) {
             </div>
           ))}
         </div>
+
+        {/* What the PENDING pill above is worth. This was a whole separate "Unsold Stock"
+            card taking a third of a row to restate the same tonnage and add one figure —
+            the value. As a footer line it says the same thing where the number it depends
+            on is already on screen. Neutral, not caution: parked capital is a state, not a
+            warning, and it used to be the dashboard's largest warm block. */}
+        {unsoldValue > 0 && (
+          <div className="flex items-baseline justify-between gap-2 rounded-lg p-2.5"
+            style={{ backgroundColor: 'var(--neutral-bg)', boxShadow: 'inset 0 0 0 1px var(--neutral-border)' }}>
+            <span className="responsiveTextTableTitle text-[var(--regent-gray)]">Pending stock value · capital tied up, excluded from profit</span>
+            <span className="font-semibold leading-none flex-shrink-0" style={{ color: 'var(--neutral-text)', fontSize: 'var(--fs-substat)', fontFamily: 'var(--font-jakarta), Manrope, sans-serif', fontVariantNumeric: 'tabular-nums' }}>{fmtAutoKM(unsoldValue)}</span>
+          </div>
+        )}
       </div>
     </m.div>
   );
@@ -977,36 +1106,6 @@ function MiscInvoicesCard({ byCur = {}, byCat = {}, count = 0 }) {
   );
 }
 
-// Value of purchased-but-unsold material. Shown separately because it's stock (capital
-// tied up), NOT a cost or loss — it only becomes a cost when the material is sold.
-function UnsoldStockCard({ value = 0, mt = 0 }) {
-  const fmtMT = (n) => `${new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 }).format(n || 0)} MT`;
-  return (
-    <m.div
-      className="relative rounded-2xl bg-[var(--bg-card)] border border-[var(--line)] shadow-card overflow-hidden"
-      initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35, ease: 'easeOut' }}
-      whileHover={{ y: -3, boxShadow: 'var(--shadow-sm)' }}
-    >
-      <div className="p-4 flex flex-col gap-2 h-full">
-        <div className="flex items-center gap-2">
-          {/* Neutral, not caution. The card's own copy says "not a cost" and
-              "excluded from profit" — this is parked capital, an informational
-              state, and painting it ochre made the dashboard's largest warm
-              block out of something that isn't a warning at all. */}
-          <span className="inline-flex items-center justify-center rounded-lg flex-shrink-0" style={{ background: 'color-mix(in srgb, var(--neutral-text) 10%, transparent)', color: 'var(--neutral-text)', width: 30, height: 30 }}>
-            <svg width="16" height="16" fill="none" viewBox="0 0 24 24"><path d="M3 7l9-4 9 4-9 4-9-4z" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" /><path d="M3 7v10l9 4 9-4V7" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" /></svg>
-          </span>
-          <span className="responsiveTextTable font-medium text-[var(--regent-gray)] leading-tight">Unsold Stock · not a cost</span>
-        </div>
-        <div className="font-semibold text-[var(--port-gore)] leading-none mt-1" style={{ fontSize: 'var(--fs-stat)', fontFamily: 'var(--font-jakarta), Manrope, sans-serif', fontVariantNumeric: 'tabular-nums' }}>{fmtAutoKM(value)}</div>
-        <div className="rounded-lg p-2.5 mt-auto" style={{ backgroundColor: 'var(--neutral-bg)', boxShadow: 'inset 0 0 0 1px var(--neutral-border)' }}>
-          <div className="font-semibold leading-none" style={{ color: 'var(--neutral-text)', fontSize: 'var(--fs-substat)', fontFamily: 'var(--font-jakarta), Manrope, sans-serif', fontVariantNumeric: 'tabular-nums' }}>{fmtMT(mt)}</div>
-          <div className="responsiveTextTableTitle text-[var(--regent-gray)] mt-1">in stock · capital tied up, excluded from profit</div>
-        </div>
-      </div>
-    </m.div>
-  );
-}
 
 // Receivables aging — outstanding split by invoice age (0–30 / 31–60 / 61–90 / 90+),
 // per currency, colored green→red as it ages. Shows how overdue money is at a glance.
@@ -1022,7 +1121,7 @@ function AgingCard({ buckets = [] }) {
      0–30 is not overdue at all, so it takes neutral ink rather than green — a healthy
      bucket is the ordinary case and does not need to be congratulated. */
   const colors = [
-    'var(--ink-muted)',
+    'var(--ok-text)',
     'color-mix(in srgb, var(--danger-text) 45%, var(--bg-card))',
     'var(--danger-text)',
     'var(--danger-strong)',
@@ -1157,6 +1256,27 @@ const Dash = () => {
   const [fCurrency, setFCurrency] = useState('');
   const [fOrigin, setFOrigin] = useState('');
   const [fDelTerm, setFDelTerm] = useState('');
+  // Which 'Expenses by Type' tile has its breakdown open (label, or null).
+  const [expDrill, setExpDrill] = useState(null);
+
+  /* Collapsed bands, remembered per browser — someone who never reads "Other" should stop
+     scrolling past it. Read in an effect rather than a useState initialiser so the server
+     and the first client render agree (localStorage does not exist during SSR, and
+     disagreeing would be a hydration mismatch). Defaults to everything OPEN: a first load
+     must never hide a figure from someone who does not know the band is there.
+     try/catch because a private window throws on access rather than returning null. */
+  const [collapsed, setCollapsed] = useState({});
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem('ims-dash-bands');
+      if (raw) setCollapsed(JSON.parse(raw) || {});
+    } catch { /* storage unavailable — every band stays open, which is the safe default */ }
+  }, []);
+  const toggleBand = (key) => setCollapsed(prev => {
+    const next = { ...prev, [key]: !prev[key] };
+    try { localStorage.setItem('ims-dash-bands', JSON.stringify(next)); } catch { /* ignore */ }
+    return next;
+  });
 
   useEffect(() => {
 
@@ -1416,6 +1536,7 @@ const Dash = () => {
   const unsoldValue = conAgg.unsoldValue || 0; // purchase value of unsold stock (NOT a loss)
   const cogsByMonth = conAgg.cogsByMonth || {};
   const expByType = conAgg.expByType || {};
+  const expDetails = conAgg.expDetails || {};
   const materialSold = conAgg.materialSold || {};
   // Storage + warehouse spend (the storage-cost buckets), for the dashboard tile.
   /* Substring, not exact — the same way the freight and commission tiles match. The
@@ -1521,6 +1642,19 @@ const Dash = () => {
   /* totalPL is revenue − cost of sold − contract expenses, i.e. BEFORE overheads.
      The donut used to label that figure "Net Profit", which it is not. */
   const netProfit = useMemo(() => totalPL - companyExpAgg.total, [totalPL, companyExpAgg]);
+
+  /* Labels for the band headers. Spelled out ("01 Jan – 31 Dec 2026") rather than echoing
+     the picker's "01.01.26 ~ 31.12.26", because the point of the chip is to be readable
+     without first decoding it. */
+  const fmtDay = (s) => {
+    if (typeof s !== 'string' || s.length < 10) return '';
+    const d = new Date(`${s}T00:00:00`);
+    return isNaN(d) ? '' : new Intl.DateTimeFormat('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }).format(d);
+  };
+  const periodLabel = dateSelect?.start && dateSelect?.end
+    ? `${fmtDay(dateSelect.start)} – ${fmtDay(dateSelect.end)}`
+    : `${currentYear}`;
+  const todayLabel = new Intl.DateTimeFormat('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }).format(new Date());
 
   /* ── Business-summary tiles ────────────────────────────────────────────────
      Both of these RESHAPE numbers that already exist for display; neither
@@ -1713,8 +1847,8 @@ const Dash = () => {
     datasets: [{
       data: [cogs, totalExpenses, companyExpAgg.total, profitForArc],
       // Canvas cannot parse var() — every colour here must be resolved first.
-      // brandRamp already returns resolved hex, so only --teal-text needs cssVar.
-      backgroundColor: [...costRamp, cssVar('--teal-text', '#2F6560')],
+      // brandRamp already returns resolved hex, so only --ok-figure needs cssVar.
+      backgroundColor: [...costRamp, cssVar('--ok-figure', '#37815F')],
       borderColor: cssVar('--on-brand', '#ffffff'),
       borderWidth: 2,
       hoverOffset: 6,
@@ -1752,7 +1886,7 @@ const Dash = () => {
     { label: 'Cost of Goods Sold', value: cogs, color: costRamp[0] },
     { label: 'Contract Expenses', value: totalExpenses, color: costRamp[1] },
     { label: 'Company Expenses', value: companyExpAgg.total, color: costRamp[2] },
-    { label: 'Net Profit', value: netProfit, color: 'var(--teal-text)' },
+    { label: 'Net Profit', value: netProfit, color: 'var(--ok-figure)' },
   ];
 
   // Ranking data sources
@@ -1802,7 +1936,7 @@ const Dash = () => {
                 {filtersActive && <span className="text-[var(--brand)] font-medium"> · filtered</span>}
               </p>
             </div>
-            <div className="flex items-center gap-1">
+            <div className="relative flex items-center gap-1">
               <DateRangePicker />
               <TooltipComp txt="Select Dates Range" />
             </div>
@@ -1876,14 +2010,21 @@ const Dash = () => {
               because a card now carries the same information and a sparkline
               repeating it is just noise: Net Profit (Sold) -> Profit, Other
               Expenses -> Expenses, Storage Spend -> Warehouse & Storage. */}
+          <BandHeader
+            title="Purchasing & costs"
+            subtitle="Contracts bought in this period, what they cost, and what came of them"
+            period={`Contracts dated ${periodLabel}`}
+            open={!collapsed.purchasing}
+            onToggle={() => toggleBand('purchasing')}
+          />
+          {!collapsed.purchasing && (<>
           <div className="mb-4">
-            <h3 className="text-caption mb-3">Business Summary</h3>
             {/* 8-across only from 2xl (1536). At 1440 with the sidebar open the
                 content column is ~1200px, so eight tiles is ~145px each — enough
                 for "$1.24K" and nothing else. Four across gives two comfortable
                 rows at the width most people actually use. */}
             <div className="rounded-card border border-[var(--line)] shadow-card overflow-hidden" style={{ background: 'var(--line)' }}>
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-px">
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-px">
               {/* AVERAGE RATE = average purchase cost per MT.
                   There is no metric called "Average Rate" in the app, and the
                   phrase could mean four different numbers, so this is a decision
@@ -1924,28 +2065,12 @@ const Dash = () => {
                 note={`${companyExpAgg.count} recorded, period`}
               />
               <SummaryTile
-                label="Commission"
-                info="The part of contract expenses whose type name contains 'commission'."
-                icon={Percent}
-                toneKey="blue"
-                value={fmtAutoKM(commissionSpend)}
-                note="commission expense types"
-              />
-              <SummaryTile
-                label="Freight"
-                info="The part of contract expenses whose type name contains 'freight'."
-                icon={Truck}
-                toneKey="blue"
-                value={fmtAutoKM(freightTotal)}
-                note="freight expense types"
-              />
-              <SummaryTile
-                label="Warehouse"
-                info="The part of contract expenses whose type name contains 'storage' or 'warehouse'. Combined freight-storage types are counted here and under Freight."
-                icon={Warehouse}
+                label="Cost of Goods Sold"
+                info="Purchase cost of the material actually sold, apportioned per contract by the share of its tonnage that shipped. Unsold material is inventory, not a cost."
+                icon={Receipt}
                 toneKey="gray"
-                value={fmtAutoKM(storageSpend)}
-                note="storage + warehouse"
+                value={fmtAutoKM(cogs)}
+                note="cost of material sold"
               />
               <SummaryTile
                 label="Gross Profit"
@@ -1953,8 +2078,8 @@ const Dash = () => {
                 icon={TrendingUp}
                 value={fmtAutoKM(totalPL)}
                 note="deal basis, before overheads"
-                toneKey={totalPL < 0 ? 'red' : 'blue'}
-                tone={totalPL < 0 ? 'var(--danger-text)' : undefined}
+                toneKey={totalPL < 0 ? 'red' : 'green'}
+                tone={totalPL < 0 ? 'var(--danger-text)' : 'var(--ok-figure)'}
               />
               <SummaryTile
                 label="Net Profit"
@@ -1962,89 +2087,17 @@ const Dash = () => {
                 icon={TrendingUp}
                 value={fmtAutoKM(netProfit)}
                 note="after company expenses"
-                toneKey={netProfit < 0 ? 'red' : 'blue'}
-                tone={netProfit < 0 ? 'var(--danger-text)' : undefined}
-              />
-              <SummaryTile
-                label="Unpaid Invoices"
-                info="Issued sales invoices still carrying a balance, totalled per currency. An invoice and its credit or final note count once. Drafts and cancelled invoices are excluded."
-                icon={FileWarning}
-                value={unpaidSummary.amounts.join(' · ')}
-                note={`${unpaidSummary.count} open`}
-                chip={unpaidSummary.overdueCount > 0 ? `${unpaidSummary.overdueCount} overdue` : null}
-                toneKey={unpaidSummary.overdueCount > 0 ? 'red' : 'amber'}
-                tone={unpaidSummary.overdueCount > 0 ? 'var(--danger-text)' : undefined}
-              />
-              {/* Value is the bare percentage, not "0% shipped". At --fs-stat the
-                  two-word form is ~110px wide and the tile is ~150px at 1440 with
-                  the sidebar open, so it ran out of its own card — the exact
-                  clipping the client is complaining about elsewhere. The word
-                  moved into the note, where it has room. */}
-              {/* Shipping less than 100% of what you bought is not a caution — it is what
-                  a stock position looks like. This tile was the brown "30%" in the Business
-                  Summary; progress belongs on the brand ramp, like the Tonnage card it
-                  restates. */}
-              <SummaryTile
-                label="Shipment Status"
-                info="Tonnage shipped as a share of tonnage purchased in this period."
-                icon={Ship}
-                value={`${shipmentSummary.pct}%`}
-                note={shipmentSummary.note}
-                toneKey="blue"
-                progress={shipmentSummary.pct / 100}
-                progressTone="blue"
+                toneKey={netProfit < 0 ? 'red' : 'green'}
+                tone={netProfit < 0 ? 'var(--danger-text)' : 'var(--ok-figure)'}
               />
               </div>
             </div>
           </div>
 
-          {/* KPI ROW */}
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 mb-5">
-            <StatKpiCard
-              title="Sales Revenue"
-              info="Sales invoices dated in this period, converted to USD. An invoice superseded by a credit or final note counts once; drafts and cancelled invoices are excluded."
-              value={fmtAutoKM(invoiceRevAgg.total)}
-              chartData={invoiceRevAgg.byMonth}
-              accent="var(--brand)"
-              icon={<svg width="16" height="16" fill="none" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="4" stroke="currentColor" strokeWidth="2" /><path d="M8 10h8M8 14h8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" /></svg>}
-            />
-            <StatKpiCard
-              title="Cost of Goods Sold"
-              info="Purchase cost of the material actually sold, apportioned per contract by the share of its tonnage that shipped. Unsold material is inventory, not a cost."
-              value={fmtAutoKM(cogs)}
-              chartData={cogsByMonth}
-              accent="var(--bad-text)"
-              goodWhenUp={false}
-              icon={<svg width="16" height="16" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8" stroke="currentColor" strokeWidth="2" /><path d="M12 8v4l2 2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" /></svg>}
-            />
-            <StatKpiCard
-              title="MT Purchased"
-              info="Total contracted tonnage in this period, with KGS and LB quantities converted to MT."
-              value={`${new Intl.NumberFormat('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(totalMT)} MT`}
-              chartData={dataContracts}
-              accent="var(--brand)"
-              icon={<svg width="16" height="16" fill="none" viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="12" rx="2" stroke="currentColor" strokeWidth="2" /><path d="M7 10h10M7 14h6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" /></svg>}
-            />
-            {/* "Other Expenses" and "Storage Spend" used to sit here with their own
-                sparklines. Both are now flat tiles in the Business Summary above
-                (Expenses / Warehouse) reading the same aggregates, so the charts
-                were carrying no information the cards don't. Removed rather than
-                shrunk — two fewer chart.js instances on first paint. */}
-            <StatKpiCard
-              title="Avg Profit / MT"
-              info="Gross profit divided by tonnage shipped — profit per MT actually sold, not per MT purchased."
-              value={fmtAutoKM(avgProfitPerMT)}
-              chartData={dataPL}
-              /* Was --warn-text, which said "caution" about a profit figure.
-                 Teal sits next to --ok-text without repeating it: Sales Revenue
-                 above is the green one, and this row now reads money-in (green /
-                 teal), money-out (red), volume (violet). */
-              accent="var(--teal-text)"
-              icon={<svg width="16" height="16" fill="none" viewBox="0 0 24 24"><path d="M3 17l4-4 4 4 4-8 4 4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>}
-            />
-          </div>
-
-          {/* PER-MT STRIP — unit economics, right under the headline KPIs */}
+          {/* PER-MT STRIP — unit economics. The KPI row that used to sit above it is gone: its
+              three cards were Cost of Goods Sold (now a Business Summary tile), MT Purchased
+              and Avg Profit / MT — and the last two were ALREADY in this strip, rendered a
+              second time a few hundred pixels higher up. */}
           <PerMtStrip
             totalMT={totalMT}
             avgExpensePerMT={avgExpensePerMT}
@@ -2052,17 +2105,23 @@ const Dash = () => {
             avgFreightPerMT={avgFreightPerMT}
           />
 
-          {/* RECEIVABLES split + TONNAGE breakdown + UNSOLD STOCK */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 mb-5">
-            <ReceivablesSplitCard byCur={receivables.byCur} />
-            <TonnageCard purchased={totalMT} shipped={shippedMT} pending={pendingMT} />
-            <UnsoldStockCard value={unsoldValue} mt={pendingMT} />
-          </div>
-
-          {/* RECEIVABLES AGING + MISC INVOICES */}
+          {/* TONNAGE breakdown + UNSOLD STOCK. The receivables card used to be the third
+              column here, which put an all-time open balance in the same row as two
+              period-scoped tonnage cards. It has moved to the Position band with the
+              aging card it belongs to. */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-5">
-            <AgingCard buckets={aging} />
-            <MiscInvoicesCard byCur={miscInvoices.byCur} byCat={miscInvoices.byCat} count={miscInvoices.count} />
+            <TonnageCard purchased={totalMT} shipped={shippedMT} pending={pendingMT} unsoldValue={unsoldValue} />
+            <BreakdownCard
+              title="Most-Sold Material"
+              subtitle="By tonnage sold this period"
+              entries={Object.entries(materialSold).filter(([, v]) => v > 0.01).sort((a, b) => b[1] - a[1])}
+              total={shippedMT}
+              fmtVal={(v) => `${new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 }).format(v || 0)} MT`}
+              accent="var(--brand)"
+              clamp
+              onPick={(name) => setFMaterial(fMaterial === name ? '' : name)}
+              picked={fMaterial}
+            />
           </div>
 
           {/* MAIN ROW — hero trend + capital breakdown */}
@@ -2118,7 +2177,13 @@ const Dash = () => {
             </CardShell>
           </div>
 
-          {/* RANKINGS ROW */}
+          {/* SUPPLIER RANKING + EXPENSES BY TYPE. The ranking was paired with Consignees,
+              which looked tidy and read as one comparison — but the two count different
+              things over different windows (purchase value of contracts bought here, sales
+              invoiced there), so Consignees went to the Sales band. It then spent a stint
+              at full width, which cost ~350px of scroll and bought nothing; Expenses by
+              Type keeps it company instead. Neither passes a .slice() — BreakdownCard and
+              RankingList fold their own tails. */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-5">
             <RankingList
               title="Contracts — $"
@@ -2136,25 +2201,6 @@ const Dash = () => {
               }}
               picked={settings.Supplier?.Supplier?.find(s => s.id === fSupplier)?.nname}
             />
-            <RankingList
-              title="Consignees — $"
-              subtitle="Sales revenue by client — invoices dated in the period"
-              labels={clientRank.labels}
-              data={clientRank.data}
-              totalValue={invoiceRevAgg.total}
-              series={invoiceRevAgg.byClientMonth || {}}
-              // fClient already holds a client NAME, so this one needs no resolving.
-              onPick={(name) => setFClient(fClient === name ? '' : name)}
-              picked={fClient}
-            />
-          </div>
-
-          {/* EXPENSES BY TYPE + MOST-SOLD MATERIAL
-              Neither passes a .slice() any more — BreakdownCard folds its own tail, so
-              the "68 more" row can state what that tail actually weighs. Most-Sold
-              Material used to stop dead at 8 rows with 48% of the tonnage unaccounted
-              for and nothing on screen saying so. */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-5">
             <BreakdownCard
               title="Expenses by Type"
               subtitle="Freight, warehouse, commission, …"
@@ -2162,22 +2208,94 @@ const Dash = () => {
               total={totalExpenses}
               fmtVal={(v) => fmtAutoKM(v)}
               accent="var(--pink-text)"
-            />
-            <BreakdownCard
-              title="Most-Sold Material"
-              subtitle="By tonnage sold this period"
-              entries={Object.entries(materialSold).filter(([, v]) => v > 0.01).sort((a, b) => b[1] - a[1])}
-              total={shippedMT}
-              fmtVal={(v) => `${new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 }).format(v || 0)} MT`}
-              accent="var(--brand)"
-              clamp
-              onPick={(name) => setFMaterial(fMaterial === name ? '' : name)}
-              picked={fMaterial}
+              onPick={(label) => setExpDrill(label)}
             />
           </div>
+          </>)}
+
+          {/* ══ BAND 2 — SALES ═══════════════════════════════════════════════════
+              The only two figures on the page counted by INVOICE date. They are
+              deliberately together and deliberately not next to the deal-basis
+              profit block: these two reconcile with the Invoices Review, and the
+              purchasing band above does not. */}
+          <BandHeader
+            title="Sales"
+            subtitle="What was invoiced to clients in this period, whenever the material was bought"
+            period={`Invoices dated ${periodLabel}`}
+            open={!collapsed.sales}
+            onToggle={() => toggleBand('sales')}
+          />
+          {!collapsed.sales && (
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 mb-5">
+            <StatKpiCard
+              title="Sales Revenue"
+              info="Sales invoices dated in this period, converted to USD. An invoice superseded by a credit or final note counts once; drafts and cancelled invoices are excluded. This counts sales of material bought in earlier periods too, so it will NOT reconcile with the deal-basis profit figures above."
+              value={fmtAutoKM(invoiceRevAgg.total)}
+              chartData={invoiceRevAgg.byMonth}
+              accent="var(--ok-figure)"
+              icon={<svg width="16" height="16" fill="none" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="4" stroke="currentColor" strokeWidth="2" /><path d="M8 10h8M8 14h8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" /></svg>}
+            />
+            <div className="lg:col-span-2">
+              <RankingList
+                title="Consignees — $"
+                subtitle="Sales revenue by client — invoices dated in the period"
+                labels={clientRank.labels}
+                data={clientRank.data}
+                totalValue={invoiceRevAgg.total}
+                series={invoiceRevAgg.byClientMonth || {}}
+                // fClient already holds a client NAME, so this one needs no resolving.
+                onPick={(name) => setFClient(fClient === name ? '' : name)}
+                picked={fClient}
+              />
+            </div>
+          </div>
+          )}
+
+          {/* ══ BAND 3 — POSITION ════════════════════════════════════════════════
+              Nothing here answers to the date picker, and that is correct: an open
+              balance is open regardless of which window you are looking at. The
+              chip is muted rather than brand-tinted so the two period bands above
+              stay visually paired and this one reads as a different kind of thing. */}
+          <BandHeader
+            title="Position"
+            subtitle="Money still owed to you — a running total, not a period figure"
+            period={`Open balances as of ${todayLabel}`}
+            muted
+            open={!collapsed.position}
+            onToggle={() => toggleBand('position')}
+          />
+          {!collapsed.position && (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-5">
+            <ReceivablesSplitCard byCur={receivables.byCur} />
+            <AgingCard buckets={aging} />
+          </div>
+          )}
+
+          {/* ══ BAND 4 — OTHER ═══════════════════════════════════════════════════ */}
+          <BandHeader
+            title="Other"
+            subtitle="Standalone sales not linked to any contract"
+            period={`Dated ${periodLabel}`}
+            muted
+            open={!collapsed.other}
+            onToggle={() => toggleBand('other')}
+          />
+          {!collapsed.other && (
+          <div className="grid grid-cols-1 gap-5 mb-5">
+            <MiscInvoicesCard byCur={miscInvoices.byCur} byCat={miscInvoices.byCat} count={miscInvoices.count} />
+          </div>
+          )}
 
         </div>
       </div>
+
+      <ExpenseDrillModal
+        label={expDrill}
+        rows={expDrill ? (expDetails[expDrill] || []) : []}
+        settings={settings}
+        isOpen={!!expDrill}
+        setIsOpen={(v) => { if (!v) setExpDrill(null); }}
+      />
     </LazyMotion>
   );
 }

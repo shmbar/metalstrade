@@ -156,7 +156,9 @@ const Customtable = ({ data, columns, ln, ttl, settings, dataTable, rmrk }) => {
                           width: cell.column.columnDef.meta?.narrow ? '1%' : undefined,
                         }}
                       >
-                        <Tltip direction='right' tltpText={detailsToolTip(row, data, settings, dataTable, rmrk)}>
+                        {/* interactive: this panel's PO group rows expand in place,
+                            so it is the one tooltip that has to stay clickable. */}
+                        <Tltip direction='right' interactive tltpText={detailsToolTip(row, data, settings, dataTable, rmrk)}>
                           <span>{flexRender(cell.column.columnDef.cell, cell.getContext())}</span>
                         </Tltip>
                       </td>

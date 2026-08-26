@@ -76,6 +76,14 @@
   --ok-border: #C6DACE;
   --ok-text: #2E6A4F;
   --ok-strong: #204D39;
+  /* A lighter step of the same green, for LARGE figures. --ok-text is tuned for
+     small text on --ok-bg, where 6.4:1 is right; used for a 40px dashboard number it
+     puts a heavy block of forest green on the page (Zak, 2026-08-26 — the green was
+     never the problem, its weight was). Same hue and saturation, lightness 30% -> 36%.
+     Still clears AA at any size (4.7:1 on --bg-card), so this is a weight choice, not
+     a contrast compromise. Dark mode has no such problem — its --ok-text is already a
+     light mint — so ok-figure resolves to the same value there. */
+  --ok-figure: #37815F;
   /* Negative — unpaid / overdue / cancelled. Muted brick, not fire-engine red.
      --danger-text on --danger-bg = 5.7:1 */
   --danger-soft: #FAF4F3;
@@ -1699,6 +1707,20 @@ div.relative.w-full.text-gray-700 > div.absolute.z-10:not(.right-0) > div.absolu
 [data-radix-popper-content-wrapper] > [data-side] {
   max-width: none !important;
   overflow: visible !important;
+}
+
+/* A label tooltip must never be the thing a click lands on. It is drawn wider
+   and taller than the control it describes, so it routinely covers the next
+   control along — the row above in a wrapped button group, the neighbouring
+   cell in a table — and with pointer events live the user clicks the tooltip
+   instead of the button: the "popups block the buttons" report.
+   The content itself carries pointer-events-none, but Radix wraps it in this
+   positioning div, which would still swallow the click on its own. Selects,
+   dropdowns and popovers share the same wrapper class, so key off the tooltip
+   marker that components/ui/tooltip.tsx stamps on the content — and leave the
+   handful of tooltips whose body is genuinely clickable alone. */
+[data-radix-popper-content-wrapper]:has(> [data-tooltip="label"]) {
+  pointer-events: none;
 }
 /* ========== End Radix Tooltip ========== */
 

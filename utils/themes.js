@@ -84,6 +84,10 @@ const NEUTRAL_RGB_TOKENS = ['surface-card', 'surface-base'];
 const DARK_STATUS = {
   'ok-soft': '#131F19', 'ok-bg': '#16261E', 'ok-border': '#264534',
   'ok-text': '#74B896', 'ok-strong': '#9CCFB4',                 /* 7.4:1 */
+  /* Same as ok-text on purpose: the light/dark split that makes --ok-figure necessary
+     is a light-mode problem (a dark forest green is heavy at 40px). Dark mode's green
+     is already a light mint, so there is nothing to lighten. */
+  'ok-figure': '#74B896',
   'danger-soft': '#241819', 'danger-bg': '#2E1D1E', 'danger-border': '#4E3032',
   'danger-text': '#DE8A88', 'danger-strong': '#EDACA9',         /* 6.6:1 */
   /* Hue moved 43° → 34° in step with the light re-cut in globals.css, lightness

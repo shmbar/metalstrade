@@ -28,6 +28,48 @@ import ActivityLog from '@components/ActivityLog';
 import CommentThread from '@components/CommentThread';
 import { v4 as uuidv4 } from 'uuid';
 import { BtnIcon } from '@components/buttonIcons';
+import { planContractDeletion } from '@utils/contractCascade';
+
+// Deleting a contract now takes everything inside it, so the confirmation has to
+// name what that is. A count alone ("3 records") is not something anyone can check
+// against what they meant to delete — the numbers of the invoices are.
+const DeletionSummary = ({ con }) => {
+	const plan = planContractDeletion(con || {});
+	if (!plan.total) return null;
+
+	const nameList = (arr, field, max = 4) => {
+		const names = arr.map(x => String(x?.[field] ?? '').trim()).filter(Boolean);
+		if (!names.length) return '';
+		const shown = names.slice(0, max).join(', ');
+		return names.length > max ? `${shown} +${names.length - max} more` : shown;
+	};
+
+	const rows = [
+		['Sales invoices', plan.invoices.length, nameList(plan.invoices, 'invoice')],
+		['Expense invoices', plan.expenses.length, nameList(plan.expenses, 'expense')],
+		['Purchase invoices', plan.poInvoices.length, nameList(plan.poInvoices, 'inv')],
+		['Stock lots', plan.stockIds.length, ''],
+	].filter(([, n]) => n > 0);
+
+	return (
+		<div className='mt-3 rounded-lg border border-[var(--line)] bg-[var(--bg-subtle)] px-3 py-2'>
+			<p className='responsiveText font-medium text-[var(--ink)]'>
+				This will also delete:
+			</p>
+			<ul className='mt-1.5 flex flex-col gap-1'>
+				{rows.map(([label, n, names]) => (
+					<li key={label} className='responsiveText text-[var(--ink-secondary)] flex gap-2'>
+						<span className='numeric font-medium text-[var(--ink)]'>{n}</span>
+						<span>{label}{names ? ` — ${names}` : ''}</span>
+					</li>
+				))}
+			</ul>
+			<p className='responsiveTextTable text-[var(--ink-muted)] mt-2'>
+				This cannot be undone.
+			</p>
+		</div>
+	);
+};
 
 const ContractModal = () => {
 
@@ -830,6 +872,7 @@ const ContractModal = () => {
 			)}
 			<ModalToDelete isDeleteOpen={isDeleteOpen} setIsDeleteOpen={setIsDeleteOpen}
 				ttl={getTtl('delConfirmation', ln)} txt={getTtl('delConfirmationTxtContract', ln)}
+				details={<DeletionSummary con={valueCon} />}
 				doAction={() => delContract(uidCollection)} />
 			{pdfPreview && (
 				<PdfPreview

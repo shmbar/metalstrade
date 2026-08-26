@@ -580,7 +580,7 @@ const Margins = () => {
                                             style={{ fontSize: 'var(--fs-table)', borderColor: 'var(--line-strong)', background: "var(--bg-card)", color: 'var(--ink)' }}
                                         />
                                     </div>
-                                    <div className='flex items-center gap-2 group'>
+                                    <div className='relative flex items-center gap-2 group'>
                                         <div className="relative">
                                             <YearSelect yr={yr} setYr={setYr} />
                                         </div>

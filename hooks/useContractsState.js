@@ -10,6 +10,7 @@ import {
     loadStockData,
     updateStockProductsData,
 } from '@utils/utils'
+import { deleteContractCascade } from '@utils/contractCascade'
 import { SettingsContext } from "@contexts/useSettingsContext";
 import { getCur } from '@components/exchangeApi'
 import { getTtl } from '@utils/languages';
@@ -60,40 +61,45 @@ const useContractsState = (props) => {
             setValueCon({ ...newContract, order: buildAutoOrder(contractsData, null) });
             setIsOpenCon(true)
         },
+        // Deletes the contract AND everything it holds — sales invoices, expense
+        // invoices, stock lots, and the purchase invoices stored inside it. This
+        // used to refuse whenever any of those existed, which meant emptying a
+        // contract by hand before it could go. The confirmation dialog now names
+        // exactly what is about to be removed, so the safety lives where the user
+        // can act on it instead of in three dead ends.
         delContract: async (uidCollection) => {
 
+            setLoading(true)
+            const { ok, plan, skipped } = await deleteContractCascade(uidCollection, valueCon)
+            setLoading(false)
 
-
-            if (valueCon.invoices.length > 0) {
+            if (!ok) {
                 setToast({
-                    show: true,
-                    text: getTtl('contractCantbeDeleted1', ln), clr: 'fail'
+                    show: true, clr: 'fail',
+                    text: `Contract could not be deleted${skipped.length ? ` (${skipped.join(', ')})` : ''} — nothing was removed`,
                 })
                 return;
             }
 
-            if (valueCon.stock.length > 0) {
-                setToast({
-                    show: true,
-                    text: getTtl('contractCantbeDeleted2', ln), clr: 'fail'
-                })
-                return;
-            }
-
-            if (valueCon.poInvoices.length > 0) {
-                setToast({
-                    show: true,
-                    text: getTtl('contractCantbeDeleted3', ln), clr: 'fail'
-                })
-                return;
-            }
-
-            const tmpArr = contractsData.filter((k) => k.id !== valueCon.id);
-
-            setContractsData(tmpArr)
+            setContractsData(contractsData.filter((k) => k.id !== valueCon.id))
             setIsOpenCon(false)
-            let success = await delDoc(uidCollection, 'contracts', valueCon)
-            success && setToast({ show: true, text: getTtl('Contract successfully deleted!', ln), clr: 'success' })
+
+            // Say what went, and never claim a clean sweep when something was left
+            // behind — a silent partial delete is how orphans go unnoticed.
+            const parts = [
+                plan.invoices.length && `${plan.invoices.length} sales invoice${plan.invoices.length > 1 ? 's' : ''}`,
+                plan.expenses.length && `${plan.expenses.length} expense${plan.expenses.length > 1 ? 's' : ''}`,
+                plan.poInvoices.length && `${plan.poInvoices.length} purchase invoice${plan.poInvoices.length > 1 ? 's' : ''}`,
+                plan.stockIds.length && `${plan.stockIds.length} stock lot${plan.stockIds.length > 1 ? 's' : ''}`,
+            ].filter(Boolean)
+
+            setToast({
+                show: true,
+                clr: skipped.length ? 'fail' : 'success',
+                text: skipped.length
+                    ? `Contract deleted, but these could not be removed: ${skipped.join(', ')}`
+                    : `Contract deleted${parts.length ? `, with ${parts.join(', ')}` : ''}`,
+            })
 
         },
         saveData: async (uidCollection, gisAccount) => {
