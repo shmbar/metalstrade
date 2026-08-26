@@ -32,19 +32,20 @@ import ResetFilterTableIcon from '../../../components/table/filters/resetTabe';
 import dateBetweenFilterFn from '../../../components/table/filters/date-between-filter';
 import { Filter } from "../../../components/table/filters/filterFunc";
 import { labelAwareGlobalFilter } from "../../../components/table/filters/labelAwareGlobalFilter";
+import { useTablePrefs, useTablePagination } from '@components/table/useTablePrefs';
 
 
 const Customtable = ({ data, columns, invisible, excellReport, onCellUpdate }) => {
 
   const [globalFilter, setGlobalFilter] = useState('')
-  const [columnVisibility, setColumnVisibility] = useState(invisible)
+  const [columnVisibility, setColumnVisibility] = useTablePrefs('columns', invisible)
   const [filterOn, setFilterOn] = useState(false)
-  const [{ pageIndex, pageSize }, setPagination] = useState({ pageIndex: 0, pageSize: 25 })
+  const [{ pageIndex, pageSize }, setPagination] = useTablePagination(50)
   const pagination = useMemo(() => ({ pageIndex, pageSize }), [pageIndex, pageSize])
   const { ln } = useContext(SettingsContext);
 
-  const [columnFilters, setColumnFilters] = useState([])
-  const [sorting, setSorting] = useState([])
+  const [columnFilters, setColumnFilters] = useTablePrefs('filters', [])
+  const [sorting, setSorting] = useTablePrefs('sorting', [])
   const [quickSumEnabled, setQuickSumEnabled] = useState(false)
   const [quickSumColumns, setQuickSumColumns] = useState([])
   const [rowSelection, setRowSelection] = useState({})
@@ -121,7 +122,10 @@ const Customtable = ({ data, columns, invisible, excellReport, onCellUpdate }) =
   })
 
   const resetTable = () => table.resetColumnFilters()
-  useEffect(() => resetTable(), [])
+  /* The mount-time table.resetColumnFilters() that used to sit here is gone: the
+     client asked for a table's filters to be remembered, and clearing them on every
+     mount is exactly the behaviour they were complaining about. The Reset button
+     still calls resetTable() on demand. */
 
   const currentRows = table.getRowModel().rows.length;
   const dynamicMaxHeight = currentRows > 0

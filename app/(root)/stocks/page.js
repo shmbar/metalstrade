@@ -435,7 +435,11 @@ const Stocks = () => {
               </div>
 
               {/* Totals Section */}
-              <div className='flex gap-6 flex-wrap w-full'>
+              {/* NOT flex-wrap: wrapping is decided on each card's CONTENT width, so
+                  the grade card dropped onto its own line at 1440 even though the two
+                  fit once shrunk. Side by side from xl up, stacked below it. Summary
+                  holds its width; the grade card absorbs all the slack. */}
+              <div className='flex flex-col xl:flex-row gap-6 w-full xl:items-start'>
                 <SumTable
                   sumData={sumData}
                   loading={loading}

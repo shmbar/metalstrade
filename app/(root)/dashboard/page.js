@@ -424,6 +424,57 @@ const fmtPct = (p) => {
   return `${p.toFixed(p < 10 ? 1 : 0)}%`;
 };
 
+/* Contracts whose own records contradict each other, listed so the banner can name them.
+   Written because a single contract (060526-TIM) overstated the dashboard's purchased
+   tonnage by 2,386 MT — 47% of the headline figure — and the only way anyone found out
+   was reconciling against the margins sheet by hand. */
+function DataIssuesModal({ issues = [], settings, isOpen, setIsOpen }) {
+  const supplierName = (id) => settings?.Supplier?.Supplier?.find(s => s.id === id)?.nname || 'Unknown supplier';
+  const KIND = {
+    value: { label: 'Quantities disagree with the money', tone: 'var(--danger-text)' },
+    duplicate: { label: 'Duplicate PO number', tone: 'var(--danger-text)' },
+  };
+  const order = ['value', 'duplicate'];
+  const groups = order
+    .map(k => ({ kind: k, ...KIND[k], rows: issues.filter(i => i.kind === k).sort((a, b) => (b.mt || 0) - (a.mt || 0)) }))
+    .filter(g => g.rows.length);
+  const mt = (n) => `${new Intl.NumberFormat('en-US', { maximumFractionDigits: 1 }).format(n || 0)} MT`;
+
+  return (
+    <Modal isOpen={isOpen} setIsOpen={setIsOpen} size="lg"
+      title="Contracts worth checking"
+      subtitle={`${issues.length} contract${issues.length === 1 ? '' : 's'} in this period whose own records don't line up`}>
+      <div className="p-4 flex flex-col gap-3">
+        {groups.map(g => (
+          <div key={g.kind} className="rounded-2xl border border-[var(--line)] overflow-hidden">
+            <div className="px-3 py-2 bg-[var(--bg-subtle)] flex items-center justify-between gap-2">
+              <span className="responsiveTextTable font-semibold" style={{ color: g.tone }}>{g.label}</span>
+              <span className="responsiveTextTableTitle text-[var(--regent-gray)]">{g.rows.length}</span>
+            </div>
+            <div className="flex flex-col divide-y divide-[var(--line)]">
+              {g.rows.map((r, i) => (
+                <div key={`${r.id}-${i}`} className="px-3 py-2 flex items-start justify-between gap-3">
+                  <span className="min-w-0">
+                    <span className="responsiveTextTable font-medium text-[var(--ink)]">{r.order || '(no PO number)'}</span>
+                    <span className="responsiveTextTableTitle text-[var(--regent-gray)] block mt-0.5">
+                      {supplierName(r.supplier)}{r.date ? ` · ${r.date}` : ''}
+                      {/* The evidence, not just the verdict — so whoever opens the contract
+                          already knows what to compare against. */}
+                      {r.kind === 'value' && ` · lines total ${fmtAutoKM(r.lineValue)} but the PO is worth ${fmtAutoKM(r.poValue)} (${r.ratio.toFixed(1)}× over)`}
+                      {r.kind === 'duplicate' && ` · ${r.copies} copies share this PO number`}
+                    </span>
+                  </span>
+                  <span className="responsiveTextTable numeric text-[var(--ink)] flex-shrink-0">{mt(r.mt)}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+    </Modal>
+  );
+}
+
 /* The rows behind one "Expenses by Type" tile — which suppliers the spend went to, on
    which PO, for how much. The tile used to be a dead end: it told you Commission was
    $315.67K and gave you nowhere to go with that.
@@ -1262,6 +1313,8 @@ const Dash = () => {
   const [fDelTerm, setFDelTerm] = useState('');
   // Which 'Expenses by Type' tile has its breakdown open (label, or null).
   const [expDrill, setExpDrill] = useState(null);
+  // Whether the contract data-quality list is open.
+  const [issuesOpen, setIssuesOpen] = useState(false);
 
   /* Collapsed bands, remembered per browser — someone who never reads "Other" should stop
      scrolling past it. Read in an effect rather than a useState initialiser so the server
@@ -1541,6 +1594,8 @@ const Dash = () => {
   const cogsByMonth = conAgg.cogsByMonth || {};
   const expByType = conAgg.expByType || {};
   const expDetails = conAgg.expDetails || {};
+  const dataIssues = conAgg.dataIssues || [];
+  const issueCounts = dataIssues.reduce((a, i) => ({ ...a, [i.kind]: (a[i.kind] || 0) + 1 }), {});
   /* conAgg.materialSold is no longer read here — the "Most-Sold Material" card it fed was
      removed (Zak, 2026-08-26, not needed). Left being collected in funcs.js on purpose:
      it costs one map write inside a loop that already walks every invoice line, and the
@@ -1996,6 +2051,28 @@ const Dash = () => {
             </div>
           </m.div>
 
+          {/* CONTRACT DATA-QUALITY WARNING. Deliberately above the figures, not tucked at
+              the bottom: the numbers below it are only as good as the contracts feeding
+              them, and a reader should know that before reading them rather than after
+              reconciling against another page by hand. Clickable, because "3 contracts
+              look wrong" is not actionable until it says WHICH. */}
+          {dataIssues.length > 0 && (
+            <button
+              type="button"
+              onClick={() => setIssuesOpen(true)}
+              className="w-full mb-4 flex items-center gap-2 rounded-2xl px-3 py-2 text-left transition-colors hover:bg-[var(--danger-bg)]"
+              style={{ background: 'var(--danger-soft)', border: '1px solid var(--danger-border)' }}
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" className="flex-shrink-0" style={{ color: 'var(--danger-text)' }}><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" /><path d="M12 9v4m0 4h.01" stroke="currentColor" strokeWidth="2" strokeLinecap="round" /></svg>
+              <span className="responsiveTextTable" style={{ color: 'var(--danger-text)' }}>
+                {[
+                  issueCounts.value > 0 && `${issueCounts.value} contract${issueCounts.value === 1 ? '' : 's'} whose quantities disagree with the money`,
+                  issueCounts.duplicate > 0 && `${issueCounts.duplicate} duplicate PO number${issueCounts.duplicate === 1 ? '' : 's'}`,
+                ].filter(Boolean).join(' · ')} — these distort the tonnage and cost figures below. Click to see which.
+              </span>
+            </button>
+          )}
+
           {/* FX data-gap warning — a missing rate is counted at 1:1, not silently zeroed */}
           {(missingRate > 0 || companyExpAgg.missingCoRate > 0 || invoiceRevAgg.missingInvRate > 0) && (
             <div className="mb-4 flex items-center gap-2 rounded-2xl px-3 py-2" style={{ background: 'var(--warn-bg)', border: '1px solid var(--warn-border)' }}>
@@ -2287,6 +2364,13 @@ const Dash = () => {
 
         </div>
       </div>
+
+      <DataIssuesModal
+        issues={dataIssues}
+        settings={settings}
+        isOpen={issuesOpen}
+        setIsOpen={setIssuesOpen}
+      />
 
       <ExpenseDrillModal
         label={expDrill}

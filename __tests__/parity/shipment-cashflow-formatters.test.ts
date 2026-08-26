@@ -373,8 +373,10 @@ describe('shipment — web drift alarms for every mirrored formula', () => {
     // page.js:286 — the load order the stable sort falls back to. Note it orders on
     // the RAW `date` field, not on dateRange.
     expect(text).toContain(".sort((a, b) => (a.date || '').localeCompare(b.date || ''));");
-    expect(text).toContain("const [sortCol, setSortCol] = useState('updated');");
-    expect(text).toContain("const [sortDir, setSortDir] = useState('desc');");
+    // Sort state moved onto useTablePrefs so it survives a reload; the DEFAULT is
+    // what this alarm is about, and it is unchanged.
+    expect(text).toContain("const [sortCol, setSortCol] = useTablePrefs('sortCol', 'updated');");
+    expect(text).toContain("const [sortDir, setSortDir] = useTablePrefs('sortDir', 'desc');");
   });
 });
 

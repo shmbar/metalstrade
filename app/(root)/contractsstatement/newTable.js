@@ -33,6 +33,7 @@ import ResetFilterTableIcon from '../../../components/table/filters/resetTabe';
 import dateBetweenFilterFn from '../../../components/table/filters/date-between-filter';
 import { labelAwareGlobalFilter } from '../../../components/table/filters/labelAwareGlobalFilter';
 import { NameCell } from '../../../components/Avatar';
+import { useTablePrefs, useTablePagination } from '@components/table/useTablePrefs';
 
 
 // Expandable detail for a contract line: warehouse lots + shipments
@@ -137,20 +138,17 @@ const Customtable = ({
 }) => {
 
   const [globalFilter, setGlobalFilter] = useState('')
-  const [columnVisibility, setColumnVisibility] = useState(invisible)
+  const [columnVisibility, setColumnVisibility] = useTablePrefs('columns', invisible)
   const [filterOn, setFilterOn] = useState(false)
 
-  const [{ pageIndex, pageSize }, setPagination] = useState({
-    pageIndex: 0,
-    pageSize: 25
-  })
+  const [{ pageIndex, pageSize }, setPagination] = useTablePagination(50)
 
   const pagination = useMemo(() => ({ pageIndex, pageSize }), [pageIndex, pageSize])
 
   const [expanded, setExpanded] = useState({})
   const [openLots, setOpenLots] = useState({})
-  const [columnFilters, setColumnFilters] = useState([])
-  const [sorting, setSorting] = useState([])
+  const [columnFilters, setColumnFilters] = useTablePrefs('filters', [])
+  const [sorting, setSorting] = useTablePrefs('sorting', [])
 
   const [quickSumEnabled, setQuickSumEnabled] = useState(false)
   const [quickSumColumns, setQuickSumColumns] = useState([])

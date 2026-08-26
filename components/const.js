@@ -26,7 +26,8 @@ export const sideBar = (userTitle, gisAccount, can) => {
                     subItems: [
                         { item: 'Assistant', img: navIcon(MessageSquare), page: 'apps/Assistant' },
                     ]
-                }
+                },
+                { item: 'Activity Log', img: navIcon(History), page: 'activity' },
 
             ]
         },
@@ -59,7 +60,7 @@ export const sideBar = (userTitle, gisAccount, can) => {
                 { item: 'Company Expenses', img: navIcon(Briefcase), page: 'companyexpenses' },
                 { item: 'Material Tables', img: navIcon(Table2), page: 'materialtables' },
                 { item: 'Incoterms', img: navIcon(Newspaper), page: 'incoterms' },
-                { item: 'Activity Log', img: navIcon(History), page: 'activity' },
+                { item: 'Formulas Calc', img: navIcon(Sigma), page: 'formulas' },
             ]
         },
         {
@@ -67,7 +68,6 @@ export const sideBar = (userTitle, gisAccount, can) => {
             items: [
                 { item: gisAccount ? 'Gis Admin' : 'Sharon Admin', img: navIcon(TrendingUp), page: 'margins' },
                 { item: 'Cashflow', img: navIcon(CircleDollarSign), page: 'cashflow' },
-                { item: 'Formulas Calc', img: navIcon(Sigma), page: 'formulas' },
             ]
         }
     ];

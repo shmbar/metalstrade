@@ -30,6 +30,7 @@ import dateBetweenFilterFn from '../../../components/table/filters/date-between-
 import { labelAwareGlobalFilter } from '../../../components/table/filters/labelAwareGlobalFilter';
 import EmptyState from '../../../components/EmptyState';
 import { TONES } from '../../../components/statusUtils';
+import { useTablePrefs, useTablePagination } from '@components/table/useTablePrefs';
 
 const Customtable = ({
   data,
@@ -44,12 +45,12 @@ const Customtable = ({
 }) => {
 
   const [globalFilter, setGlobalFilter] = useState('');
-  const [columnVisibility, setColumnVisibility] = useState(invisible);
+  const [columnVisibility, setColumnVisibility] = useTablePrefs('columns', invisible, type)
   const [filterOn, setFilterOn] = useState(false);
   const [selectedRowId, setSelectedRowId] = useState(null);
-  const [columnFilters, setColumnFilters] = useState([]);
-  const [sorting, setSorting] = useState([]);
-  const [{ pageIndex, pageSize }, setPagination] = useState({ pageIndex: 0, pageSize: 25 });
+  const [columnFilters, setColumnFilters] = useTablePrefs('filters', [], type)
+  const [sorting, setSorting] = useTablePrefs('sorting', [], type)
+  const [{ pageIndex, pageSize }, setPagination] = useTablePagination(50, type)
 
   const pagination = useMemo(() => ({ pageIndex, pageSize }), [pageIndex, pageSize]);
   const [quickSumEnabled, setQuickSumEnabled] = useState(false);

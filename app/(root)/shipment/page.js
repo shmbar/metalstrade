@@ -29,6 +29,7 @@ import { Menu, Transition, MenuButton, MenuItem, MenuItems } from '@headlessui/r
 import { Fragment } from 'react';
 import { SHIPMENT_STATUSES, SHIPMENT_STATUS_STYLES, normalizeStatus } from '../contractsstatement/shipmentStatus';
 import SortIcon from "@components/table/SortIcon";
+import { useTablePrefs } from '@components/table/useTablePrefs';
 
 // Shipment lifecycle vocabulary/colors live in a shared module so the Contracts Statement
 // follows the exact same statuses (see ../contractsstatement/shipmentStatus).
@@ -412,7 +413,7 @@ const ShipmentPage = () => {
     const [contracts, setContracts] = useState([]);
     const [invoiceMap, setInvoiceMap] = useState({});
     const [search, setSearch] = useState('');
-    const [statusFilter, setStatusFilter] = useState('');
+    const [statusFilter, setStatusFilter] = useTablePrefs('filter.status', '');
     // Group rows into collapsible lifecycle sections (persisted; set in an effect
     // rather than the initializer so SSR and first client render agree).
     const [groupByStatus, setGroupByStatus] = useState(true);
@@ -432,13 +433,15 @@ const ShipmentPage = () => {
     });
     const [showFilters, setShowFilters] = useState(true);
     const [pageIndex, setPageIndex] = useState(0);
-    const [pageSize, setPageSize] = useState(25);
-    const [sortCol, setSortCol] = useState('updated');
-    const [sortDir, setSortDir] = useState('desc');
-    const [supplierFilter, setSupplierFilter] = useState('');
-    const [clientFilter, setClientFilter] = useState('');
-    const [shipTypeFilter, setShipTypeFilter] = useState('');
-    const [urgencyFilter, setUrgencyFilter] = useState('');
+    const [pageSize, setPageSize] = useTablePrefs('pageSize', 50);
+    /* This page sorts and filters with its own state rather than TanStack, so the
+       remembered-setup hook is applied field by field. Same store, same scoping. */
+    const [sortCol, setSortCol] = useTablePrefs('sortCol', 'updated');
+    const [sortDir, setSortDir] = useTablePrefs('sortDir', 'desc');
+    const [supplierFilter, setSupplierFilter] = useTablePrefs('filter.supplier', '');
+    const [clientFilter, setClientFilter] = useTablePrefs('filter.client', '');
+    const [shipTypeFilter, setShipTypeFilter] = useTablePrefs('filter.shipType', '');
+    const [urgencyFilter, setUrgencyFilter] = useTablePrefs('filter.urgency', '');
 
     // Shared floating datepicker (always mounted, repositioned on cell click)
     const [floatingPicker, setFloatingPicker] = useState(null);

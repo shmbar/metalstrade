@@ -14,6 +14,7 @@ import { SortableContext, horizontalListSortingStrategy, useSortable, arrayMove 
 import { CSS } from '@dnd-kit/utilities'
 import { UNIT_LABELS, UNIT_TO_MT } from './constants'
 import SortIcon from "@components/table/SortIcon";
+import { useTablePrefs, useTablePagination } from '@components/table/useTablePrefs';
 
 // Standard elements — cannot be removed (only user-added custom elements have the × button)
 const STANDARD_KEYS = new Set(['ni', 'cr', 'mo', 'co', 'w', 'nb', 'fe'])
@@ -83,8 +84,8 @@ const Customtable = ({
     setSalesNiPercent = () => {}, toggleSales = () => {}, applySalesPreset = () => {},
 }) => {
     const [globalFilter, setGlobalFilter] = useState('')
-    const [{ pageIndex, pageSize }, setPagination] = useState({ pageIndex: 0, pageSize: 25 })
-    const [columnFilters, setColumnFilters] = useState([])
+    const [{ pageIndex, pageSize }, setPagination] = useTablePagination(50)
+    const [columnFilters, setColumnFilters] = useTablePrefs('filters', [])
     const [addElemInput, setAddElemInput] = useState('')
     const [showAddElem, setShowAddElem] = useState(false)
     const [focusedCell, setFocusedCell] = useState(null)

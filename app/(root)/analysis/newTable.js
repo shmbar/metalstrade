@@ -15,6 +15,7 @@ import RowsIndicator from "../../../components/table/RowsIndicator";
 import '../contracts/style.css';
 import { usePathname } from "next/navigation";
 import { getTtl } from "../../../utils/languages";
+import { useTablePrefs, useTablePagination } from '@components/table/useTablePrefs';
 
 const Customtable = ({
   data,
@@ -28,8 +29,8 @@ const Customtable = ({
   ln
 }) => {
   const [globalFilter, setGlobalFilter] = useState('');
-  const [columnVisibility, setColumnVisibility] = useState(invisible);
-  const [{ pageIndex, pageSize }, setPagination] = useState({ pageIndex: 0, pageSize: 100 });
+  const [columnVisibility, setColumnVisibility] = useTablePrefs('columns', invisible, type)
+  const [{ pageIndex, pageSize }, setPagination] = useTablePagination(50, type)
   const pagination = useMemo(() => ({ pageIndex, pageSize }), [pageIndex, pageSize]);
   const [quickSumEnabled, setQuickSumEnabled] = useState(false);
   const [quickSumColumns, setQuickSumColumns] = useState(['Toqnty', 'Backqnty']); // Example columns to sum

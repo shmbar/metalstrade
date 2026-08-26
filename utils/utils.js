@@ -677,10 +677,28 @@ export const delDoc = async (uidCollection, path, obj) => {
 
 export const loadInvoice = async (uidCollection, path, obj) => {
 
-  const y = obj.date.substring(0, 4)
+  const y = obj?.date?.substring(0, 4)
+  if (!y || !obj?.id) return {};
 
   const docSnap = await getDoc(doc(db, uidCollection, 'data', path + '_' + y, obj.id));
-  return docSnap.exists() ? docSnap.data() : {};
+  if (docSnap.exists()) return docSnap.data();
+
+  // Not in the bucket its own date points at. A record re-dated across a year
+  // boundary is written into the new year's collection, and the copy left in the
+  // old one keeps the old date — so a by-id read like this one looked in exactly
+  // one place and reported the record missing, while the list pages found it
+  // perfectly well by querying several years at once. That is what "Contract can
+  // not be accessed!" was: the row on screen is real, the lookup was too narrow.
+  // Widening costs nothing on the normal path — we only get here after a miss.
+  const year = parseInt(y, 10);
+  if (!Number.isFinite(year)) return {};
+
+  for (const yr of [year - 1, year + 1, year - 2, year - 3]) {
+    const snap = await getDoc(doc(db, uidCollection, 'data', path + '_' + yr, obj.id));
+    if (snap.exists()) return snap.data();
+  }
+
+  return {};
 }
 
 

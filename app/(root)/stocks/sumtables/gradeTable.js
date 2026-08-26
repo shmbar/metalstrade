@@ -6,12 +6,12 @@ import { NumericFormat } from 'react-number-format'
 import CurrencyChip from '../../../../components/CurrencyChip'
 import Tltip from '../../../../components/tlTip'
 
-/* Description is the one free-text column here and a grade name runs to 60+ chars
-   ("2.13C 0.1S 1.28Co 0.49Nb 0.57Ni 3.09P 4.11Sn 0.1Ta 5.02W Granules"). Left to
-   size itself it took 395px, which pushed this card to 765px — too wide to share
-   the flex row with Summary - Stocks, so it wrapped onto its own line underneath.
-   Fixed width + truncate, full name on hover. */
-const DESC_W = 260
+/* The four figure columns are bounded — each is sized to the wider of its header and
+   its values — and Description is the one free-text column, so under table-layout:fixed
+   it takes whatever is left. That is what lets this card be handed any width and still
+   fit: on a 1920 row Description gets ~730px and a full grade name reads end to end, at
+   1280 it gets ~120px and truncates. Nothing ever scrolls sideways. */
+const COL_W = { weight: 112, avg: 96, value: 100, cur: 72 }
 
 // Group stock rows by grade (descriptionName + currency), returning total
 // quantity and the weighted average cost per MT for each grade. Shared between
@@ -95,7 +95,7 @@ const GradeTable = ({ dataTable, loading, settings }) => {
   }
 
   return (
-    <div className="mt-5 min-w-[420px]">
+    <div className="mt-5 flex-auto min-w-0">
       <div
         style={{
           borderRadius: '16px',
@@ -118,14 +118,14 @@ const GradeTable = ({ dataTable, loading, settings }) => {
           Avg Cost Price per Grade
         </div>
         <div className="overflow-x-auto" style={{ maxHeight: '380px', overflowY: 'auto' }}>
-          <table className="w-full" style={{ tableLayout: 'auto', borderCollapse: 'collapse' }}>
+          <table className="w-full" style={{ tableLayout: 'fixed', borderCollapse: 'collapse' }}>
             <thead style={{ position: 'sticky', top: 0, zIndex: 10 }}>
               <tr>
                 <th className="responsiveTextTable font-medium text-center" style={thStyle}>Description</th>
-                <th className="responsiveTextTable font-medium text-center" style={thStyle}>Total Weight (MT)</th>
-                <th className="responsiveTextTable font-medium text-center" style={thStyle}>Avg Cost /MT</th>
-                <th className="responsiveTextTable font-medium text-center" style={thStyle}>Total Value</th>
-                <th className="responsiveTextTable font-medium text-center" style={thStyle}>Currency</th>
+                <th className="responsiveTextTable font-medium text-center" style={{ ...thStyle, width: COL_W.weight }}>Total Weight (MT)</th>
+                <th className="responsiveTextTable font-medium text-center" style={{ ...thStyle, width: COL_W.avg }}>Avg Cost /MT</th>
+                <th className="responsiveTextTable font-medium text-center" style={{ ...thStyle, width: COL_W.value }}>Total Value</th>
+                <th className="responsiveTextTable font-medium text-center" style={{ ...thStyle, width: COL_W.cur }}>Currency</th>
               </tr>
             </thead>
             <tbody>
@@ -140,7 +140,7 @@ const GradeTable = ({ dataTable, loading, settings }) => {
                     onClick={() => canExpand && toggle(key)}>
                     <td className="responsiveTextTable" style={{ ...tdStyle, textAlign: 'left', paddingLeft: '14px' }}>
                       <Tltip direction='top' tltpText={r.descriptionName}>
-                        <span className='flex items-center gap-1 cursor-default' style={{ width: `${DESC_W}px` }}>
+                        <span className='flex items-center gap-1 cursor-default w-full'>
                           {canExpand && (
                             <ChevronRight className='w-3 h-3 shrink-0 transition-transform'
                               style={{ transform: isOpen ? 'rotate(90deg)' : 'none', color: 'var(--endeavour)' }} />
@@ -188,7 +188,7 @@ const GradeTable = ({ dataTable, loading, settings }) => {
                     <tr key={`${i}-sup-${k}`} style={{ background: 'var(--surface-pill)' }}>
                       <td className="responsiveTextTable" style={{ ...tdStyle, textAlign: 'left', paddingLeft: '34px', color: 'var(--regent-gray)' }}>
                         <Tltip direction='top' tltpText={s.supplier}>
-                          <span className='block truncate cursor-default' style={{ width: `${DESC_W - 20}px` }}>{s.supplier}</span>
+                          <span className='block truncate cursor-default w-full'>{s.supplier}</span>
                         </Tltip>
                       </td>
                       <td className="responsiveTextTable" style={{ ...tdStyle, color: 'var(--regent-gray)' }}>

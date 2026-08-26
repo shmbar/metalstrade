@@ -20,6 +20,7 @@ import ResetFilterTableIcon from '../../../components/table/filters/resetTabe';
 import dateBetweenFilterFn from '../../../components/table/filters/date-between-filter';
 import { Filter } from "../../../components/table/filters/filterFunc";
 import { labelAwareGlobalFilter } from "../../../components/table/filters/labelAwareGlobalFilter";
+import { useTablePrefs, useTablePagination } from '@components/table/useTablePrefs';
 
 
 const Customtable = ({
@@ -33,14 +34,11 @@ const Customtable = ({
   excellReport
 }) => {
   const [globalFilter, setGlobalFilter] = useState('')
-  const [columnVisibility, setColumnVisibility] = useState(invisible)
+  const [columnVisibility, setColumnVisibility] = useTablePrefs('columns', invisible)
   const [filterOn, setFilterOn] = useState(false)
   const [selectedRowId, setSelectedRowId] = useState(null)
 
-  const [{ pageIndex, pageSize }, setPagination] = useState({
-    pageIndex: 0,
-    pageSize: 25
-  })
+  const [{ pageIndex, pageSize }, setPagination] = useTablePagination(50)
 
   const pagination = useMemo(() => ({ pageIndex, pageSize }), [pageIndex, pageSize])
   const { ln } = useContext(SettingsContext)
@@ -50,8 +48,8 @@ const Customtable = ({
   const [showSelectionDropdown, setShowSelectionDropdown] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false)
   const [rowSelection, setRowSelection] = useState({});
-  const [columnFilters, setColumnFilters] = useState([])
-  const [sorting, setSorting] = useState([])
+  const [columnFilters, setColumnFilters] = useTablePrefs('filters', [])
+  const [sorting, setSorting] = useTablePrefs('sorting', [])
 
 
   const columnsWithSelection = useMemo(() => {
@@ -131,7 +129,10 @@ const Customtable = ({
 
   const resetTable = () => table.resetColumnFilters()
 
-  useEffect(() => resetTable(), [])
+  /* The mount-time table.resetColumnFilters() that used to sit here is gone: the
+     client asked for a table's filters to be remembered, and clearing them on every
+     mount is exactly the behaviour they were complaining about. The Reset button
+     still calls resetTable() on demand. */
 
   useEffect(() => {
     setFilteredData && setFilteredData(

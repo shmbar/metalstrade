@@ -35,6 +35,7 @@ import { Filter } from "../../../components/table/filters/filterFunc";
 import { labelAwareGlobalFilter } from "../../../components/table/filters/labelAwareGlobalFilter";
 import Tltip from "../../../components/tlTip";
 import SortIcon from "@components/table/SortIcon";
+import { useTablePrefs, useTablePagination } from '@components/table/useTablePrefs';
 
 const Customtable = ({
   data,
@@ -51,29 +52,16 @@ const Customtable = ({
   const [filterOn, setFilterOn] = useState(false)
   const [selectedRowId, setSelectedRowId] = useState(null)
 
-  const [{ pageIndex, pageSize }, setPagination] = useState({
-    pageIndex: 0,
-    pageSize: 25
-  })
+  const [{ pageIndex, pageSize }, setPagination] = useTablePagination(50)
 
   const pagination = useMemo(() => ({ pageIndex, pageSize }), [pageIndex, pageSize])
 
   const pathName = usePathname()
 
-  const storageKey = `col-vis-${pathName}`
-  const getInitialVisibility = () => {
-    if (typeof window === 'undefined') return invisible
-    try {
-      const saved = localStorage.getItem(storageKey)
-      if (saved) return { ...invisible, ...JSON.parse(saved) }
-    } catch {}
-    return invisible
-  }
-  const [columnVisibility, setColumnVisibility] = useState(getInitialVisibility)
-
-  useEffect(() => {
-    try { localStorage.setItem(storageKey, JSON.stringify(columnVisibility)) } catch {}
-  }, [columnVisibility, storageKey])
+  /* This page used to keep its own `col-vis-<path>` copy of the column setup. That
+     is what useTablePrefs now does for every table, and two stores writing the same
+     setting fight each other, so the local one is gone. */
+  const [columnVisibility, setColumnVisibility] = useTablePrefs('columns', invisible)
   const { ln } = useContext(SettingsContext);
 
   const globalFilterFn = labelAwareGlobalFilter;
@@ -85,8 +73,8 @@ const Customtable = ({
   const [isEditMode, setIsEditMode] = useState(false)
   const [rowSelection, setRowSelection] = useState({});
 
-  const [columnFilters, setColumnFilters] = useState([])
-  const [sorting, setSorting] = useState([])
+  const [columnFilters, setColumnFilters] = useTablePrefs('filters', [])
+  const [sorting, setSorting] = useTablePrefs('sorting', [])
 
   // ---------- Selection Column ----------
   const columnsWithSelection = useMemo(() => {
@@ -167,7 +155,10 @@ const Customtable = ({
 
   const resetTable = () => table.resetColumnFilters()
 
-  useEffect(() => resetTable(), [])
+  /* The mount-time table.resetColumnFilters() that used to sit here is gone: the
+     client asked for a table's filters to be remembered, and clearing them on every
+     mount is exactly the behaviour they were complaining about. The Reset button
+     still calls resetTable() on demand. */
 
   useEffect(() => {
     setFilteredData(

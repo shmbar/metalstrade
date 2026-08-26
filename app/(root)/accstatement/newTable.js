@@ -19,6 +19,7 @@ import FiltersIcon from '../../../components/table/filters/filters';
 import ResetFilterTableIcon from '../../../components/table/filters/resetTabe';
 import dateBetweenFilterFn from '../../../components/table/filters/date-between-filter';
 import { labelAwareGlobalFilter } from '../../../components/table/filters/labelAwareGlobalFilter';
+import { useTablePrefs, useTablePagination } from '@components/table/useTablePrefs';
 
 
 const Customtable = ({
@@ -33,12 +34,12 @@ const Customtable = ({
 }) => {
 
   const [globalFilter, setGlobalFilter] = useState('')
-  const [columnVisibility, setColumnVisibility] = useState(invisible)
+  const [columnVisibility, setColumnVisibility] = useTablePrefs('columns', invisible)
   const [filterOn, setFilterOn] = useState(false)
   const [selectedRowId, setSelectedRowId] = useState(null)
-  const [columnFilters, setColumnFilters] = useState([])
+  const [columnFilters, setColumnFilters] = useTablePrefs('filters', [])
 
-  const [{ pageIndex, pageSize }, setPagination] = useState({ pageIndex: 0, pageSize: 25 })
+  const [{ pageIndex, pageSize }, setPagination] = useTablePagination(50)
   const pagination = useMemo(() => ({ pageIndex, pageSize }), [pageIndex, pageSize])
 
   const [quickSumEnabled, setQuickSumEnabled] = useState(false)

@@ -716,6 +716,7 @@ import { labelAwareGlobalFilter } from '../../../components/table/filters/labelA
 import { TONES } from '../../../components/statusUtils';
 import CurrencyChip from '../../../components/CurrencyChip';
 import EmptyState from '../../../components/EmptyState';
+import { useTablePrefs, useTablePagination } from '@components/table/useTablePrefs';
 
 const Customtable = ({
   data,
@@ -735,10 +736,10 @@ const Customtable = ({
 }) => {
 
   const [globalFilter, setGlobalFilter]         = useState('')
-  const [columnVisibility, setColumnVisibility] = useState(invisible)
+  const [columnVisibility, setColumnVisibility] = useTablePrefs('columns', invisible)
   const [filterOn, setFilterOn]                 = useState(false)
-  const [columnFilters, setColumnFilters]       = useState([])
-  const [sorting, setSorting]                   = useState([])
+  const [columnFilters, setColumnFilters] = useTablePrefs('filters', [])
+  const [sorting, setSorting] = useTablePrefs('sorting', [])
   const [quickSumEnabled, setQuickSumEnabled]   = useState(false)
   const [quickSumColumns, setQuickSumColumns]   = useState([])
   const [isEditMode, setIsEditMode]             = useState(false)
@@ -747,7 +748,7 @@ const Customtable = ({
   const [currencyColCenter, setCurrencyColCenter] = useState(null) // px from left of table
   const [amountColCenter, setAmountColCenter]   = useState(null) // px from left of table
 
-  const [{ pageIndex, pageSize }, setPagination] = useState({ pageIndex: 0, pageSize: 25 })
+  const [{ pageIndex, pageSize }, setPagination] = useTablePagination(50)
   const pagination = useMemo(() => ({ pageIndex, pageSize }), [pageIndex, pageSize])
 
   const { ln } = useContext(SettingsContext)
@@ -820,7 +821,10 @@ const Customtable = ({
   })
 
   const resetTable = () => table.resetColumnFilters()
-  useEffect(() => resetTable(), [])
+  /* The mount-time table.resetColumnFilters() that used to sit here is gone: the
+     client asked for a table's filters to be remembered, and clearing them on every
+     mount is exactly the behaviour they were complaining about. The Reset button
+     still calls resetTable() on demand. */
 
   useEffect(() => {
     setFilteredId(table.getFilteredRowModel().rows.map(r => r.original.id))

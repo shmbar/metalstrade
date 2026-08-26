@@ -230,7 +230,18 @@ const expenseMonth = (obj, contract, fallback) => {
     return m >= 1 && m <= 12 ? m : fallback
 }
 
+/* How far a contract's line values may exceed its PO value before it is flagged.
+   Set at 3x deliberately, not tighter. poInvoices is a LIST — a contract invoiced in
+   instalments legitimately shows lines worth more than the PO value recorded so far, so a
+   half-invoiced contract sits near 2x through no fault of its data. At 1.5x this check
+   flagged eight contracts, six of them in the 1.8–2.5x band that partial invoicing fully
+   explains; a banner that cries wolf is a banner nobody reads.
+   At 3x it flags two, and both are unarguable: 060526-TIM at 13.5x and 220526 at 7.4x
+   would each have to be ~90% un-invoiced with their tonnage already fully entered. */
+const VALUE_TOLERANCE = 3
+
 export const calContracts = (data, settings, companyRate = 0) => {
+    const dataIssues = []   // contracts whose own records contradict each other
 
     let accumulatedPmnt = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].reduce((o, key) => ({ ...o, [key]: 0 }), {})
     let accumulatedExp = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].reduce((o, key) => ({ ...o, [key]: 0 }), {})
@@ -289,6 +300,36 @@ export const calContracts = (data, settings, companyRate = 0) => {
             x.productsData.forEach(p => { contractTotalMT += (parseFloat(p.qnty) || 0) * mtFactor })
         }
         totalMT += contractTotalMT
+
+        /* ── Data-quality cross-check ─────────────────────────────────────────────
+           A contract's own money audits its tonnage. Every product line carries a unit
+           price, so the lines should multiply out to roughly what the PO is worth. When
+           they don't, the QUANTITIES are wrong — which is how contract 060526-TIM sat on
+           this dashboard claiming 2,577 MT at $4,050/MT ($10.4M of material) while its
+           ten payments totalled $774,683 (191 MT). It was 47% of the headline tonnage and
+           nothing on screen said a word.
+           Both figures are in the contract's own currency, so no FX enters the comparison.
+           Only OVER-statement is flagged: a line priced as free text ("See below*")
+           contributes tonnage but no value, which can only pull lineValue down — so
+           under-shooting is not evidence of anything and must not raise a flag. */
+        let lineValue = 0
+        ;(x.productsData || []).forEach(p => {
+            const q = parseFloat(p.qnty), pr = parseFloat(p.unitPrc)
+            if (!isNaN(q) && !isNaN(pr)) lineValue += q * pr
+        })
+        const poValue = (x.poInvoices || []).reduce((s, z) => {
+            const v = parseFloat(z?.pmnt); return isNaN(v) ? s : s + v
+        }, 0)
+        const issue = { id: x.id, order: x.order || '', supplier: x.supplier, date: x.dateRange?.startDate || '', mt: contractTotalMT }
+        if (poValue > 0 && lineValue > poValue * VALUE_TOLERANCE) {
+            dataIssues.push({ ...issue, kind: 'value', lineValue, poValue, ratio: lineValue / poValue })
+        }
+        /* A "tonnage recorded but no PO value" check lived here briefly. It matched 13 of
+           70 contracts, because a contract the supplier has not invoiced yet is a normal
+           early state, not a data error. It was the only signal available for the four KGS
+           "-TIM" contracts, but surfacing those is not worth burying two real errors in
+           eleven false ones. */
+
         // shipped MT — invoice quantities are already recorded in MT (same basis the
         // Inventory tab subtracts against the MT purchase qty), so no unit conversion here.
         const contractShipped = sumInvProductsMT(x.invoicesData, materialSold, x)
@@ -346,6 +387,29 @@ export const calContracts = (data, settings, companyRate = 0) => {
         return acc;
     }, {});
 
+    /* Duplicate PO numbers. Two documents sharing an order number are counted twice by
+       everything on this page — contract 090426 existed twice with the same two product
+       lines and different payment totals, quietly adding 143 MT and ~$560K. dedupeByDocId
+       in utils.js cannot see this: the documents have different ids, so as far as
+       Firestore is concerned they are two contracts. Only the PO number gives it away. */
+    const byOrder = {}
+    data.forEach(x => {
+        const key = String(x.order || '').trim()
+        if (key) (byOrder[key] ||= []).push(x)
+    })
+    Object.entries(byOrder).forEach(([order, list]) => {
+        if (list.length < 2) return
+        dataIssues.push({
+            kind: 'duplicate', order, id: list[0].id, supplier: list[0].supplier,
+            date: list[0].dateRange?.startDate || '', copies: list.length,
+            mt: list.slice(1).reduce((s, c) => {
+                const u = settings?.Quantity?.Quantity?.find(q => q.id === c.qTypeTable)?.qTypeTable
+                const f = u === 'KGS' ? 0.001 : u === 'LB' ? 0.0005 : 1
+                return s + (c.productsData || []).reduce((t, p) => t + (parseFloat(p.qnty) || 0) * f, 0)
+            }, 0),
+        })
+    })
+
     let pieArrSupps = setPieArrs(arrTmp)
 
     /* The monthly series re-keyed the same way, and ADDED on collision for the same
@@ -358,7 +422,7 @@ export const calContracts = (data, settings, companyRate = 0) => {
         months.forEach((v, i) => { dst[i] += v })
     })
 
-    return { accumulatedPmnt, accumulatedExp, pieArrSupps, suppSeries, totalMT, shippedMT, freightTotal, missingRate, cogs, unsoldValue, cogsByMonth, expByType, expDetails, materialSold, storageByMonth };
+    return { accumulatedPmnt, accumulatedExp, pieArrSupps, suppSeries, totalMT, shippedMT, freightTotal, missingRate, cogs, unsoldValue, cogsByMonth, expByType, expDetails, materialSold, storageByMonth, dataIssues };
 }
 
 

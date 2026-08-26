@@ -44,6 +44,7 @@ import CheckBox from "../../../components/checkbox";
 import Tltip from "../../../components/tlTip";
 import EmptyState from "../../../components/EmptyState";
 import { getTtl } from "../../../utils/languages";
+import { useTablePrefs, useTablePagination } from '@components/table/useTablePrefs';
 
 // Fixed widths, sized to what each column HOLDS — not to a share of the screen.
 //
@@ -372,7 +373,7 @@ const Customtable = (props) => {
     let data = items;
 
     const [globalFilter, setGlobalFilter] = useState('')
-    const [{ pageIndex, pageSize }, setPagination] = useState({ pageIndex: 0, pageSize: 100, })
+    const [{ pageIndex, pageSize }, setPagination] = useTablePagination(50)
     const pagination = useMemo(() => ({ pageIndex, pageSize, }), [pageIndex, pageSize])
     const pathName = usePathname()
     const { ln, compData } = useContext(SettingsContext);

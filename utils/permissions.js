@@ -19,6 +19,7 @@ export const PAGE_GROUPS = [
     pages: [
       { key: 'dashboard', label: 'Dashboard' },
       { key: 'apps/Assistant', label: 'Assistant' },
+      { key: 'activity', label: 'Activity Log' },
     ],
   },
   {
@@ -49,7 +50,7 @@ export const PAGE_GROUPS = [
       { key: 'companyexpenses', label: 'Company Expenses' },
       { key: 'materialtables', label: 'Material Tables' },
       { key: 'incoterms', label: 'Incoterms' },
-      { key: 'activity', label: 'Activity Log' },
+      { key: 'formulas', label: 'Formulas Calc' },
     ],
   },
   {
@@ -57,7 +58,6 @@ export const PAGE_GROUPS = [
     pages: [
       { key: 'margins', label: 'Margins / Admin' },
       { key: 'cashflow', label: 'Cashflow' },
-      { key: 'formulas', label: 'Formulas Calc' },
       { key: 'analysis', label: 'Analysis' },
       { key: 'settings', label: 'Settings' },
     ],

@@ -986,6 +986,16 @@ const Cashflow = () => {
         const dt = dateFormat(new Date(), 'yyyy-mm-dd');
 
         let inv = await loadInvoice(uidCollection, 'contracts', item.orderData);
+        // Reading the contract can come back empty (a deleted contract whose row is
+        // still on screen from a stale load). Say so — this used to throw on the
+        // next line and leave the click looking like it did nothing at all.
+        if (!inv?.poInvoices) {
+            setToast({
+                show: true, clr: 'fail',
+                text: `Contract for PO ${item.order || ''} could not be read — reload the page; if the row is still here, the contract it belongs to no longer exists`,
+            });
+            return;
+        }
         let updatedpoInvoices = inv.poInvoices.map(x => {
             if (x.id !== item.id) return x;
             const tmp = x.payments ? x.payments :
