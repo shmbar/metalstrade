@@ -176,10 +176,14 @@ function SummaryTile({ label, value, note, tone, icon: Icon, toneKey = 'gray', p
         <span className="text-caption truncate" title={info ? undefined : label}>{label}</span>
         {info && <Info size={11} strokeWidth={2} className="shrink-0 text-[var(--ink-muted)]" aria-hidden />}
       </div>
+      {/* Native `title` ONLY when this tile has no info tooltip. A tile with `info` is
+          wrapped in <Tltip> below, and a browser title inside it fires as well — two
+          tooltips, one styled and one the OS default, which is the double popup on
+          Company Expenses. Same guard the label above already uses. */}
       <span
         className="numeric leading-none truncate"
         style={{ fontSize: 'var(--fs-stat)', color: tone || 'var(--ink)' }}
-        title={typeof value === 'string' ? value : undefined}
+        title={!info && typeof value === 'string' ? value : undefined}
       >
         {value}
       </span>
@@ -195,7 +199,7 @@ function SummaryTile({ label, value, note, tone, icon: Icon, toneKey = 'gray', p
             </span>
           )}
           {note && (
-            <span className="text-[var(--ink-muted)] leading-tight truncate" style={{ fontSize: 'var(--fs-caption)' }} title={note}>
+            <span className="text-[var(--ink-muted)] leading-tight truncate" style={{ fontSize: 'var(--fs-caption)' }} title={info ? undefined : note}>
               {note}
             </span>
           )}
