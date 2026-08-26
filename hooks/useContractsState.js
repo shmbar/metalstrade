@@ -69,9 +69,24 @@ const useContractsState = (props) => {
         // can act on it instead of in three dead ends.
         delContract: async (uidCollection) => {
 
+            // try/finally, always: a throw from the delete (a rejected batch —
+            // offline, or rules refusing a write) left the global spinner running
+            // forever with no way back, which is exactly what a caught error should
+            // never look like.
+            let ok, plan, skipped
             setLoading(true)
-            const { ok, plan, skipped } = await deleteContractCascade(uidCollection, valueCon)
-            setLoading(false)
+            try {
+                ({ ok, plan, skipped } = await deleteContractCascade(uidCollection, valueCon))
+            } catch (error) {
+                console.error(error)
+                setToast({
+                    show: true, clr: 'fail',
+                    text: `Contract could not be deleted: ${error?.message || error}. Nothing was removed.`,
+                })
+                return;
+            } finally {
+                setLoading(false)
+            }
 
             if (!ok) {
                 setToast({

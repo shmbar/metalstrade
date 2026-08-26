@@ -1097,6 +1097,27 @@ export const loadStockDataPerDescription = async (uidCollection, stock, descript
 }
 
 
+// Delete many documents as ONE atomic commit — either every one of them goes or
+// none does, and it costs a single round trip instead of one per document. Each
+// target names the collection it lives in ('invoices_2026', 'stocks', …) because
+// the year suffix is resolved by the caller. Firestore caps a batch at 500
+// operations, so a larger set is split into chunks, each atomic in itself.
+export const delDocsBatch = async (uidCollection, targets = []) => {
+  // Ids must be non-empty STRINGS: doc() throws synchronously on anything else,
+  // and a throw here would take down the whole delete over one malformed entry.
+  const refs = targets
+    .filter(t => typeof t?.id === 'string' && t.id && typeof t?.collection === 'string' && t.collection)
+    .map(t => doc(db, uidCollection, 'data', t.collection, t.id));
+  if (!refs.length) return true;
+
+  for (let i = 0; i < refs.length; i += 450) {
+    const batch = writeBatch(db);
+    refs.slice(i, i + 450).forEach(ref => batch.delete(ref));
+    await batch.commit();
+  }
+  return true;
+}
+
 export const delStock = async (uidCollection, delArr) => {
 
   const batch = writeBatch(db);

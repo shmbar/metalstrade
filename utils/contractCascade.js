@@ -7,11 +7,14 @@
 // are replaced by a plan the user confirms in the dialog: what is about to go,
 // counted and named, then deleted in one pass.
 //
-// Children are deleted BEFORE the contract itself, so a failure part-way leaves
-// the contract standing as the anchor to retry from, rather than orphans with
-// nothing left pointing at them.
+// ONE atomic batch, not a delete per record. Two reasons. Each individual delete
+// only resolves once the server acknowledges it, so a contract with a dozen
+// children meant a dozen sequential round trips and a spinner that sat there.
+// And a half-finished cascade is the worst outcome available: children gone,
+// contract still standing, or the reverse. Batched, it either all goes or none
+// of it does.
 
-import { delDoc, delStock } from './utils';
+import { delDocsBatch } from './utils';
 import { planContractDeletion, yearBucketOf } from './contractCascadePlan';
 
 export { planContractDeletion };
@@ -19,28 +22,36 @@ export { planContractDeletion };
 export const deleteContractCascade = async (uidCollection, con) => {
     const plan = planContractDeletion(con || {});
     const skipped = [];
+    const targets = [];
 
+    // A record whose year cannot be resolved is NOT quietly dropped: deleting a
+    // document that isn't there is a success as far as Firestore is concerned, so
+    // guessing the bucket would report a clean sweep while leaving the record
+    // behind. Collect these and tell the user instead.
     for (const inv of plan.invoices) {
         const y = yearBucketOf(inv.date);
         if (!y) { skipped.push(`sales invoice ${inv.invoice ?? inv.id}`); continue; }
-        await delDoc(uidCollection, 'invoices', { ...inv, date: y });
+        targets.push({ collection: `invoices_${y}`, id: inv.id });
     }
 
     for (const exp of plan.expenses) {
         const y = yearBucketOf(exp.date);
         if (!y) { skipped.push(`expense ${exp.expense ?? exp.id}`); continue; }
-        await delDoc(uidCollection, 'expenses', { ...exp, date: y });
+        targets.push({ collection: `expenses_${y}`, id: exp.id });
     }
 
-    // Stock lots are one flat collection keyed by id — a single batch, no year.
-    if (plan.stockIds.length) await delStock(uidCollection, plan.stockIds);
+    // Stock lots are one flat collection keyed by id — no year to resolve.
+    for (const id of plan.stockIds) targets.push({ collection: 'stocks', id });
 
+    // Purchase invoices are stored inside the contract document, so they need no
+    // delete of their own — they go when it goes.
     const conYear = yearBucketOf(con?.date || con?.dateRange);
     if (!conYear) {
-        skipped.push('the contract itself');
-        return { ok: false, plan, skipped };
+        return { ok: false, plan, skipped: [...skipped, 'the contract itself (its date could not be read)'] };
     }
-    const ok = await delDoc(uidCollection, 'contracts', { ...con, date: conYear });
+    targets.push({ collection: `contracts_${conYear}`, id: con.id });
 
-    return { ok: !!ok, plan, skipped };
+    await delDocsBatch(uidCollection, targets);
+
+    return { ok: true, plan, skipped };
 };

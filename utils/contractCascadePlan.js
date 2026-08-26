@@ -12,7 +12,9 @@ import { toIsoDate } from './pureHelpers';
 export const planContractDeletion = (con = {}) => {
     const invoices = (con.invoices || []).filter(x => x?.id);
     const expenses = (con.expenses || []).filter(x => x?.id);
-    const stockIds = (con.stock || []).filter(Boolean);
+    // Stock is stored as a list of ids. Anything that is not a non-empty string
+    // cannot address a document, and would throw while building the reference.
+    const stockIds = (con.stock || []).filter(x => typeof x === 'string' && x);
     const poInvoices = (con.poInvoices || []).filter(x => x?.id);
     return {
         invoices, expenses, stockIds, poInvoices,
