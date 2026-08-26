@@ -381,7 +381,7 @@ const Customtable = ({
                    scroll box at the bottom carries rounded-b-2xl for the same reason. */
                 <div className="flex-shrink-0 bg-[var(--bg-card)] rounded-t-2xl" style={{ borderBottom: '1px solid var(--line)' }}>
                     {/* Table name */}
-                    <div style={{ padding: '8px 14px 2px' }}>
+                    <div style={{ padding: '6px 14px 0' }}>
                         <input
                             value={tableName}
                             onChange={e => setTableName(e.target.value)}
@@ -401,7 +401,7 @@ const Customtable = ({
                         delTable={delTable} table1={table1} runPdf={runPdf}
                     />
                     {/* Controls row */}
-                    <div className="flex flex-wrap items-center gap-2 px-3 pb-2 responsiveTextTable">
+                    <div className="flex flex-wrap items-center gap-1.5 px-3 pb-1.5 responsiveTextTable">
                         {/* Unit segmented toggle */}
                         <div className="flex items-center rounded-lg p-0.5" style={{ background: 'var(--bg-subtle)', border: '1px solid var(--line)' }}>
                             {['mt', 'kgs', 'lbs'].map(u => (
@@ -562,18 +562,25 @@ const Customtable = ({
 
             {/* ── Price bar ($/MT per element) ── */}
             {elements.length > 0 && (
-                <div style={{ background: 'var(--bg-subtle)', borderBottom: '1px solid var(--line)', padding: '6px 12px' }}>
+                <div style={{ background: 'var(--bg-subtle)', borderBottom: '1px solid var(--line)', padding: '4px 12px' }}>
                     <div className="responsiveTextTable" style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', alignItems: 'center' }}>
                         <span className="responsiveTextTable font-medium" style={{ color: 'var(--ink-muted)', minWidth: '32px' }}>$/MT</span>
                         {elements.filter(el => priceKeys ? priceKeys.includes(el.key) : el.key !== 'fe').map(el => {
                             const isNi = el.key === 'ni'
+                            const priced = (parseFloat(prices[el.key]) || 0) > 0
                             const focused = focusedPrice === el.key
                             return (
                                 <div key={el.key} style={{
                                     display: 'flex', alignItems: 'center', gap: '4px',
-                                    background: isNi ? 'var(--brand-soft)' : 'var(--bg-card)',
-                                    border: `1px solid ${isNi ? 'var(--brand-border)' : 'var(--line)'}`,
-                                    borderRadius: 'var(--radius-control)', padding: '2px 10px', minWidth: '68px',
+                                    /* An element with no price gets no box. Every table shows a
+                                       chip per element whether or not it is priced, so a stainless
+                                       table drew five outlined boxes reading "0" for Co, Nb, W, Cu
+                                       and Ti — noise sitting at the same weight as the three
+                                       figures that matter. Empty ones recede to bare text and come
+                                       back the moment they hold a price. */
+                                    background: isNi ? 'var(--brand-soft)' : priced ? 'var(--bg-card)' : 'transparent',
+                                    border: `1px solid ${isNi ? 'var(--brand-border)' : priced ? 'var(--line)' : 'transparent'}`,
+                                    borderRadius: 'var(--radius-control)', padding: '1px 8px', minWidth: '64px',
                                 }}>
                                     <span style={{
                                         fontSize: 'var(--fs-table)', fontWeight: '600',
@@ -666,13 +673,14 @@ const Customtable = ({
 
                         {elements.filter(el => salesPriceKeys ? salesPriceKeys.includes(el.key) : el.key !== 'fe').map(el => {
                             const isNi = el.key === 'ni'
+                            const priced = (parseFloat(salesPrices[el.key]) || 0) > 0
                             const focused = focusedPrice === 'sales:' + el.key
                             return (
                                 <div key={el.key} style={{
                                     display: 'flex', alignItems: 'center', gap: '4px',
-                                    background: 'var(--bg-card)',
-                                    border: `1px solid ${isNi ? 'var(--brand-border)' : 'var(--line)'}`,
-                                    borderRadius: 'var(--radius-control)', padding: '2px 10px', minWidth: '68px',
+                                    background: priced ? 'var(--bg-card)' : 'transparent',
+                                    border: `1px solid ${isNi ? 'var(--brand-border)' : priced ? 'var(--line)' : 'transparent'}`,
+                                    borderRadius: 'var(--radius-control)', padding: '1px 8px', minWidth: '64px',
                                 }}>
                                     <span style={{
                                         fontSize: 'var(--fs-table)', fontWeight: '600',
@@ -811,7 +819,15 @@ const Customtable = ({
                                     {row.getVisibleCells().map((cell, cIdx) => {
                                         const colId = cell.column.id
                                         const isDel = colId === 'del'
+                                        /* Sales MT and Sales Total are worked out from the sales
+                                           bar, exactly as Cost PMT and Cost Total are worked out
+                                           from the cost bar — but only the cost pair was drawn as
+                                           read-only. The sales pair rendered through the editable
+                                           branch, so it took a text input and, now that the border
+                                           only appears on cells you can actually type in, would
+                                           have been the only computed column still offering one. */
                                         const isCost = colId === 'costPmt' || colId === 'costTotal'
+                                            || colId === 'salesMt' || colId === 'salesTotal'
                                         const isLeft = colId === 'material' || colId === 'container'
                                         const isFe = colId === 'fe'
                                         const ck = `${row.id}-${colId}`
@@ -826,21 +842,46 @@ const Customtable = ({
                                                         >×</button>
                                                     </div>
                                                 ) : isCost ? (
-                                                    <div style={{ backgroundColor: 'var(--pink-bg)', border: '1px solid var(--pink-border)', borderRadius: '8px', padding: '2px 6px', display: 'flex', alignItems: 'center', justifyContent: 'center', minWidth: '62px', minHeight: 'var(--h-cell-control)' }}>
+                                                    /* Computed, so it gets the tint the app gives a worked-out
+                                                       figure everywhere else (see the formulas cards) — fill,
+                                                       no border. It used to carry a pink border as well, which
+                                                       made the one read-only column the loudest thing in the
+                                                       row. */
+                                                    <div
+                                                        className="flex items-center justify-center rounded-control px-1.5"
+                                                        style={{ background: hdrBg(colId), minWidth: '62px', minHeight: 'var(--h-cell-control)' }}
+                                                    >
                                                         {flexRender(cell.column.columnDef.cell, cell.getContext())}
                                                     </div>
                                                 ) : (
-                                                    <div style={{
-                                                        backgroundColor: focused ? 'var(--bg-card)' : 'var(--bg-subtle)',
-                                                        border: `1px solid ${focused ? 'var(--brand)' : isFe ? 'var(--brand-border)' : 'var(--line-strong)'}`,
-                                                        boxShadow: focused ? '0 0 0 3px var(--brand-soft)' : 'none',
-                                                        borderRadius: '8px', padding: '2px 5px',
-                                                        display: 'flex', alignItems: 'center',
-                                                        justifyContent: isLeft ? 'flex-start' : 'center',
-                                                        minWidth: colId === 'material' ? '150px' : colId === 'container' ? '78px' : colId === 'kgs' ? '62px' : '44px',
-                                                        minHeight: 'var(--h-cell-control)',
-                                                        transition: 'border-color 0.15s, box-shadow 0.15s',
-                                                    }}>
+                                                    /* The value carries the cell, not a box around it.
+                                                       Every editable cell used to draw a filled, bordered
+                                                       pill whether or not it held anything — 33 columns of
+                                                       outline per row, and a column like Co or W that is
+                                                       empty on every row still drew a full stack of empty
+                                                       boxes. The border comes back on hover (this is
+                                                       editable) and on focus (this is where you are), which
+                                                       is when it means something. */
+                                                    <div
+                                                        className={`flex items-center rounded-control px-1.5 transition-colors ${
+                                                            isLeft ? 'justify-start' : 'justify-center'
+                                                        } ${
+                                                            focused
+                                                                ? 'bg-[var(--bg-card)] border border-[var(--brand)] shadow-[0_0_0_3px_var(--brand-soft)]'
+                                                                /* Fe is the balance, so it carries the
+                                                                   computed tint — but only once it holds
+                                                                   a figure. Tinted while empty it was the
+                                                                   loudest thing in the table, a filled
+                                                                   block on every row saying nothing. */
+                                                                : isFe && (cell.getContext().getValue() ?? '') !== ''
+                                                                    ? 'bg-[var(--brand-soft)] border border-transparent'
+                                                                    : 'border border-transparent hover:bg-[var(--bg-subtle)] hover:border-[var(--line-strong)]'
+                                                        }`}
+                                                        style={{
+                                                            minWidth: colId === 'material' ? '150px' : colId === 'container' ? '78px' : colId === 'kgs' ? '62px' : '44px',
+                                                            minHeight: 'var(--h-cell-control)',
+                                                        }}
+                                                    >
                                                         <input
                                                             type="text"
                                                             inputMode={isLeft || colId === 'kgs' ? 'text' : 'decimal'}

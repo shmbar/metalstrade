@@ -1365,10 +1365,17 @@ input::-webkit-inner-spin-button {
    Inside .cf-uniform everything textual collapses onto the single body rung, so
    the page reads at one size top to bottom. It used to hardcode 12px with a
    bespoke 1780px step — the only place in the app that broke at that width — so
-   it now takes --fs-body and rides the shared breakpoints instead. Identical at
-   1440px and 1780px; +/-1px at the extremes. Unlayered, so it still wins over
-   the @layer utilities that responsiveText/.input apply. Inline-styled
-   chips/badges (intentionally tiny) are untouched. */
+   it takes a ladder rung and rides the shared breakpoints instead. Unlayered, so
+   it still wins over the @layer utilities that responsiveText/.input apply.
+   Inline-styled chips/badges (intentionally tiny) are untouched.
+
+   The rung is --fs-table, not --fs-body: cashflow is the densest page in the app
+   — eight stacked money sections plus the detail tables underneath them — and at
+   --fs-body every one of those rows sat at 13px on a large monitor, a body size
+   carrying table content. One rung down is 10/11/12/12 across the breakpoints,
+   which is what --fs-table exists for. The page headings (.text-display) and the
+   section titles (.responsiveTextTitle) are deliberately NOT in this list, so
+   dropping the rows widens the heading-to-row gap rather than flattening it. */
 .cf-uniform .responsiveText,
 .cf-uniform .responsiveTextTotal,
 .cf-uniform .responsiveTextTable,
@@ -1376,7 +1383,7 @@ input::-webkit-inner-spin-button {
 .cf-uniform .input,
 .cf-uniform .cashflow-detail-table th,
 .cf-uniform .cashflow-detail-table td {
-  font-size: var(--fs-body);
+  font-size: var(--fs-table);
 }
 
 .cashflow-detail-table {
@@ -1390,7 +1397,39 @@ input::-webkit-inner-spin-button {
   vertical-align: middle;
   line-height: 1.3;
   padding: 2px 6px;   /* was 4px 8px — compacted with the rest of the UI */
-  font-size: var(--fs-body);
+  /* --fs-table, in step with the .cf-uniform rung above. This rule and that one
+     have equal specificity and this one comes later, so it — not .cf-uniform —
+     is what the detail tables actually resolve to. Changing the page rung
+     without changing this one silently leaves the tables a rung behind. */
+  font-size: var(--fs-table);
+}
+
+/* Leading ∑ / sum-toggle column. One rule for the header and the body cells so
+   they share a width and a centre line: they were previously two independent
+   left-aligned cells whose only sizing came from the header, which is why the
+   toggle read as off-centre under the ∑. Width is sized to the content (a 16px
+   button plus the cell's own padding), not to a share of the table. */
+.cashflow-detail-table th.sum-col,
+.cashflow-detail-table td.sum-col {
+  width: 28px;
+  min-width: 28px;
+  padding-left: 4px;
+  padding-right: 4px;
+  text-align: center;
+}
+
+/* PO# column, same idea. Each of the seven detail tables used to declare its own
+   width on the <th> (w-12, w-14, w-24, w-28, or nothing) and a DIFFERENT
+   max-width on the matching <td> (max-w-20, or max-w-14 2xl:max-w-24) — so an
+   auto-layout table negotiated a width neither had asked for, header and body
+   disagreed inside every table, and the same column came out a different size in
+   each of them. One declaration, shared by header and body, sized to the content
+   rather than to a share of the screen: PO numbers run to about twelve
+   characters ("270326-1-TIM"), which is ~84px at --fs-table plus cell padding. */
+.cashflow-detail-table th.po-col,
+.cashflow-detail-table td.po-col {
+  width: 96px;
+  max-width: 96px;
 }
 
 .cashflow-detail-table thead tr {
@@ -1432,7 +1471,7 @@ input::-webkit-inner-spin-button {
 .cashflow-detail-table tfoot th {
   font-weight: 500;
   color: var(--chathams-blue);
-  font-size: var(--fs-body);
+  font-size: var(--fs-table);
   border-top: 1px solid var(--line-strong);
 }
 

@@ -1304,10 +1304,18 @@ const Cashflow = () => {
                                 </div>
                             ) : (
                                 <>
+                                    {/* Opening balances. This strip used to be the one place on the page
+                                        running its own type: 600-weight labels (the section-header weight)
+                                        over 400-weight figures, which is the inverse of every other row
+                                        here and is why "Future" and the account names read as a different
+                                        typeface. Labels sit at 500 like every other row label; figures
+                                        take .tnum, which supplies 500 + tabular-nums from the token layer.
+                                        It also floated on the page background with no surface — it now
+                                        carries the same card as the sections below it. */}
                                     {isAdmin &&
-                                        <div className="w-full p-2 mb-2">
-                                            <div className="flex gap-2">
-                                                <span className="responsiveText font-semibold items-center flex w-44 text-[var(--chathams-blue)]">Future</span>
+                                        <div className="w-full border border-[var(--line)] rounded-2xl bg-[var(--bg-card)] p-2 mb-2">
+                                            <div className="flex gap-2 items-center">
+                                                <span className="responsiveText font-medium items-center flex w-44 text-[var(--ink)]">Future</span>
                                                 <label className="pl-1">{
                                                     <NumericFormat
                                                         value={incoming}
@@ -1317,7 +1325,7 @@ const Cashflow = () => {
                                                         prefix={'$'}
                                                         decimalScale='2'
                                                         fixedDecimalScale
-                                                        className='responsiveTextTotal font-normal'
+                                                        className='responsiveText tnum text-[var(--ink)]'
                                                     />
                                                 }</label>
                                             </div>
@@ -1325,9 +1333,9 @@ const Cashflow = () => {
                                                 initialData?.map((z, i) => {
                                                     return (
                                                         <div className="flex gap-2 my-1 items-center" key={i}>
-                                                            <input className="responsiveText font-semibold items-center flex outline-none w-44 truncate text-[var(--chathams-blue)]" value={z.title}
+                                                            <input className="responsiveText font-medium items-center flex outline-none w-44 truncate bg-transparent text-[var(--ink)]" value={z.title}
                                                                 onChange={e => handleChangeInitial(e, i, 'title')} />
-                                                            <NumericFormat className='input w-44 responsiveTextTotal'
+                                                            <NumericFormat className='input w-44 responsiveText tnum font-medium text-[var(--ink)]'
                                                                 value={z.num} thousandSeparator allowNegative={false} decimalScale={2} fixedDecimalScale prefix='$'
                                                                 onValueChange={values => handleChangeInitial({ target: { value: values.value } }, i, 'num')} />
                                                             <button onClick={() => delItem(i)} className="text-red-500 px-2 h-8 rounded-lg hover:bg-red-50 transition-all"><MdDeleteOutline className="scale-110" /></button>
@@ -1468,9 +1476,7 @@ const Cashflow = () => {
 
 
                                                 {sharedStock.length > 0 && <div className="p-2 bg-[var(--surface-card)] mb-3 flex flex-col cf-card">
-                                                    <div className="flex items-center justify-between mb-1">
-                                                        <span className="text-[var(--chathams-blue)] responsiveText font-semibold">Shared Stock (IMS + GIS)</span>
-                                                    </div>
+                                                    <SectionHeader icon={Boxes} title="Shared Stock (IMS + GIS)" />
                                                     <div className="bg-[var(--surface-card)] py-0.5 px-0 hover:bg-[var(--surface-header)] transition-colors">
                                                         <MyAccordion title={
                                                             <div className="flex w-full justify-between">
@@ -1498,13 +1504,10 @@ const Cashflow = () => {
 
 
                                                 <div className="p-2 bg-[var(--surface-card)] mb-3 flex flex-col cf-card">
-                                                    <div className="flex items-center justify-between mb-1">
-                                                        <span className="text-[var(--chathams-blue)] responsiveText font-semibold">Clients - Payment</span>
-                                                        <div className="flex items-center gap-2">
-                                                            {clientSortName1 ? <FaSortAmountDown className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortClientsName(1)} /> : <FaSortAmountUpAlt className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortClientsName(1)} />}
-                                                            {clientSort1 ? <FaSortAmountDown className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortClients(1)} /> : <FaSortAmountUpAlt className="scale-[0.9] text-[var(--port-gore)] cursor-pointer" onClick={() => sortClients(1)} />}
-                                                        </div>
-                                                    </div>
+                                                    <SectionHeader icon={Users} title="Clients - Payment">
+                                                        {clientSortName1 ? <FaSortAmountDown className="scale-[0.9] text-[var(--ink-muted)] hover:text-[var(--ink)] cursor-pointer" onClick={() => sortClientsName(1)} /> : <FaSortAmountUpAlt className="scale-[0.9] text-[var(--ink-muted)] hover:text-[var(--ink)] cursor-pointer" onClick={() => sortClientsName(1)} />}
+                                                        {clientSort1 ? <FaSortAmountDown className="scale-[0.9] text-[var(--ink-muted)] hover:text-[var(--ink)] cursor-pointer" onClick={() => sortClients(1)} /> : <FaSortAmountUpAlt className="scale-[0.9] text-[var(--ink-muted)] hover:text-[var(--ink)] cursor-pointer" onClick={() => sortClients(1)} />}
+                                                    </SectionHeader>
 
                                                     {byName(clientInvoices2).map((x, i) => {
                                                         return (
@@ -1635,11 +1638,16 @@ const Cashflow = () => {
                                                                             <div className="flex items-center justify-between rounded-2xl px-0 responsiveTextInput hover:bg-[var(--bg-subtle)] transition-colors" key={i}>
                                                                                 <div className="flex items-center gap-1 min-w-0 flex-1">
                                                                                     <button onClick={() => setFinancedLeft(financedLeft.filter((z, k) => k !== i))}><MdOutlineClose className="scale-110" /></button>
-                                                                                    <input className={cn('flex-1 min-w-0 outline-none h-6 bg-transparent text-[var(--chathams-blue)]',
+                                                                                    {/* responsiveText unconditionally: the filled state used to carry no
+                                                                                        size class at all, so it fell through to the browser's default
+                                                                                        input size (13.3px) and only happened to match the page at
+                                                                                        1536px+. Below that it rendered a rung or two larger than every
+                                                                                        row around it. */}
+                                                                                    <input className={cn('flex-1 min-w-0 outline-none h-6 bg-transparent responsiveText font-medium text-[var(--ink)]',
                                                                                         z.title === '' ? 'input' : '')} value={z.title}
                                                                                         onChange={e => handleChangeFinance(e, i, 'left', 'title')} />
                                                                                 </div>
-                                                                                <NumericFormat className={cn('h-6 bg-transparent flex-shrink-0 text-[var(--chathams-blue)] text-right',
+                                                                                <NumericFormat className={cn('h-6 bg-transparent flex-shrink-0 responsiveText tnum font-medium text-[var(--ink)] text-right',
                                                                                     z.num === '' ? 'input w-24' : 'outline-none')}
                                                                                     value={z.num} thousandSeparator allowNegative={false} decimalScale={2} fixedDecimalScale prefix='$'
                                                                                     onValueChange={values => handleChangeFinance({ target: { value: values.value } }, i, 'left', 'num')}
@@ -1867,11 +1875,11 @@ const Cashflow = () => {
                                                                             <div className="flex items-center justify-between rounded-2xl px-0 responsiveTextInput hover:bg-[var(--bg-subtle)] transition-colors" key={i}>
                                                                                 <div className="flex items-center gap-1 min-w-0 flex-1">
                                                                                     <button onClick={() => setFinancedRight(financedRight.filter((z, k) => k !== i))}><MdOutlineClose className="scale-110" /></button>
-                                                                                    <input className={cn('flex-1 min-w-0 outline-none h-6 text-[var(--chathams-blue)] bg-transparent',
+                                                                                    <input className={cn('flex-1 min-w-0 outline-none h-6 responsiveText font-medium text-[var(--ink)] bg-transparent',
                                                                                         z.title === '' ? 'input' : '')}
                                                                                         value={z.title} onChange={e => handleChangeFinance(e, i, 'right', 'title')} />
                                                                                 </div>
-                                                                                <NumericFormat className={cn('flex-shrink-0 h-6 text-[var(--chathams-blue)] bg-transparent text-right',
+                                                                                <NumericFormat className={cn('flex-shrink-0 h-6 responsiveText tnum font-medium text-[var(--ink)] bg-transparent text-right',
                                                                                     z.num === '' ? 'input w-24' : 'outline-none')}
                                                                                     value={z.num} thousandSeparator allowNegative={false} decimalScale={2} fixedDecimalScale prefix='$'
                                                                                     onValueChange={values => handleChangeFinance({ target: { value: values.value } }, i, 'right', 'num')} />

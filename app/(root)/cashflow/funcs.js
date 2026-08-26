@@ -14,6 +14,7 @@ import { NumericFormat } from "react-number-format";
 import DoalogModal from "./dialogSupplier";
 import DoalogModalClient from "./dialogClient";
 import { SortTh, sortRows, useSortState } from "@components/table/sorting";
+import { BtnIcon } from "../../../components/buttonIcons";
 
 
 
@@ -24,22 +25,37 @@ const sumKey = (kind, id) => kind + '_' + id;
 // Leading per-row toggle that adds/removes an invoice from the running-sum
 // basket. Visually distinct from the trailing payment checkbox so the two
 // are never confused. `sumSel` is the page-level selection object.
+// Two separate centring problems, both fixed here.
+//
+// The BOX in the cell: `flex` is block-level, so the button parked itself at the
+// cell's left edge and ignored the cell's text-align. `inline-flex` makes it an
+// inline box, and the .sum-col rule in globals.css centres the ∑ header and the
+// toggle on the same axis.
+//
+// The GLYPH in the box: the marks used to be the text characters "+" and "✓".
+// A character is positioned by the font's baseline and side bearings, not by the
+// box — Jakarta's plus sits below the optical centre and slightly left of it, so
+// no amount of items-center/justify-center on the button could square it up.
+// These are lucide SVGs on a symmetric viewBox instead, which the flex centring
+// lands exactly. Per the icon rule they come from buttonIcons.js by action name.
+// 14px = the button's 16px minus its 1px border on each side, so the glyph fills
+// the box without clipping.
 const SumToggle = ({ active, onToggle }) => (
     <Tltip direction='right' tltpText={active ? 'Remove from sum' : 'Add to running sum'}>
         <button type="button" onClick={onToggle}
-            className={`flex items-center justify-center w-4 h-4 rounded border responsiveTextTable leading-none font-bold transition-colors ${active
+            className={`inline-flex items-center justify-center w-4 h-4 rounded border align-middle transition-colors ${active
                 ? 'bg-[var(--brand)] border-[var(--brand)] text-[var(--on-brand)]'
                 : 'bg-[var(--bg-card)] border-[var(--brand-border)] text-[var(--brand)] hover:bg-[var(--brand-soft)]'}`}>
-            {active ? '✓' : '+'}
+            <BtnIcon action={active ? 'confirm' : 'add'} strokeWidth={2.5} />
         </button>
     </Tltip>
 );
 
 // Tiny ∑ header cell for the leading sum-toggle column.
 const SumTh = () => (
-    <th className="text-left w-6 px-1 py-0">
+    <th className="sum-col">
         <Tltip direction='right' tltpText='Tick invoices to total them in the basket'>
-            <span className="text-[var(--chathams-blue)]">&#931;</span>
+            <span className="text-[var(--ink)]">&#931;</span>
         </Tltip>
     </th>
 );
@@ -581,7 +597,7 @@ export const StoclToolTip = ({ stock, stockDataAll, settings, uidCollection, set
                 <thead>
                     <tr>
                         <SumTh />
-                        <SortTh colKey="order" label="PO#" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left w-12" />
+                        <SortTh colKey="order" label="PO#" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left po-col" />
                         <SortTh colKey="_supplierName" label="Supplier" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left w-16" />
                         <SortTh colKey="descriptionName" label="Description" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left w-28 max-w-28" />
                         <SortTh colKey="qnty" label="Quantity" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left w-14" />
@@ -593,10 +609,10 @@ export const StoclToolTip = ({ stock, stockDataAll, settings, uidCollection, set
                     {(() => {
                         const renderRow = (z, key, indent = false) => (
                             <tr key={key}>
-                                <td className="!py-1 px-1">
+                                <td className="sum-col !py-1">
                                     <SumToggle active={!!sumSel[sumKey('stock', z.id)]} onToggle={() => toggleSum && toggleSum(buildSumItem(z))} />
                                 </td>
-                                <td className="text-left cursor-pointer text-[var(--endeavour)] hover:underline max-w-20 truncate"
+                                <td className="text-left cursor-pointer text-[var(--endeavour)] hover:underline po-col truncate"
                                     onClick={() => moveToContracts(z, 'stock', uidCollection, setDateSelect,
                                         setValueCon, setIsOpenCon, blankInvoice, router, setToast)}>
                                     <Tltip direction='top' tltpText={z.order || ''}><span className="block truncate">{z.order}</span></Tltip></td>
@@ -656,7 +672,7 @@ export const StoclToolTip = ({ stock, stockDataAll, settings, uidCollection, set
                                         onClick={() => setOpenPOs(prev => ({ ...prev, [z.order]: !prev[z.order] }))}>
                                         {/* Σ column = quick-sum selection, same as normal rows: toggles
                                             ALL the group's alloy rows in/out of the selected total. */}
-                                        <td className="!py-1 px-1" onClick={(e) => e.stopPropagation()}>
+                                        <td className="sum-col !py-1" onClick={(e) => e.stopPropagation()}>
                                             {(() => {
                                                 const grpAll = grp.every(r => !!sumSel[sumKey('stock', r.id)]);
                                                 return <SumToggle active={grpAll} onToggle={() =>
@@ -666,7 +682,7 @@ export const StoclToolTip = ({ stock, stockDataAll, settings, uidCollection, set
                                                     })} />;
                                             })()}
                                         </td>
-                                        <td className="text-left text-[var(--endeavour)] max-w-20 truncate"
+                                        <td className="text-left text-[var(--endeavour)] po-col truncate"
                                             onClick={(e) => { e.stopPropagation(); moveToContracts(z, 'stock', uidCollection, setDateSelect, setValueCon, setIsOpenCon, blankInvoice, router, setToast); }}>
                                             <span className="block truncate cursor-pointer hover:underline">{z.order}</span>
                                         </td>
@@ -768,7 +784,7 @@ export const StocksUnSold = ({ supplier, stockDataAllArray, settings, uidCollect
                 <thead>
                     <tr>
                         <SumTh />
-                        <SortTh colKey="order" label="PO#" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left w-12" />
+                        <SortTh colKey="order" label="PO#" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left po-col" />
                         <SortTh colKey="description" label="Description" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left w-28 max-w-28" />
                         <SortTh colKey="stockName" label="Stock" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left w-20" />
                         <SortTh colKey="qnty" label="Quantity" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left w-14" />
@@ -780,10 +796,10 @@ export const StocksUnSold = ({ supplier, stockDataAllArray, settings, uidCollect
                     {(() => {
                         const renderRow = (z, key, indent = false) => (
                             <tr key={key}>
-                                <td className="!py-1 px-1">
+                                <td className="sum-col !py-1">
                                     <SumToggle active={!!sumSel[sumKey('stock', z.id)]} onToggle={() => toggleSum && toggleSum(buildSumItem(z))} />
                                 </td>
-                                <td className="text-left cursor-pointer text-[var(--endeavour)] hover:underline max-w-20 truncate"
+                                <td className="text-left cursor-pointer text-[var(--endeavour)] hover:underline po-col truncate"
                                     onClick={() => moveToContracts(z, 'order', uidCollection, setDateSelect,
                                         setValueCon, setIsOpenCon, blankInvoice, router, setToast)}>
                                     <Tltip direction='top' tltpText={[z.order, settings.Supplier.Supplier.find(q => q.id === z.originSupplier)?.nname ? 'Org: ' + settings.Supplier.Supplier.find(q => q.id === z.originSupplier)?.nname : ''].filter(Boolean).join(' · ')}><span className="block truncate">{indent ? '' : z.order}</span></Tltip></td>
@@ -845,7 +861,7 @@ export const StocksUnSold = ({ supplier, stockDataAllArray, settings, uidCollect
                                         onClick={() => setOpenPOs(prev => ({ ...prev, [z.order]: !prev[z.order] }))}>
                                         {/* Σ column = quick-sum selection, same as normal rows: toggles
                                             ALL the group's alloy rows in/out of the selected total. */}
-                                        <td className="!py-1 px-1" onClick={(e) => e.stopPropagation()}>
+                                        <td className="sum-col !py-1" onClick={(e) => e.stopPropagation()}>
                                             {(() => {
                                                 const grpAll = grp.every(r => !!sumSel[sumKey('stock', r.id)]);
                                                 return <SumToggle active={grpAll} onToggle={() =>
@@ -855,7 +871,7 @@ export const StocksUnSold = ({ supplier, stockDataAllArray, settings, uidCollect
                                                     })} />;
                                             })()}
                                         </td>
-                                        <td className="text-left text-[var(--endeavour)] max-w-20 truncate"
+                                        <td className="text-left text-[var(--endeavour)] po-col truncate"
                                             onClick={(e) => { e.stopPropagation(); moveToContracts(z, 'order', uidCollection, setDateSelect, setValueCon, setIsOpenCon, blankInvoice, router, setToast); }}>
                                             <span className="block truncate cursor-pointer hover:underline">{z.order}</span>
                                         </td>
@@ -1014,7 +1030,7 @@ export const SharedStockDetails = ({ rows, settings }) => {
                 <table className="cashflow-detail-table w-full table-auto">
                     <thead>
                         <tr>
-                            <SortTh colKey="_po" label="PO#" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left w-14" />
+                            <SortTh colKey="_po" label="PO#" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left po-col" />
                             <SortTh colKey="_mat" label="Material" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left" />
                             <SortTh colKey="_wh" label="Warehouse" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left" />
                             <SortTh colKey="qnty" label="Quantity" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left w-14" />
@@ -1262,7 +1278,7 @@ export const ClientDetails = ({ client, data, type, uidCollection, setDateSelect
                         <thead>
                             <tr>
                                 <SumTh />
-                                <SortTh colKey="_order" label="PO#" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left max-w-20 2xl:max-w-24" />
+                                <SortTh colKey="_order" label="PO#" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left po-col" />
                                 <SortTh colKey="invoice" label="Invoice" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left w-12" />
                                 <SortTh colKey="totalAmount" label="Amount" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left" />
                                 <SortTh colKey="_pmntTotal" label="Payment" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left" />
@@ -1287,10 +1303,10 @@ export const ClientDetails = ({ client, data, type, uidCollection, setDateSelect
                             {filteredArr.map((z, i) => {
                                 return (
                                     <tr key={i}>
-                                        <td className="!py-1 px-1">
+                                        <td className="sum-col !py-1">
                                             <SumToggle active={!!sumSel[sumKey('client', z.id)]} onToggle={() => toggleSum && toggleSum(buildSumItem(z))} />
                                         </td>
-                                        <td className="text-left cursor-pointer text-[var(--endeavour)] hover:underline max-w-14 2xl:max-w-24 truncate"
+                                        <td className="text-left cursor-pointer text-[var(--endeavour)] hover:underline po-col truncate"
                                             onClick={() => moveToContracts(z, 'client', uidCollection, setDateSelect,
                                                 setValueCon, setIsOpenCon, blankInvoice, router, setToast)}>
                                             <Tltip direction='top' tltpText={z.poSupplier?.order || ''}><span className="block truncate">{z.poSupplier?.order}</span></Tltip></td>
@@ -1396,7 +1412,7 @@ export const ClientDetails = ({ client, data, type, uidCollection, setDateSelect
                         <thead>
                             <tr>
                                 <SumTh />
-                                <SortTh colKey="_order" label="PO#" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left w-28" />
+                                <SortTh colKey="_order" label="PO#" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left po-col" />
                                 <SortTh colKey="invoice" label="Invoice" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left w-12" />
                                 <SortTh colKey="totalAmount" label="Amount" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left" />
                                 <SortTh colKey="percentage" label="Prepayment" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left" />
@@ -1419,10 +1435,10 @@ export const ClientDetails = ({ client, data, type, uidCollection, setDateSelect
                             {filteredArr1.map((z, i) => {
                                 return (
                                     <tr key={i}>
-                                        <td className="!py-1 px-1">
+                                        <td className="sum-col !py-1">
                                             <SumToggle active={!!sumSel[sumKey('client', z.id)]} onToggle={() => toggleSum && toggleSum(buildSumItem(z))} />
                                         </td>
-                                        <td className="text-left cursor-pointer text-[var(--endeavour)] hover:underline max-w-14 2xl:max-w-24 truncate"
+                                        <td className="text-left cursor-pointer text-[var(--endeavour)] hover:underline po-col truncate"
                                             onClick={() => moveToContracts(z, 'client', uidCollection, setDateSelect,
                                                 setValueCon, setIsOpenCon, blankInvoice, router, setToast)}>
                                             <Tltip direction='top' tltpText={z.poSupplier?.order || ''}><span className="block truncate">{z.poSupplier?.order}</span></Tltip></td>
@@ -1720,7 +1736,7 @@ export const SupplierDetails = ({ supplier, data, uidCollection, setDateSelect,
                 <thead>
                     <tr>
                         <SumTh />
-                        <SortTh colKey="order" label="PO#" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left" />
+                        <SortTh colKey="order" label="PO#" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left po-col" />
                         <SortTh colKey="invoice" label="Invoice" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left w-12" />
                         <SortTh colKey="invValue" label="Value" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left" />
                         <SortTh colKey="pmnt" label="Payment" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left" />
@@ -1745,10 +1761,10 @@ export const SupplierDetails = ({ supplier, data, uidCollection, setDateSelect,
                     {filteredArr.map((z, i) => {
                         return (
                             <tr key={i}>
-                                <td className="!py-1 px-1">
+                                <td className="sum-col !py-1">
                                     <SumToggle active={!!sumSel[sumKey('supplier', z.id)]} onToggle={() => toggleSum && toggleSum(buildSumItem(z))} />
                                 </td>
-                                <td className="text-left cursor-pointer text-[var(--endeavour)] hover:underline max-w-20 truncate"
+                                <td className="text-left cursor-pointer text-[var(--endeavour)] hover:underline po-col truncate"
                                     onClick={() => moveToContracts(z, 'supplier', uidCollection, setDateSelect,
                                         setValueCon, setIsOpenCon, blankInvoice, router, setToast)}
                                 ><Tltip direction='top' tltpText={z.order || ''}><span className="block truncate">{z.order}</span></Tltip></td>
@@ -1942,7 +1958,7 @@ export const ExpensesToolTip = ({ supplier, expensesAll, settings, uidCollection
                 <thead>
                     <tr>
                         <SumTh />
-                        <SortTh colKey="_order" label="PO#" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left w-24" />
+                        <SortTh colKey="_order" label="PO#" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left po-col" />
                         <SortTh colKey="expense" label="Exp. Invoice" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left" />
                         <SortTh colKey="expType" label="Exp. Type" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left" />
                         <SortTh colKey="amount" label="Amount" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left" />
@@ -1964,10 +1980,10 @@ export const ExpensesToolTip = ({ supplier, expensesAll, settings, uidCollection
                     {filteredArr.map((z, i) => {
                         return (
                             <tr key={i}>
-                                <td className="!py-1 px-1">
+                                <td className="sum-col !py-1">
                                     <SumToggle active={!!sumSel[sumKey('expense', z.id)]} onToggle={() => toggleSum && toggleSum(buildSumItem(z))} />
                                 </td>
-                                <td className="text-left cursor-pointer text-[var(--endeavour)] hover:underline max-w-20 truncate"
+                                <td className="text-left cursor-pointer text-[var(--endeavour)] hover:underline po-col truncate"
                                     onClick={() => moveToContracts(z, z.poSupplier ? 'expense' : 'compexpense', uidCollection, setDateSelect,
                                         setValueExp, setIsOpen, blankInvoice, router, setToast)}>
                                     <Tltip direction='top' tltpText={z.poSupplier?.order ?? 'Comp. Exp.'}><span className="block truncate">{z.poSupplier?.order ?? 'Comp. Exp.'}</span></Tltip></td>
