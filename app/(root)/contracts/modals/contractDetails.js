@@ -311,12 +311,16 @@ const ContractModal = () => {
 
 		indvData = indvData.map(x => ({
 			...x, expenses: [], invoice: invoices1.find(inv => inv.id === x.id)?.invoice || '',
+			// poSupplier points at the CONTRACT this invoice belongs to — it is what
+			// every "open the contract" route resolves. This wrote the supplier's id
+			// instead, so a copied invoice pointed at a contract that does not exist
+			// and the target account answered "Contract can not be accessed!".
 			poSupplier: {
-				date: newCon.date || '',
-				id: newCon.supplier || '',
+				date: newCon.dateRange?.startDate || newCon.date || '',
+				id: newCon.id || '',
 				order: newCon.order || '',
 			},
-			poSupplierOrder: newCon.poSupplier?.order || '',
+			poSupplierOrder: newCon.order || '',
 			payments: [], client: ''
 		}));
 
