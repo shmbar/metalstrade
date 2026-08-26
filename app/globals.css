@@ -200,6 +200,18 @@
      components/buttonIcons.js — never restate it at a call site. */
   --icon-btn: 14px;
 
+  /* ── In-cell glyph size ───────────────────────────────────────────────────
+     The button band's 14px glyph is too loud for an affordance that sits INSIDE
+     a data cell next to 12px figures — a clear "×" at 14px outweighs the date it
+     clears. 10px reads as a dismiss mark and still hits the 16px --hit-cell box
+     below. Consumed by .cell-clear. */
+  --icon-cell: 10px;
+
+  /* Hit target for that in-cell affordance. Bigger than the glyph on purpose:
+     the glyph is 10px, the clickable square is 16px, so the pointer has
+     somewhere to land without the mark itself growing. */
+  --hit-cell: 16px;
+
   /* ── In-cell control height ───────────────────────────────────────────────
      A control INSIDE a table cell sits on the compact rung of the band (h-7),
      not the h-8 that .input uses in a form. The three shared in-cell controls
@@ -1015,6 +1027,41 @@ thead th {
     height: var(--h-cell-control);
     min-height: var(--h-cell-control);
     line-height: normal;
+  }
+
+  /* The "clear this cell's value" mark. It is a FLEX ITEM, never an absolutely
+     positioned one: the shipment arrival cell used to pin its × to the cell's
+     right edge while the date sat centred, so on a row carrying a countdown
+     ("17.05.26 · 101d late") the mark collided with the text, and on a row
+     without one it floated off on its own with a gap in between. Sizing the hit
+     box squarely and centring an SVG inside it also fixes the vertical drift —
+     a text "×" glyph sits below the optical centre of its line box, which no
+     amount of translate-y reliably corrects across fonts. */
+  .cell-clear {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--hit-cell);
+    height: var(--hit-cell);
+    flex: none;
+    border-radius: var(--radius-pill);
+    color: currentColor;
+    opacity: 0.45;
+    transition: opacity 0.12s ease, color 0.12s ease;
+  }
+
+  /* Colour only on hover — no background swap. These marks live on tinted
+     pills (--bad-bg / --warn-bg) as often as on plain cells, and a tinted hover
+     chip disappears into the pill it sits on. */
+  .cell-clear:hover {
+    opacity: 1;
+    color: var(--danger-text);
+  }
+
+  .cell-clear svg {
+    width: var(--icon-cell);
+    height: var(--icon-cell);
+    flex: none;
   }
 
   /* Focus ring — one definition, visible in both modes. Applied to every

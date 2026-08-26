@@ -20,6 +20,7 @@ import Tltip from '../../../components/tlTip';
    following the theme — which is exactly how the chat and filter icons here
    ended up off-theme while the PDF icon beside them was fine. */
 import { FileSpreadsheet, MessageSquare, Filter, Check } from 'lucide-react';
+import BtnIcon from '../../../components/buttonIcons';
 import ProgressBar from '../../../components/ProgressBar';
 import Avatar from '../../../components/Avatar';
 // exceljs is imported dynamically inside exportExcel so it stays off the
@@ -141,30 +142,39 @@ function DateCell({ rawDate, onOpen, onClear, urgency }) {
         if (ref.current) onOpen(ref.current);
     };
 
+    /* One centred group — date, countdown, clear — not a centred date with the clear
+       mark pinned to the far edge. The pinned version read as two unrelated things:
+       on a plain row the × floated off alone with a gap, and on a row carrying a
+       countdown it collided with "…d late". Everything is a flex item now, so the
+       gaps are the flex gap and nothing can overlap. The colour sits on the wrapper
+       so the countdown and the × inherit it instead of restating it. */
     return (
         <div
             ref={ref}
-            className="h-7 responsiveTextTable flex items-center justify-center px-2 rounded-control cursor-pointer select-none w-full relative hover:!border-[var(--line-strong)] hover:!bg-[var(--bg-card)] transition-colors"
-            style={{ ...tint, minWidth: '72px' }}
+            className="h-7 responsiveTextTable flex items-center justify-center gap-1 rounded-control cursor-pointer select-none w-full hover:!border-[var(--line-strong)] hover:!bg-[var(--bg-card)] transition-colors"
+            style={{ ...tint, color: textColor, minWidth: '72px', paddingLeft: 8, paddingRight: display ? 4 : 8 }}
             onClick={handleClick}
         >
-            <span style={{ color: textColor }}>
+            <span className="whitespace-nowrap">
                 {display || '—'}
             </span>
             {/* 500, not 600. This was the one genuinely bold thing inside a data row
                 anywhere in the app, and it does not need to be: it already carries the
                 danger colour, which is what marks it. */}
             {countdown && (
-                <span className='font-medium whitespace-nowrap' style={{ color: textColor, fontSize: 'var(--fs-table)', marginLeft: 5, opacity: 0.85 }}>
+                <span className='font-medium whitespace-nowrap' style={{ fontSize: 'var(--fs-table)', opacity: 0.85 }}>
                     · {countdown}
                 </span>
             )}
             {display && (
                 <button
+                    type="button"
+                    aria-label="Clear date"
                     onClick={(e) => { e.stopPropagation(); onClear(); }}
-                    className="absolute right-1 top-1/2 -translate-y-1/2 text-[var(--regent-gray)] hover:text-red-400 transition-colors leading-none"
-                    style={{ fontSize: 'var(--fs-title)' }}
-                >×</button>
+                    className="cell-clear"
+                >
+                    <BtnIcon action="close" />
+                </button>
             )}
         </div>
     );

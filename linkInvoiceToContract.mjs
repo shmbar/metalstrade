@@ -16,10 +16,10 @@
 //
 // ─── Usage ───────────────────────────────────────────────────────────────────
 //   # 1. See what it finds — writes NOTHING without --apply:
-//   node linkInvoiceToContract.mjs --workspace <uid> --po 0904-26 --invoice 0032
+//   node linkInvoiceToContract.mjs --workspace <uid> --po 0904-26 --invoice 0032,0032FN
 //
 //   # 2. Once the dry run names the right two records:
-//   node linkInvoiceToContract.mjs --workspace <uid> --po 0904-26 --invoice 0032 --apply
+//   node linkInvoiceToContract.mjs --workspace <uid> --po 0904-26 --invoice 0032,0032FN --apply
 //
 // Add --year 2026 to narrow the search (it scans the last 4 years by default).
 
@@ -49,9 +49,12 @@ const db = admin.firestore();
 const thisYear = new Date().getFullYear();
 const years = year ? [Number(year)] : [thisYear, thisYear - 1, thisYear - 2, thisYear - 3];
 
-// PO numbers are typed by hand and reformatted by the IMS/GIS copy ('090426' vs
-// '0904-26'), so compare on the digits and letters alone.
-const norm = (s) => String(s ?? '').toLowerCase().replace(/[^a-z0-9]/g, '');
+// Compare on digits and letters alone, without leading zeros. Two reasons: PO
+// numbers are typed by hand and reformatted by the IMS/GIS copy ('090426' vs
+// '0904-26'), and invoice numbers are STORED as numbers (32) while the app pads
+// them for display (0032) — so the number you read off the screen never matches
+// the stored value literally.
+const norm = (s) => String(s ?? '').toLowerCase().replace(/[^a-z0-9]/g, '').replace(/^0+/, '');
 
 const scan = async (path, match) => {
     const found = [];
@@ -62,64 +65,89 @@ const scan = async (path, match) => {
     return found;
 };
 
+// An invoice and its final note are separate records that belong to the same PO,
+// so --invoice takes a list: "0032,0032FN". They are linked in ONE batch rather
+// than one run each, because each run rewrites the contract's whole invoices[]
+// array — two runs against a contract read before either finished would drop one.
+const wanted = String(invNo).split(',').map(s => s.trim()).filter(Boolean);
+
 const contracts = await scan('contracts', c => norm(c.order) === norm(po));
-const invoices = await scan('invoices', i => norm(i.invoice) === norm(invNo));
+const invoices = await scan('invoices', i => wanted.some(w => norm(i.invoice) === norm(w)));
 
-const describe = (label, rows, fmt) => {
-    console.log(`\n${label}: ${rows.length} found`);
-    rows.forEach((r, i) => console.log(`  [${i}] ${fmt(r)}   (${r._bucket}, id ${r.id})`));
-};
+console.log(`\nContracts matching PO "${po}": ${contracts.length} found`);
+contracts.forEach((c, i) => console.log(`  [${i}] PO ${c.order} · ${c.date} · ${(c.invoices || []).length} invoice(s) attached   (${c._bucket}, id ${c.id})`));
 
-describe(`Contracts matching PO "${po}"`, contracts, c => `PO ${c.order} · ${c.date} · ${(c.invoices || []).length} invoice(s) attached`);
-describe(`Invoices matching "${invNo}"`, invoices, i => `Invoice ${i.invoice} · ${i.date || i.dateRange?.startDate} · total ${i.totalAmount ?? '?'} · currently points at contract ${i.poSupplier?.id || '(none)'}`);
+console.log(`\nInvoices matching ${wanted.join(', ')}: ${invoices.length} found`);
+invoices.forEach((v, i) => console.log(
+    // invType is what the app renders as the CN/FN suffix — the suffix is never
+    // part of the stored number, so "0032FN" is invoice 32 with a final-note type.
+    `  [${i}] Invoice ${v.invoice} [${v.invType ?? 'no type'}] · ${v.date || v.dateRange?.startDate} · total ${v.totalAmount ?? '?'}` +
+    ` · client ${v.client || '(none)'} · currently points at contract ${v.poSupplier?.id || '(none)'}   (${v._bucket}, id ${v.id})`
+));
 
-if (contracts.length !== 1 || invoices.length !== 1) {
-    console.error(
-        `\nRefusing to guess: this links exactly ONE invoice to ONE contract.` +
-        `\nNarrow it with --year, or use a fuller invoice number (e.g. 0032FN rather than 0032).`
-    );
+if (contracts.length !== 1) {
+    console.error(`\nRefusing to guess: expected exactly ONE contract for PO "${po}", found ${contracts.length}. Narrow it with --year.`);
     process.exit(1);
 }
 
+// Every number asked for must match exactly one record — a missing one means the
+// invoice is not where we think it is, and a doubled one means the duplicate
+// problem again. Either way, stop rather than link the wrong record.
+for (const w of wanted) {
+    const hits = invoices.filter(v => norm(v.invoice) === norm(w));
+    if (hits.length !== 1) {
+        console.error(`\nRefusing to guess: "${w}" matched ${hits.length} invoices, expected exactly 1.`);
+        process.exit(1);
+    }
+}
+
 const contract = contracts[0];
-const inv = invoices[0];
-const invDate = inv.date || inv.dateRange?.startDate || '';
 const conDate = contract.dateRange?.startDate || contract.date || '';
 
 // Exactly the shape the app writes when an invoice is created inside a contract
 // (hooks/useInvoiceState.js:196) — anything else and the app reads it as broken.
 const poSupplier = { id: contract.id, order: contract.order || '', date: conDate };
-const entry = { id: inv.id, date: invDate, invType: inv.invType || '1111', invoice: inv.invoice };
+
+const entries = invoices.map(v => ({
+    id: v.id,
+    date: v.date || v.dateRange?.startDate || '',
+    invType: v.invType || '1111',
+    invoice: v.invoice,
+}));
 
 console.log('\n── Planned changes ─────────────────────────────────────────────');
-console.log(`invoice ${inv.invoice} (${inv._bucket})`);
-console.log(`   poSupplier: ${JSON.stringify(inv.poSupplier)}`);
-console.log(`            → ${JSON.stringify(poSupplier)}`);
+for (const v of invoices) {
+    console.log(`invoice ${v.invoice} (${v._bucket})`);
+    console.log(`   poSupplier: ${JSON.stringify(v.poSupplier)}`);
+    console.log(`            → ${JSON.stringify(poSupplier)}`);
+}
+const missing = entries.filter(e => !(contract.invoices || []).some(x => x?.id === e.id));
 console.log(`contract ${contract.order} (${contract._bucket})`);
-console.log(`   invoices[]: ${(contract.invoices || []).length} entr(ies) → adds ${JSON.stringify(entry)}`);
+console.log(`   invoices[]: ${(contract.invoices || []).length} entr(ies) → adds ${missing.length}: ${JSON.stringify(missing)}`);
 
 if (!apply) {
     console.log('\nDry run — nothing was written. Re-run with --apply to make these changes.');
     process.exit(0);
 }
 
-// Both writes in one atomic batch: a half-applied link is the state we are here
+// Every write in one atomic batch: a half-applied link is the state we are here
 // to repair, so it must not be the state we can leave behind.
-const already = (contract.invoices || []).some(x => x?.id === inv.id);
 const batch = db.batch();
 
-batch.update(db.doc(`${workspace}/data/${inv._bucket}/${inv.id}`), {
-    poSupplier,
-    poSupplierOrder: contract.order || '',
-});
+for (const v of invoices) {
+    batch.update(db.doc(`${workspace}/data/${v._bucket}/${v.id}`), {
+        poSupplier,
+        poSupplierOrder: contract.order || '',
+    });
+}
 
-if (!already) {
+if (missing.length) {
     batch.update(db.doc(`${workspace}/data/${contract._bucket}/${contract.id}`), {
-        invoices: [...(contract.invoices || []), entry],
+        invoices: [...(contract.invoices || []), ...missing],
     });
 }
 
 await batch.commit();
-console.log(`\nLinked. Invoice ${inv.invoice} now belongs to PO ${contract.order}${already ? ' (it was already listed on the contract)' : ''}.`);
+console.log(`\nLinked ${invoices.map(v => v.invoice).join(' and ')} to PO ${contract.order}.`);
 console.log('Reload the app to see it.');
 process.exit(0);
