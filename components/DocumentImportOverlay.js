@@ -42,6 +42,16 @@ function FieldRow({ label, value, confidence, selected, onToggle }) {
     );
 }
 
+const UNIT_WORD = { mt: 'MT', kgs: 'Kgs', lbs: 'Lbs' };
+
+// Which element columns the read actually found, in the page's own order — so the
+// preview says "24 rows · Ni, Cr, Mo" rather than leaving you to apply and find out.
+const ELEMENT_ORDER = ['ni', 'cr', 'mo', 'co', 'nb', 'w', 'cu', 'ti', 'fe'];
+function elementsFound(rows) {
+    const seen = ELEMENT_ORDER.filter(k => (rows || []).some(r => r?.elements?.[k] != null));
+    return seen.map(k => k.charAt(0).toUpperCase() + k.slice(1)).join(', ');
+}
+
 function ReconciliationPanel({ reconcile, linkedContract, extractedCurrency }) {
     if (!reconcile) return null;
     const cur = extractedCurrency || linkedContract?.currency || '';
@@ -254,7 +264,9 @@ const DocumentImportOverlay = ({ documentType, suppliers, clients, currencies, e
                     ? ['contractNo', 'client', 'date', 'currency', 'products', 'scalePricing', 'remarks']
                     : documentType === 'expense'
                         ? ['vendorInvoiceNumber', 'supplier', 'buyerPoNumber', 'date', 'currency', 'amount', 'expenseType', 'comments']
-                        : ['invoice', 'client', 'date', 'currency', 'products', 'remarks'];
+                        : documentType === 'materialtable'
+                            ? ['tableName', 'containerNo', 'unit', 'rows']
+                            : ['invoice', 'client', 'date', 'currency', 'products', 'remarks'];
             allFields.forEach(f => {
                 const conf = data.confidence?.[f] || data.confidence?.supplier || data.confidence?.client;
                 sel[f] = conf !== 'low';
@@ -337,6 +349,20 @@ const DocumentImportOverlay = ({ documentType, suppliers, clients, currencies, e
                 if (selected.scalePricing && result.scalePricing) extra.push(`Scale prices: ${result.scalePricing}`);
                 if (extra.length) out.comments = extra.join('\n');
             }
+        } else if (documentType === 'materialtable') {
+            /* Material Tables builds a whole table, not a form: the page turns this
+               into one new table and appends it. Element keys already match the
+               page's own (constants.js), so the rows go straight in. */
+            if (selected.tableName && result.tableName) out.tableName = result.tableName;
+            if (selected.containerNo && result.containerNo) out.containerNo = result.containerNo;
+            if (selected.unit && result.unit) out.unit = result.unit;
+            if (selected.rows && result.rows?.length) {
+                out.rows = result.rows.map(r => ({
+                    material: r.material || '',
+                    weight: r.weight,
+                    elements: r.elements || {},
+                }));
+            }
         } else if (documentType === 'expense') {
             // Map supplier-invoice fields onto the project's Expense shape.
             // Field names mirror what hooks/useExpensesState.js uses.
@@ -399,6 +425,7 @@ const DocumentImportOverlay = ({ documentType, suppliers, clients, currencies, e
     const isContract = documentType === 'contract';
     const isSalesContract = documentType === 'salescontract';
     const isExpense = documentType === 'expense';
+    const isMaterialTable = documentType === 'materialtable';
 
     // Mount-gate so the portal only renders client-side (SSR safety).
     const [mounted, setMounted] = useState(false);
@@ -419,7 +446,7 @@ const DocumentImportOverlay = ({ documentType, suppliers, clients, currencies, e
                     <div className='flex items-center gap-2'>
                         <FileText className='w-4 h-4' style={{ color: 'var(--brand)' }} />
                         <span id='doc-import-title' className='font-semibold' style={{ fontSize: 'var(--fs-input)', color: 'var(--ink)' }}>
-                            {isContract ? 'Autofill contract from supplier proforma' : isSalesContract ? 'Autofill sales contract from client contract' : isExpense ? 'Autofill expense from supplier invoice' : 'Import from Document — Invoice'}
+                            {isContract ? 'Autofill contract from supplier proforma' : isSalesContract ? 'Autofill sales contract from client contract' : isExpense ? 'Autofill expense from supplier invoice' : isMaterialTable ? 'Build a material table from a packing list' : 'Import from Document — Invoice'}
                         </span>
                     </div>
                     <button
@@ -524,7 +551,23 @@ const DocumentImportOverlay = ({ documentType, suppliers, clients, currencies, e
                                 </div>
                             )}
 
-                            {isContract ? (
+                            {isMaterialTable ? (
+                                <>
+                                    <FieldRow label='Table name' value={result.tableName} confidence={result.confidence?.tableName} selected={selected.tableName} onToggle={() => toggle('tableName')} />
+                                    <FieldRow label='Container / shipment #' value={result.containerNo} confidence={result.confidence?.containerNo} selected={selected.containerNo} onToggle={() => toggle('containerNo')} />
+                                    <FieldRow label='Weight unit' value={result.unit ? UNIT_WORD[result.unit] || result.unit : null} confidence={result.confidence?.unit} selected={selected.unit} onToggle={() => toggle('unit')} />
+                                    {/* Row count plus the elements actually found, because
+                                        "24 rows extracted" alone doesn't tell you whether the
+                                        chemistry columns were read at all. */}
+                                    <FieldRow
+                                        label='Material rows'
+                                        value={result.rows?.length ? `${result.rows.length} row${result.rows.length === 1 ? '' : 's'}${elementsFound(result.rows) ? ` · ${elementsFound(result.rows)}` : ' · no chemistry found'}` : null}
+                                        confidence={result.confidence?.rows}
+                                        selected={selected.rows}
+                                        onToggle={() => toggle('rows')}
+                                    />
+                                </>
+                            ) : isContract ? (
                                 <>
                                     <FieldRow label='PO Number' value={result.order} confidence={result.confidence?.order} selected={selected.order} onToggle={() => toggle('order')} />
                                     <FieldRow label='Supplier' value={result.supplierId ? result.supplierName : result.supplierName ? `${result.supplierName} (no match)` : null} confidence={result.confidence?.supplier} selected={selected.supplier} onToggle={() => toggle('supplier')} />
@@ -587,8 +630,13 @@ const DocumentImportOverlay = ({ documentType, suppliers, clients, currencies, e
                 {/* Footer */}
                 {result && (
                     <div className='flex items-center justify-between px-4 py-3' style={{ borderTop: '1px solid var(--line)', background: 'var(--bg-subtle)' }}>
+                        {/* A packing list names no supplier or client to match against,
+                            so the entity warning would be about nothing. What matters
+                            there is that the chemistry gets checked. */}
                         <p style={{ fontSize: 'var(--fs-caption)', color: 'var(--ink-muted)' }}>
-                            Unmatched entities won&apos;t be applied. Verify after import.
+                            {isMaterialTable
+                                ? 'Lands as a new table. Check the weights and percentages before saving.'
+                                : <>Unmatched entities won&apos;t be applied. Verify after import.</>}
                         </p>
                         <div className='flex gap-2'>
                             <button onClick={onClose} className='px-3 py-1.5 rounded-lg border transition-colors hover:border-[var(--brand)]'

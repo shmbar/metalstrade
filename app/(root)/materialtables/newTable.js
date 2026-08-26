@@ -106,6 +106,36 @@ const Customtable = ({
 
     const niMult = (niPercent || 100) / 100
 
+    /* The cost bar and the sales bar are one grid, not two independent wrapping
+       rows (Zak, 2026-08-26: "you can see it's not aligned, cost row and sales
+       row"). They used to be flex rows of content-sized chips, so the moment the
+       two sides priced a different set of elements — or the Ni chip came out a
+       different width because one side had a figure and the other didn't — every
+       chip after it sat at a different x than its opposite number. Same approach
+       as the formulas cards: one column per element, both rows reading from it,
+       so Cr sits under Cr whatever either side holds.
+
+       The columns are the UNION of what the two bars price, so an element only
+       one side uses still gets a column and the other side shows a gap there —
+       which is the honest picture of a cost preset that differs from the sales
+       one. */
+    const barElements = useMemo(() => {
+        const inCost = (el) => (priceKeys ? priceKeys.includes(el.key) : el.key !== 'fe')
+        const inSales = (el) => (salesPriceKeys ? salesPriceKeys.includes(el.key) : el.key !== 'fe')
+        return elements
+            .filter(el => inCost(el) || inSales(el))
+            .map(el => ({ ...el, inCost: inCost(el), inSales: inSales(el) }))
+    }, [elements, priceKeys, salesPriceKeys])
+
+    /* Ni carries "LME × 100 %" as well as its figure, so it needs about twice the
+       room. Keyed off the element rather than its position — the header row is
+       drag-reorderable, so Ni is not always first. */
+    const barTemplate = useMemo(
+        () => `76px ${barElements.map(el => (el.key === 'ni' ? '176px' : '96px')).join(' ')}`,
+        [barElements]
+    )
+    const barGrid = { display: 'grid', gridTemplateColumns: barTemplate, gap: '6px', alignItems: 'center', width: 'max-content', minWidth: '100%' }
+
     // Inject Cost PMT + Cost Total columns before 'del' when prices exist AND showCosts is on
     const enhancedColumns = useMemo(() => {
         if (!columns.length || !hasPrices || !showCosts) return columns
@@ -562,13 +592,14 @@ const Customtable = ({
 
             {/* ── Price bar ($/MT per element) ── */}
             {elements.length > 0 && (
-                <div style={{ background: 'var(--bg-subtle)', borderBottom: '1px solid var(--line)', padding: '4px 12px' }}>
-                    <div className="responsiveTextTable" style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', alignItems: 'center' }}>
-                        <span className="responsiveTextTable font-medium" style={{ color: 'var(--ink-muted)', minWidth: '32px' }}>$/MT</span>
-                        {elements.filter(el => priceKeys ? priceKeys.includes(el.key) : el.key !== 'fe').map(el => {
+                <div style={{ background: 'var(--bg-subtle)', borderBottom: '1px solid var(--line)', padding: '4px 12px', overflowX: 'auto' }}>
+                    <div className="responsiveTextTable" style={barGrid}>
+                        <span className="responsiveTextTable font-medium" style={{ color: 'var(--ink-muted)' }}>$/MT</span>
+                        {barElements.map(el => {
                             const isNi = el.key === 'ni'
                             const priced = (parseFloat(prices[el.key]) || 0) > 0
                             const focused = focusedPrice === el.key
+                            if (!el.inCost) return <span key={el.key} />
                             return (
                                 <div key={el.key} style={{
                                     display: 'flex', alignItems: 'center', gap: '4px',
@@ -638,12 +669,16 @@ const Customtable = ({
                 price bar above stays the neutral --bg-subtle: the two are separated
                 by tinted-vs-neutral rather than by two competing hues. */}
             {elements.length > 0 && (
-                <div style={{ background: 'var(--brand-soft)', borderBottom: '1px solid var(--line)', padding: '6px 12px' }}>
-                    <div className="responsiveTextTable" style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', alignItems: 'center' }}>
-                        <span className="responsiveTextTable font-medium" style={{ color: 'var(--brand-strong)', minWidth: '48px' }}>Sales</span>
-
+                <div style={{ background: 'var(--brand-soft)', borderBottom: '1px solid var(--line)', padding: '4px 12px', overflowX: 'auto' }}>
+                    <div className="responsiveTextTable" style={barGrid}>
+                        {/* Label and preset picker share the one 76px label cell, so
+                            this row's first element column starts exactly where the
+                            cost row's does. The button used to sit outside the label
+                            and push everything after it out of step. */}
+                        <span className="responsiveTextTable font-medium" style={{ color: 'var(--brand-strong)', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                            Sales
                         {/* Preset picker — sets which elements the sale price is built from */}
-                        <div style={{ position: 'relative' }}>
+                        <span style={{ position: 'relative' }}>
                             <button
                                 onClick={() => setShowSalesPresets(v => !v)}
                                 title="Choose which elements the sales price is calculated from"
@@ -669,12 +704,14 @@ const Customtable = ({
                                     ))}
                                 </div>
                             )}
-                        </div>
+                        </span>
+                        </span>
 
-                        {elements.filter(el => salesPriceKeys ? salesPriceKeys.includes(el.key) : el.key !== 'fe').map(el => {
+                        {barElements.map(el => {
                             const isNi = el.key === 'ni'
                             const priced = (parseFloat(salesPrices[el.key]) || 0) > 0
                             const focused = focusedPrice === 'sales:' + el.key
+                            if (!el.inSales) return <span key={el.key} />
                             return (
                                 <div key={el.key} style={{
                                     display: 'flex', alignItems: 'center', gap: '4px',
@@ -731,7 +768,11 @@ const Customtable = ({
                 {/* rounded-b-2xl: this box is the bottom of the card, so it takes over
                     clipping the square table corners from the card wrapper in page.js —
                     which had to stop clipping so the preset dropdowns could escape. */}
-                <div className="overflow-auto dashboard-scroll rounded-b-2xl" style={{ maxHeight: '700px' }}>
+                {/* The price bars are settings for the table, not the top of it. Run
+                    straight into the header row and they read as two more rows of it
+                    (Zak, 2026-08-26). A band of card background between the two says
+                    where the inputs stop and the data starts. */}
+                <div className="overflow-auto dashboard-scroll rounded-b-2xl pt-2 bg-[var(--bg-card)]" style={{ maxHeight: '700px' }}>
                     <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
                     <table className="w-full responsiveTextTable" style={{ tableLayout: 'auto', borderCollapse: 'separate', borderSpacing: 0, fontFamily: 'inherit' }}>
 

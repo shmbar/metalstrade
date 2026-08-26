@@ -72,6 +72,10 @@ export async function POST(request) {
             entityLists = `Known clients: ${clientListStr}\nKnown currencies: ${currencyList}`;
         } else if (documentType === 'expense') {
             entityLists = `Known suppliers (vendors): ${supplierList}\nKnown currencies: ${currencyList}\nKnown expense categories: ${expenseTypeList}`;
+        } else if (documentType === 'materialtable') {
+            // A packing list / analysis certificate names no counterparty we need to
+            // match and carries no money — the entity lists would only be noise here.
+            entityLists = '';
         } else {
             entityLists = `Known clients: ${clientListStr}\nKnown currencies: ${currencyList}`;
         }
@@ -172,6 +176,36 @@ FIELD NOTES:
 ${partyFields}
   "confidence": { "vendorInvoiceNumber": "high|medium|low", "supplier": "high|medium|low", "amount": "high|medium|low", "date": "high|medium|low", "buyerPoNumber": "high|medium|low" }
 }`;
+        } else if (documentType === 'materialtable') {
+            /* The fifth document type, and the only one that is not a commercial
+               paper: a packing list / weight list / analysis (mill) certificate.
+               The other four capture chemistry as ONE `analysis` string per product
+               line, which is the right shape for a contract line and the wrong shape
+               entirely for Material Tables — that page wants a row per bundle with a
+               weight and a value in each element column. Hence its own schema rather
+               than a flag on an existing one.
+
+               Element keys are the page's own (constants.js DEFAULT_ELEMENTS), so a
+               read drops straight into a table with no key translation. */
+            schemaGuide = `Return JSON for a packing list / weight list / analysis (mill) certificate — a list of material lots with weights and their element percentages:
+{
+  "tableName": "what this list is FOR — the grade or material name ('AISI 304 turnings', 'Inconel 625 solids'), or the packing-list / certificate number if no grade is printed. Null if neither.",
+  "containerNo": "container, seal, truck or shipment number if printed, else null",
+  "unit": "the unit the WEIGHTS are printed in — exactly one of: mt, kgs, lbs",
+  "rows": [{
+    "material": "the label of this line — bundle/lot/package/heat number, or the material description if the lines are not numbered",
+    "weight": number_or_null,
+    "elements": { "ni": number_or_null, "cr": number_or_null, "mo": number_or_null, "co": number_or_null, "nb": number_or_null, "w": number_or_null, "cu": number_or_null, "ti": number_or_null, "fe": number_or_null }
+  }],
+  "confidence": { "tableName": "high|medium|low", "containerNo": "high|medium|low", "unit": "high|medium|low", "rows": "high|medium|low" }
+}
+HOW TO READ THIS DOCUMENT:
+- One entry in "rows" per printed line of material. A 40-line packing list returns 40 rows, across all pages. Never merge lines and never emit a summary/total line as a row — totals belong to no bundle.
+- "elements" are PERCENTAGES of the alloy (0-100), never kilograms of contained metal. If the document prints contained weight instead of a percentage, divide by that line's weight and give the percentage.
+- Element columns are usually headed by symbol (Ni, Cr, Mo, Co, Nb, W, Cu, Ti, Fe) but may be spelled out (Nickel, Chrome/Chromium, Molybdenum, Cobalt, Niobium/Columbium/Cb, Tungsten/Wolfram, Copper, Titanium, Iron). Cb = Nb. Any element the document does not carry stays null — never carry a value across from a neighbouring column to fill a gap.
+- "weight" is that line's NET weight in the document's own unit. Do not convert between kg/lb/MT; report "unit" and leave the figures as printed.
+- Leave "fe" null unless iron is printed as its own column. It is the balance and the page works it out.
+- A range or a min/max ("Ni 8.0-10.5", "Ni min 8.0") is a specification, not an assay: take the single measured value when one is printed, otherwise the midpoint of a range, otherwise null.`;
         } else {
             schemaGuide = `Return JSON for an invoice:
 {
@@ -279,7 +313,50 @@ Return ONLY the JSON object, no extra text.`;
 
         // Which of the two named parties is the counterparty is decided in code, not by
         // the model — a buyer-issued purchase confirmation puts OUR name on the page too.
-        resolveCounterparty(result, { documentType, suppliers, clients });
+        // A packing list names no counterparty, so there is nothing to resolve.
+        if (documentType !== 'materialtable') {
+            resolveCounterparty(result, { documentType, suppliers, clients });
+        }
+
+        /* Packing list: everything the page will treat as a number is coerced and
+           bounded HERE rather than trusted from the model, and the same deterministic
+           check the other paths run on qty × price is run on the chemistry — the
+           element percentages of one lot cannot exceed 100. A row that breaks it has a
+           misread decimal point or a column carried across, so rows drops to low
+           confidence and the UI deselects it, forcing a human look rather than a
+           silent bad import. */
+        if (documentType === 'materialtable') {
+            const ELEMENT_KEYS = ['ni', 'cr', 'mo', 'co', 'nb', 'w', 'cu', 'ti', 'fe'];
+            const num = (v) => {
+                const n = typeof v === 'string' ? Number(v.replace(/[^0-9.\-]/g, '')) : Number(v);
+                return Number.isFinite(n) ? n : null;
+            };
+            const unit = String(result.unit || '').toLowerCase();
+            result.unit = ['mt', 'kgs', 'lbs'].includes(unit)
+                ? unit
+                : unit.startsWith('kg') ? 'kgs' : unit.startsWith('lb') || unit === 'lb' ? 'lbs' : unit.startsWith('t') ? 'mt' : 'kgs';
+
+            let suspect = false;
+            result.rows = (Array.isArray(result.rows) ? result.rows : []).map(r => {
+                const elements = {};
+                let sum = 0;
+                ELEMENT_KEYS.forEach(k => {
+                    const v = num(r?.elements?.[k]);
+                    // Out of range is not a number this page can hold — drop it rather
+                    // than write a 4,300% nickel into a cell.
+                    const ok = v != null && v >= 0 && v <= 100;
+                    if (v != null && !ok) suspect = true;
+                    elements[k] = ok ? v : null;
+                    if (ok) sum += v;
+                });
+                if (sum > 100.5) suspect = true;
+                return { material: String(r?.material || '').trim(), weight: num(r?.weight), elements };
+            }).filter(r => r.material || r.weight != null || ELEMENT_KEYS.some(k => r.elements[k] != null));
+
+            if (suspect || !result.rows.length) {
+                result.confidence = { ...(result.confidence || {}), rows: 'low' };
+            }
+        }
 
         // Deterministic line check: when a product line carries qty, price AND total,
         // they must multiply out. Legitimate rounding is bounded by the printed price

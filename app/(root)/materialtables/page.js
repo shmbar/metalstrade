@@ -17,6 +17,7 @@ import { DEFAULT_ELEMENTS, UNIT_LABELS, TO_KGS, FROM_KGS } from './constants';
 import useMetalPrices from '../../../hooks/useMetalPrices';
 import LoadingButton from '../../../components/LoadingButton';
 import { BtnIcon } from '../../../components/buttonIcons';
+import DocumentImportOverlay from '../../../components/DocumentImportOverlay';
 
 function countDecimalDigits(str) {
     const match = str.match(/(?:\.(\d+))?(?:[eE]([+-]?\d+))?$/)
@@ -41,6 +42,7 @@ const MaterialTables = () => {
     const [totals, setTotals] = useState({})
     const [loading, setLoading] = useState(true)
     const [nilmePrice, setNilmePrice] = useState('')
+    const [showDocImport, setShowDocImport] = useState(false)
     const { uidCollection } = UserAuth()
     const { prices: metalPrices } = useMetalPrices()
 
@@ -206,6 +208,43 @@ const MaterialTables = () => {
 
     const addTable = () => {
         setData(prev => [...prev, makeBlankTable(nilmePrice)])
+    }
+
+    /* Build a whole table from a packing list / weight list / analysis certificate.
+       This page is the one place in the app where the document being retyped IS a
+       table — a bundle per line with a weight and a percentage per element — so the
+       reader returns rows rather than the single `analysis` string the contract and
+       invoice schemas produce (see the materialtable branch in
+       app/api/ai/document-reader/route.js).
+
+       It appends a NEW table rather than filling the one on screen: a packing list
+       covers one container, and merging it into whatever happens to be open would
+       silently mix two shipments' bundles. */
+    const applyDocument = (out) => {
+        const table = makeBlankTable(nilmePrice)
+        if (out.tableName) table.name = out.tableName
+        if (out.unit) table.unit = out.unit
+        if (out.containerNo) {
+            table.containerNo = out.containerNo
+            table.showContainer = true
+        }
+        table.data = (out.rows || []).map(r => {
+            const row = { id: uuidv4(), material: r.material || '', kgs: r.weight != null ? String(r.weight) : '', container: out.containerNo || '', _feManual: false }
+            DEFAULT_ELEMENTS.forEach(el => {
+                const v = r.elements?.[el.key]
+                row[el.key] = v != null ? String(v) : ''
+            })
+            // The reader is told to leave Fe null — it is the balance, and this is the
+            // same computation the table itself runs on every edit.
+            if (!row.fe) row.fe = autoFe(row, DEFAULT_ELEMENTS)
+            return row
+        })
+        setData(prev => [...prev, table])
+        setToast({
+            show: true,
+            text: table.data.length ? `Added "${table.name || 'table'}" — ${table.data.length} row${table.data.length === 1 ? '' : 's'}` : 'Added an empty table — nothing was read from that document',
+            clr: table.data.length ? 'success' : 'warning',
+        })
     }
 
     const saveTable = async () => {
@@ -463,6 +502,9 @@ const MaterialTables = () => {
                                     <p className="responsiveTextInput text-[var(--ink-muted)] mt-0.5">Element composition & pricing</p>
                                 </div>
                                 <div className="flex items-center gap-2">
+                                    <button onClick={() => setShowDocImport(true)} className="whiteButton">
+                                        <BtnIcon action="autofill" />{getTtl('Read Packing List', ln) || 'Read Packing List'}
+                                    </button>
                                     <button onClick={addTable} className="blackButton">
                                         <BtnIcon action="add" />{getTtl('Add Table', ln) || 'Add Table'}
                                     </button>
@@ -540,6 +582,13 @@ const MaterialTables = () => {
                     </>
                 }
             </div>
+            {showDocImport && (
+                <DocumentImportOverlay
+                    documentType='materialtable'
+                    onApply={applyDocument}
+                    onClose={() => setShowDocImport(false)}
+                />
+            )}
         </div>
     )
 }

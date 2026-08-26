@@ -1541,7 +1541,13 @@ const Dash = () => {
   const cogsByMonth = conAgg.cogsByMonth || {};
   const expByType = conAgg.expByType || {};
   const expDetails = conAgg.expDetails || {};
-  const materialSold = conAgg.materialSold || {};
+  /* conAgg.materialSold is no longer read here — the "Most-Sold Material" card it fed was
+     removed (Zak, 2026-08-26, not needed). Left being collected in funcs.js on purpose:
+     it costs one map write inside a loop that already walks every invoice line, and the
+     part that was actually hard — resolving a line's material through descriptionId
+     against the invoice's then the contract's productsData — is exactly the sort of thing
+     that gets rebuilt wrong if it is deleted and wanted again. Same treatment
+     storageByMonth got when its sparkline went. */
   // Storage + warehouse spend (the storage-cost buckets), for the dashboard tile.
   /* Substring, not exact — the same way the freight and commission tiles match. The
      shipped expense types include storageStuffing and freightStorageStuffing
@@ -2109,42 +2115,12 @@ const Dash = () => {
             avgFreightPerMT={avgFreightPerMT}
           />
 
-          {/* TONNAGE breakdown + UNSOLD STOCK. The receivables card used to be the third
-              column here, which put an all-time open balance in the same row as two
-              period-scoped tonnage cards. It has moved to the Position band with the
-              aging card it belongs to. */}
+          {/* TONNAGE + CAPITAL BREAKDOWN. "Most-Sold Material" sat beside the tonnage card
+              until Zak said it wasn't needed (2026-08-26); the donut moved up to take its
+              place rather than leave a half-empty row, which frees the hero chart to run
+              full width — a 12-month line reads better wide than it did at two thirds. */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-5">
             <TonnageCard purchased={totalMT} shipped={shippedMT} pending={pendingMT} unsoldValue={unsoldValue} />
-            <BreakdownCard
-              title="Most-Sold Material"
-              subtitle="By tonnage sold this period"
-              entries={Object.entries(materialSold).filter(([, v]) => v > 0.01).sort((a, b) => b[1] - a[1])}
-              total={shippedMT}
-              fmtVal={(v) => `${new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 }).format(v || 0)} MT`}
-              accent="var(--brand)"
-              clamp
-              onPick={(name) => setFMaterial(fMaterial === name ? '' : name)}
-              picked={fMaterial}
-            />
-          </div>
-
-          {/* MAIN ROW — hero trend + capital breakdown */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 mb-5">
-            <CardShell className="lg:col-span-2">
-              <div className="p-4">
-                <SectionHeader
-                  title="Revenue, Costs & Profit"
-                  subtitle="Sold basis — sales vs cost of material actually sold (unsold stock excluded) · selected period"
-                />
-                {/* 320 -> 220. The three series here (revenue, costs, profit) each
-                    have a figure of their own in the Business Summary / KPI row
-                    now, so this chart's job narrowed from "read the numbers off
-                    it" to "see the shape" — which 220px does. */}
-                <div style={{ height: 220 }}>
-                  <Line data={heroData} options={heroOptions} />
-                </div>
-              </div>
-            </CardShell>
 
             <CardShell>
               <div className="p-4">
@@ -2176,6 +2152,25 @@ const Dash = () => {
                       <span className="responsiveTextTable font-semibold flex-shrink-0" style={{ color: d.color }}>{fmtAutoKM(d.value)}</span>
                     </div>
                   ))}
+                </div>
+              </div>
+            </CardShell>
+          </div>
+
+          {/* HERO TREND — full width since the donut moved up beside Tonnage. */}
+          <div className="grid grid-cols-1 gap-5 mb-5">
+            <CardShell>
+              <div className="p-4">
+                <SectionHeader
+                  title="Revenue, Costs & Profit"
+                  subtitle="Sold basis — sales vs cost of material actually sold (unsold stock excluded) · selected period"
+                />
+                {/* 320 -> 220. The three series here (revenue, costs, profit) each
+                    have a figure of their own in the Business Summary / KPI row
+                    now, so this chart's job narrowed from "read the numbers off
+                    it" to "see the shape" — which 220px does. */}
+                <div style={{ height: 220 }}>
+                  <Line data={heroData} options={heroOptions} />
                 </div>
               </div>
             </CardShell>
