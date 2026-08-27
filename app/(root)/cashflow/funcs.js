@@ -484,7 +484,16 @@ const moveToContracts = async (z, ent, uidCollection, setDateSelect,
     setValue, setIsOpen, blankInvoice, router, setToast) => {
 
 
-    let dt = ent === 'stock' ? z.data.find(z => z.contractData)?.contractData :
+    // A stock row is a GROUP (warehouse × description), and a group can hold lots
+    // from more than one contract — the same reason its supplier column can read
+    // "Mixed". Taking simply the first child that carries a contract opened
+    // whichever PO happened to sort first, so clicking 271025 landed on 131125.
+    // Follow the PO the cell actually shows; fall back only if nothing matches.
+    const lotOfShownPo = () => z.data?.find(d => d.contractData
+        && String(d.order ?? '') === String(z.order ?? ''))
+        || z.data?.find(d => d.contractData);
+
+    let dt = ent === 'stock' ? lotOfShownPo()?.contractData :
         ent === 'client' ? z.poSupplier :
             ent === 'supplier' ? z.orderData :
                 ent === 'expense' ? { date: z.date, id: z.id } :
