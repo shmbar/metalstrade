@@ -14,15 +14,32 @@
 // contract still standing, or the reverse. Batched, it either all goes or none
 // of it does.
 
-import { delDocsBatch } from './utils';
+import { delDocsBatch, loadInvoice, loadStockData } from './utils';
 import { planContractDeletion, yearBucketOf } from './contractCascadePlan';
 
 export { planContractDeletion };
+
+// A contract LISTS its children, but the list is not proof of ownership: a
+// contract duplicated by the IMS/GIS copy carries the same invoices[] and stock[]
+// as the original, so it claims records that belong to its twin. Following that
+// list blindly would delete the live invoice and the live stock lot while removing
+// the spare copy — the worst possible outcome of a tidy-up.
+//
+// A child names its own parent, and that direction cannot be duplicated: an
+// invoice's poSupplier.id and a lot's contractData.id point at exactly one
+// contract. So every child is checked before it is deleted, and one that belongs
+// to a different contract is left alone and reported.
+const belongsToContract = (child, conId) => {
+    const owner = child?.poSupplier?.id ?? child?.contractData?.id;
+    // No back-reference at all: nothing else claims it, so it goes with its parent.
+    return !owner || owner === conId;
+};
 
 export const deleteContractCascade = async (uidCollection, con) => {
     const plan = planContractDeletion(con || {});
     const skipped = [];
     const targets = [];
+    const notOurs = [];
 
     // A record whose year cannot be resolved is NOT quietly dropped: deleting a
     // document that isn't there is a success as far as Firestore is concerned, so
@@ -31,6 +48,11 @@ export const deleteContractCascade = async (uidCollection, con) => {
     for (const inv of plan.invoices) {
         const y = yearBucketOf(inv.date);
         if (!y) { skipped.push(`sales invoice ${inv.invoice ?? inv.id}`); continue; }
+        const live = await loadInvoice(uidCollection, 'invoices', { id: inv.id, date: inv.date });
+        if (live?.id && !belongsToContract(live, con.id)) {
+            notOurs.push(`sales invoice ${inv.invoice ?? inv.id}`);
+            continue;
+        }
         targets.push({ collection: `invoices_${y}`, id: inv.id });
     }
 
@@ -41,7 +63,15 @@ export const deleteContractCascade = async (uidCollection, con) => {
     }
 
     // Stock lots are one flat collection keyed by id — no year to resolve.
-    for (const id of plan.stockIds) targets.push({ collection: 'stocks', id });
+    const liveLots = plan.stockIds.length ? await loadStockData(uidCollection, 'id', plan.stockIds) : [];
+    for (const id of plan.stockIds) {
+        const lot = liveLots?.find(l => l?.id === id);
+        if (lot && !belongsToContract(lot, con.id)) {
+            notOurs.push(`stock lot ${String(id).slice(0, 8)}`);
+            continue;
+        }
+        targets.push({ collection: 'stocks', id });
+    }
 
     // Purchase invoices are stored inside the contract document, so they need no
     // delete of their own — they go when it goes.
@@ -53,5 +83,5 @@ export const deleteContractCascade = async (uidCollection, con) => {
 
     await delDocsBatch(uidCollection, targets);
 
-    return { ok: true, plan, skipped };
+    return { ok: true, plan, skipped, notOurs };
 };

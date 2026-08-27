@@ -73,10 +73,10 @@ const useContractsState = (props) => {
             // offline, or rules refusing a write) left the global spinner running
             // forever with no way back, which is exactly what a caught error should
             // never look like.
-            let ok, plan, skipped
+            let ok, plan, skipped, notOurs
             setLoading(true)
             try {
-                ({ ok, plan, skipped } = await deleteContractCascade(uidCollection, valueCon))
+                ({ ok, plan, skipped, notOurs = [] } = await deleteContractCascade(uidCollection, valueCon))
             } catch (error) {
                 console.error(error)
                 setToast({
@@ -108,12 +108,19 @@ const useContractsState = (props) => {
                 plan.stockIds.length && `${plan.stockIds.length} stock lot${plan.stockIds.length > 1 ? 's' : ''}`,
             ].filter(Boolean)
 
+            // A record kept because it belongs to ANOTHER contract is good news, not a
+            // failure — but it must be said out loud, or a duplicated contract looks
+            // like it deleted more than it did.
+            const kept = notOurs.length
+                ? ` Kept ${notOurs.join(', ')} — ${notOurs.length > 1 ? 'they belong' : 'it belongs'} to another contract.`
+                : ''
+
             setToast({
                 show: true,
                 clr: skipped.length ? 'fail' : 'success',
                 text: skipped.length
-                    ? `Contract deleted, but these could not be removed: ${skipped.join(', ')}`
-                    : `Contract deleted${parts.length ? `, with ${parts.join(', ')}` : ''}`,
+                    ? `Contract deleted, but these could not be removed: ${skipped.join(', ')}.${kept}`
+                    : `Contract deleted${parts.length ? `, with ${parts.join(', ')}` : ''}.${kept}`,
             })
 
         },
