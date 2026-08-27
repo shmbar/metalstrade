@@ -1510,24 +1510,44 @@ export const saveMultipleData = async (uidCollection, path, arr) => {
 
 }
 
+// Mark expenses paid. Which collection a record lives in decides where the flag
+// goes, and that is NOT the same question as whether it has a purchase order:
+// this used to send every expense without a poSupplier to companyExpenses, but a
+// supplier expense simply not linked to a PO lives in expenses_<year> like any
+// other. The update then addressed a document that does not exist — and because
+// batch.update() requires the document to exist, the whole commit was rejected.
+// Nothing was marked paid, no error surfaced, and the row came back on the
+// Cashflow every time it was ticked. One unlinked expense also took down every
+// other expense ticked alongside it, since the batch is all-or-nothing.
+//
+// So: keep the fast path when a PO tells us it is a supplier expense, and when it
+// does not, look before writing. Anything we cannot place is reported rather than
+// silently dropped.
 export const updateExpPayments = async (uidCollection, arr) => {
-  const batch = writeBatch(db);
+  const refs = [];
+  const unplaceable = [];
 
-  for (let i = 0; i < arr.length; i++) {
-    if (arr[i].poSupplier) { //normal expense
-      const y = arr[i].date.substring(0, 4)
-      let ref = doc(db, uidCollection, 'data', 'expenses_' + y, arr[i].id);
-      batch.update(ref, { paid: '111' });
-    } else { //company expense
-      let ref = doc(db, uidCollection, 'data', 'companyExpenses', arr[i].id);
-      batch.update(ref, { paid: '111' });
-    }
+  for (const exp of arr) {
+    if (!exp?.id) continue;
+    const y = exp.date?.substring(0, 4);
+    const inExpenses = y ? doc(db, uidCollection, 'data', 'expenses_' + y, exp.id) : null;
+    const inCompany = doc(db, uidCollection, 'data', 'companyExpenses', exp.id);
+
+    if (exp.poSupplier && inExpenses) { refs.push(inExpenses); continue; }
+
+    // Ambiguous: could be either. Ask, rather than guess from a related field.
+    if (inExpenses && (await getDoc(inExpenses)).exists()) refs.push(inExpenses);
+    else if ((await getDoc(inCompany)).exists()) refs.push(inCompany);
+    else unplaceable.push(exp.expense || exp.id);
   }
 
-  return await batch.commit().then(() => {
-    return true;
-  });
+  if (refs.length) {
+    const batch = writeBatch(db);
+    refs.forEach(ref => batch.update(ref, { paid: '111' }));
+    await batch.commit();
+  }
 
+  return { ok: unplaceable.length === 0, marked: refs.length, unplaceable };
 }
 
 export const loadAcntStatement = async (uidCollection, year, clientId, date1) => {

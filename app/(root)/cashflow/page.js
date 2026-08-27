@@ -846,10 +846,19 @@ const Cashflow = () => {
 
         let arr1 = arr.filter(x => x.checked)
 
-        let success = await updateExpPayments(uidCollection, arr1)
-        success && setToast({ show: true, text: getTtl('Payments successfully saved!', ln), clr: 'success' })
+        const { ok, marked, unplaceable } = await updateExpPayments(uidCollection, arr1)
 
-        setExpensesAll(expensesAll.filter(z => !arr1.map(x => x.id).includes(z.id)))
+        // Never say "saved" for a record that was not saved — this row reappearing
+        // on the next load, after a success message, is exactly how an unmarked
+        // expense went unnoticed for weeks.
+        setToast(ok
+            ? { show: true, text: getTtl('Payments successfully saved!', ln), clr: 'success' }
+            : { show: true, clr: 'fail', text: `Marked ${marked} paid, but could not find: ${unplaceable.join(', ')}` })
+
+        // Only clear the rows that actually got marked; anything unplaceable stays
+        // on screen rather than vanishing until the next reload brings it back.
+        const failed = new Set(arr1.filter(x => unplaceable.includes(x.expense || x.id)).map(x => x.id))
+        setExpensesAll(expensesAll.filter(z => !arr1.map(x => x.id).includes(z.id) || failed.has(z.id)))
 
     }
 
