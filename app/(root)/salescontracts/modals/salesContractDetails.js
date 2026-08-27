@@ -34,6 +34,8 @@ const SalesContractDetails = () => {
     // as a suggestion: it exists once the cargo path is complete, which is exactly the
     // case the manual link is here to cover before it is.
     const [poFromInvoice, setPoFromInvoice] = useState(null);
+    // Completed POs are hidden from the picker by default; this brings them back.
+    const [showCompletedPos, setShowCompletedPos] = useState(false);
 
     const clts = settings.Client.Client;
     const client = valueSC.client && clts.find(z => z.id === valueSC.client);
@@ -68,9 +70,22 @@ const SalesContractDetails = () => {
 
     // Label carries the supplier too: the PO number alone ('280426-1-ELG') is not something
     // anyone recognizes at a glance. Radix throws on a blank value, so ids are required.
+    //
+    // Finished business is hidden by default. The window covers three years, which in the
+    // IMS account is over 160 purchase contracts, and a PO whose cargo is long since sold
+    // is never the one being linked — it is just noise to scroll past. "Contract completed"
+    // is the flag to read: it is set on a third of the contracts, whereas conStatus is set
+    // on two of them and would filter nothing. Hidden, never unreachable — the count and
+    // the toggle below say what is being left out.
+    const completedCount = useMemo(
+        () => (purchaseContracts || []).filter(c => c?.id && c.completed === true && c.id !== poId).length,
+        [purchaseContracts, poId]);
+
     const poOptions = useMemo(() => {
         const list = (purchaseContracts || [])
-            .filter(c => c && c.id)
+            // The linked PO survives the filter, or the form would show an empty
+            // selector over a link that is set.
+            .filter(c => c && c.id && (showCompletedPos || c.completed !== true || c.id === poId))
             .map(c => ({
                 id: c.id,
                 poLabel: [c.order || '(no number)', supName(c.supplier)].filter(Boolean).join('  ·  '),
@@ -85,7 +100,7 @@ const SalesContractDetails = () => {
             });
         }
         return list;
-    }, [purchaseContracts, poId, valueSC.poSupplier, sups]);
+    }, [purchaseContracts, poId, valueSC.poSupplier, sups, showCompletedPos]);
 
     // `fallback` covers a PO outside the loaded window (the invoice suggestion can point at
     // one): keep whatever the caller already knows rather than storing a bare id.
@@ -174,6 +189,15 @@ const SalesContractDetails = () => {
                             <Selector arr={poOptions} value={{ poId }} onChange={linkPo}
                                 name='poId' secondaryName='poLabel' clear={unlinkPo} />
                         </div>
+                        {completedCount > 0 && (
+                            <button type="button"
+                                onClick={() => setShowCompletedPos(v => !v)}
+                                className="mt-1 self-start responsiveText text-[var(--ink-muted)] hover:text-[var(--ink)] transition-colors">
+                                {showCompletedPos
+                                    ? `Hide ${completedCount} completed PO${completedCount > 1 ? 's' : ''}`
+                                    : `${completedCount} completed PO${completedCount > 1 ? 's' : ''} hidden — show`}
+                            </button>
+                        )}
                         {poId && linkedPo?.dateRange?.startDate && (
                             <p className="pl-1 pt-0.5 responsiveText text-[var(--regent-gray)]">
                                 PO dated {dateFormat(linkedPo.dateRange.startDate, 'dd-mmm-yyyy')}
