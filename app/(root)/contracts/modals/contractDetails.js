@@ -727,30 +727,15 @@ const ContractModal = () => {
 							</button>
 						</Tltip>
 					)}
+					{/* buildPoTable, not a second copy of it: this button carried its own
+					    inline version that predated per-content pricing, so it read the
+					    (empty) unit price and printed $0.00 where Preview correctly showed
+					    the content basis or "See below*" — the same PO produced two
+					    different PDFs depending on which button you pressed. */}
 					<Tltip direction='top' tltpText='Create PDF document'>
 					<button
 						className="whiteButton py-1"
-						onClick={() => Pdf(valueCon,
-							reOrderTableCon(valueCon.productsData.filter(x => !x.import)).map(({ ['id']: _, ...rest }) => rest).map(obj => Object.values(obj))
-								.map((values, index) => {
-									const number = values[1]//.toFixed(3);
-									const number1 = values[2];
-
-									const formattedNumber = new Intl.NumberFormat('en-US', {
-										minimumFractionDigits: 3
-									}).format(number);
-
-									const formattedNumber1 = isNaN(number1 * 1) ? number1 :
-										new Intl.NumberFormat('en-US', {
-											style: 'currency',
-											currency: valueCon.cur !== '' ? getD(settings.Currency.Currency, valueCon, 'cur') :
-												'USD',
-											minimumFractionDigits: 2
-										}).format(number1);
-
-									return [index + 1, values[0], formattedNumber, formattedNumber1];
-								})
-							, settings, compData, gisAccount)}
+						onClick={() => Pdf(valueCon, buildPoTable(), settings, compData, gisAccount)}
 					>
 						<BtnIcon action="pdf" />
 						PDF
