@@ -10,7 +10,7 @@ import { CardsSkeleton } from "@components/skeletons";
 import { UserAuth } from "@contexts/useAuthContext"
 import { SettingsContext } from "@contexts/useSettingsContext";
 import Toast from '@components/toast.js'
-import { loadData, buildInvoiceIndex, contractInvoicesFromIndex, loadCompanyExpenses, loadMarginsRange } from '@utils/utils'
+import { loadData, buildInvoiceIndex, contractInvoicesFromIndex, loadCompanyExpenses } from '@utils/utils'
 import { receivables as financeReceivables, agingBuckets } from '@utils/finance'
 import { setMonthsInvoices, calContracts } from './funcs'
 import { getTtl } from '@utils/languages';
@@ -26,7 +26,6 @@ import { TONES } from '@components/statusUtils';
 import ProgressBar from '@components/ProgressBar';
 import Avatar from '@components/Avatar';
 import Modal from '@components/modal';
-import KpiStrip from '@components/KpiStrip';
 import { BtnIcon } from '@components/buttonIcons';
 import { Gauge, Receipt, Percent, Truck, Warehouse, TrendingUp, FileWarning, Ship, Building2, Info, ArrowDownToLine } from 'lucide-react';
 
@@ -432,7 +431,7 @@ const fmtPct = (p) => {
 function DataIssuesModal({ issues = [], settings, isOpen, setIsOpen }) {
   const supplierName = (id) => settings?.Supplier?.Supplier?.find(s => s.id === id)?.nname || 'Unknown supplier';
   const KIND = {
-    value: { label: 'Quantities disagree with the money', tone: 'var(--danger-text)' },
+    value: { label: 'Mistyped quantities — corrected from the PO value', tone: 'var(--ink)' },
     duplicate: { label: 'Duplicate PO number', tone: 'var(--danger-text)' },
   };
   const order = ['value', 'duplicate'];
@@ -443,8 +442,8 @@ function DataIssuesModal({ issues = [], settings, isOpen, setIsOpen }) {
 
   return (
     <Modal isOpen={isOpen} setIsOpen={setIsOpen} size="lg"
-      title="Contracts worth checking"
-      subtitle={`${issues.length} contract${issues.length === 1 ? '' : 's'} in this period whose own records don't line up`}>
+      title="Records to fix at source"
+      subtitle={`${issues.length} contract${issues.length === 1 ? '' : 's'} corrected on this dashboard — the figures above already reflect the correction`}>
       <div className="p-4 flex flex-col gap-3">
         {groups.map(g => (
           <div key={g.kind} className="rounded-2xl border border-[var(--line)] overflow-hidden">
@@ -461,7 +460,7 @@ function DataIssuesModal({ issues = [], settings, isOpen, setIsOpen }) {
                       {supplierName(r.supplier)}{r.date ? ` · ${r.date}` : ''}
                       {/* The evidence, not just the verdict — so whoever opens the contract
                           already knows what to compare against. */}
-                      {r.kind === 'value' && ` · lines total ${fmtAutoKM(r.lineValue)} but the PO is worth ${fmtAutoKM(r.poValue)} (${r.ratio.toFixed(1)}× over)`}
+                      {r.kind === 'value' && ` · entered ${new Intl.NumberFormat('en-US', { maximumFractionDigits: 1 }).format(r.enteredMT || 0)} MT (${fmtAutoKM(r.lineValue)} of material) but the PO is worth ${fmtAutoKM(r.poValue)} — counted as ${new Intl.NumberFormat('en-US', { maximumFractionDigits: 1 }).format(r.correctedTo || 0)} MT`}
                       {r.kind === 'duplicate' && ` · ${r.copies} copies share this PO number`}
                     </span>
                   </span>
@@ -1304,9 +1303,7 @@ const Dash = () => {
   const [rawContracts, setRawContracts] = useState([]);
   /* The canonical expense collection — the same one /expenses reads. The dashboard used
      to take contract.expenses, a stale partial mirror that was missing 30% of the spend. */
-  const [rawExpenses, setRawExpenses] = useState([]);
-  // Raw margins worksheet rows, so the dashboard can show that page's own figures.
-  const [rawMargins, setRawMargins] = useState([]);     // contracts enriched with invoicesData
+  const [rawExpenses, setRawExpenses] = useState([]);     // contracts enriched with invoicesData
   const [rawRecvInvoices, setRawRecvInvoices] = useState([]);
   const [rawMiscInvoices, setRawMiscInvoices] = useState([]); // P1 misc invoices, not linked to contracts
   const [rawCompanyExpenses, setRawCompanyExpenses] = useState([]); // company-level overheads
@@ -1351,10 +1348,6 @@ const Dash = () => {
       // All three root downloads are independent — start them together. Only the
       // invoice INDEX depends on contracts; the receivables window and misc
       // invoices were needlessly queued behind it (same fix as cashflow).
-      const marginsPromise = loadMarginsRange(uidCollection, {
-        start: dateSelect?.start || `${year}-01-01`,
-        end: dateSelect?.end || `${year}-12-31`,
-      });
       const expensesPromise = loadData(uidCollection, 'expenses', {
         start: dateSelect?.start || `${year}-01-01`,
         end: dateSelect?.end || `${year}-12-31`,
@@ -1391,7 +1384,6 @@ const Dash = () => {
       setRawContracts(dtConTmp);
 
       setRawExpenses(await expensesPromise);
-      setRawMargins(await marginsPromise.catch(() => []));
       setRawRecvInvoices(await invsForRecvPromise);
 
       const misc = await miscPromise;
@@ -1610,29 +1602,6 @@ const Dash = () => {
     return { byMonth, total, missingInvRate, byClient, byClientMonth };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [rawRecvInvoices, settings, companyRate, dateSelect, fClient, fSupplier, fMaterial, fCurrency, fOrigin, fDelTerm, filteredContracts]);
-
-  /* The Margins page's own five figures, computed exactly the way that page computes them
-     (margins/page.js: shipped = purchase − openShip, and a `gis` row counts half).
-     Shown rather than substituted. The contract-derived figures elsewhere on this page are
-     reconciled against contracts, invoices and the expenses collection; the margins sheet
-     is typed by hand and, right now, 45 of its 94 rows have no margin entered — the page
-     says so in its own banner. Wiring Gross Profit to it would publish a number that is
-     understated by construction. Showing both, each labelled with where it comes from,
-     is what stops the two pages LOOKING like they contradict each other. */
-  const marginsSummary = useMemo(() => {
-    const n = (v) => { const x = parseFloat(v); return isNaN(x) ? 0 : x; };
-    let quantity = 0, shipped = 0, outstanding = 0, profits = 0, incoming = 0, items = 0, noMargin = 0;
-    (rawMargins || []).forEach(mo => (mo?.items || []).forEach(i => {
-      items++;
-      quantity += n(i.purchase);
-      shipped += n(i.shipped);
-      outstanding += n(i.openShip);
-      profits += i.gis ? n(i.totalMargin) / 2 : n(i.totalMargin);
-      incoming += i.gis ? n(i.remaining) / 2 : n(i.remaining);
-      if (!(n(i.margin) > 0)) noMargin++;
-    }));
-    return { quantity, shipped, outstanding, profits, incoming, items, noMargin };
-  }, [rawMargins]);
 
   const totalMT = conAgg.totalMT || 0;
   const shippedMT = Math.min(conAgg.shippedMT || 0, totalMT); // never exceed purchased
@@ -2110,15 +2079,15 @@ const Dash = () => {
             <button
               type="button"
               onClick={() => setIssuesOpen(true)}
-              className="w-full mb-4 flex items-center gap-2 rounded-2xl px-3 py-2 text-left transition-colors hover:bg-[var(--danger-bg)]"
-              style={{ background: 'var(--danger-soft)', border: '1px solid var(--danger-border)' }}
+              className="w-full mb-4 flex items-center gap-2 rounded-2xl px-3 py-2 text-left transition-colors hover:bg-[var(--bg-card)]"
+              style={{ background: 'var(--bg-subtle)', border: '1px solid var(--line-strong)' }}
             >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" className="flex-shrink-0" style={{ color: 'var(--danger-text)' }}><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" /><path d="M12 9v4m0 4h.01" stroke="currentColor" strokeWidth="2" strokeLinecap="round" /></svg>
-              <span className="responsiveTextTable" style={{ color: 'var(--danger-text)' }}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" className="flex-shrink-0" style={{ color: 'var(--ink-secondary)' }}><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" /><path d="M12 9v4m0 4h.01" stroke="currentColor" strokeWidth="2" strokeLinecap="round" /></svg>
+              <span className="responsiveTextTable" style={{ color: 'var(--ink-secondary)' }}>
                 {[
-                  issueCounts.value > 0 && `${issueCounts.value} contract${issueCounts.value === 1 ? '' : 's'} whose quantities disagree with the money`,
+                  issueCounts.value > 0 && `${issueCounts.value} contract${issueCounts.value === 1 ? '' : 's'} with mistyped quantities`,
                   issueCounts.duplicate > 0 && `${issueCounts.duplicate} duplicate PO number${issueCounts.duplicate === 1 ? '' : 's'}`,
-                ].filter(Boolean).join(' · ')} — these distort the tonnage and cost figures below. Click to see which.
+                ].filter(Boolean).join(' · ')} — the tonnage above is corrected from each contract's own PO value, so the figures are right. Click to see which records still need fixing at source.
               </span>
             </button>
           )}
@@ -2230,36 +2199,6 @@ const Dash = () => {
               </div>
             </div>
           </div>
-
-          {/* MARGINS STRIP — the Margins page's own five figures, rendered through the same
-              KpiStrip component that page uses so they read identically in both places.
-              These are NOT recomputed here: they are the worksheet's numbers, so the two
-              pages can no longer appear to disagree. The subtitle names the source and,
-              when rows are missing a margin, says how many — because Profits is summed
-              over only the rows that have one. */}
-          {marginsSummary.items > 0 && (
-            <div className="mb-4">
-              <div className="flex items-baseline justify-between gap-3 flex-wrap mb-2">
-                <div className="min-w-0">
-                  <h4 className="text-caption text-[var(--ink)]">From the Margins page</h4>
-                  <p className="responsiveTextTableTitle text-[var(--regent-gray)] mt-0.5">
-                    Hand-maintained worksheet · {marginsSummary.items} rows
-                    {marginsSummary.noMargin > 0 && ` · ${marginsSummary.noMargin} still have no margin entered, so Profits counts only the rest`}
-                  </p>
-                </div>
-              </div>
-              <KpiStrip
-                cols={5}
-                items={[
-                  { label: 'Incoming', icon: ArrowDownToLine, tone: 'blue', value: marginsSummary.incoming, format: (v) => fmtAutoKM(v) },
-                  { label: 'Outstanding shipment', icon: Ship, tone: 'gray', value: marginsSummary.outstanding, format: (v) => `${new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 }).format(v || 0)} MT` },
-                  { label: 'Quantity', icon: Gauge, tone: 'gray', value: marginsSummary.quantity, format: (v) => `${new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 }).format(v || 0)} MT` },
-                  { label: 'Profits', icon: TrendingUp, tone: 'green', value: marginsSummary.profits, format: (v) => fmtAutoKM(v) },
-                  { label: 'Shipped', icon: Truck, tone: 'gray', value: marginsSummary.shipped, format: (v) => `${new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 }).format(v || 0)} MT` },
-                ]}
-              />
-            </div>
-          )}
 
           {/* PER-MT STRIP — unit economics. The KPI row that used to sit above it is gone: its
               three cards were Cost of Goods Sold (now a Business Summary tile), MT Purchased

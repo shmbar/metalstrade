@@ -316,6 +316,36 @@ export const calContracts = (data, settings, companyRate = 0, expenseRows = null
         if (Array.isArray(x.productsData)) {
             x.productsData.forEach(p => { contractTotalMT += (parseFloat(p.qnty) || 0) * mtFactor })
         }
+
+        /* A contract cannot have bought more material than its own money paid for. Where the
+           entered quantities multiply out to far more than the PO is worth, the quantities
+           are the thing that is wrong, and the tonnage is capped at what the money supports:
+               tonnage = PO value / weighted-average unit price
+           060526-TIM entered 2,576.8 MT at $4,050/MT — $10.4M of material — against ten
+           payments totalling $774,683. Thirteen of its twenty-three rows have the contract
+           TOTAL (191) pasted into them. The cap puts it back at 191 MT, which is what its
+           payments say and what the pasted figure meant.
+           Only applied past VALUE_TOLERANCE, so an ordinary part-invoiced contract is never
+           touched — and never upward, so a contract that is genuinely under-invoiced keeps
+           the tonnage it entered. The correction is reported in dataIssues either way, so
+           the source record still gets fixed rather than quietly papered over. */
+        const enteredMT = contractTotalMT
+        let impliedMT = null
+        if (contractTotalMT > 0) {
+            let lineVal = 0, pricedMT = 0
+            ;(x.productsData || []).forEach(p => {
+                const q = parseFloat(p.qnty), pr = parseFloat(p.unitPrc)
+                if (!isNaN(q) && !isNaN(pr)) { lineVal += q * pr; pricedMT += q * mtFactor }
+            })
+            const poVal = (x.poInvoices || []).reduce((s, z) => {
+                const v = parseFloat(z?.pmnt); return isNaN(v) ? s : s + v
+            }, 0)
+            const avgPrice = pricedMT > 0 ? lineVal / pricedMT : 0
+            if (poVal > 0 && avgPrice > 0 && lineVal > poVal * VALUE_TOLERANCE) {
+                impliedMT = poVal / avgPrice
+                if (impliedMT < contractTotalMT) contractTotalMT = impliedMT
+            }
+        }
         totalMT += contractTotalMT
 
         /* ── Data-quality cross-check ─────────────────────────────────────────────
@@ -339,7 +369,7 @@ export const calContracts = (data, settings, companyRate = 0, expenseRows = null
         }, 0)
         const issue = { id: x.id, order: x.order || '', supplier: x.supplier, date: x.dateRange?.startDate || '', mt: contractTotalMT }
         if (poValue > 0 && lineValue > poValue * VALUE_TOLERANCE) {
-            dataIssues.push({ ...issue, kind: 'value', lineValue, poValue, ratio: lineValue / poValue })
+            dataIssues.push({ ...issue, kind: 'value', lineValue, poValue, ratio: lineValue / poValue, correctedTo: contractTotalMT, enteredMT })
         }
         /* A "tonnage recorded but no PO value" check lived here briefly. It matched 13 of
            70 contracts, because a contract the supplier has not invoiced yet is a normal

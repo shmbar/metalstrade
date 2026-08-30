@@ -101,7 +101,7 @@ const FinalBadge = ({ fnlzing, invType, invoiceNo }) => {
 
 // Header cell for the "Final" column (same tooltip wording on every table).
 const FinalTh = () => (
-    <th className="text-left">
+    <th className="text-center">
         <Tltip direction='top' tltpText='Final invoice issued (shipment finalized)?'>
             <span className="cursor-default">Final</span>
         </Tltip>
@@ -609,8 +609,8 @@ export const StoclToolTip = ({ stock, stockDataAll, settings, uidCollection, set
                         <SortTh colKey="order" label="PO#" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left po-col" />
                         <SortTh colKey="_supplierName" label="Supplier" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left w-16" />
                         <SortTh colKey="descriptionName" label="Description" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left w-28 max-w-28" />
-                        <SortTh colKey="qnty" label="Quantity" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left w-14" />
-                        <SortTh colKey="unitPrc" label="Unit Price" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left w-20" />
+                        <SortTh colKey="qnty" label="Quantity" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-center w-14" />
+                        <SortTh colKey="unitPrc" label="Unit Price" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-right w-20" />
                         <SortTh colKey="total" label="Total" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-right w-20" />
                     </tr>
                 </thead>
@@ -629,7 +629,7 @@ export const StoclToolTip = ({ stock, stockDataAll, settings, uidCollection, set
                                 <td className="text-left w-28 max-w-28">
                                     <Tltip direction='top' tltpText={z.descriptionName || ''}><span className={`block truncate cursor-default ${indent ? 'pl-4' : ''}`}>{z.descriptionName}</span></Tltip>
                                 </td>
-                                <td className="text-left">{
+                                <td className="text-center">{
                                     <NumericFormat
                                         value={z.qnty}
                                         displayType="text"
@@ -639,7 +639,7 @@ export const StoclToolTip = ({ stock, stockDataAll, settings, uidCollection, set
                                         fixedDecimalScale
                                     />
                                 }</td>
-                                <td className="text-left">{
+                                <td className="text-right">{
                                     <NumericFormat
                                         value={z.unitPrc}
                                         displayType="text"
@@ -708,10 +708,10 @@ export const StoclToolTip = ({ stock, stockDataAll, settings, uidCollection, set
                                                 <span style={{ color: 'var(--regent-gray)' }}>({grp.length})</span>
                                             </span>
                                         </td>
-                                        <td className="text-left font-medium">{
+                                        <td className="text-center font-medium">{
                                             <NumericFormat value={qSum} displayType="text" thousandSeparator decimalScale='3' fixedDecimalScale />
                                         }</td>
-                                        <td className="text-left"></td>
+                                        <td className="text-right"></td>
                                         <td className="text-right font-medium">{
                                             <NumericFormat value={tSum} displayType="text" thousandSeparator
                                                 prefix={z.cur === 'us' ? '$' : '€'} decimalScale='2' fixedDecimalScale />
@@ -737,7 +737,7 @@ export const StoclToolTip = ({ stock, stockDataAll, settings, uidCollection, set
                         </th>
                         <th>
                         </th>
-                        <th className="text-left">
+                        <th className="text-center">
                             {
                                 <NumericFormat
                                     value={filteredArr.reduce((sum, item) => sum + (item.qnty * 1 || 0), 0)}
@@ -749,7 +749,7 @@ export const StoclToolTip = ({ stock, stockDataAll, settings, uidCollection, set
                                 />
                             }
                         </th>
-                        <th className="text-left">
+                        <th className="text-right">
                             {showAmount(filteredArr.reduce((sum, item) => sum + item.unitPrc * 1, 0), 'usd')}
                         </th>
                         <th className="text-right">
@@ -796,8 +796,8 @@ export const StocksUnSold = ({ supplier, stockDataAllArray, settings, uidCollect
                         <SortTh colKey="order" label="PO#" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left po-col" />
                         <SortTh colKey="description" label="Description" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left w-28 max-w-28" />
                         <SortTh colKey="stockName" label="Stock" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left w-20" />
-                        <SortTh colKey="qnty" label="Quantity" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left w-14" />
-                        <SortTh colKey="unitPrc" label="Unit Price" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left w-20" />
+                        <SortTh colKey="qnty" label="Quantity" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-center w-14" />
+                        <SortTh colKey="unitPrc" label="Unit Price" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-right w-20" />
                         <SortTh colKey="total" label="Total" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-right w-20" />
                     </tr>
                 </thead>
@@ -818,7 +818,7 @@ export const StocksUnSold = ({ supplier, stockDataAllArray, settings, uidCollect
                                 <td className="text-left w-20">
                                     <Tltip direction='top' tltpText={z.stockName || ''}><span className="flex items-center gap-1.5 min-w-0 cursor-default"><Avatar name={z.stockName} size={18} /><span className="block truncate">{z.stockName}</span></span></Tltip>
                                 </td>
-                                <td className="text-left">{
+                                <td className="text-center">{
                                     <NumericFormat
                                         value={z.qnty}
                                         displayType="text"
@@ -828,7 +828,7 @@ export const StocksUnSold = ({ supplier, stockDataAllArray, settings, uidCollect
                                         fixedDecimalScale
                                     />
                                 }</td>
-                                <td className="text-left">{
+                                <td className="text-right">{
                                     <NumericFormat
                                         value={z.unitPrc}
                                         displayType="text"
@@ -892,10 +892,10 @@ export const StocksUnSold = ({ supplier, stockDataAllArray, settings, uidCollect
                                             </span>
                                         </td>
                                         <td className="text-left w-20"></td>
-                                        <td className="text-left font-medium">{
+                                        <td className="text-center font-medium">{
                                             <NumericFormat value={qSum} displayType="text" thousandSeparator decimalScale='3' fixedDecimalScale />
                                         }</td>
-                                        <td className="text-left"></td>
+                                        <td className="text-right"></td>
                                         <td className="text-right font-medium">{
                                             <NumericFormat value={tSum} displayType="text" thousandSeparator
                                                 prefix={z.cur === 'us' ? '$' : '€'} decimalScale='2' fixedDecimalScale />
@@ -919,7 +919,7 @@ export const StocksUnSold = ({ supplier, stockDataAllArray, settings, uidCollect
                         </th>
                         <th></th>
                         <th></th>
-                        <th className="text-left">
+                        <th className="text-center">
                             {
                                 <NumericFormat
                                     value={filteredArr.reduce((sum, item) => sum + (item.qnty * 1 || 0), 0)}
@@ -963,7 +963,7 @@ export const StocksUnSold = ({ supplier, stockDataAllArray, settings, uidCollect
                                         Totals per material ({groups.length})
                                     </span>
                                 </th>
-                                <th className="text-left w-14">{showMatTotals ? 'Quantity' : ''}</th>
+                                <th className="text-center w-14">{showMatTotals ? 'Quantity' : ''}</th>
                                 <th className="text-left w-20">{showMatTotals ? 'Avg Price' : ''}</th>
                                 <th className="text-right w-20">{showMatTotals ? 'Total' : 'click to expand'}</th>
                             </tr>
@@ -977,7 +977,7 @@ export const StocksUnSold = ({ supplier, stockDataAllArray, settings, uidCollect
                                             <span className="block truncate">{g.description}{g.pos.size > 1 ? ` (${g.pos.size} POs)` : ''}</span>
                                         </Tltip>
                                     </td>
-                                    <td className="text-left">
+                                    <td className="text-center">
                                         <NumericFormat value={g.qnty} displayType="text" thousandSeparator decimalScale='3' fixedDecimalScale />
                                     </td>
                                     <td className="text-left">
@@ -1042,8 +1042,8 @@ export const SharedStockDetails = ({ rows, settings }) => {
                             <SortTh colKey="_po" label="PO#" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left po-col" />
                             <SortTh colKey="_mat" label="Material" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left" />
                             <SortTh colKey="_wh" label="Warehouse" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left" />
-                            <SortTh colKey="qnty" label="Quantity" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left w-14" />
-                            <SortTh colKey="unitPrc" label="Unit Price" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left w-20" />
+                            <SortTh colKey="qnty" label="Quantity" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-center w-14" />
+                            <SortTh colKey="unitPrc" label="Unit Price" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-right w-20" />
                             <SortTh colKey="_fin" label="Financed" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left w-16" />
                             <SortTh colKey="_total" label="Total" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-right w-20" />
                         </tr>
@@ -1069,10 +1069,10 @@ export const SharedStockDetails = ({ rows, settings }) => {
                                         </span>
                                     </Tltip>
                                 </td>
-                                <td className="text-left">
+                                <td className="text-center">
                                     <NumericFormat value={r.qnty} displayType="text" thousandSeparator decimalScale='3' fixedDecimalScale />
                                 </td>
-                                <td className="text-left">
+                                <td className="text-right">
                                     <NumericFormat value={r.unitPrc} displayType="text" thousandSeparator
                                         prefix={r.cur === 'eu' ? '€' : '$'} decimalScale='2' fixedDecimalScale />
                                 </td>
@@ -1089,7 +1089,7 @@ export const SharedStockDetails = ({ rows, settings }) => {
                             <th className="text-left">Total</th>
                             <th></th>
                             <th></th>
-                            <th className="text-left">
+                            <th className="text-center">
                                 <NumericFormat value={(rows || []).reduce((s, r) => s + (parseFloat(r.qnty) || 0), 0)}
                                     displayType="text" thousandSeparator decimalScale='3' fixedDecimalScale />
                             </th>
@@ -1289,13 +1289,13 @@ export const ClientDetails = ({ client, data, type, uidCollection, setDateSelect
                                 <SumTh />
                                 <SortTh colKey="_order" label="PO#" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left po-col" />
                                 <SortTh colKey="invoice" label="Invoice" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left w-12" />
-                                <SortTh colKey="totalAmount" label="Amount" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left" />
-                                <SortTh colKey="_pmntTotal" label="Payment" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left" />
-                                <SortTh colKey="debtBlnc" label="Balance" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left" />
+                                <SortTh colKey="totalAmount" label="Amount" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-right" />
+                                <SortTh colKey="_pmntTotal" label="Payment" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-right" />
+                                <SortTh colKey="debtBlnc" label="Balance" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-right" />
                                 <FinalTh />
-                                <th className="text-left">ETD</th>
-                                <th className="text-left">ETA</th>
-                                <th className="text-left">Pmn</th>
+                                <th className="text-center">ETD</th>
+                                <th className="text-center">ETA</th>
+                                <th className="text-center">Pmn</th>
                                 <th className="text-left px-2 py-0">
                                     <Tltip direction='right' tltpText='Select all'>
                                         <div className='flex items-center justify-start'>
@@ -1320,7 +1320,7 @@ export const ClientDetails = ({ client, data, type, uidCollection, setDateSelect
                                                 setValueCon, setIsOpenCon, blankInvoice, router, setToast)}>
                                             <Tltip direction='top' tltpText={z.poSupplier?.order || ''}><span className="block truncate">{z.poSupplier?.order}</span></Tltip></td>
                                         <td className="text-left w-10 cursor-pointer text-[var(--endeavour)] hover:underline" onClick={() => openInvModal && openInvModal(z, 'client')}><Tltip direction='top' tltpText='Click to preview invoice'><span className="block truncate">{z.invoice}{z.invType ? getprefixInv(z) : ''}</span></Tltip></td>
-                                        <td className="text-left">{
+                                        <td className="text-right">{
                                             <NumericFormat
                                                 value={z.totalAmount}
                                                 displayType="text"
@@ -1331,7 +1331,7 @@ export const ClientDetails = ({ client, data, type, uidCollection, setDateSelect
                                                 fixedDecimalScale
                                             />
                                         }</td>
-                                        <td className="text-left">{
+                                        <td className="text-right">{
                                             <NumericFormat
                                                 value={round2(z.payments.reduce((total, obj) => {
                                                     return total + obj.pmnt * 1;
@@ -1344,7 +1344,7 @@ export const ClientDetails = ({ client, data, type, uidCollection, setDateSelect
                                                 fixedDecimalScale
                                             />
                                         }</td>
-                                        <td className="text-left">{
+                                        <td className="text-right">{
                                             <NumericFormat
                                                 value={z.debtBlnc}
                                                 displayType="text"
@@ -1355,10 +1355,10 @@ export const ClientDetails = ({ client, data, type, uidCollection, setDateSelect
                                                 fixedDecimalScale
                                             />
                                         }</td>
-                                        <td className="text-left"><FinalBadge fnlzing={z.shipData?.fnlzing} invType={z.invType} /></td>
-                                        <td className="text-left">{dateFormat(z.shipData?.etd?.startDate, 'dd.mm.yy')}</td>
-                                        <td className="text-left">{dateFormat(z.shipData?.eta?.startDate, 'dd.mm.yy')}</td>
-                                        <td className="text-left !py-1">
+                                        <td className="text-center"><FinalBadge fnlzing={z.shipData?.fnlzing} invType={z.invType} /></td>
+                                        <td className="text-center">{dateFormat(z.shipData?.etd?.startDate, 'dd.mm.yy')}</td>
+                                        <td className="text-center">{dateFormat(z.shipData?.eta?.startDate, 'dd.mm.yy')}</td>
+                                        <td className="text-center !py-1">
                                             <Tltip direction='right' tltpText='Partial Payment'>
                                                 <div className='flex items-center justify-start'>
                                                     <DoalogModalClient obj={z}
@@ -1385,15 +1385,15 @@ export const ClientDetails = ({ client, data, type, uidCollection, setDateSelect
                                 <th></th>
                                 <th className="text-left">Total</th>
                                 <th></th>
-                                <th className="text-left">
+                                <th className="text-right">
                                     {showAmount(filteredArr.reduce((sum, item) => sum + item.totalAmount, 0), 'usd')}
                                 </th>
-                                <th className="text-left">
+                                <th className="text-right">
                                     {showAmount(filteredArr
                                         .flatMap(item => item.payments || [])
                                         .reduce((sum, payment) => sum + (parseFloat(payment.pmnt) || 0), 0), 'usd')}
                                 </th>
-                                <th className="text-left">
+                                <th className="text-right">
                                     {showAmount(filteredArr.reduce((sum, item) => sum + item.debtBlnc, 0), 'usd')}
                                 </th>
                                 <th></th>
@@ -1423,12 +1423,12 @@ export const ClientDetails = ({ client, data, type, uidCollection, setDateSelect
                                 <SumTh />
                                 <SortTh colKey="_order" label="PO#" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left po-col" />
                                 <SortTh colKey="invoice" label="Invoice" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left w-12" />
-                                <SortTh colKey="totalAmount" label="Amount" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left" />
+                                <SortTh colKey="totalAmount" label="Amount" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-right" />
                                 <SortTh colKey="percentage" label="Prepayment" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left" />
-                                <th className="text-left">Prep. Amount</th>
+                                <th className="text-right">Prep. Amount</th>
                                 <FinalTh />
-                                <th className="text-left">ETD</th>
-                                <th className="text-left">Pmn</th>
+                                <th className="text-center">ETD</th>
+                                <th className="text-center">Pmn</th>
                                 <th className="text-left p-1 2xl:p-1 py-0">
                                     <Tltip direction='right' tltpText='Select all'>
                                         <div className='flex items-center justify-start'>
@@ -1452,7 +1452,7 @@ export const ClientDetails = ({ client, data, type, uidCollection, setDateSelect
                                                 setValueCon, setIsOpenCon, blankInvoice, router, setToast)}>
                                             <Tltip direction='top' tltpText={z.poSupplier?.order || ''}><span className="block truncate">{z.poSupplier?.order}</span></Tltip></td>
                                         <td className="text-left cursor-pointer text-[var(--endeavour)] hover:underline" onClick={() => openInvModal && openInvModal(z, 'client')}><Tltip direction='top' tltpText='Click to preview invoice'><span className="block truncate">{z.invoice}{z.invType ? getprefixInv(z) : ''}</span></Tltip></td>
-                                        <td className="text-left">{
+                                        <td className="text-right">{
                                             <NumericFormat
                                                 value={z.totalAmount}
                                                 displayType="text"
@@ -1466,7 +1466,7 @@ export const ClientDetails = ({ client, data, type, uidCollection, setDateSelect
                                         <td className="text-left">{
                                             z.percentage + '%'
                                         }</td>
-                                        <td className="text-left">{
+                                        <td className="text-right">{
                                             <NumericFormat
                                                 value={z.totalAmount * (z.percentage / 100) || 0}
                                                 displayType="text"
@@ -1477,9 +1477,9 @@ export const ClientDetails = ({ client, data, type, uidCollection, setDateSelect
                                                 fixedDecimalScale
                                             />
                                         }</td>
-                                        <td className="text-left"><FinalBadge fnlzing={z.shipData?.fnlzing} invType={z.invType} /></td>
-                                        <td className="text-left">{dateFormat(z.shipData?.etd?.startDate, 'dd.mm.yy')}</td>
-                                        <td className="text-left !py-1">
+                                        <td className="text-center"><FinalBadge fnlzing={z.shipData?.fnlzing} invType={z.invType} /></td>
+                                        <td className="text-center">{dateFormat(z.shipData?.etd?.startDate, 'dd.mm.yy')}</td>
+                                        <td className="text-center !py-1">
                                             <Tltip direction='right' tltpText='Partial Payment'>
                                                 <div className='flex items-center justify-start'>
                                                     <DoalogModalClient obj={z}
@@ -1507,11 +1507,11 @@ export const ClientDetails = ({ client, data, type, uidCollection, setDateSelect
                                 <th></th>
                                 <th className="text-left">Total</th>
                                 <th></th>
-                                <th className="text-left">
+                                <th className="text-right">
                                     {showAmount(filteredArr1.reduce((sum, item) => sum + item.totalAmount, 0), 'usd')}
                                 </th>
                                 <th></th>
-                                <th className="text-left">
+                                <th className="text-right">
                                     {showAmount(filteredArr1.reduce((sum, item) => sum + item.totalAmount * (item.percentage / 100), 0), 'usd')}
                                 </th>
                                 <th></th>
@@ -1748,12 +1748,12 @@ export const SupplierDetails = ({ supplier, data, uidCollection, setDateSelect,
                         <SortTh colKey="order" label="PO#" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left po-col" />
                         <SortTh colKey="invoice" label="Invoice" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left w-12" />
                         <SortTh colKey="invValue" label="Value" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left" />
-                        <SortTh colKey="pmnt" label="Payment" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left" />
-                        <SortTh colKey="blnc" label="Balance" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left" />
-                        <th className="text-left">ETD</th>
-                        <th className="text-left">ETA</th>
+                        <SortTh colKey="pmnt" label="Payment" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-right" />
+                        <SortTh colKey="blnc" label="Balance" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-right" />
+                        <th className="text-center">ETD</th>
+                        <th className="text-center">ETA</th>
                         <FinalTh />
-                        <th className="text-left">Pmn</th>
+                        <th className="text-center">Pmn</th>
                         <th className="text-left py-0">
                             <Tltip direction='right' tltpText='Select all'>
                                 <div className='flex items-center justify-start'>
@@ -1789,7 +1789,7 @@ export const SupplierDetails = ({ supplier, data, uidCollection, setDateSelect,
                                         fixedDecimalScale
                                     />
                                 }</td>
-                                <td className="text-left">{
+                                <td className="text-right">{
                                     <NumericFormat
                                         value={z.pmnt}
                                         displayType="text"
@@ -1800,7 +1800,7 @@ export const SupplierDetails = ({ supplier, data, uidCollection, setDateSelect,
                                         fixedDecimalScale
                                     />
                                 }</td>
-                                <td className="text-left">
+                                <td className="text-right">
                                     <span className='inline-flex items-center gap-1.5'>
                                         <NumericFormat
                                             value={z.blnc}
@@ -1819,10 +1819,10 @@ export const SupplierDetails = ({ supplier, data, uidCollection, setDateSelect,
                                         )}
                                     </span>
                                 </td>
-                                <td className="text-left">{z.shipmentEtd ? dateFormat(z.shipmentEtd, 'dd.mm.yy') : ''}</td>
-                                <td className="text-left">{z.shipmentEta ? dateFormat(z.shipmentEta, 'dd.mm.yy') : ''}</td>
-                                <td className="text-left"><FinalBadge fnlzing={z.fnlzing} invoiceNo={z.invoice} /></td>
-                                <td className="text-left !py-1">
+                                <td className="text-center">{z.shipmentEtd ? dateFormat(z.shipmentEtd, 'dd.mm.yy') : ''}</td>
+                                <td className="text-center">{z.shipmentEta ? dateFormat(z.shipmentEta, 'dd.mm.yy') : ''}</td>
+                                <td className="text-center"><FinalBadge fnlzing={z.fnlzing} invoiceNo={z.invoice} /></td>
+                                <td className="text-center !py-1">
                                     <Tltip direction='right' tltpText='Partial Payment'>
                                         <div className='flex items-center justify-start'>
                                             <DoalogModal obj={z} supplierPartialPayment={supplierPartialPayment} />
@@ -1849,10 +1849,10 @@ export const SupplierDetails = ({ supplier, data, uidCollection, setDateSelect,
                         <th className="text-left">
                             {showAmount(filteredArr.reduce((sum, item) => sum + item.invValue * 1, 0), 'usd')}
                         </th>
-                        <th className="text-left">
+                        <th className="text-right">
                             {showAmount(filteredArr.reduce((sum, item) => sum + item.pmnt * 1, 0), 'usd')}
                         </th>
-                        <th className="text-left">
+                        <th className="text-right">
                             {showAmount(filteredArr.reduce((sum, item) => sum + item.blnc * 1, 0), 'usd')}
                         </th>
                         <th></th>
@@ -1970,9 +1970,9 @@ export const ExpensesToolTip = ({ supplier, expensesAll, settings, uidCollection
                         <SortTh colKey="_order" label="PO#" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left po-col" />
                         <SortTh colKey="expense" label="Exp. Invoice" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left" />
                         <SortTh colKey="expType" label="Exp. Type" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left" />
-                        <SortTh colKey="amount" label="Amount" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left" />
-                        <SortTh colKey="date" label="Date" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left" />
-                        <th className="text-left">Payment</th>
+                        <SortTh colKey="amount" label="Amount" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-right" />
+                        <SortTh colKey="date" label="Date" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-center" />
+                        <th className="text-right">Payment</th>
                         <th className="text-left">
                             <Tltip direction='right' tltpText='Select all'>
                                 <div className='flex items-center justify-start'>
@@ -1998,7 +1998,7 @@ export const ExpensesToolTip = ({ supplier, expensesAll, settings, uidCollection
                                     <Tltip direction='top' tltpText={z.poSupplier?.order ?? 'Comp. Exp.'}><span className="block truncate">{z.poSupplier?.order ?? 'Comp. Exp.'}</span></Tltip></td>
                                 <td className="text-left"><Tltip direction='top' tltpText={z.expense || ''}><span className="block truncate max-w-20">{z.expense}</span></Tltip></td>
                                 <td className="text-left"><Tltip direction='top' tltpText={settings.Expenses.Expenses.find(q => q.id === z.expType)?.expType || ''}><span className="block truncate max-w-20">{settings.Expenses.Expenses.find(q => q.id === z.expType)?.expType}</span></Tltip></td>
-                                <td className="text-left">{
+                                <td className="text-right">{
                                     <NumericFormat
                                         value={z.amount}
                                         displayType="text"
@@ -2009,10 +2009,10 @@ export const ExpensesToolTip = ({ supplier, expensesAll, settings, uidCollection
                                         fixedDecimalScale
                                     />
                                 }</td>
-                                <td className="text-left">
+                                <td className="text-center">
                                     {dateFormat(z.date, 'dd.mm.yy')}
                                 </td>
-                                <td className="text-left">
+                                <td className="text-right">
                                     {/* Paid/Unpaid via the shared tones — this pair was
                                         the last place in cashflow still drawing its own
                                         green/orange instead of TONES. */}
@@ -2040,7 +2040,7 @@ export const ExpensesToolTip = ({ supplier, expensesAll, settings, uidCollection
                         </th>
                         <th></th>
                         <th></th>
-                        <th className="text-left">
+                        <th className="text-right">
                             {/* Per-currency sums, NO conversion: "Total $" used to be the whole
                                 list converted at 1.08 (EUR folded in), which read as a wrong USD
                                 figure — $ now sums only the $ rows, € only the € rows. */}
