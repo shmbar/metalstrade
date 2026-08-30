@@ -183,6 +183,9 @@ export const setMonthsInvoices = (data, settings, companyRate = 0) => {
     let accumulatedPmnt = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].reduce((o, key) => ({ ...o, [key]: 0 }), {})
     let accumulatedActualPmnt = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].reduce((o, key) => ({ ...o, [key]: 0 }), {})
     let accumulatedTop5Cus = {}
+    // Revenue booked against contracts ticked as shared IMS/GIS deals — half of it belongs
+    // to the partner. Collected here because this is the only place per-contract revenue exists.
+    let gisRevenue = 0
 
 
     data.forEach(obj => {
@@ -194,6 +197,7 @@ export const setMonthsInvoices = (data, settings, companyRate = 0) => {
         let totalInvoices = Total(obj.invoicesData, 'totalAmount', mult, settings);
         let month = !obj.final ? dateFormat(obj.dateRange.startDate, 'm') * 1 : dateFormat(obj.date, 'm') * 1
         accumulatedPmnt[month] += parseFloat(totalInvoices);
+        if (obj.gis) gisRevenue += parseFloat(totalInvoices) || 0;
 
         //top 5 customers
 
@@ -213,7 +217,7 @@ export const setMonthsInvoices = (data, settings, companyRate = 0) => {
     })
 
     let pieArrClnts = setPieArrs(accumulatedTop5Cus)
-    return { accumulatedPmnt, pieArrClnts /*, accumulatedActualPmnt */}
+    return { accumulatedPmnt, pieArrClnts, gisRevenue /*, accumulatedActualPmnt */}
 }
 
 /* Month an expense belongs to. Contract expenses carry their own required date, but
@@ -242,6 +246,13 @@ const VALUE_TOLERANCE = 3
 
 export const calContracts = (data, settings, companyRate = 0, expenseRows = null) => {
     const dataIssues = []   // contracts whose own records contradict each other
+    /* A contract ticked 'Shared IMS / GIS deal' keeps HALF its profit here — the partner
+       takes the other half, exactly as the Margins sheet has always done. Tonnage is NOT
+       halved: the full quantity moves through IMS either way (Zak, 2026-08-31). So the
+       cost and expense sides of those deals are tracked separately and the partner's share
+       is subtracted from profit as one explicit figure, rather than by quietly scaling
+       revenue and cost — which would have halved Average Rate per MT along with them. */
+    let gisCogs = 0, gisExpenses = 0
 
     /* Canonical expense rows, bucketed by the contract they belong to. `unlinkedExpenses`
        are rows dated in the period whose contract is not in the loaded set — real spend
@@ -386,6 +397,7 @@ export const calContracts = (data, settings, companyRate = 0, expenseRows = null
         // unsold stock (capital tied up, not a loss). Weighted-average cost of goods sold.
         const soldFrac = contractTotalMT > 0 ? Math.min(1, contractShipped / contractTotalMT) : 0
         cogs += contractPurchase * soldFrac
+        if (x.gis) gisCogs += contractPurchase * soldFrac
         unsoldValue += contractPurchase * (1 - soldFrac)
         cogsByMonth[month] += contractPurchase * soldFrac
 
@@ -416,6 +428,7 @@ export const calContracts = (data, settings, companyRate = 0, expenseRows = null
                 if (freightIds.has(obj.expType)) freightTotal += amt
                 const lbl = expLabel(obj.expType)
                 expByType[lbl] = (expByType[lbl] || 0) + amt
+                if (x.gis) gisExpenses += amt
                 ;(expDetails[lbl] ||= []).push({
                     supplier: x.supplier,                       // id — resolved to a name at render
                     order: x.order || '',                       // PO number
@@ -502,7 +515,7 @@ export const calContracts = (data, settings, companyRate = 0, expenseRows = null
         months.forEach((v, i) => { dst[i] += v })
     })
 
-    return { accumulatedPmnt, accumulatedExp, pieArrSupps, suppSeries, totalMT, shippedMT, freightTotal, missingRate, cogs, unsoldValue, cogsByMonth, expByType, expDetails, materialSold, storageByMonth, dataIssues };
+    return { accumulatedPmnt, accumulatedExp, pieArrSupps, suppSeries, totalMT, shippedMT, freightTotal, missingRate, cogs, unsoldValue, cogsByMonth, expByType, expDetails, materialSold, storageByMonth, dataIssues, gisCogs, gisExpenses };
 }
 
 

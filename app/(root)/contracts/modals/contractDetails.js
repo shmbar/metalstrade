@@ -564,6 +564,22 @@ const ContractModal = () => {
 								clear={clear} />
 						</div>
 					</div>
+					{/* Shared IMS/GIS deal. The Margins sheet has carried this flag per row for a
+					    while (41 rows, ~half its tonnage) and halves the profit on them, but the
+					    contract had nowhere to record it — so the dashboard counted 100% of the
+					    profit on deals where only half is kept. Tonnage is deliberately NOT
+					    affected: the full quantity moves through IMS either way (Zak, 2026-08-31). */}
+					<div className='flex flex-col pt-2.5'>
+						<label className='flex items-center gap-2 cursor-pointer w-fit'>
+							<input
+								type='checkbox'
+								checked={!!valueCon.gis}
+								onChange={(e) => handleChange(e.target.checked, 'gis')}
+								className='w-4 h-4 rounded accent-[var(--brand)] cursor-pointer'
+							/>
+							<span className={labelCls}>Shared IMS / GIS deal — profit split 50/50</span>
+						</label>
+					</div>
 				</div>
 
 				<div className={panelCls}>

@@ -1696,7 +1696,19 @@ const Dash = () => {
     return { byCur, byCat, count: rawMiscInvoices.length };
   }, [rawMiscInvoices]);
 
-  const totalPL = useMemo(() => dataPL.reduce((a, v) => a + (Number(v) || 0), 0), [dataPL]);
+  /* The GIS partner's half of the profit on shared deals. Subtracted as ONE explicit
+     figure rather than by halving revenue and cost inside the aggregators — the full
+     tonnage and the full purchase value really did move through IMS (Zak, 2026-08-31), so
+     scaling those would have halved Average Rate per MT and the Contracts ranking along
+     with the profit. Never negative: a shared deal running at a loss is IMS's loss to show,
+     not something to credit back as income. Matches the Margins sheet, which has halved
+     totalMargin on `gis` rows all along while leaving their quantity whole. */
+  const gisPartnerShare = useMemo(() => {
+    const gross = (invAgg.gisRevenue || 0) - (conAgg.gisCogs || 0) - (conAgg.gisExpenses || 0);
+    return gross > 0 ? gross / 2 : 0;
+  }, [invAgg, conAgg]);
+
+  const totalPL = useMemo(() => dataPL.reduce((a, v) => a + (Number(v) || 0), 0) - gisPartnerShare, [dataPL, gisPartnerShare]);
   const totalInvoices = useMemo(() => sumObj(dataInvoices), [dataInvoices]);
   const totalContracts = useMemo(() => sumObj(dataContracts), [dataContracts]);
   const totalExpenses = useMemo(() => sumObj(dataExpenses), [dataExpenses]);
@@ -1927,12 +1939,15 @@ const Dash = () => {
      now read from this one array. */
   const costRamp = brandRamp(3);
   const donutData = {
-    labels: ['Cost of Goods Sold', 'Contract Expenses', 'Company Expenses', 'Net Profit'],
+    /* The GIS partner's half is its own wedge, not a silent deduction from the profit
+       slice — otherwise the ring stops adding up to deal revenue and the reader has no way
+       to see where the difference went. */
+    labels: ['Cost of Goods Sold', 'Contract Expenses', 'Company Expenses', 'GIS partner share', 'Net Profit'],
     datasets: [{
-      data: [cogs, totalExpenses, companyExpAgg.total, profitForArc],
+      data: [cogs, totalExpenses, companyExpAgg.total, gisPartnerShare, profitForArc],
       // Canvas cannot parse var() — every colour here must be resolved first.
       // brandRamp already returns resolved hex, so only --ok-figure needs cssVar.
-      backgroundColor: [...costRamp, cssVar('--ok-figure', '#37815F')],
+      backgroundColor: [...costRamp, cssVar('--teal-text', '#2F6560'), cssVar('--ok-figure', '#37815F')],
       borderColor: cssVar('--on-brand', '#ffffff'),
       borderWidth: 2,
       hoverOffset: 6,
@@ -1970,6 +1985,7 @@ const Dash = () => {
     { label: 'Cost of Goods Sold', value: cogs, color: costRamp[0] },
     { label: 'Contract Expenses', value: totalExpenses, color: costRamp[1] },
     { label: 'Company Expenses', value: companyExpAgg.total, color: costRamp[2] },
+    ...(gisPartnerShare > 0 ? [{ label: 'GIS partner share', value: gisPartnerShare, color: 'var(--teal-text)' }] : []),
     { label: 'Net Profit', value: netProfit, color: 'var(--ok-figure)' },
   ];
 
