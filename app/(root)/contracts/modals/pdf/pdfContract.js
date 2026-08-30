@@ -10,6 +10,7 @@ const ensurePdfLibs = async () => {
 };
 import { getD, fileToDataUrl } from '@utils/utils.js';
 import dateFormat from "dateformat";
+import { registerPdfFonts } from './pdfFonts';
 
 
 
@@ -77,8 +78,7 @@ export const Pdf = async (valueCon, arrTable, settings, compData, gisAccount, mo
     const supp = sups.find(z => z.id === valueCon.supplier);
 
     var doc = new jsPDF();
-    doc.addFont("/fonts/Calibri.ttf", "Poppins", "normal");
-    doc.addFont("/fonts/Calibri-bold.ttf", "PoppinsB", "bold");
+    await registerPdfFonts(doc);   // real fonts, so Polish characters survive
     {
         gisAccount ?
             doc.addImage('/logo/gisBlur.jpg', "JPG", 135, 200, 70, 65) :

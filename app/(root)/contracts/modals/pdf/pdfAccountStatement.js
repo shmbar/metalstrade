@@ -10,6 +10,7 @@ const ensurePdfLibs = async () => {
 };
 import { getD } from '@utils/utils.js';
 import dateFormat from "dateformat";
+import { registerPdfFonts } from './pdfFonts';
 
 
 let showAmountInv = (x) => {
@@ -30,8 +31,7 @@ export const PdfAccountStatement = async (arrTable, settings, compData, client, 
 
 
     var doc = new jsPDF();
-    doc.addFont("/fonts/Calibri.ttf", "Poppins", "normal");
-    doc.addFont("/fonts/Calibri-bold.ttf", "PoppinsB", "bold");
+    await registerPdfFonts(doc);   // real fonts, so Polish characters survive
 
     //   doc.addFont("/fonts/Anon.ttf", "Anon", "normal");
     // doc.addFont("/fonts/Anon-bold.ttf", "AnonB", "bold");

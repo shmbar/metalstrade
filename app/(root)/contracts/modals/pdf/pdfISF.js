@@ -7,12 +7,12 @@ const ensurePdfLibs = async () => {
     jsPDF = (await import('jspdf')).jsPDF;
 };
 import dateFormat from 'dateformat';
+import { registerPdfFonts } from './pdfFonts';
 
 export const PdfISF = async (valueInv, compData, settings, _valueCon) => {
     await ensurePdfLibs();
     const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
-    doc.addFont('/fonts/Calibri.ttf', 'Cal', 'normal');
-    doc.addFont('/fonts/Calibri-bold.ttf', 'CalB', 'bold');
+    await registerPdfFonts(doc);   // real fonts, so Polish characters survive
 
     const isf = valueInv.isf ?? {};
     const clts = settings.Client?.Client ?? [];
