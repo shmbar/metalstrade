@@ -240,8 +240,25 @@ const expenseMonth = (obj, contract, fallback) => {
    would each have to be ~90% un-invoiced with their tonnage already fully entered. */
 const VALUE_TOLERANCE = 3
 
-export const calContracts = (data, settings, companyRate = 0) => {
+export const calContracts = (data, settings, companyRate = 0, expenseRows = null) => {
     const dataIssues = []   // contracts whose own records contradict each other
+
+    /* Canonical expense rows, bucketed by the contract they belong to. `unlinkedExpenses`
+       are rows dated in the period whose contract is not in the loaded set — real spend
+       the /expenses page counts, so they are added to the totals after the contract loop
+       rather than dropped. The caller decides whether to pass them at all: with a
+       supplier/material filter active it hands over only the rows for contracts that
+       survived the filter, the same rule the Consignees card and the client filter use. */
+    let expByContract = null, unlinkedExpenses = null
+    if (Array.isArray(expenseRows)) {
+        expByContract = {}; unlinkedExpenses = []
+        const ids = new Set(data.map(c => c.id))
+        expenseRows.forEach(r => {
+            const cid = r?.poSupplier?.id
+            if (cid && ids.has(cid)) (expByContract[cid] ||= []).push(r)
+            else unlinkedExpenses.push(r)
+        })
+    }
 
     let accumulatedPmnt = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].reduce((o, key) => ({ ...o, [key]: 0 }), {})
     let accumulatedExp = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].reduce((o, key) => ({ ...o, [key]: 0 }), {})
@@ -350,8 +367,17 @@ export const calContracts = (data, settings, companyRate = 0) => {
            (contractDetails.js builds productsDataInvoice from productsData), so the real
            split was always available; nothing needed estimating. */
 
-        //expenses — total, by month, and by type
-        ;(x.expenses || []).forEach(obj => {
+        /* Expenses — total, by month, and by type.
+           Source is the CANONICAL `expenses` collection (the one /expenses reads), indexed
+           by poSupplier.id, NOT the `expenses` array embedded on the contract document.
+           That embedded array is a partial, stale mirror: at the time this changed it held
+           40 rows against the collection's 73, understating contract expenses by $191,094
+           — 30% — and it carried 2 rows with no canonical record at all. It also has six
+           fields where the real record has fifteen, so nothing here could see a supplier,
+           a sales invoice or a paid flag. Falling back to x.expenses when no index is
+           supplied keeps older callers working. */
+        const own = expByContract ? (expByContract[x.id] || []) : (x.expenses || [])
+        ;(own).forEach(obj => {
             if (obj && !isNaN(parseFloat(obj.amount))) {
                 const m2 = obj.cur === 'us' ? 1 : mult
                 const amt = parseFloat(obj.amount) * m2
@@ -374,6 +400,30 @@ export const calContracts = (data, settings, companyRate = 0) => {
         })
     })
 
+
+    /* Expenses dated in the period whose contract is not in the loaded set. Counted at the
+       company FX rate (or 1:1) rather than a contract's own rate, because there is no
+       contract to borrow one from — the FX banner already reports what that costs.
+       Bucketed by the expense's OWN date, which is the only date it has. */
+    ;(unlinkedExpenses || []).forEach(obj => {
+        const amt = parseFloat(obj?.amount)
+        if (isNaN(amt)) return
+        const m2 = obj.cur === 'us' ? 1 : (companyRate > 0 ? companyRate : 1)
+        const val = amt * m2
+        const d = obj.date || obj.dateRange?.startDate || ''
+        const m = Number(String(d).substring(5, 7))
+        const expMonth = m >= 1 && m <= 12 ? m : 1
+        accumulatedExp[expMonth] += val
+        if (freightIds.has(obj.expType)) freightTotal += val
+        const lbl = expLabel(obj.expType)
+        expByType[lbl] = (expByType[lbl] || 0) + val
+        ;(expDetails[lbl] ||= []).push({
+            supplier: obj.supplier || '', order: '', usd: val,
+            amount: amt, cur: obj.cur || 'us', date: d,
+        })
+        const l = String(lbl).toLowerCase()
+        if (l.includes('storage') || l.includes('warehouse')) storageByMonth[expMonth] += val
+    })
 
     /* Re-key id -> display name. ADD, never assign: two supplier ids that resolve to the
        same nname (duplicate entries in settings) used to overwrite each other, and every

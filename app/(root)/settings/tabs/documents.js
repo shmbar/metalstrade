@@ -2,7 +2,8 @@ import { useState, useContext } from 'react';
 import { SettingsContext } from '../../../../contexts/useSettingsContext';
 import { UserAuth } from '../../../../contexts/useAuthContext';
 import { v4 as uuidv4 } from 'uuid';
-import { CirclePlus, Trash, PenLine, Save } from 'lucide-react';
+import { CirclePlus, Trash, PenLine } from 'lucide-react';
+import { BtnIcon } from '@components/buttonIcons';
 
 const ANNEX_FIELDS = [
     { key: 'name', label: 'Template Name', required: true },
@@ -185,14 +186,10 @@ const Documents = () => {
                     </div>
 
                     <div className="flex gap-2 mt-4">
-                        <button onClick={save}
-                            className="flex items-center gap-1.5 px-4 py-1.5 rounded-control responsiveTextInput font-medium
-                                bg-[var(--endeavour)] text-[var(--on-brand)] hover:opacity-90 transition-all">
-                            <Save size={13} /> {editId ? 'Update' : `Save ${listLabel}`}
+                        <button onClick={save} className="blackButton">
+                            <BtnIcon action="save" /> {editId ? 'Update' : `Save ${listLabel}`}
                         </button>
-                        <button onClick={cancel}
-                            className="flex items-center gap-1.5 px-4 py-1.5 rounded-control responsiveTextInput font-medium
-                                border border-[var(--line)] text-[var(--ink)] hover:bg-[var(--selago)]">
+                        <button onClick={cancel} className="whiteButton">
                             Cancel
                         </button>
                     </div>

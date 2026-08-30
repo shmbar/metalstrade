@@ -44,17 +44,11 @@ const MyModal = ({ isDeleteOpen, setIsDeleteOpen, ttl, txt, details, doAction })
         {details}
 
         <DialogFooter className="flex gap-4 mt-4">
-          <button
-            onClick={confirmDel}
-            className="inline-flex justify-center rounded-lg bg-[var(--endeavour)] px-4 py-1.5 responsiveTextTitle font-medium text-[var(--on-brand)] hover:opacity-90 transition-all"
-          >
+          <button onClick={confirmDel} className="blackButton">
             {getTtl("Confirm", ln)}
           </button>
 
-          <button
-            onClick={closeModal}
-            className="inline-flex justify-center rounded-lg border border-[var(--endeavour)] bg-[var(--bg-card)] px-4 py-1.5 responsiveTextTitle font-medium text-[var(--endeavour)] hover:bg-[var(--selago)] transition-all"
-          >
+          <button onClick={closeModal} className="whiteButton">
             {getTtl("Cancel", ln)}
           </button>
         </DialogFooter>

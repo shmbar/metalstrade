@@ -1023,36 +1023,40 @@ thead th {
     @apply rounded-card p-3 flex flex-col justify-between min-h-[88px] shadow-card border border-[var(--line)];
   }
 
-  /* ── Buttons ──────────────────────────────────────────────────────────────
-     All four share ONE height (h-7 / 28px, same as .input, so a button and the
-     field beside it line up) and ONE type ramp (9/10/11/12 — the bottom rung).
-     They previously used 9 / 10.512 / 11.5 / 12px: the two middle steps were
-     rogue values (0.657rem, 0.71875rem) that existed nowhere else in the app.
-     Heights were py-1.5, h-7, py-1 and py-1 — four buttons, three heights. */
   /* ── Buttons ─────────────────────────────────────────────────────────────
-     One control band: h-8, --radius-control (10px), --fs-input type. Nothing
-     pill-shaped, nothing bespoke — a button and the field beside it line up.  */
+     One control band: h-8 (28px, same as .input, so a button and the field
+     beside it line up), --radius-control (10px), 12px type. Nothing
+     pill-shaped, nothing bespoke.
+
+     Horizontal padding is px-2.5 (8px) with a gap-1.5 (5px) icon gap, not the
+     px-3/gap-2 they carried before. The client read the buttons as heavy, and
+     on a three-letter label like "Add" the chrome was most of the button —
+     20px of padding plus a 7px gap around 24px of word. Trimming the sides
+     takes ~6px off every button in the app without touching the height, so
+     the band still lines up with the inputs and the click target stays 28px.
+     If they need to come down further, the lever is this h-8 -> h-7 (24px),
+     which is the next documented rung — do it HERE, never per page. */
   .blackButton {
-    @apply bg-[var(--brand)] hover:bg-[var(--brand-strong)] text-[var(--on-brand)] flex items-center gap-2 justify-center rounded-control border-0 px-3 h-8 font-medium focus:outline-none transition-colors disabled:opacity-50 disabled:cursor-not-allowed;
+    @apply bg-[var(--brand)] hover:bg-[var(--brand-strong)] text-[var(--on-brand)] flex items-center gap-1.5 justify-center rounded-control border-0 px-2.5 h-8 font-medium focus:outline-none transition-colors disabled:opacity-50 disabled:cursor-not-allowed;
     font-size: 0.75rem; /* 12px fixed — the reference uses text-xs on buttons,
                            one rung below its 13px inputs */
     box-shadow: var(--shadow-xs);
   }
 
   .whiteButton {
-    @apply bg-[var(--bg-card)] border-[var(--line-strong)] hover:bg-[var(--bg-subtle)] text-[var(--ink)] flex items-center gap-2 justify-center rounded-control border px-3 h-8 font-medium focus:outline-none transition-colors disabled:opacity-50 disabled:cursor-not-allowed;
+    @apply bg-[var(--bg-card)] border-[var(--line-strong)] hover:bg-[var(--bg-subtle)] text-[var(--ink)] flex items-center gap-1.5 justify-center rounded-control border px-2.5 h-8 font-medium focus:outline-none transition-colors disabled:opacity-50 disabled:cursor-not-allowed;
     font-size: 0.75rem; /* 12px fixed — matches the reference */
     box-shadow: var(--shadow-xs);
   }
 
   .supplierButton {
-    @apply bg-[var(--brand-soft)] hover:bg-[var(--bg-sunken)] text-[var(--brand)] flex items-center gap-2 justify-center rounded-control border-0 px-3 h-8 font-medium focus:outline-none transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed;
+    @apply bg-[var(--brand-soft)] hover:bg-[var(--bg-sunken)] text-[var(--brand)] flex items-center gap-1.5 justify-center rounded-control border-0 px-2.5 h-8 font-medium focus:outline-none transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed;
     font-size: 0.75rem; /* 12px fixed — matches the reference */
     box-shadow: var(--shadow-xs);
   }
 
   .supplierAddButton {
-    @apply bg-[var(--brand)] hover:bg-[var(--brand-strong)] text-[var(--on-brand)] flex items-center gap-2 justify-center rounded-control border-0 px-3 h-8 font-medium focus:outline-none transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed;
+    @apply bg-[var(--brand)] hover:bg-[var(--brand-strong)] text-[var(--on-brand)] flex items-center gap-1.5 justify-center rounded-control border-0 px-2.5 h-8 font-medium focus:outline-none transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed;
     font-size: 0.75rem; /* 12px fixed — matches the reference */
     box-shadow: var(--shadow-xs);
   }

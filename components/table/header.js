@@ -10,6 +10,7 @@ import { usePathname } from 'next/navigation';
 import { GrAddCircle } from "react-icons/gr";
 import Image from 'next/image';
 import Tltip from "../../components/tlTip";
+import { BtnIcon } from "../buttonIcons";
 import { MdDeleteOutline } from "react-icons/md";
 import { GrDocumentPdf } from "react-icons/gr";
 import { QuickSumButton, QuickSumTotals } from './quicksum/QuickSumControl';
@@ -87,20 +88,15 @@ const Header = ({
             </div>
             {/* + Add Tables */}
             {addTable && (
-            <button
-              onClick={addTable}
-              className="flex items-center gap-1 bg-[var(--endeavour)] text-[var(--on-brand)] responsiveText font-medium px-3 h-7 rounded-lg hover:opacity-90 transition-all"
-            >
-              <GrAddCircle style={{ fontSize: 13 }} />
+            <button onClick={addTable} className="blackButton">
+              <BtnIcon action="add" />
               Add Tables
             </button>
             )}
             {/* Save */}
             {saveTable && (
-            <button
-              onClick={saveTable}
-              className="flex items-center text-[var(--endeavour)] border border-[var(--rock-blue)] responsiveText font-medium px-3 h-7 rounded-lg hover:bg-[var(--selago)] transition-all"
-            >
+            <button onClick={saveTable} className="whiteButton">
+              <BtnIcon action="save" />
               Save
             </button>
             )}

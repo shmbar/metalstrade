@@ -1300,7 +1300,10 @@ const Dash = () => {
 
   // Raw loaded data — every aggregate below is derived (memoized) from these, so the
   // Supplier / Client / Material filters recompute instantly without re-fetching Firestore.
-  const [rawContracts, setRawContracts] = useState([]);     // contracts enriched with invoicesData
+  const [rawContracts, setRawContracts] = useState([]);
+  /* The canonical expense collection — the same one /expenses reads. The dashboard used
+     to take contract.expenses, a stale partial mirror that was missing 30% of the spend. */
+  const [rawExpenses, setRawExpenses] = useState([]);     // contracts enriched with invoicesData
   const [rawRecvInvoices, setRawRecvInvoices] = useState([]);
   const [rawMiscInvoices, setRawMiscInvoices] = useState([]); // P1 misc invoices, not linked to contracts
   const [rawCompanyExpenses, setRawCompanyExpenses] = useState([]); // company-level overheads
@@ -1345,6 +1348,10 @@ const Dash = () => {
       // All three root downloads are independent — start them together. Only the
       // invoice INDEX depends on contracts; the receivables window and misc
       // invoices were needlessly queued behind it (same fix as cashflow).
+      const expensesPromise = loadData(uidCollection, 'expenses', {
+        start: dateSelect?.start || `${year}-01-01`,
+        end: dateSelect?.end || `${year}-12-31`,
+      });
       const contractsPromise = loadData(uidCollection, 'contracts', {
         start: dateSelect?.start || `${year}-01-01`,
         end: dateSelect?.end || `${year}-12-31`,
@@ -1376,6 +1383,7 @@ const Dash = () => {
       let dtConTmp = dtContracts.map(x => ({ ...x, invoicesData: contractInvoicesFromIndex(x, invIndex) }));
       setRawContracts(dtConTmp);
 
+      setRawExpenses(await expensesPromise);
       setRawRecvInvoices(await invsForRecvPromise);
 
       const misc = await miscPromise;
@@ -1512,7 +1520,18 @@ const Dash = () => {
   };
 
   // Aggregates — recomputed only when the filtered set (or settings) changes.
-  const conAgg = useMemo(() => calContracts(filteredContracts, settings, companyRate), [filteredContracts, settings, companyRate]);
+  /* Expense rows fed to the aggregator. With no contract-side filter active this is every
+     row dated in the period, so Contract Expenses equals what /expenses shows. With one
+     active it narrows to the surviving contracts' rows — the same allowed-PO rule the
+     Consignees card and the client filter use, so a filtered dashboard stays coherent. */
+  const scopedExpenses = useMemo(() => {
+    const contractSide = !!(fSupplier || fMaterial || fCurrency || fOrigin || fDelTerm || fClient);
+    if (!contractSide) return rawExpenses;
+    const ids = new Set(filteredContracts.map(c => c.id));
+    return (rawExpenses || []).filter(r => ids.has(r?.poSupplier?.id));
+  }, [rawExpenses, filteredContracts, fSupplier, fMaterial, fCurrency, fOrigin, fDelTerm, fClient]);
+
+  const conAgg = useMemo(() => calContracts(filteredContracts, settings, companyRate, scopedExpenses), [filteredContracts, settings, companyRate, scopedExpenses]);
   const invAgg = useMemo(() => setMonthsInvoices(filteredContracts, settings, companyRate), [filteredContracts, settings, companyRate]);
 
   const dataContracts = conAgg.accumulatedPmnt;

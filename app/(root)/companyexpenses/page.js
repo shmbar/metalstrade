@@ -24,7 +24,7 @@ import Tooltip from '../../../components/tooltip';
 import Tltip from '../../../components/tlTip';
 import { v4 as uuidv4 } from 'uuid';
 import TableTotals from './totals/tableTotals';
-import { TbLayoutGridAdd } from "react-icons/tb";
+import { BtnIcon } from "@components/buttonIcons";
 import { NameCell } from '../../../components/Avatar';
 import CurrencyChip from '../../../components/CurrencyChip';
 import { curCode } from '../../../utils/currency';
@@ -344,12 +344,8 @@ const Expenses = () => {
                             {/* Action Button */}
                             <div className="text-left pt-6 flex gap-4">
                                 <Tltip direction='bottom' tltpText='Create new Company Expense'>
-                                    <button
-                                        type="button"
-                                        onClick={addNewExpense}
-                                        className="flex items-center gap-2 bg-[var(--endeavour)] border border-[var(--chathams-blue)] text-[var(--on-brand)] px-4 h-7 responsiveTextTitle font-medium responsiveText rounded-lg hover:bg-[var(--selago)]/30 transition-all"
-                                    >
-                                        <TbLayoutGridAdd className="w-4 h-4" />
+                                    <button type="button" onClick={addNewExpense} className="blackButton">
+                                        <BtnIcon action="add" />
                                         <span>New Expense</span>
                                     </button>
                                 </Tltip>

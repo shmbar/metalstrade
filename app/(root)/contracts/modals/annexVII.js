@@ -1,7 +1,7 @@
 import { useEffect, useMemo } from 'react';
 import { Selector } from '@components/selectors/selectShad';
 import { PdfAnnexVII } from './pdf/pdfAnnexVII';
-import { FileText } from 'lucide-react';
+import { BtnIcon } from '@components/buttonIcons';
 
 /* Most of these fields hold a phone number, a date or a 5-character waste code, so a
    two-column grid gave each of them ~490px of an 1040px dialog and made the form twice
@@ -182,12 +182,8 @@ const AnnexVII = ({ valueInv, setValueInv, compData, settings, valueCon }) => {
         <div className="border border-[var(--line)] rounded-2xl p-3">
             <div className="flex items-center justify-between mb-2">
                 <p className="responsiveText font-medium text-[var(--chathams-blue)]">Annex VII — EU Waste Shipment Document</p>
-                <button
-                    onClick={generatePdf}
-                    className="flex items-center gap-1.5 px-3 py-1 rounded-lg responsiveTextInput font-medium
-                        bg-[var(--endeavour)] text-[var(--on-brand)] hover:opacity-90 transition-all"
-                >
-                    <FileText size={13} /> Annex VII PDF
+                <button onClick={generatePdf} className="blackButton">
+                    <BtnIcon action="pdf" /> Annex VII PDF
                 </button>
             </div>
 

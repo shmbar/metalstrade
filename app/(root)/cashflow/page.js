@@ -1361,13 +1361,22 @@ const Cashflow = () => {
                                                         </div>
                                                     )
                                                 })}
+                                            {/* The card is full width but its rows are two w-44 columns, so a
+                                                plain left-aligned button row left Save and Add stranded with
+                                                ~1150px of empty card beside them. They line up with the right
+                                                edge of the amount column instead — under the fields they act
+                                                on — rather than at the far edge of the card, which would only
+                                                stranded them on the other side. */}
                                             <div className="flex gap-2 my-1">
-                                                <Tltip direction='bottom' tltpText='Save added data'>
-                                                    <button type="button" className="blackButton" onClick={saveInitData}><BtnIcon action="save" />Save</button>
-                                                </Tltip>
-                                                <Tltip direction='bottom' tltpText='Add new item'>
-                                                    <button type="button" className="whiteButton" onClick={addItem}><BtnIcon action="add" />Add</button>
-                                                </Tltip>
+                                                <span className="w-44 shrink-0" aria-hidden="true" />
+                                                <div className="w-44 flex gap-2 justify-end">
+                                                    <Tltip direction='bottom' tltpText='Save added data'>
+                                                        <button type="button" className="blackButton" onClick={saveInitData}><BtnIcon action="save" />Save</button>
+                                                    </Tltip>
+                                                    <Tltip direction='bottom' tltpText='Add new item'>
+                                                        <button type="button" className="whiteButton" onClick={addItem}><BtnIcon action="add" />Add</button>
+                                                    </Tltip>
+                                                </div>
                                             </div>
                                         </div>
 
