@@ -3,7 +3,7 @@
 import { createContext, useContext, useEffect, useState, useMemo, useCallback, useRef } from 'react'
 import { onAuthStateChanged, signInWithEmailAndPassword, signOut, setPersistence, browserLocalPersistence, browserSessionPersistence } from 'firebase/auth'
 import { auth } from '../utils/firebase'
-import { loadDataSettings, logEvent } from '../utils/utils'
+import { loadDataSettings, logEvent, touchPresence, endPresence, PRESENCE_HEARTBEAT_MS } from '../utils/utils'
 import { ensureSuperAdminClaim } from '../actions/pass'
 import {
   canAccess,
@@ -101,6 +101,12 @@ const AuthContextProvider = ({ children }) => {
       localStorage.setItem('rememberMe', remember ? '1' : '0'); // picks the 2h vs 30-day cap on reload
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       sessionStorage.setItem('isLogged', true);
+      // Mark the login for the recorder below rather than logging it here: the
+      // workspace (uidCollection) arrives with the custom claims a moment later, and
+      // an activity event without one has nowhere to be written. Set only on a real
+      // credential sign-in, so a reload or a second tab — which also bring `user`
+      // back — cannot be mistaken for logging in again.
+      sessionStorage.setItem('pendingLoginLog', String(Date.now()));
       setUser(userCredential.user);
       // Where to go next is owned by the redirect effect below — a second push from here
       // raced it, and one of the two navigations lost.
@@ -170,6 +176,23 @@ const AuthContextProvider = ({ children }) => {
   }, [])
 
   const SignOut = useCallback(async (dest = '/') => {
+    // Say goodbye before tearing the session down: once storage is cleared and the
+    // credential is gone there is no workspace to write to. Awaited (briefly) so the
+    // record lands before the page is replaced, but never allowed to block a logout.
+    if (uidCollection && currentUser.uid) {
+      await Promise.race([
+        Promise.all([
+          endPresence(uidCollection, currentUser.uid),
+          logEvent(uidCollection, {
+            type: 'auth.logout', entityType: 'auth', entityId: currentUser.uid,
+            entityLabel: currentUser.name, action: 'signed out',
+            message: `${currentUser.name} signed out`,
+            actorUid: currentUser.uid, actorName: currentUser.name,
+          }),
+        ]),
+        new Promise(r => setTimeout(r, 1500)),
+      ]).catch(() => { });
+    }
     // Keep the sign-in page's email prefill across logout — wiping it made every
     // logout look like "Remember me forgot me".
     const savedEmail = localStorage.getItem('email');
@@ -222,6 +245,37 @@ const AuthContextProvider = ({ children }) => {
     window.addEventListener('beforeunload', bump);
     return () => { clearInterval(id); window.removeEventListener('beforeunload', bump); };
   }, [user]);
+
+  // Record the sign-in, once the claims have said which workspace it belongs to.
+  // The marker is set by SignIn on a real credential login and cleared here, so a
+  // reload, a route change or a second tab cannot log a login that did not happen.
+  useEffect(() => {
+    if (!user || !uidCollection || !currentUser.uid) return;
+    let stamp;
+    try { stamp = sessionStorage.getItem('pendingLoginLog'); } catch { return; }
+    if (!stamp) return;
+    try { sessionStorage.removeItem('pendingLoginLog'); } catch { /* private mode */ }
+
+    logEvent(uidCollection, {
+      type: 'auth.login', entityType: 'auth', entityId: currentUser.uid,
+      entityLabel: currentUser.name, action: 'signed in',
+      message: `${currentUser.name} signed in`,
+      actorUid: currentUser.uid, actorName: currentUser.name,
+      meta: { at: Number(stamp) || Date.now() },
+    });
+    touchPresence(uidCollection, currentUser, { loginAtMs: Number(stamp) || Date.now() });
+  }, [user, uidCollection, currentUser]);
+
+  // Mirror the heartbeat into Firestore so OTHER people can see who is here — the
+  // localStorage stamp above is readable only by the browser that wrote it. Slower
+  // than that one (two minutes, not one) because this one costs a write.
+  useEffect(() => {
+    if (!user || !uidCollection || !currentUser.uid) return;
+    const beat = () => touchPresence(uidCollection, currentUser);
+    beat();
+    const id = setInterval(beat, PRESENCE_HEARTBEAT_MS);
+    return () => clearInterval(id);
+  }, [user, uidCollection, currentUser]);
 
   // Safety net against a stuck login spinner: if loading hasn't finished after 12s (e.g. the
   // uidCollection token claim never resolved), stop loading — and if there's a "user" with no

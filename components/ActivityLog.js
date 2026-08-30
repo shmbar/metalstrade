@@ -3,7 +3,7 @@ import { useEffect, useMemo, useState, useCallback } from 'react';
 import { UserAuth } from '../contexts/useAuthContext';
 import { loadActivity } from '../utils/utils';
 import { Selector } from './selectors/selectShad';
-import { FileText, Receipt, Banknote, Package, Settings as SettingsIcon, Activity, RefreshCw, Loader2, Search } from 'lucide-react';
+import { FileText, Receipt, Banknote, Package, Settings as SettingsIcon, Activity, RefreshCw, Loader2, Search, LogIn } from 'lucide-react';
 import { TONES } from './statusUtils';
 import { NameCell } from './Avatar';
 
@@ -14,6 +14,10 @@ const ENTITY_META = {
     expense: { label: 'Expense', icon: Banknote, color: TONES.amber.text, bg: TONES.amber.bg },
     stock: { label: 'Stock', icon: Package, color: 'var(--violet-text)', bg: 'var(--violet-soft)' },
     settings: { label: 'Settings', icon: SettingsIcon, color: TONES.gray.text, bg: TONES.gray.bg },
+    // Sign-in / sign-out. Blue rather than a status family: logging in is neither
+    // good news nor bad, and the type filter above is built from these keys, so this
+    // is also what lets someone show only the sign-ins.
+    auth: { label: 'Sign-in', icon: LogIn, color: TONES.blue.text, bg: TONES.blue.bg },
 };
 const FALLBACK_META = { label: 'Activity', icon: Activity, color: TONES.gray.text, bg: TONES.gray.bg };
 const metaFor = (t) => ENTITY_META[t] || FALLBACK_META;

@@ -12,7 +12,7 @@ import { cachedLoad, cacheKey, bustLoadCache } from './loadCache';
 // ever leave a page reading yesterday's list. Housekeeping collections that no
 // cached loader reads (notifications / activity / comments — written on almost
 // every page visit) are exempt, otherwise they would clear the cache constantly.
-const CACHE_NEUTRAL = /\/data\/(notifications|activity|comments)\//;
+const CACHE_NEUTRAL = /\/data\/(notifications|activity|comments|presence)\//;
 const maybeBust = (ref) => {
   const p = '/' + String(ref?.path || '') + '/';
   if (!CACHE_NEUTRAL.test(p)) bustLoadCache();
@@ -343,6 +343,62 @@ export const loadActivity = async (uidCollection, { entityType, entityId, max = 
     console.warn('loadActivity failed:', e?.message || e);
     return [];
   }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Presence — "who is in the app right now".
+//
+// The 'lastSeen' stamp the session guard keeps lives in localStorage, which only
+// the browser holding it can read, so nobody could ever see anyone else. This
+// mirrors the same heartbeat into Firestore at {uid}/data/presence/{userUid} —
+// one document per user, overwritten in place, so the collection stays exactly as
+// large as the workspace's user list rather than growing forever like the log.
+//
+// Deliberately NOT a source of truth for anything but a green dot: a browser that
+// crashes stops beating without a chance to say so, which is why readers judge by
+// how old the stamp is (see PRESENCE_ONLINE_MS) instead of trusting an
+// 'online: false' anyone might never have written.
+export const PRESENCE_HEARTBEAT_MS = 120_000;   // write cadence while signed in
+export const PRESENCE_ONLINE_MS = 300_000;      // a stamp older than this reads as away
+
+export const touchPresence = async (uidCollection, actor = {}, extra = {}) => {
+  if (!uidCollection || !actor?.uid) return false;
+  try {
+    await setDoc(doc(db, uidCollection, 'data', 'presence', actor.uid), {
+      uid: actor.uid,
+      name: actor.name || 'Unknown',
+      email: actor.email || '',
+      lastSeenMs: Date.now(),
+      lastSeen: new Date().toISOString(),
+      ...extra,                                  // e.g. { loginAtMs } on a fresh sign-in
+    }, { merge: true });
+    return true;
+  } catch (e) {
+    console.warn('touchPresence failed (non-fatal):', e?.message || e);
+    return false;
+  }
+}
+
+export const loadPresence = async (uidCollection) => {
+  if (!uidCollection) return [];
+  try {
+    const snap = await getDocs(collection(db, uidCollection, 'data', 'presence'));
+    return snap.docs.map(d => d.data()).sort((a, b) => (b.lastSeenMs || 0) - (a.lastSeenMs || 0));
+  } catch (e) {
+    console.warn('loadPresence failed:', e?.message || e);
+    return [];
+  }
+}
+
+// Sign-out is the one moment a user tells us they are leaving, so record it —
+// a stale heartbeat would otherwise keep them "online" for the next five minutes.
+export const endPresence = async (uidCollection, uid) => {
+  if (!uidCollection || !uid) return false;
+  try {
+    await setDoc(doc(db, uidCollection, 'data', 'presence', uid),
+      { lastSeenMs: 0, lastSeen: new Date().toISOString(), signedOut: true }, { merge: true });
+    return true;
+  } catch { return false; }
 }
 
 // Bounded sibling of loadActivity for type-prefixed scans (e.g. all 'shipment.*'
