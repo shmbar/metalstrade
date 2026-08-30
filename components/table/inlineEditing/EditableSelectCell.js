@@ -7,6 +7,11 @@ import Tltip from "../../tlTip";
 import Avatar from "../../Avatar";
 import { delTimeList } from "../../const";
 
+// A settings id, not a value anyone can read. Only the uuid shape is treated as
+// opaque: the seed ids ('A4', 'P6') are shared by both accounts and always resolve,
+// and a short code is not worth risking a real value that happens to look like one.
+const OPAQUE_ID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
 // Simple event bus for dropdown open/close
 const dropdownEventBus = {
   listeners: [],
@@ -89,7 +94,14 @@ export default function EditableSelectCell({ getValue, row, column, table }) {
     const found = options.find(o => String(o.value) === String(val));
     // Fallback to delTimeList if options lookup fails (e.g. settings not yet loaded)
     const fallback = !found && val ? delTimeList.find(d => String(d.id) === String(val))?.deltime : null;
-    const rawLabel = found?.label ?? fallback ?? val ?? "";
+    // When the lookup misses, printing the stored value spells a settings uuid into
+    // the cell where a port or a packing type belongs — which is what a contract
+    // copied from the other account looks like, since those ids are per-workspace.
+    // Show nothing instead, the way the PDF already does. A value that is plain
+    // text rather than an id (a hand-typed "March 2026") still reads fine, so it
+    // is left alone.
+    const printable = OPAQUE_ID.test(String(val ?? "")) ? "" : val;
+    const rawLabel = found?.label ?? fallback ?? printable ?? "";
     const safeLabel =
       typeof rawLabel === "string" || typeof rawLabel === "number"
         ? rawLabel
@@ -110,8 +122,11 @@ export default function EditableSelectCell({ getValue, row, column, table }) {
     );
   }
 
-  // Find the selected option object
-  const selectedOption = options.find(o => String(o.value) === String(value)) || options[0];
+  // Find the selected option object. A value that matches nothing must NOT fall
+  // back to the first option: on a row carrying an unresolved id that showed
+  // "Antwerp" as if it were the stored port, which is a worse lie than a blank.
+  // The fallback still applies to an empty cell, where it acts as the placeholder.
+  const selectedOption = options.find(o => String(o.value) === String(value)) || (value ? null : options[0]);
 
   // Calculate dropdown position for portal
   const handleOpen = () => {

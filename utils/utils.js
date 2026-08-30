@@ -2,7 +2,8 @@ import { db } from '../utils/firebase'
 import {
   setDoc as fsSetDoc, doc, getDoc, collection, getDocs, query, where,
   deleteDoc as fsDeleteDoc, writeBatch as fsWriteBatch, updateDoc as fsUpdateDoc,
-  arrayUnion, arrayRemove, increment, or, and, deleteField, onSnapshot, orderBy, limit, documentId
+  arrayUnion, arrayRemove, increment, or, and, deleteField, onSnapshot, orderBy, limit, documentId,
+  FieldPath
 } from "firebase/firestore";
 import { cachedLoad, cacheKey, bustLoadCache } from './loadCache';
 
@@ -248,6 +249,33 @@ export const saveDataSettings = async (uidCollection, doc1, obj) => {
 export const loadDataSettings = async (uidCollection, doc1) => {
   const docSnap = await getDoc(doc(db, uidCollection, doc1));
   return docSnap.exists() ? docSnap.data() : {};
+}
+
+// Add entries to settings lists ('POL', 'Payment Terms', …) without rewriting the
+// whole settings document. This is called across accounts — the IMS/GIS copy tops
+// up the target's lists — and that account is being used by someone else at the
+// time, so a read-modify-setDoc of the entire document would drop whatever they
+// saved in between. updateDoc touches only the sections named here, and the paths
+// are built with FieldPath because section keys contain spaces ('Delivery Terms')
+// that a dotted string path would read as nesting.
+export const appendSettingsEntries = async (uidCollection, additions = {}) => {
+  const sections = Object.entries(additions).filter(([, arr]) => Array.isArray(arr) && arr.length);
+  if (!uidCollection || !sections.length) return false;
+
+  const current = await loadDataSettings(uidCollection, 'settings');
+  const pairs = [];
+  for (const [section, entries] of sections) {
+    const existing = current?.[section]?.[section];
+    const list = Array.isArray(existing) ? existing : [];
+    // Re-check against what the document holds right now: two copies of the same
+    // contract in a row must not append the same port twice.
+    const fresh = entries.filter(e => !list.some(x => String(x?.id) === String(e?.id)));
+    if (fresh.length) pairs.push(new FieldPath(section, section), [...list, ...fresh]);
+  }
+  if (!pairs.length) return false;
+
+  await updateDoc(doc(db, uidCollection, 'settings'), ...pairs);
+  return true;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

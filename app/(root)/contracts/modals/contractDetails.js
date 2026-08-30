@@ -10,7 +10,7 @@ import Remarks from './remarksSelection.js'
 import PriceRemarks from './priceRemarks.js'
 import { usePathname } from 'next/navigation';
 import ModalToDelete from '@components/modalToProceed';
-import { validate, ErrDiv, reOrderTableCon, getD, sortArr, saveDatatoServer, loadStockData, saveStockIn, loadInvoice, loadData, loadDataSettings, saveMultipleData, setNewInvoiceNum } from '@utils/utils'
+import { validate, ErrDiv, reOrderTableCon, getD, sortArr, saveDatatoServer, loadStockData, saveStockIn, loadInvoice, loadData, loadDataSettings, appendSettingsEntries, saveMultipleData, setNewInvoiceNum } from '@utils/utils'
 import { UserAuth } from "@contexts/useAuthContext";
 import FilesModal from './filesModal.js'
 import PoInvModal from './poInvModal.js'
@@ -29,6 +29,7 @@ import CommentThread from '@components/CommentThread';
 import { v4 as uuidv4 } from 'uuid';
 import { BtnIcon } from '@components/buttonIcons';
 import { planContractDeletion } from '@utils/contractCascade';
+import { translateIdFields } from '@utils/crossAccountSettings';
 
 // Deleting a contract now takes everything inside it, so the confirmation has to
 // name what that is. A count alone ("3 records") is not something anyone can check
@@ -225,18 +226,19 @@ const ContractModal = () => {
 	// this id, the copied contract arrives belonging to nobody and its balances
 	// pile up in Cashflow under a nameless row. So look the counterparty up in the
 	// target's own settings and keep the constant only as the fallback.
-	const counterpartSupplierId = async (targetUid) => {
+	const counterpartSupplierId = (targetSettings) => {
 		const fallback = gisAccount ? 'f891ad09-aa67-4ba4-83f0-abe7040e0dd2' : '0dfe23d3-3199-4556-a178-07ad52529e37';
 		const name = gisAccount ? 'gis' : 'ims';
-		try {
-			const list = (await loadDataSettings(targetUid, 'settings'))?.Supplier?.Supplier || [];
-			if (list.some(z => z?.id === fallback)) return fallback;
-			const hit = list.find(z => `${z?.nname || ''} ${z?.supplier || ''}`.toLowerCase().includes(name));
-			return hit?.id || fallback;
-		} catch {
-			return fallback;
-		}
+		const list = targetSettings?.Supplier?.Supplier || [];
+		if (list.some(z => z?.id === fallback)) return fallback;
+		const hit = list.find(z => `${z?.nname || ''} ${z?.supplier || ''}`.toLowerCase().includes(name));
+		return hit?.id || fallback;
 	};
+
+	// Every other dropdown on a contract stores a settings id too, and those ids are
+	// per workspace in exactly the same way. translateIdFields explains the whole
+	// problem and decides what to carry across; it lives in @utils/crossAccountSettings
+	// because it is what gets written into the OTHER account.
 
 	const CopyIMSGIS = async () => {
 
@@ -251,6 +253,12 @@ const ContractModal = () => {
 		}).replace(',', '');
 
 		const uid = gisAccount ? 'DQ9gNTpvXqh6K9BqMTPTgCfxD2Z2' : 'aB3dE7FgHi9JkLmNoPqRsTuVwGIS'
+
+		// Read once: both the counterparty lookup and the dropdown translation below
+		// need the target account's own settings.
+		let targetSettings = {};
+		try { targetSettings = await loadDataSettings(uid, 'settings') || {}; } catch { targetSettings = {}; }
+		const { values: translatedIds, additions: missingSettings } = translateIdFields(valueCon, settings, targetSettings);
 
 		let indvData = await Promise.all(
 			valueCon.invoices?.map(inv =>
@@ -302,7 +310,8 @@ const ContractModal = () => {
 
 		const newCon = {
 			...valueCon,
-			'supplier': await counterpartSupplierId(uid),
+			...translatedIds,
+			'supplier': counterpartSupplierId(targetSettings),
 			'order': gisAccount ? valueCon.order?.replace("-", "") : valueCon.order?.slice(0, -2) + "-" + valueCon.order?.slice(-2),
 			'poInvoices': poInvoices.length ? poInvoices : [], 'expenses': [], lstSaved: formatted,
 			invoices: invoices1,
@@ -343,6 +352,15 @@ const ContractModal = () => {
 				});
 				return;
 			}
+		}
+
+		// Only now that the copy is going ahead: give the target account the list
+		// entries it was missing, so the ids stamped on the contract below resolve
+		// to a name there. Best-effort — a contract that lands with one unnamed
+		// port is better than no contract at all.
+		if (Object.keys(missingSettings).length) {
+			try { await appendSettingsEntries(uid, missingSettings); }
+			catch (e) { console.warn('Could not top up target settings lists:', e?.message || e); }
 		}
 
 		let success = await saveDatatoServer(uid, 'contracts', newCon)
