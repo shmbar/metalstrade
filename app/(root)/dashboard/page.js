@@ -10,7 +10,7 @@ import { CardsSkeleton } from "@components/skeletons";
 import { UserAuth } from "@contexts/useAuthContext"
 import { SettingsContext } from "@contexts/useSettingsContext";
 import Toast from '@components/toast.js'
-import { loadData, buildInvoiceIndex, contractInvoicesFromIndex, loadCompanyExpenses } from '@utils/utils'
+import { loadData, buildInvoiceIndex, contractInvoicesFromIndex, loadCompanyExpenses, loadMarginsRange } from '@utils/utils'
 import { receivables as financeReceivables, agingBuckets } from '@utils/finance'
 import { setMonthsInvoices, calContracts } from './funcs'
 import { getTtl } from '@utils/languages';
@@ -1319,7 +1319,10 @@ const Dash = () => {
   const [rawContracts, setRawContracts] = useState([]);
   /* The canonical expense collection — the same one /expenses reads. The dashboard used
      to take contract.expenses, a stale partial mirror that was missing 30% of the spend. */
-  const [rawExpenses, setRawExpenses] = useState([]);     // contracts enriched with invoicesData
+  const [rawExpenses, setRawExpenses] = useState([]);
+  /* The Margins worksheet. Tonnage and profit on this dashboard are ITS numbers, not
+     recomputed from contracts — Zak, 2026-08-31: the page values are the real ones. */
+  const [rawMargins, setRawMargins] = useState([]);     // contracts enriched with invoicesData
   const [rawRecvInvoices, setRawRecvInvoices] = useState([]);
   const [rawMiscInvoices, setRawMiscInvoices] = useState([]); // P1 misc invoices, not linked to contracts
   const [rawCompanyExpenses, setRawCompanyExpenses] = useState([]); // company-level overheads
@@ -1364,6 +1367,10 @@ const Dash = () => {
       // All three root downloads are independent — start them together. Only the
       // invoice INDEX depends on contracts; the receivables window and misc
       // invoices were needlessly queued behind it (same fix as cashflow).
+      const marginsPromise = loadMarginsRange(uidCollection, {
+        start: dateSelect?.start || `${year}-01-01`,
+        end: dateSelect?.end || `${year}-12-31`,
+      });
       const expensesPromise = loadData(uidCollection, 'expenses', {
         start: dateSelect?.start || `${year}-01-01`,
         end: dateSelect?.end || `${year}-12-31`,
@@ -1400,6 +1407,7 @@ const Dash = () => {
       setRawContracts(dtConTmp);
 
       setRawExpenses(await expensesPromise);
+      setRawMargins(await marginsPromise.catch(() => []));
       setRawRecvInvoices(await invsForRecvPromise);
 
       const misc = await miscPromise;
@@ -1619,9 +1627,31 @@ const Dash = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [rawRecvInvoices, settings, companyRate, liveEurUsd, dateSelect, fClient, fSupplier, fMaterial, fCurrency, fOrigin, fDelTerm, filteredContracts]);
 
-  const totalMT = conAgg.totalMT || 0;
-  const shippedMT = Math.min(conAgg.shippedMT || 0, totalMT); // never exceed purchased
-  const pendingMT = Math.max(0, totalMT - shippedMT);
+  /* Tonnage and profit come from the MARGINS page, computed exactly as that page computes
+     them (margins/page.js: a `gis` row halves the profit, never the quantity). They are not
+     re-derived from contracts here.
+     The dashboard used to calculate its own and the two never agreed — not because either
+     calculation was wrong, but because the two systems hold different deals: some deals are
+     only in the worksheet and never became contracts, and some contracts were never entered
+     in the worksheet. Zak settled it on 2026-08-31: the page values are the real ones, so
+     the dashboard reports them rather than competing with them. */
+  const marginsSummary = useMemo(() => {
+    const n = (v) => { const x = parseFloat(v); return isNaN(x) ? 0 : x; };
+    let quantity = 0, shipped = 0, outstanding = 0, profits = 0, incoming = 0, items = 0;
+    (rawMargins || []).forEach(mo => (mo?.items || []).forEach(i => {
+      items++;
+      quantity += n(i.purchase);
+      shipped += n(i.shipped);
+      outstanding += n(i.openShip);
+      profits += i.gis ? n(i.totalMargin) / 2 : n(i.totalMargin);
+      incoming += i.gis ? n(i.remaining) / 2 : n(i.remaining);
+    }));
+    return { quantity, shipped, outstanding, profits, incoming, items };
+  }, [rawMargins]);
+
+  const totalMT = marginsSummary.quantity;
+  const shippedMT = marginsSummary.shipped;
+  const pendingMT = marginsSummary.outstanding;
   const freightTotal = conAgg.freightTotal || 0;
   const missingRate = conAgg.missingRate || 0; // EUR contracts missing an FX rate (counted 1:1)
   const cogs = conAgg.cogs || 0;               // cost of SOLD material only
@@ -1724,7 +1754,9 @@ const Dash = () => {
     return gross > 0 ? gross / 2 : 0;
   }, [invAgg, conAgg]);
 
-  const totalPL = useMemo(() => dataPL.reduce((a, v) => a + (Number(v) || 0), 0) - gisPartnerShare, [dataPL, gisPartnerShare]);
+  /* Gross Profit is the Margins page's Profits figure. It already halves GIS-shared rows,
+     so no separate partner-share deduction is applied on top — that would halve them twice. */
+  const totalPL = marginsSummary.profits;
   const totalInvoices = useMemo(() => sumObj(dataInvoices), [dataInvoices]);
   const totalContracts = useMemo(() => sumObj(dataContracts), [dataContracts]);
   const totalExpenses = useMemo(() => sumObj(dataExpenses), [dataExpenses]);
@@ -2121,7 +2153,7 @@ const Dash = () => {
               Expenses -> Expenses, Storage Spend -> Warehouse & Storage. */}
           <BandHeader
             title="Purchasing & costs"
-            subtitle="Contracts bought in this period, what they cost, and what came of them"
+            subtitle="Tonnage and profit as recorded on the Margins page · costs from the Expenses pages"
             period={`Contracts dated ${periodLabel}`}
             open={!collapsed.purchasing}
             onToggle={() => toggleBand('purchasing')}
@@ -2174,14 +2206,6 @@ const Dash = () => {
                 note={`${companyExpAgg.count} recorded, period`}
               />
               <SummaryTile
-                label="Cost of Goods Sold"
-                info="Purchase cost of the material actually sold, apportioned per contract by the share of its tonnage that shipped. Unsold material is inventory, not a cost."
-                icon={Receipt}
-                toneKey="gray"
-                value={fmtAutoKM(cogs)}
-                note="cost of material sold"
-              />
-              <SummaryTile
                 label="Gross Profit"
                 info="Deal basis: takes the contracts BOUGHT in this period, and from everything invoiced against them subtracts the cost of the material actually sold and the contract expenses. Unsold stock is inventory rather than a cost, so it is excluded. Before company overheads. This is a narrower revenue base than the Sales Revenue tile, which counts every invoice DATED in the period including sales of material bought earlier — the two answer different questions and will not reconcile."
                 icon={TrendingUp}
@@ -2221,39 +2245,6 @@ const Dash = () => {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-5">
             <TonnageCard purchased={totalMT} shipped={shippedMT} pending={pendingMT} unsoldValue={unsoldValue} />
 
-            <CardShell>
-              <div className="p-4">
-                {/* "Deal basis" is stated because this ring decomposes a DIFFERENT revenue
-                    figure from the Sales Revenue KPI above: contracts bought in the period
-                    and everything invoiced against them, rather than invoices dated in the
-                    period. The two are legitimately different cuts, but unlabelled they
-                    read as one of them being wrong. */}
-                <SectionHeader title="Capital Breakdown" subtitle="Deal basis — how the value of contracts bought this period was allocated" />
-                {/* 200 -> 150: the legend underneath already lists every slice with
-                    its value, so the ring is the redundant half of this card. */}
-                <div className="relative" style={{ height: 150 }}>
-                  <Doughnut data={donutData} options={donutOptions} />
-                  <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none"
-                    style={{ opacity: donutHover ? 0 : 1, transition: 'opacity 120ms ease' }}>
-                    <span className="responsiveTextTable text-[var(--regent-gray)]">Deal revenue</span>
-                    <span className="font-semibold text-[var(--port-gore)]" style={{ fontSize: 'var(--fs-substat)', fontFamily: 'var(--font-jakarta), Manrope, sans-serif', fontVariantNumeric: 'tabular-nums' }}>
-                      {fmtAutoKM(totalInvoices)}
-                    </span>
-                  </div>
-                </div>
-                <div className="mt-4 flex flex-col gap-2">
-                  {donutLegend.map((d) => (
-                    <div key={d.label} className="flex items-center justify-between gap-2">
-                      <div className="flex items-center gap-2 min-w-0">
-                        <span className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ background: d.color }} />
-                        <span className="responsiveTextTable text-[var(--port-gore)] truncate">{d.label}</span>
-                      </div>
-                      <span className="responsiveTextTable font-semibold flex-shrink-0" style={{ color: d.color }}>{fmtAutoKM(d.value)}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </CardShell>
           </div>
 
           {/* HERO TREND — full width since the donut moved up beside Tonnage. */}
@@ -2387,12 +2378,6 @@ const Dash = () => {
         </div>
       </div>
 
-      <DataIssuesModal
-        issues={dataIssues}
-        settings={settings}
-        isOpen={issuesOpen}
-        setIsOpen={setIssuesOpen}
-      />
 
       <ExpenseDrillModal
         label={expDrill}
