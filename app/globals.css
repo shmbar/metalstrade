@@ -1541,42 +1541,6 @@ input::-webkit-inner-spin-button {
   max-width: 96px;
 }
 
-/* Money and description columns, same idea as .po-col above: sized to what they
-   actually hold rather than to a share of the screen.
-
-   These tables are `table-layout: auto` at `width: 100%`, so any space left over
-   is handed round the auto-sized columns — and the two money columns were taking
-   most of it while Description sat under a hard 112px cap, truncating "Maraging
-   300 Pow…" and "Ammonium Paratu…" beside a Unit Price column half full of air.
-   Pinning the figures to their content leaves the slack with Description, which
-   is the only column here whose content has no natural width.
-
-   Widths from the same calibration .po-col used (~7px a character at --fs-table
-   with tabular-nums, plus 12px of cell padding): a unit price runs to about
-   eleven characters ("$710,000.00"), a total to fourteen ("$13,377,017.00"). */
-.cashflow-detail-table th.price-col,
-.cashflow-detail-table td.price-col {
-  width: 92px;
-  max-width: 92px;
-}
-
-/* A touch wider than the fourteen characters the rows actually reach, because the
-   footer in this column sums a whole supplier's stock ("$21,443,942.70") and a
-   clipped figure reads as a smaller valid one rather than as an error. */
-.cashflow-detail-table th.total-col,
-.cashflow-detail-table td.total-col {
-  width: 116px;
-  max-width: 116px;
-}
-
-/* No max-width on purpose — this is the column that should absorb the slack.
-   The floor keeps it readable when a table is narrow; the cell still truncates
-   with a tooltip when a description outruns even that. */
-.cashflow-detail-table th.desc-col,
-.cashflow-detail-table td.desc-col {
-  min-width: 180px;
-}
-
 .cashflow-detail-table thead tr {
   background: var(--surface-header);
 }
