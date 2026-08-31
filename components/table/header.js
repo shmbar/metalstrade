@@ -261,6 +261,9 @@ const Header = ({
             table={table}
             enabled={quickSumEnabled}
             selectedColumnIds={quickSumColumns}
+            /* Names the exported file after the page it came from, so a folder of
+               these is still readable: "contracts-selection-2026-08-31.xlsx". */
+            exportName={`${(pathname || '/table').replace(/^\//, '').replace(/[^a-z0-9]+/gi, '-') || 'table'}-selection-${new Date().toISOString().slice(0, 10)}`}
           />
         </div>
       )}

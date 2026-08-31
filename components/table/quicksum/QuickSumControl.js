@@ -5,6 +5,8 @@ import { createPortal } from 'react-dom';
 import { detectNumericCols } from './detectNumericCols';
 import { useQuickSum } from './useQuickSum';
 import { BtnIcon } from '../../buttonIcons';
+import { FileSpreadsheet } from 'lucide-react';
+import { exportQuickSum } from './exportQuickSum';
 
 /**
  * QuickSumButton — toggle + columns picker, sits inline in the icons row
@@ -199,12 +201,15 @@ export function QuickSumTotals({
   table,
   enabled,
   selectedColumnIds,
+  exportName = 'selection',
 }) {
   const { selectedCount, totals } = useQuickSum({
     table,
     enabled,
     selectedColumnIds,
   });
+  // Declared above the early returns below — a hook cannot sit behind a condition.
+  const [exporting, setExporting] = useState(false);
 
   if (!enabled) return null;
 
@@ -217,7 +222,13 @@ export function QuickSumTotals({
       {(totals || []).map((t) => {
         const col = table.getAllColumns().find(c => c.id === t.id);
         const label = col?.columnDef?.header || t.id;
-        const fmt = (n) => new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(n);
+        // Money is always 2dp. A quantity is not: these tables carry tonnages to
+        // three ("18.289"), and forcing 2 turned a 285.864 MT total into 285.86.
+        const fmt = (n) => new Intl.NumberFormat('en-US',
+          t.money === false
+            ? { minimumFractionDigits: 0, maximumFractionDigits: 3 }
+            : { minimumFractionDigits: 2, maximumFractionDigits: 2 }
+        ).format(n);
 
         // Multi-currency: show $ and € separately
         if (t.byCurrency && Object.keys(t.byCurrency).length > 0) {
@@ -239,6 +250,26 @@ export function QuickSumTotals({
           </span>
         );
       })}
+      {/* Same totals the bar is showing, as a spreadsheet. Lives here rather than in
+          each page's excel.js so every Quick Sum table has it, including future ones. */}
+      <button
+        type="button"
+        disabled={exporting}
+        className="inline-flex items-center gap-1 responsiveText text-[var(--endeavour)] ml-1 disabled:opacity-50"
+        onClick={async () => {
+          setExporting(true);
+          try {
+            await exportQuickSum({ table, totals, summedColumnIds: selectedColumnIds, filename: exportName });
+          } catch (e) {
+            console.error('Quick Sum export failed', e);
+          } finally {
+            setExporting(false);
+          }
+        }}
+      >
+        <FileSpreadsheet className="w-3.5 h-3.5" />
+        {exporting ? 'Exporting…' : 'Export'}
+      </button>
       <button
         type="button"
         className="responsiveText underline text-[var(--endeavour)] ml-1"

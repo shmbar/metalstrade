@@ -278,7 +278,7 @@ const SalesContracts = () => {
                 meta: { excludeFromQuickSum: true }
             },
             {
-                id: 'qty', header: getTtl('Quantity', ln),
+                id: 'qty', header: getTtl('Quantity', ln), meta: { money: false },
                 accessorFn: (c) => contractQty(c),
                 cell: (props) => <NumericFormat value={props.getValue()} displayType="text" thousandSeparator decimalScale={3} fixedDecimalScale />,
             },
@@ -289,12 +289,12 @@ const SalesContracts = () => {
                     prefix={props.row.original.cur === 'us' ? '$' : props.row.original.cur === 'eu' ? '€' : ''} decimalScale={2} fixedDecimalScale />,
             },
             {
-                id: 'shipped', header: 'Shipped',
+                id: 'shipped', header: 'Shipped', meta: { money: false },
                 accessorFn: (c) => shippedByContract[c.id] || 0,
                 cell: (props) => <NumericFormat value={props.getValue()} displayType="text" thousandSeparator decimalScale={3} fixedDecimalScale />,
             },
             {
-                id: 'remaining', header: 'Remaining to ship',
+                id: 'remaining', header: 'Remaining to ship', meta: { money: false },
                 accessorFn: (c) => contractQty(c) - (shippedByContract[c.id] || 0),
                 cell: (props) => {
                     const v = props.getValue();
