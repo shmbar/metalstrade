@@ -376,6 +376,26 @@ const Cashflow = () => {
 
     const removeNonNumeric = (num) => num.toString().replace(/[^0-9.]/g, "");
 
+    // ── Autosave for opening balances + Financing ────────────────────────────
+    // These sections lived in local state until someone pressed Save — and the
+    // Financing lists have no Save button of their own, only the one up in the
+    // opening-balances card, so an edit there was routinely lost on reload while
+    // a toast said "Save Data!" without saying where. Same shape as the Margins
+    // page: every mutation flips `balancesDirty`, a debounced write fires ~1.5s
+    // after the last change, an unmount flush catches in-app navigation inside
+    // that window, and beforeunload still warns on a hard close.
+    //
+    // The refs are what the flush reads: it runs on unmount, when the state
+    // captured by that closure is already stale.
+    const [balancesDirty, setBalancesDirty] = useState(false);
+    const [balancesSaving, setBalancesSaving] = useState(false);
+    const [balancesSaved, setBalancesSaved] = useState(false);
+    const initialDataRef = useRef(initialData); initialDataRef.current = initialData;
+    const financedLeftRef = useRef(financedLeft); financedLeftRef.current = financedLeft;
+    const financedRightRef = useRef(financedRight); financedRightRef.current = financedRight;
+    const balancesDirtyRef = useRef(balancesDirty); balancesDirtyRef.current = balancesDirty;
+    const saveInitDataRef = useRef(null);
+
     const handleChangeInitial = (e, i, ent) => {
 
 
@@ -386,7 +406,7 @@ const Cashflow = () => {
         );
 
         setInitialData(updatedData)
-        setToast({ show: true, text: 'Save Data!', clr: 'fail' })
+        setBalancesDirty(true)
     }
 
 
@@ -394,16 +414,19 @@ const Cashflow = () => {
 
         let newArr = [...initialData, { title: 'New item', num: 0 }]
         setInitialData(newArr)
+        setBalancesDirty(true)
     }
 
     const delItem = async (i) => {
 
         const updatedData = initialData.filter((item, index) => index !== i);
         setInitialData(updatedData)
-
+        setBalancesDirty(true)
     }
 
-    const saveInitData = async () => {
+    // `silent` is what autosave uses: same write, no success toast. A toast on every
+    // debounce would be a notification every time someone stopped typing.
+    const saveInitData = async ({ silent = false } = {}) => {
 
         try {
             for (let year of yr) {
@@ -419,14 +442,18 @@ const Cashflow = () => {
         try {
             await saveCashflowFinanced(uidCollection,
                 {
-                    initial: initialData,
-                    financedLeft, financedRight,
+                    initial: initialDataRef.current,
+                    financedLeft: financedLeftRef.current,
+                    financedRight: financedRightRef.current,
                 }
             )
-            setToast({ show: true, text: 'Data successfully saved!', clr: 'success' })
+            if (!silent) setToast({ show: true, text: 'Data successfully saved!', clr: 'success' })
+            return true
         } catch (err) {
             console.error('saveCashflowFinanced failed', err)
-            setToast({ show: true, text: 'Save failed!', clr: 'fail' })
+            // A failed autosave must not be silent — that is the whole complaint.
+            setToast({ show: true, text: 'Save failed — your changes are NOT saved yet.', clr: 'fail' })
+            return false
         }
     }
 
@@ -631,7 +658,7 @@ const Cashflow = () => {
             setFinancedRight(newFin)
         }
 
-        setToast({ show: true, text: 'Save Data!', clr: 'fail' })
+        setBalancesDirty(true)
     }
 
 
@@ -933,6 +960,47 @@ const Cashflow = () => {
         }
     };
 
+    // ── Autosave: opening balances + Financing ───────────────────────────────
+    // saveInitData is redefined every render (it closes over yr/totalYrs), so the
+    // effects reach it through a ref rather than listing it as a dependency — which
+    // would restart the debounce on every render and never let it fire.
+    saveInitDataRef.current = saveInitData;
+
+    useEffect(() => {
+        if (!balancesDirty || !uidCollection) return;
+        const t = setTimeout(async () => {
+            setBalancesSaving(true);
+            const ok = await saveInitDataRef.current?.({ silent: true }).catch(() => false);
+            setBalancesSaving(false);
+            if (ok) {
+                setBalancesDirty(false);
+                setBalancesSaved(true);
+                setTimeout(() => setBalancesSaved(false), 2500);
+            }
+            // On failure `balancesDirty` deliberately stays true: saveInitData has
+            // already toasted, and the next edit re-arms the write rather than
+            // leaving the change stranded.
+        }, 1500);
+        return () => clearTimeout(t);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [balancesDirty, initialData, financedLeft, financedRight, uidCollection]);
+
+    // In-app navigation unmounts the page and would cancel a pending debounce.
+    useEffect(() => () => {
+        if (balancesDirtyRef.current && uidCollection) {
+            saveInitDataRef.current?.({ silent: true });
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [uidCollection]);
+
+    // A hard close can still outrun the 1.5s debounce.
+    useEffect(() => {
+        if (!balancesDirty) return;
+        const warn = (e) => { e.preventDefault(); e.returnValue = ''; };
+        window.addEventListener('beforeunload', warn);
+        return () => window.removeEventListener('beforeunload', warn);
+    }, [balancesDirty]);
+
     // Ticks live only in memory until the countdown commits — leaving the page
     // inside that window silently lost them ("autosave not always working").
     // Three guards: commit immediately when the tab goes hidden (background
@@ -1193,12 +1261,19 @@ const Cashflow = () => {
                 {Object.keys(settings).length === 0 ? <CardsSkeleton /> :
                     <>
                         <Toast />
+                        {/* Payments keep priority: ticking one marks money as paid, so its
+                            countdown must stay visible and cancellable. The balances/Financing
+                            autosave has nothing to confirm — it only reports itself, and only
+                            when the payment pill isn't already saying something. */}
                         <AutosavePill
-                            mode={autoSaving ? 'saving' : (pendingChecked.total > 0 && !autoCancelled) ? 'pending' : (pendingChecked.total > 0 && autoCancelled) ? 'paused' : savedFlash ? 'saved' : null}
+                            mode={autoSaving ? 'saving' : (pendingChecked.total > 0 && !autoCancelled) ? 'pending' : (pendingChecked.total > 0 && autoCancelled) ? 'paused' : savedFlash ? 'saved' : balancesSaving ? 'saving' : balancesDirty ? 'info' : balancesSaved ? 'saved' : null}
                             text={autoSaving ? 'Saving payments…'
                                 : (pendingChecked.total > 0 && !autoCancelled) ? `Recording ${pendingChecked.total} payment${pendingChecked.total > 1 ? 's' : ''}`
                                     : (pendingChecked.total > 0 && autoCancelled) ? `Autosave paused — ${pendingChecked.total} payment${pendingChecked.total > 1 ? 's' : ''} pending`
-                                        : 'Payments saved'}
+                                        : savedFlash ? 'Payments saved'
+                                            : balancesSaving ? 'Saving…'
+                                                : balancesDirty ? 'Unsaved — autosaving…'
+                                                    : 'Saved'}
                             countdown={countdown}
                             onSaveNow={() => commitRef.current?.()}
                             onCancel={() => setAutoCancelled(true)}
@@ -1366,7 +1441,12 @@ const Cashflow = () => {
                                                 where they were. Leave them at the card's left edge. */}
                                             <div className="flex gap-2 my-1">
                                                 <Tltip direction='bottom' tltpText='Save added data'>
-                                                    <button type="button" className="blackButton" onClick={saveInitData}><BtnIcon action="save" />Save</button>
+                                                    {/* Wrapped, not passed by reference: onClick hands the click event
+                                                        to the first argument, which is now the options object. */}
+                                                    <button type="button" className="blackButton"
+                                                        onClick={async () => { if (await saveInitData()) setBalancesDirty(false); }}>
+                                                        <BtnIcon action="save" />Save
+                                                    </button>
                                                 </Tltip>
                                                 <Tltip direction='bottom' tltpText='Add new item'>
                                                     <button type="button" className="whiteButton" onClick={addItem}><BtnIcon action="add" />Add</button>
@@ -1648,7 +1728,7 @@ const Cashflow = () => {
                                                                 <button
                                                                     type="button"
                                                                     className="blackButton"
-                                                                    onClick={() => setFinancedLeft([...financedLeft, { title: '', num: '' }])}
+                                                                    onClick={() => { setFinancedLeft([...financedLeft, { title: '', num: '' }]); setBalancesDirty(true); }}
                                                                 >
                                                                     <BtnIcon action="add" />Add
                                                                 </button>
@@ -1659,7 +1739,7 @@ const Cashflow = () => {
                                                                         return (
                                                                             <div className="flex items-center justify-between rounded-2xl px-0 responsiveTextInput hover:bg-[var(--bg-subtle)] transition-colors" key={i}>
                                                                                 <div className="flex items-center gap-1 min-w-0 flex-1">
-                                                                                    <button onClick={() => setFinancedLeft(financedLeft.filter((z, k) => k !== i))}><MdOutlineClose className="scale-110" /></button>
+                                                                                    <button onClick={() => { setFinancedLeft(financedLeft.filter((z, k) => k !== i)); setBalancesDirty(true); }}><MdOutlineClose className="scale-110" /></button>
                                                                                     {/* responsiveText unconditionally: the filled state used to carry no
                                                                                         size class at all, so it fell through to the browser's default
                                                                                         input size (13.3px) and only happened to match the page at
@@ -1885,7 +1965,7 @@ const Cashflow = () => {
                                                                 <button
                                                                     type="button"
                                                                     className="blackButton"
-                                                                    onClick={() => setFinancedRight([...financedRight, { title: '', num: '' }])}
+                                                                    onClick={() => { setFinancedRight([...financedRight, { title: '', num: '' }]); setBalancesDirty(true); }}
                                                                 >
                                                                     <BtnIcon action="add" />Add
                                                                 </button>
@@ -1896,7 +1976,7 @@ const Cashflow = () => {
                                                                         return (
                                                                             <div className="flex items-center justify-between rounded-2xl px-0 responsiveTextInput hover:bg-[var(--bg-subtle)] transition-colors" key={i}>
                                                                                 <div className="flex items-center gap-1 min-w-0 flex-1">
-                                                                                    <button onClick={() => setFinancedRight(financedRight.filter((z, k) => k !== i))}><MdOutlineClose className="scale-110" /></button>
+                                                                                    <button onClick={() => { setFinancedRight(financedRight.filter((z, k) => k !== i)); setBalancesDirty(true); }}><MdOutlineClose className="scale-110" /></button>
                                                                                     <input className={cn('flex-1 min-w-0 outline-none h-6 responsiveText font-medium text-[var(--ink)] bg-transparent',
                                                                                         z.title === '' ? 'input' : '')}
                                                                                         value={z.title} onChange={e => handleChangeFinance(e, i, 'right', 'title')} />
