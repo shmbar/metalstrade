@@ -1,4 +1,5 @@
 import Modal from '@components/modal.js'
+import { useNumericCaret } from '@utils/numericCaret';
 import { useContext, useState, useEffect } from 'react'
 import { SettingsContext } from "@contexts/useSettingsContext";
 import { ContractsContext } from "@contexts/useContractsContext";
@@ -36,6 +37,8 @@ function countDecimalDigits(inputString) {
 
 
 const PoInvModal = ({ isOpen, setIsOpen, setShowPoInvModal }) => {
+    // The value is reformatted on every keystroke, which parks the caret at the end.
+    const rememberCaret = useNumericCaret();
 
     const { valueCon, setValueCon, saveData_stocks } = useContext(ContractsContext);
     const { settings, setToast, ln } = useContext(SettingsContext);
@@ -493,7 +496,7 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowPoInvModal }) => {
                             </div>
 
                             <input type='text' className="number-separator tnum input h-7 responsiveTextTable" name='qnty' style={{ fontFamily: 'inherit' }}
-                                value={addComma(x.qnty, false)} onChange={e => handleValueQnty(e, i)} />
+                                value={addComma(x.qnty, false)} onChange={e => { rememberCaret(e); handleValueQnty(e, i); }} />
 
                             <input type='text' className="number-separator tnum input h-7 responsiveTextTable" name='unitPrc' style={{ fontFamily: 'inherit' }}
                                 value={addComma(x.unitPrc, true)} placeholder="text"

@@ -1,7 +1,8 @@
 import { addComma } from '../../../../app/(root)/cashflow/funcs';
 import { cn } from '../../../../lib/utils';
-import { useRef, useLayoutEffect, useState } from 'react';
+import { useRef, useState } from 'react';
 import Tltip from '../../../../components/tlTip';
+import { useNumericCaret } from '@utils/numericCaret';
 
 const showAmount = (nStr) => {
   nStr += '';
@@ -60,17 +61,12 @@ const INPUT_STYLE = { fontVariantNumeric: 'tabular-nums' };
 
 export const Input = function Input({ props, handleChange, month, name, styles, addCur, placeholder }) {
   const inputRef = useRef(null);
-  const savedCursor = useRef(null);
 
-  // Restore cursor position after React re-renders the controlled input
-  // Only needed for text fields (description) where cursor can jump to end
-  useLayoutEffect(() => {
-    const input = inputRef.current;
-    if (input && savedCursor.current !== null) {
-      input.setSelectionRange(savedCursor.current, savedCursor.current);
-      savedCursor.current = null;
-    }
-  });
+  // Put the caret back where the user left it after React re-renders. This ran
+  // for `description` only, on the assumption that a figure did not need it —
+  // but a figure is reformatted on every keystroke, so it needs it MORE.
+  // See @utils/numericCaret for why a figure is restored by digit count.
+  const rememberCaret = useNumericCaret();
 
   const value = props.column.id === 'description'
     ? props.getValue()
@@ -101,9 +97,9 @@ export const Input = function Input({ props, handleChange, month, name, styles, 
          Suppress it while editing; the next hover measures again. */
       onFocus={() => setClipped(false)}
       onChange={(e) => {
-        if (name === 'description') {
-          savedCursor.current = e.target.selectionStart;
-        }
+        // description is free text and is written back verbatim, so a raw offset
+        // survives. A figure is reformatted, so it goes back by digit count.
+        rememberCaret(e, name === 'description' ? 'raw' : 'value');
         handleChange(e, props.row.original.id, month);
       }}
       /* text-ellipsis on the FREE-TEXT column only. An <input> clips its overflow

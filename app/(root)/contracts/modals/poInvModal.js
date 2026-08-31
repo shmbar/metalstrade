@@ -1,5 +1,6 @@
 'use client'
 import Modal from '@components/modal.js'
+import { useNumericCaret } from '@utils/numericCaret';
 import { useContext, useEffect, useState } from 'react'
 import { SettingsContext } from "@contexts/useSettingsContext";
 import { ContractsContext } from "@contexts/useContractsContext";
@@ -39,6 +40,8 @@ function countDecimalDigits(inputString) {
 
 
 const PoInvModal = ({ isOpen, setIsOpen, setShowStockModal }) => {
+    // The value is reformatted on every keystroke, which parks the caret at the end.
+    const rememberCaret = useNumericCaret();
 
     const { valueCon, setValueCon, saveData_payments, contractsData } = useContext(ContractsContext);
     const { settings, setToast, ln } = useContext(SettingsContext);
@@ -433,7 +436,7 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowStockModal }) => {
                                         <div className=''>
                                             <p className='flex responsiveTextTable font-medium whitespace-nowrap text-[var(--chathams-blue)]' >{getTtl('InvoiceValue', ln)}</p>
                                             <input type='text' className="number-separator input h-7 shadow-lg responsiveTextTable" name='invValue'
-                                                value={addComma(x.invValue, true)} onChange={e => handleValue(e, x)} />
+                                                value={addComma(x.invValue, true)} onChange={e => { rememberCaret(e); handleValue(e, x); }} />
                                         </div>
                                         <div className=''>
                                             <p className='flex responsiveTextTable font-medium whitespace-nowrap text-[var(--chathams-blue)]' >
@@ -508,7 +511,7 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowStockModal }) => {
                                                     </p>
                                                     <div className='flex'>
                                                         <input type='text' className="number-separator input shadow-lg h-7 responsiveTextTable w-28" name='pmnt'
-                                                            value={addComma(y.pmnt, true)} onChange={e => handleValuePmnt(e, x, y)} />
+                                                            value={addComma(y.pmnt, true)} onChange={e => { rememberCaret(e); handleValuePmnt(e, x, y); }} />
                                                     </div>
                                                 </div>
 

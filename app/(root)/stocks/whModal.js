@@ -1,4 +1,5 @@
 import Modal from '@components/modal.js'
+import { useNumericCaret } from '@utils/numericCaret';
 import { useContext, useState } from 'react'
 import { SettingsContext } from "@contexts/useSettingsContext";
 import Switch from '@components/switch'
@@ -38,6 +39,8 @@ function countDecimalDigits(inputString) {
 
 
 const WHvModal = ({ isOpen, setIsOpen, item, setItem, data, setData }) => {
+    // The value is reformatted on every keystroke, which parks the caret at the end.
+    const rememberCaret = useNumericCaret();
 
     const { settings, setToast, ln, setDateSelect } = useContext(SettingsContext);
     const { uidCollection } = UserAuth();
@@ -247,7 +250,7 @@ const WHvModal = ({ isOpen, setIsOpen, item, setItem, data, setData }) => {
             <div className={`${showBlock ? 'flex' : 'hidden'} gap-4 px-3 pb-2 mx-3 mb-2 rounded-2xl border border-[var(--line)] p-3`} style={{ background: 'var(--bg-subtle)' }}>
                 <div className='flex flex-col'>
                     <p className={labelCls}>{getTtl('Weight', ln)}</p>
-                    <input type='text' className={inputCls + ' w-24 !bg-[var(--bg-card)]'} name='qnty' value={addComma(newItemStock.qnty, false)} onChange={e => handleValueQnty1(e)} />
+                    <input type='text' className={inputCls + ' w-24 !bg-[var(--bg-card)]'} name='qnty' value={addComma(newItemStock.qnty, false)} onChange={e => { rememberCaret(e); handleValueQnty1(e); }} />
                 </div>
                 <div className='flex flex-col w-48'>
                     <p className={labelCls}>{getTtl('Stock', ln)}:</p>

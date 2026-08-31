@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react'
+import { useNumericCaret } from '@utils/numericCaret';
 import Customtable from '@components/tablePnl';
 import { useContext } from 'react';
 import { SettingsContext } from "@contexts/useSettingsContext";
@@ -14,6 +15,8 @@ import { Save } from "lucide-react";
 
 
 const PnlTables = ({ data, setPnlData, val, mult }) => {
+    // The value is reformatted on every keystroke, which parks the caret at the end.
+    const rememberCaret = useNumericCaret();
 
     const { settings, ln } = useContext(SettingsContext);
     const [dataValue, setDataValue] = useState([{ id: '', rcvd: '', outrnamnt: '', fnlzing: '', status: '', eta: '', etd: '' }])
@@ -162,7 +165,7 @@ const PnlTables = ({ data, setPnlData, val, mult }) => {
                             <div className='p-1 space-x-2 h-fit flex justify-normal w-full'>
                                 <div className='responsiveTextTable text-[var(--chathams-blue)] items-center flex text-nowrap'>Outturn Amount:</div>
                                 <input type='text' className="number-separator input shadow-lg h-6 max-w-44" style={{ fontSize: 'inherit', fontFamily: 'inherit' }}
-                                    name='outrnamnt' value={addComma(dataValue[i].outrnamnt, i)} onChange={e => handleValue(e, i)} />
+                                    name='outrnamnt' value={addComma(dataValue[i].outrnamnt, i)} onChange={e => { rememberCaret(e); handleValue(e, i); }} />
                             </div>
                         }
                         <div className='p-1 gap-2 h-fit flex justify-normal w-full'>

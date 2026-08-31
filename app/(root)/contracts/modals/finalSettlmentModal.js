@@ -1,4 +1,5 @@
 import Modal from '@components/modal.js'
+import { useNumericCaret } from '@utils/numericCaret';
 import { useContext, useState, useEffect } from 'react'
 import { SettingsContext } from "@contexts/useSettingsContext";
 import { ContractsContext } from "@contexts/useContractsContext";
@@ -32,6 +33,8 @@ function countDecimalDigits(inputString) {
 
 
 const FinalSettlmentModal = ({ isOpen, setIsOpen, setShowPoInvModal }) => {
+    // The value is reformatted on every keystroke, which parks the caret at the end.
+    const rememberCaret = useNumericCaret();
 
     const { valueCon, setValueCon, saveData_stocks } = useContext(ContractsContext);
     const { settings, setToast, ln, compData } = useContext(SettingsContext);
@@ -224,14 +227,14 @@ const FinalSettlmentModal = ({ isOpen, setIsOpen, setShowPoInvModal }) => {
                                 <p className='flex responsiveTextTable font-medium whitespace-nowrap text-[var(--chathams-blue)]' >{getTtl('FinalQuantity', ln)} {`(${getD(settings.Quantity.Quantity, valueCon, 'qTypeTable')})`}</p>
                                 <div className='flex flex-col'>
                                     <input type='text' className="number-separator input shadow-lg h-7 responsiveTextTable " name='finalqnty' style={{ fontFamily: 'inherit' }}
-                                        value={addComma(x.finalqnty, false)} onChange={e => handleValue(e, i)} />
+                                        value={addComma(x.finalqnty, false)} onChange={e => { rememberCaret(e); handleValue(e, i); }} />
                                 </div>
                             </div>
                             <div className='col-span-1'>
                                 <p className='flex responsiveTextTable font-medium whitespace-nowrap text-[var(--chathams-blue)]' >Advised Price</p>
                                 <div className='flex flex-col'>
                                     <input type='text' className="number-separator input h-7  shadow-lg border-slate-300 responsiveTextTable" name='unitPrc'
-                                        value={addComma(x.unitPrc, true)} onChange={e => handleValue(e, i)}
+                                        value={addComma(x.unitPrc, true)} onChange={e => { rememberCaret(e); handleValue(e, i); }}
                                     />
                                 </div>
                             </div>
@@ -240,7 +243,7 @@ const FinalSettlmentModal = ({ isOpen, setIsOpen, setShowPoInvModal }) => {
                                 <p className='flex responsiveTextTable font-medium whitespace-nowrap text-[var(--chathams-blue)]' >Received Price</p>
                                 <div className='flex flex-col'>
                                     <input type='text' className="number-separator input h-7 border-slate-300 responsiveTextTable shadow-lg" name='unitPrcFinal' style={{ fontFamily: 'inherit' }}
-                                        value={addComma(x.unitPrcFinal, true)} onChange={e => handleValue(e, i)}
+                                        value={addComma(x.unitPrcFinal, true)} onChange={e => { rememberCaret(e); handleValue(e, i); }}
                                     />
                                 </div>
                             </div>

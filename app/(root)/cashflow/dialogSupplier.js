@@ -9,6 +9,7 @@ import { MdClose } from "react-icons/md";
 import Datepicker from "react-tailwindcss-datepicker";
 import { SettingsContext } from "../../../contexts/useSettingsContext";
 import { TbCoins } from "react-icons/tb";
+import { useNumericCaret } from "@utils/numericCaret";
 
 const addComma = (nStr) => {
     if (nStr === null || nStr === undefined) return "";
@@ -24,6 +25,8 @@ const addComma = (nStr) => {
 };
 
 const DoalogModal = ({ obj, supplierPartialPayment }) => {
+    // The value is reformatted on every keystroke, which parks the caret at the end.
+    const rememberCaret = useNumericCaret();
     const [open, setOpen] = useState(false);
     const [showDatepicker, setShowDatepicker] = useState(false);
     const [date, setDate] = useState(null);
@@ -140,7 +143,7 @@ const DoalogModal = ({ obj, supplierPartialPayment }) => {
                                 className="number-separator input shadow-sm w-full"
                                 style={{ fontSize: 'inherit' }}
                                 value={addComma(pmnt)}
-                                onChange={handleValuePmnt}
+                                onChange={(e) => { rememberCaret(e); handleValuePmnt(e); }}
                             />
                         </div>
                     </div>

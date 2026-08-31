@@ -1,4 +1,5 @@
 import { useContext, useState } from 'react'
+import { useNumericCaret } from '@utils/numericCaret';
 import Datepicker from "react-tailwindcss-datepicker";
 import { SettingsContext } from "@contexts/useSettingsContext";
 import { InvoiceContext } from "@contexts/useInvoiceContext";
@@ -33,6 +34,8 @@ function countDecimalDigits(inputString) {
 
 
 const Payments = ({ showPayments }) => {
+    // The value is reformatted on every keystroke, which parks the caret at the end.
+    const rememberCaret = useNumericCaret();
 
     const { valueInv, setValueInv, saveData_payments } = useContext(InvoiceContext);
     const { settings, ln } = useContext(SettingsContext);
@@ -172,7 +175,7 @@ const Payments = ({ showPayments }) => {
                                     <p className='flex responsiveText font-medium whitespace-nowrap text-[var(--chathams-blue)] responsiveTextInput'>{getTtl('Actual Payment', ln)}</p>
                                     <div className='flex'>
                                         <input type='text' className="number-separator input shadow-lg h-7 -mt-[0.03rem] responsiveTextInput" style={{ fontFamily: 'inherit' }} name='pmnt'
-                                            value={addComma(x.pmnt)} onChange={e => handleValue(e, i)} />
+                                            value={addComma(x.pmnt)} onChange={e => { rememberCaret(e); handleValue(e, i); }} />
                                         {i === 0 && <button className='relative right-6 '>
                                             <MdPayments className='scale-125 text-[var(--regent-gray)]' onClick={setPrepPayment} />
                                         </button>}
