@@ -28,9 +28,26 @@ import { fileToBase64 } from '@utils/utils';
 // large, silent diff across every document we send out, and any call missed would
 // fall back to Helvetica and reintroduce exactly the bug this fixes. Pointing the
 // existing names at the real files makes every one of them correct at once.
+// Calibri, because it is the face these documents have always been meant to use:
+// every generator has called addFont('/fonts/Calibri.ttf', …) since the beginning,
+// and the POs the client asks us to match are in it. Poppins was tried first and
+// rejected — it prints correctly but does not look like their purchase orders.
+//
+// Poppins was measurably wrong, not merely a different taste: the same PO line
+// sets ~21% wider in it (32.92mm vs 40.03mm for the supplier's street address),
+// so every description and payment term wrapped differently and the whole page
+// read as a different document. That is what the client rejected.
+//
+// NOTE ON LICENCE: Calibri is Microsoft's, bundled with Office and Windows, and
+// embedding it in PDFs sent to suppliers is not clearly covered by that licence.
+// Carlito is a free substitute measured as metrically IDENTICAL to Calibri here
+// (same widths to a hundredth of a millimetre on every sample), so documents would
+// look the same. Chosen against for now only because the client asked for exactly
+// the face their old POs use. To switch: drop Carlito.ttf / Carlito-bold.ttf into
+// public/fonts (github.com/googlefonts/carlito) and change the two lines below.
 const FILES = {
-    regular: 'Poppins.ttf',
-    bold: 'Poppins-bold.ttf',
+    regular: 'Calibri.ttf',
+    bold: 'Calibri-bold.ttf',
 };
 
 const FACES = [
