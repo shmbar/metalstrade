@@ -30,6 +30,7 @@ import { BtnIcon } from '@components/buttonIcons';
 import { Gauge, Receipt, Percent, Truck, Warehouse, TrendingUp, FileWarning, Ship, Building2, Info, ArrowDownToLine } from 'lucide-react';
 
 import { HorizontalBar } from './charts';
+import useExchangeRates from '@hooks/useExchangeRates';
 
 // chart.js + react-chartjs-2 are loaded on demand (not in the first-load bundle).
 const Line = dynamic(() => import('./LazyCharts').then((mod) => mod.Line), { ssr: false });
@@ -1287,6 +1288,21 @@ const Dash = () => {
   const { settings, compData, dateSelect, setLoading, loading, ln } = useContext(SettingsContext);
   // One standard company EUR→USD rate (Settings → General). 0 = not set → per-contract rate.
   const companyRate = parseFloat(compData?.eurUsdRate) || 0;
+
+  // Today's EUR→USD, from the live feed the markets ticker already polls. It is the
+  // LAST resort, below the company rate and below each record's own euroToUSD:
+  // a record's stored rate is the one it was actually priced at, and today's rate
+  // applied to an old contract is an approximation. But it is a far better
+  // approximation than the 1:1 this used to fall back to, which silently understated
+  // every EUR figure by roughly the spread.
+  //
+  // useExchangeRates returns USD-based rates, so rates.EUR is EUR per 1 USD and the
+  // multiplier we want is its reciprocal.
+  const fx = useExchangeRates();
+  const liveEurUsd = useMemo(() => {
+    const eurPerUsd = parseFloat(fx?.rates?.EUR);
+    return eurPerUsd > 0 ? 1 / eurPerUsd : 0;
+  }, [fx?.rates?.EUR]);
   // Default payment term in days (Settings → General) — used to flag overdue invoices.
   const termDays = parseInt(compData?.defaultTermDays, 10) > 0 ? parseInt(compData.defaultTermDays, 10) : 30;
   const { uidCollection, user } = UserAuth();
@@ -1531,8 +1547,8 @@ const Dash = () => {
     return (rawExpenses || []).filter(r => ids.has(r?.poSupplier?.id));
   }, [rawExpenses, filteredContracts, fSupplier, fMaterial, fCurrency, fOrigin, fDelTerm, fClient]);
 
-  const conAgg = useMemo(() => calContracts(filteredContracts, settings, companyRate, scopedExpenses), [filteredContracts, settings, companyRate, scopedExpenses]);
-  const invAgg = useMemo(() => setMonthsInvoices(filteredContracts, settings, companyRate), [filteredContracts, settings, companyRate]);
+  const conAgg = useMemo(() => calContracts(filteredContracts, settings, companyRate, scopedExpenses, liveEurUsd), [filteredContracts, settings, companyRate, scopedExpenses, liveEurUsd]);
+  const invAgg = useMemo(() => setMonthsInvoices(filteredContracts, settings, companyRate, liveEurUsd), [filteredContracts, settings, companyRate, liveEurUsd]);
 
   const dataContracts = conAgg.accumulatedPmnt;
   const dataExpenses = conAgg.accumulatedExp;
@@ -1587,7 +1603,7 @@ const Dash = () => {
       if (isNaN(amt)) return;
       const curId = !inv.final ? inv.cur : settings.Currency.Currency.find(x => x.cur === inv.cur?.cur)?.id;
       const rate = parseFloat(inv.euroToUSD);
-      const mult = companyRate > 0 ? companyRate : (rate > 0 ? rate : 1);
+      const mult = companyRate > 0 ? companyRate : (rate > 0 ? rate : (liveEurUsd > 0 ? liveEurUsd : 1));
       if (curId !== 'us' && !(companyRate > 0) && !(rate > 0)) missingInvRate++;
       const usd = curId === 'us' ? amt : amt * mult;
       const d = !inv.final ? inv.dateRange.startDate : inv.date;
@@ -1601,7 +1617,7 @@ const Dash = () => {
     }));
     return { byMonth, total, missingInvRate, byClient, byClientMonth };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [rawRecvInvoices, settings, companyRate, dateSelect, fClient, fSupplier, fMaterial, fCurrency, fOrigin, fDelTerm, filteredContracts]);
+  }, [rawRecvInvoices, settings, companyRate, liveEurUsd, dateSelect, fClient, fSupplier, fMaterial, fCurrency, fOrigin, fDelTerm, filteredContracts]);
 
   const totalMT = conAgg.totalMT || 0;
   const shippedMT = Math.min(conAgg.shippedMT || 0, totalMT); // never exceed purchased
@@ -1725,7 +1741,7 @@ const Dash = () => {
       const amt = parseFloat(r?.amount);
       if (!Number.isFinite(amt)) return;
       const rate = parseFloat(r?.euroToUSD);
-      const mult = companyRate > 0 ? companyRate : (rate > 0 ? rate : 1);
+      const mult = companyRate > 0 ? companyRate : (rate > 0 ? rate : (liveEurUsd > 0 ? liveEurUsd : 1));
       const usd = r?.cur === 'us' ? amt : amt * mult;
       if (r?.cur !== 'us' && !(companyRate > 0) && !(rate > 0)) missingCoRate++;
       total += usd;
@@ -1733,7 +1749,7 @@ const Dash = () => {
       if (m >= 1 && m <= 12) byMonth[m] += usd;
     });
     return { total, byMonth, missingCoRate, count: (rawCompanyExpenses || []).length };
-  }, [rawCompanyExpenses, companyRate]);
+  }, [rawCompanyExpenses, companyRate, liveEurUsd]);
 
   /* totalPL is revenue − cost of sold − contract expenses, i.e. BEFORE overheads.
      The donut used to label that figure "Net Profit", which it is not. */
@@ -2086,41 +2102,12 @@ const Dash = () => {
             </div>
           </m.div>
 
-          {/* CONTRACT DATA-QUALITY WARNING. Deliberately above the figures, not tucked at
-              the bottom: the numbers below it are only as good as the contracts feeding
-              them, and a reader should know that before reading them rather than after
-              reconciling against another page by hand. Clickable, because "3 contracts
-              look wrong" is not actionable until it says WHICH. */}
-          {dataIssues.length > 0 && (
-            <button
-              type="button"
-              onClick={() => setIssuesOpen(true)}
-              className="w-full mb-4 flex items-center gap-2 rounded-2xl px-3 py-2 text-left transition-colors hover:bg-[var(--bg-card)]"
-              style={{ background: 'var(--bg-subtle)', border: '1px solid var(--line-strong)' }}
-            >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" className="flex-shrink-0" style={{ color: 'var(--ink-secondary)' }}><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" /><path d="M12 9v4m0 4h.01" stroke="currentColor" strokeWidth="2" strokeLinecap="round" /></svg>
-              <span className="responsiveTextTable" style={{ color: 'var(--ink-secondary)' }}>
-                {[
-                  issueCounts.value > 0 && `${issueCounts.value} contract${issueCounts.value === 1 ? '' : 's'} with mistyped quantities`,
-                  issueCounts.duplicate > 0 && `${issueCounts.duplicate} duplicate PO number${issueCounts.duplicate === 1 ? '' : 's'}`,
-                ].filter(Boolean).join(' · ')} — the tonnage above is corrected from each contract's own PO value, so the figures are right. Click to see which records still need fixing at source.
-              </span>
-            </button>
-          )}
-
-          {/* FX data-gap warning — a missing rate is counted at 1:1, not silently zeroed */}
-          {(missingRate > 0 || companyExpAgg.missingCoRate > 0 || invoiceRevAgg.missingInvRate > 0) && (
-            <div className="mb-4 flex items-center gap-2 rounded-2xl px-3 py-2" style={{ background: 'var(--warn-bg)', border: '1px solid var(--warn-border)' }}>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" className="flex-shrink-0" style={{ color: 'var(--warn-text)' }}><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" /><path d="M12 9v4m0 4h.01" stroke="currentColor" strokeWidth="2" strokeLinecap="round" /></svg>
-              <span className="responsiveTextTable" style={{ color: 'var(--warn-text)' }}>
-                {[
-                  missingRate > 0 && `${missingRate} EUR contract${missingRate === 1 ? '' : 's'}`,
-                  companyExpAgg.missingCoRate > 0 && `${companyExpAgg.missingCoRate} EUR company expense${companyExpAgg.missingCoRate === 1 ? '' : 's'}`,
-                  invoiceRevAgg.missingInvRate > 0 && `${invoiceRevAgg.missingInvRate} EUR sales invoice${invoiceRevAgg.missingInvRate === 1 ? '' : 's'}`,
-                ].filter(Boolean).join(' and ')} missing an FX rate — counted at 1:1, so USD totals may be understated. Set the company EUR→USD rate in Settings, or a rate on each record, for accurate figures.
-              </span>
-            </div>
-          )}
+          {/* The two warning banners that sat here — contract data-quality and the
+              FX gap — were removed at the client's request (1 Sep 2026). The FX one
+              is moot now: a EUR record with no stored rate falls back to the live
+              daily rate rather than 1:1, so there is no understatement left to warn
+              about. The data-quality detection still runs (dataIssues / issueCounts)
+              and can be surfaced somewhere quieter if it is wanted back. */}
 
           {/* ── BUSINESS SUMMARY ──────────────────────────────────────────────
               The eight figures the client asked to see at a glance. Placed above

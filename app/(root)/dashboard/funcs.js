@@ -178,7 +178,7 @@ const TotalInvoicePayments = (data, mult, settings) => {
 }
 
 /*************************** */
-export const setMonthsInvoices = (data, settings, companyRate = 0) => {
+export const setMonthsInvoices = (data, settings, companyRate = 0, liveRate = 0) => {
 
     let accumulatedPmnt = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].reduce((o, key) => ({ ...o, [key]: 0 }), {})
     let accumulatedActualPmnt = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].reduce((o, key) => ({ ...o, [key]: 0 }), {})
@@ -193,7 +193,7 @@ export const setMonthsInvoices = (data, settings, companyRate = 0) => {
         // One standard company EUR→USD rate when set; otherwise the contract's own rate,
         // else 1:1 (NaN-safe). Keeps combined USD totals on a single rate.
         const contractRate = parseFloat(obj.euroToUSD)
-        const mult = companyRate > 0 ? companyRate : (contractRate > 0 ? contractRate : 1)
+        const mult = companyRate > 0 ? companyRate : (contractRate > 0 ? contractRate : (liveRate > 0 ? liveRate : 1))
         let totalInvoices = Total(obj.invoicesData, 'totalAmount', mult, settings);
         let month = !obj.final ? dateFormat(obj.dateRange.startDate, 'm') * 1 : dateFormat(obj.date, 'm') * 1
         accumulatedPmnt[month] += parseFloat(totalInvoices);
@@ -244,7 +244,7 @@ const expenseMonth = (obj, contract, fallback) => {
    would each have to be ~90% un-invoiced with their tonnage already fully entered. */
 const VALUE_TOLERANCE = 3
 
-export const calContracts = (data, settings, companyRate = 0, expenseRows = null) => {
+export const calContracts = (data, settings, companyRate = 0, expenseRows = null, liveRate = 0) => {
     const dataIssues = []   // contracts whose own records contradict each other
     /* A contract ticked 'Shared IMS / GIS deal' keeps HALF its profit here — the partner
        takes the other half, exactly as the Margins sheet has always done. Tonnage is NOT
@@ -308,7 +308,7 @@ export const calContracts = (data, settings, companyRate = 0, expenseRows = null
         // else 1:1 (NaN-safe — a missing rate must never poison the totals). When no
         // company rate is set AND a EUR contract has no rate, flag it so the gap is visible.
         const contractRate = parseFloat(x.euroToUSD)
-        const mult = companyRate > 0 ? companyRate : (contractRate > 0 ? contractRate : 1)
+        const mult = companyRate > 0 ? companyRate : (contractRate > 0 ? contractRate : (liveRate > 0 ? liveRate : 1))
         if (x.cur !== 'us' && !(companyRate > 0) && !(contractRate > 0)) missingRate++
         const mltTmp = x.cur === 'us' ? 1 : mult
         const month = dateFormat(x.dateRange.startDate, 'm') * 1
@@ -451,7 +451,7 @@ export const calContracts = (data, settings, companyRate = 0, expenseRows = null
     ;(unlinkedExpenses || []).forEach(obj => {
         const amt = parseFloat(obj?.amount)
         if (isNaN(amt)) return
-        const m2 = obj.cur === 'us' ? 1 : (companyRate > 0 ? companyRate : 1)
+        const m2 = obj.cur === 'us' ? 1 : (companyRate > 0 ? companyRate : (liveRate > 0 ? liveRate : 1))
         const val = amt * m2
         const d = obj.date || obj.dateRange?.startDate || ''
         const m = Number(String(d).substring(5, 7))
