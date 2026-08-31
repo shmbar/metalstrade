@@ -1,8 +1,5 @@
 'use client';
-import { useContext, useEffect, useMemo } from 'react';
-import dynamic from 'next/dynamic';
-import { cssVar, cssVarRgba } from '../../../utils/chartTheme';
-import { useTheme } from '../../../contexts/useThemeContext';
+import { useContext, useEffect, useMemo , useRef } from 'react';
 import Customtable from './newTable';
 import { SettingsContext } from "../../../contexts/useSettingsContext";
 import MonthSelect from '../../../components/monthSelect';
@@ -22,8 +19,6 @@ import { EXD } from './excel'
 import dateFormat from "dateformat";
 import { getTtl } from '../../../utils/languages';
 import DateRangePicker from '../../../components/dateRangePicker';
-import { TONES, toneChipStyle } from '../../../components/statusUtils';
-// chart.js + react-chartjs-2 are loaded on demand (not in the first-load bundle).
 import { Wallet, TrendingUp, TrendingDown, PiggyBank } from 'lucide-react';
 import KpiStrip from '../../../components/KpiStrip';
 import EditableCell from '../../../components/table/inlineEditing/EditableCell';
@@ -31,10 +26,10 @@ import EditableSelectCell from '../../../components/table/inlineEditing/Editable
 import Tltip from '../../../components/tlTip';
 import { updateExpenseField, updateInvoiceField } from '../../../utils/utils';
 import { useGlobalSearch } from '../../../contexts/useGlobalSearchContext';
+import { useUndo } from '@hooks/useUndo';
 
 
 
-const Bar = dynamic(() => import('./LazyCharts').then((mod) => mod.Bar), { ssr: false });
 
 
 const getprefixInv = (x) => {
@@ -136,10 +131,8 @@ const Accounting = () => {
 
   const { invoicesAccData, setInvoicesAccData } = useContext(InvoiceContext);
 
-  const { settings, dateSelect, setLoading, loading, ln } = useContext(SettingsContext);
+  const { settings, dateSelect, setLoading, loading, ln , setToast } = useContext(SettingsContext);
   const { uidCollection } = UserAuth();
-  const { theme } = useTheme();
-  const isDarkTheme = theme === 'dark';
   const { upsertSourceItems } = useGlobalSearch();
   const settingsLoaded = Object.keys(settings).length > 0;
   const clientCount = settings.Client?.Client?.length || 0;
@@ -429,105 +422,6 @@ const Accounting = () => {
     return { totalIncome, totalExpense, balance, savings: balance > 0 ? balance * 0.2 : 0 };
   }, [invoicesAccData]);
 
-  // Chart data for Debit & Credit Overview
-  const chartData = useMemo(() => {
-    const days = ['Sat', 'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
-    const debitByDay = new Array(7).fill(0);
-    const creditByDay = new Array(7).fill(0);
-
-    invoicesAccData.forEach(item => {
-      if (item.amountExp && item.dateExp) {
-        const d = new Date(item.dateExp);
-        if (!isNaN(d)) {
-          const day = d.getDay(); // 0=Sun … 6=Sat
-          const idx = day === 6 ? 0 : day + 1; // Sat→0, Sun→1 … Fri→6
-          debitByDay[idx] += Number(item.amountExp) || 0;
-        }
-      }
-      if (item.amountInv && item.dateInv) {
-        const d = new Date(item.dateInv);
-        if (!isNaN(d)) {
-          const day = d.getDay();
-          const idx = day === 6 ? 0 : day + 1;
-          creditByDay[idx] += Number(item.amountInv) || 0;
-        }
-      }
-    });
-
-    return {
-      labels: days,
-      datasets: [
-        {
-          label: 'Debit',
-          data: debitByDay,
-          backgroundColor: cssVar('--endeavour', '#6D5CE0'),
-          borderRadius: 6,
-          barPercentage: 0.6,
-        },
-        {
-          label: 'Credit',
-          data: creditByDay,
-          backgroundColor: cssVar('--rock-blue', '#DAD6E8'),
-          borderRadius: 6,
-          barPercentage: 0.6,
-        },
-      ],
-    };
-  }, [invoicesAccData, isDarkTheme]);
-
-  const fmtChartVal = (v) => {
-    const abs = Math.abs(v);
-    if (abs >= 1000000000) return '$' + (v / 1000000000).toFixed(2) + 'B';
-    if (abs >= 1000000) return '$' + (v / 1000000).toFixed(2) + 'M';
-    if (abs >= 1000) return '$' + (v / 1000).toFixed(2) + 'K';
-    return '$' + v;
-  };
-
-  // Canvas can't resolve CSS vars, so cssVar() reads the computed token and
-  // falls back to a literal — this tracks whichever colour preset is active.
-  const chartOptions = {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      legend: { display: false },
-      tooltip: {
-        backgroundColor: cssVarRgba('--surface-card-rgb', 0.97, 'rgba(255,255,255,0.97)'),
-        titleColor: cssVar('--port-gore', '#1E1B39'),
-        bodyColor: cssVar('--regent-gray', '#6E6B84'),
-        borderColor: cssVar('--border-cell', '#EAE8F2'),
-        borderWidth: 1,
-        cornerRadius: 8,
-        padding: 12,
-        callbacks: {
-          label: (ctx) => ` ${ctx.dataset.label}: ${fmtChartVal(ctx.parsed.y)}`,
-        },
-      },
-    },
-    scales: {
-      y: {
-        beginAtZero: true,
-        grid: { color: cssVarRgba('--border-cell-rgb', 0.6, 'rgba(234,232,242,0.6)') },
-        ticks: { color: cssVar('--regent-gray', '#6E6B84'), font: { size: 11 }, callback: fmtChartVal },
-        border: { display: false },
-      },
-      x: {
-        grid: { display: false },
-        ticks: { color: cssVar('--regent-gray', '#6E6B84'), font: { size: 11 } },
-        border: { display: false },
-      },
-    },
-  };
-
-  // Get recent transactions (last 5)
-  const recentTransactions = useMemo(() => {
-    return invoicesAccData.slice(0, 5);
-  }, [invoicesAccData]);
-
-  // Get recent invoices sent
-  const recentInvoices = useMemo(() => {
-    return invoicesAccData.filter(x => x.saleInvoice).slice(0, 4);
-  }, [invoicesAccData]);
-
   const formatCurrency = (amount) => {
     if (amount == null || isNaN(amount)) return '$0';
     const absAmount = Math.abs(amount);
@@ -560,10 +454,51 @@ const Accounting = () => {
     }).format(amount);
   };
 
-  const formatPercent = (value) => {
-    if (!isFinite(value) || isNaN(value)) return '0%';
-    if (Math.abs(value) > 999) return value > 0 ? '>999%' : '<-999%';
-    return value.toFixed(2) + '%';
+  // ── Undo of inline cell edits ──────────────────────────────────────────────
+  // A row here is a JOIN: some columns belong to the expense document, one to the
+  // invoice, and the field written is not the column's own id (amountExp -> amount,
+  // clientExp -> supplier). So the undo has to replay the same branching rather
+  // than patch { [columnId]: value } — which is why writeCell is shared by both
+  // directions instead of the inverse being hand-written.
+  const invoicesAccDataRef = useRef(invoicesAccData); invoicesAccDataRef.current = invoicesAccData;
+  const { record: recordUndo, undo, count: undoCount, busy: undoBusy, lastLabel: undoLabel } = useUndo();
+
+  // column -> the document field it actually writes
+  const EXPENSE_FIELD = { expInvoice: 'expense', amountExp: 'amount', expType: 'expType', clientExp: 'supplier' };
+
+  const columnLabel = (columnId) => {
+    const h = propDefaults.find(c => (c.accessorKey ?? c.id) === columnId)?.header;
+    return typeof h === 'string' ? h : columnId;
+  };
+
+  const writeCell = async ({ row, columnId, value }) => {
+    const key = row.expenseId || row.invoiceId;
+    const prev = invoicesAccDataRef.current;
+    setInvoicesAccData(prev.map(x =>
+      (x.expenseId || x.invoiceId) === key ? { ...x, [columnId]: value } : x
+    ));
+
+    try {
+      // EXPENSE SIDE
+      if (EXPENSE_FIELD[columnId]) {
+        if (!row.expenseId || !row.expenseDate) throw new Error("Missing expense mapping");
+        const field = EXPENSE_FIELD[columnId];
+        const patch = { [field]: field === 'amount' ? (parseFloat(value) || 0) : value };
+        await updateExpenseField(uidCollection, row.expenseId, row.expenseDate, patch);
+      }
+
+      // INVOICE SIDE
+      if (columnId === 'clientInv') {
+        if (!row.invoiceId || !row.invoiceDate) throw new Error("Missing invoice mapping");
+        await updateInvoiceField(uidCollection, row.invoiceId, row.invoiceDate, { client: value });
+      }
+
+      return true;
+    } catch (e) {
+      console.error(e);
+      setInvoicesAccData(prev); // revert
+      return false;
+    }
   };
 
   const onCellUpdate = async ({ rowIndex, columnId, value }) => {
@@ -572,48 +507,26 @@ const Accounting = () => {
 
     if (row.expType === 'Purchase') return;
 
-    const prev = invoicesAccData;
-    const next = prev.map((x, i) =>
-      i === rowIndex ? { ...x, [columnId]: value } : x
-    );
-    setInvoicesAccData(next);
+    const before = row[columnId];
+    const ok = await writeCell({ row, columnId, value });
 
+    // Only offer to undo a change that actually landed.
+    if (ok) {
+      recordUndo({
+        label: `${columnLabel(columnId)} on ${row.expenseId ? `expense ${row.expInvoice ?? ''}` : `invoice ${row.saleInvoice ?? ''}`}`.trim(),
+        apply: () => writeCell({ row, columnId, value: before }),
+      });
+    }
+  };
+
+  // useUndo puts a failed entry back on the stack so the button can retry — but
+  // the user has to be told the change was NOT reversed.
+  const handleUndo = async () => {
     try {
-      // EXPENSE SIDE
-      if (['expInvoice', 'amountExp', 'expType', 'clientExp'].includes(columnId)) {
-        if (!row.expenseId || !row.expenseDate)
-          throw new Error("Missing expense mapping");
-
-        const patch =
-          columnId === 'expInvoice' ? { expense: value } :
-            columnId === 'amountExp' ? { amount: parseFloat(value) || 0 } :
-              columnId === 'expType' ? { expType: value } :
-                columnId === 'clientExp' ? { supplier: value } : {};
-
-        await updateExpenseField(
-          uidCollection,
-          row.expenseId,
-          row.expenseDate,
-          patch
-        );
-      }
-
-      // INVOICE SIDE
-      if (columnId === 'clientInv') {
-        if (!row.invoiceId || !row.invoiceDate)
-          throw new Error("Missing invoice mapping");
-
-        await updateInvoiceField(
-          uidCollection,
-          row.invoiceId,
-          row.invoiceDate,
-          { client: value }
-        );
-      }
-
+      const entry = await undo();
+      if (entry) setToast({ show: true, text: `Undone — ${entry.label}`, clr: 'success' });
     } catch (e) {
-      console.error(e);
-      setInvoicesAccData(prev); // revert
+      setToast({ show: true, text: `Could not undo — nothing was changed. (${e?.message || e})`, clr: 'fail' });
     }
   };
 
@@ -645,131 +558,8 @@ const Accounting = () => {
             <div className="page-card rounded-2xl p-3 sm:p-5 mt-2 border border-[var(--line)] shadow-card w-full bg-[var(--bg-card)] relative">
               <h3 className="text-title mb-4">All Transactions</h3>
               <Customtable data={invoicesAccData} columns={propDefaults} onCellUpdate={onCellUpdate}
+                undoCount={undoCount} onUndo={handleUndo} undoBusy={undoBusy} undoLabel={undoLabel}
                 excellReport={EXD(invoicesAccData, settings, getTtl('Accounting', ln), ln)} />
-            </div>
-
-            {/* Main Content Grid */}
-            <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-6 mt-3">
-              {/* Last Transaction */}
-              <div className="rounded-2xl p-3 sm:p-5 mt-2 border border-[var(--line)] shadow-xl w-full bg-[var(--bg-subtle)]">
-                <h3 className="responsiveText font-medium font-sans text-[var(--chathams-blue)] mb-2">Last Transaction</h3>
-                <div className="space-y-0">
-                  {recentTransactions.map((item, idx) => (
-                    <div key={idx} className="flex items-center justify-between py-1 border-b border-[var(--selago)] last:border-0">
-                      <div className="flex items-center gap-2">
-                        <div className="w-7 h-7 bg-[var(--selago)] rounded-lg flex items-center justify-center flex-shrink-0">
-                          <span className="text-[var(--endeavour)] responsiveText font-medium font-sans">
-                            {(gQ(item.clientExp, 'Supplier', 'nname') || item.clientInvName || item.clientInv || 'N').charAt(0).toUpperCase()}
-                          </span>
-                        </div>
-                        <div className="min-w-0">
-                          <p className="responsiveText font-medium font-sans text-[var(--chathams-blue)] truncate">
-                            {gQ(item.clientExp, 'Supplier', 'nname') || item.clientInvName || item.clientInv || 'Transaction'}
-                          </p>
-                          <p className="responsiveTextTable text-[var(--regent-gray)] font-sans">
-                            {item.dateExp ? dateFormat(item.dateExp, 'dd mmm yyyy') : item.dateInv ? dateFormat(item.dateInv, 'dd mmm yyyy') : ''}
-                          </p>
-                        </div>
-                      </div>
-                      <div className="text-right flex-shrink-0 ml-2">
-                        <p className="responsiveTextTable text-[var(--regent-gray)] font-sans">{expTypeLabel(item.expType) || item.invType || ''}</p>
-                        {/* Money in / money out. Only the outflow is coloured — the
-                            leading +/- already says which direction this is, so a
-                            green on every inflow was decoration, not signal. */}
-                        <p className={`responsiveText font-medium font-sans ${item.amountInv ? 'text-[var(--ink)]' : 'text-[var(--danger-text)]'}`}>
-                          {item.amountInv ? '+' : '-'}{formatCurrency(item.amountInv || item.amountExp || 0)}
-                        </p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Invoices Sent */}
-              <div className="rounded-2xl p-3 sm:p-5 mt-2 border border-[var(--line)] shadow-xl w-full bg-[var(--bg-subtle)]">
-                <h3 className="responsiveText font-medium font-sans text-[var(--chathams-blue)] mb-2">Invoices Sent</h3>
-                <div className="space-y-0">
-                  {recentInvoices.map((item, idx) => (
-                    <div key={idx} className="flex items-center justify-between py-1 border-b border-[var(--selago)] last:border-0">
-                      <div className="flex items-center gap-2 min-w-0 flex-1">
-                        <div className="w-7 h-7 bg-[var(--rock-blue)]/20 rounded-lg flex items-center justify-center flex-shrink-0">
-                          <span className="text-[var(--chathams-blue)] responsiveText font-medium font-sans">
-                            {(item.clientInvName || item.clientInv || 'C').charAt(0).toUpperCase()}
-                          </span>
-                        </div>
-                        <div className="min-w-0 flex-1">
-                          <p className="responsiveTextTable text-[var(--regent-gray)] font-sans">{item.saleInvoice || 'Invoice'}</p>
-                          <p className="responsiveText font-medium font-sans text-[var(--chathams-blue)] truncate">{item.clientInvName || item.clientInv || 'Client'}</p>
-                          <p className="responsiveTextTable text-[var(--regent-gray)] font-sans">
-                            {item.dateInv ? dateFormat(item.dateInv, 'dd mmm yyyy') : ''}
-                          </p>
-                        </div>
-                      </div>
-                      <div className="text-right flex-shrink-0 ml-2">
-                        <p className="responsiveText font-medium font-sans text-[var(--chathams-blue)] mb-0.5">{formatCurrency(item.amountInv || 0)}</p>
-                        <span className='inline-block px-2 py-0.5 rounded-lg responsiveTextTable font-medium font-sans'
-                          style={toneChipStyle(idx % 2 === 0 ? TONES.green : TONES.amber)}>
-                          {idx % 2 === 0 ? 'Paid' : 'Pending'}
-                        </span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            {/* Chart Section */}
-            <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-6">
-              {/* Debit & Credit Overview */}
-              <div className="rounded-2xl p-3 sm:p-5 mt-2 border border-[var(--line)] shadow-xl w-full bg-[var(--bg-subtle)]">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-2">
-                  <div className="min-w-0">
-                    <h3 className="responsiveText font-medium font-sans text-[var(--chathams-blue)]">Debit & Credit Overview</h3>
-                    <p className="responsiveText text-[var(--regent-gray)] truncate">
-                      {formatCurrency(totals.totalExpense)} Debited & {formatCurrency(totals.totalIncome)} Credited
-                    </p>
-                  </div>
-                  <div className="flex items-center gap-4 responsiveText flex-shrink-0">
-                    <div className="flex items-center gap-1.5">
-                      <span className="w-3 h-3 rounded-full bg-[var(--brand-deep)]"></span>
-                      <span className="text-[var(--regent-gray)]">Debit</span>
-                    </div>
-                    <div className="flex items-center gap-1.5">
-                      <span className="w-3 h-3 rounded-full bg-[var(--rock-blue)]"></span>
-                      <span className="text-[var(--regent-gray)]">Credit</span>
-                    </div>
-                  </div>
-                </div>
-                <div className="h-52">
-                  <Bar data={chartData} options={chartOptions} />
-                </div>
-              </div>
-              {/* Summary Stats */}
-              <div className="rounded-2xl p-3 sm:p-5 mt-2 border border-[var(--line)] shadow-xl bg-[var(--bg-subtle)] overflow-hidden">
-                <h3 className="responsiveText font-medium font-sans text-[var(--chathams-blue)] mb-4">Financial Summary</h3>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="bg-[var(--bg-subtle)] rounded-2xl p-4 overflow-hidden border border-[var(--line)] shadow-sm">
-                    <p className="text-[var(--port-gore)] responsiveText mb-1">Total Transactions</p>
-                    <p className="responsiveTextTotal font-medium text-[var(--chathams-blue)]">{invoicesAccData.length}</p>
-                  </div>
-                  <div className="bg-[var(--bg-subtle)] rounded-2xl p-4 overflow-hidden border border-[var(--line)] shadow-sm">
-                    <p className="text-[var(--port-gore)] responsiveText mb-1">Avg. Transaction</p>
-                    <p className="responsiveTextTotal font-medium text-[var(--chathams-blue)] truncate">
-                      {formatCurrency(invoicesAccData.length > 0 ? (totals.totalIncome + totals.totalExpense) / invoicesAccData.length : 0)}
-                    </p>
-                  </div>
-                  <div className="bg-[var(--bg-subtle)] rounded-2xl p-4 overflow-hidden border border-[var(--line)] shadow-sm">
-                    <p className="text-[var(--port-gore)] responsiveText mb-1">Net Profit</p>
-                    <p className="responsiveTextTotal font-medium text-[var(--chathams-blue)] truncate">{formatCurrency(totals.balance)}</p>
-                  </div>
-                  <div className="bg-[var(--bg-subtle)] rounded-2xl p-4 overflow-hidden border border-[var(--line)] shadow-sm">
-                    <p className="text-[var(--port-gore)] responsiveText mb-1">Profit Margin</p>
-                    <p className="responsiveTextTotal font-medium text-[var(--chathams-blue)]">
-                      {formatPercent(totals.totalIncome > 0 ? (totals.balance / totals.totalIncome) * 100 : 0)}
-                    </p>
-                  </div>
-                </div>
-              </div>
             </div>
           </>
         }

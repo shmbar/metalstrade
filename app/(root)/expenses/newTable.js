@@ -727,6 +727,10 @@ const Customtable = ({
   setFilteredId,
   highlightId,
   onCellUpdate,
+  undoCount,
+  onUndo,
+  undoBusy,
+  undoLabel,
   summaryUSD = { amount: '$ 0.00' },
   summaryEUR = { amount: '€ 1,580.00' },
   // The column ID whose center the currency label should sit under (default: 'cur')
@@ -984,6 +988,10 @@ const Customtable = ({
               setQuickSumEnabled={setQuickSumEnabled}
               quickSumColumns={quickSumColumns}
               setQuickSumColumns={setQuickSumColumns}
+              undoCount={undoCount}
+              onUndo={onUndo}
+              undoBusy={undoBusy}
+              undoLabel={undoLabel}
             />
           </div>
 

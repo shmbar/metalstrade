@@ -1,4 +1,4 @@
-'use client';import { useContext, useEffect, useState, useCallback, useMemo } from 'react';
+'use client';import { useContext, useEffect, useState, useCallback, useMemo, useRef } from 'react';
 import Customtable from './newTable';
 
 import KpiStrip from '../../../components/KpiStrip';
@@ -32,10 +32,11 @@ import { updateContractField } from '../../../utils/utils';
 import { useGlobalSearch } from '../../../contexts/useGlobalSearchContext';
 import { BtnIcon } from '@components/buttonIcons';
 import CurrencyChip from '@components/CurrencyChip';
+import { useUndo } from '@hooks/useUndo';
 
 const Contracts = () => {
 
-	const { settings, dateSelect, setDateYr, setLoading, loading, ln, compData, updateCompanyData } = useContext(SettingsContext);
+	const { settings, dateSelect, setDateYr, setLoading, loading, ln, compData, updateCompanyData, setToast } = useContext(SettingsContext);
 	const { valueCon, setValueCon, contractsData, isOpenCon, setIsOpenCon,
 		addContract, setContractsData } = useContext(ContractsContext);
 	const { blankInvoice, setIsInvCreationCNFL } = useContext(InvoiceContext);
@@ -323,29 +324,69 @@ const Contracts = () => {
 		return EXD(contractsData.filter(x => ids.has(x.id)), settings, getTtl('Contracts', ln), ln);
 	}, [contractsData, filteredData, settings, ln]);
 
+	// ── Undo of inline cell edits ────────────────────────────────────────────
+	// Read through a ref, not the closure: an undo runs long after the edit that
+	// recorded it, by which time the captured `contractsData` is stale.
+	const contractsDataRef = useRef(contractsData); contractsDataRef.current = contractsData;
+	const { record: recordUndo, undo, count: undoCount, busy: undoBusy, lastLabel: undoLabel } = useUndo();
+
+	// The column's own header, so the button reads "Undo: Supplier on PO 090426"
+	// rather than naming the accessor key.
+	const columnLabel = (columnId) => {
+		const h = propDefaults.find(c => (c.accessorKey ?? c.id) === columnId)?.header;
+		return typeof h === 'string' ? h : columnId;
+	};
+
+	// useUndo puts a failed entry back on the stack, so the button stays available
+	// to retry — but the user has to be told the change was NOT reversed.
+	const handleUndo = async () => {
+		try {
+			const entry = await undo();
+			if (entry) setToast({ show: true, text: `Undone — ${entry.label}`, clr: 'success' });
+		} catch (e) {
+			setToast({ show: true, text: `Could not undo — nothing was changed. (${e?.message || e})`, clr: 'fail' });
+		}
+	};
+
+	// One inline edit = one field on one document, so writing it is the same call
+	// whichever direction it goes. `record` is skipped when the write IS an undo,
+	// otherwise undoing would push its own inverse and the button would toggle
+	// between two values forever instead of walking back through the history.
+	const writeCell = async ({ rowId, docDate, columnId, value }) => {
+		const prev = contractsDataRef.current;
+		setContractsData(prev.map(x => x.id === rowId ? { ...x, [columnId]: value } : x));
+		try {
+			await updateContractField(uidCollection, rowId, docDate, { [columnId]: value });
+			return true;
+		} catch (e) {
+			console.error(e);
+			setContractsData(prev);
+			return false;
+		}
+	};
+
 	const onCellUpdate = async ({ rowIndex, columnId, value }) => {
-		const row = contractsData[rowIndex];
+		// tableData, NOT contractsData: the table is rendered from tableData, which
+		// is contractsData re-sorted by PO number, so rowIndex counts rows in THAT
+		// order. Resolving it against the unsorted array meant an inline edit wrote
+		// to whichever contract happened to sit at that position in the raw list —
+		// a different record than the one on screen.
+		const row = tableData[rowIndex];
 		if (!row?.id) return;
 
 		// Do not allow editing completed contracts
 		if (row.completed) return;
 
-		const prev = contractsData;
-		const next = prev.map((x, i) =>
-			i === rowIndex ? { ...x, [columnId]: value } : x
-		);
-		setContractsData(next);
+		const before = row[columnId];
+		const docDate = row.dateRange?.startDate ?? row.date;
+		const ok = await writeCell({ rowId: row.id, docDate, columnId, value });
 
-		try {
-			await updateContractField(
-				uidCollection,
-				row.id,
-				row.dateRange?.startDate ?? row.date,
-				{ [columnId]: value }
-			);
-		} catch (e) {
-			console.error(e);
-			setContractsData(prev);
+		// Only offer to undo a change that actually landed.
+		if (ok) {
+			recordUndo({
+				label: `${columnLabel(columnId)} on PO ${row.order ?? ''}`.trim(),
+				apply: () => writeCell({ rowId: row.id, docDate, columnId, value: before }),
+			});
 		}
 	};
 
@@ -389,6 +430,10 @@ const Contracts = () => {
 								setFilteredData={setFilteredData}
 								highlightId={highlightId}
 								onCellUpdate={onCellUpdate}
+								undoCount={undoCount}
+								onUndo={handleUndo}
+								undoBusy={undoBusy}
+								undoLabel={undoLabel}
 								extraActions={
 									<>
 										<Tltip direction='bottom' tltpText='Create new Contract'>

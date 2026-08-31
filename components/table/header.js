@@ -43,6 +43,12 @@ const Header = ({
   quickSumColumns = [],
   setQuickSumColumns = () => {},
   extraActions,
+  // Undo of the last inline cell edit. Rendered only when a page passes a
+  // handler, so a table without undo is unchanged.
+  undoCount = 0,
+  onUndo,
+  undoBusy = false,
+  undoLabel = '',
 }) => {
 
   const { ln } = useContext(SettingsContext);
@@ -190,6 +196,22 @@ const Header = ({
 
             {/* Page-specific action buttons (e.g. New Contract, Weight Analysis) */}
             {extraActions}
+
+            {/* Undo — appears once there is something to undo, beside the edit
+                toggle that produced it. Ctrl+Z does the same thing. */}
+            {typeof onUndo === 'function' && undoCount > 0 && (
+              <Tltip direction="bottom" tltpText={undoLabel ? `Undo: ${undoLabel} (Ctrl+Z)` : 'Undo the last change (Ctrl+Z)'}>
+                <button
+                  type="button"
+                  onClick={onUndo}
+                  disabled={undoBusy}
+                  className="whiteButton whitespace-nowrap disabled:opacity-50"
+                >
+                  <BtnIcon action="undo" spin={undoBusy} />
+                  {undoBusy ? 'Undoing…' : 'Undo'}
+                </button>
+              </Tltip>
+            )}
 
             {/* Edit Mode */}
             {showEditButton && typeof setIsEditMode === 'function' && (

@@ -1,5 +1,5 @@
 'use client';
-import { useContext, useEffect, useState, useCallback, useMemo } from 'react';
+import { useContext, useEffect, useState, useCallback, useMemo , useRef } from 'react';
 import Customtable from '../contracts/newTable';
 import MyDetailsModal from './modals/dataModal.js'
 import { SettingsContext } from "../../../contexts/useSettingsContext";
@@ -38,12 +38,13 @@ import KpiStrip from '../../../components/KpiStrip';
 import ProgressBar from '../../../components/ProgressBar';
 import SplitControl from '../../../components/SplitControl';
 import { splitStatusOf } from '../../../utils/splitUtils';
+import { useUndo } from '@hooks/useUndo';
 
 
 const Invoices = () => {
 
 	const { invoicesData, setValueInv, valueInv, isOpen, setIsOpen, setInvoicesData } = useContext(InvoiceContext);
-	const { settings, dateSelect, setDateYr, setLoading, loading, ln, compData } = useContext(SettingsContext);
+	const { settings, dateSelect, setDateYr, setLoading, loading, ln, compData , setToast } = useContext(SettingsContext);
 	const { blankExpense } = useContext(ExpensesContext);
 	const { uidCollection, currentUser, logActivity } = UserAuth();
 	const { setValueCon } = useContext(ContractsContext);
@@ -666,29 +667,63 @@ const Invoices = () => {
 		return EXD(invoicesData.filter(x => ids.has(x.id)), settings, getTtl('Invoices', ln), ln);
 	}, [invoicesData, filteredData, settings, ln]);
 
+	// ── Undo of inline cell edits ────────────────────────────────────────────
+	// Read through a ref: an undo runs long after the edit that recorded it, by
+	// which time the captured `invoicesData` is stale.
+	const invoicesDataRef = useRef(invoicesData); invoicesDataRef.current = invoicesData;
+	const { record: recordUndo, undo, count: undoCount, busy: undoBusy, lastLabel: undoLabel } = useUndo();
+
+	const columnLabel = (columnId) => {
+		const h = propDefaults.find(c => (c.accessorKey ?? c.id) === columnId)?.header;
+		return typeof h === 'string' ? h : columnId;
+	};
+
+	// One field on one document — the same call whichever direction it goes.
+	const writeCell = async ({ rowId, docDate, columnId, value }) => {
+		const prev = invoicesDataRef.current;
+		setInvoicesData(prev.map(x => x.id === rowId ? { ...x, [columnId]: value } : x));
+		try {
+			await updateInvoiceField(uidCollection, rowId, docDate, { [columnId]: value });
+			return true;
+		} catch (e) {
+			console.error(e);
+			setInvoicesData(prev); // revert on error
+			return false;
+		}
+	};
+
 	const onCellUpdate = async ({ rowIndex, columnId, value }) => {
-		const row = invoicesData[rowIndex];
+		// tableData, NOT invoicesData: the table renders tableData, which is sorted
+		// by invoice number and can be filtered to unsplit rows, so rowIndex counts
+		// rows in THAT order. Resolving it against the raw array meant an inline
+		// edit wrote to a different invoice than the one on screen.
+		const row = tableData[rowIndex];
 		if (!row?.id) return;
 
 		// 🚫 Do not allow editing finalized invoices
 		if (row.final) return;
 
-		const prev = invoicesData;
-		const next = prev.map((x, i) =>
-			i === rowIndex ? { ...x, [columnId]: value } : x
-		);
-		setInvoicesData(next);
+		const before = row[columnId];
+		const docDate = row.dateRange?.startDate ?? row.date;
+		const ok = await writeCell({ rowId: row.id, docDate, columnId, value });
 
+		// Only offer to undo a change that actually landed.
+		if (ok) {
+			recordUndo({
+				label: `${columnLabel(columnId)} on invoice ${row.invoice ?? ''}`.trim(),
+				apply: () => writeCell({ rowId: row.id, docDate, columnId, value: before }),
+			});
+		}
+	};
+
+	// useUndo puts a failed entry back on the stack so the button can retry — but
+	// the user has to be told the change was NOT reversed.
+	const handleUndo = async () => {
 		try {
-			await updateInvoiceField(
-				uidCollection,
-				row.id,
-				row.dateRange?.startDate ?? row.date,
-				{ [columnId]: value }
-			);
+			const entry = await undo();
+			if (entry) setToast({ show: true, text: `Undone — ${entry.label}`, clr: 'success' });
 		} catch (e) {
-			console.error(e);
-			setInvoicesData(prev); // revert on error
+			setToast({ show: true, text: `Could not undo — nothing was changed. (${e?.message || e})`, clr: 'fail' });
 		}
 	};
 
@@ -753,6 +788,10 @@ const Invoices = () => {
 								SelectRow={SelectRow}
 								invisible={invisible}
 								onCellUpdate={onCellUpdate}
+								undoCount={undoCount}
+								onUndo={handleUndo}
+								undoBusy={undoBusy}
+								undoLabel={undoLabel}
 								excellReport={excelReport}
 								setFilteredData={setFilteredData}
 								highlightId={highlightId}

@@ -1,5 +1,5 @@
 'use client';
-import { useContext, useEffect, useState, useCallback, useMemo } from 'react';
+import { useContext, useEffect, useState, useCallback, useMemo , useRef } from 'react';
 import Customtable from './newTable';
 import TableTotals from './totals/tableTotals';
 import MyDetailsModal from './modals/dataModal.js'
@@ -33,13 +33,14 @@ import { ensureSplitNotificationsBatch } from '../../../utils/utils';
 import { Split, Wallet, Factory } from 'lucide-react';
 import KpiStrip from '../../../components/KpiStrip';
 import { NameCell } from '../../../components/Avatar';
+import { useUndo } from '@hooks/useUndo';
 
 
 
 
 const Expenses = () => {
 
-	const { settings, dateSelect, setDateYr, loading, setLoading, ln } = useContext(SettingsContext);
+	const { settings, dateSelect, setDateYr, loading, setLoading, ln , setToast } = useContext(SettingsContext);
 	const { expensesData, valueExp, setValueExp, setIsOpen, isOpen, setExpensesData } = useContext(ExpensesContext);
 	const { uidCollection, currentUser, logActivity } = UserAuth();
 	const router = useRouter();
@@ -368,23 +369,61 @@ const Expenses = () => {
 			settings, getTtl('Expenses', ln), ln);
 	}, [expensesData, filteredId, settings, ln]);
 
+	// ── Undo of inline cell edits ────────────────────────────────────────────
+	// Read through a ref: an undo runs long after the edit that recorded it, by
+	// which time the captured `expensesData` is stale.
+	const expensesDataRef = useRef(expensesData); expensesDataRef.current = expensesData;
+	const { record: recordUndo, undo, count: undoCount, busy: undoBusy, lastLabel: undoLabel } = useUndo();
+
+	const columnLabel = (columnId) => {
+		const h = propDefaults.find(c => (c.accessorKey ?? c.id) === columnId)?.header;
+		return typeof h === 'string' ? h : columnId;
+	};
+
+	// One field on one document — the same call whichever direction it goes.
+	const writeCell = async ({ rowId, docDate, columnId, value }) => {
+		const prev = expensesDataRef.current;
+		setExpensesData(prev.map(x => x.id === rowId ? { ...x, [columnId]: value } : x));
+		try {
+			await updateExpenseField(uidCollection, rowId, docDate, { [columnId]: value });
+			return true;
+		} catch (e) {
+			console.error(e);
+			setExpensesData(prev); // revert on fail
+			return false;
+		}
+	};
+
 	const onCellUpdate = async ({ rowIndex, columnId, value }) => {
-		const row = expensesData[rowIndex];
+		// tableData, NOT expensesData: the table renders tableData, which drops rows
+		// when the "unsplit only" filter is on, so rowIndex counts rows in THAT
+		// list. Resolving it against the raw array meant that, with the filter
+		// active, an inline edit wrote to a different expense than the one clicked.
+		const row = tableData[rowIndex];
 		if (!row?.id) return;
 
 		// fix numeric
 		const newValue = columnId === "amount" ? (parseFloat(value) || 0) : value;
+		const before = row[columnId];
+		const ok = await writeCell({ rowId: row.id, docDate: row.date, columnId, value: newValue });
 
-		// optimistic UI update
-		const prev = expensesData;
-		const next = prev.map((x, i) => (i === rowIndex ? { ...x, [columnId]: newValue } : x));
-		setExpensesData(next);
+		// Only offer to undo a change that actually landed.
+		if (ok) {
+			recordUndo({
+				label: `${columnLabel(columnId)} on expense ${row.expense ?? ''}`.trim(),
+				apply: () => writeCell({ rowId: row.id, docDate: row.date, columnId, value: before }),
+			});
+		}
+	};
 
+	// useUndo puts a failed entry back on the stack so the button can retry — but
+	// the user has to be told the change was NOT reversed.
+	const handleUndo = async () => {
 		try {
-			await updateExpenseField(uidCollection, row.id, row.date, { [columnId]: newValue });
+			const entry = await undo();
+			if (entry) setToast({ show: true, text: `Undone — ${entry.label}`, clr: 'success' });
 		} catch (e) {
-			console.error(e);
-			setExpensesData(prev); // revert on fail
+			setToast({ show: true, text: `Could not undo — nothing was changed. (${e?.message || e})`, clr: 'fail' });
 		}
 	};
 
@@ -448,6 +487,10 @@ const Expenses = () => {
 								setFilteredId={setFilteredId}
 								highlightId={highlightId}
 								onCellUpdate={onCellUpdate}
+								undoCount={undoCount}
+								onUndo={handleUndo}
+								undoBusy={undoBusy}
+								undoLabel={undoLabel}
 							/>
 
 							{/* Totals Section */}

@@ -17,6 +17,7 @@
 
 import { saveAs } from 'file-saver';
 import { toNumber } from './numberUtils';
+import { curCode } from '../../../utils/currency';
 
 const BUCKET_LABEL = { USD: 'Total (USD)', EUR: 'Total (EUR)', plain: 'Total' };
 const BUCKET_FMT = { USD: '"$"#,##0.00', EUR: '"€"#,##0.00', plain: '#,##0.000' };
@@ -30,6 +31,23 @@ const cellText = (v) => {
     if (Array.isArray(v)) return v.map(x => cellText(x)).filter(Boolean).join(', ');
     if (typeof v === 'object') return v.nname ?? v.name ?? v.label ?? v.title ?? v.id ?? '';
     return String(v);
+};
+
+// What a cell SHOWS, not what it stores. Most columns hold a settings id and
+// resolve it in their cell renderer, so exporting the accessor value verbatim put
+// raw ids in the spreadsheet — "3c760818-faae-…" under Consignee. meta.options is
+// the id→label map those columns already carry (the global search reads it for the
+// same reason), so it resolves them all rather than one column at a time.
+const displayValue = (col, raw) => {
+    const opts = col.columnDef?.meta?.options;
+    if (Array.isArray(opts) && opts.length && (typeof raw === 'string' || typeof raw === 'number')) {
+        const hit = opts.find(o => String(o.value) === String(raw));
+        if (hit) return hit.label ?? raw;
+    }
+    // Currency is stored three different ways across the app ('us' / 'USD' / '$').
+    // utils/currency names the code as the form exports should carry.
+    if ((col.columnDef?.accessorKey ?? col.id) === 'cur' && raw) return curCode(raw) || raw;
+    return raw;
 };
 
 const headerText = (col) => {
@@ -78,7 +96,7 @@ export const exportQuickSum = async ({ table, totals = [], summedColumnIds = [],
                 const n = toNumber(raw);
                 rec[c.id] = Number.isFinite(n) ? n : '';
             } else {
-                rec[c.id] = cellText(raw);
+                rec[c.id] = cellText(displayValue(c, raw));
             }
         }
         ws.addRow(rec);

@@ -45,6 +45,10 @@ const Customtable = ({
   setFilteredData,
   highlightId,
   onCellUpdate,
+  undoCount,
+  onUndo,
+  undoBusy,
+  undoLabel,
   excellReport,
   extraActions
 }) => {
@@ -220,6 +224,10 @@ const Customtable = ({
               quickSumColumns={quickSumColumns}
               setQuickSumColumns={setQuickSumColumns}
               extraActions={extraActions}
+              undoCount={undoCount}
+              onUndo={onUndo}
+              undoBusy={undoBusy}
+              undoLabel={undoLabel}
             />
           </div>
 

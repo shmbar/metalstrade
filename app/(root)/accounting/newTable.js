@@ -35,7 +35,7 @@ import { labelAwareGlobalFilter } from "../../../components/table/filters/labelA
 import { useTablePrefs, useTablePagination } from '@components/table/useTablePrefs';
 
 
-const Customtable = ({ data, columns, invisible, excellReport, onCellUpdate }) => {
+const Customtable = ({ data, columns, invisible, excellReport, onCellUpdate, undoCount, onUndo, undoBusy, undoLabel }) => {
 
   const [globalFilter, setGlobalFilter] = useState('')
   const [columnVisibility, setColumnVisibility] = useTablePrefs('columns', invisible)
@@ -220,6 +220,10 @@ const Customtable = ({ data, columns, invisible, excellReport, onCellUpdate }) =
               setQuickSumEnabled={setQuickSumEnabled}
               quickSumColumns={quickSumColumns}
               setQuickSumColumns={setQuickSumColumns}
+              undoCount={undoCount}
+              onUndo={onUndo}
+              undoBusy={undoBusy}
+              undoLabel={undoLabel}
             />
           </div>
 
