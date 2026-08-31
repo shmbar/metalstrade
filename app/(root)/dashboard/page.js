@@ -2165,7 +2165,7 @@ const Dash = () => {
                 for "$1.24K" and nothing else. Four across gives two comfortable
                 rows at the width most people actually use. */}
             <div className="rounded-card border border-[var(--line)] shadow-card overflow-hidden" style={{ background: 'var(--line)' }}>
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-px">
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-px">
               {/* AVERAGE RATE = average purchase cost per MT.
                   There is no metric called "Average Rate" in the app, and the
                   phrase could mean four different numbers, so this is a decision
@@ -2178,14 +2178,6 @@ const Dash = () => {
                   The Per-MT strip below used to render this same figure as
                   "Avg Cost / MT"; that tile was removed when this went in, for
                   the same reason the three duplicated KPI cards were. */}
-              <SummaryTile
-                label="Average Rate"
-                info="Total contract purchase value divided by tonnage purchased, for the selected period. This is a purchase cost per MT, not a sale price."
-                icon={Gauge}
-                toneKey="blue"
-                value={fmtAutoKM(avgCostPerMT)}
-                note="purchase cost per MT"
-              />
               <SummaryTile
                 label="Contract Expenses"
                 info="Expenses recorded against the contracts in this period — freight, storage, commission and every other type — converted to USD. Company overheads are counted separately."
@@ -2223,26 +2215,53 @@ const Dash = () => {
                 toneKey={netProfit < 0 ? 'red' : 'green'}
                 tone={netProfit < 0 ? 'var(--danger-text)' : 'var(--ok-figure)'}
               />
+              {/* Second row: the per-MT view of the same money. These were a separate
+                  "Per-MT Metrics" card with its own header and padding — ~230px of chrome
+                  for four numbers. In the same panel they cost four cells and read as what
+                  they are: the totals above, divided by tonnage. */}
+              <SummaryTile
+                label="Average Rate"
+                info="Total contract purchase value divided by tonnage purchased, for the selected period. This is a purchase cost per MT, not a sale price."
+                icon={Gauge}
+                toneKey="blue"
+                value={fmtAutoKM(avgCostPerMT)}
+                note="purchase cost per MT"
+              />
+              <SummaryTile
+                label="Avg Expense / MT"
+                info="Contract expenses divided by tonnage purchased."
+                icon={Receipt}
+                toneKey="gray"
+                value={fmtAutoKM(avgExpensePerMT)}
+                note="expenses per MT"
+              />
+              <SummaryTile
+                label="Avg Freight / MT"
+                info="Freight expenses divided by tonnage purchased."
+                icon={Truck}
+                toneKey="gray"
+                value={fmtAutoKM(avgFreightPerMT)}
+                note="freight cost per MT"
+              />
+              <SummaryTile
+                label="Avg Profit / MT"
+                info="Gross profit divided by tonnage shipped — profit per MT actually sold."
+                icon={TrendingUp}
+                value={fmtAutoKM(avgProfitPerMT)}
+                note="profit per MT"
+                toneKey={avgProfitPerMT < 0 ? 'red' : 'green'}
+                tone={avgProfitPerMT < 0 ? 'var(--danger-text)' : 'var(--ok-figure)'}
+              />
               </div>
             </div>
           </div>
 
-          {/* PER-MT STRIP — unit economics. The KPI row that used to sit above it is gone: its
-              three cards were Cost of Goods Sold (now a Business Summary tile), MT Purchased
-              and Avg Profit / MT — and the last two were ALREADY in this strip, rendered a
-              second time a few hundred pixels higher up. */}
-          <PerMtStrip
-            totalMT={totalMT}
-            avgExpensePerMT={avgExpensePerMT}
-            avgProfitPerMT={avgProfitPerMT}
-            avgFreightPerMT={avgFreightPerMT}
-          />
 
           {/* TONNAGE + CAPITAL BREAKDOWN. "Most-Sold Material" sat beside the tonnage card
               until Zak said it wasn't needed (2026-08-26); the donut moved up to take its
               place rather than leave a half-empty row, which frees the hero chart to run
               full width — a 12-month line reads better wide than it did at two thirds. */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-5">
+          <div className="grid grid-cols-1 gap-5 mb-5">
             <TonnageCard purchased={totalMT} shipped={shippedMT} pending={pendingMT} unsoldValue={unsoldValue} />
 
           </div>
