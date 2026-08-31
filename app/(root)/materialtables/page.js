@@ -503,7 +503,7 @@ const MaterialTables = () => {
                                 </div>
                                 <div className="flex items-center gap-2">
                                     <button onClick={() => setShowDocImport(true)} className="whiteButton">
-                                        <BtnIcon action="autofill" />{getTtl('Read Packing List', ln) || 'Read Packing List'}
+                                        <BtnIcon action="autofill" />{getTtl('Read Document', ln) || 'Read Document'}
                                     </button>
                                     <button onClick={addTable} className="blackButton">
                                         <BtnIcon action="add" />{getTtl('Add Table', ln) || 'Add Table'}

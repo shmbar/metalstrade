@@ -1,0 +1,49 @@
+rules_version = '2';
+
+// Firebase Storage security rules — DRAFT, NOT DEPLOYED.
+//
+// What is live today is this, and only this:
+//
+//     match /{allPaths=**} { allow read, write: if true; }
+//
+// No authentication of any kind. Anyone on the internet who knows a path can read
+// a file, overwrite it, or upload new ones. This bucket holds contract and invoice
+// attachments — uploadFile() in utils/utils.js stores them at
+// `{contractId}/{fileName}` — so it is the client's commercial documents.
+//
+// Unlike the Firestore cross-company question, there is no business case on the
+// other side of this one: every read and write the app performs happens from a
+// signed-in session, so requiring a login costs nothing and closes it.
+//
+// ─────────────────────────────────────────────────────────────────────────────
+// SCOPE, AND WHAT THIS DOES NOT DO
+//
+// Files are keyed by contract id, not by workspace, so these rules cannot tell an
+// IMS attachment from a GIS one without a Firestore lookup per operation. That
+// matches the access policy already chosen for Firestore (both companies' staff
+// may see both), so it changes nothing in practice — but if the two are ever
+// separated, this bucket needs a workspace segment in the path first.
+//
+// Existing share links are unaffected: getDownloadURL() mints a URL carrying its
+// own token, and those bypass rules by design. Rules govern SDK access. If a
+// leaked download link is a concern, the tokens have to be revoked in the console
+// per file — that is a separate job from this.
+// ─────────────────────────────────────────────────────────────────────────────
+
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    // Contract and invoice attachments: `{contractId}/{fileName}`.
+    // A signed-in user of the app, and nobody else.
+    match /{document=**} {
+      allow read: if request.auth != null;
+
+      // Writes additionally cap the file size. Not a security boundary — anyone
+      // who can write can write repeatedly — but it stops a mis-selected 2GB file
+      // from being uploaded by accident and is trivial to raise. Contract PDFs and
+      // scans in this system run to a few MB.
+      allow write: if request.auth != null
+                   && request.resource.size < 50 * 1024 * 1024;
+    }
+  }
+}

@@ -1,0 +1,123 @@
+rules_version = '2';
+
+// Firestore security rules — DRAFT, NOT DEPLOYED.
+//
+// What is live today is this, and only this:
+//
+//     match /{document=**} { allow read, write: if request.auth.uid != null; }
+//
+// One signed-in account can read and write every document in the project —
+// including any collection added later, and the two test workspaces.
+//
+// What these rules change, given the policy decision below:
+//   • Access is confined to workspaces a user actually belongs to, or the two
+//     trading companies — nothing else in the project is reachable.
+//   • A collection added in future is denied by default instead of world-open.
+//   • `cities` becomes read-only.
+//   • The shared stock pool stays joint, deliberately.
+//
+// This is a hardening, not a partition: cross-company access is kept open on
+// purpose (see THE POLICY). If the two companies ever need separating, that
+// predicate is the only line to change.
+//
+// ─────────────────────────────────────────────────────────────────────────────
+// BEFORE DEPLOYING
+//
+// These rules have not been executed anywhere — the repo has no firebase.json and
+// no emulator, and rules are managed by hand in the Firebase console. Paste them
+// into the console's rules editor and use its Playground on a few real paths
+// before publishing. The console keeps every previous version, so rollback is one
+// click if anything is denied that should not be.
+//
+// Worth checking after publishing: open a contract, save an inline edit, run a
+// Copy to IMS/GIS, and load the Cashflow shared-stock card.
+// ─────────────────────────────────────────────────────────────────────────────
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // The two trading companies. Kept as literals because the rules language has
+    // no import: these ids also appear in utils/activeAccount.js and must agree.
+    function imsWorkspace() { return 'DQ9gNTpvXqh6K9BqMTPTgCfxD2Z2'; }
+    function gisWorkspace() { return 'aB3dE7FgHi9JkLmNoPqRsTuVwGIS'; }
+    function isTradingWorkspace(ws) { return ws == imsWorkspace() || ws == gisWorkspace(); }
+
+    function signedIn() { return request.auth != null && request.auth.uid != null; }
+
+    // The workspace this user belongs to, from their custom claim. The header's
+    // switcher changes only a client-side value; the claim is the real thing and
+    // is the only account identity a rule can trust.
+    function homeWorkspace() {
+      return signedIn() && 'uidCollection' in request.auth.token
+        ? request.auth.token.uidCollection : '';
+    }
+
+    // Claims carry the role under `role` on newer users and the legacy `title` on
+    // older ones, with inconsistent casing ('Admin', 'admin', 'superadmin') —
+    // utils/permissions.normalizeRole does the same collapse on the client.
+    function roleKey() {
+      return (signedIn() && 'role' in request.auth.token && request.auth.token.role is string)
+        ? request.auth.token.role.lower()
+        : ((signedIn() && 'title' in request.auth.token && request.auth.token.title is string)
+            ? request.auth.token.title.lower() : '');
+    }
+    // Unused while the policy below stays open, and kept on purpose: they are what
+    // makes revisiting it a one-line change rather than a rewrite.
+    function isSuperAdmin() { return roleKey() == 'superadmin' || roleKey() == 'super admin'; }
+    function isAdmin() { return isSuperAdmin() || roleKey() == 'admin'; }
+
+    // ── THE POLICY ──────────────────────────────────────────────────────────
+    // Who may reach the OTHER company's workspace? This one predicate is the
+    // whole policy; everything else follows from it.
+    //
+    // DECIDED 2026-09-01 (Zak): open to everyone signed in. The two companies are
+    // run by one client whose staff work across both and switch accounts from the
+    // header, so scoping this to admins would break the switcher and the
+    // IMS<->GIS copy for the people who use them daily.
+    //
+    // The consequence, stated plainly so nobody has to rediscover it: each
+    // company's staff can read the other's contracts, margins and supplier
+    // pricing, and so can the external bookkeeper at @maxwise.eu. That is
+    // accepted, not overlooked. To revisit, change this one line:
+    //   isAdmin()      — admins and super admins only
+    //   isSuperAdmin() — strictest; would block the copy for Admins
+    function mayCrossAccounts() { return true; }
+
+    function mayAccess(ws) {
+      return signedIn() && (
+        ws == homeWorkspace() ||
+        (mayCrossAccounts() && isTradingWorkspace(ws) && isTradingWorkspace(homeWorkspace()))
+      );
+    }
+
+    // ── Shared stock pool ───────────────────────────────────────────────────
+    // Deliberately joint: SHARED_STOCK holds lots both companies co-own, and
+    // utils.js documents it as the reason shared stock needs no fake contract.
+    // Any member of either trading company, regardless of role.
+    match /SHARED_STOCK/{document=**} {
+      allow read, write: if signedIn() && isTradingWorkspace(homeWorkspace());
+    }
+
+    // ── Orphan reference collection ─────────────────────────────────────────
+    // `cities` is referenced nowhere in the app. Left readable rather than
+    // removed so an unnoticed caller cannot break, but it takes no writes.
+    // Candidate for deletion once confirmed unused.
+    match /cities/{document=**} {
+      allow read: if signedIn();
+      allow write: if false;
+    }
+
+    // ── Everything else is a workspace ──────────────────────────────────────
+    // Covers the per-workspace documents (settings, cashflow, margins, cmpnyData,
+    // invoiceNum, formulasCalc, actStatements, pushTokens, theme_<uid>) and the
+    // whole data/ tree (contracts_YYYY, invoices_YYYY, expenses_YYYY,
+    // salescontracts_YYYY, stocks, companyExpenses, specialInvoices,
+    // materialtables, activity, notifications, presence, pushTokens).
+    //
+    // A collection that is not a workspace the user belongs to matches nothing
+    // here and is denied — which is the point.
+    match /{workspace}/{document=**} {
+      allow read, write: if mayAccess(workspace);
+    }
+  }
+}

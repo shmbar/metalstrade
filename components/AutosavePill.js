@@ -1,6 +1,6 @@
 'use client';
 
-// Floating autosave status pill (bottom-center, like the Ctrl+K hint bubble) — visible
+// Floating autosave status pill (top-center, under the header) — visible
 // wherever the user is on the page, unlike the section-top save icons/badges.
 // Modes: 'pending' (countdown + Save now / Cancel), 'info' (passive "autosaving…"),
 // 'saving', 'saved', or null/undefined to render nothing.
@@ -9,8 +9,17 @@ import { TONES } from './statusUtils';
 
 export default function AutosavePill({ mode, text, countdown, onSaveNow, onCancel }) {
     if (!mode) return null;
+
+    // Top centre, just under the fixed header (72px, the same offset every page
+    // uses for its own top margin).
+    //
+    // It used to sit bottom-centre, which is the busiest edge in the app: the toast
+    // comes up bottom-left, the ⌘K hint sits bottom-4 right-20 and the chat
+    // launcher bottom-4 right-4, so a save status appeared in the one gap between
+    // them and was easy to miss (client, 1 Sep 2026). Nothing else is fixed below
+    // the header, and it is where the eye already is.
     return (
-        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-toast pointer-events-none">
+        <div className="fixed top-[80px] left-1/2 -translate-x-1/2 z-toast pointer-events-none">
             <div className="flex items-center gap-2 rounded-full bg-[var(--bg-card)] border border-[var(--line)] pl-3 pr-2 py-1.5 pointer-events-auto"
                 style={{ fontSize: 'var(--fs-input)', boxShadow: 'var(--shadow-sm)' }}>
                 {mode === 'pending' && (

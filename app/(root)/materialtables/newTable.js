@@ -31,6 +31,121 @@ const PRESETS = [
     { label: 'Full',              keys: ['ni', 'cr', 'mo', 'co', 'nb', 'w', 'cu', 'fe'] },
 ]
 
+/* The Cost bar and the Sales bar, from one definition.
+   They were two hand-written rows and had drifted: the cost row was labelled
+   "$/MT" while the sales row said "Sales"; the cost preset picker lived up in the
+   toolbar while the sales one sat inline on its bar; and each wrapped its own
+   chips, so the two never lined up. One component means they cannot diverge
+   again — the same call the formulas cards make.
+
+   The label cell sits OUTSIDE the horizontal scroller on purpose. With the
+   preset popover inside it, `overflow-x: auto` clipped the menu to the bar's
+   4px-tall padding box, which is why picking a sales preset did nothing. */
+function PriceBar({
+    label, accent, background, elements, template, activeKeys,
+    prices, setPrice, niPercent, setNiPercent,
+    focusPrefix, focusedPrice, setFocusedPrice,
+    open, setOpen, applyPreset, fmtPrice, iconBtn, popStyle,
+}) {
+    const isActive = (key) => (activeKeys ? activeKeys.includes(key) : key !== 'fe')
+    return (
+        <div style={{ background, borderBottom: '1px solid var(--line)', padding: '4px 12px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <div style={{ width: '76px', flexShrink: 0, display: 'flex', alignItems: 'center', gap: '2px', position: 'relative' }}>
+                <span className="responsiveTextTable font-medium" style={{ color: accent }}>{label}</span>
+                <button
+                    onClick={() => setOpen(v => !v)}
+                    title={`Choose which elements the ${label.toLowerCase()} price is built from`}
+                    style={iconBtn(open)}
+                >
+                    <Settings2 style={{ width: '15px', height: '15px' }} />
+                </button>
+                {open && (
+                    <div style={{ ...popStyle, left: 0, padding: '6px', minWidth: '160px', display: 'flex', flexDirection: 'column', gap: '1px' }}>
+                        <p className="responsiveTextTable font-medium" style={{ color: 'var(--ink-muted)', padding: '4px 10px' }}>{label} preset</p>
+                        {PRESETS.map(p => (
+                            <button
+                                key={p.label}
+                                onClick={() => { applyPreset(p.keys); setOpen(false) }}
+                                className="responsiveTextTable"
+                                style={{
+                                    padding: '5px 10px', borderRadius: '8px', border: 'none',
+                                    background: activeKeys && activeKeys.join() === p.keys.join() ? 'var(--bg-subtle)' : 'transparent',
+                                    color: 'var(--ink-secondary)', fontWeight: '500', cursor: 'pointer', textAlign: 'left',
+                                }}
+                                onMouseEnter={e => { e.currentTarget.style.background = 'var(--bg-subtle)'; e.currentTarget.style.color = 'var(--ink)' }}
+                                onMouseLeave={e => { e.currentTarget.style.background = activeKeys && activeKeys.join() === p.keys.join() ? 'var(--bg-subtle)' : 'transparent'; e.currentTarget.style.color = 'var(--ink-secondary)' }}
+                            >
+                                {p.label}
+                            </button>
+                        ))}
+                    </div>
+                )}
+            </div>
+
+            <div style={{ flex: 1, minWidth: 0, overflowX: 'auto' }}>
+                <div className="responsiveTextTable" style={{ display: 'grid', gridTemplateColumns: template, gap: '6px', alignItems: 'center', width: 'max-content', minWidth: '100%' }}>
+                    {elements.map(el => {
+                        const isNi = el.key === 'ni'
+                        const priced = (parseFloat(prices[el.key]) || 0) > 0
+                        const focused = focusedPrice === focusPrefix + el.key
+                        const active = isActive(el.key)
+                        return (
+                            <div
+                                key={el.key}
+                                title={active ? undefined : `${el.label} is not in the ${label.toLowerCase()} preset`}
+                                style={{
+                                    display: 'flex', alignItems: 'center', gap: '4px',
+                                    background: isNi ? 'var(--brand-soft)' : priced ? 'var(--bg-card)' : 'transparent',
+                                    border: `1px solid ${isNi ? 'var(--brand-border)' : priced ? 'var(--line)' : 'transparent'}`,
+                                    borderRadius: 'var(--radius-control)', padding: '1px 8px',
+                                    // Dimmed while it sits outside the preset — but never hidden,
+                                    // and never un-editable: the price still counts, and a cell
+                                    // you cannot see is a cell you cannot correct.
+                                    opacity: active || focused ? 1 : 0.45,
+                                    transition: 'opacity 0.15s',
+                                }}
+                            >
+                                <span style={{ fontSize: 'var(--fs-table)', fontWeight: '600', minWidth: '16px', color: isNi ? accent : 'var(--ink-muted)' }}>
+                                    {el.label}
+                                </span>
+                                <input
+                                    value={focused ? (prices[el.key] || '') : fmtPrice(prices[el.key] || '')}
+                                    onFocus={() => setFocusedPrice(focusPrefix + el.key)}
+                                    onBlur={() => setFocusedPrice(null)}
+                                    onChange={e => setPrice(el.key, e.target.value)}
+                                    placeholder="0"
+                                    inputMode="decimal"
+                                    style={{
+                                        fontSize: 'inherit', fontWeight: '600', width: '50px', textAlign: 'right',
+                                        background: 'transparent', border: 'none', outline: 'none',
+                                        color: isNi ? accent : 'var(--ink)', fontVariantNumeric: 'tabular-nums',
+                                    }}
+                                />
+                                {isNi && (
+                                    <>
+                                        <span style={{ fontSize: 'var(--fs-caption)', color: accent, opacity: 0.55, fontWeight: '600' }}>LME</span>
+                                        <span style={{ fontSize: 'var(--fs-table)', color: 'var(--ink-muted)', margin: '0 2px' }}>×</span>
+                                        <input
+                                            value={niPercent}
+                                            onChange={e => setNiPercent(e.target.value)}
+                                            inputMode="decimal"
+                                            style={{
+                                                fontSize: 'inherit', fontWeight: '600', width: '28px', textAlign: 'center',
+                                                background: 'transparent', border: 'none', outline: 'none', color: accent,
+                                            }}
+                                        />
+                                        <span className="responsiveTextTable" style={{ color: accent, fontWeight: '600' }}>%</span>
+                                    </>
+                                )}
+                            </div>
+                        )
+                    })}
+                </div>
+            </div>
+        </div>
+    )
+}
+
 function SortableHeaderCell({ id, label, style, onRemove, isFe, isStandard, sortDir, onSort }) {
     const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id })
     return (
@@ -116,26 +231,21 @@ const Customtable = ({
        as the formulas cards: one column per element, both rows reading from it,
        so Cr sits under Cr whatever either side holds.
 
-       The columns are the UNION of what the two bars price, so an element only
-       one side uses still gets a column and the other side shows a gap there —
-       which is the honest picture of a cost preset that differs from the sales
-       one. */
-    const barElements = useMemo(() => {
-        const inCost = (el) => (priceKeys ? priceKeys.includes(el.key) : el.key !== 'fe')
-        const inSales = (el) => (salesPriceKeys ? salesPriceKeys.includes(el.key) : el.key !== 'fe')
-        return elements
-            .filter(el => inCost(el) || inSales(el))
-            .map(el => ({ ...el, inCost: inCost(el), inSales: inSales(el) }))
-    }, [elements, priceKeys, salesPriceKeys])
+       EVERY element gets a column in BOTH bars, whatever either preset says. The
+       first version skipped a bar's non-preset elements and left the slot empty,
+       which put a "Ni Cr Fe" cost row's Fe out at the far right with a hole where
+       Mo…Ti would be (Zak, 2026-08-26). A preset is a display emphasis, not a
+       different set of columns: the ones it names read normally and the rest are
+       dimmed, so nothing moves when you switch preset and every cell is still
+       there to type into.
 
-    /* Ni carries "LME × 100 %" as well as its figure, so it needs about twice the
+       Ni carries "LME × 100 %" as well as its figure, so it needs about twice the
        room. Keyed off the element rather than its position — the header row is
        drag-reorderable, so Ni is not always first. */
     const barTemplate = useMemo(
-        () => `76px ${barElements.map(el => (el.key === 'ni' ? '176px' : '96px')).join(' ')}`,
-        [barElements]
+        () => elements.map(el => (el.key === 'ni' ? '176px' : '96px')).join(' '),
+        [elements]
     )
-    const barGrid = { display: 'grid', gridTemplateColumns: barTemplate, gap: '6px', alignItems: 'center', width: 'max-content', minWidth: '100%' }
 
     // Inject Cost PMT + Cost Total columns before 'del' when prices exist AND showCosts is on
     const enhancedColumns = useMemo(() => {
@@ -463,9 +573,15 @@ const Customtable = ({
                         </button>
                         {/* Cost columns toggle */}
                         <button
-                            onClick={hasPrices ? toggleCosts : undefined}
-                            title={hasPrices ? 'Toggle cost columns — double-click label to rename' : 'Enter element prices above to enable cost columns'}
-                            style={{ ...toggleChip(showCosts && hasPrices), opacity: hasPrices ? 1 : 0.45, display: 'flex', alignItems: 'center', gap: '3px' }}
+                            /* This button now opens the Cost price row as well as the
+                               Cost columns, so it can no longer be disabled until a
+                               price exists — that was a loop: no row to type the price
+                               into, so the price that would enable the row could never
+                               be entered. The COLUMNS still appear only once there is
+                               something to compute from (see enhancedColumns). */
+                            onClick={toggleCosts}
+                            title='Show the cost price row and the Cost columns — double-click the label to rename'
+                            style={{ ...toggleChip(showCosts), display: 'flex', alignItems: 'center', gap: '3px' }}
                         >
                             {editingCostLabel ? (
                                 <input
@@ -487,9 +603,9 @@ const Customtable = ({
                             Disabled until at least one sales price is entered, for the
                             same reason: two empty columns tell you nothing. */}
                         <button
-                            onClick={hasSalesPrices ? toggleSales : undefined}
-                            title={hasSalesPrices ? 'Toggle sales columns — double-click label to rename' : 'Enter sales prices below to enable sales columns'}
-                            style={{ ...toggleChip(showSales && hasSalesPrices), opacity: hasSalesPrices ? 1 : 0.45, display: 'flex', alignItems: 'center', gap: '3px' }}
+                            onClick={toggleSales}
+                            title='Show the sales price row and the Sales columns — double-click the label to rename'
+                            style={{ ...toggleChip(showSales), display: 'flex', alignItems: 'center', gap: '3px' }}
                         >
                             {editingSalesLabel ? (
                                 <input
@@ -525,40 +641,6 @@ const Customtable = ({
                         <div className="flex items-center gap-1 ml-auto">
                             <div style={{ position: 'relative' }}>
                                 <button
-                                    onClick={() => setShowPresets(p => !p)}
-                                    title="Price presets — select which elements appear in the $/MT row"
-                                    style={iconBtn(showPresets)}
-                                >
-                                    <Settings2 style={{ width: '15px', height: '15px' }} />
-                                </button>
-                                {showPresets && (
-                                    <div style={{
-                                        ...popStyle, right: 0,
-                                        padding: '6px', minWidth: '160px',
-                                        display: 'flex', flexDirection: 'column', gap: '1px',
-                                    }}>
-                                        <p className="responsiveTextTable font-medium" style={{ color: 'var(--ink-muted)', padding: '3px 10px 5px' }}>Price presets</p>
-                                        {PRESETS.map(p => (
-                                            <button
-                                                key={p.label}
-                                                onClick={() => { applyPreset(p.keys); setShowPresets(false) }}
-                                                style={{
-                                                    padding: '5px 10px', borderRadius: '8px',
-                                                    border: 'none', background: 'transparent',
-                                                    color: 'var(--ink-secondary)', fontWeight: '500',
-                                                    cursor: 'pointer', textAlign: 'left',
-                                                }}
-                                                onMouseEnter={e => { e.currentTarget.style.background = 'var(--bg-subtle)'; e.currentTarget.style.color = 'var(--ink)' }}
-                                                onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--ink-secondary)' }}
-                                            >
-                                                {p.label}
-                                            </button>
-                                        ))}
-                                    </div>
-                                )}
-                            </div>
-                            <div style={{ position: 'relative' }}>
-                                <button
                                     onClick={() => setShowHelp(p => !p)}
                                     title="How to use this table"
                                     style={iconBtn(showHelp)}
@@ -572,7 +654,7 @@ const Customtable = ({
                                             ['Drag column header', 'Reorder elements'],
                                             ['Double-click column header label', 'Add / remove element'],
                                             ['Double-click Container / Price label', 'Rename the button'],
-                                            ['Presets', 'Select which elements appear in $/MT price row'],
+                                            ['Preset button on a price row', 'Which elements that price is built from'],
                                             ['Fe price', 'Include steel scrap price (skipped if 0)'],
                                             ['Ni × %', 'Multiply Ni LME by a payable % factor'],
                                             ['Price button', 'Toggle Cost PMT / Cost Total columns'],
@@ -591,177 +673,58 @@ const Customtable = ({
                 </div>
             )}
 
-            {/* ── Price bar ($/MT per element) ── */}
-            {elements.length > 0 && (
-                <div style={{ background: 'var(--bg-subtle)', borderBottom: '1px solid var(--line)', padding: '4px 12px', overflowX: 'auto' }}>
-                    <div className="responsiveTextTable" style={barGrid}>
-                        <span className="responsiveTextTable font-medium" style={{ color: 'var(--ink-muted)' }}>$/MT</span>
-                        {barElements.map(el => {
-                            const isNi = el.key === 'ni'
-                            const priced = (parseFloat(prices[el.key]) || 0) > 0
-                            const focused = focusedPrice === el.key
-                            if (!el.inCost) return <span key={el.key} />
-                            return (
-                                <div key={el.key} style={{
-                                    display: 'flex', alignItems: 'center', gap: '4px',
-                                    /* An element with no price gets no box. Every table shows a
-                                       chip per element whether or not it is priced, so a stainless
-                                       table drew five outlined boxes reading "0" for Co, Nb, W, Cu
-                                       and Ti — noise sitting at the same weight as the three
-                                       figures that matter. Empty ones recede to bare text and come
-                                       back the moment they hold a price. */
-                                    background: isNi ? 'var(--brand-soft)' : priced ? 'var(--bg-card)' : 'transparent',
-                                    border: `1px solid ${isNi ? 'var(--brand-border)' : priced ? 'var(--line)' : 'transparent'}`,
-                                    borderRadius: 'var(--radius-control)', padding: '1px 8px', minWidth: '64px',
-                                }}>
-                                    <span style={{
-                                        fontSize: 'var(--fs-table)', fontWeight: '600',
-                                        minWidth: '16px',
-                                        color: isNi ? 'var(--brand)' : 'var(--ink-muted)',
-                                    }}>
-                                        {el.label}
-                                    </span>
-                                    <input
-                                        value={focused ? (prices[el.key] || '') : fmtPrice(prices[el.key] || '')}
-                                        onFocus={() => setFocusedPrice(el.key)}
-                                        onBlur={() => setFocusedPrice(null)}
-                                        onChange={e => setPrice(el.key, e.target.value)}
-                                        placeholder="0"
-                                        inputMode="decimal"
-                                        style={{
-                                            fontSize: 'inherit', fontWeight: '600', width: '50px', textAlign: 'right',
-                                            background: 'transparent', border: 'none', outline: 'none',
-                                            color: isNi ? 'var(--brand)' : 'var(--ink)',
-                                            fontVariantNumeric: 'tabular-nums',
-                                        }}
-                                    />
-                                    {isNi && (
-                                        <>
-                                            <span style={{ fontSize: 'var(--fs-caption)', color: 'var(--brand)', opacity: 0.55, fontWeight: '600' }}>LME</span>
-                                            <span style={{ fontSize: 'var(--fs-table)', color: 'var(--ink-muted)', margin: '0 2px' }}>×</span>
-                                            <input
-                                                value={niPercent}
-                                                onChange={e => setNiPercent(e.target.value)}
-                                                inputMode="decimal"
-                                                style={{
-                                                    fontSize: 'inherit', fontWeight: '600', width: '28px', textAlign: 'center',
-                                                    background: 'transparent', border: 'none', outline: 'none',
-                                                    color: 'var(--brand)',
-                                                }}
-                                            />
-                                            <span className="responsiveTextTable" style={{ color: 'var(--brand)', fontWeight: '600' }}>%</span>
-                                        </>
-                                    )}
-                                </div>
-                            )
-                        })}
-                    </div>
-                </div>
+            {/* ── Cost and Sales price bars ──────────────────────────────────
+                ONE component rendered twice, for the same reason the formulas
+                cards share theirs: as two hand-written rows they drifted, and
+                the cost row ended up labelled "$/MT" against the sales row's
+                "Sales", with its preset picker parked in the toolbar while the
+                sales one sat inline (Zak, 2026-08-26). */}
+            {showCosts && elements.length > 0 && (
+                <PriceBar
+                    label="Cost"
+                    accent="var(--brand)"
+                    background="var(--bg-subtle)"
+                    elements={elements}
+                    template={barTemplate}
+                    activeKeys={priceKeys}
+                    prices={prices}
+                    setPrice={setPrice}
+                    niPercent={niPercent}
+                    setNiPercent={setNiPercent}
+                    focusPrefix="cost:"
+                    focusedPrice={focusedPrice}
+                    setFocusedPrice={setFocusedPrice}
+                    open={showPresets}
+                    setOpen={setShowPresets}
+                    applyPreset={applyPreset}
+                    fmtPrice={fmtPrice}
+                    iconBtn={iconBtn}
+                    popStyle={popStyle}
+                />
             )}
 
-            {/* ── Sales price bar ($/MT per element) ──────────────────────────
-                A mirror of the price bar above, writing to salesPrices. Same preset
-                mechanism, its own selection: a purchase preset and a sale preset are
-                not usually the same set of elements. It used to be tinted --ok-* to
-                stay tellable apart from the price bar, but that put a green band on
-                the page meaning nothing more than "this is the other bar", and it
-                contradicted the sales COLUMNS, which were already --brand-soft. The
-                bar now carries the same violet as the columns it feeds, and the
-                price bar above stays the neutral --bg-subtle: the two are separated
-                by tinted-vs-neutral rather than by two competing hues. */}
-            {elements.length > 0 && (
-                <div style={{ background: 'var(--brand-soft)', borderBottom: '1px solid var(--line)', padding: '4px 12px', overflowX: 'auto' }}>
-                    <div className="responsiveTextTable" style={barGrid}>
-                        {/* Label and preset picker share the one 76px label cell, so
-                            this row's first element column starts exactly where the
-                            cost row's does. The button used to sit outside the label
-                            and push everything after it out of step. */}
-                        <span className="responsiveTextTable font-medium" style={{ color: 'var(--brand-strong)', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                            Sales
-                        {/* Preset picker — sets which elements the sale price is built from */}
-                        <span style={{ position: 'relative' }}>
-                            <button
-                                onClick={() => setShowSalesPresets(v => !v)}
-                                title="Choose which elements the sales price is calculated from"
-                                style={iconBtn(showSalesPresets)}
-                            >
-                                <Settings2 style={{ width: '15px', height: '15px' }} />
-                            </button>
-                            {showSalesPresets && (
-                                <div style={{ ...popStyle, left: 0, padding: '6px', minWidth: '160px', display: 'flex', flexDirection: 'column', gap: '1px' }}>
-                                    <p className="responsiveTextTable font-medium" style={{ color: 'var(--ink-muted)', padding: '4px 10px' }}>Sales preset</p>
-                                    {PRESETS.map(p => (
-                                        <button
-                                            key={p.label}
-                                            onClick={() => { applySalesPreset(p.keys); setShowSalesPresets(false) }}
-                                            style={{
-                                                padding: '5px 10px', borderRadius: '8px', border: 'none',
-                                                background: salesPriceKeys && salesPriceKeys.join() === p.keys.join() ? 'var(--bg-subtle)' : 'transparent',
-                                                color: 'var(--ink-secondary)', fontWeight: '500', cursor: 'pointer', textAlign: 'left',
-                                            }}
-                                        >
-                                            {p.label}
-                                        </button>
-                                    ))}
-                                </div>
-                            )}
-                        </span>
-                        </span>
-
-                        {barElements.map(el => {
-                            const isNi = el.key === 'ni'
-                            const priced = (parseFloat(salesPrices[el.key]) || 0) > 0
-                            const focused = focusedPrice === 'sales:' + el.key
-                            if (!el.inSales) return <span key={el.key} />
-                            return (
-                                <div key={el.key} style={{
-                                    display: 'flex', alignItems: 'center', gap: '4px',
-                                    background: priced ? 'var(--bg-card)' : 'transparent',
-                                    border: `1px solid ${isNi ? 'var(--brand-border)' : priced ? 'var(--line)' : 'transparent'}`,
-                                    borderRadius: 'var(--radius-control)', padding: '1px 8px', minWidth: '64px',
-                                }}>
-                                    <span style={{
-                                        fontSize: 'var(--fs-table)', fontWeight: '600',
-                                        minWidth: '16px',
-                                        color: isNi ? 'var(--brand-strong)' : 'var(--ink-muted)',
-                                    }}>
-                                        {el.label}
-                                    </span>
-                                    <input
-                                        value={focused ? (salesPrices[el.key] || '') : fmtPrice(salesPrices[el.key] || '')}
-                                        onFocus={() => setFocusedPrice('sales:' + el.key)}
-                                        onBlur={() => setFocusedPrice(null)}
-                                        onChange={e => setSalesPrice(el.key, e.target.value)}
-                                        placeholder="0"
-                                        inputMode="decimal"
-                                        style={{
-                                            fontSize: 'inherit', fontWeight: '600', width: '50px', textAlign: 'right',
-                                            background: 'transparent', border: 'none', outline: 'none',
-                                            color: 'var(--ink)', fontVariantNumeric: 'tabular-nums',
-                                        }}
-                                    />
-                                    {isNi && (
-                                        <>
-                                            <span style={{ fontSize: 'var(--fs-caption)', color: 'var(--brand-strong)', opacity: 0.55, fontWeight: '600' }}>LME</span>
-                                            <span style={{ fontSize: 'var(--fs-table)', color: 'var(--ink-muted)', margin: '0 2px' }}>×</span>
-                                            <input
-                                                value={salesNiPercent}
-                                                onChange={e => setSalesNiPercent(e.target.value)}
-                                                inputMode="decimal"
-                                                style={{
-                                                    fontSize: 'inherit', fontWeight: '600', width: '28px', textAlign: 'center',
-                                                    background: 'transparent', border: 'none', outline: 'none',
-                                                    color: 'var(--brand-strong)',
-                                                }}
-                                            />
-                                            <span className="responsiveTextTable" style={{ color: 'var(--brand-strong)', fontWeight: '600' }}>%</span>
-                                        </>
-                                    )}
-                                </div>
-                            )
-                        })}
-                    </div>
-                </div>
+            {showSales && elements.length > 0 && (
+                <PriceBar
+                    label="Sales"
+                    accent="var(--brand-strong)"
+                    background="var(--brand-soft)"
+                    elements={elements}
+                    template={barTemplate}
+                    activeKeys={salesPriceKeys}
+                    prices={salesPrices}
+                    setPrice={setSalesPrice}
+                    niPercent={salesNiPercent}
+                    setNiPercent={setSalesNiPercent}
+                    focusPrefix="sales:"
+                    focusedPrice={focusedPrice}
+                    setFocusedPrice={setFocusedPrice}
+                    open={showSalesPresets}
+                    setOpen={setShowSalesPresets}
+                    applyPreset={applySalesPreset}
+                    fmtPrice={fmtPrice}
+                    iconBtn={iconBtn}
+                    popStyle={popStyle}
+                />
             )}
 
             {/* ── Desktop table ── */}

@@ -446,7 +446,7 @@ const DocumentImportOverlay = ({ documentType, suppliers, clients, currencies, e
                     <div className='flex items-center gap-2'>
                         <FileText className='w-4 h-4' style={{ color: 'var(--brand)' }} />
                         <span id='doc-import-title' className='font-semibold' style={{ fontSize: 'var(--fs-input)', color: 'var(--ink)' }}>
-                            {isContract ? 'Autofill contract from supplier proforma' : isSalesContract ? 'Autofill sales contract from client contract' : isExpense ? 'Autofill expense from supplier invoice' : isMaterialTable ? 'Build a material table from a packing list' : 'Import from Document — Invoice'}
+                            {isContract ? 'Autofill contract from supplier proforma' : isSalesContract ? 'Autofill sales contract from client contract' : isExpense ? 'Autofill expense from supplier invoice' : isMaterialTable ? 'Build a material table from an assay or packing list' : 'Import from Document — Invoice'}
                         </span>
                     </div>
                     <button
