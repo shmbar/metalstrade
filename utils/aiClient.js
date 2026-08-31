@@ -27,3 +27,33 @@ export async function authedFetch(url, options = {}) {
 
     return fetch(url, { ...options, headers });
 }
+
+// How many messages of a conversation are sent back to the model each turn.
+// Both chat surfaces used to post the WHOLE thread every time, and neither the
+// route nor the model call trimmed it — so a long session grew its own prompt
+// without limit: every question cost more than the last, and a thread that ran
+// far enough would fail outright on context length. 20 keeps roughly ten
+// exchanges of memory, which is well past what these questions need.
+export const MAX_CHAT_HISTORY = 20;
+
+/**
+ * The tail of a conversation, oldest trimmed away.
+ *
+ * Only role + content survive: the surfaces also carry ids, timestamps and
+ * streaming flags that the model has no use for, and sending them was quietly
+ * paying for tokens on our own bookkeeping.
+ */
+export const trimHistory = (messages, max = MAX_CHAT_HISTORY) =>
+    (messages || [])
+        .filter(m => m && (m.role === 'user' || m.role === 'assistant') && m.content)
+        .slice(-max)
+        .map(m => ({ role: m.role, content: m.content }));
+
+/**
+ * localStorage key for a stored conversation, scoped to the workspace.
+ *
+ * It was one global key, so switching IMS <-> GIS left the previous company's
+ * conversation — and whatever figures it had quoted — sitting in the new one.
+ */
+export const chatStorageKey = (surface, uidCollection) =>
+    `ims-chat:${surface}:${uidCollection || 'none'}`;

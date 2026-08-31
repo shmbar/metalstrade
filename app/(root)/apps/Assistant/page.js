@@ -1,12 +1,13 @@
 'use client';
 import { useContext, useEffect, useState, useRef, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 import { SettingsContext } from "../../../../contexts/useSettingsContext";
 import { UserAuth } from "../../../../contexts/useAuthContext";
 import Spinner from '../../../../components/spinner';
 import Toast from '../../../../components/toast.js';
 import { loadData, loadMarginsRange, loadAllStockData, loadCompanyExpenses, resolveDueDate, resolveInvoiceDate, groupInvoicesByNumber, computeStockNetSummary } from '../../../../utils/utils';
-import { authedFetch } from '../../../../utils/aiClient';
-import { IoSend, IoRefresh } from "react-icons/io5";
+import { authedFetch, trimHistory, chatStorageKey } from '../../../../utils/aiClient';
+import { IoSend } from "react-icons/io5";
 import { BsRobot, BsPerson } from "react-icons/bs";
 import { FiTrendingUp, FiRefreshCw } from "react-icons/fi";
 import { HiOutlineDocumentText, HiOutlineCurrencyDollar } from "react-icons/hi";
@@ -27,6 +28,7 @@ const quickActions = [
 const AssistantChat = () => {
     const { settings, dateSelect } = useContext(SettingsContext);
     const { uidCollection, user, userTitle } = UserAuth();
+    const router = useRouter();
 
     const userName = user?.displayName || userTitle || 'User';
 
@@ -36,6 +38,33 @@ const AssistantChat = () => {
     const [dataLoading, setDataLoading] = useState(true);
     const messagesEndRef = useRef(null);
     const inputRef = useRef(null);
+    const abortRef = useRef(null);
+
+    // The conversation survives leaving the page, the way the floating chat's
+    // already does — this one was thrown away on every navigation, which on the
+    // page you go to *in order to* have a conversation is the wrong way round.
+    // Keyed per workspace so switching IMS <-> GIS does not surface the other
+    // company's thread.
+    const storageKey = chatStorageKey('assistant', uidCollection);
+
+    useEffect(() => {
+        if (!uidCollection) return;
+        try {
+            const saved = localStorage.getItem(storageKey);
+            const parsed = saved ? JSON.parse(saved) : null;
+            setMessages(Array.isArray(parsed) ? parsed : []);
+        } catch { setMessages([]); }
+    }, [storageKey, uidCollection]);
+
+    useEffect(() => {
+        if (!uidCollection || !messages.length) return;
+        try { localStorage.setItem(storageKey, JSON.stringify(messages.slice(-50))); }
+        catch { /* private mode / quota — the thread just won't survive a reload */ }
+    }, [messages, storageKey, uidCollection]);
+
+    // Leaving mid-answer should stop the request, not leave it streaming into a
+    // component that no longer exists.
+    useEffect(() => () => abortRef.current?.abort(), []);
 
     const [contractsData, setContractsData] = useState([]);
     const [invoicesData, setInvoicesData] = useState([]);
@@ -220,12 +249,17 @@ const AssistantChat = () => {
 
         const msgId = `assistant-${Date.now()}`;
 
+        // One controller per request: Stop cancels it, and so does leaving the page.
+        const controller = new AbortController();
+        abortRef.current = controller;
+
         try {
-            const apiMessages = [...messages, userMsg]
-                .map(m => ({ role: m.role, content: m.content }));
+            // Trimmed, not the whole thread — see MAX_CHAT_HISTORY.
+            const apiMessages = trimHistory([...messages, userMsg]);
 
             const response = await authedFetch('/api/assistant', {
                 method: 'POST',
+                signal: controller.signal,
                 body: JSON.stringify({
                     messages: apiMessages,
                     currentData: getCurrentDataContext(),
@@ -266,11 +300,21 @@ const AssistantChat = () => {
                     const payload = line.slice(6).trim();
                     if (payload === '[DONE]') break;
                     try {
-                        const { text, error } = JSON.parse(payload);
+                        const parsed = JSON.parse(payload);
+                        const { text, error } = parsed;
                         if (error) throw new Error(error);
                         if (text) {
                             setMessages(prev => prev.map(m =>
                                 m.id === msgId ? { ...m, content: m.content + text } : m
+                            ));
+                        }
+                        // The server emits a final {sources:[...]} event before [DONE]:
+                        // the actual records each figure came from. The floating chat has
+                        // shown these all along; this page was dropping them, so the
+                        // fuller surface was the one you could not check.
+                        if (Array.isArray(parsed.sources) && parsed.sources.length) {
+                            setMessages(prev => prev.map(m =>
+                                m.id === msgId ? { ...m, sources: parsed.sources } : m
                             ));
                         }
                     } catch (e) {
@@ -286,11 +330,18 @@ const AssistantChat = () => {
                     const payload = line.slice(6).trim();
                     if (payload !== '[DONE]') {
                         try {
-                            const { text, error } = JSON.parse(payload);
+                            const parsed = JSON.parse(payload);
+                            const { text, error } = parsed;
                             if (error) throw new Error(error);
                             if (text) setMessages(prev => prev.map(m =>
                                 m.id === msgId ? { ...m, content: m.content + text } : m
                             ));
+                            // sources usually arrive in this last chunk
+                            if (Array.isArray(parsed.sources) && parsed.sources.length) {
+                                setMessages(prev => prev.map(m =>
+                                    m.id === msgId ? { ...m, sources: parsed.sources } : m
+                                ));
+                            }
                         } catch (e) { /* ignore malformed trailing chunk */ }
                     }
                 }
@@ -301,22 +352,34 @@ const AssistantChat = () => {
             ));
 
         } catch (err) {
-            console.error('Chat error:', err);
-            setMessages(prev => {
-                const filtered = prev.filter(m => m.id !== msgId);
-                return [...filtered, {
-                    id: `error-${Date.now()}`,
-                    role: 'assistant',
-                    content: `I encountered an error: ${err.message}. Please try again.`,
-                    time: dateFormat(new Date(), 'h:MM TT'),
-                    isError: true,
-                }];
-            });
+            // Stopping on purpose is not an error. Keep whatever had streamed in so
+            // far and mark it finished, rather than replacing a half-useful answer
+            // with a red "I encountered an error: aborted".
+            if (err?.name === 'AbortError') {
+                setMessages(prev => prev
+                    .map(m => (m.id === msgId ? { ...m, isStreaming: false } : m))
+                    .filter(m => !(m.id === msgId && !m.content)));
+            } else {
+                console.error('Chat error:', err);
+                setMessages(prev => {
+                    const filtered = prev.filter(m => m.id !== msgId);
+                    return [...filtered, {
+                        id: `error-${Date.now()}`,
+                        role: 'assistant',
+                        content: `I encountered an error: ${err.message}. Please try again.`,
+                        time: dateFormat(new Date(), 'h:MM TT'),
+                        isError: true,
+                    }];
+                });
+            }
         } finally {
+            abortRef.current = null;
             setIsLoading(false);
             inputRef.current?.focus();
         }
     };
+
+    const stopStreaming = useCallback(() => abortRef.current?.abort(), []);
 
     const handleKeyDown = (e) => {
         if (e.key === 'Enter' && !e.shiftKey) {
@@ -443,6 +506,37 @@ const AssistantChat = () => {
                                                     {message.isStreaming && (
                                                         <span className="inline-block w-1.5 h-4 bg-[var(--endeavour)] ml-0.5 animate-pulse rounded-lg" />
                                                     )}
+
+                                                    {/* The records behind the figures. An answer you cannot
+                                                        check is one you have to take on trust, and these are
+                                                        the rows the tool actually read — click through to the
+                                                        invoice or contract itself. */}
+                                                    {Array.isArray(message.sources) && message.sources.length > 0 && (
+                                                        <div className="mt-2 pt-2 border-t border-[var(--line)]">
+                                                            <div className="responsiveTextTable mb-1 text-[var(--ink-muted)]">
+                                                                Based on {message.sources.length} record{message.sources.length === 1 ? '' : 's'}
+                                                            </div>
+                                                            <div className="flex flex-wrap gap-1">
+                                                                {message.sources.slice(0, 12).map((src) => (
+                                                                    <button
+                                                                        key={`${src.type}:${src.id}`}
+                                                                        onClick={() => router.push(`${src.route}?focus=${encodeURIComponent(src.id)}`)}
+                                                                        title={`Open ${src.label} in ${String(src.route || '').replace('/', '')}`}
+                                                                        className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-lg bg-[var(--bg-card)] border border-[var(--line)] hover:border-[var(--brand)] transition-colors"
+                                                                        style={{ fontSize: 'var(--fs-table)', color: 'var(--brand-strong)' }}
+                                                                    >
+                                                                        <span className="truncate max-w-[140px]">{src.label}</span>
+                                                                    </button>
+                                                                ))}
+                                                                {message.sources.length > 12 && (
+                                                                    <span className="self-center responsiveTextTable text-[var(--ink-muted)]">
+                                                                        +{message.sources.length - 12} more
+                                                                    </span>
+                                                                )}
+                                                            </div>
+                                                        </div>
+                                                    )}
+
                                                     <div className="responsiveTextTable mt-1.5 text-right text-[var(--regent-gray)]">
                                                         {message.time}
                                                     </div>
@@ -496,16 +590,29 @@ const AssistantChat = () => {
                                         className="flex-1 outline-none focus-visible:outline-none text-[var(--port-gore)] placeholder-[var(--rock-blue)] disabled:opacity-50 disabled:cursor-not-allowed"
                                         style={{ backgroundColor: 'transparent', fontSize: 'inherit' }}
                                     />
+                                    {/* While an answer is streaming the send button has nothing
+                                        to do — it is disabled anyway — so it becomes Stop. A long
+                                        reply was previously unstoppable short of leaving the page. */}
+                                    {isLoading ? (
+                                        <button
+                                            onClick={stopStreaming}
+                                            aria-label="Stop generating"
+                                            title="Stop generating"
+                                            className="p-2 bg-[var(--bg-subtle)] text-[var(--ink-secondary)] rounded-lg border border-[var(--line-strong)] hover:text-[var(--ink)] hover:border-[var(--brand)] transition-colors"
+                                        >
+                                            <span className="block w-4 h-4 flex items-center justify-center">
+                                                <span className="block w-2.5 h-2.5 rounded-[2px] bg-current" />
+                                            </span>
+                                        </button>
+                                    ) : (
                                     <button
                                         onClick={() => handleSendMessage()}
                                         disabled={!newMessage.trim() || isLoading || dataLoading}
                                         className="p-2 bg-[var(--endeavour)] text-[var(--on-brand)] rounded-lg hover:bg-[var(--brand-deep)] transition-colors disabled:opacity-40 disabled:cursor-not-allowed flex-shrink-0"
                                     >
-                                        {isLoading
-                                            ? <IoRefresh className="w-4 h-4 animate-spin" />
-                                            : <IoSend className="w-4 h-4" />
-                                        }
+                                        <IoSend className="w-4 h-4" />
                                     </button>
+                                    )}
                                 </div>
                                 <div className="flex flex-wrap gap-2 mt-3">
                                     {quickActions.map((action, index) => (

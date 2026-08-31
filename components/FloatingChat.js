@@ -5,7 +5,7 @@ import { SettingsContext } from "../contexts/useSettingsContext";
 import { UserAuth } from "../contexts/useAuthContext";
 import { loadData, loadMarginsRange, loadAllStockData, loadCompanyExpenses, resolveInvoiceDate, groupInvoicesByNumber, computeStockNetSummary } from '../utils/utils';
 import { effectiveDueDate } from '../utils/finance';
-import { authedFetch } from '../utils/aiClient';
+import { authedFetch, trimHistory, chatStorageKey } from '../utils/aiClient';
 import { X, Send, Loader2, Trash2, RefreshCw, ExternalLink, Receipt, FileText, Wallet, Bot, User } from 'lucide-react';
 import { TONES } from './statusUtils';
 import dateFormat from "dateformat";
@@ -13,7 +13,7 @@ import dateFormat from "dateformat";
 // Map citation source type → icon for the chip row under each AI answer.
 const SOURCE_ICONS = { invoice: Receipt, contract: FileText, expense: Wallet };
 
-const STORAGE_KEY = 'ims-chat-messages';
+// Storage keys are built per workspace by chatStorageKey — see utils/aiClient.
 
 const NAV_PAGES = [
     { route: '/margins', keywords: ['margin', 'profit'] },
@@ -70,25 +70,33 @@ const FloatingChat = () => {
     const [stocksData, setStocksData] = useState([]);
     const [marginsData, setMarginsData] = useState([]);
 
-    // Restore chat history from localStorage on mount
+    const abortRef = useRef(null);
+
+    // Scoped to the workspace. It was one global key, so switching IMS <-> GIS
+    // carried the previous company's conversation — and the figures it had quoted —
+    // straight into the other one.
+    const storageKey = chatStorageKey('floating', uidCollection);
+
+    // Restore chat history from localStorage on mount (and on an account switch)
     useEffect(() => {
+        if (!uidCollection) return;
         try {
-            const saved = localStorage.getItem(STORAGE_KEY);
-            if (saved) {
-                const parsed = JSON.parse(saved);
-                if (Array.isArray(parsed) && parsed.length > 0) setMessages(parsed);
-            }
-        } catch (e) { /* ignore */ }
-    }, []);
+            const saved = localStorage.getItem(storageKey);
+            const parsed = saved ? JSON.parse(saved) : null;
+            setMessages(Array.isArray(parsed) && parsed.length > 0 ? parsed : []);
+        } catch { setMessages([]); }
+    }, [storageKey, uidCollection]);
 
     // Persist chat history to localStorage whenever messages change
     useEffect(() => {
-        if (messages.length > 1) {
-            try {
-                localStorage.setItem(STORAGE_KEY, JSON.stringify(messages.slice(-50)));
-            } catch (e) { /* ignore */ }
-        }
-    }, [messages]);
+        if (!uidCollection || messages.length <= 1) return;
+        try {
+            localStorage.setItem(storageKey, JSON.stringify(messages.slice(-50)));
+        } catch { /* private mode / quota — the thread just won't survive a reload */ }
+    }, [messages, storageKey, uidCollection]);
+
+    // Closing the tab or unmounting mid-answer should stop the request.
+    useEffect(() => () => abortRef.current?.abort(), []);
 
     const loadAllData = useCallback(async (force = false) => {
         if (!uidCollection || !dateSelect) return;
@@ -448,13 +456,18 @@ const FloatingChat = () => {
 
         const msgId = `assistant-${Date.now()}`;
 
+        // One controller per request: closing the chat or leaving cancels it.
+        const controller = new AbortController();
+        abortRef.current = controller;
+
         try {
-            const apiMessages = [...messages, userMsg]
-                .filter(m => m.id !== 'welcome')
-                .map(m => ({ role: m.role, content: m.content }));
+            // Trimmed, not the whole thread — see MAX_CHAT_HISTORY. The welcome
+            // message is ours, not the user's, and was being paid for every turn.
+            const apiMessages = trimHistory([...messages, userMsg].filter(m => m.id !== 'welcome'));
 
             const response = await authedFetch('/api/assistant', {
                 method: 'POST',
+                signal: controller.signal,
                 body: JSON.stringify({
                     messages: apiMessages,
                     currentData: getCurrentDataContext(),
@@ -542,18 +555,27 @@ const FloatingChat = () => {
             ));
 
         } catch (err) {
-            console.error('Chat error:', err);
-            setMessages(prev => {
-                const filtered = prev.filter(m => m.id !== msgId);
-                return [...filtered, {
-                    id: `error-${Date.now()}`,
-                    role: 'assistant',
-                    content: `I encountered an error: ${err.message}. Please try again.`,
-                    time: dateFormat(new Date(), 'h:MM TT'),
-                    isError: true,
-                }];
-            });
+            // Stopping on purpose is not an error: keep what streamed in and mark it
+            // done, rather than replacing a half-useful answer with a red banner.
+            if (err?.name === 'AbortError') {
+                setMessages(prev => prev
+                    .map(m => (m.id === msgId ? { ...m, isStreaming: false } : m))
+                    .filter(m => !(m.id === msgId && !m.content)));
+            } else {
+                console.error('Chat error:', err);
+                setMessages(prev => {
+                    const filtered = prev.filter(m => m.id !== msgId);
+                    return [...filtered, {
+                        id: `error-${Date.now()}`,
+                        role: 'assistant',
+                        content: `I encountered an error: ${err.message}. Please try again.`,
+                        time: dateFormat(new Date(), 'h:MM TT'),
+                        isError: true,
+                    }];
+                });
+            }
         } finally {
+            abortRef.current = null;
             setIsLoading(false);
             inputRef.current?.focus();
         }
@@ -574,7 +596,7 @@ const FloatingChat = () => {
             time: dateFormat(new Date(), 'h:MM TT'),
         };
         setMessages([welcome]);
-        try { localStorage.removeItem(STORAGE_KEY); } catch (e) { /* ignore */ }
+        try { localStorage.removeItem(storageKey); } catch { /* ignore */ }
     };
 
     const handleRefreshData = () => {
@@ -767,13 +789,28 @@ const FloatingChat = () => {
                                 className="flex-1 outline-none focus-visible:outline-none text-[var(--ink)] placeholder-[var(--ink-muted)] disabled:opacity-50 disabled:cursor-not-allowed"
                                 style={{ fontSize: 'var(--fs-body)', backgroundColor: 'transparent' }}
                             />
+                            {/* While streaming, the send button is disabled anyway — so it
+                                becomes Stop rather than a spinner that does nothing. */}
+                            {isLoading ? (
+                            <button
+                                onClick={() => abortRef.current?.abort()}
+                                aria-label="Stop generating"
+                                title="Stop generating"
+                                className="p-1.5 bg-[var(--bg-subtle)] text-[var(--ink-secondary)] rounded-lg border border-[var(--line-strong)] hover:text-[var(--ink)] hover:border-[var(--brand)] transition-colors"
+                            >
+                                <span className="w-3.5 h-3.5 flex items-center justify-center">
+                                    <span className="block w-2 h-2 rounded-[2px] bg-current" />
+                                </span>
+                            </button>
+                            ) : (
                             <button
                                 onClick={() => handleSendMessage()}
                                 disabled={!newMessage.trim() || isLoading || dataLoading}
                                 className="p-1.5 bg-[var(--brand)] text-[var(--on-brand)] rounded-lg hover:bg-[var(--brand-strong)] transition-colors disabled:opacity-40 disabled:cursor-not-allowed flex-shrink-0"
                             >
-                                {isLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />}
+                                <Send className="w-3.5 h-3.5" />
                             </button>
+                            )}
                         </div>
 
                         {/* Quick actions on first open */}
