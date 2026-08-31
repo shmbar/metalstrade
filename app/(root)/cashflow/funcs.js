@@ -608,10 +608,10 @@ export const StoclToolTip = ({ stock, stockDataAll, settings, uidCollection, set
                         <SumTh />
                         <SortTh colKey="order" label="PO#" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left po-col" />
                         <SortTh colKey="_supplierName" label="Supplier" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left w-16" />
-                        <SortTh colKey="descriptionName" label="Description" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left w-28 max-w-28" />
+                        <SortTh colKey="descriptionName" label="Description" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left desc-col" />
                         <SortTh colKey="qnty" label="Quantity" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-center w-14" />
-                        <SortTh colKey="unitPrc" label="Unit Price" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-right w-20" />
-                        <SortTh colKey="total" label="Total" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-right w-20" />
+                        <SortTh colKey="unitPrc" label="Unit Price" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-right price-col" />
+                        <SortTh colKey="total" label="Total" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-right total-col" />
                     </tr>
                 </thead>
                 <tbody>
@@ -626,7 +626,7 @@ export const StoclToolTip = ({ stock, stockDataAll, settings, uidCollection, set
                                         setValueCon, setIsOpenCon, blankInvoice, router, setToast)}>
                                     <Tltip direction='top' tltpText={z.order || ''}><span className="block truncate">{z.order}</span></Tltip></td>
                                 <td className="text-left w-16"><Tltip direction='top' tltpText={[supplierNames(z, settings).join(' + '), settings.Supplier.Supplier.find(q => q.id === z.originSupplier)?.nname ? 'Org: ' + settings.Supplier.Supplier.find(q => q.id === z.originSupplier)?.nname : ''].filter(Boolean).join(' · ')}><span className="flex items-center gap-1.5 min-w-0 cursor-default"><Avatar name={z._supplierName} size={18} /><span className="block truncate">{z._supplierName}</span></span></Tltip></td>
-                                <td className="text-left w-28 max-w-28">
+                                <td className="text-left desc-col">
                                     <Tltip direction='top' tltpText={z.descriptionName || ''}><span className={`block truncate cursor-default ${indent ? 'pl-4' : ''}`}>{z.descriptionName}</span></Tltip>
                                 </td>
                                 <td className="text-center">{
@@ -639,7 +639,7 @@ export const StoclToolTip = ({ stock, stockDataAll, settings, uidCollection, set
                                         fixedDecimalScale
                                     />
                                 }</td>
-                                <td className="text-right">{
+                                <td className="text-right price-col">{
                                     <NumericFormat
                                         value={z.unitPrc}
                                         displayType="text"
@@ -650,7 +650,7 @@ export const StoclToolTip = ({ stock, stockDataAll, settings, uidCollection, set
                                         fixedDecimalScale
                                     />
                                 }</td>
-                                <td className="text-right">{
+                                <td className="text-right total-col">{
                                     <NumericFormat
                                         value={z.total}
                                         displayType="text"
@@ -701,7 +701,7 @@ export const StoclToolTip = ({ stock, stockDataAll, settings, uidCollection, set
                                                 <span className="block truncate">{z._supplierName}</span>
                                             </span>
                                         </td>
-                                        <td className="text-left w-28 max-w-28">
+                                        <td className="text-left desc-col">
                                             <span className="flex items-center gap-1 font-medium" style={{ color: 'var(--chathams-blue)' }}>
                                                 <span className="inline-block transition-transform" style={{ transform: isOpen ? 'rotate(90deg)' : 'none' }}>›</span>
                                                 <span className="truncate">{z._groupDesc}</span>
@@ -711,8 +711,8 @@ export const StoclToolTip = ({ stock, stockDataAll, settings, uidCollection, set
                                         <td className="text-center font-medium">{
                                             <NumericFormat value={qSum} displayType="text" thousandSeparator decimalScale='3' fixedDecimalScale />
                                         }</td>
-                                        <td className="text-right"></td>
-                                        <td className="text-right font-medium">{
+                                        <td className="text-right price-col"></td>
+                                        <td className="text-right total-col font-medium">{
                                             <NumericFormat value={tSum} displayType="text" thousandSeparator
                                                 prefix={z.cur === 'us' ? '$' : '€'} decimalScale='2' fixedDecimalScale />
                                         }</td>
@@ -749,10 +749,10 @@ export const StoclToolTip = ({ stock, stockDataAll, settings, uidCollection, set
                                 />
                             }
                         </th>
-                        <th className="text-right">
+                        <th className="text-right price-col">
                             {showAmount(filteredArr.reduce((sum, item) => sum + item.unitPrc * 1, 0), 'usd')}
                         </th>
-                        <th className="text-right">
+                        <th className="text-right total-col">
                             {showAmount(filteredArr.reduce((sum, item) => sum + item.total * 1, 0), 'usd')}
                         </th>
                     </tr>
@@ -794,11 +794,11 @@ export const StocksUnSold = ({ supplier, stockDataAllArray, settings, uidCollect
                     <tr>
                         <SumTh />
                         <SortTh colKey="order" label="PO#" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left po-col" />
-                        <SortTh colKey="description" label="Description" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left w-28 max-w-28" />
+                        <SortTh colKey="description" label="Description" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left desc-col" />
                         <SortTh colKey="stockName" label="Stock" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left w-20" />
                         <SortTh colKey="qnty" label="Quantity" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-center w-14" />
-                        <SortTh colKey="unitPrc" label="Unit Price" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-right w-20" />
-                        <SortTh colKey="total" label="Total" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-right w-20" />
+                        <SortTh colKey="unitPrc" label="Unit Price" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-right price-col" />
+                        <SortTh colKey="total" label="Total" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-right total-col" />
                     </tr>
                 </thead>
                 <tbody>
@@ -812,7 +812,7 @@ export const StocksUnSold = ({ supplier, stockDataAllArray, settings, uidCollect
                                     onClick={() => moveToContracts(z, 'order', uidCollection, setDateSelect,
                                         setValueCon, setIsOpenCon, blankInvoice, router, setToast)}>
                                     <Tltip direction='top' tltpText={[z.order, settings.Supplier.Supplier.find(q => q.id === z.originSupplier)?.nname ? 'Org: ' + settings.Supplier.Supplier.find(q => q.id === z.originSupplier)?.nname : ''].filter(Boolean).join(' · ')}><span className="block truncate">{indent ? '' : z.order}</span></Tltip></td>
-                                <td className="text-left w-28 max-w-28">
+                                <td className="text-left desc-col">
                                     <Tltip direction='top' tltpText={z.description || ''}><span className={`block truncate cursor-default ${indent ? 'pl-4' : ''}`}>{z.description}</span></Tltip>
                                 </td>
                                 <td className="text-left w-20">
@@ -828,7 +828,7 @@ export const StocksUnSold = ({ supplier, stockDataAllArray, settings, uidCollect
                                         fixedDecimalScale
                                     />
                                 }</td>
-                                <td className="text-right">{
+                                <td className="text-right price-col">{
                                     <NumericFormat
                                         value={z.unitPrc}
                                         displayType="text"
@@ -839,7 +839,7 @@ export const StocksUnSold = ({ supplier, stockDataAllArray, settings, uidCollect
                                         fixedDecimalScale
                                     />
                                 }</td>
-                                <td className="text-right">{
+                                <td className="text-right total-col">{
                                     <NumericFormat
                                         value={z.total}
                                         displayType="text"
@@ -884,7 +884,7 @@ export const StocksUnSold = ({ supplier, stockDataAllArray, settings, uidCollect
                                             onClick={(e) => { e.stopPropagation(); moveToContracts(z, 'order', uidCollection, setDateSelect, setValueCon, setIsOpenCon, blankInvoice, router, setToast); }}>
                                             <span className="block truncate cursor-pointer hover:underline">{z.order}</span>
                                         </td>
-                                        <td className="text-left w-28 max-w-28">
+                                        <td className="text-left desc-col">
                                             <span className="flex items-center gap-1 font-medium" style={{ color: 'var(--chathams-blue)' }}>
                                                 <span className="inline-block transition-transform" style={{ transform: isOpen ? 'rotate(90deg)' : 'none' }}>›</span>
                                                 <span className="truncate">{z.groupDesc || 'Materials'}</span>
@@ -895,8 +895,8 @@ export const StocksUnSold = ({ supplier, stockDataAllArray, settings, uidCollect
                                         <td className="text-center font-medium">{
                                             <NumericFormat value={qSum} displayType="text" thousandSeparator decimalScale='3' fixedDecimalScale />
                                         }</td>
-                                        <td className="text-right"></td>
-                                        <td className="text-right font-medium">{
+                                        <td className="text-right price-col"></td>
+                                        <td className="text-right total-col font-medium">{
                                             <NumericFormat value={tSum} displayType="text" thousandSeparator
                                                 prefix={z.cur === 'us' ? '$' : '€'} decimalScale='2' fixedDecimalScale />
                                         }</td>
@@ -932,7 +932,7 @@ export const StocksUnSold = ({ supplier, stockDataAllArray, settings, uidCollect
                             }
                         </th>
                         <th></th>
-                        <th className="text-right">
+                        <th className="text-right total-col">
                             {ttl}
                         </th>
                     </tr>
@@ -964,8 +964,8 @@ export const StocksUnSold = ({ supplier, stockDataAllArray, settings, uidCollect
                                     </span>
                                 </th>
                                 <th className="text-center w-14">{showMatTotals ? 'Quantity' : ''}</th>
-                                <th className="text-left w-20">{showMatTotals ? 'Avg Price' : ''}</th>
-                                <th className="text-right w-20">{showMatTotals ? 'Total' : 'click to expand'}</th>
+                                <th className="text-left price-col">{showMatTotals ? 'Avg Price' : ''}</th>
+                                <th className="text-right total-col">{showMatTotals ? 'Total' : 'click to expand'}</th>
                             </tr>
                         </thead>
                         {showMatTotals && (
@@ -980,11 +980,11 @@ export const StocksUnSold = ({ supplier, stockDataAllArray, settings, uidCollect
                                     <td className="text-center">
                                         <NumericFormat value={g.qnty} displayType="text" thousandSeparator decimalScale='3' fixedDecimalScale />
                                     </td>
-                                    <td className="text-left">
+                                    <td className="text-left price-col">
                                         <NumericFormat value={g.qnty > 0 ? g.total / g.qnty : 0} displayType="text" thousandSeparator
                                             prefix={g.cur === 'us' ? '$' : '€'} decimalScale='2' fixedDecimalScale />
                                     </td>
-                                    <td className="text-right">
+                                    <td className="text-right total-col">
                                         <NumericFormat value={g.total} displayType="text" thousandSeparator
                                             prefix={g.cur === 'us' ? '$' : '€'} decimalScale='2' fixedDecimalScale />
                                     </td>
@@ -1043,9 +1043,9 @@ export const SharedStockDetails = ({ rows, settings }) => {
                             <SortTh colKey="_mat" label="Material" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left" />
                             <SortTh colKey="_wh" label="Warehouse" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left" />
                             <SortTh colKey="qnty" label="Quantity" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-center w-14" />
-                            <SortTh colKey="unitPrc" label="Unit Price" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-right w-20" />
+                            <SortTh colKey="unitPrc" label="Unit Price" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-right price-col" />
                             <SortTh colKey="_fin" label="Financed" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left w-16" />
-                            <SortTh colKey="_total" label="Total" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-right w-20" />
+                            <SortTh colKey="_total" label="Total" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-right total-col" />
                         </tr>
                     </thead>
                     <tbody>
@@ -1072,12 +1072,12 @@ export const SharedStockDetails = ({ rows, settings }) => {
                                 <td className="text-center">
                                     <NumericFormat value={r.qnty} displayType="text" thousandSeparator decimalScale='3' fixedDecimalScale />
                                 </td>
-                                <td className="text-right">
+                                <td className="text-right price-col">
                                     <NumericFormat value={r.unitPrc} displayType="text" thousandSeparator
                                         prefix={r.cur === 'eu' ? '€' : '$'} decimalScale='2' fixedDecimalScale />
                                 </td>
                                 <td className="text-left">{r._fin}</td>
-                                <td className="text-right">
+                                <td className="text-right total-col">
                                     <NumericFormat value={r._total} displayType="text" thousandSeparator
                                         prefix={r.cur === 'eu' ? '€' : '$'} decimalScale='2' fixedDecimalScale />
                                 </td>
@@ -1097,7 +1097,7 @@ export const SharedStockDetails = ({ rows, settings }) => {
                                 <div>IMS {showAmount(fin.IMS, 'usd')}</div>
                                 <div>GIS {showAmount(fin.GIS, 'usd')}</div>
                             </th>
-                            <th className="text-right">
+                            <th className="text-right total-col">
                                 {showAmount((rows || []).reduce((s, r) => s + valOf(r), 0), 'usd')}
                             </th>
                         </tr>
