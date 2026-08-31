@@ -18,6 +18,7 @@ import { buildInvoiceIndex, contractInvoicesFromIndex, getD } from '../../../uti
 import Spin from '../../../components/spinTable';
 import { ContractsValue, SumAllPayments, SumAllExp } from './funcs'
 import Tltip from '../../../components/tlTip'
+import TruncatedCell from '@components/table/TruncatedCell';
 import CBox from '../../../components/combobox.js'
 import { EXD } from './excel'
 import { EXD as EXDStatement } from '../contractsstatement/excel'
@@ -640,14 +641,10 @@ const ContractsMerged = () => {
         },
         {
             accessorKey: 'order', header: getTtl('PO', ln) + '#',
-            cell: (props) => {
-                const val = props.getValue();
-                return (
-                    <Tltip direction="right" tltpText={val}>
-                        <div className="truncate max-w-[80px]">{val}</div>
-                    </Tltip>
-                );
-            },
+            // Was `truncate max-w-[80px]` inside an always-on tooltip: an 80px cap
+            // cannot know how wide the column ended up, so a 14-digit reference
+            // ellipsized and popped a tooltip in a column with room to spare.
+            cell: (props) => <TruncatedCell value={props.getValue()} direction="right" />,
         },
         {
             accessorKey: 'supplier', header: getTtl('Supplier', ln),

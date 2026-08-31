@@ -18,6 +18,7 @@ import { getTtl } from '../../../utils/languages';
 import Toast from '../../../components/toast.js';
 import { TableSkeleton } from "../../../components/skeletons";
 import Tltip from '../../../components/tlTip';
+import TruncatedCell from '@components/table/TruncatedCell';
 import { ExternalLink } from 'lucide-react';
 import { invoiceQtyBySalesContract } from '../../../utils/salesLink';
 import { BtnIcon } from '@components/buttonIcons';
@@ -308,10 +309,14 @@ const SalesContracts = () => {
                 accessorFn: (c) => (invoicesByContract[c.id] || []).join(', '),
                 cell: (props) => {
                     const v = props.getValue();
+                    // Was `max-w-40 truncate` inside an always-on tooltip: a 160px cap
+                    // cannot know how wide the column ended up, so an invoice number
+                    // ellipsized — and raised a tooltip — in a column with room for it.
+                    // TruncatedCell truncates at the COLUMN's width, tooltips only when
+                    // the text really does not fit, and lets the value be copied.
                     return v
-                        ? <Tltip direction='top' tltpText={v}>
-                            <span className="block max-w-40 truncate mx-auto" style={{ color: 'var(--chathams-blue)', fontWeight: 500 }}>{v}</span>
-                        </Tltip>
+                        ? <TruncatedCell value={v} className="text-center"
+                            style={{ color: 'var(--chathams-blue)', fontWeight: 500 }} />
                         : <span style={{ color: 'var(--regent-gray)' }}>—</span>;
                 },
                 enableColumnFilter: false,
