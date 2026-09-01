@@ -99,6 +99,8 @@ const IDENTICAL_PAIRS: Array<[mobile: string, web: string]> = [
   ['mobile/src/shared/finance.js', 'utils/finance.js'],
   ['mobile/src/shared/pureHelpers.js', 'utils/pureHelpers.js'],
   ['mobile/src/shared/splitUtils.js', 'utils/splitUtils.js'],
+  // Ported 2026-08-17 for the Activity Log's Summary tab and the presence split.
+  ['mobile/src/shared/activityStats.js', 'utils/activityStats.js'],
   ['mobile/src/shared/currency.js', 'utils/currency.js'],
   ['mobile/src/shared/storageUtils.js', 'app/(root)/storagecosts/storageUtils.js'],
   ['mobile/src/shared/soldStatus.js', 'app/(root)/contractsstatement/soldStatus.js'],

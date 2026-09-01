@@ -9,6 +9,7 @@ import {
   doc,
   getDoc,
   getDocs,
+  setDoc,
   query,
   where,
 } from 'firebase/firestore';
@@ -447,4 +448,77 @@ export async function loadContractByOrder(uidCollection: string, orderNum: strin
     query(collection(db, uidCollection, 'data', `contracts_${year}`), where('order', '==', orderNum))
   );
   return snap.docs.map((d) => d.data() as Contract);
+}
+
+// ── presence ─────────────────────────────────────────────────────────────────
+// Verbatim port of utils/utils.js:361-390. Web has written these stamps for a
+// while; MOBILE NEVER DID, so anyone using the app was permanently invisible on
+// web's "Who's online" panel and their "last here" never moved. That made the
+// panel quietly wrong for the web users reading it, not just incomplete here.
+//
+// Deliberately NOT a source of truth for anything but a green dot: an app that is
+// killed stops beating without a chance to say so, which is why readers judge by
+// how old the stamp is rather than trusting an `online: false` nobody may have
+// written.
+
+/** Write cadence while signed in. */
+export const PRESENCE_HEARTBEAT_MS = 120_000;
+/** A stamp older than this reads as away. */
+export const PRESENCE_ONLINE_MS = 300_000;
+
+export async function touchPresence(
+  uidCollection: string,
+  actor: { uid?: string; name?: string; email?: string } = {},
+  extra: Record<string, any> = {}
+): Promise<boolean> {
+  if (!uidCollection || !actor?.uid) return false;
+  try {
+    await setDoc(
+      doc(db, uidCollection, 'data', 'presence', actor.uid),
+      {
+        uid: actor.uid,
+        name: actor.name || 'Unknown',
+        email: actor.email || '',
+        lastSeenMs: Date.now(),
+        lastSeen: new Date().toISOString(),
+        ...extra, // e.g. { loginAtMs } on a fresh sign-in
+      },
+      { merge: true }
+    );
+    return true;
+  } catch {
+    // Non-fatal by design: a missed heartbeat costs a green dot, never a screen.
+    return false;
+  }
+}
+
+export async function loadPresence(uidCollection: string): Promise<any[]> {
+  if (!uidCollection) return [];
+  try {
+    const snap = await getDocs(collection(db, uidCollection, 'data', 'presence'));
+    return snap.docs
+      .map((d) => d.data())
+      .sort((a: any, b: any) => (b.lastSeenMs || 0) - (a.lastSeenMs || 0));
+  } catch {
+    return [];
+  }
+}
+
+/**
+ * Sign-out is the one moment a user tells us they are leaving, so record it —
+ * a stale heartbeat would otherwise keep them "online" for the next five minutes.
+ * splitPresence treats a zeroed stamp as away immediately (utils/utils.js:394).
+ */
+export async function endPresence(uidCollection: string, uid: string): Promise<boolean> {
+  if (!uidCollection || !uid) return false;
+  try {
+    await setDoc(
+      doc(db, uidCollection, 'data', 'presence', uid),
+      { lastSeenMs: 0, lastSeen: new Date().toISOString(), signedOut: true },
+      { merge: true }
+    );
+    return true;
+  } catch {
+    return false;
+  }
 }

@@ -174,3 +174,30 @@ declare module '@shared/storageUtils' {
     whName?: (id: string) => string;
   }): { rows: StorageRow[]; totalCost: number; totalMt: number; overall: number | null };
 }
+
+declare module '@shared/activityStats' {
+  export const DAY_MS: number;
+  export const WEEK_MS: number;
+  export const LOGIN_TYPE: string;
+  export const LOGOUT_TYPE: string;
+  export function startOfWeek(ms?: number): number;
+  export function startOfDay(ms?: number): number;
+  export function activityLeaderboard(
+    rows?: any[],
+    opts?: { from?: number; to?: number }
+  ): { uid: string; name: string; count: number; share: number }[];
+  export function weeklyBreakdown(
+    rows?: any[],
+    opts?: { weeks?: number; now?: number }
+  ): { weekStart: number; label: string; total: number; byUser: Record<string, number> }[];
+  export function loginCounts(
+    rows?: any[],
+    opts?: { from?: number; to?: number }
+  ): { uid: string; name: string; logins: number }[];
+  /** Earliest createdAtMs in the pool — null when the window predates the feature. */
+  export function coverageFrom(rows?: any[], type?: string | null): number | null;
+  export function splitPresence(
+    presence?: any[],
+    opts?: { onlineMs?: number; now?: number }
+  ): { online: any[]; away: any[] };
+}

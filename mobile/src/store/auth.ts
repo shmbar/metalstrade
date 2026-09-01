@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { AppState } from 'react-native';
+import { touchPresence, endPresence, PRESENCE_HEARTBEAT_MS } from '@/data/firestore';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   onAuthStateChanged,
@@ -79,7 +80,7 @@ const buildCurrentUser = (user: User | null): CurrentUser => ({
   email: user?.email || '',
 });
 
-export const useAuth = create<AuthState>((set) => ({
+export const useAuth = create<AuthState>((set, get) => ({
   user: null,
   initializing: true,
   uidCollection: null,
@@ -109,6 +110,11 @@ export const useAuth = create<AuthState>((set) => ({
   },
 
   signOut: async () => {
+    // Tell the workspace we are leaving BEFORE dropping the session — a stale
+    // heartbeat would otherwise keep us "online" on everyone else's Activity
+    // panel for the next five minutes (web useAuthContext does the same).
+    const { uidCollection: uc, currentUser: cu } = get();
+    if (uc && cu?.uid) await endPresence(uc, cu.uid).catch(() => {});
     await AsyncStorage.removeItem(LAST_SEEN_KEY).catch(() => {});
     await fbSignOut(auth).catch(() => {});
   },
@@ -137,8 +143,23 @@ export const useAuth = create<AuthState>((set) => ({
   init: () => {
     // Keep the "last activity" stamp fresh while the app is used (foreground
     // transitions are the natural mobile heartbeat), mirroring the web's bump.
+    /* Mirror the heartbeat into Firestore so OTHER people can see who is here.
+       The AsyncStorage stamp above is readable only by this device, and mobile
+       never wrote the shared one at all — so anyone using the app was invisible
+       on web's "Who's online" panel and their "last here" never moved. Slower
+       than the local stamp (two minutes, web's cadence) because this one costs a
+       write, and non-fatal: a missed beat costs a green dot, never a screen. */
+    const beat = () => {
+      const { uidCollection: uc, currentUser: cu } = get();
+      if (auth.currentUser && uc && cu?.uid) touchPresence(uc, cu).catch(() => {});
+    };
+    const beatId = setInterval(beat, PRESENCE_HEARTBEAT_MS);
     const appStateSub = AppState.addEventListener('change', (next) => {
-      if (auth.currentUser && (next === 'active' || next === 'background')) bumpLastSeen();
+      if (auth.currentUser && (next === 'active' || next === 'background')) {
+        bumpLastSeen();
+        // Coming back to the app is the moment the dot is most likely stale.
+        if (next === 'active') beat();
+      }
     });
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       // Enforce the idle cap on restore: a session untouched for 30+ days must
@@ -168,14 +189,21 @@ export const useAuth = create<AuthState>((set) => ({
         const token = await user.getIdTokenResult();
         const uidCollection = (token.claims.uidCollection as string) || null;
         const userTitle = (token.claims.title as string) || null;
+        const cu = buildCurrentUser(user);
         set({
           user,
           uidCollection,
           userTitle,
           gisAccount: uidCollection === GIS_UID_COLLECTION,
-          currentUser: buildCurrentUser(user),
+          currentUser: cu,
           initializing: false,
         });
+        /* Stamp presence as soon as the account resolves, with loginAtMs, so the
+           workspace sees the arrival immediately rather than up to two minutes
+           later at the first heartbeat (web useAuthContext:266). */
+        if (uidCollection && cu?.uid) {
+          touchPresence(uidCollection, cu, { loginAtMs: Date.now() }).catch(() => {});
+        }
       } catch {
         set({
           user,
@@ -188,6 +216,7 @@ export const useAuth = create<AuthState>((set) => ({
       }
     });
     return () => {
+      clearInterval(beatId);
       appStateSub.remove();
       unsubscribe();
     };
