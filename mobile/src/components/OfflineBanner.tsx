@@ -24,7 +24,7 @@ export function OfflineBanner() {
         flexDirection: 'row',
         alignItems: 'center',
         gap: 6,
-        backgroundColor: '#28264f',
+        backgroundColor: '#1E1B39',
         paddingHorizontal: 14,
         paddingVertical: 6,
         borderRadius: 999,

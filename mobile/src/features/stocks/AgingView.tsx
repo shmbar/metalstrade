@@ -42,7 +42,7 @@ export function AgingView() {
         const danger = g.oldest >= DEMURRAGE_DAYS;
         const warn = g.oldest >= STALE_DAYS;
         return (
-          <Card key={g.terminal} style={{ marginBottom: 12, borderColor: danger ? '#fca5a5' : warn ? '#fde68a' : colors.border, borderWidth: 1 }}>
+          <Card key={g.terminal} style={{ marginBottom: 12, borderColor: danger ? colors.negative : warn ? colors.borderStrong : colors.border, borderWidth: 1 }}>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
               <Text variant="bodyMedium" numberOfLines={1} style={{ flex: 1 }}>{g.name}</Text>
               <Text variant="caption" tone={danger ? 'negative' : warn ? 'warn' : 'faint'}>oldest {g.oldest}d</Text>
@@ -50,7 +50,7 @@ export function AgingView() {
             <Text variant="caption" tone="muted" style={{ marginBottom: 8 }}>{g.count} item(s) · {fmtQty(g.qty)} qty</Text>
 
             {/* Age bucket bar */}
-            <View style={{ flexDirection: 'row', height: 8, borderRadius: 4, overflow: 'hidden', backgroundColor: '#eef5fc' }}>
+            <View style={{ flexDirection: 'row', height: 8, borderRadius: 4, overflow: 'hidden', backgroundColor: colors.surfaceAlt }}>
               {BUCKETS.map((b) => {
                 const pct = g.count ? (g.buckets[b] / g.count) * 100 : 0;
                 return pct > 0 ? <View key={b} style={{ width: `${pct}%`, backgroundColor: colors[BUCKET_TONE[b]] }} /> : null;
@@ -71,18 +71,18 @@ export function AgingView() {
 
       {/* Stale cargo list */}
       {staleRows.length > 0 && (
-        <Card style={{ borderColor: '#fde68a', borderWidth: 1, backgroundColor: '#fffbeb' }}>
-          <Text variant="bodyMedium" style={{ color: '#92400e', marginBottom: 8 }}>
+        <Card style={{ borderColor: colors.borderStrong, borderWidth: 1, backgroundColor: colors.surfaceAlt }}>
+          <Text variant="bodyMedium" style={{ color: colors.warn, marginBottom: 8 }}>
             Cargo sitting {STALE_DAYS}+ days without movement
           </Text>
           <View style={{ gap: 6 }}>
             {staleRows.slice(0, 100).map((r) => {
               const risk = r.days >= DEMURRAGE_DAYS;
               return (
-                <View key={r.id} style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 8, backgroundColor: '#fff', borderWidth: 1, borderColor: '#fde68a', borderRadius: 8, paddingHorizontal: 10, paddingVertical: 7 }}>
+                <View key={r.id} style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 8, backgroundColor: colors.card, borderWidth: 1, borderColor: colors.borderStrong, borderRadius: 8, paddingHorizontal: 10, paddingVertical: 7 }}>
                   <Text variant="caption" numberOfLines={1} style={{ flex: 1 }}>{r.descriptionName} · {r.terminalName} · {fmtQty(r.qnty)}</Text>
-                  <View style={{ backgroundColor: risk ? '#fee2e2' : '#fef3c7', borderRadius: 10, paddingHorizontal: 8, paddingVertical: 3 }}>
-                    <Text variant="caption" style={{ color: risk ? '#991b1b' : '#92400e' }}>{r.days}d{risk ? ' · demurrage' : ''}</Text>
+                  <View style={{ backgroundColor: risk ? colors.surfaceAlt : colors.surfaceAlt, borderRadius: 10, paddingHorizontal: 8, paddingVertical: 3 }}>
+                    <Text variant="caption" style={{ color: risk ? colors.negative : colors.warn }}>{r.days}d{risk ? ' · demurrage' : ''}</Text>
                   </View>
                 </View>
               );

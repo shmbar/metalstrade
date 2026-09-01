@@ -179,7 +179,7 @@ export default function ContractsList() {
           backgroundColor: colors.primary,
           alignItems: 'center',
           justifyContent: 'center',
-          shadowColor: '#103a7a',
+          shadowColor: colors.text,
           shadowOpacity: 0.3,
           shadowRadius: 12,
           shadowOffset: { width: 0, height: 6 },

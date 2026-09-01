@@ -162,8 +162,8 @@ export default function Accounting() {
                   <BarChart
                     labels={DAYS}
                     series={[
-                      { name: 'Debit', color: '#103a7a', data: chart.debit },
-                      { name: 'Credit', color: '#9fb8d4', data: chart.credit },
+                      { name: 'Debit', color: colors.text, data: chart.debit },
+                      { name: 'Credit', color: colors.positive, data: chart.credit },
                     ]}
                   />
                 </Card>
