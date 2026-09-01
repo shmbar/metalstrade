@@ -37,6 +37,10 @@ const Analyss = () => {
   const { uidCollection } = UserAuth();
   const [selectedSup, setSelectedSup] = useState({ supplier: '' });
   const [dataTable, setDataTable] = useState([]);
+  // Rows left after the table's search, reported up by Customtable. The Excel
+  // export is built from these; null means the table has not reported yet, in
+  // which case everything is exported rather than nothing.
+  const [filteredAnalysis, setFilteredAnalysis] = useState(null);
   const [conData, setConData] = useState([]);
 
   useEffect(() => {
@@ -107,7 +111,8 @@ const Analyss = () => {
                 SelectRow={() => { }}
                 cb={CB(settings, setSelectedSup, selectedSup)}
                 type='analysis'
-                excellReport={EXD(dataTable, settings, getTtl('Weight Analysis', ln), ln)}
+                excellReport={EXD(Array.isArray(filteredAnalysis) ? filteredAnalysis : dataTable, settings, getTtl('Weight Analysis', ln), ln)}
+                        setFilteredData={setFilteredAnalysis}
                 ln={ln}
               />
             </div>

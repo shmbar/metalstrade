@@ -1,5 +1,5 @@
 'use client';
-import { useContext, useEffect, useMemo , useRef } from 'react';
+import { useContext, useEffect, useMemo , useRef , useState } from 'react';
 import Customtable from './newTable';
 import { SettingsContext } from "../../../contexts/useSettingsContext";
 import MonthSelect from '../../../components/monthSelect';
@@ -454,6 +454,18 @@ const Accounting = () => {
     }).format(amount);
   };
 
+  // Rows the table has left after its filters, reported up by Customtable.
+  // The Excel export is built from THESE, not from the full period: filtering to
+  // one vendor and pressing Excel used to hand back every vendor in the range.
+  const [filteredAcc, setFilteredAcc] = useState(null);
+
+  const excelReport = useMemo(() => {
+    // null = the table has not reported yet (first paint); export everything
+    // rather than nothing, so the button is never silently empty.
+    const rows = Array.isArray(filteredAcc) ? filteredAcc : invoicesAccData;
+    return EXD(rows, settings, getTtl('Accounting', ln), ln);
+  }, [filteredAcc, invoicesAccData, settings, ln]);
+
   // ── Undo of inline cell edits ──────────────────────────────────────────────
   // A row here is a JOIN: some columns belong to the expense document, one to the
   // invoice, and the field written is not the column's own id (amountExp -> amount,
@@ -559,7 +571,8 @@ const Accounting = () => {
               <h3 className="text-title mb-4">All Transactions</h3>
               <Customtable data={invoicesAccData} columns={propDefaults} onCellUpdate={onCellUpdate}
                 undoCount={undoCount} onUndo={handleUndo} undoBusy={undoBusy} undoLabel={undoLabel}
-                excellReport={EXD(invoicesAccData, settings, getTtl('Accounting', ln), ln)} />
+                setFilteredData={setFilteredAcc}
+                excellReport={excelReport} />
             </div>
           </>
         }

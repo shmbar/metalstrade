@@ -8,7 +8,7 @@ import {
   getSortedRowModel,
   useReactTable
 } from "@tanstack/react-table"
-import { useMemo, useState } from "react"
+import { useMemo, useState, useEffect } from "react"
 
 import { Paginator } from "../../../components/table/Paginator";
 import RowsIndicator from "../../../components/table/RowsIndicator";
@@ -26,7 +26,8 @@ const Customtable = ({
   cb,
   cb1,
   type,
-  ln
+  ln,
+  setFilteredData
 }) => {
   const [globalFilter, setGlobalFilter] = useState('');
   const [columnVisibility, setColumnVisibility] = useTablePrefs('columns', invisible, type)
@@ -97,6 +98,15 @@ const Customtable = ({
     onColumnVisibilityChange: setColumnVisibility,
     onPaginationChange: setPagination,
   });
+
+  /* Report the rows the filters have left, so the Excel export can be built from
+     what is on screen. Without this the page exported the whole period: search for
+     one supplier, press Excel, and every supplier came back with it. */
+  useEffect(() => {
+    if (typeof setFilteredData !== 'function') return;
+    setFilteredData(table.getFilteredRowModel().rows.map(r => r.original));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [globalFilter, data]);
 
   const rows = table.getRowModel().rows;
   const dynamicMaxHeight = rows.length > 0

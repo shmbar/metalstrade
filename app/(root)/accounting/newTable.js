@@ -35,7 +35,7 @@ import { labelAwareGlobalFilter } from "../../../components/table/filters/labelA
 import { useTablePrefs, useTablePagination } from '@components/table/useTablePrefs';
 
 
-const Customtable = ({ data, columns, invisible, excellReport, onCellUpdate, undoCount, onUndo, undoBusy, undoLabel }) => {
+const Customtable = ({ data, columns, invisible, excellReport, onCellUpdate, undoCount, onUndo, undoBusy, undoLabel, setFilteredData }) => {
 
   const [globalFilter, setGlobalFilter] = useState('')
   const [columnVisibility, setColumnVisibility] = useTablePrefs('columns', invisible)
@@ -161,6 +161,17 @@ const Customtable = ({ data, columns, invisible, excellReport, onCellUpdate, und
       amountInv: money(sum('amountInv', 'curINV', 'saleInvoice', cur), cur),
     }))
   }, [table, data, globalFilter, columnFilters])
+
+  /* Hand the filtered rows up so the Excel export can be built from what is
+     actually on screen. Without this the page exported `invoicesAccData` whole:
+     filter to one vendor, press Excel, and you got every vendor in the period —
+     the reported "the export gives me the huge version with everyone in".
+     Every other table in the app already reports its filtered rows this way. */
+  useEffect(() => {
+    if (typeof setFilteredData !== 'function') return;
+    setFilteredData(table.getFilteredRowModel().rows.map(r => r.original));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [columnFilters, globalFilter, data]);
 
   const currentRows = table.getRowModel().rows.length;
   const dynamicMaxHeight = currentRows > 0
