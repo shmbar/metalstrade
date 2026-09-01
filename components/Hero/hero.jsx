@@ -56,22 +56,35 @@ export default function Hero() {
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
-              className="responsiveTextHero font-bold mb-5 leading-[1.15] tracking-tight"
+              /* .responsiveTextHeroXL, not .responsiveTextHero: the latter is the
+                 rung for the ABOUT/FEATURES page headings, and using it here put
+                 the homepage h1 at 30px/600 on a laptop — smaller and lighter
+                 than a dashboard KPI. The XL rung carries font-extrabold, which
+                 CLAUDE.md reserves for exactly this one headline. */
+              className="responsiveTextHeroXL mb-5"
             >
-              The operating system for{' '}
-              <span style={{
-                background: 'linear-gradient(90deg, var(--on-brand-muted) 0%, var(--on-brand) 60%, var(--on-brand) 100%)',
-                WebkitBackgroundClip: 'text', backgroundClip: 'text', color: 'transparent',
-              }}>
-                metal trading
-              </span>
+              {/* The subject phrase is the one that should be brightest. A
+                  background-clip gradient running muted → white put the FIRST
+                  half of "metal trading" at 78% opacity, so the two emphasised
+                  words rendered dimmer than the lead-in that qualifies them —
+                  it read as a font that had failed to load. Muted lead-in,
+                  solid subject: same emphasis, the right way round. */}
+              <span className="text-[var(--on-brand-muted)]">The operating system for</span>{' '}
+              metal trading
             </motion.h1>
 
             <motion.p
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.6, delay: 0.2 }}
-              className="responsiveTextTitle md:text-base text-[var(--on-brand-muted)] mb-6 leading-relaxed font-light max-w-lg"
+              /* fontSize via the variable rather than a class: .responsiveTextPage
+                 is the right RUNG for a hero lede but it @applies font-semibold,
+                 which would fight the font-light this paragraph wants. CLAUDE.md
+                 documents `fontSize: 'var(--fs-*)'` as the second way onto the
+                 same ladder — it ramps at the same breakpoints, no weight baggage.
+                 (`md:text-base` was a raw Tailwind size and off the ladder.) */
+              style={{ fontSize: 'var(--fs-page)' }}
+              className="text-[var(--on-brand-muted)] mb-6 leading-relaxed font-light max-w-xl"
             >
               Contracts, inventory, shipments, cashflow and margins — connected end to end.
               Drop a supplier invoice and the AI fills it in. Watch live metal prices and FX.
@@ -103,12 +116,14 @@ export default function Hero() {
                     surface + text pair, so in dark mode this white button turned
                     into a dark one on a dark-violet hero. --on-brand stays white
                     and --brand-deep stays deep, in both modes. */}
-                <span className="bg-[var(--on-brand)] text-[var(--brand-deep)] px-8 py-2.5 rounded-2xl font-bold hover:bg-[var(--on-brand-muted)] transition-all shadow-lg cursor-pointer inline-block hover:scale-105 active:scale-95 responsiveTextTitle">
+                {/* Hero CTAs sit on the --fs-page rung, not --fs-title: at 13px
+                    they read as app chrome next to a 52px headline. */}
+                <span style={{ fontSize: 'var(--fs-page)' }} className="bg-[var(--on-brand)] text-[var(--brand-deep)] px-8 py-3 rounded-2xl font-bold hover:bg-[var(--on-brand-muted)] transition-all shadow-lg cursor-pointer inline-block hover:scale-105 active:scale-95">
                   Sign In
                 </span>
               </Link>
               <a href="#modules">
-                <span className="border border-[var(--on-brand-soft-strong)] text-[var(--on-brand)] px-8 py-2.5 rounded-2xl font-bold hover:bg-[var(--on-brand-soft)] transition-all flex items-center gap-2 cursor-pointer hover:scale-105 active:scale-95 responsiveTextTitle">
+                <span style={{ fontSize: 'var(--fs-page)' }} className="border border-[var(--on-brand-soft-strong)] text-[var(--on-brand)] px-8 py-3 rounded-2xl font-bold hover:bg-[var(--on-brand-soft)] transition-all flex items-center gap-2 cursor-pointer hover:scale-105 active:scale-95">
                   Explore the platform <ArrowRight className="w-4 h-4" />
                 </span>
               </a>

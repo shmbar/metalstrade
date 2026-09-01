@@ -130,7 +130,7 @@ export default function AboutPage() {
     <div className="w-full bg-[var(--bg-card)] min-h-screen font-sans text-foreground">
       {/* Navbar Placeholder if needed - assuming layout handles it or user adds it */}
        <Navbar />
-      <main className="pt-15">
+      <main className="pt-20">
      <HeroSection
   title="About MetalsTrade"
   subtitle="Revolutionizing the metal trade industry with precision, innovation, and comprehensive solutions."

@@ -18,7 +18,9 @@ export default function FeatureCard({ icon: Icon, color, title, description, ind
         {title}
       </h3>
 
-      <p className="text-slate-500 responsiveTextTitle leading-relaxed">
+      {/* --ink-secondary, not text-slate-500: slate is a raw Tailwind colour
+          that never inverts, so it stayed mid-grey on the dark card. */}
+      <p className="text-[var(--ink-secondary)] responsiveTextTitle leading-relaxed">
         {description}
       </p>
     </motion.div>

@@ -11,7 +11,7 @@ export default function FeaturesPage() {
          <div className="w-full bg-[var(--bg-card)] min-h-screen font-sans text-foreground">
                {/* Navbar Placeholder if needed - assuming layout handles it or user adds it */}
                 <Navbar />
-               <main className="pt-15">
+               <main className="pt-20">
         <HeroSection
   title="Plans That Fit Your Business"
   subtitle="Choose the option that supports your growth and helps you move forward."
