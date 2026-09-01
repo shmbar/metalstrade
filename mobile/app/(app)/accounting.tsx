@@ -3,17 +3,12 @@ import { View, Pressable, FlatList, Modal, Alert } from 'react-native';
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Screen, Card, Text, Badge, TextField, Button, BarChart, SectionHeader, SkeletonList, ErrorState, EmptyState } from '@/components/ui';
+import { Screen, Card, Text, Badge, TextField, Button, SkeletonList, ErrorState, EmptyState } from '@/components/ui';
 import { PeriodSelector } from '@/components/PeriodSelector';
 import { useTheme } from '@/theme/ThemeProvider';
 import { useAccounting, AccountingGroup } from '@/features/accounting/useAccounting';
-import {
-  ACC_DAYS as DAYS,
-  accountingSummary,
-  accountingWeekdayChart,
-} from '@/features/accounting/accountingCore';
 import { useAccountingEdit } from '@/features/accounting/useAccountingEdit';
-import { curSymbol, fmtMoney, fmtCurKM, dateLabel } from '@/lib/format';
+import { curSymbol, fmtMoney, dateLabel } from '@/lib/format';
 import { exportCsv } from '@/lib/export';
 import { useSettings } from '@/store/settings';
 
@@ -35,10 +30,6 @@ export default function Accounting() {
       (g) => g.saleInvoice.toLowerCase().includes(q) || g.clientInvName.toLowerCase().includes(q) || g.invoice.includes(q)
     );
   }, [data, search]);
-
-  // Financial summary — web accounting tiles (totalIncome/expense/balance/margin),
-  // including the MERGED-ROW transaction count. See accountingCore.accountingSummary.
-  const summary = useMemo(() => accountingSummary(data), [data]);
 
   // Excel export — web parity. One row per merged line (invoice row, then each of
   // its expense/purchase lines), matching how web flattens the table.
@@ -70,18 +61,6 @@ export default function Accounting() {
       rows
     );
   };
-
-  // Web formatPercent: 2 decimals, with a +/-999% clamp.
-  const pct = (v: number) => {
-    if (!isFinite(v) || isNaN(v)) return '0%';
-    if (Math.abs(v) > 999) return v > 0 ? '>999%' : '<-999%';
-    return v.toFixed(2) + '%';
-  };
-
-  // Debit (costs) vs Credit (sales) by weekday — parity with the web accounting
-  // chart. See accountingCore.accountingWeekdayChart.
-  const chart = useMemo(() => accountingWeekdayChart(data), [data]);
-
   return (
     <Screen scroll={false} flush contentContainerStyle={{ paddingTop: insets.top + 8 }} edges={false}>
       <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
@@ -121,55 +100,6 @@ export default function Accounting() {
           contentContainerStyle={{ paddingBottom: insets.bottom + 96 }}
           onRefresh={refetch}
           refreshing={isLoading}
-          ListHeaderComponent={
-            <View>
-              {/* Financial summary tiles (web parity) */}
-              <View style={{ flexDirection: 'row', gap: 10, marginBottom: 12 }}>
-                {[
-                  { k: 'Income', v: fmtCurKM('us', summary.income), tone: 'positive' as const },
-                  { k: 'Costs', v: fmtCurKM('us', summary.expense), tone: 'negative' as const },
-                  { k: 'Net', v: fmtCurKM('us', summary.balance), tone: summary.balance >= 0 ? ('positive' as const) : ('negative' as const) },
-                  { k: 'Margin', v: pct(summary.marginPct), tone: 'default' as const },
-                ].map((t) => (
-                  <Card key={t.k} style={{ flex: 1 }}>
-                    <Text variant="caption" tone="muted">{t.k}</Text>
-                    <Text variant="bodyMedium" tone={t.tone} numberOfLines={1} style={{ marginTop: 2, fontVariant: ['tabular-nums'] }}>
-                      {t.v}
-                    </Text>
-                  </Card>
-                ))}
-              </View>
-
-              {/* Web's second tile row: Savings, Total Transactions, Avg. Transaction. */}
-              <View style={{ flexDirection: 'row', gap: 10, marginBottom: 12 }}>
-                {[
-                  { k: 'Savings', v: fmtCurKM('us', summary.savings), tone: 'positive' as const },
-                  { k: 'Transactions', v: String(summary.txCount), tone: 'default' as const },
-                  { k: 'Avg. txn', v: fmtCurKM('us', summary.avgTx), tone: 'default' as const },
-                ].map((t) => (
-                  <Card key={t.k} style={{ flex: 1 }}>
-                    <Text variant="caption" tone="muted">{t.k}</Text>
-                    <Text variant="bodyMedium" tone={t.tone} numberOfLines={1} style={{ marginTop: 2, fontVariant: ['tabular-nums'] }}>
-                      {t.v}
-                    </Text>
-                  </Card>
-                ))}
-              </View>
-
-              {chart.hasData ? (
-                <Card style={{ marginBottom: 12 }}>
-                  <SectionHeader title="Debit vs Credit" subtitle="By weekday" />
-                  <BarChart
-                    labels={DAYS}
-                    series={[
-                      { name: 'Debit', color: colors.text, data: chart.debit },
-                      { name: 'Credit', color: colors.positive, data: chart.credit },
-                    ]}
-                  />
-                </Card>
-              ) : null}
-            </View>
-          }
           renderItem={({ item }) => {
             const symS = curSymbol(item.curINV);
             const costs = item.lines.reduce((s, l) => s + l.amountExp, 0);
