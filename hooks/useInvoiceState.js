@@ -39,6 +39,30 @@ const newInvoice = {
     }
 }
 
+// A DRAFT invoice has not shipped anything, so it must not move stock.
+//
+// The money side already knows this — runInvoices drops draft rows from the client
+// balances — but the stock ledger never did: the movements were written on save
+// like any other invoice, so the weight left the warehouse while the money stayed
+// away. Invoice 1472 was a draft with three 'out' movements against it.
+//
+// Filtering drafts out at the readers instead would mean touching every stock
+// consumer on both web and mobile — cashflow, the stocks page, the audit, shared
+// stock, storage costs — and missing one would leave the same bug in a quieter
+// place. Not writing the movements keeps every reader correct without changing
+// any of them: a draft simply is not in the ledger.
+//
+// Symmetric on purpose. Ticking Draft on an invoice that already shipped removes
+// its movements and gives the weight back; clearing the tick writes them again.
+const writeInvoiceStockMovements = async (uidCollection, invoice, rows) => {
+    if (!rows.length) return;
+    if (invoice?.draft) {
+        await delStock(uidCollection, rows.map(r => r.id).filter(id => typeof id === 'string' && id));
+        return;
+    }
+    await saveStockIn(uidCollection, rows);
+};
+
 const useInvoiceState = () => {
 
     const [valueInv, setValueInv] = useState();
@@ -257,7 +281,7 @@ const useInvoiceState = () => {
                 cur: valueCon.cur
             }))
 
-            await saveStockIn(uidCollection, tmpObj1)
+            await writeInvoiceStockMovements(uidCollection, tmpValue, tmpObj1)
             if (deleteProdcuts.length > 0) delStock(uidCollection, deleteProdcuts)
 
 
@@ -380,7 +404,7 @@ const useInvoiceState = () => {
                     cur: tmpValue.cur
                 }))
 
-                await saveStockIn(uidCollection, tmpObj1)
+                await writeInvoiceStockMovements(uidCollection, tmpValue, tmpObj1)
                 if (deleteProdcuts.length > 0) delStock(uidCollection, deleteProdcuts)
 
                 let success = await saveData(uidCollection, 'invoices', tmpValue)
