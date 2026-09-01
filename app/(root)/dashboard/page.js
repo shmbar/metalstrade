@@ -425,6 +425,56 @@ const fmtPct = (p) => {
   return `${p.toFixed(p < 10 ? 1 : 0)}%`;
 };
 
+/* The records behind one ranking tile — the contracts under a supplier, the invoices under
+   a client. Same idea as the Expenses drill-down, which is the interaction Zak asked for
+   on every ranking card (2026-09-02): a tile states a figure, and clicking it should show
+   what makes that figure up.
+   `cols` keeps one component serving both cards, since a contract row and an invoice row
+   carry different columns but the same shape of question. */
+function DetailModal({ title, subtitle, rows = [], cols = [], isOpen, setIsOpen }) {
+  const total = rows.reduce((a, r) => a + (Number(r.usd ?? r.value) || 0), 0);
+  return (
+    <Modal isOpen={isOpen} setIsOpen={setIsOpen} size="lg" title={title || ''} subtitle={subtitle}>
+      <div className="p-4">
+        {rows.length === 0
+          ? <div className="responsiveText text-[var(--regent-gray)] py-6 text-center">Nothing recorded for this row in the period</div>
+          : (
+            <div className="rounded-2xl border border-[var(--line)] overflow-hidden">
+              <table className="w-full">
+                <thead>
+                  <tr>
+                    {cols.map(c => (
+                      <th key={c.key} className={`responsiveTextTableTitle text-[var(--regent-gray)] font-medium px-3 py-1.5 ${c.right ? 'text-right' : 'text-left'}`}>{c.label}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {rows.map((r, i) => (
+                    <tr key={i}>
+                      {cols.map(c => (
+                        <td key={c.key} className={`responsiveTextTable px-3 py-1.5 ${c.right ? 'text-right numeric text-[var(--ink)]' : 'text-[var(--ink-secondary)]'}`}>
+                          {c.render ? c.render(r) : (r[c.key] ?? '—')}
+                        </td>
+                      ))}
+                    </tr>
+                  ))}
+                </tbody>
+                <tfoot>
+                  <tr>
+                    <td className="responsiveTextTable px-3 py-1.5 font-semibold text-[var(--ink)]" colSpan={cols.length - 1}>
+                      {rows.length} record{rows.length === 1 ? '' : 's'}
+                    </td>
+                    <td className="responsiveTextTable numeric px-3 py-1.5 text-right font-semibold text-[var(--ink)]">{fmtAutoKM(total)}</td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+          )}
+      </div>
+    </Modal>
+  );
+}
+
 /* Contracts whose own records contradict each other, listed so the banner can name them.
    Written because a single contract (060526-TIM) overstated the dashboard's purchased
    tonnage by 2,386 MT — 47% of the headline figure — and the only way anyone found out
@@ -639,13 +689,15 @@ function RankTile({ label, value, share, fill = 0, accent = 'var(--brand)', avat
   const pct = Math.max(0, Math.min(1, Number(fill) || 0)) * 100;
   /* Clickable tiles are real buttons, not divs with a handler — they are reached by Tab
      and fired by Enter/Space for free, which a div would have to reimplement badly.
+     The label says what the click DOES — these opened a filter once and now open the
+     breakdown, and a stale label is worse than none.
      aria-label rather than title: the label span inside already owns the hover tooltip
      (it carries the full text when a name is truncated), and a second tooltip on the
      wrapper only fights it. */
   const Tag = onPick ? m.button : m.div;
   return (
     <Tag
-      {...(onPick ? { type: 'button', onClick: onPick, 'aria-label': `Filter the dashboard by ${label}`, 'aria-pressed': picked } : {})}
+      {...(onPick ? { type: 'button', onClick: onPick, 'aria-label': `Show the records behind ${label}`, 'aria-pressed': picked } : {})}
       className={`relative overflow-hidden rounded-2xl border bg-[var(--bg-subtle)] px-2.5 py-2 flex flex-col gap-1 min-w-0 transition-colors ${hero ? 'col-span-2 xl:col-span-3' : ''} ${onPick ? 'text-left cursor-pointer hover:border-[var(--brand)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-soft)]' : 'hover:border-[var(--line-strong)]'} ${picked ? 'border-[var(--brand)]' : 'border-[var(--line)]'}`}
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
@@ -704,7 +756,11 @@ function RankTile({ label, value, share, fill = 0, accent = 'var(--brand)', avat
    materials outside the top 8 are 48% of the tonnage — but it belongs as one row,
    not as a scrollbar the reader has to discover. Returns the visible slice and the
    folded remainder so both cards below fold identically. */
-const TAIL_AFTER = 8;
+/* Six, so the collapsed grid always fills exactly and never leaves a hole.
+   Rank 1 spans the whole row, which leaves 5 tiles + the "N more" control = 6 cells —
+   two rows of three at xl, three rows of two at lg, no gaps at either width. At 8 the last
+   row sat two-thirds empty and the control took a row of its own on top of that. */
+const TAIL_AFTER = 6;
 function foldRows(rows, expanded) {
   if (rows.length <= TAIL_AFTER + 1) return { shown: rows, hidden: [], tail: 0 };
   const shown = expanded ? rows : rows.slice(0, TAIL_AFTER);
@@ -713,20 +769,34 @@ function foldRows(rows, expanded) {
 }
 
 // The show-more / show-less control under a folded ranking list.
+/* The control is a TILE, not a bar across the bottom. It takes the cell the grid would
+   otherwise leave blank, so the "N more" costs no extra height and the last row is never
+   half-empty. Same footprint and radius as the tiles beside it; dashed and unfilled so it
+   still reads as a control rather than another figure. */
 function FoldToggle({ expanded, onToggle, count, amount }) {
   return (
-    <button
+    <m.button
       type="button"
       onClick={onToggle}
-      className="col-span-2 xl:col-span-3 rounded-2xl border border-dashed border-[var(--line-strong)] bg-transparent px-2.5 py-1.5 flex items-center justify-center gap-1.5 transition-colors hover:bg-[var(--bg-subtle)]"
+      className="rounded-2xl border border-dashed border-[var(--line-strong)] bg-transparent px-2.5 py-2 flex flex-col items-center justify-center gap-0.5 min-w-0 transition-colors hover:bg-[var(--bg-subtle)] hover:border-[var(--brand)]"
+      initial={{ opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.28, ease: 'easeOut' }}
+      whileTap={{ scale: 0.98 }}
     >
-      <span className="responsiveTextTable font-medium text-[var(--regent-gray)]">
-        {expanded ? 'Show less' : `${count} more · ${amount}`}
+      <span className="flex items-center gap-1 min-w-0">
+        <span className="responsiveTextTable font-medium text-[var(--regent-gray)] truncate">
+          {expanded ? 'Show less' : `${count} more`}
+        </span>
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" className="flex-shrink-0 transition-transform"
+          style={{ transform: expanded ? 'rotate(180deg)' : undefined }} aria-hidden="true">
+          <path d="M6 9l6 6 6-6" stroke="var(--regent-gray)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
       </span>
-      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" style={{ transform: expanded ? 'rotate(180deg)' : undefined }}>
-        <path d="M6 9l6 6 6-6" stroke="var(--regent-gray)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-      </svg>
-    </button>
+      {!expanded && amount && (
+        <span className="responsiveTextTableTitle numeric text-[var(--ink-muted)] truncate">{amount}</span>
+      )}
+    </m.button>
   );
 }
 
@@ -1337,6 +1407,8 @@ const Dash = () => {
   const [expDrill, setExpDrill] = useState(null);
   // Whether the contract data-quality list is open.
   const [issuesOpen, setIssuesOpen] = useState(false);
+  // Which ranking tile has its breakdown open: { kind: 'supplier'|'client', label }
+  const [drill, setDrill] = useState(null);
 
   /* Collapsed bands, remembered per browser — someone who never reads "Other" should stop
      scrolling past it. Read in an effect rather than a useState initialiser so the server
@@ -1583,11 +1655,12 @@ const Dash = () => {
        means the card can no longer drift from the headline it sits under. */
     const byClient = {};
     const byClientMonth = {}; // client -> 12 buckets, for the ranking tile sparklines
+    const byClientDetails = {}; // client -> the invoices behind its tile
     let total = 0;
     let missingInvRate = 0;
     const start = dateSelect?.start, end = dateSelect?.end;
     if (!Array.isArray(rawRecvInvoices) || !settings?.Currency?.Currency || !start || !end) {
-      return { byMonth, total, byClient, byClientMonth };
+      return { byMonth, total, byClient, byClientMonth, byClientDetails };
     }
     // Supplier/Material filters only resolve through a loaded contract; Client matches
     // the invoice directly (same behaviour as the Receivables card).
@@ -1621,9 +1694,12 @@ const Dash = () => {
         total += usd;
         byClient[clientName] = (byClient[clientName] || 0) + usd;
         (byClientMonth[clientName] ||= Array(12).fill(0))[m - 1] += usd;
+        (byClientDetails[clientName] ||= []).push({
+          invoice: inv.invoice ?? '', date: d, usd, amount: amt, cur: curId === 'us' ? 'us' : 'eu',
+        });
       }
     }));
-    return { byMonth, total, missingInvRate, byClient, byClientMonth };
+    return { byMonth, total, missingInvRate, byClient, byClientMonth, byClientDetails };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [rawRecvInvoices, settings, companyRate, liveEurUsd, dateSelect, fClient, fSupplier, fMaterial, fCurrency, fOrigin, fDelTerm, filteredContracts]);
 
@@ -1659,6 +1735,19 @@ const Dash = () => {
   const cogsByMonth = conAgg.cogsByMonth || {};
   const expByType = conAgg.expByType || {};
   const expDetails = conAgg.expDetails || {};
+  // Commission billed by GIS, held out of Contract Expenses and shown on its own.
+  const gisCommission = conAgg.gisCommission || { total: 0, rows: [] };
+  /* Split by GIS entity, because "$305.50K" alone answers none of the questions someone
+     actually has about it. Two entities bill this — GIS OÜ and GIS Ltd — and which one
+     matters more than the total. */
+  const gisCommissionBy = useMemo(() => {
+    const by = {};
+    (gisCommission.rows || []).forEach(r => {
+      const name = settings?.Supplier?.Supplier?.find(s => s.id === r.supplier)?.nname || 'GIS';
+      by[name] = (by[name] || 0) + (Number(r.usd) || 0);
+    });
+    return Object.entries(by).sort((a, b) => b[1] - a[1]);
+  }, [gisCommission, settings]);
   const dataIssues = conAgg.dataIssues || [];
   const issueCounts = dataIssues.reduce((a, i) => ({ ...a, [i.kind]: (a[i.kind] || 0) + 1 }), {});
   /* conAgg.materialSold is no longer read here — the "Most-Sold Material" card it fed was
@@ -1898,9 +1987,13 @@ const Dash = () => {
       {
         label: 'Profit',
         data: profitSeries,
-        // Canvas can't parse CSS var() strings — it silently fell back to black
-        // (and a blank tooltip swatch). Resolve the variable to a real color.
-        borderColor: cssVar('--on-brand', '#ffffff'),
+        /* Canvas can't parse CSS var() strings — it silently fell back to black, so this
+           was resolved to a real colour. But --on-brand IS white: it is the ink that goes
+           ON a brand fill, not a line colour. So the profit line was drawn white on a
+           white card — invisible, with a blank legend swatch to match, which is exactly
+           how it looked (Zak, 2026-09-02: "where is green profit line?").
+           Green, like every other profit figure on this page. */
+        borderColor: cssVar('--ok-figure', '#37815F'),
         backgroundColor: 'transparent',
         borderWidth: 2,
         borderDash: [5, 4],
@@ -2151,6 +2244,32 @@ const Dash = () => {
               because a card now carries the same information and a sparkline
               repeating it is just noise: Net Profit (Sold) -> Profit, Other
               Expenses -> Expenses, Storage Spend -> Warehouse & Storage. */}
+          {/* ══ BAND 2 — SALES ═══════════════════════════════════════════════════
+              The only two figures on the page counted by INVOICE date. They are
+              deliberately together and deliberately not next to the deal-basis
+              profit block: these two reconcile with the Invoices Review, and the
+              purchasing band above does not. */}
+          <BandHeader
+            title="Sales"
+            subtitle="What was invoiced to clients in this period, whenever the material was bought"
+            period={`Invoices dated ${periodLabel}`}
+            open={!collapsed.sales}
+            onToggle={() => toggleBand('sales')}
+          />
+          {!collapsed.sales && (
+          <div className="grid grid-cols-1 gap-5 mb-5">
+              <RankingList
+                title="Consignees — $"
+                subtitle="Sales revenue by client — invoices dated in the period"
+                labels={clientRank.labels}
+                data={clientRank.data}
+                totalValue={invoiceRevAgg.total}
+                series={invoiceRevAgg.byClientMonth || {}}
+                onPick={(name) => setDrill({ kind: 'client', label: name })}
+              />
+          </div>
+          )}
+
           <BandHeader
             title="Purchasing & costs"
             subtitle="Tonnage and profit as recorded on the Margins page · costs from the Expenses pages"
@@ -2261,9 +2380,77 @@ const Dash = () => {
               until Zak said it wasn't needed (2026-08-26); the donut moved up to take its
               place rather than leave a half-empty row, which frees the hero chart to run
               full width — a 12-month line reads better wide than it did at two thirds. */}
-          <div className="grid grid-cols-1 gap-5 mb-5">
-            <TonnageCard purchased={totalMT} shipped={shippedMT} pending={pendingMT} unsoldValue={unsoldValue} />
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 mb-5">
+            <div className="lg:col-span-2">
+              <TonnageCard purchased={totalMT} shipped={shippedMT} pending={pendingMT} unsoldValue={unsoldValue} />
+            </div>
+            {/* GIS COMMISSION — outside the expenses panel because it is no longer part of
+                Contract Expenses: it is commission between the two houses, not a cost of
+                moving metal, and at 94% of all commission it made trading costs look far
+                heavier than they are.
+                Sharing the Tonnage row rather than taking one of its own (Zak, 2026-09-02).
+                Full width it was worse than wasteful — the label sat at the far left and
+                its figure at the far right, ~1,200px apart, so the number belonged to
+                nothing. In a third of a row they stack and read as one fact. */}
+            {gisCommission.total !== 0 && (
+              <m.button
+                type="button"
+                onClick={() => setDrill({ kind: 'gis', label: 'GIS Commission' })}
+                aria-label="Show the GIS commission payments"
+                className="relative overflow-hidden rounded-2xl border p-4 flex flex-col text-left transition-colors group"
+                style={{
+                  /* Tinted, not white. Every other card in this row is white, and a plain
+                     white card holding one number reads as an afterthought — which is what
+                     it looked like. A wash of its own hue makes it a thing in its own
+                     right, which is the point of pulling it out of expenses at all.
+                     --teal-text is the documented non-status hue, so no status colour is
+                     being borrowed for decoration. */
+                  background: 'color-mix(in srgb, var(--teal-text) 7%, var(--bg-card))',
+                  borderColor: 'color-mix(in srgb, var(--teal-text) 22%, transparent)',
+                }}
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.35, ease: 'easeOut' }}
+                whileHover={{ y: -3, boxShadow: 'var(--shadow-sm)' }}
+                whileTap={{ scale: 0.995 }}
+              >
+                <span className="flex items-center gap-2 min-w-0">
+                  <span className="inline-flex items-center justify-center rounded-lg flex-shrink-0"
+                    style={{ background: 'color-mix(in srgb, var(--teal-text) 16%, transparent)', color: 'var(--teal-text)', width: 30, height: 30 }}>
+                    <Percent size={15} strokeWidth={2} />
+                  </span>
+                  <span className="responsiveTextTable font-medium text-[var(--regent-gray)] leading-tight">GIS Commission</span>
+                </span>
 
+                <span className="numeric font-semibold leading-none mt-2"
+                  style={{ fontSize: 'var(--fs-stat)', color: 'var(--teal-text)' }}>{fmtAutoKM(gisCommission.total)}</span>
+                <span className="responsiveTextTableTitle text-[var(--ink-muted)] leading-tight mt-1">
+                  excluded from Contract Expenses
+                </span>
+
+                {/* The card was mostly empty below the note. The split by entity fills it
+                    with the thing a reader actually wants next — WHO billed it — and turns
+                    a single figure into a small breakdown. */}
+                {gisCommissionBy.length > 0 && (
+                  <span className="mt-3 pt-3 flex flex-col gap-1.5"
+                    style={{ borderTop: '1px solid color-mix(in srgb, var(--teal-text) 18%, transparent)' }}>
+                    {gisCommissionBy.map(([name, val]) => (
+                      <span key={name} className="flex items-center justify-between gap-2 min-w-0">
+                        <span className="flex items-center gap-1.5 min-w-0">
+                          <Avatar name={name} size={16} />
+                          <span className="responsiveTextTable text-[var(--ink-secondary)] truncate">{name}</span>
+                        </span>
+                        <span className="responsiveTextTable numeric font-medium text-[var(--ink)] flex-shrink-0">{fmtAutoKM(val)}</span>
+                      </span>
+                    ))}
+                  </span>
+                )}
+
+                <span className="responsiveTextTableTitle text-[var(--teal-text)] mt-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                  {gisCommission.rows.length} payment{gisCommission.rows.length === 1 ? '' : 's'} — click for detail
+                </span>
+              </m.button>
+            )}
           </div>
 
           {/* HERO TREND — full width since the donut moved up beside Tonnage. */}
@@ -2284,30 +2471,18 @@ const Dash = () => {
               </div>
             </CardShell>
           </div>
-
-          {/* SUPPLIER RANKING + EXPENSES BY TYPE. The ranking was paired with Consignees,
-              which looked tidy and read as one comparison — but the two count different
-              things over different windows (purchase value of contracts bought here, sales
-              invoiced there), so Consignees went to the Sales band. It then spent a stint
-              at full width, which cost ~350px of scroll and bought nothing; Expenses by
-              Type keeps it company instead. Neither passes a .slice() — BreakdownCard and
-              RankingList fold their own tails. */}
+          {/* SUPPLIER RANKING + EXPENSES BY TYPE. Clicking a tile opens the records behind
+              it rather than filtering — the filter bar above already filters, and the tile
+              was the only route to the detail (Zak, 2026-09-02). */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-5">
             <RankingList
               title="Contracts — $"
-              subtitle="Contribution breakdown by contract values"
+              subtitle="Purchase value by supplier — contracts dated in the period"
               labels={hbSupps.obj.labels || []}
               data={hbSupps.obj.datasets?.[0]?.data || []}
               totalValue={totalContracts}
               series={conAgg.suppSeries || {}}
-              /* The card ranks by NAME; the filter holds a supplier id. Resolve here and
-                 only offer the click when it resolves — "Unknown supplier" is a bucket of
-                 ids that are not in settings, so there is nothing to filter to. */
-              onPick={(name) => {
-                const id = settings.Supplier?.Supplier?.find(s => s.nname === name)?.id;
-                if (id) setFSupplier(fSupplier === id ? '' : id);
-              }}
-              picked={settings.Supplier?.Supplier?.find(s => s.id === fSupplier)?.nname}
+              onPick={(name) => setDrill({ kind: 'supplier', label: name })}
             />
             <BreakdownCard
               title="Expenses by Type"
@@ -2321,43 +2496,6 @@ const Dash = () => {
           </div>
           </>)}
 
-          {/* ══ BAND 2 — SALES ═══════════════════════════════════════════════════
-              The only two figures on the page counted by INVOICE date. They are
-              deliberately together and deliberately not next to the deal-basis
-              profit block: these two reconcile with the Invoices Review, and the
-              purchasing band above does not. */}
-          <BandHeader
-            title="Sales"
-            subtitle="What was invoiced to clients in this period, whenever the material was bought"
-            period={`Invoices dated ${periodLabel}`}
-            open={!collapsed.sales}
-            onToggle={() => toggleBand('sales')}
-          />
-          {!collapsed.sales && (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 mb-5">
-            <StatKpiCard
-              title="Sales Revenue"
-              info="Sales invoices dated in this period, converted to USD. An invoice superseded by a credit or final note counts once; drafts and cancelled invoices are excluded. This counts sales of material bought in earlier periods too, so it will NOT reconcile with the deal-basis profit figures above."
-              value={fmtAutoKM(invoiceRevAgg.total)}
-              chartData={invoiceRevAgg.byMonth}
-              accent="var(--ok-figure)"
-              icon={<svg width="16" height="16" fill="none" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="4" stroke="currentColor" strokeWidth="2" /><path d="M8 10h8M8 14h8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" /></svg>}
-            />
-            <div className="lg:col-span-2">
-              <RankingList
-                title="Consignees — $"
-                subtitle="Sales revenue by client — invoices dated in the period"
-                labels={clientRank.labels}
-                data={clientRank.data}
-                totalValue={invoiceRevAgg.total}
-                series={invoiceRevAgg.byClientMonth || {}}
-                // fClient already holds a client NAME, so this one needs no resolving.
-                onPick={(name) => setFClient(fClient === name ? '' : name)}
-                picked={fClient}
-              />
-            </div>
-          </div>
-          )}
 
           {/* ══ BAND 3 — POSITION ════════════════════════════════════════════════
               Nothing here answers to the date picker, and that is correct: an open
@@ -2397,6 +2535,45 @@ const Dash = () => {
         </div>
       </div>
 
+
+      {/* One modal serving both ranking cards. Supplier rows come from the contracts pass,
+          client rows from the invoice-dated revenue pass — so each list is built by the
+          same code that produced the tile's figure and cannot disagree with it. */}
+      <DetailModal
+        isOpen={!!drill}
+        setIsOpen={(v) => { if (!v) setDrill(null); }}
+        title={drill?.label || ''}
+        subtitle={drill?.kind === 'supplier'
+          ? 'Contracts bought from this supplier in the period'
+          : drill?.kind === 'gis'
+            ? 'Commission billed by GIS — held out of Contract Expenses'
+            : 'Invoices issued to this client in the period'}
+        rows={!drill ? [] : drill.kind === 'supplier'
+          ? (conAgg.supplierDetails?.[settings.Supplier?.Supplier?.find(s => s.nname === drill.label)?.id] || [])
+          : drill.kind === 'gis'
+            ? (gisCommission.rows || [])
+            : (invoiceRevAgg.byClientDetails?.[drill.label] || [])}
+        cols={drill?.kind === 'supplier'
+          ? [
+            { key: 'order', label: 'PO' },
+            { key: 'date', label: 'Date' },
+            { key: 'mt', label: 'Tonnage', right: true, render: (r) => `${new Intl.NumberFormat('en-US', { maximumFractionDigits: 1 }).format(r.mt || 0)} MT` },
+            { key: 'value', label: 'Value', right: true, render: (r) => fmtAutoKM(r.value) },
+          ]
+          : drill?.kind === 'gis'
+            ? [
+              { key: 'supplier', label: 'Billed by', render: (r) => settings?.Supplier?.Supplier?.find(s => s.id === r.supplier)?.nname || 'GIS' },
+              { key: 'date', label: 'Date' },
+              { key: 'amount', label: 'As entered', right: true, render: (r) => `${r.cur === 'us' ? '$' : '€'}${new Intl.NumberFormat('en-US', { maximumFractionDigits: 2 }).format(r.amount || 0)}` },
+              { key: 'usd', label: 'USD', right: true, render: (r) => fmtAutoKM(r.usd) },
+            ]
+            : [
+              { key: 'invoice', label: 'Invoice' },
+              { key: 'date', label: 'Date' },
+              { key: 'amount', label: 'As entered', right: true, render: (r) => `${r.cur === 'us' ? '$' : '€'}${new Intl.NumberFormat('en-US', { maximumFractionDigits: 2 }).format(r.amount || 0)}` },
+              { key: 'usd', label: 'USD', right: true, render: (r) => fmtAutoKM(r.usd) },
+            ]}
+      />
 
       <ExpenseDrillModal
         label={expDrill}

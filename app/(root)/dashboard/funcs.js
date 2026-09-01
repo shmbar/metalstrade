@@ -246,6 +246,9 @@ const VALUE_TOLERANCE = 3
 
 export const calContracts = (data, settings, companyRate = 0, expenseRows = null, liveRate = 0) => {
     const dataIssues = []   // contracts whose own records contradict each other
+    /* supplier id -> the contracts behind its ranking tile, so clicking the tile can show
+       what makes up the figure instead of only filtering by it. */
+    const supplierDetails = {}
     /* A contract ticked 'Shared IMS / GIS deal' keeps HALF its profit here — the partner
        takes the other half, exactly as the Margins sheet has always done. Tonnage is NOT
        halved: the full quantity moves through IMS either way (Zak, 2026-08-31). So the
@@ -303,6 +306,19 @@ export const calContracts = (data, settings, companyRate = 0, expenseRows = null
     )
     const expLabel = (id) => settings.Expenses?.Expenses?.find(e => e.id === id)?.expType || 'Unspecified'
 
+    /* Commission billed by GIS is money moving between the two houses, not a cost of
+       trading — so it comes out of Contract Expenses and gets its own box (Zak,
+       2026-09-02). It is 94% of all commission ($305,495 of $326,378: GIS Ltd $90,661 and
+       GIS OÜ $214,834, against Recyking's $20,883), which is why "Commission" was reading
+       as the single biggest cost line the business has.
+       No expense row carries a GIS flag, so it is identified the only way the data allows:
+       a commission-type expense whose counterparty is a GIS entity. Word-boundary match,
+       so a supplier that merely contains those letters is not swept in. */
+    const supplierNameOf = (id) => settings.Supplier?.Supplier?.find(s => s.id === id)?.nname || ''
+    const isGisCommission = (obj) =>
+        /commission/i.test(expLabel(obj?.expType)) && /\bGIS\b/i.test(supplierNameOf(obj?.supplier))
+    const gisCommission = { total: 0, rows: [] }
+
     data.forEach((x) => {
         // One standard company EUR→USD rate when set; otherwise the contract's own rate,
         // else 1:1 (NaN-safe — a missing rate must never poison the totals). When no
@@ -358,6 +374,10 @@ export const calContracts = (data, settings, companyRate = 0, expenseRows = null
             }
         }
         totalMT += contractTotalMT
+        ;(supplierDetails[x.supplier] ||= []).push({
+            order: x.order || '', date: x.dateRange?.startDate || x.date || '',
+            value: contractPurchase, mt: contractTotalMT, cur: x.cur || 'us',
+        })
 
         /* ── Data-quality cross-check ─────────────────────────────────────────────
            A contract's own money audits its tonnage. Every product line carries a unit
@@ -424,6 +444,18 @@ export const calContracts = (data, settings, companyRate = 0, expenseRows = null
                 const m2 = obj.cur === 'us' ? 1 : mult
                 const amt = parseFloat(obj.amount) * m2
                 const expMonth = expenseMonth(obj, x, month)
+                /* Diverted BEFORE any expense accumulator sees it, so Contract Expenses,
+                   Expenses by Type, the per-MT figures and the drill-down all exclude it
+                   consistently — one exit rather than five subtractions. */
+                if (isGisCommission(obj)) {
+                    gisCommission.total += amt
+                    gisCommission.rows.push({
+                        supplier: obj.supplier, order: x.order || '', usd: amt,
+                        amount: parseFloat(obj.amount), cur: obj.cur || 'us',
+                        date: obj.date || obj.dateRange?.startDate || '',
+                    })
+                    return
+                }
                 accumulatedExp[expMonth] += amt
                 if (freightIds.has(obj.expType)) freightTotal += amt
                 const lbl = expLabel(obj.expType)
@@ -456,6 +488,16 @@ export const calContracts = (data, settings, companyRate = 0, expenseRows = null
         const d = obj.date || obj.dateRange?.startDate || ''
         const m = Number(String(d).substring(5, 7))
         const expMonth = m >= 1 && m <= 12 ? m : 1
+        // Same diversion as the linked rows above — an unlinked GIS commission is still
+        // GIS commission, and the two biggest ones carry no contract.
+        if (isGisCommission(obj)) {
+            gisCommission.total += val
+            gisCommission.rows.push({
+                supplier: obj.supplier, order: '', usd: val,
+                amount: amt, cur: obj.cur || 'us', date: d,
+            })
+            return
+        }
         accumulatedExp[expMonth] += val
         if (freightIds.has(obj.expType)) freightTotal += val
         const lbl = expLabel(obj.expType)
@@ -515,7 +557,7 @@ export const calContracts = (data, settings, companyRate = 0, expenseRows = null
         months.forEach((v, i) => { dst[i] += v })
     })
 
-    return { accumulatedPmnt, accumulatedExp, pieArrSupps, suppSeries, totalMT, shippedMT, freightTotal, missingRate, cogs, unsoldValue, cogsByMonth, expByType, expDetails, materialSold, storageByMonth, dataIssues, gisCogs, gisExpenses };
+    return { accumulatedPmnt, accumulatedExp, pieArrSupps, suppSeries, totalMT, shippedMT, freightTotal, missingRate, cogs, unsoldValue, cogsByMonth, expByType, expDetails, materialSold, storageByMonth, dataIssues, gisCogs, gisExpenses, supplierDetails, gisCommission };
 }
 
 
