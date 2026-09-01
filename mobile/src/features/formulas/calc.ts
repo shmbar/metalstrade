@@ -29,6 +29,25 @@ export interface Field {
   suffix?: string;
 }
 
+/**
+ * The turnings discount — web fenicr.js:87-90 and stainless.js:96-99.
+ *
+ * It used to be a bare 0.92 / 0.9 in the source with nothing on screen saying so, so
+ * the figure could not be checked or changed without a deploy (Zak, 2026-08-25). It
+ * reads from the saved formula state now and falls back to the number that WAS
+ * hard-coded, so existing data quotes exactly what it did before until someone edits
+ * it. Stored as a PERCENT, hence the /100 at each call site.
+ *
+ * The fallback is per-side on FeNiCr (92 cost, 90 price) and a single 92 on
+ * Stainless. That 92/90 split is why web passes a fallback per call rather than
+ * using one constant — the two tabs have always disagreed, and preserving that is
+ * the point.
+ */
+export const turnPct = (src: any, name: string, fallback: number): number => {
+  const v = src?.[name];
+  return v === '' || v === null || v === undefined || Number.isNaN(Number(v)) ? fallback : Number(v);
+};
+
 // ── FeNiCr ───────────────────────────────────────────────────────────────────
 export function computeFenicr(value: any) {
   const f = value?.fenicr || {};
@@ -55,13 +74,13 @@ export function computeFenicr(value: any) {
   return {
     fe,
     cost,
-    costTurnings: cost * 0.92,
+    costTurnings: (cost * turnPct(f, 'turningsCost', 92)) / 100,
     costEuro: euro ? cost / euro : 0,
     sales,
     // FeNiCr sales turnings is x0.90 (fenicr.js:1101) — deliberately NOT the same
     // factor as the Stainless tab, which uses 0.92. Web is inconsistent between the
     // two tabs and this mirrors it exactly.
-    salesTurnings: sales * 0.9,
+    salesTurnings: (sales * turnPct(f, 'turningsPrice', 90)) / 100,
     salesEuro: euro ? sales / euro : 0,
   };
 }
@@ -90,13 +109,13 @@ export function computeStainless(value: any) {
   return {
     fe,
     cost,
-    costTurnings: cost * 0.92,
+    costTurnings: (cost * turnPct(s, 'turningsCost', 92)) / 100,
     costEuro: euro ? cost / euro : 0,
     sales,
     // Stainless sales turnings is x0.92 on web (stainless.js:1028), NOT the 0.90
     // the FeNiCr tab uses. Mobile applied 0.90 here, so every Stainless sales
     // turnings figure read 2.174% low against the web page.
-    salesTurnings: sales * 0.92,
+    salesTurnings: (sales * turnPct(s, 'turningsPrice', 92)) / 100,
     salesEuro: euro ? sales / euro : 0,
   };
 }

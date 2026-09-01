@@ -109,14 +109,23 @@ const HASH = {
   // lines). The mirrored logic — the useEffect at :122-126 pushing
   // getFilteredRowModel().rows into setFilteredArray1 on [globalFilter, columnFilters]
   // — was verified byte-identical before updating this, so mobile's port still holds.
-  customtable: '02f67d9407b4', // app/(root)/stocks/newTable.js:32 (contains the footer count)
+  // Re-recorded 2026-08-17: web gave this table persisted column/filter/sort/page
+  // preferences (useTablePrefs) and a narrow-column meta. Mobile has no table-prefs
+  // feature, and the mirrored contract — the effect pushing getFilteredRowModel().rows
+  // into setFilteredArray1 — was verified unchanged before this was updated.
+  customtable: '87065a709c9b', // app/(root)/stocks/newTable.js:32 (contains the footer count)
   addComma: '9d2dc43091c5', // app/(root)/stocks/whModal.js:52
   sumShowAmount: '61cca0f1837f', // app/(root)/stocks/sumtables/sumTable.js:8
   gradeSummary: '3c54892bacca', // app/(root)/stocks/sumtables/gradeTable.js:11
   buildAudit: '7e246498a7e0', // app/(root)/stocks/stockAudit.js:35
   resolveDescName: '826bf84cceac', // app/(root)/stocks/stockAudit.js:21
   filteredArray: '2c0d632f5d81', // utils/utils.js:207
-  runStocks: '380e94189973', // app/(root)/cashflow/funcs.js:188
+  // Re-recorded 2026-08-17: runStocks gained supplierIds, the DISTINCT suppliers
+  // behind an aggregated row. Grouping is warehouse x description, so a row can hold
+  // lots from several suppliers, and naming one of them was wrong — PO 240726 read
+  // "GIS OU" while its contract said Stachow, because the label came from whichever
+  // lot sorted last. Ported to mobile in the same change, not just re-recorded.
+  runStocks: '008c1a4da864', // app/(root)/cashflow/funcs.js:188
   staleDays: 'a2e0c4822268', // app/(root)/stocks/storageAging.js:11
   demurrageDays: 'f6b09c3eafe3', // app/(root)/stocks/storageAging.js:12
   storageExpYear: '07ada9eea708', // app/(root)/storagecosts/page.js:142

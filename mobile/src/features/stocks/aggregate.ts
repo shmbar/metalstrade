@@ -104,6 +104,8 @@ export interface InventoryRow {
   sType: string;
   date: string;
   arrivalIso: string | null; // earliest arrival (for storage aging)
+  /** DISTINCT suppliers behind the row — more than one means the row is mixed */
+  supplierIds: string[];
 }
 
 export interface InventoryTotal {
@@ -252,6 +254,16 @@ export function computeInventory(
           : f(totalObj.qnty) * f(totalObj.unitPrc);
     }
     totalObj.data = group; // web parity: kept for supplier-less description fallback
+    /* The DISTINCT suppliers behind this row (web funcs.js:365). Grouping is
+       warehouse x description, so a row can legitimately hold lots from more than one
+       supplier — and naming just one of them is wrong. PO 240726 read "GIS OU" while
+       its contract said Stachow, because the label came from whichever lot happened
+       to sort last. Keeping the set lets the caller say the row is mixed instead of
+       picking one at random; it is usually the sign of a duplicated lot, so it should
+       be visible rather than silent. */
+    totalObj.supplierIds = [
+      ...new Set(group.filter((z: any) => z.type === 'in' && z.supplier).map((z: any) => z.supplier)),
+    ];
     totalObj.date = fmtDateDDMMYY(group.find((z) => z.contractData)?.contractData?.date);
     totalObj.arrivalIso = arrivalIsoOf(group);
     totalObj.cur = group[0]?.cur;

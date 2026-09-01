@@ -25,6 +25,8 @@
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import dateFormat from 'dateformat';
+import { readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
 import { expectWebUnchanged, webFnSource } from './_helpers/webSource';
 import {
   FIXED_NOW,
@@ -448,8 +450,23 @@ describe('drift alarm — web sources these mirrors were transcribed from', () =
   it('accounting totals has not drifted', () => {
     expectWebUnchanged('app/(root)/accounting/page.js', 'totals', 'd16395f7b56e');
   });
-  it('accounting chartData has not drifted', () => {
-    expectWebUnchanged('app/(root)/accounting/page.js', 'chartData', '37689c8ecf64');
+  it('web has REMOVED its accounting chart - mobile now carries it alone', () => {
+    /* This was a drift alarm on web's `chartData`. Web has since stripped the
+       accounting page back to the transactions table and its Excel export: the
+       Debit-vs-Credit weekday chart and the summary tiles are gone, and `chartData`
+       with them.
+
+       Mobile still renders both. That is a DIVERGENCE awaiting a product decision,
+       not a bug to fix silently - deleting a working screen because the web page was
+       simplified is Zak's call, and mobile's version stays pinned by the tests below
+       either way. This assertion holds the fact in place so the removal cannot go
+       unnoticed a second time. */
+    const src = readFileSync(
+      fileURLToPath(new URL('../../app/(root)/accounting/page.js', import.meta.url)),
+      'utf8'
+    );
+    expect(src).not.toContain('const chartData');
+    expect(src).not.toContain('Debit');
   });
   it('accounting getprefixInv / getprefixInv1 have not drifted', () => {
     expectWebUnchanged('app/(root)/accounting/page.js', 'getprefixInv', '00b2461e33d6');

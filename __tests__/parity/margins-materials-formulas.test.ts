@@ -518,7 +518,7 @@ describe('material table footer', () => {
     // Re-recorded 2026-08-17: the ONLY change was a colour literal,
     // var(--chathams-blue) -> TONES.green.text. fmt, footerVal, hasPrices and niMult
     // were confirmed byte-identical, so no cost/footer formula moved.
-    expectWebUnchanged('app/(root)/materialtables/newTable.js', 'enhancedColumns', '8fe5dbd308f3');
+    expectWebUnchanged('app/(root)/materialtables/newTable.js', 'enhancedColumns', '38b8cfc2f4e3');
     expectWebUnchanged('app/(root)/materialtables/newTable.js', 'hasPrices', '693a64e82c2a');
     expectWebUnchanged('app/(root)/materialtables/newTable.js', 'niMult', '39476216c4bf');
   });
@@ -864,13 +864,18 @@ const webSuperalloys = (value: any) => {
 
 describe('pricing formulas', () => {
   it("web's solidsPrice blocks have not drifted", () => {
-    expectWebUnchanged('app/(root)/formulas/tabs/fenicr.js', 'fe', '89acd0ca8d44');
-    expectWebUnchanged('app/(root)/formulas/tabs/fenicr.js', 'solidsPrice', '19af2fcc70f6');
-    expectWebUnchanged('app/(root)/formulas/tabs/fenicr.js', 'solidsPrice1', 'cba24eeb6d53');
-    expectWebUnchanged('app/(root)/formulas/tabs/stainless.js', 'fe', 'acfd72803601');
-    expectWebUnchanged('app/(root)/formulas/tabs/stainless.js', 'solidsPrice', 'b2777cf33f58');
-    expectWebUnchanged('app/(root)/formulas/tabs/stainless.js', 'solidsPrice1', '7e103a0bfa3b');
-    expectWebUnchanged('app/(root)/formulas/tabs/supperalloys.js', 'solidsPrice', '6f4f3a3ff8ea');
+    /* Re-recorded 2026-08-17. The tabs were rebuilt into shared cards and the
+       turnings discount became editable state; Stainless also started DERIVING Fe,
+       closing a divergence mobile had recorded against it. Every behavioural test in
+       this block was made to pass against the new web code first — these hashes were
+       not bumped to silence the alarm. */
+    expectWebUnchanged('app/(root)/formulas/tabs/fenicr.js', 'fe', 'b01aed1a4a4f');
+    expectWebUnchanged('app/(root)/formulas/tabs/fenicr.js', 'solidsPrice', '79184365368e');
+    expectWebUnchanged('app/(root)/formulas/tabs/fenicr.js', 'solidsPrice1', '3e5ac9bba818');
+    expectWebUnchanged('app/(root)/formulas/tabs/stainless.js', 'fe', 'bab0674ce6f8');
+    expectWebUnchanged('app/(root)/formulas/tabs/stainless.js', 'solidsPrice', '9b7e0476b2ce');
+    expectWebUnchanged('app/(root)/formulas/tabs/stainless.js', 'solidsPrice1', '63b9afe7857f');
+    expectWebUnchanged('app/(root)/formulas/tabs/supperalloys.js', 'solidsPrice', '877b29907463');
   });
 
   it('Fe is DERIVED as 100 − the entered elements, rounded to 2dp — never stored', () => {
@@ -928,29 +933,45 @@ describe('pricing formulas', () => {
     expect(computeFenicr(unrounded).cost).toBe(webFenicr(unrounded).solidsPrice);
   });
 
-  it('FeNiCr sales turnings is x0.90 while its COST turnings is x0.92', () => {
-    // fenicr.js:1017 (cost × 0.92) and :1101 (sales × 0.90). Web is deliberately
-    // asymmetric here; the mirror must not "tidy" it.
+  it('FeNiCr turnings default to 92 cost / 90 price, and both are editable', () => {
+    // The discount was a bare 0.92 / 0.9 in web's source with nothing on screen
+    // saying so, so it could not be checked or changed without a deploy
+    // (Zak, 2026-08-25). It reads from saved state now (fenicr.js:87-90) with a
+    // PER-SIDE fallback, which is how the tab's long-standing 92/90 asymmetry
+    // survives untouched for data saved before the change.
     const src = repoFileText('app/(root)/formulas/tabs/fenicr.js');
-    expect(src).toContain('formatCurrency((solidsPrice * 0.92)');
-    expect(src).toContain('formatCurrency((solidsPrice1 * 0.9)');
-    expect(src).not.toContain('formatCurrency((solidsPrice1 * 0.92)');
+    expect(src).toContain("turnPct('turningsCost', 92)");
+    expect(src).toContain("turnPct('turningsPrice', 90)");
+    // unset -> exactly the old hard-coded numbers
     const m = computeFenicr(V);
-    expect(m.costTurnings).toBe(m.cost * 0.92);
-    expect(m.salesTurnings).toBe(m.sales * 0.9);
+    expect(m.costTurnings).toBeCloseTo((m.cost * 92) / 100, 9);
+    expect(m.salesTurnings).toBeCloseTo((m.sales * 90) / 100, 9);
+    // a stored value wins, per side
+    const e = computeFenicr({ ...V, fenicr: { ...V.fenicr, turningsCost: 85, turningsPrice: 95 } });
+    expect(e.costTurnings).toBeCloseTo((e.cost * 85) / 100, 9);
+    expect(e.salesTurnings).toBeCloseTo((e.sales * 95) / 100, 9);
+    // an empty box is "unset", not zero — otherwise clearing it would price
+    // turnings at nothing
+    const blank = computeFenicr({ ...V, fenicr: { ...V.fenicr, turningsCost: '' } });
+    expect(blank.costTurnings).toBeCloseTo((blank.cost * 92) / 100, 9);
   });
 
-  it('Stainless sales turnings is x0.92 — NOT the x0.90 the FeNiCr tab uses', () => {
-    // stainless.js:887 (cost × 0.92) and :1028 (sales × 0.92). Mobile once applied
-    // 0.90 here and read 2.174% low against the web page.
+  it('Stainless defaults BOTH turnings sides to 92, unlike FeNiCr', () => {
+    // stainless.js:95 has ONE TURNINGS_DEFAULT for both sides where FeNiCr passes a
+    // fallback per side. Mobile once applied 0.90 to the Stainless SALES side and
+    // read 2.174% low against the web page.
     const src = repoFileText('app/(root)/formulas/tabs/stainless.js');
-    expect(src).toContain('formatCurrency((solidsPrice * 0.92)');
-    expect(src).toContain('formatCurrency((solidsPrice1 * 0.92)');
+    expect(src).toContain('TURNINGS_DEFAULT = 92');
+    expect(src).toContain("turnPct('turningsCost')");
+    expect(src).toContain("turnPct('turningsPrice')");
     const m = computeStainless(V);
-    expect(m.costTurnings).toBe(m.cost * 0.92);
-    expect(m.salesTurnings).toBe(m.sales * 0.92);
-    // and the two tabs really do disagree, on identical inputs:
+    expect(m.costTurnings).toBeCloseTo((m.cost * 92) / 100, 9);
+    expect(m.salesTurnings).toBeCloseTo((m.sales * 92) / 100, 9);
+    // the two tabs still disagree on identical inputs, via their defaults
     expect(computeFenicr(V).salesTurnings).not.toBe(computeStainless(V).salesTurnings);
+    // and a stored value overrides
+    const e = computeStainless({ ...V, stainless: { ...V.stainless, turningsPrice: 88 } });
+    expect(e.salesTurnings).toBeCloseTo((e.sales * 88) / 100, 9);
   });
 
   it('Stainless shares the FeNiCr expression structure, so identical inputs give identical cost/sales', () => {
@@ -963,24 +984,22 @@ describe('pricing formulas', () => {
   });
 
   // Tier 4 — web bug, mobile deliberately correct.
-  it('DIVERGENCE: web Stainless prices a stored `fe` the tab never writes (→ NaN); mobile derives Fe', () => {
-    // stainless.js:593 and :598 read `value.stainless.fe`, but the Stainless tab has
-    // no Fe input — it only ever DISPLAYS the derived `fe` (:151, :330). The stored
-    // field is therefore undefined and web's solidsPrice comes out NaN as soon as an
-    // Fe price is entered. FeNiCr (:904) uses the derived `fe`, which is plainly the
-    // intent, so mobile derives it on both tabs.
+  it('Stainless derives Fe, like FeNiCr — the stored-fe divergence is closed', () => {
+    // This WAS a recorded divergence. stainless.js used to read `value.stainless.fe`
+    // in its solidsPrice, but the tab has no Fe input — it only ever DISPLAYS the
+    // derived value — so the field was undefined and web's figure came out NaN as
+    // soon as an Fe price was entered. Mobile derived Fe on both tabs instead.
+    // Web has since adopted the same rule (stainless.js:39, used at :45 and :51), so
+    // the two agree and this is a parity test now.
     const webSrc = repoFileText('app/(root)/formulas/tabs/stainless.js');
-    expect(webSrc).toContain('value?.stainless?.fe * value?.stainless?.fePrice / 100');
-    expect(repoFileText('app/(root)/formulas/tabs/fenicr.js')).toContain('fe * value?.fenicr?.fePrice / 100');
+    expect(webSrc).toContain('const fe = ');
+    expect(webSrc).not.toContain('value?.stainless?.fe * value?.stainless?.fePrice');
+    expect(repoFileText('app/(root)/formulas/tabs/fenicr.js')).toContain('const fe = ');
 
-    const webStainlessCost =
-      (V.stainless.ni * V.general.nilme * V.stainless.formulaNiCost) / 10000 +
-      (V.stainless.cr * V.stainless.crPrice) / 100 +
-      (V.stainless.mo * V.stainless.moPrice) / 100 +
-      ((V.stainless as any).fe * V.stainless.fePrice) / 100;
-    expect(webStainlessCost).toBeNaN();
-    expect(Number.isFinite(computeStainless(V).cost)).toBe(true);
-    expect(computeStainless(V).fe).toBe(73);
+    // and the figure is finite on both sides, with Fe the remainder
+    const m = computeStainless(V);
+    expect(Number.isFinite(m.cost)).toBe(true);
+    expect(m.fe).toBe(73);
   });
 
   it('SuperAlloys prices Ni off the LME per-MT rate and derives Fe from all eight elements', () => {
@@ -994,20 +1013,16 @@ describe('pricing formulas', () => {
   });
 
   it('SuperAlloys cost and price are the base scaled by the Ints percentages', () => {
-    // The LIVE blocks are supperalloys.js:818-822 (cost) and :840-844 (sales) — the
-    // `solidsPrice * formulaInts… / 100` at :182-205 is commented-out legacy and must
-    // not be used as the reference. Pinned against the live source text so a change to
-    // either section trips this rather than passing on the dead copy.
+    // Web rebuilt this tab into two real cards off one `side(formulaField)` helper,
+    // and deleted the 640 lines of commented-out pre-2026-08 markup this test used to
+    // have to steer around. The ARITHMETIC is untouched - web's own comment says so -
+    // so the pin moves to the live helper rather than the old per-tile markup.
     const src = collapsed('app/(root)/formulas/tabs/supperalloys.js');
-    expect(src).toContain(
-      'title="Solids Price" bg="var(--danger-soft)" value={formatCurrency((solidsPrice * (value?.supperalloys?.formulaIntsCost || 0) / 100).toFixed(2))}'
-    );
-    expect(src).toContain(
-      'title="Price per MT" bg="var(--danger-soft)" value={formatCurrency((solidsPrice * (value?.supperalloys?.formulaIntsCost || 0) / 100 * value.general.mt).toFixed(2))}'
-    );
-    expect(src).toContain(
-      'title="Solids Price" bg="var(--selago)" value={formatCurrency((solidsPrice * (value?.supperalloys?.formulaIntsPrice || 0) / 100).toFixed(2))}'
-    );
+    expect(src).toContain('const base = solidsPrice * n(a[formulaField]) / 100;');
+    expect(src).toContain("side('formulaIntsCost')");
+    expect(src).toContain("side('formulaIntsPrice')");
+    // per-MT still scales the UNROUNDED base
+    expect(src).toContain('fmt((base * n(g.mt)).toFixed(2))');
 
     // Mirror of those four expressions, built from the FIXTURE and web's own base,
     // not from mobile's return value.
