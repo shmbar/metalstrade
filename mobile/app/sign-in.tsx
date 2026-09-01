@@ -74,7 +74,7 @@ export default function SignIn() {
           {/* Brand hero with gradient — extra bottom padding leaves room for the
               card to overlap into empty space (not over the fields). */}
           <LinearGradient
-            colors={scheme === 'dark' ? ['#0b3b73', '#0a1322'] : ['#0a6fc2', '#0366ae', '#0b3b73']}
+            colors={scheme === 'dark' ? ['#4A3BB0', '#131120'] : ['#8B7CF7', '#6D5CE0', '#4A3BB0']}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
             style={{
@@ -184,7 +184,7 @@ export default function SignIn() {
               <Pressable
                 onPress={onBiometric}
                 style={{
-                  backgroundColor: scheme === 'dark' ? colors.surfaceAlt : '#eef0f3',
+                  backgroundColor: colors.surfaceAlt,
                   borderRadius: radius.md,
                   minHeight: 50,
                   alignItems: 'center',

@@ -18,6 +18,8 @@ import {
   ReceivablesSlot,
   AgingBucket,
 } from '@shared/finance';
+import { getCur } from '@/data/writes';
+import { loadMargins } from '@/data/firestore';
 import { computePnl } from './pnlChain';
 import { resolveClientName } from '@/features/invoices/useInvoices';
 
@@ -44,6 +46,10 @@ export interface DashboardData {
   // ── sold-basis P&L (web's Net Profit / COGS / Expenses / Storage KPIs) ──────
   /** revenue − COGS − expenses, all deal-basis (contract month, contract rate) */
   netProfit: number;
+  /** Margins profits, BEFORE overheads - web's totalPL */
+  grossProfit: number;
+  /** company expenses, converted - web's companyExpAgg.total */
+  overheads: number;
   cogs: number;
   expensesTotal: number;
   storageTotal: number;
@@ -112,13 +118,34 @@ export function useDashboard(filters: DashboardFilters = { supplier: '', client:
       // Misc (P1 special) invoices in the period.
       const misc = await loadFlatByDate<any>(uid, 'specialInvoices', dateSelect);
 
-      return { enriched, periodInvoices, recvInvoices, misc: misc.filter(Boolean) };
+      /* CANONICAL expense rows - the collection /expenses reads. The dashboard used
+         to total expenses off each contract's embedded `expenses` array, a partial
+         stale mirror that understated contract spend by ~30% and could not see a
+         supplier, a sales invoice or a paid flag. Web fixed this (page.js:1558 passes
+         scopedExpenses); mobile was still on the old source. */
+      const expenseRows = await loadData<any>(uid, 'expenses', dateSelect);
+
+      /* Live EUR/USD, used ONLY as the last fallback before 1:1. Without it a EUR
+         contract with no company rate and no rate of its own converted at 1.0 - the
+         euro counted as a dollar in whatever total it landed in. Best-effort: a
+         failure leaves the old behaviour rather than blocking the screen. */
+      const liveRate = await getCur(new Date().toISOString().slice(0, 10)).catch(() => 0);
+
+      /* MARGINS and COMPANY OVERHEADS. Web's headline Net Profit is not revenue minus
+         cost minus expenses at all — it is the Margins page's Profits figure minus
+         company overheads (page.js:1759 + :1788). Mobile was computing its own
+         revenue-cogs-expenses figure and calling it the same thing, which is why the
+         two apps disagreed on the single number a user looks at first. */
+      const margins = await loadMargins(uid, Number(dateSelect.start.substring(0, 4))).catch(() => []);
+      const companyExpenses = await loadFlatByDate<any>(uid, 'companyExpenses', dateSelect).catch(() => []);
+
+      return { enriched, periodInvoices, recvInvoices, misc: misc.filter(Boolean), expenseRows, liveRate, margins, companyExpenses };
     },
   });
 
   const data = useMemo<DashboardData | null>(() => {
     if (!query.data) return null;
-    const { enriched: allEnriched, periodInvoices: allPeriodInv, recvInvoices: allRecv, misc } = query.data;
+    const { enriched: allEnriched, periodInvoices: allPeriodInv, recvInvoices: allRecv, misc, expenseRows, liveRate, margins, companyExpenses } = query.data;
     const { supplier: fSupplier, client: fClient, material: fMaterial } = filters;
 
     // Web's exact predicates (dashboard/page.js:928-934): supplier by id, material
@@ -176,7 +203,8 @@ export function useDashboard(filters: DashboardFilters = { supplier: '', client:
       // the ranking ORDER drifted from web.
       const cCur = c.cur === 'eu' ? 'eu' : 'us';
       const cRate = num((c as any).euroToUSD);
-      const cMult = cCur === 'us' ? 1 : companyRate > 0 ? companyRate : cRate > 0 ? cRate : 1;
+      const cMult =
+      cCur === 'us' ? 1 : companyRate > 0 ? companyRate : cRate > 0 ? cRate : liveRate > 0 ? liveRate : 1;
       supplierTotals[supName] = (supplierTotals[supName] || 0) + (pv.byCur[cCur] || 0) * cMult;
     });
 
@@ -196,7 +224,7 @@ export function useDashboard(filters: DashboardFilters = { supplier: '', client:
         if (m < 0 || m > 11) return;
         const amt = num(inv.totalAmount);
         const rate = num((inv as any).euroToUSD);
-        const mult = companyRate > 0 ? companyRate : rate > 0 ? rate : 1;
+        const mult = companyRate > 0 ? companyRate : rate > 0 ? rate : liveRate > 0 ? liveRate : 1;
         revenueByMonth[m] += resolveCur(inv) === 'us' ? amt : amt * mult;
       });
 
@@ -222,11 +250,52 @@ export function useDashboard(filters: DashboardFilters = { supplier: '', client:
     // Sold-basis P&L chain (web calContracts). Deal basis: revenue, COGS and
     // expenses are all attributed to the CONTRACT month using the CONTRACT rate —
     // deliberately different from the invoice-dated Sales Revenue KPI above.
-    const pnl = computePnl(enriched, settings, companyRate);
+    /* Web scopes the expense rows to the surviving contracts whenever a
+       contract-side filter is active, and hands over everything otherwise
+       (page.js:1551-1556). Rows with no contract in the set are still counted —
+       computePnl adds them after its loop — which is the whole point of the change. */
+    const contractSide = !!(filters.supplier || filters.material);
+    const ids = new Set(enriched.map((c: any) => c.id));
+    const scopedExpenses = contractSide
+      ? (expenseRows || []).filter((r: any) => ids.has(r?.poSupplier?.id))
+      : expenseRows || [];
+    const pnl = computePnl(enriched, settings, companyRate, scopedExpenses, liveRate);
     const profitByMonth = pnl.purchaseByMonth.map(
       (_v, i) => revenueByMonth[i] - pnl.cogsByMonth[i] - pnl.expensesByMonth[i]
     );
-    const netProfit = profitByMonth.reduce((s2, v) => s2 + v, 0);
+
+    /* GROSS PROFIT is the Margins page's Profits (web page.js:1638-1649 + :1759) -
+       the sum of each margin ITEM's totalMargin, halved on a GIS-shared row. It
+       already halves those rows, so no partner share is subtracted on top or they
+       would be halved twice. */
+    const nn = (v: any) => { const x = parseFloat(v); return isNaN(x) ? 0 : x; };
+    const grossProfit = (margins || []).reduce(
+      (acc: number, mo: any) =>
+        acc +
+        (mo?.items || []).reduce(
+          (a: number, i: any) => a + (i.gis ? nn(i.totalMargin) / 2 : nn(i.totalMargin)),
+          0
+        ),
+      0
+    );
+
+    /* COMPANY OVERHEADS, converted on the same rule as everything else on the page
+       (web page.js:1768-1783). Kept SEPARATE from contract expenses on purpose:
+       contract expenses are attributable to a trade and drive the per-MT metrics,
+       overheads are not, and merging them would silently change what those mean. */
+    const overheads = (companyExpenses || []).reduce((acc: number, r: any) => {
+      const amt = parseFloat(r?.amount);
+      if (!Number.isFinite(amt)) return acc;
+      const rate = parseFloat(r?.euroToUSD);
+      const mult = companyRate > 0 ? companyRate : rate > 0 ? rate : liveRate > 0 ? liveRate : 1;
+      return acc + (r?.cur === 'us' ? amt : amt * mult);
+    }, 0);
+
+    /* web page.js:1788 - gross profit LESS overheads. Mobile used to sum its own
+       revenue-cogs-expenses series and call THAT Net Profit, which is a different
+       figure entirely: on live data it read $38.09M against web's, because it was
+       using invoice-dated revenue rather than the Margins profit. */
+    const netProfit = grossProfit - overheads;
 
     const topSuppliers = Object.entries(supplierTotals)
       .map(([name, value]) => ({ name, value }))
@@ -246,11 +315,16 @@ export function useDashboard(filters: DashboardFilters = { supplier: '', client:
       miscCount: misc.length,
       topSuppliers,
       netProfit,
+      grossProfit,
+      overheads,
       cogs: pnl.cogs,
       expensesTotal: pnl.expensesTotal,
       storageTotal: pnl.storageTotal,
       shippedMT: pnl.shippedMT,
-      avgProfitPerMT: pnl.shippedMT > 0 ? netProfit / pnl.shippedMT : 0,
+      // web page.js:1843 divides by totalPL - GROSS profit, before overheads.
+      // Overheads are not attributable to a trade, so charging them per shipped
+      // tonne would misstate the unit economics.
+      avgProfitPerMT: pnl.shippedMT > 0 ? grossProfit / pnl.shippedMT : 0,
       unsoldValue: pnl.unsoldValue,
       freightTotal: pnl.freightTotal,
       missingRate: pnl.missingRate,
