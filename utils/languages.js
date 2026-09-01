@@ -4,7 +4,12 @@
 export const getTtl = (txt, ln) => {
     // Handle both 'English'/'en' and 'Russian'/'ru' formats
     let num = (ln === 'English' || ln === 'en') ? 0 : 1
-    return TitlesArr.find(obj => txt in obj)?.[txt][num]
+    // Fall back to the key itself, which IS the English text. Without this, a
+    // phrase missing from the table below returned undefined and the caller
+    // rendered nothing — an error toast came out as a red cross with no words,
+    // hiding a real save failure ('Error saving. Please try again.' had no entry).
+    // An untranslated message is a small problem; an invisible one is not.
+    return TitlesArr.find(obj => txt in obj)?.[txt][num] ?? txt
 }
 
 

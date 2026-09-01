@@ -368,7 +368,13 @@ const useInvoiceState = () => {
                 let tmpObj1 = tmpValue.productsDataInvoice.filter(z => z.qnty !== "s").map(x => ({
                     ...x, invoice: tmpValue.invoice * 1, invType: tmpValue.invType,
                     date: tmpValue.final ? tmpValue.date : tmpValue.dateRange.startDate,
-                    type: 'out', productsData: tmpValue.productsData,
+                    // The CONTRACT's material list, as the same write does when saved from
+                    // inside a contract. This read the invoice's own productsData, which
+                    // most invoices simply do not have — and Firestore rejects a field
+                    // whose value is undefined, so saving an invoice without one threw and
+                    // was never saved at all (invoice 1472, IMS). Fall back to an empty
+                    // list: no stock reader requires it, and an unsaved invoice is worse.
+                    type: 'out', productsData: valCon1?.productsData ?? tmpValue.productsData ?? [],
                     client: tmpValue.final ? tmpValue.client.client :
                         settings.Client.Client.find(z => z.id === tmpValue.client)['client'],
                     cur: tmpValue.cur
@@ -382,7 +388,13 @@ const useInvoiceState = () => {
                 return success === true;
             } catch (e) {
                 console.error('saveData_InvoiceInInvoices failed:', e)
-                setToast({ show: true, text: getTtl('Error saving. Please try again.', ln), clr: 'fail' })
+                // Say what actually went wrong. "Please try again" is advice, not
+                // information, and trying again repeats the same failure — this save
+                // threw on every attempt while telling the user nothing.
+                setToast({
+                    show: true, clr: 'fail',
+                    text: `${getTtl('Error saving. Please try again.', ln)} ${e?.message || e}`.trim(),
+                })
                 return false;
             }
         },
