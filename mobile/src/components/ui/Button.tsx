@@ -27,22 +27,24 @@ export function Button({
   fullWidth = true,
   style,
 }: ButtonProps) {
-  const { colors, scheme } = useTheme();
+  const { colors } = useTheme();
   const isDisabled = disabled || loading;
 
-  // Explicit fallbacks so a missing/undefined theme token can never collapse the
-  // background to transparent (which previously rendered buttons invisible).
+  // Every colour comes from the theme. The old hardcoded fallbacks were the OLD
+  // blue brand (#0366ae), so any theme miss silently repainted the button in a
+  // colour the web app no longer uses — worse than the transparent background they
+  // were added to prevent, because it looked deliberate rather than broken.
   const bg: Record<Variant, string> = {
-    primary: colors.primary || '#0366ae',
-    secondary: scheme === 'dark' ? colors.surfaceAlt || '#1c2942' : '#eef0f3',
+    primary: colors.primary,
+    secondary: colors.surfaceAlt,
     ghost: 'transparent',
-    danger: colors.negative || '#dc2626',
+    danger: colors.negative,
   };
   const fg: Record<Variant, string> = {
-    primary: colors.primaryText || '#ffffff',
-    secondary: colors.primary || '#0366ae',
-    ghost: colors.primary || '#0366ae',
-    danger: '#ffffff',
+    primary: colors.primaryText,
+    secondary: colors.primary,
+    ghost: colors.primary,
+    danger: '#FFFFFF',
   };
 
   return (

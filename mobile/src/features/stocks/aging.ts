@@ -20,11 +20,20 @@ export const bucketOf = (days: number | null): Bucket => {
   return '90+';
 };
 
-export const BUCKET_COLOR: Record<string, string> = {
-  '0-30': '#16a34a',
-  '31-60': '#0366ae',
-  '61-90': '#d97706',
-  '90+': '#dc2626',
+/**
+ * Which THEME COLOUR each aging bucket takes — web storageAging.js:94 uses
+ * var(--ok-text) / var(--brand) / var(--warn-text) / var(--bad-text).
+ *
+ * Deliberately theme KEYS rather than hex: web's CSS variables resolve per mode,
+ * and a fixed hex here would keep light-mode colours on a dark card. The old map
+ * was also the bright pre-2026-08 palette (#16a34a / #d97706 / #dc2626), which the
+ * client had asked to be muted everywhere.
+ */
+export const BUCKET_TONE: Record<string, 'positive' | 'primary' | 'warn' | 'negative'> = {
+  '0-30': 'positive',
+  '31-60': 'primary',
+  '61-90': 'warn',
+  '90+': 'negative',
 };
 
 export interface TerminalAging {

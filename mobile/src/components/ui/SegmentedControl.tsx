@@ -36,7 +36,7 @@ export function SegmentedControl<T extends string>({ options, value, onChange }:
               borderRadius: radius.sm,
               alignItems: 'center',
               backgroundColor: active ? colors.bgElevated : 'transparent',
-              shadowColor: active ? '#103a7a' : undefined,
+              shadowColor: active ? colors.text : undefined,
               shadowOpacity: active ? 0.08 : 0,
               shadowRadius: 6,
               shadowOffset: { width: 0, height: 2 },

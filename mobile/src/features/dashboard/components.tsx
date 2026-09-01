@@ -86,7 +86,13 @@ export function ReceivablesCard({ byCur, onPress }: { byCur: Record<string, Rece
 
 // Receivables aging buckets (0–30 / 31–60 / 61–90 / 90+), colored green→red.
 export function AgingCard({ buckets, onPress }: { buckets: AgingBucket[]; onPress?: () => void }) {
-  const colorsArr = ['#16a34a', '#f59e0b', '#ea580c', '#dc2626'];
+  const { colors, scheme } = useTheme();
+  // web page.js:1179-1183 — ok, a 45% wash of danger over the card, danger, then
+  // danger-strong. Deliberately NOT a green->amber->orange->red ramp: the status
+  // families are muted and there is no bright orange in this design system.
+  const wash = scheme === 'dark' ? '#6E4F50' : '#D1A6A7'; // danger-text 45% over --bg-card
+  const strong = scheme === 'dark' ? '#EDACA9' : '#7A2B2D'; // --danger-strong
+  const colorsArr = [colors.positive, wash, colors.negative, strong];
   const bTot = (b: AgingBucket) => Object.values(b.byCur || {}).reduce((s, v) => s + v, 0);
   const max = Math.max(...buckets.map(bTot), 1);
   const anyData = buckets.some((b) => b.count > 0);
@@ -150,7 +156,12 @@ export function RankingCard({
   /** value renderer — defaults to compact USD */
   format?: (v: number) => string;
 }) {
-  const palette = ['#38BDF8', '#4F46E5', '#1477C0', '#7C6FE0', '#0A5EA8', '#6366F1'];
+  const { colors } = useTheme();
+  // ONE accent for the whole card. Web dropped its per-rank shade ladder
+  // deliberately (page.js:739-745): the ramp was fitted to the row COUNT, so
+  // filtering repainted every surviving row and a reader who had learned "Shalex is
+  // the dark one" was misled — and rank is already carried by reading order, so the
+  // hue duplicated it rather than adding anything. Magnitude rides the bar length.
   const max = Math.max(...rows.map((r) => r.value), 1);
 
   return (
@@ -162,7 +173,7 @@ export function RankingCard({
         </Text>
       ) : (
         rows.map((r, i) => {
-          const color = palette[i % palette.length];
+          const color = colors.primary;
           return (
             <View key={r.name + i} style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 8 }}>
               <View

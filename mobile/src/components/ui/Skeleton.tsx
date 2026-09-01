@@ -6,7 +6,7 @@ import { radius, spacing } from '@/theme/tokens';
 
 // A single shimmering placeholder block.
 export function Skeleton({ width, height = 14, style }: { width?: number | string; height?: number; style?: ViewStyle }) {
-  const { scheme } = useTheme();
+  const { colors } = useTheme();
   const o = useSharedValue(0.5);
   useEffect(() => {
     o.value = withRepeat(withTiming(1, { duration: 850, easing: Easing.inOut(Easing.ease) }), -1, true);
@@ -15,7 +15,7 @@ export function Skeleton({ width, height = 14, style }: { width?: number | strin
   return (
     <Animated.View
       style={[
-        { width: (width as any) ?? '100%', height, borderRadius: radius.sm, backgroundColor: scheme === 'dark' ? '#1d2940' : '#e7ecf3' },
+        { width: (width as any) ?? '100%', height, borderRadius: radius.sm, backgroundColor: colors.surfaceAlt },
         anim,
         style,
       ]}

@@ -1,29 +1,42 @@
 // Design tokens — the single source of truth for the mobile design system.
-// Brand hues are ported from the web app (globals.css) so the apps feel related,
-// but the mobile palette is rebuilt for a premium, executive SaaS look (Linear /
-// Stripe / Mercury) with full light + dark support.
+//
+// Every colour below is the RESOLVED value of a web token from app/globals.css
+// (light) and utils/themes.js DARK_* (dark). React Native cannot read CSS custom
+// properties, so the values are inlined — but nothing here is invented: if a colour
+// is not traceable to a web token, it does not belong in this file.
+//
+// Re-derived 2026-08-17 when web moved from the old blue brand to violet. Mobile
+// had been left on #0366ae while web was on #6D5CE0, so the two apps did not look
+// like the same product.
+//
+// The status families are deliberately MUTED (client revision 2026-08-08). Mobile
+// had bright #0f9d58 / #dc2626 / #e08600 where web uses #2E6A4F / #98393B / #805A28.
+// Do not "brighten" these back — the muting was the client's explicit request.
 
 export const palette = {
-  // Brand blues (from web --endeavour / --chathams-blue / --port-gore)
-  endeavour: '#0366ae',
-  chathamsBlue: '#103a7a',
-  portGore: '#28264f',
+  // --brand / --endeavour, and its light+dark partners
+  brand: '#6D5CE0',
+  brandDark: '#8B7CF7',
+  brandStrong: '#A497FF',
 
-  brand50: '#f8fbff',
-  brand100: '#dbeeff',
-  brand200: '#b8ddf8',
-  brand500: '#0366ae',
-  brand600: '#055a9c',
-  brand700: '#103a7a',
+  // --violet-* (the brand family used for chips/info)
+  violetBg: '#EEEBFC',
+  violetBorder: '#D6CFF7',
+  violetText: '#5A49CB',
 
-  // Semantic
-  positive: '#16a34a',
-  positiveBg: '#dcfce7',
-  negative: '#dc2626',
-  negativeBg: '#fee2e2',
-  warn: '#f59e0b',
-  warnBg: '#fffbeb',
-  info: '#2563eb',
+  // --ok-* / --danger-* / --warn-* — muted, per the client revision
+  okBg: '#E6EFE9',
+  okBorder: '#C6DACE',
+  okText: '#2E6A4F',
+  okFigure: '#37815F',
+  dangerBg: '#F2E4E3',
+  dangerBorder: '#DFC2C0',
+  dangerText: '#98393B',
+  warnBg: '#F5EBDB',
+  warnBorder: '#E1CBAD',
+  warnText: '#805A28',
+  pinkText: '#6A5677',
+  tealText: '#2F6560',
 } as const;
 
 export interface ThemeColors {
@@ -48,52 +61,52 @@ export interface ThemeColors {
   info: string;
 }
 
-// Premium light mode — layered cool-gray canvas with white cards (Stripe / Linear /
-// Vercel feel). Never flat pure-white; surfaces are stacked with soft shadows.
+// Light mode — app/globals.css :root, resolved.
 export const lightColors: ThemeColors = {
-  bg: '#f5f6f8',          // calm neutral canvas (not pure white)
-  bgElevated: '#ffffff',
-  surface: '#ffffff',
-  surfaceAlt: '#f0f1f4',  // input / inset fills
-  card: '#ffffff',
-  border: '#e6e8ed',      // hairline
-  borderStrong: '#d5d9e0',
-  text: '#111827',        // neutral ink
-  textMuted: '#5b6472',
-  textFaint: '#98a1b2',
-  primary: palette.endeavour,
-  primaryText: '#ffffff',
-  tabBar: '#ffffff',
-  tabActive: palette.endeavour,
-  tabInactive: '#9aa4b5',
-  positive: '#0f9d58',
-  negative: '#dc2626',
-  warn: '#e08600',
-  info: '#2563eb',
+  bg: '#F7F6FB',           // --bg-page   (violet-tinted, not neutral grey)
+  bgElevated: '#FFFFFF',   // --bg-card
+  surface: '#FFFFFF',      // --bg-card
+  surfaceAlt: '#F4F3F9',   // --bg-subtle — input / inset fills
+  card: '#FFFFFF',         // --bg-card
+  border: '#EAE8F2',       // --line
+  borderStrong: '#DAD6E8', // --line-strong
+  text: '#1E1B39',         // --ink
+  textMuted: '#48455E',    // --ink-secondary
+  textFaint: '#5B5875',    // --ink-muted
+  primary: palette.brand,
+  primaryText: '#FFFFFF',
+  tabBar: '#FFFFFF',       // --bg-card
+  tabActive: palette.brand,
+  tabInactive: '#5B5875',  // --ink-muted
+  positive: palette.okText,
+  negative: palette.dangerText,
+  warn: palette.warnText,
+  info: palette.violetText,
 };
 
-// Premium dark mode — deep navy (not pure black), layered surfaces, luminous
-// accents (Linear Dark / Raycast / Stripe Dark feel).
+// Dark mode — utils/themes.js DARK_NEUTRALS / DARK_SIGNATURE / DARK_STATUS,
+// resolved. Web's dark is hue-tinted rather than neutral black, and every status
+// value there was measured at 6.5:1+ against --bg-card; keep them together.
 export const darkColors: ThemeColors = {
-  bg: '#080e1c',          // deep navy canvas
-  bgElevated: '#101a2e',
-  surface: '#0f1a30',
-  surfaceAlt: '#172441',
-  card: '#0f1a30',
-  border: '#1f2c49',
-  borderStrong: '#2c3c5e',
-  text: '#eef3fd',
-  textMuted: '#a3b3d2',
-  textFaint: '#6a7b9c',
-  primary: '#56a8ee',
-  primaryText: '#04101f',
-  tabBar: '#0a1322',
-  tabActive: '#69b4f3',
-  tabInactive: '#56678a',
-  positive: '#34d399',
-  negative: '#f87171',
-  warn: '#fbbf24',
-  info: '#60a5fa',
+  bg: '#131120',           // --bg-page
+  bgElevated: '#1B1830',   // --bg-card
+  surface: '#1B1830',      // --bg-card
+  surfaceAlt: '#232038',   // --bg-subtle
+  card: '#1B1830',         // --bg-card
+  border: '#2E2A4A',       // --line
+  borderStrong: '#3A3560', // --line-strong
+  text: '#EDEBFA',         // --ink
+  textMuted: '#B6B2D0',    // --ink-secondary
+  textFaint: '#A5A0C0',    // --ink-muted
+  primary: palette.brandDark,
+  primaryText: '#131120',
+  tabBar: '#1B1830',       // --bg-card
+  tabActive: palette.brandDark,
+  tabInactive: '#A5A0C0',  // --ink-muted
+  positive: '#74B896',     // --ok-text (dark)
+  negative: '#DE8A88',     // --danger-text (dark)
+  warn: '#D5B17B',         // --warn-text (dark)
+  info: '#A99EF5',         // --violet-text (dark)
 };
 
 // Soft, layered elevation presets per scheme (premium, not heavy).
@@ -112,7 +125,7 @@ export const getShadow = (scheme: 'light' | 'dark', level: Elevation = 'md') => 
     md: { o: 0.05, r: 10, h: 3, e: 1 },
     lg: { o: 0.14, r: 26, h: 12, e: 7 },
   }[level];
-  return { shadowColor: '#1b2a4a', shadowOpacity: map.o, shadowRadius: map.r, shadowOffset: { width: 0, height: map.h }, elevation: map.e };
+  return { shadowColor: '#1E1B39', shadowOpacity: map.o, shadowRadius: map.r, shadowOffset: { width: 0, height: map.h }, elevation: map.e };
 };
 
 // 4pt spacing grid.

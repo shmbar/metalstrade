@@ -6,7 +6,7 @@ import { Card, Text, Badge, SkeletonList, ErrorState, EmptyState } from '@/compo
 import { useTheme } from '@/theme/ThemeProvider';
 import { useSettings } from '@/store/settings';
 import { useStocks } from './useStocks';
-import { computeAging, BUCKET_COLOR, STALE_DAYS, DEMURRAGE_DAYS } from './aging';
+import { computeAging, BUCKET_TONE, STALE_DAYS, DEMURRAGE_DAYS } from './aging';
 
 const fmtQty = (n: number) => new Intl.NumberFormat('en-US', { minimumFractionDigits: 3 }).format(Number(n) || 0);
 const BUCKETS = ['0-30', '31-60', '61-90', '90+'] as const;
@@ -53,13 +53,13 @@ export function AgingView() {
             <View style={{ flexDirection: 'row', height: 8, borderRadius: 4, overflow: 'hidden', backgroundColor: '#eef5fc' }}>
               {BUCKETS.map((b) => {
                 const pct = g.count ? (g.buckets[b] / g.count) * 100 : 0;
-                return pct > 0 ? <View key={b} style={{ width: `${pct}%`, backgroundColor: BUCKET_COLOR[b] }} /> : null;
+                return pct > 0 ? <View key={b} style={{ width: `${pct}%`, backgroundColor: colors[BUCKET_TONE[b]] }} /> : null;
               })}
             </View>
             <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginTop: 8 }}>
               {BUCKETS.map((b) => g.buckets[b] > 0 ? (
                 <View key={b} style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
-                  <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: BUCKET_COLOR[b] }} />
+                  <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: colors[BUCKET_TONE[b]] }} />
                   <Text variant="caption" tone="faint">{b}d: {g.buckets[b]}</Text>
                 </View>
               ) : null)}

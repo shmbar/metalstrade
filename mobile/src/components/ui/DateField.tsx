@@ -39,7 +39,7 @@ const display = (iso?: string | null) => {
 // Date input mirroring the web app's single-date picker (DD-MMM-YYYY display,
 // ISO storage). iOS uses an inline spinner in a sheet; Android the native dialog.
 export function DateField({ label, value, onChange, required, error }: DateFieldProps) {
-  const { colors } = useTheme();
+  const { colors, scheme } = useTheme();
   const [open, setOpen] = useState(false);
   const [temp, setTemp] = useState<Date>(fromIso(value));
 
@@ -110,7 +110,7 @@ export function DateField({ label, value, onChange, required, error }: DateField
               value={temp}
               mode="date"
               display="spinner"
-              themeVariant={colors.bg === '#0b1220' ? 'dark' : 'light'}
+              themeVariant={scheme === 'dark' ? 'dark' : 'light'}
               onChange={(_, selected) => selected && setTemp(selected)}
               style={{ alignSelf: 'center' }}
             />

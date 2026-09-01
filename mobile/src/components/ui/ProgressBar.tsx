@@ -18,7 +18,7 @@ export function ProgressBar({ pct, color, trackColor, height = 8 }: ProgressBarP
       style={{
         height,
         borderRadius: radius.pill,
-        backgroundColor: trackColor || (scheme === 'dark' ? '#22304d' : '#eef3f9'),
+        backgroundColor: trackColor || colors.surfaceAlt,
         overflow: 'hidden',
       }}
     >
@@ -37,13 +37,13 @@ export function ProgressBar({ pct, color, trackColor, height = 8 }: ProgressBarP
 
 // Multi-segment proportion bar (e.g. category mix).
 export function SegmentBar({ segments, height = 8 }: { segments: { pct: number; color: string }[]; height?: number }) {
-  const { scheme } = useTheme();
+  const { colors } = useTheme();
   return (
     <View
       style={{
         height,
         borderRadius: radius.pill,
-        backgroundColor: scheme === 'dark' ? '#22304d' : '#f1f5f9',
+        backgroundColor: colors.surfaceAlt,
         overflow: 'hidden',
         flexDirection: 'row',
       }}
