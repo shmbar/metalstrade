@@ -67,11 +67,24 @@ const ActivityLog = ({ entityType, entityId, showFilters = false }) => {
     const [typeFilter, setTypeFilter] = useState('all');
     const [actorFilter, setActorFilter] = useState('all');
 
+    // How many entries are RENDERED. The cap used to live in loadActivity's default
+    // (200) — which meant the filters below searched a list that had already been
+    // truncated. Filtering to one person showed only whatever they had done inside
+    // the newest 200 events overall: on 2026-09-01 that turned Sergey's 120 IMS
+    // entries into 12, and hid anyone whose last activity predated the cut-off.
+    //
+    // loadActivity reads the whole collection either way (getDocs, then sort), so
+    // asking for everything costs nothing extra — the slice was pure loss. Filter
+    // first, cap for rendering afterwards, and let the reader ask for more.
+    const PAGE = 200;
+    const [visible, setVisible] = useState(PAGE);
+
     const load = useCallback(async () => {
         if (!uidCollection) return;
         setLoading(true);
-        const rows = await loadActivity(uidCollection, { entityType, entityId });
+        const rows = await loadActivity(uidCollection, { entityType, entityId, max: Infinity });
         setItems(rows);
+        setVisible(PAGE);
         setLoading(false);
     }, [uidCollection, entityType, entityId]);
 
@@ -109,13 +122,19 @@ const ActivityLog = ({ entityType, entityId, showFilters = false }) => {
         return rows;
     }, [items, showFilters, typeFilter, actorFilter, q]);
 
+    // The render cap, applied AFTER the filters — so "show me Sergey" pages through
+    // Sergey's entries, not through whatever fraction of them fell inside a global
+    // cut-off. Reset whenever the filters change, or "show more" would carry over.
+    const shown = useMemo(() => filtered.slice(0, visible), [filtered, visible]);
+    useEffect(() => { setVisible(PAGE); }, [typeFilter, actorFilter, q]);
+
     // Day buckets, with runs of the identical event collapsed into one row + a ×N badge.
     // Saving a record four times in a row is one fact, not four feed entries.
     const groups = useMemo(() => {
         const out = [];
         let key = null;
         let group = null;
-        filtered.forEach(r => {
+        shown.forEach(r => {
             const k = dayKey(r.createdAtMs);
             if (k !== key) {
                 key = k;
@@ -132,7 +151,7 @@ const ActivityLog = ({ entityType, entityId, showFilters = false }) => {
             group.rows.push({ ...r, repeat: 1 });
         });
         return out;
-    }, [filtered]);
+    }, [shown]);
 
     return (
         <div className='p-3'>
@@ -298,6 +317,23 @@ const ActivityLog = ({ entityType, entityId, showFilters = false }) => {
                             </ul>
                         </section>
                     ))}
+
+                    {/* Says so when there is more, rather than ending the list and
+                        letting it read as "that is everything this person did". */}
+                    {filtered.length > shown.length && (
+                        <div className='flex items-center justify-center gap-3 pt-2'>
+                            <span style={{ fontSize: 'var(--fs-table)', color: 'var(--ink-muted)' }}>
+                                Showing {shown.length} of {filtered.length}
+                            </span>
+                            <button
+                                type='button'
+                                onClick={() => setVisible(v => v + PAGE)}
+                                className='whiteButton whitespace-nowrap'
+                            >
+                                Show more
+                            </button>
+                        </div>
+                    )}
                 </div>
             )}
         </div>
