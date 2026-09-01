@@ -4,10 +4,11 @@ import { router, Redirect } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { StatCard, Text, Card, ProgressBar, Select, SectionHeader, SkeletonList, ErrorState } from '@/components/ui';
+import { Text, Card, ProgressBar, Select, SectionHeader, SkeletonList, ErrorState } from '@/components/ui';
 import { PeriodSelector } from '@/components/PeriodSelector';
 import { useTheme } from '@/theme/ThemeProvider';
 import { useAuth } from '@/store/auth';
+import { useSettings } from '@/store/settings';
 import { useDashboard, DashboardFilters } from '@/features/dashboard/useDashboard';
 import { ReceivablesCard, AgingCard, RankingCard } from '@/features/dashboard/components';
 import { MetalPricesStrip } from '@/features/prices/MetalPricesStrip';
@@ -26,9 +27,24 @@ export default function Dashboard() {
   const { colors, scheme } = useTheme();
   const insets = useSafeAreaInsets();
   const { currentUser, userTitle } = useAuth();
+  const { dateSelect } = useSettings();
   // Supplier / Client / Material filters — web parity. Every aggregate on the page
   // narrows with them.
   const [filters, setFilters] = useState<DashboardFilters>({ supplier: '', client: '', material: '' });
+  // Bands start open, and collapse independently, as they do on web.
+  const [open, setOpen] = useState({ purchasing: true, sales: true, position: true, other: true });
+  const toggle = (k: keyof typeof open) => setOpen((p2) => ({ ...p2, [k]: !p2[k] }));
+
+  /* Band period chips. Web spells these out ("01 Jan - 31 Dec 2026") rather than
+     echoing the raw range, because the point is to tell the reader what the
+     figures below actually count. */
+  const dLabel = (iso: string) => {
+    const [y, m, d] = String(iso).split("-");
+    const MON = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+    return y && m && d ? `${Number(d)} ${MON[Number(m) - 1]} ${y}` : iso;
+  };
+  const periodLabel = `${dLabel(dateSelect.start)} - ${dLabel(dateSelect.end)}`;
+  const todayLabel = dLabel(new Date().toISOString().slice(0, 10));
   const { data, options, isLoading, isError, error, refetch } = useDashboard(filters);
   const activeFilters = [filters.supplier, filters.client, filters.material].filter(Boolean).length;
 
@@ -182,237 +198,259 @@ export default function Dashboard() {
             <ErrorState message={(error as Error)?.message || 'Failed to load dashboard data.'} onRetry={refetch} />
           ) : data ? (
             <View style={{ gap: 14 }}>
-              {/* Removed on client request (2026-08-17): the "Revenue, costs & profit"
-                  3-series chart and the "Revenue trend" card.
-                  On a phone the three overlaid series were unreadable — the legend
-                  collided with the plot and the dashed profit line was easily misread
-                  as data ending rather than flattening. The same figures are stated
-                  exactly, and unambiguously, by the Net Profit / COGS / Avg-Profit-per-MT
-                  tiles immediately below, which is how a small screen should carry them.
-                  Web keeps its version of the 3-series chart (dashboard/page.js:1689),
-                  where the width makes it legible; "Revenue trend" had no web
-                  counterpart at all, so dropping it moved mobile TOWARDS parity.
-                  The underlying series (dealRevenueByMonth, cogsByMonth, profitByMonth,
-                  revenueByMonth) are still computed and still covered by the parity
-                  suite — nothing was deleted from the data layer, so restoring either
-                  card is a UI change only. */}
-
-              {/* Sold-basis P&L — web's Net Profit / COGS / Expenses / Storage /
-                  Avg-Profit-per-MT KPIs. Deal basis: attributed to the CONTRACT
-                  month at the CONTRACT rate, deliberately unlike the invoice-dated
-                  revenue figure in the hero above. */}
-              <View style={{ flexDirection: 'row', gap: 14 }}>
-                <View style={{ flex: 1 }}>
-                  <StatCard
-                    label="Net Profit"
-                    value={fmtAutoKM(data.netProfit)}
-                    accent={data.netProfit >= 0 ? colors.positive : colors.negative}
-                    icon={<Ionicons name={data.netProfit >= 0 ? 'trending-up' : 'trending-down'} size={16} color={data.netProfit >= 0 ? colors.positive : colors.negative} />}
-                    sub="sold basis"
+              {/* ══ BAND 1 — PURCHASING & COSTS ═══════════════════════════════ */}
+              <Band
+                title="Purchasing & costs"
+                subtitle="Tonnage and profit as recorded on the Margins page · costs from the Expenses pages"
+                period={`Contracts dated ${periodLabel}`}
+                open={open.purchasing}
+                onToggle={() => toggle('purchasing')}
+              />
+              {open.purchasing && (
+                <>
+                  {/* Web's eight tiles, in web's order (page.js:2178-2252). Mobile used
+                      to show a different set entirely — COGS, Storage Spend, Unsold
+                      Stock, Purchase Value — so the two apps did not even name the same
+                      figures, let alone agree on them. */}
+                  <Tiles
+                    items={[
+                      { k: 'Contract Expenses', v: fmtAutoKM(data.expensesTotal) },
+                      { k: 'Company Expenses', v: fmtAutoKM(data.overheads) },
+                      { k: 'Gross Profit', v: fmtAutoKM(data.grossProfit), tone: 'positive' as const },
+                      {
+                        k: 'Net Profit',
+                        v: fmtAutoKM(data.netProfit),
+                        tone: data.netProfit >= 0 ? ('positive' as const) : ('negative' as const),
+                      },
+                      { k: 'Average Rate', v: fmtAutoKM(data.avgCostPerMT) },
+                      { k: 'Avg Expense / MT', v: fmtAutoKM(data.avgExpensePerMT) },
+                      { k: 'Avg Freight / MT', v: fmtAutoKM(data.avgFreightPerMT) },
+                      { k: 'Avg Profit / MT', v: fmtAutoKM(data.avgProfitPerMT) },
+                    ]}
                   />
-                </View>
-                <View style={{ flex: 1 }}>
-                  <StatCard
-                    label="Cost of Goods Sold"
-                    value={fmtAutoKM(data.cogs)}
-                    accent={colors.negative}
-                    icon={<Ionicons name="pricetag" size={16} color={colors.negative} />}
-                    sub="sold portion"
-                  />
-                </View>
-              </View>
 
-              <View style={{ flexDirection: 'row', gap: 14 }}>
-                <View style={{ flex: 1 }}>
-                  <StatCard label="Other Expenses" value={fmtAutoKM(data.expensesTotal)} accent={colors.warn} icon={<Ionicons name="card" size={16} color={colors.warn} />} sub="contract expenses" onPress={() => router.push('/(app)/expenses')} />
-                </View>
-                <View style={{ flex: 1 }}>
-                  <StatCard label="Storage Spend" value={fmtAutoKM(data.storageTotal)} accent={colors.warn} icon={<Ionicons name="business" size={16} color={colors.warn} />} sub="storage + warehouse" onPress={() => router.push('/(app)/stocks')} />
-                </View>
-              </View>
-
-              <View style={{ flexDirection: 'row', gap: 14 }}>
-                <View style={{ flex: 1 }}>
-                  <StatCard label="Avg Profit / MT" value={fmtAutoKM(data.avgProfitPerMT)} accent={colors.primary} icon={<Ionicons name="analytics" size={16} color={colors.primary} />} sub={`${fmtMT(data.shippedMT)} shipped`} />
-                </View>
-                <View style={{ flex: 1 }}>
-                  <StatCard label="Unsold Stock" value={fmtAutoKM(data.unsoldValue)} accent={colors.warn} icon={<Ionicons name="albums" size={16} color={colors.warn} />} sub="capital tied up" onPress={() => router.push('/(app)/stocks')} />
-                </View>
-              </View>
-
-              {/* An EUR contract with no usable rate is counted 1:1 — web surfaces
-                  this so a silently understated total is visible. */}
-              {data.missingRate > 0 && (
-                <Card style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-                  <Ionicons name="warning-outline" size={16} color={colors.warn} />
-                  <Text variant="caption" tone="muted" style={{ flex: 1 }}>
-                    {data.missingRate} EUR contract{data.missingRate === 1 ? '' : 's'} have no exchange rate — counted 1:1, so totals may read low.
-                  </Text>
-                </Card>
-              )}
-
-              <View style={{ flexDirection: 'row', gap: 14 }}>
-                <View style={{ flex: 1 }}>
-                  <StatCard label="Purchase Value" value={curLine(data.purchaseByCur)} accent={colors.primary} icon={<Ionicons name="cart" size={16} color={colors.primary} />} sub="contracts" onPress={() => router.push('/(app)/contracts')} />
-                </View>
-                <View style={{ flex: 1 }}>
-                  <StatCard label="Tonnage" value={fmtMT(data.totalMT)} accent={colors.warn} icon={<Ionicons name="cube" size={16} color={colors.warn} />} sub="purchased" onPress={() => router.push('/(app)/stocks')} />
-                </View>
-              </View>
-
-              {/* Live alerts — web's pill row. Counts come off the receivables slots. */}
-              {(data.dueCount > 0 || data.balanceCount > 0) && (
-                <View style={{ flexDirection: 'row', gap: 8, flexWrap: 'wrap' }}>
-                  {data.dueCount > 0 && (
-                    <Pressable
-                      onPress={() => router.push('/(app)/invoices?filter=Unpaid')}
-                      style={{ flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 12, paddingVertical: 7, borderRadius: 999, backgroundColor: colors.surfaceAlt, borderWidth: 1, borderColor: colors.negative }}
-                    >
-                      <Ionicons name="alert-circle-outline" size={14} color={colors.negative} />
-                      <Text variant="caption" style={{ color: colors.negative }}>Due invoices {data.dueCount}</Text>
-                    </Pressable>
-                  )}
-                  {data.balanceCount > 0 && (
-                    <Pressable
-                      onPress={() => router.push('/(app)/invoices?filter=Unpaid')}
-                      style={{ flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 12, paddingVertical: 7, borderRadius: 999, backgroundColor: colors.surfaceAlt, borderWidth: 1, borderColor: colors.warn }}
-                    >
-                      <Ionicons name="time-outline" size={14} color={colors.warn} />
-                      <Text variant="caption" style={{ color: colors.warn }}>Balance invoices {data.balanceCount}</Text>
-                    </Pressable>
-                  )}
-                </View>
-              )}
-
-              {/* Tonnage — purchased vs shipped vs pending (web's Tonnage card). */}
-              <Card>
-                <SectionHeader
-                  title="Tonnage — purchased vs shipped"
-                  subtitle={`${data.totalMT > 0 ? Math.round((data.shippedMT / data.totalMT) * 100) : 0}% shipped`}
-                />
-                <View style={{ flexDirection: 'row', gap: 10 }}>
-                  {[
-                    { k: 'Purchased', v: data.totalMT, c: colors.primary },
-                    { k: 'Shipped', v: data.shippedMT, c: colors.positive },
-                    { k: 'Pending', v: data.pendingMT, c: colors.warn },
-                  ].map((t) => (
-                    <View key={t.k} style={{ flex: 1, borderRadius: radius.lg, borderWidth: 1, borderColor: colors.border, padding: 10 }}>
-                      <Text variant="caption" tone="muted">{t.k}</Text>
-                      <Text variant="bodyMedium" numberOfLines={1} style={{ marginTop: 2, color: t.c, fontVariant: ['tabular-nums'] }}>
-                        {fmtMT(t.v)}
-                      </Text>
+                  {/* Web's TonnageCard: purchased / shipped / pending PLUS the unsold
+                      value, which used to be a tile of its own on mobile. */}
+                  <Card>
+                    <SectionHeader
+                      title="Tonnage"
+                      subtitle={`${data.totalMT > 0 ? Math.round((data.shippedMT / data.totalMT) * 100) : 0}% shipped`}
+                    />
+                    <ProgressBar
+                      pct={data.totalMT > 0 ? (data.shippedMT / data.totalMT) * 100 : 0}
+                      color={colors.primary}
+                      height={8}
+                    />
+                    <View style={{ flexDirection: 'row', marginTop: 12 }}>
+                      {[
+                        { k: 'Purchased', v: fmtMT(data.totalMT), c: colors.primary },
+                        { k: 'Shipped', v: fmtMT(data.shippedMT), c: colors.positive },
+                        { k: 'Pending', v: fmtMT(data.pendingMT), c: colors.warn },
+                      ].map((t) => (
+                        <View key={t.k} style={{ flex: 1 }}>
+                          <Text variant="caption" tone="muted">{t.k}</Text>
+                          <Text variant="bodyMedium" style={{ color: t.c, marginTop: 2, fontVariant: ['tabular-nums'] }}>
+                            {t.v}
+                          </Text>
+                        </View>
+                      ))}
                     </View>
-                  ))}
-                </View>
-              </Card>
-
-              {/* Capital breakdown — how deal-basis revenue was allocated. */}
-              <Card>
-                <SectionHeader title="Capital breakdown" subtitle={`Revenue ${fmtAutoKM(data.dealRevenue)} · sold basis`} />
-                {[
-                  { k: 'Cost of Goods Sold', v: data.cogs, c: colors.primary },
-                  { k: 'Other Expenses', v: data.expensesTotal, c: colors.warn },
-                  { k: 'Net Profit', v: data.netProfit, c: data.netProfit >= 0 ? colors.positive : colors.negative },
-                ].map((r, i) => {
-                  const pct = data.dealRevenue > 0 ? (r.v / data.dealRevenue) * 100 : 0;
-                  return (
-                    <View key={r.k} style={{ paddingVertical: 6, borderTopWidth: i === 0 ? 0 : 1, borderTopColor: colors.border, gap: 4 }}>
-                      <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                        <Text variant="body" tone="muted">{r.k}</Text>
-                        <Text variant="bodyMedium" style={{ color: r.c, fontVariant: ['tabular-nums'] }}>{fmtAutoKM(r.v)}</Text>
-                      </View>
-                      <ProgressBar pct={Math.max(0, Math.min(100, pct))} color={r.c} height={7} />
-                    </View>
-                  );
-                })}
-              </Card>
-
-              {/* Per-MT unit economics (web's Per-MT Metrics strip). */}
-              <Card>
-                <SectionHeader title="Per-MT metrics" subtitle="Unit economics for the period" />
-                {[
-                  { k: 'Total MT purchased', v: fmtMT(data.totalMT) },
-                  { k: 'Avg cost / MT', v: fmtAutoKM(data.avgCostPerMT) },
-                  { k: 'Avg expense / MT', v: fmtAutoKM(data.avgExpensePerMT) },
-                  { k: 'Avg freight / MT', v: fmtAutoKM(data.avgFreightPerMT) },
-                  { k: 'Avg profit / MT', v: fmtAutoKM(data.avgProfitPerMT) },
-                ].map((r, i) => (
-                  <View
-                    key={r.k}
-                    style={{ flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 6, borderTopWidth: i === 0 ? 0 : 1, borderTopColor: colors.border }}
-                  >
-                    <Text variant="body" tone="muted">{r.k}</Text>
-                    <Text variant="bodyMedium" style={{ fontVariant: ['tabular-nums'] }}>{r.v}</Text>
-                  </View>
-                ))}
-              </Card>
-
-              {/* Most-sold material — tonnage attributed by each contract's sold fraction. */}
-              {data.materialSold.length > 0 && (
-                <RankingCard
-                  title="Most-sold material"
-                  subtitle="By tonnage sold this period"
-                  rows={data.materialSold.map((r) => ({ name: r.name, value: r.value }))}
-                  format={(v: number) => fmtMT(v)}
-                />
-              )}
-
-              {/* Expenses by type — web's breakdown card. */}
-              {data.expByType.length > 0 && (
-                <Card>
-                  <SectionHeader title="Expenses by type" subtitle={`${data.expByType.length} categor${data.expByType.length === 1 ? 'y' : 'ies'}`} />
-                  {data.expByType.map((e, i) => (
                     <View
-                      key={e.name}
                       style={{
-                        flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
-                        paddingVertical: 6, borderTopWidth: i === 0 ? 0 : 1, borderTopColor: colors.border,
+                        borderTopWidth: 1,
+                        borderTopColor: colors.border,
+                        marginTop: 12,
+                        paddingTop: 10,
+                        flexDirection: 'row',
+                        justifyContent: 'space-between',
                       }}
                     >
-                      <Text variant="body" numberOfLines={1} style={{ flex: 1 }}>{e.name}</Text>
-                      <Text variant="bodyMedium" style={{ fontVariant: ['tabular-nums'] }}>{fmtAutoKM(e.value)}</Text>
+                      <Text variant="caption" tone="muted">Unsold stock · capital tied up</Text>
+                      <Text variant="bodyMedium" style={{ fontVariant: ['tabular-nums'] }}>
+                        {fmtAutoKM(data.unsoldValue)}
+                      </Text>
                     </View>
-                  ))}
-                </Card>
-              )}
+                  </Card>
 
-              <ReceivablesCard byCur={data.receivables} onPress={() => router.push('/(app)/invoices?filter=Unpaid' as any)} />
-              <AgingCard buckets={data.aging} onPress={() => router.push('/(app)/invoices?filter=Unpaid' as any)} />
+                  <RankingCard
+                    title="Contracts — $"
+                    subtitle="Contribution breakdown by contract values"
+                    rows={data.topSuppliers}
+                    onPress={() => router.push('/(app)/contracts')}
+                  />
 
-              {Object.keys(data.miscByCur).length > 0 && (
-                <StatCard label="Misc Invoices · not linked to contracts" value={curLine(data.miscByCur)} accent={colors.info} icon={<Ionicons name="receipt" size={16} color={colors.info} />} sub={`${data.miscCount} invoice${data.miscCount === 1 ? '' : 's'} in period`} onPress={() => router.push('/(app)/misc-invoices')} />
-              )}
-
-              {/* Misc invoices by category — web's 4-way breakdown. */}
-              {data.miscByCat.length > 0 && (
-                <Card>
-                  <SectionHeader title="Misc invoices by category" subtitle={`${data.miscCount} invoice(s) in period`} />
-                  {data.miscByCat.map((c, i) => {
-                    const total = data.miscByCat.reduce((a, b) => a + b.amount, 0);
-                    const share = total > 0 ? (c.amount / total) * 100 : 0;
-                    return (
-                      <View key={c.name} style={{ paddingVertical: 6, borderTopWidth: i === 0 ? 0 : 1, borderTopColor: colors.border }}>
-                        <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                          <Text variant="body" style={{ textTransform: 'capitalize' }}>{c.name}</Text>
-                          <Text variant="bodyMedium" style={{ fontVariant: ['tabular-nums'] }}>{fmtAutoKM(c.amount)}</Text>
+                  {data.expByType.length > 0 && (
+                    <Card>
+                      <SectionHeader title="Expenses by Type" subtitle="Freight, warehouse, commission, …" />
+                      {data.expByType.map((e) => (
+                        <View
+                          key={e.name}
+                          style={{ flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 5 }}
+                        >
+                          <Text variant="caption" tone="muted" numberOfLines={1} style={{ flex: 1 }}>
+                            {e.name}
+                          </Text>
+                          <Text variant="caption" style={{ fontVariant: ['tabular-nums'] }}>{fmtAutoKM(e.value)}</Text>
                         </View>
-                        <Text variant="caption" tone="faint">{c.count} inv · {share.toFixed(0)}%</Text>
-                      </View>
-                    );
-                  })}
-                </Card>
+                      ))}
+                    </Card>
+                  )}
+                </>
               )}
 
-              <RankingCard title="Top Suppliers" subtitle="By purchase value (USD basis)" rows={data.topSuppliers} onPress={() => router.push('/(app)/contracts')} />
+              {/* ══ BAND 2 — SALES ════════════════════════════════════════════ */}
+              <Band
+                title="Sales"
+                subtitle="What was invoiced to clients in this period, whenever the material was bought"
+                period={`Invoices dated ${periodLabel}`}
+                open={open.sales}
+                onToggle={() => toggle('sales')}
+              />
+              {open.sales && (
+                <>
+                  <Card onPress={() => router.push('/(app)/invoices')}>
+                    <SectionHeader title="Sales Revenue" subtitle="Invoiced in this period" />
+                    <Text variant="display" style={{ fontSize: 30, lineHeight: 36, fontVariant: ['tabular-nums'] }}>
+                      {fmtAutoKM(data.revenueUsd)}
+                    </Text>
+                    {Object.keys(data.revenueByCur).length > 0 && (
+                      <Text variant="caption" tone="muted" style={{ marginTop: 2 }}>
+                        {curLine(data.revenueByCur)}
+                      </Text>
+                    )}
+                  </Card>
+                  {data.consignees.length > 0 && (
+                    <RankingCard
+                      title="Consignees — $"
+                      subtitle="Contribution breakdown by client volume"
+                      rows={data.consignees}
+                      onPress={() => router.push('/(app)/invoices')}
+                    />
+                  )}
+                </>
+              )}
 
-              {/* Consignees — web's second ranking list, by client sales volume. */}
-              {data.consignees.length > 0 && (
-                <RankingCard title="Consignees" subtitle="By client sales volume" rows={data.consignees} onPress={() => router.push('/(app)/invoices')} />
+              {/* ══ BAND 3 — POSITION ═════════════════════════════════════════ */}
+              <Band
+                title="Position"
+                subtitle="Money still owed to you — a running total, not a period figure"
+                period={`Open balances as of ${todayLabel}`}
+                muted
+                open={open.position}
+                onToggle={() => toggle('position')}
+              />
+              {open.position && (
+                <>
+                  <ReceivablesCard byCur={data.receivables} onPress={() => router.push('/(app)/invoices?filter=Unpaid')} />
+                  <AgingCard buckets={data.aging} onPress={() => router.push('/(app)/invoices?filter=Unpaid' as any)} />
+                </>
+              )}
+
+              {/* ══ BAND 4 — OTHER ════════════════════════════════════════════ */}
+              <Band
+                title="Other"
+                subtitle="Standalone sales not linked to any contract"
+                period={`Dated ${periodLabel}`}
+                muted
+                open={open.other}
+                onToggle={() => toggle('other')}
+              />
+              {open.other && (
+                <Card onPress={() => router.push('/(app)/misc-invoices')}>
+                  <SectionHeader title="Misc invoices" subtitle="By category" />
+                  <Text variant="bodyMedium" style={{ fontVariant: ['tabular-nums'] }}>{curLine(data.miscByCur)}</Text>
+                  <Text variant="caption" tone="muted" style={{ marginTop: 2 }}>{data.miscCount} invoice(s)</Text>
+                </Card>
               )}
             </View>
           ) : null}
         </View>
       </ScrollView>
+    </View>
+  );
+}
+
+/**
+ * A dashboard band header — web's BandHeader (dashboard/page.js:2154 onward).
+ *
+ * The point of these is not decoration: each band states WHICH DATE BASIS the
+ * figures under it use. Purchasing is contract-dated, Sales is invoice-dated, and
+ * Position is a running total as of today, not a period figure at all. Without
+ * that on screen a reader has no way to tell why Sales Revenue and Purchase Value
+ * disagree — which is exactly the confusion that let mobile's Net Profit mix an
+ * invoice-dated revenue with contract-dated costs and be wrong by 5x.
+ *
+ * Position and Other are `muted` on web so the two period bands stay visually
+ * paired and those read as a different kind of thing.
+ */
+function Band({
+  title,
+  subtitle,
+  period,
+  muted,
+  open,
+  onToggle,
+}: {
+  title: string;
+  subtitle: string;
+  period: string;
+  muted?: boolean;
+  open: boolean;
+  onToggle: () => void;
+}) {
+  const { colors } = useTheme();
+  return (
+    <Pressable
+      onPress={onToggle}
+      style={{ marginTop: 6, paddingBottom: 6, borderBottomWidth: 1, borderBottomColor: colors.border }}
+    >
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+        <Ionicons name={open ? 'chevron-down' : 'chevron-forward'} size={16} color={colors.textFaint} />
+        <Text variant="h3" style={{ flex: 1 }}>{title}</Text>
+        <View
+          style={{
+            paddingHorizontal: 8,
+            paddingVertical: 3,
+            borderRadius: 999,
+            backgroundColor: muted ? colors.surfaceAlt : colors.primary + '1A',
+            borderWidth: 1,
+            borderColor: muted ? colors.border : colors.primary + '33',
+          }}
+        >
+          <Text variant="caption" style={{ color: muted ? colors.textFaint : colors.primary }} numberOfLines={1}>
+            {period}
+          </Text>
+        </View>
+      </View>
+      <Text variant="caption" tone="muted" style={{ marginTop: 3, marginLeft: 24 }}>
+        {subtitle}
+      </Text>
+    </Pressable>
+  );
+}
+
+/** The band-1 KPI grid — two columns, matching web's tile row. */
+function Tiles({ items }: { items: { k: string; v: string; tone?: 'positive' | 'negative' }[] }) {
+  const { colors } = useTheme();
+  return (
+    <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10 }}>
+      {items.map((t) => (
+        <Card key={t.k} style={{ width: '47.5%' }}>
+          <Text variant="caption" tone="muted" numberOfLines={1}>{t.k}</Text>
+          <Text
+            variant="bodyMedium"
+            numberOfLines={1}
+            adjustsFontSizeToFit
+            style={{
+              marginTop: 2,
+              fontVariant: ['tabular-nums'],
+              color: t.tone === 'positive' ? colors.positive : t.tone === 'negative' ? colors.negative : colors.text,
+            }}
+          >
+            {t.v}
+          </Text>
+        </Card>
+      ))}
     </View>
   );
 }
