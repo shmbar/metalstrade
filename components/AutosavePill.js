@@ -18,10 +18,28 @@ export default function AutosavePill({ mode, text, countdown, onSaveNow, onCance
     // launcher bottom-4 right-4, so a save status appeared in the one gap between
     // them and was easy to miss (client, 1 Sep 2026). Nothing else is fixed below
     // the header, and it is where the eye already is.
+    // Brand-filled for the three passive states — the ones that only report where
+    // the save got to, and which a white card at the top of a white page made too
+    // easy to miss (client, 1 Sep 2026).
+    //
+    // 'pending' and 'paused' keep the light shell on purpose: those are the payment
+    // countdown, they carry Save now / Cancel, and ticking one marks money as PAID.
+    // Painting them the same colour as a routine "Saved" would flatten a decision
+    // that has consequences into a status message, and the brand-filled Save now
+    // button inside would disappear against a brand-filled pill.
+    const solid = mode === 'info' || mode === 'saving' || mode === 'saved';
+    const onSolid = 'var(--on-brand)';
+
     return (
         <div className="fixed top-[80px] left-1/2 -translate-x-1/2 z-toast pointer-events-none">
-            <div className="flex items-center gap-2 rounded-full bg-[var(--bg-card)] border border-[var(--line)] pl-3 pr-2 py-1.5 pointer-events-auto"
-                style={{ fontSize: 'var(--fs-input)', boxShadow: 'var(--shadow-sm)' }}>
+            <div className={`flex items-center gap-2 rounded-full pl-3 pr-2 py-1.5 pointer-events-auto ${solid ? '' : 'bg-[var(--bg-card)] border border-[var(--line)]'}`}
+                style={{
+                    fontSize: 'var(--fs-input)',
+                    boxShadow: 'var(--shadow-sm)',
+                    // Brand fill on the states that just report progress — a white
+                    // card at the top of a white page was easy to look straight past.
+                    ...(solid ? { background: 'var(--brand)', border: '1px solid var(--brand)' } : {}),
+                }}>
                 {mode === 'pending' && (
                     <>
                         <AlertTriangle className="w-3.5 h-3.5 shrink-0" style={{ color: TONES.amber.text }} />
@@ -52,20 +70,20 @@ export default function AutosavePill({ mode, text, countdown, onSaveNow, onCance
                 )}
                 {mode === 'info' && (
                     <>
-                        <AlertTriangle className="w-3.5 h-3.5 shrink-0" style={{ color: TONES.amber.text }} />
-                        <span className="font-medium pr-1 whitespace-nowrap" style={{ color: 'var(--ink)' }}>{text || 'Unsaved — autosaving…'}</span>
+                        <AlertTriangle className="w-3.5 h-3.5 shrink-0" style={{ color: onSolid }} />
+                        <span className="font-medium pr-1 whitespace-nowrap" style={{ color: onSolid }}>{text || 'Unsaved — autosaving…'}</span>
                     </>
                 )}
                 {mode === 'saving' && (
                     <>
-                        <Loader2 className="w-3.5 h-3.5 animate-spin shrink-0" style={{ color: 'var(--brand)' }} />
-                        <span className="font-medium pr-1 whitespace-nowrap" style={{ color: 'var(--ink)' }}>{text || 'Saving…'}</span>
+                        <Loader2 className="w-3.5 h-3.5 animate-spin shrink-0" style={{ color: onSolid }} />
+                        <span className="font-medium pr-1 whitespace-nowrap" style={{ color: onSolid }}>{text || 'Saving…'}</span>
                     </>
                 )}
                 {mode === 'saved' && (
                     <>
-                        <span style={{ color: TONES.green.text }}>✓</span>
-                        <span className="font-medium pr-1 whitespace-nowrap" style={{ color: TONES.green.text }}>{text || 'Saved'}</span>
+                        <span style={{ color: onSolid }}>✓</span>
+                        <span className="font-medium pr-1 whitespace-nowrap" style={{ color: onSolid }}>{text || 'Saved'}</span>
                     </>
                 )}
             </div>
