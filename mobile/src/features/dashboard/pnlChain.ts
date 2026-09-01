@@ -33,7 +33,38 @@ const num = (v: any) => {
 // Shipped MT for one contract, from its grouped invoicesData. Counts a doc when
 // its group is a singleton OR it is not the original — the same supersede rule the
 // revenue figure uses, so shipped and revenue stay aligned.
-export function sumInvProductsMT(invoicesData: any[]): number {
+/**
+ * Which material an invoice LINE names — web funcs.js:108-118 invLineMaterial.
+ *
+ * A line names its material by descriptionId: the id of a row in productsData,
+ * carried on the invoice itself and, for older invoices, only on the parent
+ * contract. The line's own `description` exists in the draft shape but is empty on
+ * every saved line, and descriptionText holds heat-level detail ("24.4Ni 11.95Cr
+ * 0.48Mo Solids Scrap") — one distinct string per lot, so grouping on it shatters
+ * the ranking into hundreds of one-offs. Id first, both places, then the text, and
+ * only then give up.
+ */
+export function invLineMaterial(line: any, invoice: any, contract: any): string {
+  const byId = (arr: any[]) => (arr || []).find((y: any) => y.id === line?.descriptionId)?.description;
+  return (
+    String(byId(invoice?.productsData) || byId(contract?.productsData) || line?.descriptionText || '').trim() ||
+    'Unspecified'
+  );
+}
+
+/**
+ * Shipped MT off the invoice lines — web funcs.js:119-144.
+ *
+ * `byMaterial`, when passed, is filled with material -> MT off the SAME lines this
+ * totals. That is the point of threading it through rather than computing it
+ * separately: "Most-Sold Material" reconciles to shipped MT by construction, and
+ * there is no second rule about which invoices count that could drift from this one.
+ */
+export function sumInvProductsMT(
+  invoicesData: any[],
+  byMaterial: Record<string, number> | null = null,
+  contract: any = null
+): number {
   let mt = 0;
   (invoicesData || []).forEach((group) => {
     if (!Array.isArray(group)) return;
@@ -44,7 +75,14 @@ export function sumInvProductsMT(invoicesData: any[]): number {
       if (!counts) return;
       (obj.productsDataInvoice || []).forEach((p: any) => {
         // trap 2: raw quantity, no unit conversion
-        if (p && p.qnty !== 's' && p.qnty !== '' && !isNaN(parseFloat(p.qnty))) mt += parseFloat(p.qnty);
+        if (p && p.qnty !== 's' && p.qnty !== '' && !isNaN(parseFloat(p.qnty))) {
+          const q = parseFloat(p.qnty);
+          mt += q;
+          if (byMaterial) {
+            const d = invLineMaterial(p, obj, contract);
+            byMaterial[d] = (byMaterial[d] || 0) + q;
+          }
+        }
       });
     });
   });
@@ -99,10 +137,48 @@ export interface PnlResult {
   supplierTotals: Record<string, number>;
   /** consignee (client) ranking — web accumulatedTop5Cus */
   clientTotals: Record<string, number>;
+  /** contracts whose own records contradict each other — over-valued lines, duplicate POs */
+  dataIssues: any[];
+  /** the partner's half of a shared IMS/GIS deal, tracked so profit can state it */
+  gisCogs: number;
+  gisExpenses: number;
 }
 
+/**
+ * Month an expense belongs to — web funcs.js:228-246.
+ * Contract expenses carry their own date, but this used to bucket them by the
+ * CONTRACT start month, so a December cost on a January contract landed in January
+ * and skewed the monthly profit line. Trust the expense date only when it falls in
+ * the contract year, so a stray date cannot move spend out of the loaded period;
+ * the annual total is identical either way.
+ */
+function expenseMonth(obj: any, contract: any, fallback: number): number {
+  const d = obj?.date || obj?.dateRange?.startDate;
+  if (typeof d !== 'string' || d.length < 7) return fallback;
+  const yr = String(contract?.dateRange?.startDate || '').substring(0, 4);
+  if (yr && d.substring(0, 4) !== yr) return fallback;
+  const m = Number(d.substring(5, 7));
+  return m >= 1 && m <= 12 ? m : fallback;
+}
+
+/**
+ * How far a contract's line values may exceed its PO value before it is flagged —
+ * web funcs.js:VALUE_TOLERANCE. Set at 3x deliberately, not tighter: poInvoices is a
+ * LIST, so a contract invoiced in instalments legitimately shows lines worth more
+ * than the PO value recorded so far, and a half-invoiced contract sits near 2x
+ * through no fault of its data. At 1.5x this flagged eight contracts, six of them
+ * explained by partial invoicing; a banner that cries wolf is a banner nobody reads.
+ */
+const VALUE_TOLERANCE = 3;
+
 // `contracts` must already be enriched with grouped `invoicesData`.
-export function computePnl(contracts: any[], settings: any, companyRate: number): PnlResult {
+export function computePnl(
+  contracts: any[],
+  settings: any,
+  companyRate: number,
+  expenseRows: any[] | null = null,
+  liveRate = 0
+): PnlResult {
   const z12 = () => Array(12).fill(0);
   const purchaseByMonth = z12();
   const dealRevenueByMonth = z12();
@@ -123,6 +199,30 @@ export function computePnl(contracts: any[], settings: any, companyRate: number)
   let unsoldValue = 0;
   let expensesTotal = 0;
   let storageTotal = 0;
+  let gisCogs = 0;
+  let gisExpenses = 0;
+  const dataIssues: any[] = []; // contracts whose own records contradict each other
+
+  /* Canonical expense rows bucketed by the contract they belong to. `unlinked` are
+     rows dated in the period whose contract is not in the loaded set — real spend the
+     /expenses page counts, so they are added AFTER the contract loop rather than
+     dropped. The dashboard used to total expenses off each contract's own embedded
+     `expenses` array, which is a partial, stale mirror: at the time web changed this
+     it held 40 rows against the collection's 73, understating contract expenses by
+     $191,094 — 30% — and carried 2 rows with no canonical record at all. Falling back
+     to x.expenses when no index is supplied keeps older callers working. */
+  let expByContract: Record<string, any[]> | null = null;
+  let unlinkedExpenses: any[] | null = null;
+  if (Array.isArray(expenseRows)) {
+    expByContract = {};
+    unlinkedExpenses = [];
+    const ids = new Set((contracts || []).map((c: any) => c.id));
+    expenseRows.forEach((r: any) => {
+      const cid = r?.poSupplier?.id;
+      if (cid && ids.has(cid)) (expByContract![cid] ||= []).push(r);
+      else unlinkedExpenses!.push(r);
+    });
+  }
 
   const freightIds = new Set(
     (settings?.Expenses?.Expenses || [])
@@ -135,7 +235,11 @@ export function computePnl(contracts: any[], settings: any, companyRate: number)
   (contracts || []).forEach((x: any) => {
     // One standard company rate when set; else the contract's own; else 1:1.
     const contractRate = num(x.euroToUSD);
-    const mult = companyRate > 0 ? companyRate : contractRate > 0 ? contractRate : 1;
+    // company rate, then the contract's own, then the LIVE rate, then 1:1. A EUR
+    // contract with neither rate used to be converted at 1.0 — the euro counted as a
+    // dollar, silently, in whatever total it landed in.
+    const mult =
+      companyRate > 0 ? companyRate : contractRate > 0 ? contractRate : liveRate > 0 ? liveRate : 1;
     if (x.cur !== 'us' && !(companyRate > 0) && !(contractRate > 0)) missingRate++;
     const mltTmp = x.cur === 'us' ? 1 : mult;
 
@@ -146,7 +250,13 @@ export function computePnl(contracts: any[], settings: any, companyRate: number)
     const contractPurchase = (x.poInvoices || []).reduce((s: number, z: any) => s + num(z?.pmnt), 0) * mltTmp;
     purchaseByMonth[m] += contractPurchase;
 
-    const supName = settings?.Supplier?.Supplier?.find((s: any) => s.id === x.supplier)?.nname || x.supplier || '—';
+    // web funcs.js:477 now says 'Unknown supplier' and ADDS on collision, rather
+    // than assigning — two ids resolving to the same nname used to overwrite each
+    // other, and every id missing from settings collapsed onto one `undefined` key.
+    // Both silently deleted contract value from the card while the header total still
+    // counted it. Mobile had already avoided the overwrite; this adopts web's label.
+    const supName =
+      settings?.Supplier?.Supplier?.find((s: any) => s.id === x.supplier)?.nname || 'Unknown supplier';
     supplierTotals[supName] = (supplierTotals[supName] || 0) + contractPurchase;
 
     // Contract tonnage, unit-converted. Web's DASHBOARD counts every productsData
@@ -161,6 +271,52 @@ export function computePnl(contracts: any[], settings: any, companyRate: number)
     (x.productsData || []).forEach((p: any) => {
       contractTotalMT += num(p.qnty) * mtFactor;
     });
+    /* A contract cannot have bought more material than its own money paid for. Where
+       the entered quantities multiply out to far more than the PO is worth, the
+       QUANTITIES are the thing that is wrong, so tonnage is capped at
+       PO value / weighted-average unit price. 060526-TIM entered 2,576.8 MT at
+       $4,050/MT — $10.4M of material — against ten payments totalling $774,683,
+       because thirteen of its twenty-three rows have the contract TOTAL (191) pasted
+       into them. The cap puts it back at 191 MT.
+       Three guards: only past VALUE_TOLERANCE, so an ordinary part-invoiced contract
+       is never touched; never UPWARD, so a genuinely under-invoiced contract keeps
+       what it entered; and the correction is reported so the source record still gets
+       fixed rather than quietly papered over. */
+    const enteredMT = contractTotalMT;
+    let lineValue = 0;
+    let pricedMT = 0;
+    (x.productsData || []).forEach((p2: any) => {
+      const q = parseFloat(p2.qnty);
+      const pr = parseFloat(p2.unitPrc);
+      if (!isNaN(q) && !isNaN(pr)) {
+        lineValue += q * pr;
+        pricedMT += q * mtFactor;
+      }
+    });
+    const poValue = (x.poInvoices || []).reduce((s2: number, z: any) => {
+      const v = parseFloat(z?.pmnt);
+      return isNaN(v) ? s2 : s2 + v;
+    }, 0);
+    if (contractTotalMT > 0 && poValue > 0 && lineValue > poValue * VALUE_TOLERANCE) {
+      const avgPrice = pricedMT > 0 ? lineValue / pricedMT : 0;
+      if (avgPrice > 0) {
+        const impliedMT = poValue / avgPrice;
+        if (impliedMT < contractTotalMT) contractTotalMT = impliedMT;
+      }
+      dataIssues.push({
+        id: x.id,
+        order: x.order || '',
+        supplier: x.supplier,
+        date: x.dateRange?.startDate || '',
+        mt: contractTotalMT,
+        kind: 'value',
+        lineValue,
+        poValue,
+        ratio: lineValue / poValue,
+        correctedTo: contractTotalMT,
+        enteredMT,
+      });
+    }
     totalMT += contractTotalMT;
 
     dealRevenueByMonth[m] += dealRevenue(x.invoicesData, mult, settings);
@@ -187,36 +343,101 @@ export function computePnl(contracts: any[], settings: any, companyRate: number)
       if (clnt) clientTotals[clnt] = (clientTotals[clnt] || 0) + acc;
     });
 
-    const contractShipped = sumInvProductsMT(x.invoicesData);
+    const contractShipped = sumInvProductsMT(x.invoicesData, materialSold, x);
     shippedMT += contractShipped;
 
     // Sold-basis split.
     const soldFrac = contractTotalMT > 0 ? Math.min(1, contractShipped / contractTotalMT) : 0;
     cogs += contractPurchase * soldFrac;
+    // A contract ticked 'Shared IMS / GIS deal' keeps HALF its profit — the partner
+    // takes the other half, as the Margins sheet has always done. Tonnage is NOT
+    // halved: the full quantity moves through IMS either way (Zak, 2026-08-31). So
+    // the cost and expense sides are tracked separately and the partner's share is
+    // subtracted from profit as one explicit figure, rather than by quietly scaling
+    // revenue and cost — which would have halved Average Rate per MT along with them.
+    if (x.gis) gisCogs += contractPurchase * soldFrac;
     unsoldValue += contractPurchase * (1 - soldFrac);
     cogsByMonth[m] += contractPurchase * soldFrac;
 
-    (x.productsData || []).forEach((p: any) => {
-      const d = String(p.description || '').trim();
-      if (!d) return;
-      materialSold[d] = (materialSold[d] || 0) + num(p.qnty) * mtFactor * soldFrac;
-    });
+    /* most-sold material is filled by sumInvProductsMT above, off the actual invoice
+       lines. It used to be ESTIMATED here: every purchased product line scaled by one
+       contract-level soldFrac. That spread a sale across materials that never shipped
+       — buy 100 MT of A and 100 MT of B, ship only A, and the card reported 50 MT of
+       each. The invoice lines carry the material and the qty, so the real split was
+       always available; nothing needed estimating. */
 
     // Expenses — the FX multiplier keys off each EXPENSE's own currency flag, but
     // uses the CONTRACT's rate (web funcs.js:268). Reproduced exactly.
-    (x.expenses || []).forEach((obj: any) => {
+    const ownExpenses = expByContract ? expByContract[x.id] || [] : x.expenses || [];
+    ownExpenses.forEach((obj: any) => {
       if (!obj || isNaN(parseFloat(obj.amount))) return;
       const m2 = obj.cur === 'us' ? 1 : mult;
       const amt = parseFloat(obj.amount) * m2;
-      expensesByMonth[m] += amt;
+      const expMonth = expenseMonth(obj, x, m + 1) - 1;
+      expensesByMonth[expMonth] += amt;
       expensesTotal += amt;
       if (freightIds.has(obj.expType)) freightTotal += amt;
       const lbl = expLabel(obj.expType);
       expByType[lbl] = (expByType[lbl] || 0) + amt;
-      if (['storage', 'warehouse'].includes(String(lbl).toLowerCase())) {
-        storageByMonth[m] += amt;
+      if (x.gis) gisExpenses += amt;
+      // web funcs.js:441 uses includes(), so "Storage Costs" and "Warehouse Rent"
+      // both bucket. An exact match missed every label with a qualifier on it.
+      const lblLower = String(lbl).toLowerCase();
+      if (lblLower.includes('storage') || lblLower.includes('warehouse')) {
+        storageByMonth[expMonth] += amt;
         storageTotal += amt;
       }
+    });
+  });
+
+  /* Expenses dated in the period whose contract is not in the loaded set. Counted at
+     the company rate (or live, or 1:1) rather than a contract's own, because there is
+     no contract to borrow one from. Bucketed by the expense's OWN date, the only date
+     it has. */
+  (unlinkedExpenses || []).forEach((obj: any) => {
+    const amt = parseFloat(obj?.amount);
+    if (isNaN(amt)) return;
+    const m2 = obj.cur === 'us' ? 1 : companyRate > 0 ? companyRate : liveRate > 0 ? liveRate : 1;
+    const val = amt * m2;
+    const d = obj.date || obj.dateRange?.startDate || '';
+    const mm = Number(String(d).substring(5, 7));
+    const expMonth = (mm >= 1 && mm <= 12 ? mm : 1) - 1;
+    expensesByMonth[expMonth] += val;
+    expensesTotal += val;
+    if (freightIds.has(obj.expType)) freightTotal += val;
+    const lbl = expLabel(obj.expType);
+    expByType[lbl] = (expByType[lbl] || 0) + val;
+    const l = String(lbl).toLowerCase();
+    if (l.includes('storage') || l.includes('warehouse')) {
+      storageByMonth[expMonth] += val;
+      storageTotal += val;
+    }
+  });
+
+  /* Duplicate PO numbers. Two documents sharing an order number are counted twice by
+     everything on this page — contract 090426 existed twice with the same two product
+     lines and different payment totals, quietly adding 143 MT and ~$560K. Firestore
+     cannot see it: the documents have different ids, so only the PO number gives it
+     away. */
+  const byOrder: Record<string, any[]> = {};
+  (contracts || []).forEach((x: any) => {
+    const key = String(x.order || '').trim();
+    if (key) (byOrder[key] ||= []).push(x);
+  });
+  Object.entries(byOrder).forEach(([order, list]) => {
+    if (list.length < 2) return;
+    dataIssues.push({
+      kind: 'duplicate',
+      order,
+      id: list[0].id,
+      supplier: list[0].supplier,
+      date: list[0].dateRange?.startDate || '',
+      copies: list.length,
+      mt: list.slice(1).reduce((s2: number, c: any) => {
+        const u = settings?.Quantity?.Quantity?.find((q: any) => q.id === c.qTypeTable)?.qTypeTable;
+        const f = u === 'KGS' ? 0.001 : u === 'LB' ? 0.0005 : 1;
+        return s2 + (c.productsData || []).reduce((t: number, pr: any) => t + (parseFloat(pr.qnty) || 0) * f, 0);
+      }, 0),
     });
   });
 
@@ -239,5 +460,8 @@ export function computePnl(contracts: any[], settings: any, companyRate: number)
     materialSold,
     supplierTotals,
     clientTotals,
+    dataIssues,
+    gisCogs,
+    gisExpenses,
   };
 }

@@ -414,9 +414,15 @@ describe('web drift alarms for every mirrored formula', () => {
     [PO_MODAL, 'handleValuePerc', 'b95b134406df'],
     [PO_MODAL, 'handleValuePmnt', '521fce105164'],
     [DASH_FUNCS, 'Total', '95bda821d823'],
-    [DASH_FUNCS, 'sumInvProductsMT', '91198da9b872'],
-    [DASH_FUNCS, 'calContracts', '0d66168eaaa8'],
-    [DASH_FUNCS, 'setMonthsInvoices', '7c2c5eab1754'],
+    /* Re-recorded 2026-08-17, after porting the four dashboard changes web made:
+       the live-rate FX fallback, the shared IMS/GIS revenue split, the tonnage cap at
+       PO value / average unit price, and expenses read from the canonical rows rather
+       than each contract's stale embedded copy. Every behavioural test in this file
+       was made to pass against the NEW web code before these were touched — the
+       hashes were not bumped to silence the alarm. */
+    [DASH_FUNCS, 'sumInvProductsMT', '378e398a6f57'],
+    [DASH_FUNCS, 'calContracts', '98b37546200f'],
+    [DASH_FUNCS, 'setMonthsInvoices', '14a676c70ca8'],
     [CONTRACTS_PAGE, 'showQTY', 'ce8934870ea0'],
     [CONTRACTS_PAGE, 'gQ', '7d3d74cf3746'],
   ])('%s :: %s is unchanged', (file, symbol, hash) => {
@@ -1165,7 +1171,14 @@ describe('Tier 4 — pnlChain reproduces web\'s two shipped-MT traps on purpose'
     const w = scenario('kgsContractImportRows');
     const mob = computePnl(w.contracts, w.settings, w.companyRate);
     const web = webCalContracts(w.contracts, w.settings, w.companyRate);
-    expect(mob.totalMT).toBeCloseTo(16, 9); // (12000 + 4000 import) × 0.001
+    // The fixture's line values are 401x its PO value, so web's tonnage cap
+    // (funcs.js VALUE_TOLERANCE) now fires and rewrites 16 MT to PO value / average
+    // unit price. Both apps agree on the capped figure — the assertion below proves
+    // it — so the literal records the CAPPED value; the raw 16 lives in dataIssues
+    // as `enteredMT`. The trap this test is really about (invoice qty raw, contract
+    // qty converted) is unaffected: shippedMT is still an unconverted 10.
+    expect(mob.totalMT).toBeCloseTo(web.totalMT, 9);
+    expect(mob.dataIssues.find((d: any) => d.kind === 'value')?.enteredMT).toBeCloseTo(16, 9);
     expect(mob.shippedMT).toBe(10); // raw, unconverted
     close(mob.totalMT, web.totalMT);
     close(mob.shippedMT, web.shippedMT);
@@ -1411,12 +1424,12 @@ describe('dashboard expenses — the block every SCENARIO left empty', () => {
     close(withRate.purchaseByMonth[2], 5000 * 1.5);
   });
 
-  it('TIER 4 — an UNKNOWN supplier id: web keys the pie "undefined", mobile keeps the id', () => {
-    // web funcs.js:281 remaps the id through settings.Supplier with NO fallback
-    //   acc[settings.Supplier.Supplier.find(x => x.id === key)?.['nname']] = …
-    // so a contract whose supplier was deleted lands under the literal key "undefined"
-    // in the Top-Suppliers pie. Mobile falls back to the raw id (pnlChain.ts:149) so the
-    // row is still identifiable. Mobile is correct; the difference is asserted, not hidden.
+  it('an UNKNOWN supplier id is labelled "Unknown supplier" on both apps', () => {
+    // This WAS a Tier-4 divergence: web remapped the id with no fallback, so a contract
+    // whose supplier had been deleted landed under the literal key "undefined", and
+    // every such id collapsed onto that one key and overwrote itself. Mobile kept the
+    // raw id instead. Web has since fixed it — 'Unknown supplier', and ADD rather than
+    // assign (funcs.js:477) — so the two agree and this is a parity test now.
     const settings = expenseSettings();
     const world = [
       makeContract({
@@ -1428,11 +1441,11 @@ describe('dashboard expenses — the block every SCENARIO left empty', () => {
     ];
     const mob = computePnl(world, settings, 0);
     const web = webCalContracts(world, settings, 0);
-    expect(Object.keys(web.pieArrSupps as object)).toEqual(['undefined']);
-    expect(nonZeroKeys(mob.supplierTotals)).toEqual(['sup-deleted']);
-    // the MONEY is identical either way — only the label differs
-    close(mob.supplierTotals['sup-deleted'], (web.pieArrSupps as any)['undefined']);
-    close(mob.supplierTotals['sup-deleted'], 4000);
+    expect(Object.keys(web.pieArrSupps as object)).toEqual(['Unknown supplier']);
+    expect(nonZeroKeys(mob.supplierTotals)).toEqual(['Unknown supplier']);
+    // same label, same money
+    close(mob.supplierTotals['Unknown supplier'], (web.pieArrSupps as any)['Unknown supplier']);
+    close(mob.supplierTotals['Unknown supplier'], 4000);
   });
 });
 
