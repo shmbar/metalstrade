@@ -51,7 +51,11 @@ const GROUPS: { group: string; items: NavItem[] }[] = [
   {
     group: 'Admin',
     items: [
-      { label: 'Margins', sub: 'Monthly profit, quantity & shipped', icon: 'stats-chart-outline', href: '/(app)/margins', admin: true },
+      /* Web calls this 'Sharon Admin', or 'Gis Admin' on the GIS workspace
+         (components/const.js:69) — the label is the account, not the page. Mobile
+         called it 'Margins', so it did not match what users say out loud. The
+         resolved label is applied in the memo below, where gisAccount is known. */
+      { label: 'Margins', sub: 'Margins — monthly profit, quantity & shipped', icon: 'stats-chart-outline', href: '/(app)/margins', admin: true },
       { label: 'Formulas Calc', sub: 'FeNiCr / Stainless / SuperAlloys pricing', icon: 'calculator-outline', href: '/(app)/formulas', admin: true },
     ],
   },
@@ -100,15 +104,19 @@ export default function More() {
   // Visible groups: admin items only for admins; search filters across every group.
   const groups = useMemo(() => {
     const q = query.trim().toLowerCase();
+    const label = (it: NavItem) =>
+      it.href === '/(app)/margins' ? (gisAccount ? 'Gis Admin' : 'Sharon Admin') : it.label;
     return GROUPS.map((g) => ({
       group: g.group,
-      items: g.items.filter(
-        (it) =>
-          (!it.admin || isAdmin) &&
-          (!q || it.label.toLowerCase().includes(q) || it.sub.toLowerCase().includes(q))
-      ),
+      items: g.items
+        .map((it) => ({ ...it, label: label(it) }))
+        .filter(
+          (it) =>
+            (!it.admin || isAdmin) &&
+            (!q || it.label.toLowerCase().includes(q) || it.sub.toLowerCase().includes(q))
+        ),
     })).filter((g) => g.items.length > 0);
-  }, [query, isAdmin]);
+  }, [query, isAdmin, gisAccount]);
 
   const onSignOut = () => {
     Alert.alert('Sign out?', 'You can sign back in with your password or biometrics.', [

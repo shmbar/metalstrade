@@ -55,7 +55,10 @@ export default function Margins() {
     <Screen contentContainerStyle={{ paddingTop: insets.top + 8 }} edges={false} refreshing={isLoading} onRefresh={refetch}>
       <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
         {back}
-        <Text variant="h2">{gisAccount ? 'GIS Margins' : 'Margins'}</Text>
+        {/* Web titles this by ACCOUNT, not by page — 'Sharon Admin', or 'Gis Admin'
+            on the GIS workspace (components/const.js:69). Mobile said 'Margins',
+            which is what the page does but not what anyone calls it. */}
+        <Text variant="h2">{gisAccount ? 'Gis Admin' : 'Sharon Admin'}</Text>
         <PeriodSelector />
       </View>
 
