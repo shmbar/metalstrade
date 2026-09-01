@@ -32,16 +32,35 @@ export const auth = getAuth(app);
 // tabs sharing one cache safely.
 // SSR has no IndexedDB, and any init failure (e.g. blocked IndexedDB in strict
 // private browsing) falls back to the exact pre-cache behavior.
+// `ignoreUndefinedProperties` is the difference between a record that saves and one
+// that does not. Firestore rejects an entire write if any field is `undefined`, and
+// these documents are assembled by spreading form state, so a key the form never
+// filled in arrives as undefined and takes the whole save down with it. That is not
+// a hypothetical: saving an invoice threw on `productsData`, and once that was fixed,
+// on `salesContractId` — the same failure waiting on every optional field in the app.
+//
+// Dropping them loses nothing. `undefined` is not a value Firestore can store, and it
+// is not how a field gets cleared either (that needs deleteField()), so a write that
+// omits it does exactly what the caller meant.
+const FIRESTORE_SETTINGS = { ignoreUndefinedProperties: true };
+
 let firestoreDb;
 if (typeof window === "undefined") {
-  firestoreDb = getFirestore(app);
+  firestoreDb = initializeFirestore(app, FIRESTORE_SETTINGS);
 } else {
   try {
     firestoreDb = initializeFirestore(app, {
+      ...FIRESTORE_SETTINGS,
       localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() }),
     });
   } catch (e) {
-    firestoreDb = getFirestore(app);
+    // Cache unavailable (blocked IndexedDB, strict private browsing). Keep the
+    // undefined-tolerance even here — it is what makes writes survive.
+    try {
+      firestoreDb = initializeFirestore(app, FIRESTORE_SETTINGS);
+    } catch {
+      firestoreDb = getFirestore(app);
+    }
   }
 }
 export const db = firestoreDb;
