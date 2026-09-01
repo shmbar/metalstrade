@@ -3,7 +3,7 @@ import { SettingsContext } from "../../../contexts/useSettingsContext";
 
 import CheckBox from "../../../components/checkbox";
 import Avatar from "../../../components/Avatar";
-import { TONES } from "../../../components/statusUtils";
+import { TONES, toneChipStyle } from "../../../components/statusUtils";
 import Tltip from "../../../components/tlTip";
 import { Button } from "../../../components/ui/button";
 import { filteredArray, groupedArrayInvoice, loadAllStockData, loadCompanyExpense, loadCompanyExpenses, loadData, loadInvoice } from "../../../utils/utils"
@@ -120,6 +120,29 @@ export const entityName = (list, id, kind = 'record') => {
     const rec = (list || []).find(z => z?.id === id);
     if (rec) return rec.nname || rec.supplier || rec.client || rec.stock || `Unnamed ${kind}`;
     return id ? `Unknown ${kind} · ${String(id).slice(0, 8)}` : `No ${kind}`;
+};
+
+// Material that is already written onto a draft invoice.
+//
+// A draft has not shipped, so its weight stays in stock and on the Cashflow — that
+// is deliberate. But standing in the warehouse view, nothing distinguishes material
+// that is free from material someone has already committed to an invoice they are
+// preparing. This says so, without removing it from the count.
+//
+// Amber, because that is what this palette already means by "provisional": the same
+// tone the Final badge uses for a shipment before its final invoice is issued.
+export const DraftUseBadge = ({ invoices = [] }) => {
+    if (!invoices.length) return null;
+    const list = [...new Set(invoices)];
+    const label = list.length === 1 ? `Draft ${list[0]}` : `${list.length} drafts`;
+    return (
+        <Tltip direction='top' tltpText={`On draft invoice${list.length > 1 ? 's' : ''} ${list.join(', ')} — not shipped yet, so it still counts as stock`}>
+            <span className='inline-flex items-center rounded-full px-1.5 shrink-0 cursor-default responsiveTextTable'
+                style={{ ...toneChipStyle(TONES.amber), lineHeight: 1.5 }}>
+                {label}
+            </span>
+        </Tltip>
+    );
 };
 
 // Aggregate finalized chip for the collapsed summary rows (per supplier / per
@@ -567,7 +590,8 @@ const supplierLabel = (z, settings) => {
 };
 
 export const StoclToolTip = ({ stock, stockDataAll, settings, uidCollection, setDateSelect,
-    setValueCon, setIsOpenCon, blankInvoice, router, sumSel = {}, toggleSum }) => {
+    setValueCon, setIsOpenCon, blankInvoice, router, sumSel = {}, toggleSum,
+    draftMaterials = {} }) => {
     const { sortKey, sortDir, handleSort } = useSortState();
     const { setToast } = useContext(SettingsContext);
     // Per-alloy rows of a PO collapse under one summary line, same as Unsold Stocks.
@@ -627,7 +651,10 @@ export const StoclToolTip = ({ stock, stockDataAll, settings, uidCollection, set
                                     <Tltip direction='top' tltpText={z.order || ''}><span className="block truncate">{z.order}</span></Tltip></td>
                                 <td className="text-left w-16"><Tltip direction='top' tltpText={[supplierNames(z, settings).join(' + '), settings.Supplier.Supplier.find(q => q.id === z.originSupplier)?.nname ? 'Org: ' + settings.Supplier.Supplier.find(q => q.id === z.originSupplier)?.nname : ''].filter(Boolean).join(' · ')}><span className="flex items-center gap-1.5 min-w-0 cursor-default"><Avatar name={z._supplierName} size={18} /><span className="block truncate">{z._supplierName}</span></span></Tltip></td>
                                 <td className="text-left w-28 max-w-28">
-                                    <Tltip direction='top' tltpText={z.descriptionName || ''}><span className={`block truncate cursor-default ${indent ? 'pl-4' : ''}`}>{z.descriptionName}</span></Tltip>
+                                    <span className={`flex items-center gap-1.5 min-w-0 ${indent ? 'pl-4' : ''}`}>
+                                        <Tltip direction='top' tltpText={z.descriptionName || ''}><span className='block truncate cursor-default'>{z.descriptionName}</span></Tltip>
+                                        <DraftUseBadge invoices={draftMaterials[z.descriptionId] || draftMaterials[z.description] || []} />
+                                    </span>
                                 </td>
                                 <td className="text-center">{
                                     <NumericFormat
@@ -764,7 +791,8 @@ export const StoclToolTip = ({ stock, stockDataAll, settings, uidCollection, set
 }
 
 export const StocksUnSold = ({ supplier, stockDataAllArray, settings, uidCollection, setDateSelect,
-    setValueCon, setIsOpenCon, blankInvoice, router, sumSel = {}, toggleSum }) => {
+    setValueCon, setIsOpenCon, blankInvoice, router, sumSel = {}, toggleSum,
+    draftMaterials = {} }) => {
     const { sortKey, sortDir, handleSort } = useSortState();
     const { setToast } = useContext(SettingsContext);
     // Per-alloy rows of a PO (groupDesc set) collapse under one summary line —
@@ -813,7 +841,11 @@ export const StocksUnSold = ({ supplier, stockDataAllArray, settings, uidCollect
                                         setValueCon, setIsOpenCon, blankInvoice, router, setToast)}>
                                     <Tltip direction='top' tltpText={[z.order, settings.Supplier.Supplier.find(q => q.id === z.originSupplier)?.nname ? 'Org: ' + settings.Supplier.Supplier.find(q => q.id === z.originSupplier)?.nname : ''].filter(Boolean).join(' · ')}><span className="block truncate">{indent ? '' : z.order}</span></Tltip></td>
                                 <td className="text-left w-28 max-w-28">
-                                    <Tltip direction='top' tltpText={z.description || ''}><span className={`block truncate cursor-default ${indent ? 'pl-4' : ''}`}>{z.description}</span></Tltip>
+                                    <span className={`flex items-center gap-1.5 min-w-0 ${indent ? 'pl-4' : ''}`}>
+                                        <Tltip direction='top' tltpText={z.description || ''}><span className='block truncate cursor-default'>{z.description}</span></Tltip>
+                                        {/* Rows here spread the contract material row, so its id IS the material id. */}
+                                        <DraftUseBadge invoices={draftMaterials[z.id] || []} />
+                                    </span>
                                 </td>
                                 <td className="text-left w-20">
                                     <Tltip direction='top' tltpText={z.stockName || ''}><span className="flex items-center gap-1.5 min-w-0 cursor-default"><Avatar name={z.stockName} size={18} /><span className="block truncate">{z.stockName}</span></span></Tltip>

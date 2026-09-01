@@ -108,6 +108,8 @@ const Cashflow = () => {
     const [stockDataNoPayment, setStockDataNoPayment] = useState([])
     const [stockDataNoSold, setStockDataNoSold] = useState([])
     const [stockDataAllArray, setStockDataAllArray] = useState([])
+    // material id → invoice numbers of the DRAFT invoices already using it
+    const [draftMaterials, setDraftMaterials] = useState({})
 
     const [clientInvoices1, setClientInvoices1] = useState([])
     const [clientInvoices2, setClientInvoices2] = useState([])
@@ -265,6 +267,22 @@ const Cashflow = () => {
 
             let contractsData = await contractsPromise;
             const rawInvoices = await rawInvoicesPromise;
+
+            // Material already written onto a DRAFT invoice. A draft does not move
+            // stock (it has not shipped), so the weight rightly stays on the Cashflow —
+            // but seeing it there gives no hint that it is already committed to an
+            // invoice someone is preparing. Keyed by the contract material the invoice
+            // line points at, which is what a stock row carries.
+            const draftMaterials = {};
+            for (const inv of rawInvoices) {
+                if (inv?.draft !== true) continue;
+                for (const line of inv.productsDataInvoice || []) {
+                    const key = line?.descriptionId;
+                    if (!key) continue;
+                    (draftMaterials[key] ||= []).push(inv.invoice);
+                }
+            }
+            setDraftMaterials(draftMaterials);
 
             //load stocks
             let dataStock = await stocksPromise
@@ -1375,7 +1393,7 @@ const Cashflow = () => {
                                                             </div>
                                                         </div>
                                                     }>
-                                                        <StocksUnSold supplier={x.supplier} stockDataAllArray={stockDataAllArray} settings={settings} uidCollection={uidCollection} setDateSelect={setDateSelect} setValueCon={setValueCon} setIsOpenCon={setIsOpenCon} blankInvoice={blankInvoice} router={router} sumSel={sumSel} toggleSum={toggleSum} />
+                                                        <StocksUnSold supplier={x.supplier} stockDataAllArray={stockDataAllArray} settings={settings} uidCollection={uidCollection} setDateSelect={setDateSelect} setValueCon={setValueCon} setIsOpenCon={setIsOpenCon} blankInvoice={blankInvoice} router={router} sumSel={sumSel} toggleSum={toggleSum} draftMaterials={draftMaterials} />
                                                     </MyAccordion>
                                                 </div>
                                             ))}
@@ -1489,7 +1507,7 @@ const Cashflow = () => {
                                                                     </div>
                                                                 }>
 
-                                                                    <StoclToolTip stock={x.stock} stockDataAll={stockDataAll} settings={settings} uidCollection={uidCollection} setDateSelect={setDateSelect} setValueCon={setValueCon} setIsOpenCon={setIsOpenCon} blankInvoice={blankInvoice} router={router} sumSel={sumSel} toggleSum={toggleSum} />
+                                                                    <StoclToolTip stock={x.stock} stockDataAll={stockDataAll} settings={settings} uidCollection={uidCollection} setDateSelect={setDateSelect} setValueCon={setValueCon} setIsOpenCon={setIsOpenCon} blankInvoice={blankInvoice} router={router} sumSel={sumSel} toggleSum={toggleSum} draftMaterials={draftMaterials} />
                                                                 </MyAccordion>
 
 
@@ -1551,7 +1569,7 @@ const Cashflow = () => {
                                                                     </div>
                                                                 }>
 
-                                                                    <StoclToolTip stock={x.stock} stockDataAll={stockDataNoPayment} settings={settings} uidCollection={uidCollection} setDateSelect={setDateSelect} setValueCon={setValueCon} setIsOpenCon={setIsOpenCon} blankInvoice={blankInvoice} router={router} sumSel={sumSel} toggleSum={toggleSum} />
+                                                                    <StoclToolTip stock={x.stock} stockDataAll={stockDataNoPayment} settings={settings} uidCollection={uidCollection} setDateSelect={setDateSelect} setValueCon={setValueCon} setIsOpenCon={setIsOpenCon} blankInvoice={blankInvoice} router={router} sumSel={sumSel} toggleSum={toggleSum} draftMaterials={draftMaterials} />
                                                                 </MyAccordion>
                                                             </div>
 
