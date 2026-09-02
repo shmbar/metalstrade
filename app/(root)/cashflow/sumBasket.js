@@ -1,6 +1,7 @@
 'use client';
 import { useRef, useState } from 'react';
 import { NumericFormat } from 'react-number-format';
+import { saveAs } from 'file-saver';
 import { Sigma, X, ChevronDown, ChevronUp, Copy, Check, FileSpreadsheet } from 'lucide-react';
 
 const kindLabel = { client: 'Client', supplier: 'Supplier', expense: 'Expense', stock: 'Stock' };
@@ -26,6 +27,7 @@ export default function SumBasket({ items = [], onRemove, onClear }) {
     const [copied, setCopied] = useState(false);
     const [metric, setMetric] = useState('auto');
     const [exporting, setExporting] = useState(false);
+    const [exportErr, setExportErr] = useState(false);
 
     // Where the panel sits. Default is now top-right, under the header, not
     // bottom-centre: the bottom edge already carries the toast (bottom-left), the
@@ -100,10 +102,13 @@ export default function SumBasket({ items = [], onRemove, onClear }) {
         if (exporting) return;
         setExporting(true);
         try {
-            const ExcelJS = (await import('exceljs')).default ?? (await import('exceljs'));
-            const { saveAs } = await import('file-saver');
+            // Same shape as every other exporter here: file-saver imported at the
+            // top (it is CJS, so a dynamic `import(...).saveAs` comes back undefined
+            // and the click did nothing but log), exceljs pulled in on demand so it
+            // stays out of the first-load bundle.
+            const { Workbook } = await import('exceljs');
 
-            const wb = new ExcelJS.Workbook();
+            const wb = new Workbook();
             wb.created = new Date();
             const ws = wb.addWorksheet('Selection');
             ws.columns = [
@@ -146,7 +151,11 @@ export default function SumBasket({ items = [], onRemove, onClear }) {
             saveAs(new Blob([buf], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }),
                 `cashflow-selection-${metric}-${new Date().toISOString().slice(0, 10)}.xlsx`);
         } catch (e) {
+            // A silent catch is how this failed unnoticed the first time: the click
+            // logged to the console and the button looked idle. Say so on the button.
             console.error('Selection export failed', e);
+            setExportErr(true);
+            setTimeout(() => setExportErr(false), 2500);
         } finally {
             setExporting(false);
         }
@@ -191,9 +200,10 @@ export default function SumBasket({ items = [], onRemove, onClear }) {
                 <div className="flex items-center gap-0.5 shrink-0 text-[var(--ink-secondary)]">
                     <button onPointerDown={e => e.stopPropagation()} onClick={exportExcel}
                         disabled={exporting}
-                        title="Export selection to Excel"
-                        className="p-1 rounded-lg hover:bg-[var(--bg-subtle)] transition-colors disabled:opacity-50">
-                        <FileSpreadsheet className="w-3.5 h-3.5" />
+                        title={exportErr ? 'Export failed — see the browser console' : 'Export selection to Excel'}
+                        className="p-1 rounded-lg hover:bg-[var(--bg-subtle)] transition-colors disabled:opacity-50"
+                        style={exportErr ? { color: 'var(--danger-text)' } : undefined}>
+                        <FileSpreadsheet className={`w-3.5 h-3.5 ${exporting ? 'animate-pulse' : ''}`} />
                     </button>
                     <button onPointerDown={e => e.stopPropagation()} onClick={copySummary}
                         title="Copy summary" className="p-1 rounded-lg hover:bg-[var(--bg-subtle)] transition-colors">
