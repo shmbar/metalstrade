@@ -37,6 +37,32 @@ import { useTablePrefs } from '@components/table/useTablePrefs';
 const STATUSES = SHIPMENT_STATUSES;
 const STATUS_STYLES = SHIPMENT_STATUS_STYLES;
 
+/* Quantity bookkeeping.
+
+   A PO is rarely one shipment. The page shows one row per CONTRACT, so a contract
+   that ships in three lots used to collapse to whichever invoice happened to be
+   first — with no way to see what was already shipped or what is still owed, which
+   is what you need before entering the next shipment.
+
+   Two unit systems meet here: the PO stores its weights in the contract's OWN unit
+   (its Quantity selector — MT / KGS / LB, see contracts/modals/productsTable.js),
+   while invoice lines are always MT. Everything below is normalised to MT so PO
+   QTY, Shipped and Remaining read as one column family. */
+const W_PER_MT = { mt: 1, kg: 1000, lb: 2204.6226218 };
+const unitFromLabel = (label) => {
+    const l = String(label || '').toLowerCase();
+    if (l.includes('kg')) return 'kg';
+    if (l.includes('lb')) return 'lb';
+    return 'mt';
+};
+const frmQty = (v) => new Intl.NumberFormat('en-US', { maximumFractionDigits: 3 }).format(Number(v) || 0);
+// Invoice docs carry either a plain date string or the picker's { startDate } pair.
+const invDate = (d) => (typeof d === 'string' ? d : (d?.startDate || ''));
+// Same rule the Contracts Review statement uses for shipped weight: one document per
+// invoice NUMBER, the highest invType winning — so a final settlement (3333) or credit
+// note (2222) supersedes the provisional invoice (1111) rather than double-counting it.
+const supersedes = (a, b) => String(a?.invType || '') > String(b?.invType || '');
+
 function NotesCell({ value, contractId, contractDate, uidCollection, onChange, onCommit }) {
     const [local, setLocal] = useState(value || '');
     const timerRef = useRef(null);
@@ -422,6 +448,10 @@ const ShipmentPage = () => {
 
     const [contracts, setContracts] = useState([]);
     const [invoiceMap, setInvoiceMap] = useState({});
+    /* Every shipment under a contract, not just the first one:
+       { [contractId]: { shipped, shipments: [{ invoice, date, qnty, … }] } } */
+    const [shipMap, setShipMap] = useState({});
+    const [expandedRows, setExpandedRows] = useState(() => new Set());
     const [search, setSearch] = useState('');
     const [statusFilter, setStatusFilter] = useTablePrefs('filter.status', '');
     // Group rows into collapsible lifecycle sections (persisted; set in an effect
@@ -528,8 +558,12 @@ const ShipmentPage = () => {
                 }
 
                 const map = {};
+                const byId = {};
+                const byContract = {};
                 (invoicesData || []).filter(Boolean).forEach(inv => {
+                    if (inv.id) byId[inv.id] = inv;
                     const cid = inv.poSupplier?.id;
+                    if (cid) (byContract[cid] ||= []).push(inv);
                     if (cid && inv.invType === '1111' && !map[cid]) {
                         map[cid] = {
                             client: inv.client,
@@ -543,6 +577,57 @@ const ShipmentPage = () => {
                 });
 
                 setInvoiceMap(map);
+
+                /* Per-contract shipment ledger. An invoice reaches its contract two ways —
+                   the invoice's own poSupplier.id, and the contract's invoices[] refs — and
+                   neither is reliably complete on its own, so both are unioned and deduped
+                   by document id. */
+                const qtyMap = {};
+                sortedContracts.forEach(c => {
+                    const seen = new Set();
+                    const docs = [];
+                    const take = (d) => { if (d?.id && !seen.has(d.id)) { seen.add(d.id); docs.push(d); } };
+                    (byContract[c.id] || []).forEach(take);
+                    (c.invoices || []).forEach(ref => { if (ref?.id) take(byId[ref.id]); });
+
+                    // One document per invoice number (see supersedes above).
+                    const groups = new Map();
+                    docs.forEach(d => {
+                        const key = String(d.invoice ?? d.id);
+                        const prev = groups.get(key);
+                        if (!prev || supersedes(d, prev)) groups.set(key, d);
+                    });
+
+                    const shipments = [...groups.values()].map(d => ({
+                        id: d.id,
+                        invoice: d.invoice,
+                        invType: d.invType || '',
+                        date: invDate(d.date),
+                        // A cancelled invoice shipped nothing — the Inventory tab treats it the same way.
+                        qnty: d.canceled ? 0 : (d.productsDataInvoice || [])
+                            .reduce((s, l) => s + (parseFloat(l?.qnty) || 0), 0),
+                        canceled: !!d.canceled,
+                        // Final-settlement docs embed the client object; the rest store its id.
+                        clientId: d.final ? '' : (d.client || ''),
+                        clientName: d.final ? (d.client?.nname || d.client?.client || '') : '',
+                        etd: d.shipData?.etd?.startDate || null,
+                        eta: d.shipData?.eta?.startDate || null,
+                        pol: d.pol || null,
+                        pod: d.pod || null,
+                        shpType: d.shpType || null,
+                    })).sort((a, b) => {
+                        const da = new Date(a.date).getTime() || 0;
+                        const db = new Date(b.date).getTime() || 0;
+                        if (da !== db) return da - db;
+                        return String(a.invoice ?? '').localeCompare(String(b.invoice ?? ''), undefined, { numeric: true });
+                    });
+
+                    qtyMap[c.id] = {
+                        shipped: shipments.reduce((s, x) => s + x.qnty, 0),
+                        shipments,
+                    };
+                });
+                setShipMap(qtyMap);
             } finally {
                 setLoading(false);
             }
@@ -712,6 +797,50 @@ const ShipmentPage = () => {
         return contract.invoices.find(i => i.invType === '1111') || contract.invoices[0];
     };
 
+    // Every shipment booked against the contract, oldest first.
+    const getShipments = (contract) => shipMap[contract.id]?.shipments || [];
+
+    /* Contracted quantity, in MT. `import: true` products are the hidden entries the
+       supplier-invoice reader creates for unmatched lines — the PO table, the PO PDF and
+       its totals all exclude them, so the contracted figure here excludes them too. */
+    const getPoQty = (contract) => {
+        const label = settings?.Quantity?.Quantity?.find(q => q.id === contract.qTypeTable)?.qTypeTable || '';
+        const factor = W_PER_MT[unitFromLabel(label)] || 1;
+        const raw = (contract.productsData || [])
+            .filter(p => p && !p.import)
+            .reduce((s, p) => s + (parseFloat(p.qnty) || 0), 0);
+        return raw / factor;
+    };
+
+    const getShippedQty = (contract) => shipMap[contract.id]?.shipped || 0;
+
+    /* What is still owed under the PO. Null when the contract carries no quantity at
+       all (nothing to measure against), so the cell reads "—" instead of a fake 0. */
+    const getRemainingQty = (contract) => {
+        const po = getPoQty(contract);
+        if (!po) return null;
+        return po - getShippedQty(contract);
+    };
+
+    const toggleExpanded = (contractId) => setExpandedRows(prev => {
+        const next = new Set(prev);
+        if (next.has(contractId)) next.delete(contractId); else next.add(contractId);
+        return next;
+    });
+
+    const shipmentClientName = (s) => {
+        if (s.clientName) return s.clientName;
+        const clts = settings?.Client?.Client;
+        if (!clts || !s.clientId) return '—';
+        const hit = clts.find(c => c.id === s.clientId);
+        return hit?.nname || hit?.client || '—';
+    };
+
+    const portName = (list, key, id) => {
+        if (!id) return '—';
+        return (list || []).find(p => p.id === id)?.[key] || '—';
+    };
+
     const handleStatusChange = async (contract, status) => {
         const ts = Date.now();
         setContracts(prev =>
@@ -839,7 +968,10 @@ const ShipmentPage = () => {
             (c.order || '').toLowerCase().includes(q) ||
             getSupplierName(c).toLowerCase().includes(q) ||
             getClientName(c.id).toLowerCase().includes(q) ||
-            (inv?.invoice?.toString() || '').includes(q)
+            (inv?.invoice?.toString() || '').includes(q) ||
+            // Every invoice under the contract, not just the first — searching for the
+            // second shipment's number used to return nothing.
+            getShipments(c).some(s => String(s.invoice ?? '').toLowerCase().includes(q))
         );
     });
 
@@ -850,6 +982,10 @@ const ShipmentPage = () => {
             case 'supplier':     return getSupplierName(c).toLowerCase();
             case 'invoice':      return inv?.invoice?.toString().toLowerCase() || '';
             case 'client':       return getClientName(c.id).toLowerCase();
+            case 'poQty':        return getPoQty(c);
+            case 'shipped':      return getShippedQty(c);
+            // Nothing to measure sorts last in both directions rather than as a zero.
+            case 'remaining':    return getRemainingQty(c) ?? -Infinity;
             case 'etd':          return getRawETD(c);
             case 'eta':          return getRawETA(c);
             case 'pol':          return getPOL(c).toLowerCase();
@@ -905,9 +1041,17 @@ const ShipmentPage = () => {
 
        44 per row, not 40: a row here carries a Notes <textarea>, and grouping adds
        section header rows to the same list, which is why this measures displayRows
-       rather than the page slice. */
+       rather than the page slice.
+
+       An expanded row carries a nested shipment table, so it is measured separately
+       (header + one line per shipment + the totals line) rather than as another 44px
+       row — otherwise opening a breakdown just pushed the box into scrolling. */
+    const expandedExtra = displayRows.reduce((h, e) => {
+        if (e.type !== 'row' || !expandedRows.has(e.contract.id)) return h;
+        return h + 26 + (getShipments(e.contract).length + 1) * 22 + 18;
+    }, 0);
     const dynamicMaxHeight = displayRows.length > 0
-        ? `${Math.min(displayRows.length * 44 + 120, 700)}px`
+        ? `${Math.min(displayRows.length * 44 + expandedExtra + 120, 700 + expandedExtra)}px`
         : '320px';
 
     const getPageNumbers = () => {
@@ -928,8 +1072,11 @@ const ShipmentPage = () => {
         sheet.columns = [
             { header: 'Contract #',    key: 'order',          width: 18 },
             { header: 'Supplier',      key: 'supplier',       width: 20 },
-            { header: 'Invoice #',     key: 'invoice',        width: 14 },
+            { header: 'Invoice #',     key: 'invoice',        width: 18 },
             { header: 'Client',        key: 'client',         width: 20 },
+            { header: 'PO QTY MT',     key: 'poQty',          width: 12 },
+            { header: 'Shipped MT',    key: 'shippedQty',     width: 12 },
+            { header: 'Remaining MT',  key: 'remainingQty',   width: 13 },
             { header: 'Shipment Date', key: 'shipmentDate',   width: 16 },
             { header: 'Arrival Date',  key: 'arrivalDate',    width: 16 },
             { header: 'POL',           key: 'pol',            width: 16 },
@@ -942,11 +1089,18 @@ const ShipmentPage = () => {
         sheet.getRow(1).font = { bold: true };
         sortedFiltered.forEach(c => {
             const inv = getMainInvoice(c);
+            const ships = getShipments(c);
+            const rem = getRemainingQty(c);
             sheet.addRow({
                 order:        c.order || '',
                 supplier:     getSupplierName(c),
-                invoice:      inv?.invoice || '',
+                // Every invoice under the contract, so a multi-shipment PO exports whole.
+                invoice:      ships.length ? ships.map(s => s.invoice).join(', ') : (inv?.invoice || ''),
                 client:       getClientName(c.id),
+                // Numbers, not strings — the sheet has to stay summable.
+                poQty:        getPoQty(c) || null,
+                shippedQty:   getShippedQty(c) || null,
+                remainingQty: rem === null ? null : rem,
                 shipmentDate: formatDate(getRawETD(c)),
                 arrivalDate:  formatDate(getRawETA(c)),
                 pol:          getPOL(c),
@@ -1237,6 +1391,9 @@ const ShipmentPage = () => {
                                         { label: 'Supplier',      col: 'supplier' },
                                         { label: 'Invoice #',     col: 'invoice'  },
                                         { label: 'Client',        col: 'client'   },
+                                        { label: 'PO QTY',        col: 'poQty'    },
+                                        { label: 'Shipped',       col: 'shipped'  },
+                                        { label: 'Remaining',     col: 'remaining'},
                                         { label: 'Shipment Date', col: 'etd'      },
                                         { label: 'Arrival Date',  col: 'eta'      },
                                         { label: 'POL',           col: 'pol'      },
@@ -1277,7 +1434,7 @@ const ShipmentPage = () => {
                             <tbody>
                                 {filtered.length === 0 && !loading && (
                                     <tr>
-                                        <td colSpan={12} style={{ textAlign: 'center', padding: '32px', color: 'var(--regent-gray)' }}>
+                                        <td colSpan={15} style={{ textAlign: 'center', padding: '32px', color: 'var(--regent-gray)' }}>
                                             No shipments found.
                                         </td>
                                     </tr>
@@ -1287,7 +1444,7 @@ const ShipmentPage = () => {
                                         const dotColor = STATUS_STYLES[entry.status]?.color || 'var(--ink-muted)';
                                         return (
                                             <tr key={`grp-${entry.status || 'none'}`} onClick={() => toggleGroup(entry.status)} className='cursor-pointer select-none'>
-                                                <td colSpan={12} style={{ background: 'var(--bg-subtle)', borderBottom: '1px solid var(--line)', padding: '5px 12px', textAlign: 'left' }}>
+                                                <td colSpan={15} style={{ background: 'var(--bg-subtle)', borderBottom: '1px solid var(--line)', padding: '5px 12px', textAlign: 'left' }}>
                                                     <span className='inline-flex items-center gap-2'>
                                                         <svg width='11' height='11' viewBox='0 0 10 10' fill='none' style={{ transition: 'transform 0.15s', transform: entry.collapsed ? 'rotate(-90deg)' : 'rotate(0deg)' }}>
                                                             <path d='M2 3.5L5 6.5L8 3.5' stroke='var(--ink-muted)' strokeWidth='1.8' strokeLinecap='round' strokeLinejoin='round' />
@@ -1310,14 +1467,38 @@ const ShipmentPage = () => {
                                     const contract = entry.contract;
                                     const mainInv = getMainInvoice(contract);
                                     const status = contract.shipmentStatus || '';
+                                    const shipments = getShipments(contract);
+                                    const poQty = getPoQty(contract);
+                                    const shippedQty = getShippedQty(contract);
+                                    const remainingQty = getRemainingQty(contract);
+                                    const expanded = expandedRows.has(contract.id);
                                     return (
-                                        <tr key={contract.id} className="hover-row cursor-pointer transition-colors">
+                                        <Fragment key={contract.id}>
+                                        <tr className="hover-row cursor-pointer transition-colors">
                                             <td className="td-truncate">
-                                                <Tltip direction="bottom" tltpText={contract.order || '—'}>
-                                                    <button onClick={() => navigateTo(contract.id)} className="responsiveTextTable font-medium text-[var(--brand)] hover:underline w-full overflow-hidden text-ellipsis whitespace-nowrap block text-center">
-                                                        {contract.order || '—'}
-                                                    </button>
-                                                </Tltip>
+                                                <span className="inline-flex items-center gap-1 max-w-full">
+                                                    {/* The breakdown is only worth opening when there is something under
+                                                        the contract; the space is held either way so the numbers stay
+                                                        on one vertical line down the column. */}
+                                                    {shipments.length > 0 ? (
+                                                        <button
+                                                            onClick={() => toggleExpanded(contract.id)}
+                                                            aria-label={expanded ? 'Hide shipments' : 'Show shipments'}
+                                                            className="shrink-0 grid place-items-center"
+                                                            style={{ width: 14, height: 14 }}
+                                                        >
+                                                            <svg width="11" height="11" viewBox="0 0 10 10" fill="none"
+                                                                style={{ transition: 'transform 0.15s', transform: expanded ? 'rotate(0deg)' : 'rotate(-90deg)' }}>
+                                                                <path d="M2 3.5L5 6.5L8 3.5" stroke="var(--ink-muted)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                                                            </svg>
+                                                        </button>
+                                                    ) : <span className="shrink-0" style={{ width: 14 }} />}
+                                                    <Tltip direction="bottom" tltpText={contract.order || '—'}>
+                                                        <button onClick={() => navigateTo(contract.id)} className="responsiveTextTable font-medium text-[var(--brand)] hover:underline w-full overflow-hidden text-ellipsis whitespace-nowrap block text-center">
+                                                            {contract.order || '—'}
+                                                        </button>
+                                                    </Tltip>
+                                                </span>
                                             </td>
                                             <td className="td-truncate">
                                                 <Tltip direction="bottom" tltpText={getSupplierName(contract)}>
@@ -1328,12 +1509,25 @@ const ShipmentPage = () => {
                                                 </Tltip>
                                             </td>
                                             <td>
-                                                <div className="flex justify-center responsiveTextTable">
+                                                <div className="flex justify-center items-center gap-1 responsiveTextTable">
                                                     {mainInv ? (
                                                         <button onClick={() => navigateTo(contract.id)} className="font-medium text-[var(--brand)] hover:underline">
                                                             {mainInv.invoice}
                                                         </button>
                                                     ) : <span className="text-[var(--ink-muted)]">—</span>}
+                                                    {/* A contract that shipped more than once used to show only this
+                                                        first invoice, with no sign the others existed. */}
+                                                    {shipments.length > 1 && (
+                                                        <Tltip direction="bottom" tltpText={shipments.map(s => s.invoice).join(', ')}>
+                                                            <button
+                                                                onClick={() => toggleExpanded(contract.id)}
+                                                                className="font-medium px-1.5 rounded-lg whitespace-nowrap"
+                                                                style={{ backgroundColor: 'var(--violet-bg)', color: 'var(--violet-text)', border: '1px solid var(--violet-border)' }}
+                                                            >
+                                                                +{shipments.length - 1}
+                                                            </button>
+                                                        </Tltip>
+                                                    )}
                                                 </div>
                                             </td>
                                             <td className="td-truncate">
@@ -1343,6 +1537,41 @@ const ShipmentPage = () => {
                                                         <span className="truncate">{getClientName(contract.id)}</span>
                                                     </span>
                                                 </Tltip>
+                                            </td>
+                                            {/* PO QTY / Shipped / Remaining — all MT. Figures, so .numeric
+                                                (weight 500 + tabular-nums) and right-aligned so the decimal
+                                                points line up down the column. */}
+                                            <td>
+                                                <div className="responsiveTextTable numeric text-right whitespace-nowrap pr-2" style={{ color: poQty ? 'var(--ink)' : 'var(--ink-muted)' }}>
+                                                    {poQty ? frmQty(poQty) : '—'}
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div className="responsiveTextTable numeric text-right whitespace-nowrap pr-2" style={{ color: shippedQty ? 'var(--ink)' : 'var(--ink-muted)' }}>
+                                                    {shippedQty ? frmQty(shippedQty) : '—'}
+                                                </div>
+                                            </td>
+                                            <td>
+                                                {/* Still to ship is the number that decides whether another
+                                                    shipment can go out, so it carries the emphasis: a chip while
+                                                    the PO is open, plain ink once it is closed out. Over-shipped
+                                                    (negative) is the exception worth flagging. */}
+                                                <div className="flex justify-end pr-2">
+                                                    {remainingQty === null ? (
+                                                        <span className="responsiveTextTable numeric text-[var(--ink-muted)]">—</span>
+                                                    ) : Math.abs(remainingQty) < 0.0005 ? (
+                                                        <span className="responsiveTextTable numeric whitespace-nowrap" style={{ color: 'var(--ink-muted)' }}>0</span>
+                                                    ) : (
+                                                        <span
+                                                            className="responsiveTextTable numeric px-2 py-0.5 rounded-lg whitespace-nowrap"
+                                                            style={remainingQty > 0
+                                                                ? { backgroundColor: 'var(--warn-bg)', border: '1px solid var(--warn-border)', color: 'var(--warn-text)' }
+                                                                : { backgroundColor: 'var(--danger-bg)', border: '1px solid var(--danger-border)', color: 'var(--danger-text)' }}
+                                                        >
+                                                            {frmQty(remainingQty)}
+                                                        </span>
+                                                    )}
+                                                </div>
                                             </td>
                                             <td>
                                                 <div className="flex justify-center">
@@ -1424,6 +1653,73 @@ const ShipmentPage = () => {
                                                 />
                                             </td>
                                         </tr>
+                                        {expanded && (
+                                            /* Shipment-by-shipment breakdown of the contract above: what
+                                               already went out, and the balance that is still open to ship.
+                                               Each invoice carries its own dates and ports, which the single
+                                               contract row can only ever show one of. */
+                                            <tr key={`${contract.id}-detail`}>
+                                                <td colSpan={15} style={{ background: 'var(--bg-sunken)', padding: '8px 12px 10px 34px' }}>
+                                                    <table className="cashflow-detail-table" style={{ width: 'auto', minWidth: '640px' }}>
+                                                        <thead>
+                                                            <tr>
+                                                                <th style={{ textAlign: 'left' }}>Invoice #</th>
+                                                                <th style={{ textAlign: 'left' }}>Date</th>
+                                                                <th style={{ textAlign: 'left' }}>Client</th>
+                                                                <th style={{ textAlign: 'right' }}>Shipped MT</th>
+                                                                <th style={{ textAlign: 'center' }}>ETD</th>
+                                                                <th style={{ textAlign: 'center' }}>ETA</th>
+                                                                <th style={{ textAlign: 'left' }}>POL</th>
+                                                                <th style={{ textAlign: 'left' }}>POD</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            {shipments.map(s => (
+                                                                <tr key={s.id}>
+                                                                    <td style={{ textAlign: 'left' }}>
+                                                                        <button onClick={() => navigateTo(contract.id)} className="font-medium text-[var(--brand)] hover:underline">
+                                                                            {s.invoice}{s.invType === '2222' ? ' CN' : s.invType === '3333' ? ' FN' : ''}
+                                                                        </button>
+                                                                        {s.canceled && <span className="ml-1 text-[var(--ink-muted)]">(cancelled)</span>}
+                                                                    </td>
+                                                                    <td style={{ textAlign: 'left' }}>{formatDate(s.date)}</td>
+                                                                    <td style={{ textAlign: 'left' }}>{shipmentClientName(s)}</td>
+                                                                    <td className="numeric" style={{ textAlign: 'right' }}>{frmQty(s.qnty)}</td>
+                                                                    <td style={{ textAlign: 'center' }}>{formatDate(s.etd)}</td>
+                                                                    <td style={{ textAlign: 'center' }}>{formatDate(s.eta)}</td>
+                                                                    <td style={{ textAlign: 'left' }}>{portName(settings?.POL?.POL, 'pol', s.pol)}</td>
+                                                                    <td style={{ textAlign: 'left' }}>{portName(settings?.POD?.POD, 'pod', s.pod)}</td>
+                                                                </tr>
+                                                            ))}
+                                                        </tbody>
+                                                        <tfoot>
+                                                            <tr>
+                                                                <th colSpan={3} style={{ textAlign: 'left' }}>
+                                                                    Shipped of {poQty ? `${frmQty(poQty)} MT` : 'PO'}
+                                                                </th>
+                                                                <th className="numeric" style={{ textAlign: 'right' }}>{frmQty(shippedQty)}</th>
+                                                                <th colSpan={4} style={{ textAlign: 'left' }}>
+                                                                    {remainingQty === null ? (
+                                                                        <span className="text-[var(--ink-muted)]">No quantity on the PO to measure against</span>
+                                                                    ) : Math.abs(remainingQty) < 0.0005 ? (
+                                                                        <span style={{ color: 'var(--ok-text)' }}>PO fully shipped</span>
+                                                                    ) : remainingQty > 0 ? (
+                                                                        <span style={{ color: 'var(--warn-text)' }}>
+                                                                            Remaining to ship: <span className="numeric">{frmQty(remainingQty)}</span> MT
+                                                                        </span>
+                                                                    ) : (
+                                                                        <span style={{ color: 'var(--danger-text)' }}>
+                                                                            Over-shipped by <span className="numeric">{frmQty(Math.abs(remainingQty))}</span> MT
+                                                                        </span>
+                                                                    )}
+                                                                </th>
+                                                            </tr>
+                                                        </tfoot>
+                                                    </table>
+                                                </td>
+                                            </tr>
+                                        )}
+                                        </Fragment>
                                     );
                                 })}
                             </tbody>
@@ -1439,6 +1735,10 @@ const ShipmentPage = () => {
                         {paginated.map((contract) => {
                             const mainInv = getMainInvoice(contract);
                             const status = contract.shipmentStatus || '';
+                            const shipments = getShipments(contract);
+                            const poQty = getPoQty(contract);
+                            const shippedQty = getShippedQty(contract);
+                            const remainingQty = getRemainingQty(contract);
                             return (
                                 <div
                                     key={contract.id}
@@ -1475,11 +1775,37 @@ const ShipmentPage = () => {
                                         </div>
                                     </div>
 
+                                    {/* Quantity strip — what the PO called for, what has gone out,
+                                        and what is still open to ship. Same three figures as the
+                                        desktop columns, kept above the fold on a phone because it is
+                                        the reason to open the card. */}
+                                    <div className="grid grid-cols-3 divide-x" style={{ borderBottom: '1px solid var(--line)', borderColor: 'var(--line)' }}>
+                                        {[
+                                            { label: 'PO QTY',    value: poQty ? frmQty(poQty) : '—', color: 'var(--ink)' },
+                                            { label: 'Shipped',   value: shippedQty ? frmQty(shippedQty) : '—', color: 'var(--ink)' },
+                                            {
+                                                label: 'Remaining',
+                                                value: remainingQty === null ? '—'
+                                                    : Math.abs(remainingQty) < 0.0005 ? '0'
+                                                    : frmQty(remainingQty),
+                                                color: remainingQty === null || Math.abs(remainingQty) < 0.0005 ? 'var(--ink-muted)'
+                                                    : remainingQty > 0 ? 'var(--warn-text)' : 'var(--danger-text)',
+                                            },
+                                        ].map(({ label, value, color }) => (
+                                            <div key={label} className="px-3 py-2 text-center" style={{ borderColor: 'var(--line)' }}>
+                                                <div className="responsiveTextTable text-[var(--regent-gray)] font-semibold">{label}</div>
+                                                <div className="responsiveText numeric" style={{ color }}>{value}</div>
+                                            </div>
+                                        ))}
+                                    </div>
+
                                     {/* Card body */}
                                     <div className="p-3 space-y-2">
                                         {[
                                             { label: 'Supplier',      value: getSupplierName(contract) },
-                                            { label: 'Invoice #',     value: mainInv ? String(mainInv.invoice) : '—' },
+                                            /* All of them, joined — a contract that shipped twice showed
+                                               only the first invoice here. */
+                                            { label: 'Invoice #',     value: shipments.length ? shipments.map(s => s.invoice).join(', ') : (mainInv ? String(mainInv.invoice) : '—') },
                                             { label: 'Client',        value: getClientName(contract.id) },
                                             { label: 'Shipment Date', value: formatDate(getRawETD(contract)) },
                                             { label: 'Arrival Date',  value: formatDate(getRawETA(contract)) },

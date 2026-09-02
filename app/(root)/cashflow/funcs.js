@@ -754,7 +754,7 @@ export const StoclToolTip = ({ stock, stockDataAll, settings, uidCollection, set
                     })()}
 
                 </tbody>
-                <tfoot>
+                <tfoot className="sticky-foot">
                     <tr className="bg-[var(--bg-subtle)]">
                         <th></th>
                         <th className="text-left">
@@ -943,7 +943,7 @@ export const StocksUnSold = ({ supplier, stockDataAllArray, settings, uidCollect
                     })()}
 
                 </tbody>
-                <tfoot>
+                <tfoot className="sticky-foot">
                     <tr className="bg-[var(--bg-subtle)]">
                         <th></th>
                         <th className="text-left">
@@ -1116,7 +1116,7 @@ export const SharedStockDetails = ({ rows, settings }) => {
                             </tr>
                         ))}
                     </tbody>
-                    <tfoot>
+                    <tfoot className="sticky-foot">
                         <tr className="bg-[var(--surface-header)]">
                             <th className="text-left">Total</th>
                             <th></th>
@@ -1125,9 +1125,25 @@ export const SharedStockDetails = ({ rows, settings }) => {
                                 <NumericFormat value={(rows || []).reduce((s, r) => s + (parseFloat(r.qnty) || 0), 0)}
                                     displayType="text" thousandSeparator decimalScale='3' fixedDecimalScale />
                             </th>
-                            <th className="text-left whitespace-nowrap leading-4" colSpan={2}>
-                                <div>IMS {showAmount(fin.IMS, 'usd')}</div>
-                                <div>GIS {showAmount(fin.GIS, 'usd')}</div>
+                            {/* Two figures stacked in one cell. leading-4 pushed them
+                                almost touching, and neither carried tabular figures, so
+                                the two amounts did not line up digit under digit either
+                                — the "$1,245,742.23" and "$495,212.71" sat ragged.
+                                A flex column gives the gap explicitly rather than
+                                borrowing it from a line-height, the label is fixed-width
+                                so IMS and GIS start at the same place, and .tnum puts the
+                                digits on a common grid. */}
+                            <th className="text-left whitespace-nowrap" colSpan={2}>
+                                <div className="flex flex-col gap-1">
+                                    <span className="inline-flex items-baseline gap-1.5">
+                                        <span className="w-7 shrink-0 text-[var(--ink-muted)]">IMS</span>
+                                        <span className="tnum">{showAmount(fin.IMS, 'usd')}</span>
+                                    </span>
+                                    <span className="inline-flex items-baseline gap-1.5">
+                                        <span className="w-7 shrink-0 text-[var(--ink-muted)]">GIS</span>
+                                        <span className="tnum">{showAmount(fin.GIS, 'usd')}</span>
+                                    </span>
+                                </div>
                             </th>
                             <th className="text-right">
                                 {showAmount((rows || []).reduce((s, r) => s + valOf(r), 0), 'usd')}
@@ -1412,7 +1428,7 @@ export const ClientDetails = ({ client, data, type, uidCollection, setDateSelect
                             })}
 
                         </tbody>
-                        <tfoot>
+                        <tfoot className="sticky-foot">
                             <tr className="bg-[var(--bg-subtle)]">
                                 <th></th>
                                 <th className="text-left">Total</th>
@@ -1534,7 +1550,7 @@ export const ClientDetails = ({ client, data, type, uidCollection, setDateSelect
                             })}
 
                         </tbody>
-                        <tfoot>
+                        <tfoot className="sticky-foot">
                             <tr className="bg-[var(--bg-subtle)]">
                                 <th></th>
                                 <th className="text-left">Total</th>
@@ -1873,7 +1889,7 @@ export const SupplierDetails = ({ supplier, data, uidCollection, setDateSelect,
                         )
                     })}
                 </tbody>
-                <tfoot>
+                <tfoot className="sticky-foot">
                     <tr className="bg-[var(--bg-subtle)]">
                         <th></th>
                         <th className="text-left">Total</th>
@@ -2063,7 +2079,7 @@ export const ExpensesToolTip = ({ supplier, expensesAll, settings, uidCollection
                     })}
 
                 </tbody>
-                <tfoot>
+                <tfoot className="sticky-foot">
                     <tr className="bg-[var(--bg-subtle)]">
                         <th></th>
                         <th className="text-left">

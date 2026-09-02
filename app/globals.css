@@ -1574,6 +1574,22 @@ input::-webkit-inner-spin-button {
   background: var(--surface-header);
 }
 
+/* Totals that stay put. A detail table scrolls inside a max-height box, so its
+   tfoot sat at the bottom of the CONTENT — you had to scroll to the end of 33 lots
+   to see what they came to, and lost it again the moment you scrolled back.
+
+   sticky goes on the CELLS, not the row: a sticky <tr> is ignored in most engines.
+   Each cell therefore needs its own background too — a sticky cell with a
+   transparent one lets the rows underneath show straight through it. The shadow is
+   what separates the pinned row from the content sliding beneath it. */
+.cashflow-detail-table tfoot.sticky-foot th {
+  position: sticky;
+  bottom: 0;
+  z-index: 2;
+  background: var(--surface-header);
+  box-shadow: 0 -1px 0 var(--line-strong);
+}
+
 .cashflow-detail-table thead th {
   /* 600 — the label weight `.custom-table th` and `.detail-popup-table th` moved
      to when the header band came out of block capitals. These headers were

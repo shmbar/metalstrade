@@ -698,7 +698,7 @@ function RankTile({ label, value, share, fill = 0, accent = 'var(--brand)', avat
   return (
     <Tag
       {...(onPick ? { type: 'button', onClick: onPick, 'aria-label': `Show the records behind ${label}`, 'aria-pressed': picked } : {})}
-      className={`relative overflow-hidden rounded-2xl border bg-[var(--bg-subtle)] px-2.5 py-2 flex flex-col gap-1 min-w-0 transition-colors ${hero ? 'col-span-2 xl:col-span-3' : ''} ${onPick ? 'text-left cursor-pointer hover:border-[var(--brand)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-soft)]' : 'hover:border-[var(--line-strong)]'} ${picked ? 'border-[var(--brand)]' : 'border-[var(--line)]'}`}
+      className={`relative overflow-hidden rounded-2xl border bg-[var(--bg-subtle)] px-2.5 py-2 flex flex-col gap-1 min-w-0 transition-colors ${hero ? 'xl:col-span-2' : ''} ${onPick ? 'text-left cursor-pointer hover:border-[var(--brand)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-soft)]' : 'hover:border-[var(--line-strong)]'} ${picked ? 'border-[var(--brand)]' : 'border-[var(--line)]'}`}
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.28, delay, ease: 'easeOut' }}
@@ -804,6 +804,34 @@ function FoldToggle({ expanded, onToggle, count, amount }) {
 // that keeps a $37.02M figure on one line inside a half-width card.
 const TILE_GRID = 'grid grid-cols-2 xl:grid-cols-3 gap-1.5';
 
+/* The card's total, as the FIRST cell of the grid rather than a block floating in the
+   header's top-right corner. Zak's call (2026-09-02) and the right one: in the corner it
+   was a figure with no home, sitting outside the thing it totals. As a cell it opens the
+   grid, the leader tile sits beside it, and the row fills exactly — total (1) + hero (2 at
+   xl, 1 at lg) + 5 tiles + the "more" control divides cleanly at both widths.
+   Filled with the brand rather than the tiles' --bg-subtle, so it reads as the sum and not
+   as another entry in the ranking. */
+function TotalCell({ label = 'Total', value }) {
+  return (
+    <m.div
+      className="rounded-2xl px-2.5 py-2 flex flex-col justify-center gap-0.5 min-w-0 border"
+      style={{ background: 'var(--brand-soft)', borderColor: 'var(--brand-border)' }}
+      initial={{ opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.28, ease: 'easeOut' }}
+    >
+      <span className="responsiveTextTableTitle text-[var(--regent-gray)] leading-tight truncate">{label}</span>
+      {/* --fs-title, not --fs-stat: it shares a row with the leader tile now, and a total
+          shouting louder than the biggest entry in the list inverts the hierarchy. */}
+      <span
+        className="numeric font-semibold leading-none truncate"
+        style={{ fontSize: 'var(--fs-title)', color: 'var(--brand-strong)' }}
+        title={value}
+      >{value}</span>
+    </m.div>
+  );
+}
+
 // Ranking cards (Contracts / Consignees) — one tile per party.
 function RankingListInner({ labels = [], data = [], title, subtitle, totalValue, series = {}, onPick, picked }) {
   /* Every tile used to take its own step off brandRamp(labels.length) — a shade
@@ -837,33 +865,13 @@ function RankingListInner({ labels = [], data = [], title, subtitle, totalValue,
         <SectionHeader
           title={title}
           subtitle={subtitle}
-          /* A tinted block, not two lines of small text in the corner. On the Consignees
-             card this figure IS the period's sales revenue — the standalone Sales Revenue
-             card was removed because it showed the identical number — so the headline for
-             the whole band was rendering at the size of a caption and reading as a
-             footnote (Zak, 2026-09-02: "not visible enough"). Same treatment on the
-             Contracts card, where it is the total purchase value. */
-          right={
-            <div
-              className="text-right flex-shrink-0 rounded-2xl px-3 py-2 border"
-              style={{
-                background: 'var(--brand-soft)',
-                borderColor: 'var(--brand-border)',
-              }}
-            >
-              <div className="responsiveTextTableTitle text-[var(--regent-gray)] leading-tight">Total Value</div>
-              <span
-                className="numeric font-semibold leading-none block mt-0.5"
-                style={{ fontSize: 'var(--fs-stat)', color: 'var(--brand-strong)' }}
-              >{fmtAutoKM(totalValue)}</span>
-            </div>
-          }
         />
 
         {rows.length === 0
           ? <div className="responsiveText text-[var(--regent-gray)] py-3 text-center">No data for this period</div>
           : (
             <div className={TILE_GRID}>
+              <TotalCell label="Total Value" value={fmtAutoKM(totalValue)} />
               {shown.map((r, idx) => (
                 <RankTile
                   key={`${r.label}-${idx}`}
@@ -1333,26 +1341,12 @@ function BreakdownCard({ title, subtitle, entries = [], total, fmtVal, accent = 
         <SectionHeader
           title={title}
           subtitle={subtitle}
-          /* Same tinted block as the ranking cards — Expenses by Type sits beside
-             Contracts, and a card total styled two different ways in one row reads as two
-             different kinds of number. */
-          right={total != null ? (
-            <div
-              className="text-right flex-shrink-0 rounded-2xl px-3 py-2 border"
-              style={{ background: 'var(--brand-soft)', borderColor: 'var(--brand-border)' }}
-            >
-              <div className="responsiveTextTableTitle text-[var(--regent-gray)] leading-tight">Total</div>
-              <span
-                className="numeric font-semibold leading-none block mt-0.5"
-                style={{ fontSize: 'var(--fs-stat)', color: 'var(--brand-strong)' }}
-              >{fmtVal(total)}</span>
-            </div>
-          ) : null}
         />
         {rows.length === 0
           ? <div className="responsiveText text-[var(--regent-gray)] py-3 text-center">No data for this period</div>
           : (
             <div className={TILE_GRID}>
+              <TotalCell label="Total" value={fmtVal(total)} />
               {shown.map((r, idx) => (
                 <RankTile
                   key={r.label}
