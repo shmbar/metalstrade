@@ -1,9 +1,13 @@
 'use client';
 import { useRef, useState } from 'react';
 import { NumericFormat } from 'react-number-format';
-import { Sigma, X, ChevronDown, ChevronUp, Copy, Check } from 'lucide-react';
+import { Sigma, X, ChevronDown, ChevronUp, Copy, Check, FileSpreadsheet } from 'lucide-react';
 
 const kindLabel = { client: 'Client', supplier: 'Supplier', expense: 'Expense', stock: 'Stock' };
+
+// Where the user last dragged the panel. Position is a preference, not data —
+// localStorage keeps it per browser and nothing else needs to know about it.
+const POS_KEY = 'ims:sumBasketPos';
 
 // Which figure to total. 'auto' uses each row's contextual default (autoMetric).
 const METRICS = ['auto', 'balance', 'paid', 'amount'];
@@ -21,7 +25,26 @@ export default function SumBasket({ items = [], onRemove, onClear }) {
     const [collapsed, setCollapsed] = useState(false);
     const [copied, setCopied] = useState(false);
     const [metric, setMetric] = useState('auto');
-    const [pos, setPos] = useState(null); // {left, top} once dragged; else default (bottom-center)
+    const [exporting, setExporting] = useState(false);
+
+    // Where the panel sits. Default is now top-right, under the header, not
+    // bottom-centre: the bottom edge already carries the toast (bottom-left), the
+    // ⌘K hint (bottom-4 right-20) and the chat launcher (bottom-4 right-4), and at
+    // 19rem wide this panel landed on top of the rows you were ticking.
+    //
+    // A dragged position is remembered. It was reset on every remount, so anyone
+    // who moved it out of the way had to move it again the next time they selected
+    // anything.
+    const [pos, setPos] = useState(() => {
+        try {
+            const saved = JSON.parse(localStorage.getItem(POS_KEY) || 'null');
+            // Ignore a stored position that is off-screen — a smaller window, or a
+            // second monitor that is no longer attached, would strand the panel.
+            if (saved && saved.left >= 0 && saved.top >= 0
+                && saved.left < window.innerWidth - 40 && saved.top < window.innerHeight - 40) return saved;
+        } catch { /* private mode, or nothing stored */ }
+        return null;
+    });
     const ref = useRef(null);
 
     if (!items.length) return null;
@@ -53,11 +76,80 @@ export default function SumBasket({ items = [], onRemove, onClear }) {
             });
         };
         const up = () => {
+            // Remember it: the panel used to snap back to its default on every
+            // remount, so moving it out of the way had to be redone each time.
+            setPos(cur => {
+                try { if (cur) localStorage.setItem(POS_KEY, JSON.stringify(cur)); } catch { /* private mode */ }
+                return cur;
+            });
             window.removeEventListener('pointermove', move);
             window.removeEventListener('pointerup', up);
         };
         window.addEventListener('pointermove', move);
         window.addEventListener('pointerup', up);
+    };
+
+    // The same tally as the clipboard copy, as a spreadsheet: one row per selection
+    // with its own currency, then the per-currency subtotals at the bottom. Amounts
+    // go in as NUMBERS with a currency format, so the recipient can re-total them —
+    // a pasted text block cannot be added up.
+    //
+    // $ and € stay on separate subtotal lines for the same reason they do on screen:
+    // adding them together would produce a figure in no currency at all.
+    const exportExcel = async () => {
+        if (exporting) return;
+        setExporting(true);
+        try {
+            const ExcelJS = (await import('exceljs')).default ?? (await import('exceljs'));
+            const { saveAs } = await import('file-saver');
+
+            const wb = new ExcelJS.Workbook();
+            wb.created = new Date();
+            const ws = wb.addWorksheet('Selection');
+            ws.columns = [
+                { header: 'Type', key: 'kind', width: 12 },
+                { header: 'Name', key: 'label', width: 28 },
+                { header: 'Reference', key: 'sub', width: 22 },
+                { header: 'Currency', key: 'cur', width: 10 },
+                { header: metricLabel[metric], key: 'v', width: 16 },
+            ];
+            ws.getRow(1).font = { bold: true };
+            ws.getRow(1).alignment = { horizontal: 'center', vertical: 'middle' };
+
+            rows.forEach(r => {
+                const row = ws.addRow({
+                    kind: kindLabel[r.kind] || r.kind || '',
+                    label: r.label || '',
+                    sub: r.sub || '',
+                    cur: r.cur === 'us' ? 'USD' : 'EUR',
+                    // n/a stays blank rather than 0 — a row that has no figure under
+                    // this metric must not read as a zero that was counted.
+                    v: r.v == null ? '' : r.v,
+                });
+                row.getCell('v').numFmt = r.cur === 'us' ? '"$"#,##0.00' : '"€"#,##0.00';
+            });
+
+            ws.addRow({});
+            if (hasUsd) {
+                const t = ws.addRow({ label: 'Subtotal USD', v: usd });
+                t.font = { bold: true };
+                t.getCell('v').numFmt = '"$"#,##0.00';
+            }
+            if (hasEur) {
+                const t = ws.addRow({ label: 'Subtotal EUR', v: eur });
+                t.font = { bold: true };
+                t.getCell('v').numFmt = '"€"#,##0.00';
+            }
+            if (naCount) ws.addRow({ label: `${naCount} row(s) with no ${metricLabel[metric]} figure` });
+
+            const buf = await wb.xlsx.writeBuffer();
+            saveAs(new Blob([buf], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }),
+                `cashflow-selection-${metric}-${new Date().toISOString().slice(0, 10)}.xlsx`);
+        } catch (e) {
+            console.error('Selection export failed', e);
+        } finally {
+            setExporting(false);
+        }
     };
 
     const copySummary = () => {
@@ -77,8 +169,8 @@ export default function SumBasket({ items = [], onRemove, onClear }) {
             className={`fixed z-40 w-[19rem] rounded-2xl overflow-hidden font-sans
                 border border-[var(--line)]
                 bg-[var(--glass)] backdrop-blur-md shadow-pop
-                animate-in fade-in slide-in-from-bottom-3 duration-300
-                ${pos ? '' : 'bottom-4 left-1/2 -translate-x-1/2'}`}
+                animate-in fade-in slide-in-from-top-3 duration-300
+                ${pos ? '' : 'top-20 right-4'}`}
             style={pos ? { left: pos.left, top: pos.top } : undefined}
         >
             {/* Header — drag handle */}
@@ -97,6 +189,12 @@ export default function SumBasket({ items = [], onRemove, onClear }) {
                     </span>
                 </div>
                 <div className="flex items-center gap-0.5 shrink-0 text-[var(--ink-secondary)]">
+                    <button onPointerDown={e => e.stopPropagation()} onClick={exportExcel}
+                        disabled={exporting}
+                        title="Export selection to Excel"
+                        className="p-1 rounded-lg hover:bg-[var(--bg-subtle)] transition-colors disabled:opacity-50">
+                        <FileSpreadsheet className="w-3.5 h-3.5" />
+                    </button>
                     <button onPointerDown={e => e.stopPropagation()} onClick={copySummary}
                         title="Copy summary" className="p-1 rounded-lg hover:bg-[var(--bg-subtle)] transition-colors">
                         {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
