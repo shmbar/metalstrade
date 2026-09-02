@@ -867,10 +867,19 @@ function TotalCell({ label = 'Total', value, onOpen }) {
     >
       <span className="responsiveTextTableTitle font-medium leading-tight truncate" style={{ color: 'var(--brand)' }}>{label}</span>
       {/* --fs-title, not --fs-stat: it shares a row with the leader tile now, and a total
-          shouting louder than the biggest entry in the list inverts the hierarchy. */}
+          shouting louder than the biggest entry in the list inverts the hierarchy.
+          Ink, not brand violet (Sharoon, 2026-09-02). Every other figure in this grid is
+          dark — $38.60M, $3.32M, $175.07K — so a violet one read as a different KIND of
+          number rather than the same kind, totalled. The cell already announces itself
+          through shape: white against grey tiles, inside a 2px violet outline. Colouring
+          the text as well says it twice and breaks the page's rule that colour rides the
+          mark while text stays in ink. The small label above keeps the violet, which is
+          the one tie back to the border.
+          Deliberately NOT green: on this page green means profit (Gross, Net, Avg/MT), so
+          a green total would read as earnings — $51.00M of PURCHASE value, in this case. */}
       <span
         className="numeric font-semibold leading-none truncate"
-        style={{ fontSize: 'var(--fs-title)', color: 'var(--brand-strong)' }}
+        style={{ fontSize: 'var(--fs-title)', color: 'var(--port-gore)' }}
         title={value}
       >{value}</span>
     </Tag>
