@@ -837,10 +837,25 @@ function RankingListInner({ labels = [], data = [], title, subtitle, totalValue,
         <SectionHeader
           title={title}
           subtitle={subtitle}
+          /* A tinted block, not two lines of small text in the corner. On the Consignees
+             card this figure IS the period's sales revenue — the standalone Sales Revenue
+             card was removed because it showed the identical number — so the headline for
+             the whole band was rendering at the size of a caption and reading as a
+             footnote (Zak, 2026-09-02: "not visible enough"). Same treatment on the
+             Contracts card, where it is the total purchase value. */
           right={
-            <div className="text-right flex-shrink-0">
-              <div className="responsiveTextTable text-[var(--regent-gray)]">Total Value</div>
-              <span className="responsiveTextPage font-semibold text-[var(--chathams-blue)]">{fmtAutoKM(totalValue)}</span>
+            <div
+              className="text-right flex-shrink-0 rounded-2xl px-3 py-2 border"
+              style={{
+                background: 'var(--brand-soft)',
+                borderColor: 'var(--brand-border)',
+              }}
+            >
+              <div className="responsiveTextTableTitle text-[var(--regent-gray)] leading-tight">Total Value</div>
+              <span
+                className="numeric font-semibold leading-none block mt-0.5"
+                style={{ fontSize: 'var(--fs-stat)', color: 'var(--brand-strong)' }}
+              >{fmtAutoKM(totalValue)}</span>
             </div>
           }
         />
@@ -1318,7 +1333,21 @@ function BreakdownCard({ title, subtitle, entries = [], total, fmtVal, accent = 
         <SectionHeader
           title={title}
           subtitle={subtitle}
-          right={total != null ? <div className="text-right flex-shrink-0"><div className="responsiveTextTable text-[var(--regent-gray)]">Total</div><span className="responsiveTextPage font-semibold text-[var(--chathams-blue)]">{fmtVal(total)}</span></div> : null}
+          /* Same tinted block as the ranking cards — Expenses by Type sits beside
+             Contracts, and a card total styled two different ways in one row reads as two
+             different kinds of number. */
+          right={total != null ? (
+            <div
+              className="text-right flex-shrink-0 rounded-2xl px-3 py-2 border"
+              style={{ background: 'var(--brand-soft)', borderColor: 'var(--brand-border)' }}
+            >
+              <div className="responsiveTextTableTitle text-[var(--regent-gray)] leading-tight">Total</div>
+              <span
+                className="numeric font-semibold leading-none block mt-0.5"
+                style={{ fontSize: 'var(--fs-stat)', color: 'var(--brand-strong)' }}
+              >{fmtVal(total)}</span>
+            </div>
+          ) : null}
         />
         {rows.length === 0
           ? <div className="responsiveText text-[var(--regent-gray)] py-3 text-center">No data for this period</div>
