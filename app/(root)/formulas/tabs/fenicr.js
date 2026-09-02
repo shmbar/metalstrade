@@ -96,7 +96,7 @@ const Fenicr = ({ value, handleChange }) => {
             onBlur={(e) => commit(name, e.target.value.replace('%', ''))}
         />
     );
-    const euroNote = <TileNote>{fmt(n(g.euroRate).toFixed(2)) + ' / €'}</TileNote>;
+    const euroNote = <TileNote>{fmt(n(g.euroRate).toFixed(3)) + ' / €'}</TileNote>;
 
     const niCost = n(g.nilme) * n(f.formulaNiCost) / 100;
     const niSales = n(g.nilme) * n(f.formulaNiPrice) / 100;

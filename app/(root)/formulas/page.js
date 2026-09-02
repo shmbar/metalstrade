@@ -13,7 +13,7 @@ import SupperAlloys from './tabs/supperalloys';
 import Stainless from './tabs/stainless';
 import MarketBar from './marketBar';
 import { Button } from '../../../components/ui/button';
-import { getCur } from '../../../components/exchangeApi';
+import { getCurDetail } from '../../../components/exchangeApi';
 import dateFormat from "dateformat";
 import useMetalPrices from '../../../hooks/useMetalPrices';
 
@@ -27,35 +27,44 @@ const Page = () => {
 	const [value, setValue] = useState({})
 	const [focusedField, setFocusedField] = useState(null);
 	const [loading, setLoading] = useState(true);
+	const [fx, setFx] = useState(null);          // provenance of the EUR/USD on screen
+	const [fxLoading, setFxLoading] = useState(false);
 	const { prices: metalPrices, loading: metalLoading, refresh: refreshMetal } = useMetalPrices();
+
+	/* Pull EUR/USD from the currency API. A failed lookup leaves the saved rate
+	   alone — overwriting a real 1.1578 with a fabricated 1.0 is what made this
+	   field read 1.000 for months. */
+	const refreshRate = async () => {
+		setFxLoading(true);
+		try {
+			const live = await getCurDetail(dateFormat(new Date(), 'yyyy-mm-dd'));
+			setFx(live);
+			if (live) {
+				setValue(prev => ({ ...prev, general: { ...prev.general, euroRate: live.rate } }));
+			} else {
+				setToast({ show: true, text: 'Currency API unavailable — keeping the saved rate', clr: 'fail' });
+			}
+			return live;
+		} finally {
+			setFxLoading(false);
+		}
+	};
 
 	useEffect(() => {
 		const loadData = async () => {
 			try {
 				setLoading(true);
 				let data = await loadDataSettings(uidCollection, 'formulasCalc')
+				if (!data || typeof data !== 'object') data = {};
+				if (!data.general) data.general = {};
 
-				const timeoutId = setTimeout(() => {
-					if (!data?.general) {
-						setValue({ general: {} });
-						setLoading(false);
-					}
-				}, 5000);
-
-				try {
-					let rate = await getCur(dateFormat(new Date(), 'yyyy-mm-dd'));
-					if (rate) {
-						data.general.euroRate = rate;
-					} else {
-						data.general.euroRate = data.general?.euroRate || 1.0;
-					}
-				} catch (error) {
-					console.error('Error fetching rate:', error);
-					data.general.euroRate = data.general?.euroRate || 1.0;
-				}
+				setFxLoading(true);
+				const live = await getCurDetail(dateFormat(new Date(), 'yyyy-mm-dd'));
+				setFx(live);
+				setFxLoading(false);
+				if (live) data.general.euroRate = live.rate;
 
 				setValue(data)
-				clearTimeout(timeoutId);
 			} catch (error) {
 				console.error('Error loading data:', error);
 				setValue({ general: {} });
@@ -66,7 +75,7 @@ const Page = () => {
 
 		if (!uidCollection) return;
 		loadData()
-		
+
 	}, [uidCollection])
 
 	// Auto-fill Ni LME from live metals price
@@ -163,6 +172,9 @@ const Page = () => {
 											addComma={addComma}
 											refreshMetal={refreshMetal}
 											metalLoading={metalLoading}
+											fx={fx}
+											fxLoading={fxLoading}
+											refreshRate={refreshRate}
 											onSave={saveData}
 										/>
 									)}

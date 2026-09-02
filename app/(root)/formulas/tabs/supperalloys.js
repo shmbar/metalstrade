@@ -108,7 +108,7 @@ const SupperAlloys = ({ value, handleChange }) => {
             {
                 label: 'Price / Euro (€/lb)',
                 value: fmt((base / n(g.euroRate || 1)).toFixed(2), '€'),
-                note: <TileNote>{fmt(n(g.euroRate).toFixed(2)) + ' / €'}</TileNote>,
+                note: <TileNote>{fmt(n(g.euroRate).toFixed(3)) + ' / €'}</TileNote>,
             },
         ];
     };

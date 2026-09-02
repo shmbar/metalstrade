@@ -24,6 +24,9 @@ const MarketBar = ({
     addComma,
     refreshMetal,
     metalLoading,
+    fx,
+    fxLoading,
+    refreshRate,
     onSave,
 }) => {
     const g = value.general ?? {};
@@ -95,17 +98,36 @@ const MarketBar = ({
                     />
                 </div>
 
-                <div className="w-24">
+                {/* Live from the currency API, same affordance as Ni LME. The
+                    title says which source and publication day the figure came
+                    from, so "is this real?" is answerable without the console —
+                    it read a fabricated 1.000 for months while nothing on screen
+                    admitted the fetch had failed. */}
+                <div className="w-28">
                     <p className={`${labelCls} mb-1.5`}>EUR / USD</p>
-                    <input
-                        type="text"
-                        className={`${field} px-2.5`}
-                        name="euroRate"
-                        value={focusedField === 'euroRate' ? (g.euroRate ?? '') : Number(g.euroRate || 0).toFixed(2)}
-                        onChange={(e) => handleChange(e, 'general')}
-                        onFocus={() => setFocusedField('euroRate')}
-                        onBlur={() => setFocusedField(null)}
-                    />
+                    <div className="relative">
+                        <input
+                            type="text"
+                            className={`${field} pl-2.5 pr-8`}
+                            name="euroRate"
+                            title={
+                                fx
+                                    ? `${fx.source} — rate published ${fx.date}${fx.stale ? ' (cached, live lookup failed)' : ''}`
+                                    : 'Currency API unavailable — showing the last saved rate'
+                            }
+                            value={focusedField === 'euroRate' ? (g.euroRate ?? '') : Number(g.euroRate || 0).toFixed(3)}
+                            onChange={(e) => handleChange(e, 'general')}
+                            onFocus={() => setFocusedField('euroRate')}
+                            onBlur={() => setFocusedField(null)}
+                        />
+                        <button
+                            onClick={refreshRate}
+                            title="Refresh live rate"
+                            className={`absolute right-1 top-1/2 -translate-y-1/2 h-6 w-6 flex items-center justify-center rounded hover:bg-[var(--bg-subtle)] transition-colors ${fx ? 'text-[var(--ink-muted)] hover:text-[var(--brand)]' : 'text-[var(--danger-text)] hover:text-[var(--danger-strong)]'}`}
+                        >
+                            <RefreshCw className={`w-3 h-3 ${fxLoading ? 'animate-spin' : ''}`} />
+                        </button>
+                    </div>
                 </div>
 
                 {/* Sits next to EUR/USD, not pinned to the card's right edge

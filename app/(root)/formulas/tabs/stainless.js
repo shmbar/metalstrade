@@ -105,7 +105,7 @@ const Stainless = ({ value, handleChange }) => {
             onBlur={(e) => commit(name, e.target.value.replace('%', ''))}
         />
     );
-    const euroNote = <TileNote>{fmt(n(g.euroRate).toFixed(2)) + ' / €'}</TileNote>;
+    const euroNote = <TileNote>{fmt(n(g.euroRate).toFixed(3)) + ' / €'}</TileNote>;
 
     /* Ni priced off the LME, per side. Also the basis for the $/lb hint. */
     const niCost = n(g.nilme) * n(s.formulaNiCost) / 100;

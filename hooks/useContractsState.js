@@ -149,7 +149,10 @@ const useContractsState = (props) => {
             const isExisting = !!valueCon.id;
             let tmpValue = {}
 
-            let tmpEuToUs = await getCur(valueCon.dateRange.startDate)
+            // getCur returns null when the currency API is unreachable. Keep the
+            // rate the contract already carries rather than stamping a blank (or,
+            // as it used to, a fabricated 1) over a real one.
+            let tmpEuToUs = (await getCur(valueCon.dateRange.startDate)) ?? valueCon.euroToUSD ?? null
 
 
             if (isExisting) { //update

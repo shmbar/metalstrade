@@ -81,7 +81,9 @@ const useSalesContractsState = () => {
                 poSupplier: { ...blankPoSupplier, ...(valueSC.poSupplier || {}) },
             };
 
-            let tmpEuToUs = await getCur(baseValue.dateRange.startDate);
+            // Null when the currency API is unreachable — keep the stored rate
+            // rather than overwriting a real one with a blank. See useContractsState.
+            let tmpEuToUs = (await getCur(baseValue.dateRange.startDate)) ?? baseValue.euroToUSD ?? null;
 
             if (indx !== -1) { // update
                 tmpValue = {
