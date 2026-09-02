@@ -1590,6 +1590,21 @@ input::-webkit-inner-spin-button {
   box-shadow: 0 -1px 0 var(--line-strong);
 }
 
+/* A totals row reads too heavy at header weight. The rule near the top of this
+   file lifts numerals back to 600 inside a <th> — correct for the HEADER, where
+   the number is the column's label, but a footer cell is a <th> too, so every
+   total inherited it: the "Total" caption, the IMS/GIS split and the figures all
+   came out bold (client, 2 Sep 2026).
+   In a footer the number is a figure, so it takes the figure weight (500) like
+   every other number in the app. Class selectors, so this beats the :where()
+   rules above without needing !important. */
+.cashflow-detail-table tfoot th,
+.cashflow-detail-table tfoot th .tnum,
+.cashflow-detail-table tfoot th [data-numeric],
+.cashflow-detail-table tfoot th .numeric {
+  font-weight: 500;
+}
+
 .cashflow-detail-table thead th {
   /* 600 — the label weight `.custom-table th` and `.detail-popup-table th` moved
      to when the header band came out of block capitals. These headers were
