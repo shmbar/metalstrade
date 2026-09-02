@@ -162,10 +162,16 @@ const solidColor = (c) =>
    shipment percentage (the one figure here with a natural visual form), and a
    red chip for the overdue count, which is the most actionable number on the row
    and was previously 9.5px grey, indistinguishable from "freight expense types". */
-function SummaryTile({ label, value, note, tone, icon: Icon, toneKey = 'gray', progress, progressTone, chip, info }) {
+function SummaryTile({ label, value, note, tone, icon: Icon, toneKey = 'gray', progress, progressTone, chip, info, onOpen }) {
   const t = TONES[toneKey] || TONES.gray;
+  /* Every tile opens its own detail (Zak, 2026-09-02: "all cards need to show detailed
+     popup"). A figure with no way through to what is behind it is where every "is this
+     number right?" conversation in this project started. */
+  const Tag = onOpen ? 'button' : 'div';
   const tile = (
-    <div className="bg-[var(--bg-card)] p-3 flex flex-col gap-2 min-w-0 hover:bg-[var(--bg-subtle)] transition-colors">
+    <Tag
+      {...(onOpen ? { type: 'button', onClick: onOpen, 'aria-label': `Show the detail behind ${label}` } : {})}
+      className={`bg-[var(--bg-card)] p-3 flex flex-col gap-2 min-w-0 hover:bg-[var(--bg-subtle)] transition-colors ${onOpen ? 'w-full text-left cursor-pointer' : ''}`}>
       <div className="flex items-center gap-2 min-w-0">
         <span
           className="w-6 h-6 rounded-control flex items-center justify-center shrink-0"
@@ -206,7 +212,7 @@ function SummaryTile({ label, value, note, tone, icon: Icon, toneKey = 'gray', p
           )}
         </div>
       )}
-    </div>
+    </Tag>
   );
   /* Every figure on this page now carries the definition it is computed from — the
      labels alone were ambiguous ("Expenses" reads as all expenses when it means
@@ -431,12 +437,35 @@ const fmtPct = (p) => {
    what makes that figure up.
    `cols` keeps one component serving both cards, since a contract row and an invoice row
    carry different columns but the same shape of question. */
-function DetailModal({ title, subtitle, rows = [], cols = [], isOpen, setIsOpen }) {
+function DetailModal({ title, subtitle, rows = [], cols = [], formula = null, isOpen, setIsOpen }) {
   const total = rows.reduce((a, r) => a + (Number(r.usd ?? r.value) || 0), 0);
   return (
     <Modal isOpen={isOpen} setIsOpen={setIsOpen} size="lg" title={title || ''} subtitle={subtitle}>
       <div className="p-4">
-        {rows.length === 0
+        {/* Derived figures — the per-MT ones, the profits — have no list of records behind
+            them; their "detail" IS the arithmetic. Showing the inputs and the operator is
+            what answers "where does this number come from", which is the question every
+            one of these tiles was raising and none could answer. */}
+        {formula && (
+          <div className="rounded-2xl border border-[var(--line)] overflow-hidden mb-3">
+            {formula.map((f, i) => (
+              <div key={i}
+                className={`px-3 py-2 flex items-center justify-between gap-3 ${f.result ? 'bg-[var(--brand-soft)]' : ''} ${i ? 'border-t border-[var(--line)]' : ''}`}>
+                <span className="min-w-0">
+                  <span className={`responsiveTextTable ${f.result ? 'font-semibold text-[var(--ink)]' : 'text-[var(--ink-secondary)]'}`}>{f.label}</span>
+                  {f.note && <span className="responsiveTextTableTitle text-[var(--ink-muted)] block mt-0.5">{f.note}</span>}
+                </span>
+                <span className={`responsiveTextTable numeric flex-shrink-0 ${f.result ? 'font-semibold' : ''}`}
+                  style={{ fontSize: f.result ? 'var(--fs-title)' : undefined, color: f.result ? 'var(--brand-strong)' : 'var(--ink)' }}>
+                  {f.value}
+                </span>
+              </div>
+            ))}
+          </div>
+        )}
+        {rows.length === 0 && formula
+          ? null
+          : rows.length === 0
           ? <div className="responsiveText text-[var(--regent-gray)] py-6 text-center">Nothing recorded for this row in the period</div>
           : (
             <div className="rounded-2xl border border-[var(--line)] overflow-hidden">
@@ -1432,6 +1461,8 @@ const Dash = () => {
   const [issuesOpen, setIssuesOpen] = useState(false);
   // Which ranking tile has its breakdown open: { kind: 'supplier'|'client', label }
   const [drill, setDrill] = useState(null);
+  // Which Business Summary tile has its detail open (a key into TILE_DETAILS below).
+  const [tileDrill, setTileDrill] = useState(null);
 
   /* Collapsed bands, remembered per browser — someone who never reads "Other" should stop
      scrolling past it. Read in an effect rather than a useState initialiser so the server
@@ -1955,6 +1986,104 @@ const Dash = () => {
   const avgProfitPerMT = useMemo(() => shippedMT > 0 ? totalPL / shippedMT : 0, [totalPL, shippedMT]);
   const avgFreightPerMT = useMemo(() => totalMT > 0 ? freightTotal / totalMT : 0, [freightTotal, totalMT]);
 
+  /* What each Business Summary tile opens. Two shapes: `rows` for a figure with records
+     behind it, `formula` for a derived one whose detail IS the arithmetic. Built here
+     rather than at the call sites so a tile and its detail read the same inputs — the
+     whole point is that the popup cannot state a different number from the tile. */
+  const mtFmt = (v) => `${new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 }).format(v || 0)} MT`;
+  const supName = (id) => settings?.Supplier?.Supplier?.find(s => s.id === id)?.nname || '—';
+  const expenseRows = useMemo(
+    () => Object.entries(expDetails).flatMap(([type, rs]) => rs.map(r => ({ ...r, type })))
+      .sort((a, b) => (b.usd || 0) - (a.usd || 0)),
+    [expDetails]
+  );
+  const coExpRows = useMemo(() => (rawCompanyExpenses || []).map(r => {
+    const amt = parseFloat(r?.amount) || 0;
+    const rate = parseFloat(r?.euroToUSD);
+    const mult = companyRate > 0 ? companyRate : (rate > 0 ? rate : (liveEurUsd > 0 ? liveEurUsd : 1));
+    return { date: r?.date || '', supplier: r?.supplier || '', amount: amt, cur: r?.cur || 'us', usd: r?.cur === 'us' ? amt : amt * mult };
+  }).sort((a, b) => b.usd - a.usd), [rawCompanyExpenses, companyRate, liveEurUsd]);
+  const money = (c, v) => `${c === 'us' ? '$' : '€'}${new Intl.NumberFormat('en-US', { maximumFractionDigits: 2 }).format(v || 0)}`;
+
+  const TILE_DETAILS = {
+    contractExpenses: {
+      title: 'Contract Expenses', subtitle: `${expenseRows.length} expense records in the period · GIS commission excluded`,
+      rows: expenseRows,
+      cols: [
+        { key: 'type', label: 'Type' },
+        { key: 'supplier', label: 'Supplier', render: (r) => supName(r.supplier) },
+        { key: 'date', label: 'Date' },
+        { key: 'amount', label: 'As entered', right: true, render: (r) => money(r.cur, r.amount) },
+        { key: 'usd', label: 'USD', right: true, render: (r) => fmtAutoKM(r.usd) },
+      ],
+    },
+    companyExpenses: {
+      title: 'Company Expenses', subtitle: `${coExpRows.length} overhead records in the period`,
+      rows: coExpRows,
+      cols: [
+        { key: 'supplier', label: 'Supplier', render: (r) => supName(r.supplier) },
+        { key: 'date', label: 'Date' },
+        { key: 'amount', label: 'As entered', right: true, render: (r) => money(r.cur, r.amount) },
+        { key: 'usd', label: 'USD', right: true, render: (r) => fmtAutoKM(r.usd) },
+      ],
+    },
+    grossProfit: {
+      title: 'Gross Profit', subtitle: 'Taken from the Margins page, before company overheads',
+      formula: [
+        { label: 'Margins worksheet rows', value: String(marginsSummary.items), note: 'each row\'s margin × its quantity' },
+        { label: 'GIS-shared rows counted at half', value: '50%', note: 'the Margins page halves profit on a shared deal' },
+        { label: 'Gross Profit', value: fmtAutoKM(totalPL), result: true },
+      ],
+    },
+    netProfit: {
+      title: 'Net Profit', subtitle: 'Gross profit after company overheads',
+      formula: [
+        { label: 'Gross Profit', value: fmtAutoKM(totalPL), note: 'from the Margins page' },
+        { label: 'less Company Expenses', value: `− ${fmtAutoKM(companyExpAgg.total)}`, note: `${companyExpAgg.count} overhead records` },
+        { label: 'Net Profit', value: fmtAutoKM(netProfit), result: true },
+      ],
+    },
+    averageRate: {
+      title: 'Average Rate', subtitle: 'Purchase cost per tonne',
+      formula: [
+        { label: 'Total contract value', value: fmtAutoKM(totalContracts), note: 'contracts dated in the period' },
+        { label: 'divided by tonnage purchased', value: mtFmt(totalMT), note: 'from the Margins page' },
+        { label: 'Average Rate', value: fmtAutoKM(avgCostPerMT), result: true },
+      ],
+    },
+    avgExpense: {
+      title: 'Avg Expense / MT', subtitle: 'Contract expenses per tonne purchased',
+      formula: [
+        { label: 'Contract expenses', value: fmtAutoKM(totalExpenses), note: `${expenseRows.length} records · GIS commission excluded` },
+        { label: 'divided by tonnage purchased', value: mtFmt(totalMT) },
+        { label: 'Avg Expense / MT', value: fmtAutoKM(avgExpensePerMT), result: true },
+      ],
+    },
+    avgFreight: {
+      title: 'Avg Freight / MT', subtitle: 'Freight expenses per tonne purchased',
+      rows: expenseRows.filter(r => /freight/i.test(r.type)),
+      cols: [
+        { key: 'type', label: 'Type' },
+        { key: 'supplier', label: 'Supplier', render: (r) => supName(r.supplier) },
+        { key: 'date', label: 'Date' },
+        { key: 'usd', label: 'USD', right: true, render: (r) => fmtAutoKM(r.usd) },
+      ],
+      formula: [
+        { label: 'Freight expenses', value: fmtAutoKM(freightTotal) },
+        { label: 'divided by tonnage purchased', value: mtFmt(totalMT) },
+        { label: 'Avg Freight / MT', value: fmtAutoKM(avgFreightPerMT), result: true },
+      ],
+    },
+    avgProfit: {
+      title: 'Avg Profit / MT', subtitle: 'Profit per tonne actually shipped',
+      formula: [
+        { label: 'Gross Profit', value: fmtAutoKM(totalPL), note: 'from the Margins page' },
+        { label: 'divided by tonnage SHIPPED', value: mtFmt(shippedMT), note: 'shipped, not purchased — unsold stock has earned nothing yet' },
+        { label: 'Avg Profit / MT', value: fmtAutoKM(avgProfitPerMT), result: true },
+      ],
+    },
+  };
+
   // ── Hero trend series (Revenue area + Costs & Profit lines) ──────────────
   const revLabels = useMemo(
     () => Object.keys(dataInvoices).map((k) => MONTHS[Number(k) - 1] || k),
@@ -2322,6 +2451,7 @@ const Dash = () => {
                   the same reason the three duplicated KPI cards were. */}
               <SummaryTile
                 label="Contract Expenses"
+                onOpen={() => setTileDrill('contractExpenses')}
                 info="Expenses recorded against the contracts in this period — freight, storage, commission and every other type — converted to USD. Company overheads are counted separately."
                 icon={Receipt}
                 toneKey="gray"
@@ -2333,6 +2463,7 @@ const Dash = () => {
                   answer different questions and only one of them is cost of trade. */}
               <SummaryTile
                 label="Company Expenses"
+                onOpen={() => setTileDrill('companyExpenses')}
                 info="Overheads from the Company Expenses page for this period, converted to USD. They belong to no single contract, so they are excluded from the per-MT figures."
                 icon={Building2}
                 toneKey="gray"
@@ -2341,6 +2472,7 @@ const Dash = () => {
               />
               <SummaryTile
                 label="Gross Profit"
+                onOpen={() => setTileDrill('grossProfit')}
                 info="Deal basis: takes the contracts BOUGHT in this period, and from everything invoiced against them subtracts the cost of the material actually sold and the contract expenses. Unsold stock is inventory rather than a cost, so it is excluded. Before company overheads. This is a narrower revenue base than the Sales Revenue tile, which counts every invoice DATED in the period including sales of material bought earlier — the two answer different questions and will not reconcile."
                 icon={TrendingUp}
                 value={fmtAutoKM(totalPL)}
@@ -2350,6 +2482,7 @@ const Dash = () => {
               />
               <SummaryTile
                 label="Net Profit"
+                onOpen={() => setTileDrill('netProfit')}
                 info="Gross profit minus company expenses."
                 icon={TrendingUp}
                 value={fmtAutoKM(netProfit)}
@@ -2363,6 +2496,7 @@ const Dash = () => {
                   they are: the totals above, divided by tonnage. */}
               <SummaryTile
                 label="Average Rate"
+                onOpen={() => setTileDrill('averageRate')}
                 info="Total contract purchase value divided by tonnage purchased, for the selected period. This is a purchase cost per MT, not a sale price."
                 icon={Gauge}
                 toneKey="blue"
@@ -2371,6 +2505,7 @@ const Dash = () => {
               />
               <SummaryTile
                 label="Avg Expense / MT"
+                onOpen={() => setTileDrill('avgExpense')}
                 info="Contract expenses divided by tonnage purchased."
                 icon={Receipt}
                 toneKey="gray"
@@ -2379,6 +2514,7 @@ const Dash = () => {
               />
               <SummaryTile
                 label="Avg Freight / MT"
+                onOpen={() => setTileDrill('avgFreight')}
                 info="Freight expenses divided by tonnage purchased."
                 icon={Truck}
                 toneKey="gray"
@@ -2387,6 +2523,7 @@ const Dash = () => {
               />
               <SummaryTile
                 label="Avg Profit / MT"
+                onOpen={() => setTileDrill('avgProfit')}
                 info="Gross profit divided by tonnage shipped — profit per MT actually sold."
                 icon={TrendingUp}
                 value={fmtAutoKM(avgProfitPerMT)}
@@ -2558,6 +2695,17 @@ const Dash = () => {
         </div>
       </div>
 
+
+      {/* Business Summary tiles — same modal, fed from TILE_DETAILS. */}
+      <DetailModal
+        isOpen={!!tileDrill}
+        setIsOpen={(v) => { if (!v) setTileDrill(null); }}
+        title={TILE_DETAILS[tileDrill]?.title || ''}
+        subtitle={TILE_DETAILS[tileDrill]?.subtitle}
+        rows={TILE_DETAILS[tileDrill]?.rows || []}
+        cols={TILE_DETAILS[tileDrill]?.cols || []}
+        formula={TILE_DETAILS[tileDrill]?.formula || null}
+      />
 
       {/* One modal serving both ranking cards. Supplier rows come from the contracts pass,
           client rows from the invoice-dated revenue pass — so each list is built by the
