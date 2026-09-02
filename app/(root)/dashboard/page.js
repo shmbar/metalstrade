@@ -330,7 +330,7 @@ function StatKpiCard({
 // final invoice has been issued (shipData.fnlzing === '4568'); "Provisional" =
 // balances still before the final invoice. Lets the team see, at a glance, how
 // much of what's owed is locked-in vs still subject to final-invoice changes.
-function ReceivablesSplitCard({ byCur = {} }) {
+function ReceivablesSplitCard({ byCur = {}, onOpen }) {
   // Currency-aware compact formatter — never sums across currencies.
   const fmtCurKM = (cur, n) => {
     const s = cur === 'us' ? '$' : cur === 'eu' ? '€' : '';
@@ -362,6 +362,9 @@ function ReceivablesSplitCard({ byCur = {} }) {
 
   return (
     <m.div
+      {...(onOpen ? { onClick: onOpen, role: 'button', tabIndex: 0,
+        onKeyDown: (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onOpen(); } },
+        style: { cursor: 'pointer' } } : {})}
       className="relative rounded-2xl bg-[var(--bg-card)] border border-[var(--line)] shadow-card overflow-hidden"
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
@@ -840,16 +843,29 @@ const TILE_GRID = 'grid grid-cols-2 xl:grid-cols-3 gap-1.5';
    xl, 1 at lg) + 5 tiles + the "more" control divides cleanly at both widths.
    Filled with the brand rather than the tiles' --bg-subtle, so it reads as the sum and not
    as another entry in the ranking. */
-function TotalCell({ label = 'Total', value }) {
+function TotalCell({ label = 'Total', value, onOpen }) {
+  const Tag = onOpen ? m.button : m.div;
   return (
-    <m.div
-      className="rounded-2xl px-2.5 py-2 flex flex-col justify-center gap-0.5 min-w-0 border"
-      style={{ background: 'var(--brand-soft)', borderColor: 'var(--brand-border)' }}
+    <Tag
+      {...(onOpen ? { type: 'button', onClick: onOpen, 'aria-label': `Show everything behind ${label}` } : {})}
+      className={`rounded-2xl px-2.5 py-2 flex flex-col justify-center gap-0.5 min-w-0 ${onOpen ? 'text-left cursor-pointer transition-all' : ''}`}
+      style={{
+        /* WHITE, against grey tiles — Sharoon's call (2026-09-02) and the right one. It was
+           --brand-soft, the same lavender family as the hero tile's meter wash sitting
+           right beside it, so the one cell that should read differently read the same.
+           Inverting it is what makes it pop: every tile around it is --bg-subtle, so the
+           total is now the only white cell in the grid. A 2px brand outline holds its edge
+           against the white card behind it, and the label takes brand ink so the colour is
+           on the text as well as the frame. */
+        background: 'var(--bg-card)',
+        border: '2px solid var(--brand)',
+        boxShadow: 'var(--shadow-card)',
+      }}
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.28, ease: 'easeOut' }}
     >
-      <span className="responsiveTextTableTitle text-[var(--regent-gray)] leading-tight truncate">{label}</span>
+      <span className="responsiveTextTableTitle font-medium leading-tight truncate" style={{ color: 'var(--brand)' }}>{label}</span>
       {/* --fs-title, not --fs-stat: it shares a row with the leader tile now, and a total
           shouting louder than the biggest entry in the list inverts the hierarchy. */}
       <span
@@ -857,12 +873,12 @@ function TotalCell({ label = 'Total', value }) {
         style={{ fontSize: 'var(--fs-title)', color: 'var(--brand-strong)' }}
         title={value}
       >{value}</span>
-    </m.div>
+    </Tag>
   );
 }
 
 // Ranking cards (Contracts / Consignees) — one tile per party.
-function RankingListInner({ labels = [], data = [], title, subtitle, totalValue, series = {}, onPick, picked }) {
+function RankingListInner({ labels = [], data = [], title, subtitle, totalValue, series = {}, onPick, picked, onTotal }) {
   /* Every tile used to take its own step off brandRamp(labels.length) — a shade
      per RANK. Two things were wrong with that. The ramp was fitted to the row
      COUNT, so applying a filter repainted every surviving tile and a reader who
@@ -900,7 +916,7 @@ function RankingListInner({ labels = [], data = [], title, subtitle, totalValue,
           ? <div className="responsiveText text-[var(--regent-gray)] py-3 text-center">No data for this period</div>
           : (
             <div className={TILE_GRID}>
-              <TotalCell label="Total Value" value={fmtAutoKM(totalValue)} />
+              <TotalCell label="Total Value" value={fmtAutoKM(totalValue)} onOpen={onTotal} />
               {shown.map((r, idx) => (
                 <RankTile
                   key={`${r.label}-${idx}`}
@@ -1120,7 +1136,7 @@ function FilterSelect({ label, icon, value, onChange, options }) {
 }
 
 // Purchased vs Shipped vs Pending tonnage, with a shipped-progress bar.
-function TonnageCard({ purchased = 0, shipped = 0, pending = 0, unsoldValue = 0 }) {
+function TonnageCard({ purchased = 0, shipped = 0, pending = 0, unsoldValue = 0, onOpen }) {
   const pctShipped = purchased > 0 ? Math.min(100, (shipped / purchased) * 100) : 0;
   const fmtMT = (n) => `${new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 }).format(n || 0)} MT`;
   /* Purchased / Shipped / Pending is one quantity at three stages of the SAME journey —
@@ -1136,6 +1152,9 @@ function TonnageCard({ purchased = 0, shipped = 0, pending = 0, unsoldValue = 0 
   ];
   return (
     <m.div
+      {...(onOpen ? { onClick: onOpen, role: 'button', tabIndex: 0,
+        onKeyDown: (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onOpen(); } },
+        style: { cursor: 'pointer' } } : {})}
       className="relative rounded-2xl bg-[var(--bg-card)] border border-[var(--line)] shadow-card overflow-hidden"
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
@@ -1191,7 +1210,7 @@ function TonnageCard({ purchased = 0, shipped = 0, pending = 0, unsoldValue = 0 
 }
 
 // Annual total of P1 "Misc Invoices" — standalone sales not tied to a contract.
-function MiscInvoicesCard({ byCur = {}, byCat = {}, count = 0 }) {
+function MiscInvoicesCard({ byCur = {}, byCat = {}, count = 0, onOpen }) {
   const fmtCur = (cur, v) => `${cur === 'us' ? '$' : cur === 'eu' ? '€' : ''}${new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(v || 0)}`;
   const entries = Object.entries(byCur).filter(([, v]) => Math.abs(v) > 0.005);
 
@@ -1213,6 +1232,9 @@ function MiscInvoicesCard({ byCur = {}, byCat = {}, count = 0 }) {
 
   return (
     <m.div
+      {...(onOpen ? { onClick: onOpen, role: 'button', tabIndex: 0,
+        onKeyDown: (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onOpen(); } },
+        style: { cursor: 'pointer' } } : {})}
       className="relative rounded-2xl bg-[var(--bg-card)] border border-[var(--line)] shadow-card overflow-hidden h-full flex flex-col"
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
@@ -1287,7 +1309,7 @@ function MiscInvoicesCard({ byCur = {}, byCat = {}, count = 0 }) {
 
 // Receivables aging — outstanding split by invoice age (0–30 / 31–60 / 61–90 / 90+),
 // per currency, colored green→red as it ages. Shows how overdue money is at a glance.
-function AgingCard({ buckets = [] }) {
+function AgingCard({ buckets = [], onOpen }) {
   /* Invoice age is genuinely a severity scale, so this card keeps a meaning-carrying
      ramp — but as ONE hue running light → dark, which is what a sequential scale wants,
      rather than the old green → brown → brown → red.
@@ -1316,7 +1338,7 @@ function AgingCard({ buckets = [] }) {
   const anyData = buckets.some(b => b.count > 0);
   return (
     <CardShell>
-      <div className="p-4">
+      <div className="p-4" {...(onOpen ? { onClick: onOpen, role: 'button', tabIndex: 0, onKeyDown: (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onOpen(); } }, style: { cursor: 'pointer' } } : {})}>
         <SectionHeader title="Receivables Aging" subtitle="Outstanding by invoice age (days) — older = more overdue" />
         {!anyData
           ? <div className="responsiveText text-[var(--regent-gray)] py-3 text-center">No outstanding receivables</div>
@@ -1353,7 +1375,7 @@ function AgingCard({ buckets = [] }) {
 /* `accent` is kept in the signature so existing call sites stay valid, but the
    tiles come from the themed ramp: the brand stepped deep → soft down the list,
    instead of every entry sharing one fixed accent. */
-function BreakdownCard({ title, subtitle, entries = [], total, fmtVal, accent = 'var(--brand)', onPick, picked, clamp = false }) {
+function BreakdownCard({ title, subtitle, entries = [], total, fmtVal, accent = 'var(--brand)', onPick, picked, clamp = false, onTotal }) {
   const [expanded, setExpanded] = useState(false);
   /* Share is measured against the card's own total, not the visible entries — so a
      folded list's shares add up to less than 100%, and that gap IS the tail. The
@@ -1375,7 +1397,7 @@ function BreakdownCard({ title, subtitle, entries = [], total, fmtVal, accent = 
           ? <div className="responsiveText text-[var(--regent-gray)] py-3 text-center">No data for this period</div>
           : (
             <div className={TILE_GRID}>
-              <TotalCell label="Total" value={fmtVal(total)} />
+              <TotalCell label="Total" value={fmtVal(total)} onOpen={onTotal} />
               {shown.map((r, idx) => (
                 <RankTile
                   key={r.label}
@@ -1986,7 +2008,18 @@ const Dash = () => {
   const avgProfitPerMT = useMemo(() => shippedMT > 0 ? totalPL / shippedMT : 0, [totalPL, shippedMT]);
   const avgFreightPerMT = useMemo(() => totalMT > 0 ? freightTotal / totalMT : 0, [freightTotal, totalMT]);
 
-  /* What each Business Summary tile opens. Two shapes: `rows` for a figure with records
+  // Ranking data sources
+  const hbSupps = HorizontalBar(dataPieSupps || {});
+  /* Consignees ranks invoiceRevAgg.byClient, not invAgg.pieArrClnts — see the comment on
+     byClient. Sorted here rather than in the aggregator because this is the only reader. */
+  const clientRank = useMemo(() => {
+    const rows = Object.entries(invoiceRevAgg.byClient || {})
+      .filter(([, v]) => Math.abs(v) > 0.5)
+      .sort((a, b) => b[1] - a[1]);
+    return { labels: rows.map(r => r[0]), data: rows.map(r => r[1]) };
+  }, [invoiceRevAgg]);
+
+  /* What each Business Summary tile opens. Two shapes: rows for a figure with records
      behind it, `formula` for a derived one whose detail IS the arithmetic. Built here
      rather than at the call sites so a tile and its detail read the same inputs — the
      whole point is that the popup cannot state a different number from the tile. */
@@ -2072,6 +2105,77 @@ const Dash = () => {
         { label: 'Freight expenses', value: fmtAutoKM(freightTotal) },
         { label: 'divided by tonnage purchased', value: mtFmt(totalMT) },
         { label: 'Avg Freight / MT', value: fmtAutoKM(avgFreightPerMT), result: true },
+      ],
+    },
+    /* The three card TOTALS. Each opens the FULL list — including the tail the card folds
+       away behind "N more" — which is exactly what a total is: everything, added up. */
+    contractsTotal: {
+      title: 'Contracts — Total Value', subtitle: `Every supplier in the period · ${(hbSupps.obj.labels || []).length} in total`,
+      rows: (hbSupps.obj.labels || []).map((name, i) => ({ name, value: Number(hbSupps.obj.datasets?.[0]?.data?.[i]) || 0 }))
+        .sort((a, b) => b.value - a.value),
+      cols: [
+        { key: 'name', label: 'Supplier' },
+        { key: 'value', label: 'Purchase value', right: true, render: (r) => fmtAutoKM(r.value) },
+      ],
+    },
+    consigneesTotal: {
+      title: 'Consignees — Total Value', subtitle: `Every client invoiced in the period · ${clientRank.labels.length} in total`,
+      rows: clientRank.labels.map((name, i) => ({ name, value: Number(clientRank.data[i]) || 0 }))
+        .sort((a, b) => b.value - a.value),
+      cols: [
+        { key: 'name', label: 'Client' },
+        { key: 'value', label: 'Sales revenue', right: true, render: (r) => fmtAutoKM(r.value) },
+      ],
+    },
+    expensesTotal: {
+      title: 'Expenses by Type — Total', subtitle: 'Every expense type in the period · GIS commission excluded',
+      rows: Object.entries(expByType).map(([name, value]) => ({ name, value }))
+        .sort((a, b) => b.value - a.value),
+      cols: [
+        { key: 'name', label: 'Expense type' },
+        { key: 'value', label: 'Amount', right: true, render: (r) => fmtAutoKM(r.value) },
+      ],
+    },
+    tonnage: {
+      title: 'Tonnage — Purchased vs Shipped', subtitle: 'As recorded on the Margins page',
+      formula: [
+        { label: 'Purchased', value: mtFmt(totalMT), note: 'Quantity column, all rows' },
+        { label: 'Shipped', value: mtFmt(shippedMT) },
+        { label: 'Pending', value: mtFmt(pendingMT), note: 'purchased − shipped · worth ' + fmtAutoKM(unsoldValue) },
+        { label: 'Shipped share', value: `${totalMT > 0 ? Math.round((shippedMT / totalMT) * 100) : 0}%`, result: true },
+      ],
+    },
+    receivables: {
+      title: 'Outstanding Receivables', subtitle: 'Open balances as of today — every period, not just this one',
+      formula: Object.entries(receivables.byCur || {}).flatMap(([cur, d]) => {
+        const sym = cur === 'us' ? '$' : cur === 'eu' ? '€' : '';
+        const f = (v) => `${sym}${new Intl.NumberFormat('en-US', { maximumFractionDigits: 2 }).format(v || 0)}`;
+        return [
+          { label: `Finalized (${cur.toUpperCase()})`, value: f(d.finalized), note: `${d.finalizedCount} invoice${d.finalizedCount === 1 ? '' : 's'} · after the final invoice` },
+          { label: `Provisional (${cur.toUpperCase()})`, value: f(d.provisional), note: `${d.provisionalCount} invoice${d.provisionalCount === 1 ? '' : 's'} · before the final invoice` },
+          { label: `Total outstanding (${cur.toUpperCase()})`, value: f(d.finalized + d.provisional), result: true },
+        ];
+      }),
+    },
+    aging: {
+      title: 'Receivables Aging', subtitle: 'Outstanding balances by invoice age, as of today',
+      formula: (aging || []).map(b => ({
+        label: `${b.label} days`,
+        note: `${b.count} invoice${b.count === 1 ? '' : 's'}`,
+        value: Object.entries(b.byCur || {}).map(([c, v]) =>
+          `${c === 'us' ? '$' : '€'}${new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 }).format(v || 0)}`).join(' · ') || '—',
+      })),
+    },
+    miscInvoices: {
+      title: 'Misc Invoices', subtitle: `${miscInvoices.count} standalone sales not linked to any contract`,
+      rows: (rawMiscInvoices || []).map(r => ({
+        date: r?.date || '', category: r?.category || 'uncategorized',
+        cur: r?.cur || 'us', amount: parseFloat(r?.total) || 0,
+      })).sort((a, b) => b.amount - a.amount),
+      cols: [
+        { key: 'date', label: 'Date' },
+        { key: 'category', label: 'Category' },
+        { key: 'amount', label: 'Amount', right: true, render: (r) => money(r.cur, r.amount) },
       ],
     },
     avgProfit: {
@@ -2282,17 +2386,6 @@ const Dash = () => {
     { label: 'Net Profit', value: netProfit, color: 'var(--ok-figure)' },
   ];
 
-  // Ranking data sources
-  const hbSupps = HorizontalBar(dataPieSupps || {});
-  /* Consignees ranks invoiceRevAgg.byClient, not invAgg.pieArrClnts — see the comment on
-     byClient. Sorted here rather than in the aggregator because this is the only reader. */
-  const clientRank = useMemo(() => {
-    const rows = Object.entries(invoiceRevAgg.byClient || {})
-      .filter(([, v]) => Math.abs(v) > 0.5)
-      .sort((a, b) => b[1] - a[1]);
-    return { labels: rows.map(r => r[0]), data: rows.map(r => r[1]) };
-  }, [invoiceRevAgg]);
-
   if (Object.keys(settings).length === 0) return <div className="mx-auto w-full max-w-full px-2 md:px-4 pb-4 mt-[72px]"><CardsSkeleton /></div>;
 
   return (
@@ -2417,6 +2510,7 @@ const Dash = () => {
                 data={clientRank.data}
                 totalValue={invoiceRevAgg.total}
                 series={invoiceRevAgg.byClientMonth || {}}
+                onTotal={() => setTileDrill('consigneesTotal')}
                 onPick={(name) => setDrill({ kind: 'client', label: name })}
               />
           </div>
@@ -2542,7 +2636,7 @@ const Dash = () => {
               full width — a 12-month line reads better wide than it did at two thirds. */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 mb-5">
             <div className="lg:col-span-2">
-              <TonnageCard purchased={totalMT} shipped={shippedMT} pending={pendingMT} unsoldValue={unsoldValue} />
+              <TonnageCard purchased={totalMT} shipped={shippedMT} pending={pendingMT} unsoldValue={unsoldValue} onOpen={() => setTileDrill('tonnage')} />
             </div>
             {/* GIS COMMISSION — outside the expenses panel because it is no longer part of
                 Contract Expenses: it is commission between the two houses, not a cost of
@@ -2642,6 +2736,7 @@ const Dash = () => {
               data={hbSupps.obj.datasets?.[0]?.data || []}
               totalValue={totalContracts}
               series={conAgg.suppSeries || {}}
+              onTotal={() => setTileDrill('contractsTotal')}
               onPick={(name) => setDrill({ kind: 'supplier', label: name })}
             />
             <BreakdownCard
@@ -2652,6 +2747,7 @@ const Dash = () => {
               fmtVal={(v) => fmtAutoKM(v)}
               accent="var(--pink-text)"
               onPick={(label) => setExpDrill(label)}
+              onTotal={() => setTileDrill('expensesTotal')}
             />
           </div>
           </>)}
@@ -2672,8 +2768,8 @@ const Dash = () => {
           />
           {!collapsed.position && (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-5">
-            <ReceivablesSplitCard byCur={receivables.byCur} />
-            <AgingCard buckets={aging} />
+            <ReceivablesSplitCard byCur={receivables.byCur} onOpen={() => setTileDrill('receivables')} />
+            <AgingCard buckets={aging} onOpen={() => setTileDrill('aging')} />
           </div>
           )}
 
@@ -2688,7 +2784,7 @@ const Dash = () => {
           />
           {!collapsed.other && (
           <div className="grid grid-cols-1 gap-5 mb-5">
-            <MiscInvoicesCard byCur={miscInvoices.byCur} byCat={miscInvoices.byCat} count={miscInvoices.count} />
+            <MiscInvoicesCard byCur={miscInvoices.byCur} byCat={miscInvoices.byCat} count={miscInvoices.count} onOpen={() => setTileDrill('miscInvoices')} />
           </div>
           )}
 
