@@ -125,7 +125,14 @@ const HASH = {
   // lots from several suppliers, and naming one of them was wrong — PO 240726 read
   // "GIS OU" while its contract said Stachow, because the label came from whichever
   // lot sorted last. Ported to mobile in the same change, not just re-recorded.
-  runStocks: '008c1a4da864', // app/(root)/cashflow/funcs.js:188
+  // Re-recorded 2026-09-03: totalObj gained `_ts`, a raw millisecond timestamp
+  // alongside the existing `date` DISPLAY string (dd.mm.yy). It's a sort key only —
+  // no total, balance or grouping changed — added so the cashflow expandable tables
+  // can order rows newest-first instead of the old PO-string text sort (which put
+  // "04.02.26" before "1.04.26"). Mobile's cashflow hook sorts its own lists by
+  // invoice number or total, not by this display string, so it never had the bug
+  // and needs no matching change — checked useCashflow.ts before re-recording.
+  runStocks: 'd55b757fbc43', // app/(root)/cashflow/funcs.js:188
   staleDays: 'a2e0c4822268', // app/(root)/stocks/storageAging.js:11
   demurrageDays: 'f6b09c3eafe3', // app/(root)/stocks/storageAging.js:12
   storageExpYear: '07ada9eea708', // app/(root)/storagecosts/page.js:142

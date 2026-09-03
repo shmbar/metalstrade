@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { View } from 'react-native';
+import { useLocalSearchParams } from 'expo-router';
 import { Screen, SegmentedControl } from '@/components/ui';
 import { ScreenHeader } from '@/components/ScreenHeader';
 import { PeriodSelector } from '@/components/PeriodSelector';
@@ -16,9 +17,14 @@ const SUBTITLE: Record<Tab, string> = {
   storage: 'Storage costs',
   aging: 'Storage aging by terminal',
 };
+const TABS: Tab[] = ['inventory', 'shared', 'storage', 'aging'];
 
 export default function StocksScreen() {
-  const [tab, setTab] = useState<Tab>('inventory');
+  // Deep-linkable ("/(app)/stocks?tab=shared") so other screens — the Cashflow
+  // Shared Stock card — can jump straight to a tab instead of landing on Inventory.
+  const { tab: tabParam } = useLocalSearchParams<{ tab?: string }>();
+  const initialTab = TABS.includes(tabParam as Tab) ? (tabParam as Tab) : 'inventory';
+  const [tab, setTab] = useState<Tab>(initialTab);
 
   return (
     <Screen scroll={false} flush>

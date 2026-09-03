@@ -420,7 +420,12 @@ function Band({
     >
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
         <Ionicons name={open ? 'chevron-down' : 'chevron-forward'} size={16} color={colors.textFaint} />
-        <Text variant="h3" style={{ flex: 1 }}>{title}</Text>
+        <Text variant="h3" numberOfLines={1} style={{ flex: 1 }}>{title}</Text>
+      </View>
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 3, marginLeft: 24 }}>
+        <Text variant="caption" tone="muted" numberOfLines={1} style={{ flex: 1 }}>
+          {subtitle}
+        </Text>
         <View
           style={{
             paddingHorizontal: 8,
@@ -429,6 +434,7 @@ function Band({
             backgroundColor: muted ? colors.surfaceAlt : colors.primary + '1A',
             borderWidth: 1,
             borderColor: muted ? colors.border : colors.primary + '33',
+            flexShrink: 0,
           }}
         >
           <Text variant="caption" style={{ color: muted ? colors.textFaint : colors.primary }} numberOfLines={1}>
@@ -436,9 +442,6 @@ function Band({
           </Text>
         </View>
       </View>
-      <Text variant="caption" tone="muted" style={{ marginTop: 3, marginLeft: 24 }}>
-        {subtitle}
-      </Text>
     </Pressable>
   );
 }

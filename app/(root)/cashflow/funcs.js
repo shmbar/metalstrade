@@ -215,6 +215,12 @@ function isNumber(str) {
     return /^[+-]?(\d+(\.\d*)?|\.\d+)$/.test(str.trim());
 }
 
+// Newest lot first, falling back to the PO string for ties or rows with no date
+// (a handful of legacy lots). PO alone sorts as text — "04.02.26" would land
+// before "1.04.26" — so the timestamp from totalObj._ts takes priority.
+const byNewestThenPO = (a, b) => (b._ts || 0) - (a._ts || 0)
+    || String(a.order ?? '').localeCompare(String(b.order ?? ''), undefined, { numeric: true })
+
 
 export const runStocks = async (uidCollection, settings, yr, contractsData = [], stocksPromise = null) => {
 
@@ -394,7 +400,13 @@ export const runStocks = async (uidCollection, settings, yr, contractsData = [],
             totalObj['supplierIds'] = [...new Set(filteredData
                 .filter(x => x.type === 'in' && x.supplier)
                 .map(x => x.supplier))]
-            totalObj['date'] = dateFormat(filteredData.find(z => z.contractData)?.contractData?.date, 'dd.mm.yy')
+            // `date` is a DISPLAY string (dd.mm.yy), so it cannot be sorted — text order
+            // on it puts the 1st of April before the 4th of February, exactly the trap
+            // the PO-number sort fell into. Keep the raw value as a timestamp beside it
+            // for anything that needs to order these rows chronologically.
+            const _contractDate = filteredData.find(z => z.contractData)?.contractData?.date
+            totalObj['date'] = dateFormat(_contractDate, 'dd.mm.yy')
+            totalObj['_ts'] = _contractDate ? (new Date(_contractDate).getTime() || 0) : 0
             totalObj['cur'] = filteredData[0]['cur']
             totalObj['sType'] = settings?.Stocks?.Stocks?.find(x => x.id === totalObj.stock)?.sType || ''
             totalObj['ind'] = parseFloat(key) //row number
@@ -618,8 +630,8 @@ export const StoclToolTip = ({ stock, stockDataAll, settings, uidCollection, set
 
     const base = stockDataAll
         .filter(z => z.stock === stock)
-        // Group rows by contract number (PO#), matching the Unsold Stocks ordering.
-        .sort((a, b) => String(a.order ?? '').localeCompare(String(b.order ?? ''), undefined, { numeric: true }))
+        // Newest lot first (falls back to PO# for ties), matching the Unsold Stocks ordering.
+        .sort(byNewestThenPO)
         .map(z => ({ ...z, _supplierName: supplierLabel(z, settings), _groupDesc: groupDescOf(z) }));
     const filteredArr = sortKey ? sortRows(base, sortKey, sortDir) : base;
 
@@ -808,8 +820,8 @@ export const StocksUnSold = ({ supplier, stockDataAllArray, settings, uidCollect
     const [showMatTotals, setShowMatTotals] = useState(false);
 
     const base = stockDataAllArray.filter(z => z.supplier === supplier)
-        // Group rows by contract number (PO#) so both stock tables read consistently.
-        .sort((a, b) => String(a.order ?? '').localeCompare(String(b.order ?? ''), undefined, { numeric: true }));
+        // Newest lot first (falls back to PO# for ties) so both stock tables read consistently.
+        .sort(byNewestThenPO);
     const filteredArr = sortKey ? sortRows(base, sortKey, sortDir) : base;
     const ttl = showAmount(filteredArr.reduce((sum, item) => sum + item.total * 1, 0) || '', 'usd');
 
@@ -1064,8 +1076,14 @@ export const SharedStockDetails = ({ rows, settings }) => {
         _wh: whName(r.stock),
         _fin: finOf(r) === 'BOTH' ? 'IMS + GIS' : finOf(r),
         _total: valOf(r),
+        // createdAtMs is stamped when a lot is added to the shared pool — the
+        // stable, always-numeric field to sort newest-first by, unlike `date`
+        // which is a free-typed display string.
+        _ts: r.createdAtMs || 0,
     }));
-    const filteredArr = sortKey ? sortRows(base, sortKey, sortDir) : base;
+    // Newest lot first, matching the other cashflow detail tables.
+    const sortedBase = [...base].sort((a, b) => (b._ts || 0) - (a._ts || 0) || a._po.localeCompare(b._po, undefined, { numeric: true }));
+    const filteredArr = sortKey ? sortRows(sortedBase, sortKey, sortDir) : sortedBase;
     return (
         <div className="w-full border border-[var(--border-divider)] rounded-2xl overflow-hidden bg-[var(--surface-card)]">
             {/* Same recipe as the other cashflow detail tables (StocksUnSold etc.):
@@ -1325,10 +1343,15 @@ export const ClientDetails = ({ client, data, type, uidCollection, setDateSelect
     });
 
     const tmp = data.filter(z => z.client === client);
+    // Newest shipment first by default (ETD, the same date the ETD column shows) —
+    // matching the Stocks tables. Column-header sort still takes over once clicked.
+    const byNewestEtd = (a, b) => (new Date(b.shipData?.etd?.startDate).getTime() || 0) - (new Date(a.shipData?.etd?.startDate).getTime() || 0);
     const rawPartPaid = tmp.filter(x => x.payments.length > 0)
-        .map(z => ({ ...z, _order: z.poSupplier?.order || '', _pmntTotal: (z.payments || []).reduce((t, p) => t + p.pmnt * 1, 0) }));
+        .map(z => ({ ...z, _order: z.poSupplier?.order || '', _pmntTotal: (z.payments || []).reduce((t, p) => t + p.pmnt * 1, 0) }))
+        .sort(byNewestEtd);
     const rawInDebt = tmp.filter(x => x.payments.length === 0)
-        .map(z => ({ ...z, _order: z.poSupplier?.order || '' }));
+        .map(z => ({ ...z, _order: z.poSupplier?.order || '' }))
+        .sort(byNewestEtd);
     const filteredArr = sortKey ? sortRows(rawPartPaid, sortKey, sortDir) : rawPartPaid;
     const filteredArr1 = sortKey ? sortRows(rawInDebt, sortKey, sortDir) : rawInDebt;
 
@@ -1779,7 +1802,10 @@ export const SupplierDetails = ({ supplier, data, uidCollection, setDateSelect,
     const { sortKey, sortDir, handleSort } = useSortState();
     const { setToast } = useContext(SettingsContext);
 
-    const base = data.filter(z => z.supplier === supplier && z.blnc * 1 !== 0);
+    // Newest shipment first by default (ETD, the same date the ETD column shows) —
+    // matching the Stocks tables. Column-header sort still takes over once clicked.
+    const base = data.filter(z => z.supplier === supplier && z.blnc * 1 !== 0)
+        .sort((a, b) => (new Date(b.shipmentEtd).getTime() || 0) - (new Date(a.shipmentEtd).getTime() || 0));
     const filteredArr = sortKey ? sortRows(base, sortKey, sortDir) : base;
     const type = filteredArr[0]?.pmnt !== '0' ? 'PartPaid' : 'fullDebt';
 
@@ -2005,8 +2031,11 @@ export const ExpensesToolTip = ({ supplier, expensesAll, settings, uidCollection
         amount: parseFloat(z.amount) || 0, paid: null, balance: null, autoMetric: 'amount',
     });
 
+    // Newest expense first by default (the same `date` the Date column shows) —
+    // matching the Stocks tables. Column-header sort still takes over once clicked.
     const base = expensesAll.filter(z => z.supplier === supplier)
-        .map(z => ({ ...z, _order: z.poSupplier?.order ?? 'Comp. Exp.' }));
+        .map(z => ({ ...z, _order: z.poSupplier?.order ?? 'Comp. Exp.' }))
+        .sort((a, b) => (new Date(b.date).getTime() || 0) - (new Date(a.date).getTime() || 0));
     const filteredArr = sortKey ? sortRows(base, sortKey, sortDir) : base;
 
     // When every expense is in a single currency, the other (converted) total is redundant —

@@ -10,6 +10,7 @@ import { useSettings } from '@/store/settings';
 import { useCashflow, Counterparty } from '@/features/cashflow/useCashflow';
 import { useCashflowActions } from '@/features/cashflow/useCashflowActions';
 import { ForecastCard } from '@/features/cashflow/ForecastCard';
+import { useSharedStock } from '@/features/stocks/useSharedStock';
 import { fmtAutoKM, fmtCurKM, curSymbol, fmtMoney, dateLabel } from '@/lib/format';
 import { radius, spacing } from '@/theme/tokens';
 
@@ -58,6 +59,7 @@ export default function Cashflow() {
     settings?.Stocks?.Stocks?.find((w: any) => w.id === id)?.nname ||
     settings?.Stocks?.Stocks?.find((w: any) => w.id === id)?.stock || id || '—';
   const { paySupplier, payExpense, partialPay, payClient } = useCashflowActions();
+  const shared = useSharedStock();
   const [detail, setDetail] = useState<{ kind: Kind; cp: Counterparty } | null>(null);
   // Partial-payment entry for a supplier purchase invoice.
   const [payItem, setPayItem] = useState<any | null>(null);
@@ -212,6 +214,29 @@ export default function Cashflow() {
               {data.stocksUnpaid.map((w, i) => (
                 <WhRow key={w.stock} name={whName(w.stock)} total={w.total} count={w.count} first={i === 0} />
               ))}
+            </Card>
+          )}
+
+          {/* Shared Stock (IMS + GIS) — web cashflow/page.js:1604, informational only:
+              the joint pool has no purchase invoices, so it joins none of the totals
+              above or below. Same data the Stocks → Shared tab already computes. */}
+          {shared.rows.length > 0 && (
+            <Card onPress={() => router.push('/(app)/stocks?tab=shared')}>
+              <SectionHeader
+                title="Shared Stock (IMS + GIS)"
+                subtitle={`${shared.rows.length} lot${shared.rows.length === 1 ? '' : 's'}`}
+                right={<Text variant="h3">{curLine(shared.money.totals)}</Text>}
+              />
+              <View style={{ marginTop: 4, gap: 4 }}>
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                  <Text variant="caption" tone="muted">Financed by IMS</Text>
+                  <Text variant="caption" style={{ fontVariant: ['tabular-nums'] }}>{curLine(shared.money.fin.IMS)}</Text>
+                </View>
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                  <Text variant="caption" tone="muted">Financed by GIS</Text>
+                  <Text variant="caption" style={{ fontVariant: ['tabular-nums'] }}>{curLine(shared.money.fin.GIS)}</Text>
+                </View>
+              </View>
             </Card>
           )}
 
