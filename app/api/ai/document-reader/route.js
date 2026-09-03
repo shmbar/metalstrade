@@ -221,17 +221,22 @@ ${partyFields}
   "rows": [{
     "material": "the label of this line — bundle/lot/package/heat number, or the material description if the lines are not numbered",
     "weight": number_or_null,
-    "elements": { "ni": number_or_null, "cr": number_or_null, "mo": number_or_null, "co": number_or_null, "nb": number_or_null, "w": number_or_null, "cu": number_or_null, "ti": number_or_null, "fe": number_or_null }
+    "elements": { "ni": number_or_null, "cr": number_or_null, "mo": number_or_null, "co": number_or_null, "nb": number_or_null, "w": number_or_null, "cu": number_or_null, "ti": number_or_null, "fe": number_or_null, "mn": number_or_null, "si": number_or_null, "c": number_or_null, "p": number_or_null, "s": number_or_null, "v": number_or_null, "al": number_or_null, "ta": number_or_null, "hf": number_or_null, "zr": number_or_null, "b": number_or_null, "n": number_or_null, "sn": number_or_null, "pb": number_or_null }
   }],
   "confidence": { "tableName": "high|medium|low", "containerNo": "high|medium|low", "unit": "high|medium|low", "rows": "high|medium|low" }
 }
 HOW TO READ THIS DOCUMENT:
-- One entry in "rows" per printed line of material. A 40-line packing list returns 40 rows, across all pages. Never merge lines and never emit a summary/total line as a row — totals belong to no bundle.
-- "elements" are PERCENTAGES of the alloy (0-100), never kilograms of contained metal. If the document prints contained weight instead of a percentage, divide by that line's weight and give the percentage.
-- Element columns are usually headed by symbol (Ni, Cr, Mo, Co, Nb, W, Cu, Ti, Fe) but may be spelled out (Nickel, Chrome/Chromium, Molybdenum, Cobalt, Niobium/Columbium/Cb, Tungsten/Wolfram, Copper, Titanium, Iron). Cb = Nb. Any element the document does not carry stays null — never carry a value across from a neighbouring column to fill a gap.
-- "weight" is that line's NET weight in the document's own unit. Do not convert between kg/lb/MT; report "unit" and leave the figures as printed.
-- Leave "fe" null unless iron is printed as its own column. It is the balance and the page works it out.
-- A range or a min/max ("Ni 8.0-10.5", "Ni min 8.0") is a specification, not an assay: take the single measured value when one is printed, otherwise the midpoint of a range, otherwise null.`;
+- One entry in "rows" per printed line of material. A 40-line packing list returns 40 rows, across all pages and all sheets.
+- READ EVERY ELEMENT COLUMN THE DOCUMENT PRINTS, INCLUDING Fe. Fe (Iron, Железо) is an ordinary column: when there is one, transcribe it like any other. Only leave "fe" null when iron genuinely is not on the document — a superalloy certificate listing Ni/Cr/Mo/Co/W/Nb/Ti usually has none.
+- "elements" are PERCENTAGES of the alloy (0-100), never kilograms of contained metal. Documents commonly print BOTH for each element — a "%" column and a mass column ("Ni,%" beside "Ni,кг"; "Cr %" beside "Cr kg"). Always take the % column. If only a contained mass is given, divide by that line's weight and give the percentage.
+- Element columns may be headed by symbol (Ni, Cr, Mo, Co, Nb, W, Cu, Ti, Fe, Mn, Si, C, P, S, V, Al) or spelled out in English or Russian (Nickel/Никель, Chrome/Chromium/Хром, Molybdenum/Молибден, Cobalt/Кобальт, Niobium/Columbium/Cb/Ниобий, Tungsten/Wolfram/Вольфрам, Copper/Медь, Titanium/Титан, Iron/Железо, Manganese/Марганец). Cb = Nb. Carbon is often written with the Cyrillic "С", which looks identical to Latin "C" — it is carbon either way.
+- An element the document does not carry stays null. NEVER carry a value across from a neighbouring column to fill a gap.
+- "weight" is that line's TOTAL net weight. Sheets often print a total beside a per-package breakdown ("Total Weight" then "Weight 1", "Weight 2"…, or "Вес плавки" per heat): take the total, and do NOT emit the parts as separate rows.
+- "unit" comes from the weight column's own heading: "kg"/"кг"/"Weight Kg" → kgs; "MT"/"W/T"/"т"/"тн"/"tonnes" → mt; "lb"/"lbs" → lbs. If nothing says, use kgs.
+- SUMMARY LINES ARE NOT ROWS. A line labelled Average / Total / Итого / Среднее, or one whose identifier cell is blank while its figures are the average or sum of the lines above it, is a summary — leave it out.
+- A sheet may hold SEVERAL header+data blocks (two shipments, or an "Overall" view followed by a "Separate" one). Include every distinct material line exactly ONCE: where two blocks list the same lots twice, take the block that lists each lot once and ignore the repeat.
+- A range or a min/max ("Ni 8.0-10.5", "Ni min 8.0") is a specification, not an assay: take the single measured value when one is printed, otherwise the midpoint of a range, otherwise null.
+- "material" is the line's own identifier — the lot / heat / bundle / container number ("Lot 302", "6-26-332", "CMAU2795209") or its material description. Never leave it empty when the line has one.`;
         } else {
             schemaGuide = `Return JSON for an invoice:
 {
@@ -363,7 +368,16 @@ Return ONLY the JSON object, no extra text.`;
            confidence and the UI deselects it, forcing a human look rather than a
            silent bad import. */
         if (documentType === 'materialtable') {
-            const ELEMENT_KEYS = ['ni', 'cr', 'mo', 'co', 'nb', 'w', 'cu', 'ti', 'fe'];
+            /* The nine the table ships with, then the ones these certificates
+               actually print alongside them — Mn, Si, C, P, S, V, Al are on most
+               CIS mill certificates, and dropping them silently made the reader
+               look like it had misread the sheet. The page creates a column for
+               any of the extras that come back. A fixed whitelist, not "whatever
+               the model sends": an invented key would become an invented column. */
+            const ELEMENT_KEYS = [
+                'ni', 'cr', 'mo', 'co', 'nb', 'w', 'cu', 'ti', 'fe',
+                'mn', 'si', 'c', 'p', 's', 'v', 'al', 'ta', 'hf', 'zr', 'b', 'n', 'sn', 'pb',
+            ];
             const num = (v) => {
                 const n = typeof v === 'string' ? Number(v.replace(/[^0-9.\-]/g, '')) : Number(v);
                 return Number.isFinite(n) ? n : null;
@@ -377,8 +391,15 @@ Return ONLY the JSON object, no extra text.`;
             result.rows = (Array.isArray(result.rows) ? result.rows : []).map(r => {
                 const elements = {};
                 let sum = 0;
+                /* Carbon is printed with the Cyrillic Es on every Russian sheet in
+                   the sample set, and it is visually identical to Latin C — so the
+                   model hands back either one depending on the document. */
+                const src = {};
+                Object.entries(r?.elements || {}).forEach(([k, v]) => {
+                    src[String(k).toLowerCase().replace(/С/g, 'c').replace(/с/g, 'c')] = v;
+                });
                 ELEMENT_KEYS.forEach(k => {
-                    const v = num(r?.elements?.[k]);
+                    const v = num(src[k]);
                     // Out of range is not a number this page can hold — drop it rather
                     // than write a 4,300% nickel into a cell.
                     const ok = v != null && v >= 0 && v <= 100;

@@ -63,7 +63,7 @@ const UNIT_WORD = { mt: 'MT', kgs: 'Kgs', lbs: 'Lbs' };
 
 // Which element columns the read actually found, in the page's own order — so the
 // preview says "24 rows · Ni, Cr, Mo" rather than leaving you to apply and find out.
-const ELEMENT_ORDER = ['ni', 'cr', 'mo', 'co', 'nb', 'w', 'cu', 'ti', 'fe'];
+const ELEMENT_ORDER = ['ni', 'cr', 'mo', 'co', 'nb', 'w', 'cu', 'ti', 'fe', 'mn', 'si', 'c', 'p', 's', 'v', 'al', 'ta', 'hf', 'zr', 'b', 'n', 'sn', 'pb'];
 function elementsFound(rows) {
     const seen = ELEMENT_ORDER.filter(k => (rows || []).some(r => r?.elements?.[k] != null));
     return seen.map(k => k.charAt(0).toUpperCase() + k.slice(1)).join(', ');
@@ -506,9 +506,16 @@ const DocumentImportOverlay = ({ documentType, suppliers, clients, currencies, e
                             <input ref={inputRef} type='file' accept='.pdf,.xlsx,.xlsm,.csv,.jpg,.jpeg,.png' className='hidden'
                                 onChange={e => handleFile(e.target.files[0])} />
                             {reading ? (
-                                <div className='flex flex-col items-center gap-2'>
-                                    <Loader2 className='w-6 h-6 animate-spin' style={{ color: 'var(--brand)' }} />
+                                <div className='flex flex-col items-center gap-1'>
+                                    <Loader2 className='w-6 h-6 animate-spin mb-1' style={{ color: 'var(--brand)' }} />
                                     <p style={{ fontSize: 'var(--fs-body)', color: 'var(--ink-secondary)' }}>Reading document…</p>
+                                    {/* A 40-lot assay is a minute's work for the model, and a
+                                        spinner with nothing under it reads as a hang — "still
+                                        loading for some time" (Sharoon, 2026-09-04). Saying the
+                                        expected wait costs nothing and stops the second upload. */}
+                                    <p style={{ fontSize: 'var(--fs-caption)', color: 'var(--ink-muted)' }}>
+                                        A long assay can take up to a minute — leave this open.
+                                    </p>
                                 </div>
                             ) : (
                                 <>

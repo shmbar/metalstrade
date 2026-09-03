@@ -738,7 +738,14 @@ const Customtable = ({
                     where the inputs stop and the data starts. */}
                 <div className="overflow-auto dashboard-scroll rounded-b-2xl pt-2 bg-[var(--bg-card)]" style={{ maxHeight: '700px' }}>
                     <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-                    <table className="w-full responsiveTextTable" style={{ tableLayout: 'auto', borderCollapse: 'separate', borderSpacing: 0, fontFamily: 'inherit' }}>
+                    {/* NOT w-full. With `table-layout: auto` a full-width table hands
+                        every column a share of the leftover space, so a table with a
+                        handful of columns came out with each cell stretched right
+                        across the card — "all cells are large and wide" after a
+                        document import, which is exactly when a table has few columns
+                        (Zak, 2026-08-26). Sized to its content instead; the scroll box
+                        around it handles the case where the content is wider. */}
+                    <table className="responsiveTextTable" style={{ tableLayout: 'auto', borderCollapse: 'separate', borderSpacing: 0, fontFamily: 'inherit' }}>
 
                         {/* THEAD */}
                         <thead>

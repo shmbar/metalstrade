@@ -228,15 +228,38 @@ const MaterialTables = () => {
             table.containerNo = out.containerNo
             table.showContainer = true
         }
+        /* Mill certificates carry more than the nine elements a blank table ships
+           with — Mn, Si, C, P, S, V and Al are on most of them. Dropping those made
+           the reader look like it had misread the sheet, so any element that came
+           back gets a column of its own, in the order the document had them and
+           with Fe still last. */
+        const extraKeys = []
+        ;(out.rows || []).forEach(r => Object.entries(r.elements || {}).forEach(([k, v]) => {
+            if (v == null) return
+            if (DEFAULT_ELEMENTS.some(el => el.key === k)) return
+            if (!extraKeys.includes(k)) extraKeys.push(k)
+        }))
+        if (extraKeys.length) {
+            const fe = DEFAULT_ELEMENTS.find(el => el.key === 'fe')
+            table.elements = [
+                ...DEFAULT_ELEMENTS.filter(el => el.key !== 'fe'),
+                ...extraKeys.map(k => ({ key: k, label: k.charAt(0).toUpperCase() + k.slice(1) })),
+                ...(fe ? [fe] : []),
+            ]
+        }
+
         table.data = (out.rows || []).map(r => {
             const row = { id: uuidv4(), material: r.material || '', kgs: r.weight != null ? String(r.weight) : '', container: out.containerNo || '', _feManual: false }
-            DEFAULT_ELEMENTS.forEach(el => {
+            table.elements.forEach(el => {
                 const v = r.elements?.[el.key]
                 row[el.key] = v != null ? String(v) : ''
             })
-            // The reader is told to leave Fe null — it is the balance, and this is the
-            // same computation the table itself runs on every edit.
-            if (!row.fe) row.fe = autoFe(row, DEFAULT_ELEMENTS)
+            /* A printed Fe is a measurement, so it is kept AND marked manual —
+               otherwise the first edit to any other cell would recompute it as the
+               balance and quietly overwrite what the certificate said. Only when
+               the document has no iron column does the page work it out. */
+            if (row.fe) row._feManual = true
+            else row.fe = autoFe(row, table.elements)
             return row
         })
         setData(prev => [...prev, table])
