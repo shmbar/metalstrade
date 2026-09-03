@@ -21,6 +21,14 @@ const curLine = (byCur: Record<string, number>) => {
   return ents.map(([c, v]) => fmtCurKM(c, v)).join('  ');
 };
 
+/** Per-currency total across a section's rows — a re-derivation of the header
+    figure over exactly the rows shown, so the two can never disagree. */
+const sumCur = (rows: Counterparty[]): Record<string, number> => {
+  const out: Record<string, number> = {};
+  rows.forEach((r) => Object.entries(r.byCur).forEach(([c, v]) => (out[c] = (out[c] || 0) + v)));
+  return out;
+};
+
 function CounterpartyList({ rows, accent, onSelect }: { rows: Counterparty[]; accent: string; onSelect: (cp: Counterparty) => void }) {
   const { colors } = useTheme();
   const max = Math.max(...rows.map((r) => r.usd), 1);
@@ -234,14 +242,48 @@ export default function Cashflow() {
 
           <ForecastCard />
 
+          {/*
+            Web splits receivables and payables into TWO sections each — "X - Payment"
+            (nothing paid yet) and "X - Balances" (partially paid, balance remaining) —
+            cashflow/page.js:1633/1690/1811/1871. Mobile used to merge each pair into
+            one list, which is exactly what the client's feedback named: "I need
+            balances separate and Inv payment separate". Same rows as before, same
+            totals, split the way web splits them — nothing here is a new figure.
+          */}
           <Card>
-            <SectionHeader title="Clients · receivables" subtitle="Tap a client → invoices" right={<Text variant="h3" tone="positive">{curLine(data.receivablesByCur)}</Text>} />
-            <CounterpartyList rows={data.receivableClients} accent={colors.positive} onSelect={(cp) => setDetail({ kind: 'client', cp })} />
+            <SectionHeader
+              title="Clients · Payment"
+              subtitle="No payment recorded yet — tap a client → invoices"
+              right={<Text variant="h3" tone="positive">{curLine(sumCur(data.clientsNoPayment))}</Text>}
+            />
+            <CounterpartyList rows={data.clientsNoPayment} accent={colors.positive} onSelect={(cp) => setDetail({ kind: 'client', cp })} />
           </Card>
 
           <Card>
-            <SectionHeader title="Suppliers · payables" subtitle="Tap → mark purchase invoices paid" right={<Text variant="h3" tone="negative">{fmtAutoKM(data.payablesUsd)}</Text>} />
-            <CounterpartyList rows={data.payableSuppliers} accent={colors.negative} onSelect={(cp) => setDetail({ kind: 'supplier', cp })} />
+            <SectionHeader
+              title="Clients · Balances"
+              subtitle="Partially paid — remaining balance"
+              right={<Text variant="h3" tone="positive">{curLine(sumCur(data.clientsWithBalance))}</Text>}
+            />
+            <CounterpartyList rows={data.clientsWithBalance} accent={colors.positive} onSelect={(cp) => setDetail({ kind: 'client', cp })} />
+          </Card>
+
+          <Card>
+            <SectionHeader
+              title="Supplier · Payment"
+              subtitle="Nothing paid to this supplier yet"
+              right={<Text variant="h3" tone="negative">{curLine(sumCur(data.suppliersNoPayment))}</Text>}
+            />
+            <CounterpartyList rows={data.suppliersNoPayment} accent={colors.negative} onSelect={(cp) => setDetail({ kind: 'supplier', cp })} />
+          </Card>
+
+          <Card>
+            <SectionHeader
+              title="Supplier · Balances"
+              subtitle="Partially paid — remaining balance"
+              right={<Text variant="h3" tone="negative">{curLine(sumCur(data.suppliersWithBalance))}</Text>}
+            />
+            <CounterpartyList rows={data.suppliersWithBalance} accent={colors.negative} onSelect={(cp) => setDetail({ kind: 'supplier', cp })} />
           </Card>
 
           <Card>

@@ -25,11 +25,35 @@ export interface Counterparty {
 
 export interface CashflowData {
   // Incoming — outstanding client receivables (per currency; includes credit balances).
+  // COMBINED total across both buckets below — still what the bottom line sums.
   receivablesByCur: Record<string, number>;
   receivableClients: Counterparty[];
+  /**
+   * Web splits receivables into TWO sections (cashflow/page.js:1633 "Clients -
+   * Payment" and :1690 "Clients - Balances"); mobile used to merge them into one
+   * "Clients · receivables" list, which is what the client's feedback named:
+   * "I need balances separate and Inv payment separate".
+   *   clientsNoPayment   — web's clientInvoices2: invoices with ZERO payments
+   *                        recorded (payments.length === 0). Nothing paid yet.
+   *   clientsWithBalance — web's clientInvoices1: invoices with AT LEAST ONE
+   *                        payment recorded (payments.length > 0). Partially
+   *                        paid; this is the remaining balance.
+   * Same rows as receivableClients, partitioned — not a second computation, so
+   * the two lists can never disagree with the combined total above.
+   */
+  clientsNoPayment: Counterparty[];
+  clientsWithBalance: Counterparty[];
   // Outgoing — supplier payables from contract poInvoices (USD basis, EUR×euroToUSD).
+  // COMBINED total — still what the bottom line sums.
   payablesUsd: number;
   payableSuppliers: Counterparty[];
+  /**
+   * Same split, supplier side — web's "Supplier - Payment" (funcs.js supPayments2,
+   * poInvoice.pmnt === 0) and "Supplier - Balances" (supPayments1, pmnt > 0). The
+   * split reads the RAW pmnt field paid so far, not the remaining blnc.
+   */
+  suppliersNoPayment: Counterparty[];
+  suppliersWithBalance: Counterparty[];
   // Outgoing — unpaid expenses (paid==='222'), USD basis (EUR×1.08).
   expensesUsd: number;
   expenseSuppliers: Counterparty[];
@@ -315,9 +339,25 @@ export function computeCashflow(input: CashflowInputs): CashflowData {
   const { invoices, contracts4y, contracts2y, expenses, companyExpenses, margins, cashflowDoc, stocks, settings } =
     input;
 
+  /** Add one row's amount into a Counterparty map, creating the entry on first sight. */
+  const addToMap = (map: Map<string, Counterparty>, name: string, cur: string, bal: number, usd: number, item: any) => {
+    const c = map.get(name) || { name, byCur: {}, usd: 0, count: 0, items: [] };
+    addCur(c.byCur, cur, bal);
+    c.usd += usd;
+    c.count += 1;
+    c.items.push(item);
+    map.set(name, c);
+  };
+
   // ── Receivables (clients) — web runInvoices pipeline ───────────────────
   const receivablesByCur: Record<string, number> = {};
   const clientMap = new Map<string, Counterparty>();
+  // Web's own split (page.js:1633 "Clients - Payment" / :1690 "Clients - Balances"):
+  // the SAME grouped-invoice rows, partitioned on whether any payment has ever been
+  // recorded against them. Building both here, in the one pass, keeps the split and
+  // the combined total from ever disagreeing.
+  const clientMapNoPay = new Map<string, Counterparty>();
+  const clientMapWithBal = new Map<string, Counterparty>();
   computeReceivablesWeb(invoices).forEach((inv: any) => {
     // Web parity (funcs.js:1131-1132): a row with NO client is skipped entirely —
     // it reaches neither the per-client list nor Total (Left). Tested on the RAW
@@ -331,11 +371,8 @@ export function computeCashflow(input: CashflowInputs): CashflowData {
     const cur = inv.cur === 'eu' ? 'eu' : 'us';
     addCur(receivablesByCur, cur, bal);
     const name = resolveClientName(inv.client, settings) || '—';
-    const c = clientMap.get(name) || { name, byCur: {}, usd: 0, count: 0, items: [] };
-    addCur(c.byCur, cur, bal);
-    c.usd += cur === 'us' ? bal : bal * (num(inv.euroToUSD) || EXP_EUR_USD);
-    c.count += 1;
-    c.items.push({
+    const usd = cur === 'us' ? bal : bal * (num(inv.euroToUSD) || EXP_EUR_USD);
+    const item = {
       kind: 'invoice',
       id: inv.id,
       number: inv.invoice,
@@ -349,12 +386,20 @@ export function computeCashflow(input: CashflowInputs): CashflowData {
       marker: inv.invType === '3333' ? 'FN' : inv.invType === '2222' ? 'CN' : '',
       etd: inv.shipData?.etd?.startDate || '',
       eta: inv.shipData?.eta?.startDate || '',
-    });
-    clientMap.set(name, c);
+    };
+    addToMap(clientMap, name, cur, bal, usd, item);
+    // web: payments.length === 0 -> "Payment" (nothing paid); > 0 -> "Balances".
+    addToMap((inv.payments || []).length > 0 ? clientMapWithBal : clientMapNoPay, name, cur, bal, usd, item);
   });
 
   // ── Payables (suppliers) — poInvoices, drafts excluded, 1¢ artifacts dropped ──
   const supMap = new Map<string, Counterparty>();
+  // Same split, supplier side — web's "Supplier - Payment" (poInvoice.pmnt === 0)
+  // vs "Supplier - Balances" (pmnt > 0). Read the RAW amount paid so far, not the
+  // remaining blnc: a supplier can be fully invoiced with nothing paid yet (blnc
+  // equals invValue) and that still belongs under "Payment", not "Balances".
+  const supMapNoPay = new Map<string, Counterparty>();
+  const supMapWithBal = new Map<string, Counterparty>();
   let payablesUsd = 0;
   (contracts4y || []).forEach((con: any) => {
     const cur = con.cur === 'eu' ? 'eu' : 'us';
@@ -368,11 +413,7 @@ export function computeCashflow(input: CashflowInputs): CashflowData {
       const usd = cur === 'us' ? blnc : blnc * rate;
       payablesUsd += usd;
       const name = settings?.Supplier?.Supplier?.find((s: any) => s.id === con.supplier)?.nname || '—';
-      const c: Counterparty = supMap.get(name) || { name, byCur: {}, usd: 0, count: 0, items: [] };
-      addCur(c.byCur, cur, blnc);
-      c.usd += usd;
-      c.count += 1;
-      c.items.push({
+      const item = {
         kind: 'poInvoice',
         contractId: con.id,
         contractDate: con.dateRange?.startDate || con.date || '',
@@ -387,8 +428,10 @@ export function computeCashflow(input: CashflowInputs): CashflowData {
         isFinal: inv.fnlzing === '4568' || /fns*$/i.test(String(inv.inv || '').trim()),
         balance: blnc,
         cur,
-      });
-      supMap.set(name, c);
+      };
+      addToMap(supMap, name, cur, blnc, usd, item);
+      // web: parseFloat(pmnt) === 0 -> "Payment" (nothing paid); > 0 -> "Balances".
+      addToMap(num(inv.pmnt) > 0 ? supMapWithBal : supMapNoPay, name, cur, blnc, usd, item);
     });
   });
 
@@ -475,8 +518,12 @@ export function computeCashflow(input: CashflowInputs): CashflowData {
   return {
     receivablesByCur,
     receivableClients: sortByUsd(clientMap),
+    clientsNoPayment: sortByUsd(clientMapNoPay),
+    clientsWithBalance: sortByUsd(clientMapWithBal),
     payablesUsd,
     payableSuppliers: sortByUsd(supMap),
+    suppliersNoPayment: sortByUsd(supMapNoPay),
+    suppliersWithBalance: sortByUsd(supMapWithBal),
     expensesUsd,
     expenseSuppliers: sortByUsd(expMap),
     unsoldByCur,

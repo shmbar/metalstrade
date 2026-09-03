@@ -1456,6 +1456,183 @@ describe('cashflow — the bottom line', () => {
 });
 
 // ═════════════════════════════════════════════════════════════════════════════
+// CASHFLOW — the Payment / Balances split, client and supplier sides.
+//
+// Client feedback: "it shows receivables... I need balances separate and Inv
+// payment separate. Same as on website please." Web has always split both sides
+// into two sections — cashflow/page.js:1633 "Clients - Payment" / :1690
+// "Clients - Balances", :1811 "Supplier - Payment" / :1871 "Supplier - Balances" —
+// and mobile had merged each pair into one list. These pin the split against
+// web's own predicate, not against mobile's current output.
+// ═════════════════════════════════════════════════════════════════════════════
+describe('cashflow — Clients Payment / Balances split (page.js:1633, :1690)', () => {
+  const settings = makeSettings();
+  const world = (invoices: any[]) =>
+    computeCashflow({
+      invoices,
+      contracts4y: [],
+      contracts2y: [],
+      expenses: [],
+      companyExpenses: [],
+      margins: [],
+      cashflowDoc: {},
+      stocks: [],
+      settings,
+    });
+
+  it('an invoice with ZERO payments recorded lands in clientsNoPayment, not clientsWithBalance', () => {
+    // web clientInvoices2 = invoices.filter(z => z.payments.length === 0)
+    const d = world([makeInvoice({ id: 'i1', invoice: 1001, totalAmount: 12000, payments: [] })]);
+    expect(d.clientsNoPayment).toHaveLength(1);
+    expect(d.clientsWithBalance).toHaveLength(0);
+    expect(d.clientsNoPayment[0].usd).toBeCloseTo(12000, 6);
+  });
+
+  it('an invoice with AT LEAST ONE payment lands in clientsWithBalance, not clientsNoPayment', () => {
+    // web clientInvoices1 = invoices.filter(z => z.payments.length > 0)
+    const d = world([
+      makeInvoice({ id: 'i1', invoice: 1001, totalAmount: 12000, payments: [{ pmnt: '5000' }] }),
+    ]);
+    expect(d.clientsWithBalance).toHaveLength(1);
+    expect(d.clientsNoPayment).toHaveLength(0);
+    // the remaining BALANCE, not the original amount
+    expect(d.clientsWithBalance[0].usd).toBeCloseTo(7000, 6);
+  });
+
+  it('the split is exhaustive: every row in receivableClients appears in exactly one bucket', () => {
+    const d = world([
+      makeInvoice({ id: 'i1', invoice: 1001, totalAmount: 12000, payments: [], client: 'cli-1' }),
+      makeInvoice({ id: 'i2', invoice: 1002, totalAmount: 4000, payments: [{ pmnt: '1000' }], client: 'cli-2' }),
+    ]);
+    const combinedUsd = d.receivableClients.reduce((s, c) => s + c.usd, 0);
+    const splitUsd =
+      d.clientsNoPayment.reduce((s, c) => s + c.usd, 0) + d.clientsWithBalance.reduce((s, c) => s + c.usd, 0);
+    // No row lost, none double-counted — the two buckets sum to the SAME total the
+    // header card (receivableClients) already showed before the split existed.
+    expect(splitUsd).toBeCloseTo(combinedUsd, 6);
+    expect(d.clientsNoPayment).toHaveLength(1);
+    expect(d.clientsWithBalance).toHaveLength(1);
+  });
+
+  it('a client with ONE paid invoice and ONE unpaid invoice appears under BOTH sections', () => {
+    // Web splits per INVOICE, not per client — the same client's name can
+    // legitimately show up in both "Payment" and "Balances" at once.
+    const d = world([
+      makeInvoice({ id: 'i1', invoice: 1001, totalAmount: 5000, payments: [], client: 'cli-1' }),
+      makeInvoice({ id: 'i2', invoice: 1002, totalAmount: 3000, payments: [{ pmnt: '1000' }], client: 'cli-1' }),
+    ]);
+    expect(d.clientsNoPayment.map((c) => c.name)).toEqual(d.clientsWithBalance.map((c) => c.name));
+    expect(d.clientsNoPayment[0].usd).toBeCloseTo(5000, 6);
+    expect(d.clientsWithBalance[0].usd).toBeCloseTo(2000, 6);
+  });
+
+  it('a credit-note group with payments still splits on payments.length, not on the sign of the balance', () => {
+    // Web's rule reads payments.length regardless of what debtBlnc comes out to —
+    // a negative balance (a credit) with a payment on it is still "Balances", not
+    // re-routed anywhere by sign.
+    const d = world([
+      makeInvoice({ id: 'i1', invoice: 1001, totalAmount: 2000, payments: [{ pmnt: '5000' }] }),
+    ]);
+    expect(d.clientsWithBalance).toHaveLength(1);
+    expect(d.clientsWithBalance[0].usd).toBeCloseTo(-3000, 6);
+    expect(d.clientsNoPayment).toHaveLength(0);
+  });
+});
+
+describe('cashflow — Supplier Payment / Balances split (page.js:1811, :1871)', () => {
+  const settings = makeSettings();
+  const world = (contracts4y: any[]) =>
+    computeCashflow({
+      invoices: [],
+      contracts4y,
+      contracts2y: [],
+      expenses: [],
+      companyExpenses: [],
+      margins: [],
+      cashflowDoc: {},
+      stocks: [],
+      settings,
+    });
+
+  it('a poInvoice with pmnt === 0 lands in suppliersNoPayment', () => {
+    // web supPayments2 = supPayments.filter(z => parseFloat(z.pmnt) === 0)
+    const d = world([
+      makeContract({
+        id: 'con-1',
+        supplier: 'sup-1',
+        poInvoices: [makePoInvoice({ id: 'po-1', pmnt: '0', blnc: '8000', invValue: '8000' })],
+      }),
+    ]);
+    expect(d.suppliersNoPayment).toHaveLength(1);
+    expect(d.suppliersWithBalance).toHaveLength(0);
+    expect(d.suppliersNoPayment[0].usd).toBeCloseTo(8000, 6);
+  });
+
+  it('a poInvoice with pmnt > 0 lands in suppliersWithBalance, even though a balance remains', () => {
+    // web supPayments1 = supPayments.filter(z => z.pmnt * 1 > 0). Reads the RAW
+    // amount PAID, not whether the balance has reached zero — a supplier who has
+    // been paid something but not everything is "Balances", not "Payment".
+    const d = world([
+      makeContract({
+        id: 'con-1',
+        supplier: 'sup-1',
+        poInvoices: [makePoInvoice({ id: 'po-1', pmnt: '3000', blnc: '5000', invValue: '8000' })],
+      }),
+    ]);
+    expect(d.suppliersWithBalance).toHaveLength(1);
+    expect(d.suppliersNoPayment).toHaveLength(0);
+    // the OUTSTANDING balance (blnc), not the amount paid
+    expect(d.suppliersWithBalance[0].usd).toBeCloseTo(5000, 6);
+  });
+
+  it('the split is exhaustive: every row in payableSuppliers appears in exactly one bucket', () => {
+    const d = world([
+      makeContract({
+        id: 'con-1',
+        supplier: 'sup-1',
+        poInvoices: [
+          makePoInvoice({ id: 'po-1', pmnt: '0', blnc: '4000', invValue: '4000' }),
+          makePoInvoice({ id: 'po-2', pmnt: '2000', blnc: '6000', invValue: '8000' }),
+        ],
+      }),
+    ]);
+    const combinedUsd = d.payableSuppliers.reduce((s, c) => s + c.usd, 0);
+    const splitUsd =
+      d.suppliersNoPayment.reduce((s, c) => s + c.usd, 0) +
+      d.suppliersWithBalance.reduce((s, c) => s + c.usd, 0);
+    expect(splitUsd).toBeCloseTo(combinedUsd, 6);
+    expect(combinedUsd).toBeCloseTo(10000, 6);
+  });
+
+  it('a EUR contract converts at ITS OWN euroToUSD in both buckets, like the combined list', () => {
+    const d = world([
+      makeContract({
+        id: 'con-1',
+        supplier: 'sup-1',
+        cur: 'eu',
+        euroToUSD: 1.1,
+        poInvoices: [makePoInvoice({ id: 'po-1', pmnt: '0', blnc: '1000', invValue: '1000' })],
+      }),
+    ]);
+    expect(d.suppliersNoPayment[0].usd).toBeCloseTo(1100, 6);
+    expect(d.suppliersNoPayment[0].byCur.eu).toBeCloseTo(1000, 6);
+  });
+
+  it('a draft poInvoice is excluded from both buckets, matching the combined list', () => {
+    const d = world([
+      makeContract({
+        id: 'con-1',
+        supplier: 'sup-1',
+        poInvoices: [makePoInvoice({ id: 'po-1', pmnt: '0', blnc: '5000', invValue: '5000', draft: true })],
+      }),
+    ]);
+    expect(d.suppliersNoPayment).toHaveLength(0);
+    expect(d.suppliersWithBalance).toHaveLength(0);
+    expect(d.payableSuppliers).toHaveLength(0);
+  });
+});
+
+// ═════════════════════════════════════════════════════════════════════════════
 // FORMATTERS — mobile/src/lib/format.ts vs app/(root)/dashboard/page.js
 // ═════════════════════════════════════════════════════════════════════════════
 
