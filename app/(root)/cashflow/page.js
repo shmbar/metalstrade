@@ -273,13 +273,19 @@ const Cashflow = () => {
             // but seeing it there gives no hint that it is already committed to an
             // invoice someone is preparing. Keyed by the contract material the invoice
             // line points at, which is what a stock row carries.
+            // The QUANTITY committed matters as much as the fact. A draft usually takes
+            // part of a material, so tagging the whole row says too much — the leftover
+            // that nobody has promised looks committed too. Carry the weight so the chip
+            // can say how much of what you are looking at is already spoken for.
             const draftMaterials = {};
             for (const inv of rawInvoices) {
                 if (inv?.draft !== true) continue;
                 for (const line of inv.productsDataInvoice || []) {
                     const key = line?.descriptionId;
-                    if (!key) continue;
-                    (draftMaterials[key] ||= []).push(inv.invoice);
+                    if (!key || line.qnty === 's') continue;
+                    const entry = (draftMaterials[key] ||= { invoices: [], qnty: 0 });
+                    if (!entry.invoices.includes(inv.invoice)) entry.invoices.push(inv.invoice);
+                    entry.qnty += Number(line.qnty) || 0;
                 }
             }
             setDraftMaterials(draftMaterials);

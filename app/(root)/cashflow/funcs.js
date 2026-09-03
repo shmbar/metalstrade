@@ -131,13 +131,19 @@ export const entityName = (list, id, kind = 'record') => {
 //
 // Amber, because that is what this palette already means by "provisional": the same
 // tone the Final badge uses for a shipment before its final invoice is issued.
-export const DraftUseBadge = ({ invoices = [] }) => {
-    if (!invoices.length) return null;
-    const list = [...new Set(invoices)];
-    const label = list.length === 1 ? `Draft ${list[0]}` : `${list.length} drafts`;
+export const DraftUseBadge = ({ use }) => {
+    const list = use?.invoices || [];
+    if (!list.length) return null;
+    // The weight, not just the fact: a draft normally takes PART of a material, and
+    // a bare tag makes the untouched remainder look committed as well.
+    const qty = Number(use.qnty) || 0;
+    const label = qty > 0 ? `Draft ${qty.toFixed(3)}` : 'Draft';
+    const inv = `invoice${list.length > 1 ? 's' : ''} ${list.join(', ')}`;
     return (
-        <Tltip direction='top' tltpText={`On draft invoice${list.length > 1 ? 's' : ''} ${list.join(', ')} — not shipped yet, so it still counts as stock`}>
-            <span className='inline-flex items-center rounded-full px-1.5 shrink-0 cursor-default responsiveTextTable'
+        <Tltip direction='top' tltpText={
+            `${qty.toFixed(3)} MT of this material is on draft ${inv} — not shipped, so it still counts as stock`
+        }>
+            <span className='inline-flex items-center rounded-full px-1.5 shrink-0 cursor-default responsiveTextTable numeric'
                 style={{ ...toneChipStyle(TONES.amber), lineHeight: 1.5 }}>
                 {label}
             </span>
@@ -653,7 +659,7 @@ export const StoclToolTip = ({ stock, stockDataAll, settings, uidCollection, set
                                 <td className="text-left w-28 max-w-28">
                                     <span className={`flex items-center gap-1.5 min-w-0 ${indent ? 'pl-4' : ''}`}>
                                         <Tltip direction='top' tltpText={z.descriptionName || ''}><span className='block truncate cursor-default'>{z.descriptionName}</span></Tltip>
-                                        <DraftUseBadge invoices={draftMaterials[z.descriptionId] || draftMaterials[z.description] || []} />
+                                        <DraftUseBadge use={draftMaterials[z.descriptionId] || draftMaterials[z.description]} />
                                     </span>
                                 </td>
                                 <td className="text-center">{
@@ -844,7 +850,7 @@ export const StocksUnSold = ({ supplier, stockDataAllArray, settings, uidCollect
                                     <span className={`flex items-center gap-1.5 min-w-0 ${indent ? 'pl-4' : ''}`}>
                                         <Tltip direction='top' tltpText={z.description || ''}><span className='block truncate cursor-default'>{z.description}</span></Tltip>
                                         {/* Rows here spread the contract material row, so its id IS the material id. */}
-                                        <DraftUseBadge invoices={draftMaterials[z.id] || []} />
+                                        <DraftUseBadge use={draftMaterials[z.id]} />
                                     </span>
                                 </td>
                                 <td className="text-left w-20">
