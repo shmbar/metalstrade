@@ -47,7 +47,13 @@ import {
   toggleDraft,
   PoInvoice,
 } from '@/features/contracts/poInvoiceModel';
-import { computePnl, dealRevenue, sumInvProductsMT, DASHBOARD_PNL_CAVEATS } from '@/features/dashboard/pnlChain';
+import {
+  computePnl,
+  dealRevenue,
+  sumInvProductsMT,
+  DASHBOARD_PNL_CAVEATS,
+  computeMarginsSummary,
+} from '@/features/dashboard/pnlChain';
 import { deriveContract, ownProducts } from '@/features/contracts/useContracts';
 
 // ── web (Tier 2 — imported directly) ─────────────────────────────────────────
@@ -76,6 +82,8 @@ import {
   makeFinalNote,
   makeInvoiceProduct,
   makePayment,
+  makeMarginItem,
+  makeMarginMonth,
   scenario,
 } from './_helpers/fixtures';
 
@@ -421,7 +429,16 @@ describe('web drift alarms for every mirrored formula', () => {
        was made to pass against the NEW web code before these were touched — the
        hashes were not bumped to silence the alarm. */
     [DASH_FUNCS, 'sumInvProductsMT', '378e398a6f57'],
-    [DASH_FUNCS, 'calContracts', '98b37546200f'],
+    /* Re-recorded 2026-09-03. Web added the GIS-commission diversion (ported here,
+       with its own tests above), 'Unknown supplier' labelling with per-name ADD
+       (already matched), and the tonnage/value data-quality cross-check (already
+       matched). NOT yet ported and deliberately deferred: `supplierDetails` (the
+       per-supplier contract list a tapped ranking tile would drill into) and the
+       richer expDetails fields (ref/paid/comments) — mobile has no tap-to-drill
+       modal system yet, so there is nothing on the mobile side for them to feed.
+       Every figure calContracts PRODUCES that mobile also produces was verified
+       against this exact web source before the hash was updated. */
+    [DASH_FUNCS, 'calContracts', '3b47558a122a'],
     [DASH_FUNCS, 'setMonthsInvoices', '14a676c70ca8'],
     [CONTRACTS_PAGE, 'showQTY', 'ce8934870ea0'],
     [CONTRACTS_PAGE, 'gQ', '7d3d74cf3746'],
@@ -1601,6 +1618,179 @@ describe('deriveContract — the label lookup itself', () => {
     expect(deriveContract(kgs as any, SETTINGS).mtLabel).toBe('12,000.0 KGS');
     const mt = makeContract({ productsData: [makeProduct({ qnty: '9' })] });
     expect(deriveContract(mt as any, SETTINGS).mtLabel).toBe(webShowQTYFull(mt, SETTINGS));
+  });
+});
+
+// ═════════════════════════════════════════════════════════════════════════════
+// GIS commission — held out of Contract Expenses / Expenses by Type entirely
+// (web funcs.js:309-320, Zak 2026-09-02). Commission billed BY GIS to IMS is money
+// moving between the two houses, not a cost of trading, and at the time web made
+// this change it was 94% of ALL commission recorded.
+// ═════════════════════════════════════════════════════════════════════════════
+
+describe('GIS commission is diverted out of expenses, not counted as a cost', () => {
+  const settings = makeSettings({
+    Supplier: { Supplier: [{ id: 'sup-1', nname: 'Acme Metals' }, { id: 'sup-gis', nname: 'GIS Ltd' }] },
+  });
+
+  it('a commission expense billed by a GIS-named supplier never reaches expensesTotal or expByType', () => {
+    const contracts = [
+      makeContract({
+        id: 'con-1',
+        supplier: 'sup-1',
+        expenses: [
+          makeContractExpense({ id: 'e1', expType: 'exp-commission', amount: '1000', cur: 'us', supplier: 'sup-gis' }),
+          makeContractExpense({ id: 'e2', expType: 'exp-freight', amount: '200', cur: 'us', supplier: 'sup-1' }),
+        ],
+      }),
+    ];
+    const p = computePnl(contracts, settings, 0);
+    // the freight row is the ONLY thing left in Contract Expenses
+    expect(p.expensesTotal).toBeCloseTo(200, 6);
+    expect(p.expByType['Commission']).toBeUndefined();
+    expect(p.expByType['Freight']).toBeCloseTo(200, 6);
+    // and it is accounted for on the OTHER side of the ledger instead
+    expect(p.gisCommission.total).toBeCloseTo(1000, 6);
+    expect(p.gisCommission.rows).toHaveLength(1);
+  });
+
+  it('a commission expense billed by an ordinary (non-GIS) supplier is NOT diverted', () => {
+    // Word-boundary match: a supplier merely containing the letters must not be
+    // swept in — only a real GIS entity is.
+    const contracts = [
+      makeContract({
+        id: 'con-1',
+        supplier: 'sup-1',
+        expenses: [makeContractExpense({ id: 'e1', expType: 'exp-commission', amount: '500', cur: 'us', supplier: 'sup-1' })],
+      }),
+    ];
+    const p = computePnl(contracts, settings, 0);
+    expect(p.expensesTotal).toBeCloseTo(500, 6);
+    expect(p.expByType['Commission']).toBeCloseTo(500, 6);
+    expect(p.gisCommission.total).toBe(0);
+  });
+
+  it('a GIS commission expense with no linked contract (unlinked) is diverted the same way', () => {
+    const contracts = [makeContract({ id: 'con-1', supplier: 'sup-1', expenses: [] })];
+    const unlinked = [
+      makeContractExpense({
+        id: 'e1',
+        expType: 'exp-commission',
+        amount: '2000',
+        cur: 'us',
+        supplier: 'sup-gis',
+        poSupplier: { id: 'con-does-not-exist' },
+      }),
+    ];
+    const p = computePnl(contracts, settings, 0, unlinked);
+    expect(p.expensesTotal).toBe(0);
+    expect(p.gisCommission.total).toBeCloseTo(2000, 6);
+  });
+
+  it('byEntity groups the diverted rows by WHO billed them, sorted biggest first', () => {
+    const contracts = [
+      makeContract({
+        id: 'con-1',
+        supplier: 'sup-1',
+        expenses: [
+          makeContractExpense({ id: 'e1', expType: 'exp-commission', amount: '300', cur: 'us', supplier: 'sup-gis' }),
+          makeContractExpense({ id: 'e2', expType: 'exp-commission', amount: '900', cur: 'us', supplier: 'sup-gis' }),
+        ],
+      }),
+    ];
+    const p = computePnl(contracts, settings, 0);
+    expect(p.gisCommission.byEntity).toEqual([{ name: 'GIS Ltd', value: 1200 }]);
+  });
+
+  it('a GIS commission expense does not reach freightTotal either, even if freight-labelled', () => {
+    // Belt-and-braces: the diversion happens BEFORE the freight-type check, so a
+    // (hypothetical) freight-labelled GIS row cannot leak into avgFreightPerMT.
+    const gisFreightSettings = makeSettings({
+      Supplier: { Supplier: [{ id: 'sup-gis', nname: 'GIS Ltd' }] },
+      Expenses: { Expenses: [{ id: 'exp-gis-commission-freight', expType: 'Commission Freight' }] },
+    });
+    const contracts = [
+      makeContract({
+        id: 'con-1',
+        supplier: 'sup-gis',
+        expenses: [
+          makeContractExpense({ id: 'e1', expType: 'exp-gis-commission-freight', amount: '400', cur: 'us', supplier: 'sup-gis' }),
+        ],
+      }),
+    ];
+    const p = computePnl(contracts, gisFreightSettings, 0);
+    expect(p.freightTotal).toBe(0);
+    expect(p.gisCommission.total).toBeCloseTo(400, 6);
+  });
+});
+
+// ═════════════════════════════════════════════════════════════════════════════
+// The Margins worksheet — where Tonnage AND Gross Profit now come from
+// (web page.js:1638-1649 marginsSummary; :1759 totalPL; :1841-1843 totalMT /
+// shippedMT / pendingMT). A mirror of web's own reduce, not mobile's output.
+// ═════════════════════════════════════════════════════════════════════════════
+
+/** Verbatim mirror of dashboard/page.js:1638-1649 marginsSummary. */
+const webMarginsSummary = (rawMargins: any[]) => {
+  const n = (v: any) => { const x = parseFloat(v); return isNaN(x) ? 0 : x; };
+  let quantity = 0, shipped = 0, outstanding = 0, profits = 0, incoming = 0, items = 0;
+  (rawMargins || []).forEach((mo: any) => (mo?.items || []).forEach((i: any) => {
+    items++;
+    quantity += n(i.purchase);
+    shipped += n(i.shipped);
+    outstanding += n(i.openShip);
+    profits += i.gis ? n(i.totalMargin) / 2 : n(i.totalMargin);
+    incoming += i.gis ? n(i.remaining) / 2 : n(i.remaining);
+  }));
+  return { quantity, shipped, outstanding, profits, incoming, items };
+};
+
+describe('computeMarginsSummary matches web marginsSummary exactly', () => {
+  it('quantity / shipped / outstanding are NOT halved on a GIS row — only profits is', () => {
+    const margins = [
+      makeMarginMonth({
+        items: [
+          makeMarginItem({ id: 'a', purchase: '100', shipped: '40', openShip: 60, totalMargin: 1000, gis: false }),
+          makeMarginItem({ id: 'b', purchase: '200', shipped: '80', openShip: 120, totalMargin: 2000, gis: true }),
+        ],
+      }),
+    ];
+    const web = webMarginsSummary(margins);
+    const mob = computeMarginsSummary(margins);
+    expect(mob).toEqual({ quantity: web.quantity, shipped: web.shipped, outstanding: web.outstanding, profits: web.profits });
+    // and the actual numbers, so a future edit that HAPPENS to keep the two
+    // mirrors in sync but breaks the real rule still gets caught
+    expect(mob.quantity).toBe(300); // 100 + 200 — full tonnage both rows
+    expect(mob.shipped).toBe(120); // 40 + 80
+    expect(mob.outstanding).toBe(180); // 60 + 120
+    expect(mob.profits).toBe(2000); // 1000 + (2000 / 2) — only the GIS row halves
+  });
+
+  it('sums across every month loaded, not just the first', () => {
+    const margins = [
+      makeMarginMonth({ month: '01', items: [makeMarginItem({ purchase: '10', shipped: '5', openShip: 5, totalMargin: 100 })] }),
+      makeMarginMonth({ month: '02', items: [makeMarginItem({ purchase: '20', shipped: '10', openShip: 10, totalMargin: 200 })] }),
+    ];
+    const mob = computeMarginsSummary(margins);
+    expect(mob).toEqual({ quantity: 30, shipped: 15, outstanding: 15, profits: 300 });
+    expect(mob).toEqual({
+      quantity: webMarginsSummary(margins).quantity,
+      shipped: webMarginsSummary(margins).shipped,
+      outstanding: webMarginsSummary(margins).outstanding,
+      profits: webMarginsSummary(margins).profits,
+    });
+  });
+
+  it('an empty or missing margins array gives all zeros, not NaN', () => {
+    expect(computeMarginsSummary([])).toEqual({ quantity: 0, shipped: 0, outstanding: 0, profits: 0 });
+    expect(computeMarginsSummary(undefined as any)).toEqual({ quantity: 0, shipped: 0, outstanding: 0, profits: 0 });
+  });
+
+  it('an unparseable field contributes 0, never NaN, matching web\'s parseFloat guard', () => {
+    const margins = [makeMarginMonth({ items: [makeMarginItem({ purchase: '', shipped: 'n/a', openShip: null, totalMargin: undefined })] })];
+    const mob = computeMarginsSummary(margins);
+    expect(mob).toEqual({ quantity: 0, shipped: 0, outstanding: 0, profits: 0 });
+    expect(Number.isNaN(mob.quantity)).toBe(false);
   });
 });
 

@@ -12,7 +12,6 @@ import { useSettings } from '@/store/settings';
 import { useDashboard, DashboardFilters } from '@/features/dashboard/useDashboard';
 import { ReceivablesCard, AgingCard, RankingCard } from '@/features/dashboard/components';
 import { MetalPricesStrip } from '@/features/prices/MetalPricesStrip';
-import { BriefingCard } from '@/features/briefing/BriefingCard';
 import { fmtCurKM, fmtMT, fmtAutoKM } from '@/lib/format';
 import { spacing, radius } from '@/theme/tokens';
 
@@ -168,11 +167,6 @@ export default function Dashboard() {
           <Select label="" value={filters.material} options={[{ value: '', label: 'All materials' }, ...options.materials]} onChange={(v) => setFilters((f) => ({ ...f, material: v }))} />
         </View>
 
-        {/* AI morning briefing */}
-        <View style={{ paddingHorizontal: spacing.lg, marginTop: 14 }}>
-          <BriefingCard />
-        </View>
-
         {/* Quick actions */}
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: spacing.lg, marginTop: 18 }}>
           {QUICK.map((q) => (
@@ -198,7 +192,31 @@ export default function Dashboard() {
             <ErrorState message={(error as Error)?.message || 'Failed to load dashboard data.'} onRetry={refetch} />
           ) : data ? (
             <View style={{ gap: 14 }}>
-              {/* ══ BAND 1 — PURCHASING & COSTS ═══════════════════════════════ */}
+              {/* ══ BAND 1 — SALES ════════════════════════════════════════════
+                  Web renders Sales FIRST (dashboard/page.js:2582, ahead of
+                  Purchasing & costs at :2604) — the only two figures on the page
+                  counted by INVOICE date, deliberately kept apart from the
+                  contract-dated block below. Mobile had Purchasing first. */}
+              <Band
+                title="Sales"
+                subtitle="What was invoiced to clients in this period, whenever the material was bought"
+                period={`Invoices dated ${periodLabel}`}
+                open={open.sales}
+                onToggle={() => toggle('sales')}
+              />
+              {open.sales && data.consignees.length > 0 && (
+                // web's ranking card now LEADS with Total Value itself (page.js
+                // "Total Value is the headline") — no separate Sales Revenue card.
+                <RankingCard
+                  title="Consignees — $"
+                  subtitle="Sales revenue by client — invoices dated in the period"
+                  rows={data.consignees}
+                  total={data.revenueUsd}
+                  onPress={() => router.push('/(app)/invoices')}
+                />
+              )}
+
+              {/* ══ BAND 2 — PURCHASING & COSTS ═══════════════════════════════ */}
               <Band
                 title="Purchasing & costs"
                 subtitle="Tonnage and profit as recorded on the Margins page · costs from the Expenses pages"
@@ -230,7 +248,7 @@ export default function Dashboard() {
                   />
 
                   {/* Web's TonnageCard: purchased / shipped / pending PLUS the unsold
-                      value, which used to be a tile of its own on mobile. */}
+                      value. All three now read off the Margins worksheet, like web. */}
                   <Card>
                     <SectionHeader
                       title="Tonnage"
@@ -272,10 +290,38 @@ export default function Dashboard() {
                     </View>
                   </Card>
 
+                  {/* GIS COMMISSION — held out of Contract Expenses because it is money
+                      moving between the two houses, not a cost of trading (Zak,
+                      2026-09-02). Shown only when non-zero, exactly like web. */}
+                  {data.gisCommission.total !== 0 && (
+                    <Card onPress={() => router.push('/(app)/expenses')}>
+                      <SectionHeader title="GIS Commission" subtitle="Excluded from Contract Expenses" />
+                      <Text
+                        variant="h3"
+                        style={{ color: colors.info, fontVariant: ['tabular-nums'] }}
+                      >
+                        {fmtAutoKM(data.gisCommission.total)}
+                      </Text>
+                      {data.gisCommission.byEntity.length > 0 && (
+                        <View style={{ marginTop: 8, gap: 4 }}>
+                          {data.gisCommission.byEntity.map((e) => (
+                            <View key={e.name} style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                              <Text variant="caption" tone="muted" numberOfLines={1} style={{ flex: 1 }}>
+                                {e.name}
+                              </Text>
+                              <Text variant="caption" style={{ fontVariant: ['tabular-nums'] }}>{fmtAutoKM(e.value)}</Text>
+                            </View>
+                          ))}
+                        </View>
+                      )}
+                    </Card>
+                  )}
+
                   <RankingCard
                     title="Contracts — $"
                     subtitle="Contribution breakdown by contract values"
                     rows={data.topSuppliers}
+                    total={data.totalContracts}
                     onPress={() => router.push('/(app)/contracts')}
                   />
 
@@ -294,38 +340,6 @@ export default function Dashboard() {
                         </View>
                       ))}
                     </Card>
-                  )}
-                </>
-              )}
-
-              {/* ══ BAND 2 — SALES ════════════════════════════════════════════ */}
-              <Band
-                title="Sales"
-                subtitle="What was invoiced to clients in this period, whenever the material was bought"
-                period={`Invoices dated ${periodLabel}`}
-                open={open.sales}
-                onToggle={() => toggle('sales')}
-              />
-              {open.sales && (
-                <>
-                  <Card onPress={() => router.push('/(app)/invoices')}>
-                    <SectionHeader title="Sales Revenue" subtitle="Invoiced in this period" />
-                    <Text variant="display" style={{ fontSize: 30, lineHeight: 36, fontVariant: ['tabular-nums'] }}>
-                      {fmtAutoKM(data.revenueUsd)}
-                    </Text>
-                    {Object.keys(data.revenueByCur).length > 0 && (
-                      <Text variant="caption" tone="muted" style={{ marginTop: 2 }}>
-                        {curLine(data.revenueByCur)}
-                      </Text>
-                    )}
-                  </Card>
-                  {data.consignees.length > 0 && (
-                    <RankingCard
-                      title="Consignees — $"
-                      subtitle="Contribution breakdown by client volume"
-                      rows={data.consignees}
-                      onPress={() => router.push('/(app)/invoices')}
-                    />
                   )}
                 </>
               )}

@@ -148,6 +148,7 @@ export function RankingCard({
   rows,
   onPress,
   format,
+  total,
 }: {
   title: string;
   subtitle?: string;
@@ -155,6 +156,14 @@ export function RankingCard({
   onPress?: () => void;
   /** value renderer — defaults to compact USD */
   format?: (v: number) => string;
+  /**
+   * Web's TotalCell now LEADS this card's own grid rather than sitting in a
+   * separate headline card of its own ("Total Value is the headline, so stop
+   * drawing it as a footnote" — page.js RankingListInner:936). Passing it here
+   * is what let the standalone Sales Revenue / Purchase Value cards be retired
+   * without losing the figure.
+   */
+  total?: number;
 }) {
   const { colors } = useTheme();
   // ONE accent for the whole card. Web dropped its per-rank shade ladder
@@ -167,6 +176,22 @@ export function RankingCard({
   return (
     <Card onPress={onPress}>
       <SectionHeader title={title} subtitle={subtitle} />
+      {total != null && (
+        <View
+          style={{
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            alignItems: 'baseline',
+            paddingBottom: 10,
+            marginBottom: 10,
+            borderBottomWidth: 1,
+            borderBottomColor: colors.border,
+          }}
+        >
+          <Text variant="caption" tone="muted">Total Value</Text>
+          <Text variant="h3" style={{ fontVariant: ['tabular-nums'] }}>{fmtAutoKM(total)}</Text>
+        </View>
+      )}
       {rows.length === 0 ? (
         <Text variant="body" tone="muted" style={{ textAlign: 'center', paddingVertical: 8 }}>
           No data for this period

@@ -30,6 +30,43 @@ const num = (v: any) => {
   return Number.isFinite(n) ? n : 0;
 };
 
+export interface MarginsSummary {
+  quantity: number;
+  shipped: number;
+  outstanding: number;
+  profits: number;
+}
+
+/**
+ * Sum of every margin ITEM across every loaded month — web's marginsSummary
+ * (dashboard/page.js:1638-1649), which is where the dashboard's headline
+ * Purchased/Shipped/Pending tonnage AND Gross Profit both now read from
+ * (":1841-1843 'Tonnage and profit come from the Margins worksheet'"; ":1759
+ * totalPL = marginsSummary.profits"). calContracts' own totalMT/shippedMT loop
+ * above still runs — Contract Expenses, the per-type breakdown and the tonnage
+ * cap still need it — this is a SEPARATE figure web reads for the headline tiles.
+ *
+ * quantity/shipped/outstanding are NOT halved on a GIS-shared row: the full
+ * tonnage moves through IMS either way (Zak, 2026-08-31). Only `profits` halves,
+ * matching the rule the Margins sheet itself has always applied to a shared deal.
+ */
+export function computeMarginsSummary(margins: any[]): MarginsSummary {
+  const nn = (v: any) => {
+    const x = parseFloat(v);
+    return isNaN(x) ? 0 : x;
+  };
+  const acc: MarginsSummary = { quantity: 0, shipped: 0, outstanding: 0, profits: 0 };
+  (margins || []).forEach((mo: any) => {
+    (mo?.items || []).forEach((i: any) => {
+      acc.quantity += nn(i.purchase);
+      acc.shipped += nn(i.shipped);
+      acc.outstanding += nn(i.openShip);
+      acc.profits += i.gis ? nn(i.totalMargin) / 2 : nn(i.totalMargin);
+    });
+  });
+  return acc;
+}
+
 // Shipped MT for one contract, from its grouped invoicesData. Counts a doc when
 // its group is a singleton OR it is not the original — the same supersede rule the
 // revenue figure uses, so shipped and revenue stay aligned.
@@ -142,6 +179,14 @@ export interface PnlResult {
   /** the partner's half of a shared IMS/GIS deal, tracked so profit can state it */
   gisCogs: number;
   gisExpenses: number;
+  /**
+   * Commission billed BY GIS to IMS — money moving between the two houses, not a
+   * cost of trading, so it is diverted OUT of expensesTotal/expByType entirely
+   * rather than counted there (web funcs.js:309-320, Zak 2026-09-02). At the time
+   * web made this change it was 94% of ALL commission ($305,495 of $326,378), which
+   * had been making commission read as the single biggest cost line in the business.
+   */
+  gisCommission: { total: number; rows: any[]; byEntity: { name: string; value: number }[] };
 }
 
 /**
@@ -231,6 +276,18 @@ export function computePnl(
   );
   const expLabel = (id: string) =>
     settings?.Expenses?.Expenses?.find((e: any) => e.id === id)?.expType || 'Unspecified';
+
+  /* Commission billed by GIS is diverted before any expense accumulator sees it, so
+     Contract Expenses, Expenses by Type, the per-MT figures and the drill-down all
+     exclude it consistently — one exit rather than several subtractions. No expense
+     row carries a GIS flag, so it is identified the only way the data allows: a
+     commission-type expense whose counterparty is a GIS entity. Word-boundary match,
+     so a supplier that merely CONTAINS those letters is not swept in. */
+  const supplierNameOf = (id: string) =>
+    settings?.Supplier?.Supplier?.find((s: any) => s.id === id)?.nname || '';
+  const isGisCommission = (obj: any) =>
+    /commission/i.test(expLabel(obj?.expType)) && /\bGIS\b/i.test(supplierNameOf(obj?.supplier));
+  const gisCommission: { total: number; rows: any[] } = { total: 0, rows: [] };
 
   (contracts || []).forEach((x: any) => {
     // One standard company rate when set; else the contract's own; else 1:1.
@@ -373,6 +430,18 @@ export function computePnl(
       if (!obj || isNaN(parseFloat(obj.amount))) return;
       const m2 = obj.cur === 'us' ? 1 : mult;
       const amt = parseFloat(obj.amount) * m2;
+      if (isGisCommission(obj)) {
+        gisCommission.total += amt;
+        gisCommission.rows.push({
+          supplier: obj.supplier,
+          order: x.order || '',
+          usd: amt,
+          amount: parseFloat(obj.amount),
+          cur: obj.cur || 'us',
+          date: obj.date || obj.dateRange?.startDate || '',
+        });
+        return;
+      }
       const expMonth = expenseMonth(obj, x, m + 1) - 1;
       expensesByMonth[expMonth] += amt;
       expensesTotal += amt;
@@ -400,6 +469,20 @@ export function computePnl(
     const m2 = obj.cur === 'us' ? 1 : companyRate > 0 ? companyRate : liveRate > 0 ? liveRate : 1;
     const val = amt * m2;
     const d = obj.date || obj.dateRange?.startDate || '';
+    // Same diversion as the linked rows above — an unlinked GIS commission is
+    // still GIS commission, and the two biggest ones carry no contract.
+    if (isGisCommission(obj)) {
+      gisCommission.total += val;
+      gisCommission.rows.push({
+        supplier: obj.supplier,
+        order: '',
+        usd: val,
+        amount: amt,
+        cur: obj.cur || 'us',
+        date: d,
+      });
+      return;
+    }
     const mm = Number(String(d).substring(5, 7));
     const expMonth = (mm >= 1 && mm <= 12 ? mm : 1) - 1;
     expensesByMonth[expMonth] += val;
@@ -463,5 +546,19 @@ export function computePnl(
     dataIssues,
     gisCogs,
     gisExpenses,
+    gisCommission: {
+      total: gisCommission.total,
+      rows: gisCommission.rows,
+      // WHO billed it — the card's own breakdown (web page.js gisCommissionBy).
+      byEntity: Object.entries(
+        gisCommission.rows.reduce((acc: Record<string, number>, r: any) => {
+          const name = supplierNameOf(r.supplier) || 'GIS';
+          acc[name] = (acc[name] || 0) + r.usd;
+          return acc;
+        }, {})
+      )
+        .map(([name, value]) => ({ name, value: value as number }))
+        .sort((a, b) => b.value - a.value),
+    },
   };
 }

@@ -2,14 +2,13 @@ import { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '@/store/auth';
 import { useSettings, selectTermDays, selectCompanyRate } from '@/store/settings';
-import { loadData, loadFlatByDate, buildInvoiceIndex, contractInvoicesFromIndex } from '@/data/firestore';
+import { loadData, loadFlatByDate, buildInvoiceIndex, contractInvoicesFromIndex, loadMargins } from '@/data/firestore';
 import { Contract, Invoice } from '@/data/types';
 import {
   receivables as financeReceivables,
   agingBuckets,
   invoiceRevenue,
   contractPurchaseValue,
-  toMT,
   num,
   groupInvoices,
   isIssued,
@@ -19,8 +18,7 @@ import {
   AgingBucket,
 } from '@shared/finance';
 import { getCur } from '@/data/writes';
-import { loadMargins } from '@/data/firestore';
-import { computePnl } from './pnlChain';
+import { computePnl, computeMarginsSummary } from './pnlChain';
 import { resolveClientName } from '@/features/invoices/useInvoices';
 
 export interface DashboardFilters {
@@ -28,6 +26,7 @@ export interface DashboardFilters {
   client: string;
   material: string;
 }
+
 
 export interface DashboardData {
   contractCount: number;
@@ -77,6 +76,10 @@ export interface DashboardData {
   balanceCount: number;
   consignees: { name: string; value: number }[];
   expByType: { name: string; value: number }[];
+  /** web's "Contracts — $" ranking-card headline — the same accumulatedPmnt sum topSuppliers ranks */
+  totalContracts: number;
+  /** commission billed by GIS, held out of expensesTotal — web's GIS Commission card */
+  gisCommission: { total: number; rows: any[]; byEntity: { name: string; value: number }[] };
 }
 
 // Loads everything the dashboard needs in parallel, then derives KPIs. The
@@ -179,21 +182,16 @@ export function useDashboard(filters: DashboardFilters = { supplier: '', client:
       ? allRecv.filter((inv: any) => resolveClientName(inv.client, settings) === fClient)
       : allRecv;
 
-    // Purchase value + tonnage from contracts.
+    // Purchase value from contracts. Tonnage does NOT come from this loop any more
+    // — see marginsSummary below, which is where web's headline Purchased/Shipped/
+    // Pending now read from (page.js "Tonnage and profit come from the Margins
+    // worksheet"). soldFrac and the tonnage-cap inside calContracts still need their
+    // OWN contract-quantity loop, so that one stays in pnlChain.ts unchanged.
     const purchaseByCur: Record<string, number> = {};
-    let totalMT = 0;
     const supplierTotals: Record<string, number> = {};
     enriched.forEach((c) => {
       const pv = contractPurchaseValue(c, { base: 'us' });
       Object.entries(pv.byCur).forEach(([cur, v]) => (purchaseByCur[cur] = (purchaseByCur[cur] || 0) + v));
-      // Web's DASHBOARD counts EVERY productsData row — its contracts page filters
-      // import-flagged breakdown helpers, the dashboard does not. Mobile filtered
-      // them, so MT Purchased read 2,407 against web's 3,178 and, worse, the smaller
-      // soldFrac denominator inflated COGS and shrank Unsold Stock. Matching web so
-      // the whole dashboard ties out; the inconsistency is web's own (recorded).
-      (c.productsData || []).forEach((p) => {
-        totalMT += toMT(num(p.qnty), c, settings);
-      });
       const supName =
         settings.Supplier?.Supplier?.find((s) => s.id === c.supplier)?.nname || c.supplier || '—';
       // Supplier ranking value — web's rule (dashboard/funcs.js): a EUR contract
@@ -264,20 +262,14 @@ export function useDashboard(filters: DashboardFilters = { supplier: '', client:
       (_v, i) => revenueByMonth[i] - pnl.cogsByMonth[i] - pnl.expensesByMonth[i]
     );
 
-    /* GROSS PROFIT is the Margins page's Profits (web page.js:1638-1649 + :1759) -
-       the sum of each margin ITEM's totalMargin, halved on a GIS-shared row. It
-       already halves those rows, so no partner share is subtracted on top or they
-       would be halved twice. */
-    const nn = (v: any) => { const x = parseFloat(v); return isNaN(x) ? 0 : x; };
-    const grossProfit = (margins || []).reduce(
-      (acc: number, mo: any) =>
-        acc +
-        (mo?.items || []).reduce(
-          (a: number, i: any) => a + (i.gis ? nn(i.totalMargin) / 2 : nn(i.totalMargin)),
-          0
-        ),
-      0
-    );
+    /* THE MARGINS WORKSHEET is now where Tonnage AND Gross Profit both come from
+       (web page.js:1638-1649, and :1841-1843 "Tonnage and profit come from the
+       Margins worksheet"). calContracts' own totalMT/shippedMT/cogs loop still runs
+       — Contract Expenses, the per-type breakdown and the tonnage CAP still need
+       it — but the headline Purchased/Shipped/Pending figures and Gross Profit read
+       from here instead. */
+    const marginsSummary = computeMarginsSummary(margins);
+    const grossProfit = marginsSummary.profits;
 
     /* COMPANY OVERHEADS, converted on the same rule as everything else on the page
        (web page.js:1768-1783). Kept SEPARATE from contract expenses on purpose:
@@ -297,6 +289,11 @@ export function useDashboard(filters: DashboardFilters = { supplier: '', client:
        using invoice-dated revenue rather than the Margins profit. */
     const netProfit = grossProfit - overheads;
 
+    // Purchase value behind the "Contracts — $" ranking's own headline — web's
+    // TotalCell now leads that card instead of a separate standalone figure
+    // (page.js "Total Value is the headline"). Same accumulatedPmnt sum either way.
+    const totalContracts = pnl.purchaseByMonth.reduce((a, b) => a + b, 0);
+
     const topSuppliers = Object.entries(supplierTotals)
       .map(([name, value]) => ({ name, value }))
       .sort((a, b) => b.value - a.value)
@@ -305,7 +302,11 @@ export function useDashboard(filters: DashboardFilters = { supplier: '', client:
     return {
       contractCount: enriched.length,
       purchaseByCur,
-      totalMT,
+      totalContracts,
+      // Purchased/Shipped/Pending all read off the Margins worksheet now (web
+      // page.js:1841-1843), NOT off calContracts' own tonnage loop. quantity/
+      // shipped/outstanding are never halved for a GIS-shared row — only profits is.
+      totalMT: marginsSummary.quantity,
       revenueByCur: revenue.byCur,
       revenueUsd,
       revenueByMonth,
@@ -320,11 +321,11 @@ export function useDashboard(filters: DashboardFilters = { supplier: '', client:
       cogs: pnl.cogs,
       expensesTotal: pnl.expensesTotal,
       storageTotal: pnl.storageTotal,
-      shippedMT: pnl.shippedMT,
+      shippedMT: marginsSummary.shipped,
       // web page.js:1843 divides by totalPL - GROSS profit, before overheads.
       // Overheads are not attributable to a trade, so charging them per shipped
       // tonne would misstate the unit economics.
-      avgProfitPerMT: pnl.shippedMT > 0 ? grossProfit / pnl.shippedMT : 0,
+      avgProfitPerMT: marginsSummary.shipped > 0 ? grossProfit / marginsSummary.shipped : 0,
       unsoldValue: pnl.unsoldValue,
       freightTotal: pnl.freightTotal,
       missingRate: pnl.missingRate,
@@ -333,10 +334,11 @@ export function useDashboard(filters: DashboardFilters = { supplier: '', client:
       profitByMonth,
       dealRevenue: pnl.dealRevenue,
       dealRevenueByMonth: pnl.dealRevenueByMonth,
-      pendingMT: Math.max(0, pnl.totalMT - pnl.shippedMT),
-      avgCostPerMT: pnl.totalMT > 0 ? pnl.purchaseByMonth.reduce((a, b) => a + b, 0) / pnl.totalMT : 0,
-      avgExpensePerMT: pnl.totalMT > 0 ? pnl.expensesTotal / pnl.totalMT : 0,
-      avgFreightPerMT: pnl.totalMT > 0 ? pnl.freightTotal / pnl.totalMT : 0,
+      pendingMT: marginsSummary.outstanding,
+      avgCostPerMT: marginsSummary.quantity > 0 ? totalContracts / marginsSummary.quantity : 0,
+      avgExpensePerMT: marginsSummary.quantity > 0 ? pnl.expensesTotal / marginsSummary.quantity : 0,
+      avgFreightPerMT: marginsSummary.quantity > 0 ? pnl.freightTotal / marginsSummary.quantity : 0,
+      gisCommission: pnl.gisCommission,
       miscByCat: Object.entries(miscByCat)
         .map(([name, v]) => ({ name, ...v }))
         .sort((a, b) => b.amount - a.amount),
