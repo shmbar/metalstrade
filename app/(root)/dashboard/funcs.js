@@ -453,6 +453,8 @@ export const calContracts = (data, settings, companyRate = 0, expenseRows = null
                         supplier: obj.supplier, order: x.order || '', usd: amt,
                         amount: parseFloat(obj.amount), cur: obj.cur || 'us',
                         date: obj.date || obj.dateRange?.startDate || '',
+                        ref: obj.expense || '', comments: obj.comments || '',
+                        paid: obj.paid === '111' ? 'Paid' : (obj.paid ? 'Unpaid' : ''),
                     })
                     return
                 }
@@ -461,13 +463,22 @@ export const calContracts = (data, settings, companyRate = 0, expenseRows = null
                 const lbl = expLabel(obj.expType)
                 expByType[lbl] = (expByType[lbl] || 0) + amt
                 if (x.gis) gisExpenses += amt
+                /* obj.supplier, NOT x.supplier: the expense's own counterparty is the
+                   company that billed it, which is what "which vendor" means. x.supplier
+                   is the contract's METAL supplier, so a freight invoice from a haulier
+                   was being attributed to the mill the metal came from.
+                   Reference, paid flag and comments come through too — without them every
+                   row in the popup looked identical (Sharoon, 2026-09-02). */
                 ;(expDetails[lbl] ||= []).push({
-                    supplier: x.supplier,                       // id — resolved to a name at render
-                    order: x.order || '',                       // PO number
+                    supplier: obj.supplier || x.supplier,       // id — resolved to a name at render
+                    order: x.order || '',                       // the contract this sits on
                     usd: amt,                                   // converted, matches the tile
                     amount: parseFloat(obj.amount),             // as entered
                     cur: obj.cur || 'us',
                     date: obj.date || obj.dateRange?.startDate || '',
+                    ref: obj.expense || '',                     // the vendor's invoice number
+                    paid: obj.paid === '111' ? 'Paid' : (obj.paid ? 'Unpaid' : ''),
+                    comments: obj.comments || '',
                 })
                 const lblLower = String(lbl).toLowerCase()
                 if (lblLower.includes('storage') || lblLower.includes('warehouse')) storageByMonth[expMonth] += amt
@@ -495,6 +506,8 @@ export const calContracts = (data, settings, companyRate = 0, expenseRows = null
             gisCommission.rows.push({
                 supplier: obj.supplier, order: '', usd: val,
                 amount: amt, cur: obj.cur || 'us', date: d,
+                ref: obj.expense || '', comments: obj.comments || '',
+                paid: obj.paid === '111' ? 'Paid' : (obj.paid ? 'Unpaid' : ''),
             })
             return
         }
@@ -505,6 +518,9 @@ export const calContracts = (data, settings, companyRate = 0, expenseRows = null
         ;(expDetails[lbl] ||= []).push({
             supplier: obj.supplier || '', order: '', usd: val,
             amount: amt, cur: obj.cur || 'us', date: d,
+            ref: obj.expense || '',
+            paid: obj.paid === '111' ? 'Paid' : (obj.paid ? 'Unpaid' : ''),
+            comments: obj.comments || '',
         })
         const l = String(lbl).toLowerCase()
         if (l.includes('storage') || l.includes('warehouse')) storageByMonth[expMonth] += val

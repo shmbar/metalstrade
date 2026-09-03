@@ -441,9 +441,11 @@ const fmtPct = (p) => {
    `cols` keeps one component serving both cards, since a contract row and an invoice row
    carry different columns but the same shape of question. */
 function DetailModal({ title, subtitle, rows = [], cols = [], formula = null, isOpen, setIsOpen }) {
-  const total = rows.reduce((a, r) => a + (Number(r.usd ?? r.value) || 0), 0);
+  /* usd -> value -> amount. The misc-invoice rows carry only `amount`, so the footer was
+     summing undefined and printing $0.00 under 32 real records. */
+  const total = rows.reduce((a, r) => a + (Number(r.usd ?? r.value ?? r.amount) || 0), 0);
   return (
-    <Modal isOpen={isOpen} setIsOpen={setIsOpen} size="lg" title={title || ''} subtitle={subtitle}>
+    <Modal isOpen={isOpen} setIsOpen={setIsOpen} size="xl" title={title || ''} subtitle={subtitle}>
       <div className="p-4">
         {/* Derived figures — the per-MT ones, the profits — have no list of records behind
             them; their "detail" IS the arithmetic. Showing the inputs and the operator is
@@ -583,7 +585,7 @@ function ExpenseDrillModal({ label, rows = [], settings, isOpen, setIsOpen }) {
   const curSym = (c) => (c === 'us' ? '$' : c === 'eu' ? '€' : c === 'gb' ? '£' : '');
 
   return (
-    <Modal isOpen={isOpen} setIsOpen={setIsOpen} size="lg"
+    <Modal isOpen={isOpen} setIsOpen={setIsOpen} size="xl"
       title={label || 'Expenses'}
       subtitle={`${rows.length} expense${rows.length === 1 ? '' : 's'} across ${groups.length} supplier${groups.length === 1 ? '' : 's'} · ${fmtAutoKM(total)}`}>
       <div className="p-4 flex flex-col gap-3">
@@ -604,8 +606,10 @@ function ExpenseDrillModal({ label, rows = [], settings, isOpen, setIsOpen }) {
               <table className="w-full">
                 <thead>
                   <tr>
+                    <th className="responsiveTextTableTitle text-left text-[var(--regent-gray)] font-medium px-3 py-1">Invoice</th>
                     <th className="responsiveTextTableTitle text-left text-[var(--regent-gray)] font-medium px-3 py-1">PO</th>
                     <th className="responsiveTextTableTitle text-left text-[var(--regent-gray)] font-medium px-3 py-1">Date</th>
+                    <th className="responsiveTextTableTitle text-left text-[var(--regent-gray)] font-medium px-3 py-1">Status</th>
                     <th className="responsiveTextTableTitle text-right text-[var(--regent-gray)] font-medium px-3 py-1">As entered</th>
                     <th className="responsiveTextTableTitle text-right text-[var(--regent-gray)] font-medium px-3 py-1">USD</th>
                   </tr>
@@ -613,8 +617,10 @@ function ExpenseDrillModal({ label, rows = [], settings, isOpen, setIsOpen }) {
                 <tbody>
                   {g.lines.map((r, i) => (
                     <tr key={i}>
+                      <td className="responsiveTextTable px-3 py-1 text-[var(--ink-secondary)]">{r.ref || '—'}</td>
                       <td className="responsiveTextTable px-3 py-1 text-[var(--ink-secondary)]">{r.order || '—'}</td>
                       <td className="responsiveTextTable px-3 py-1 text-[var(--ink-secondary)]">{r.date || '—'}</td>
+                      <td className="responsiveTextTable px-3 py-1 text-[var(--ink-secondary)]">{r.paid || '—'}</td>
                       {/* "As entered" is shown beside the USD figure so a EUR expense is
                           visibly a EUR expense — the page converts everything to USD and
                           that conversion is exactly where the FX warning above bites. */}
@@ -2039,11 +2045,21 @@ const Dash = () => {
       .sort((a, b) => (b.usd || 0) - (a.usd || 0)),
     [expDetails]
   );
+  /* Carry the WHOLE record through, not three fields of it. These rows hold an expense
+     reference, a type, a paid flag and free-text comments, and the popup was showing a
+     date and an amount — every row looked like every other row (Sharoon, 2026-09-02:
+     "identical details, without showing company/vendor/inv"). */
   const coExpRows = useMemo(() => (rawCompanyExpenses || []).map(r => {
     const amt = parseFloat(r?.amount) || 0;
     const rate = parseFloat(r?.euroToUSD);
     const mult = companyRate > 0 ? companyRate : (rate > 0 ? rate : (liveEurUsd > 0 ? liveEurUsd : 1));
-    return { date: r?.date || '', supplier: r?.supplier || '', amount: amt, cur: r?.cur || 'us', usd: r?.cur === 'us' ? amt : amt * mult };
+    return {
+      date: r?.date || '', supplier: r?.supplier || '', amount: amt, cur: r?.cur || 'us',
+      usd: r?.cur === 'us' ? amt : amt * mult,
+      ref: r?.expense || '', type: r?.expType || '',
+      paid: r?.paid === '111' ? 'Paid' : (r?.paid ? 'Unpaid' : ''),
+      comments: r?.comments || '',
+    };
   }).sort((a, b) => b.usd - a.usd), [rawCompanyExpenses, companyRate, liveEurUsd]);
   const money = (c, v) => `${c === 'us' ? '$' : '€'}${new Intl.NumberFormat('en-US', { maximumFractionDigits: 2 }).format(v || 0)}`;
 
@@ -2053,8 +2069,11 @@ const Dash = () => {
       rows: expenseRows,
       cols: [
         { key: 'type', label: 'Type' },
-        { key: 'supplier', label: 'Supplier', render: (r) => supName(r.supplier) },
+        { key: 'supplier', label: 'Vendor', render: (r) => supName(r.supplier) },
+        { key: 'ref', label: 'Invoice', render: (r) => r.ref || '—' },
+        { key: 'order', label: 'PO', render: (r) => r.order || '—' },
         { key: 'date', label: 'Date' },
+        { key: 'paid', label: 'Status', render: (r) => r.paid || '—' },
         { key: 'amount', label: 'As entered', right: true, render: (r) => money(r.cur, r.amount) },
         { key: 'usd', label: 'USD', right: true, render: (r) => fmtAutoKM(r.usd) },
       ],
@@ -2063,8 +2082,11 @@ const Dash = () => {
       title: 'Company Expenses', subtitle: `${coExpRows.length} overhead records in the period`,
       rows: coExpRows,
       cols: [
-        { key: 'supplier', label: 'Supplier', render: (r) => supName(r.supplier) },
+        { key: 'supplier', label: 'Vendor', render: (r) => supName(r.supplier) },
+        { key: 'ref', label: 'Reference', render: (r) => r.ref || '—' },
         { key: 'date', label: 'Date' },
+        { key: 'paid', label: 'Status', render: (r) => r.paid || '—' },
+        { key: 'comments', label: 'Notes', render: (r) => r.comments || '—' },
         { key: 'amount', label: 'As entered', right: true, render: (r) => money(r.cur, r.amount) },
         { key: 'usd', label: 'USD', right: true, render: (r) => fmtAutoKM(r.usd) },
       ],
@@ -2180,10 +2202,18 @@ const Dash = () => {
       rows: (rawMiscInvoices || []).map(r => ({
         date: r?.date || '', category: r?.category || 'uncategorized',
         cur: r?.cur || 'us', amount: parseFloat(r?.total) || 0,
+        invoice: r?.invoice || '', company: r?.compName || '',
+        description: r?.description || '', order: r?.order || '',
+        paid: r?.paidNotPaid || '',
       })).sort((a, b) => b.amount - a.amount),
       cols: [
+        { key: 'invoice', label: 'Invoice', render: (r) => r.invoice || '—' },
+        { key: 'company', label: 'Company', render: (r) => r.company || '—' },
+        { key: 'description', label: 'Material', render: (r) => r.description || '—' },
+        { key: 'order', label: 'PO', render: (r) => (r.order && r.order !== '-') ? r.order : '—' },
         { key: 'date', label: 'Date' },
         { key: 'category', label: 'Category' },
+        { key: 'paid', label: 'Status', render: (r) => r.paid || '—' },
         { key: 'amount', label: 'Amount', right: true, render: (r) => money(r.cur, r.amount) },
       ],
     },
@@ -2839,7 +2869,10 @@ const Dash = () => {
           : drill?.kind === 'gis'
             ? [
               { key: 'supplier', label: 'Billed by', render: (r) => settings?.Supplier?.Supplier?.find(s => s.id === r.supplier)?.nname || 'GIS' },
+              { key: 'ref', label: 'Invoice', render: (r) => r.ref || '—' },
+              { key: 'order', label: 'PO', render: (r) => r.order || '—' },
               { key: 'date', label: 'Date' },
+              { key: 'comments', label: 'Notes', render: (r) => r.comments || '—' },
               { key: 'amount', label: 'As entered', right: true, render: (r) => `${r.cur === 'us' ? '$' : '€'}${new Intl.NumberFormat('en-US', { maximumFractionDigits: 2 }).format(r.amount || 0)}` },
               { key: 'usd', label: 'USD', right: true, render: (r) => fmtAutoKM(r.usd) },
             ]
