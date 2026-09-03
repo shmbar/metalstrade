@@ -860,11 +860,13 @@ function TotalCell({ label = 'Total', value, onOpen }) {
            --brand-soft, the same lavender family as the hero tile's meter wash sitting
            right beside it, so the one cell that should read differently read the same.
            Inverting it is what makes it pop: every tile around it is --bg-subtle, so the
-           total is now the only white cell in the grid. A 2px brand outline holds its edge
-           against the white card behind it, and the label takes brand ink so the colour is
-           on the text as well as the frame. */
+           total is now the only white cell in the grid.
+           Border thinned 2px solid --brand -> 1px --brand-border (2026-09-03: "seems too
+           thick"). The white fill is already doing the standing-out — the border only
+           needs to hold the edge against the white card behind it, and the label + figure
+           already carry the brand colour, so a heavy outline was double-emphasis. */
         background: 'var(--bg-card)',
-        border: '2px solid var(--brand)',
+        border: '1px solid var(--brand-border)',
         boxShadow: 'var(--shadow-card)',
       }}
       initial={{ opacity: 0, y: 8 }}
