@@ -330,7 +330,7 @@ function StatKpiCard({
 // final invoice has been issued (shipData.fnlzing === '4568'); "Provisional" =
 // balances still before the final invoice. Lets the team see, at a glance, how
 // much of what's owed is locked-in vs still subject to final-invoice changes.
-function ReceivablesSplitCard({ byCur = {}, onOpen }) {
+function ReceivablesSplitCard({ byCur = {}, onOpen, onOpenSplit }) {
   // Currency-aware compact formatter — never sums across currencies.
   const fmtCurKM = (cur, n) => {
     const s = cur === 'us' ? '$' : cur === 'eu' ? '€' : '';
@@ -1151,7 +1151,7 @@ function FilterSelect({ label, icon, value, onChange, options }) {
 }
 
 // Purchased vs Shipped vs Pending tonnage, with a shipped-progress bar.
-function TonnageCard({ purchased = 0, shipped = 0, pending = 0, unsoldValue = 0, onOpen }) {
+function TonnageCard({ purchased = 0, shipped = 0, pending = 0, unsoldValue = 0, onOpen, onOpenPill }) {
   const pctShipped = purchased > 0 ? Math.min(100, (shipped / purchased) * 100) : 0;
   const fmtMT = (n) => `${new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 }).format(n || 0)} MT`;
   /* Purchased / Shipped / Pending is one quantity at three stages of the SAME journey —
@@ -1197,7 +1197,14 @@ function TonnageCard({ purchased = 0, shipped = 0, pending = 0, unsoldValue = 0,
 
         <div className="grid grid-cols-3 gap-2">
           {pills.map((p) => (
-            <div key={p.label} className="rounded-lg p-2.5" style={{ backgroundColor: p.bg, boxShadow: `inset 0 0 0 1px ${p.ring}` }}>
+            <div key={p.label} className="rounded-lg p-2.5"
+              {...(onOpenPill ? {
+                onClick: (e) => { e.stopPropagation(); onOpenPill(p.label.toLowerCase()); },
+                role: 'button', tabIndex: 0,
+                onKeyDown: (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.stopPropagation(); onOpenPill(p.label.toLowerCase()); } },
+                'aria-label': `Show ${p.label.toLowerCase()} tonnage`,
+              } : {})}
+              style={{ backgroundColor: p.bg, boxShadow: `inset 0 0 0 1px ${p.ring}`, cursor: onOpenPill ? 'pointer' : undefined }}>
               <div className="flex items-center gap-1.5">
                 <span className="rounded-full shrink-0" style={{ width: 8, height: 8, backgroundColor: p.dot }} />
                 <span className="responsiveTextTable font-semibold tracking-wide" style={{ color: p.color }}>{p.label}</span>
@@ -1225,7 +1232,7 @@ function TonnageCard({ purchased = 0, shipped = 0, pending = 0, unsoldValue = 0,
 }
 
 // Annual total of P1 "Misc Invoices" — standalone sales not tied to a contract.
-function MiscInvoicesCard({ byCur = {}, byCat = {}, count = 0, onOpen }) {
+function MiscInvoicesCard({ byCur = {}, byCat = {}, count = 0, onOpen, onOpenCategory }) {
   const fmtCur = (cur, v) => `${cur === 'us' ? '$' : cur === 'eu' ? '€' : ''}${new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(v || 0)}`;
   const entries = Object.entries(byCur).filter(([, v]) => Math.abs(v) > 0.005);
 
@@ -1292,7 +1299,20 @@ function MiscInvoicesCard({ byCur = {}, byCat = {}, count = 0, onOpen }) {
               {catRows.map(c => {
                 const ents = Object.entries(c.byCur).filter(([, v]) => Math.abs(v) > 0.005);
                 return (
-                  <div key={c.id} className="rounded-lg p-2.5" style={{ backgroundColor: c.bg, boxShadow: `inset 0 0 0 1px ${c.ring}` }}>
+                  /* Each category opens ITS OWN records. Clicking any of these used to open
+                     the card-level popup — the whole list — so Shipments, Personal and
+                     Uncategorized all showed the same 32 rows and the popup looked
+                     identical whichever you pressed (Sharoon, 2026-09-03). stopPropagation
+                     because the card behind it is clickable too and would otherwise
+                     immediately reopen the unfiltered list on top. */
+                  <div key={c.id} className="rounded-lg p-2.5"
+                    {...(onOpenCategory ? {
+                      onClick: (e) => { e.stopPropagation(); onOpenCategory(c.id); },
+                      role: 'button', tabIndex: 0,
+                      onKeyDown: (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.stopPropagation(); onOpenCategory(c.id); } },
+                      'aria-label': `Show the ${c.label} invoices`,
+                    } : {})}
+                    style={{ backgroundColor: c.bg, boxShadow: `inset 0 0 0 1px ${c.ring}`, cursor: onOpenCategory ? 'pointer' : undefined }}>
                     <div className="flex items-center gap-1.5">
                       <span className="rounded-full shrink-0" style={{ width: 8, height: 8, backgroundColor: c.dot }} />
                       <span className="responsiveTextTable font-semibold tracking-wide truncate" style={{ color: c.color }}>{c.label.toUpperCase()}</span>
@@ -2063,6 +2083,24 @@ const Dash = () => {
   }).sort((a, b) => b.usd - a.usd), [rawCompanyExpenses, companyRate, liveEurUsd]);
   const money = (c, v) => `${c === 'us' ? '$' : '€'}${new Intl.NumberFormat('en-US', { maximumFractionDigits: 2 }).format(v || 0)}`;
 
+  /* Misc invoice rows, shared by the card-level popup and the per-category ones. */
+  const miscRows = useMemo(() => (rawMiscInvoices || []).map(r => ({
+    date: r?.date || '', category: r?.category || 'uncategorized',
+    cur: r?.cur || 'us', amount: parseFloat(r?.total) || 0,
+    invoice: r?.invoice || '', company: r?.compName || '',
+    description: r?.description || '', order: r?.order || '',
+    paid: r?.paidNotPaid || '',
+  })).sort((a, b) => b.amount - a.amount), [rawMiscInvoices]);
+  const MISC_COLS = [
+    { key: 'invoice', label: 'Invoice', render: (r) => r.invoice || '—' },
+    { key: 'company', label: 'Company', render: (r) => r.company || '—' },
+    { key: 'description', label: 'Material', render: (r) => r.description || '—' },
+    { key: 'order', label: 'PO', render: (r) => (r.order && r.order !== '-') ? r.order : '—' },
+    { key: 'date', label: 'Date' },
+    { key: 'paid', label: 'Status', render: (r) => r.paid || '—' },
+    { key: 'amount', label: 'Amount', right: true, render: (r) => money(r.cur, r.amount) },
+  ];
+
   const TILE_DETAILS = {
     contractExpenses: {
       title: 'Contract Expenses', subtitle: `${expenseRows.length} expense records in the period · GIS commission excluded`,
@@ -2176,6 +2214,17 @@ const Dash = () => {
         { label: 'Shipped share', value: `${totalMT > 0 ? Math.round((shippedMT / totalMT) * 100) : 0}%`, result: true },
       ],
     },
+    /* Each tonnage pill and each receivables split gets its OWN detail — clicking
+       PURCHASED, SHIPPED or PENDING used to open the same card-level popup. */
+    'tonnage:purchased': { title: 'Purchased', subtitle: 'Tonnage bought in this period, from the Margins page',
+      formula: [ { label: 'Quantity column, all Margins rows', value: mtFmt(totalMT), result: true } ] },
+    'tonnage:shipped': { title: 'Shipped', subtitle: 'Tonnage shipped in this period, from the Margins page',
+      formula: [ { label: 'Shipped column, all Margins rows', value: mtFmt(shippedMT) },
+        { label: 'share of purchased', value: (totalMT > 0 ? Math.round((shippedMT / totalMT) * 100) : 0) + '%', result: true } ] },
+    'tonnage:pending': { title: 'Pending', subtitle: 'Bought but not yet shipped',
+      formula: [ { label: 'Purchased', value: mtFmt(totalMT) },
+        { label: 'less Shipped', value: '- ' + mtFmt(shippedMT) },
+        { label: 'Pending', value: mtFmt(pendingMT), note: 'purchase value ' + fmtAutoKM(unsoldValue), result: true } ] },
     receivables: {
       title: 'Outstanding Receivables', subtitle: 'Open balances as of today — every period, not just this one',
       formula: Object.entries(receivables.byCur || {}).flatMap(([cur, d]) => {
@@ -2198,25 +2247,20 @@ const Dash = () => {
       })),
     },
     miscInvoices: {
-      title: 'Misc Invoices', subtitle: `${miscInvoices.count} standalone sales not linked to any contract`,
-      rows: (rawMiscInvoices || []).map(r => ({
-        date: r?.date || '', category: r?.category || 'uncategorized',
-        cur: r?.cur || 'us', amount: parseFloat(r?.total) || 0,
-        invoice: r?.invoice || '', company: r?.compName || '',
-        description: r?.description || '', order: r?.order || '',
-        paid: r?.paidNotPaid || '',
-      })).sort((a, b) => b.amount - a.amount),
-      cols: [
-        { key: 'invoice', label: 'Invoice', render: (r) => r.invoice || '—' },
-        { key: 'company', label: 'Company', render: (r) => r.company || '—' },
-        { key: 'description', label: 'Material', render: (r) => r.description || '—' },
-        { key: 'order', label: 'PO', render: (r) => (r.order && r.order !== '-') ? r.order : '—' },
-        { key: 'date', label: 'Date' },
-        { key: 'category', label: 'Category' },
-        { key: 'paid', label: 'Status', render: (r) => r.paid || '—' },
-        { key: 'amount', label: 'Amount', right: true, render: (r) => money(r.cur, r.amount) },
-      ],
+      title: 'Misc Invoices', subtitle: miscRows.length + ' standalone sales not linked to any contract',
+      rows: miscRows, cols: MISC_COLS,
     },
+    /* One entry per category, keyed 'misc:<id>'. The card's three tiles each open their
+       own slice — without this they all opened the card-level list and looked identical. */
+    ...Object.fromEntries(['shipments', 'personal', 'random', 'uncategorized'].map(cat => [
+      'misc:' + cat,
+      {
+        title: 'Misc Invoices — ' + cat.charAt(0).toUpperCase() + cat.slice(1),
+        subtitle: 'Standalone sales in this category',
+        rows: miscRows.filter(r => r.category === cat),
+        cols: MISC_COLS,
+      },
+    ])),
     avgProfit: {
       title: 'Avg Profit / MT', subtitle: 'Profit per tonne actually shipped',
       formula: [
@@ -2675,7 +2719,7 @@ const Dash = () => {
               full width — a 12-month line reads better wide than it did at two thirds. */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 mb-5">
             <div className="lg:col-span-2">
-              <TonnageCard purchased={totalMT} shipped={shippedMT} pending={pendingMT} unsoldValue={unsoldValue} onOpen={() => setTileDrill('tonnage')} />
+              <TonnageCard purchased={totalMT} shipped={shippedMT} pending={pendingMT} unsoldValue={unsoldValue} onOpen={() => setTileDrill('tonnage')} onOpenPill={(k) => setTileDrill('tonnage:' + k)} />
             </div>
             {/* GIS COMMISSION — outside the expenses panel because it is no longer part of
                 Contract Expenses: it is commission between the two houses, not a cost of
@@ -2807,7 +2851,7 @@ const Dash = () => {
           />
           {!collapsed.position && (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-5">
-            <ReceivablesSplitCard byCur={receivables.byCur} onOpen={() => setTileDrill('receivables')} />
+            <ReceivablesSplitCard byCur={receivables.byCur} onOpen={() => setTileDrill('receivables')} onOpenSplit={(k) => setTileDrill('recv:' + k)} />
             <AgingCard buckets={aging} onOpen={() => setTileDrill('aging')} />
           </div>
           )}
@@ -2823,7 +2867,7 @@ const Dash = () => {
           />
           {!collapsed.other && (
           <div className="grid grid-cols-1 gap-5 mb-5">
-            <MiscInvoicesCard byCur={miscInvoices.byCur} byCat={miscInvoices.byCat} count={miscInvoices.count} onOpen={() => setTileDrill('miscInvoices')} />
+            <MiscInvoicesCard byCur={miscInvoices.byCur} byCat={miscInvoices.byCat} count={miscInvoices.count} onOpen={() => setTileDrill('miscInvoices')} onOpenCategory={(cat) => setTileDrill('misc:' + cat)} />
           </div>
           )}
 
