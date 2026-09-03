@@ -8,6 +8,23 @@ import { TONES } from './statusUtils';
 
 const ACCEPTED = ['application/pdf', 'image/jpeg', 'image/png', 'image/jpg'];
 
+/* Spreadsheets, added 2026-08-26: packing lists and assay certificates arrive as
+   .xlsx at least as often as PDF. Accepting them by EXTENSION as well as MIME
+   type is not belt-and-braces — Windows reports .csv as application/vnd.ms-excel
+   about as often as text/csv, and a file that came through a mail client can
+   arrive as application/octet-stream, so the type alone would turn away files
+   that read perfectly. */
+const SHEET_MIME = [
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    'application/vnd.ms-excel',
+    'text/csv',
+    'application/csv',
+];
+const SHEET_EXT = ['xlsx', 'xlsm', 'xls', 'csv'];
+const extOf = (name) => String(name || '').toLowerCase().split('.').pop();
+const isSheetFile = (f) => SHEET_MIME.includes(f?.type) || SHEET_EXT.includes(extOf(f?.name));
+const isAccepted = (f) => ACCEPTED.includes(f?.type) || isSheetFile(f);
+
 function ConfidencePill({ level }) {
     if (!level) return null;
     const t = { high: TONES.green, medium: TONES.amber, low: TONES.red }[level] || TONES.gray;
@@ -210,7 +227,7 @@ const DocumentImportOverlay = ({ documentType, suppliers, clients, currencies, e
 
     const handleFile = async (f) => {
         if (!f) return;
-        if (!ACCEPTED.includes(f.type)) { setError('Only PDF, JPG, and PNG files are supported.'); return; }
+        if (!isAccepted(f)) { setError('Only PDF, Excel (.xlsx), CSV, JPG and PNG files are supported.'); return; }
         if (f.size > 10 * 1024 * 1024) { setError('File must be under 10 MB.'); return; }
         setFile(f);
         setResult(null);
@@ -223,6 +240,7 @@ const DocumentImportOverlay = ({ documentType, suppliers, clients, currencies, e
             const b64 = await toBase64(f);
             stage = 'preparing pages';
             const pagesBase64 = f.type === 'application/pdf' ? await renderPdfPages(f) : null;
+            // (spreadsheets and images skip the rasterizer entirely)
             stage = 'contacting the AI service';
             const res = await authedFetch('/api/ai/document-reader', {
                 method: 'POST',
@@ -230,6 +248,10 @@ const DocumentImportOverlay = ({ documentType, suppliers, clients, currencies, e
                     fileBase64: b64,
                     pagesBase64: pagesBase64 || [],
                     mimeType: f.type,
+                    // The server needs the name to tell .csv from .xlsx when the
+                    // browser's MIME type is wrong — which, for spreadsheets, it
+                    // frequently is.
+                    fileName: f.name,
                     documentType,
                     suppliers: suppliers || [],
                     clients: clients || [],
@@ -249,6 +271,9 @@ const DocumentImportOverlay = ({ documentType, suppliers, clients, currencies, e
                 // gets an accurate, actionable message.
                 if (data.error === 'SCANNED_PDF') {
                     throw new Error(data.message || 'PDF has no embedded text. Export it as an image and re-upload.');
+                }
+                if (data.error === 'LEGACY_XLS' || data.error === 'SHEET_PARSE_FAILED') {
+                    throw new Error(data.message);
                 }
                 if (data.error === 'PDF_PARSE_FAILED') {
                     throw new Error(data.message || 'Could not read this PDF. Try re-saving it or upload pages as images.');
@@ -478,7 +503,7 @@ const DocumentImportOverlay = ({ documentType, suppliers, clients, currencies, e
                                 minHeight: '100px', padding: '20px'
                             }}
                         >
-                            <input ref={inputRef} type='file' accept='.pdf,.jpg,.jpeg,.png' className='hidden'
+                            <input ref={inputRef} type='file' accept='.pdf,.xlsx,.xlsm,.csv,.jpg,.jpeg,.png' className='hidden'
                                 onChange={e => handleFile(e.target.files[0])} />
                             {reading ? (
                                 <div className='flex flex-col items-center gap-2'>
@@ -489,7 +514,7 @@ const DocumentImportOverlay = ({ documentType, suppliers, clients, currencies, e
                                 <>
                                     <Upload className='w-6 h-6 mb-1' style={{ color: 'var(--ink-muted)' }} />
                                     <p className='font-medium' style={{ fontSize: 'var(--fs-body)', color: 'var(--ink)' }}>Drop document or click to upload</p>
-                                    <p style={{ fontSize: 'var(--fs-caption)', color: 'var(--ink-muted)' }}>PDF, JPG, PNG · max 10 MB</p>
+                                    <p style={{ fontSize: 'var(--fs-caption)', color: 'var(--ink-muted)' }}>PDF, Excel, CSV, JPG, PNG · max 10 MB</p>
                                 </>
                             )}
                         </div>

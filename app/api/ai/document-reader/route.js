@@ -4,6 +4,7 @@ import OpenAI from 'openai';
 import { guardAiRequest } from '../../../../utils/aiGuard';
 import { extractPdfText } from '../../../../utils/pdfExtract';
 import { resolveCounterparty } from '../../../../utils/docReaderParties';
+import { extractSheetText, isSpreadsheet, isLegacyXls } from '../../../../utils/sheetExtract';
 
 // Reading a multi-page / scanned document through gpt-4o routinely takes longer
 // than the platform's default function timeout — without this the client saw
@@ -21,7 +22,7 @@ export async function POST(request) {
     if (guard.error) return Response.json({ error: guard.error }, { status: guard.status });
 
     try {
-        const { fileBase64, pagesBase64, mimeType, documentType, suppliers, clients, currencies, expenseTypes, contractIndex } = await request.json();
+        const { fileBase64, pagesBase64, mimeType, fileName, documentType, suppliers, clients, currencies, expenseTypes, contractIndex } = await request.json();
 
         if (!fileBase64) {
             return Response.json({ error: 'No file provided' }, { status: 400 });
@@ -34,7 +35,32 @@ export async function POST(request) {
         // bundled in the serverless function (a known Vercel + pdfjs-dist quirk).
         let extractedText = '';
         let usePdfVision = false; // true → send raw PDF to gpt-4o (no local parse)
-        if (mimeType === 'application/pdf') {
+        let useSheet = false;     // true → the text came from a spreadsheet grid
+
+        /* Spreadsheets take the TEXT path, never vision: the cells are already
+           exact, so there is nothing to OCR. A legacy BIFF .xls is refused by
+           name rather than by parse error — exceljs reads OOXML only, and
+           "re-save it as .xlsx" is something the user can act on. */
+        if (isSpreadsheet(mimeType, fileName)) {
+            if (isLegacyXls(mimeType, fileName)) {
+                return Response.json({
+                    error: 'LEGACY_XLS',
+                    message: 'That is an old-format .xls file. Open it and re-save as .xlsx (or CSV), then upload again.',
+                }, { status: 400 });
+            }
+            const buffer = Buffer.from(fileBase64, 'base64');
+            const r = await extractSheetText(buffer, mimeType, fileName);
+            if (!r.ok) {
+                return Response.json({
+                    error: 'SHEET_PARSE_FAILED',
+                    message: r.reason === 'EMPTY'
+                        ? 'That spreadsheet has no readable rows.'
+                        : 'Could not read that spreadsheet. Re-save it as .xlsx or CSV and try again.',
+                }, { status: 400 });
+            }
+            extractedText = r.text;
+            useSheet = true;
+        } else if (mimeType === 'application/pdf') {
             const buffer = Buffer.from(fileBase64, 'base64');
             const r = await extractPdfText(buffer);
 
@@ -229,12 +255,17 @@ ${partyFields}
         // Transcription comes first; arithmetic may only override a read when it fails
         // by orders of magnitude. The scrambled-table rule applies ONLY to the
         // text-extraction path (vision sees the real layout, so reshuffling there is harmful).
-        const buildRules = (textPath) => {
+        const buildRules = (textPath, sheetPath = false) => {
             const lines = [
+                /* A spreadsheet is the one input whose layout is not in doubt, so it
+                   gets the opposite instruction to a scrambled PDF: trust the grid.
+                   It goes FIRST because these rules are priority-ordered and this is
+                   the one that must beat any temptation to reconstruct. */
+                ...(sheetPath ? ['SPREADSHEET: you are reading a real spreadsheet grid — one line per row, cells separated by tabs, sheets marked "--- Sheet: name ---". Columns are exact: read down them and do not reorder, merge or reconstruct anything. Header rows, subtotal/total rows and blank spacers are NOT data lines. An empty cell means no value — never carry a figure across from the neighbouring column to fill it.'] : []),
                 'TRANSCRIBE what is printed. Report each figure as it appears; change a read only when a rule below proves it wrong. If the document is legible and consistent, do not second-guess it.',
                 'NUMBER FORMAT — decide once per document, then apply throughout. EU style: dot/space/apostrophe = thousands, comma = decimal ("12.500,00" = 12500.00, "1,00" = 1.00). UK/US style: comma = thousands, dot = decimal ("48,000.000" = 48000). If ambiguous, pick the reading under which qty × price = amount.',
                 'QUANTITY vs PRICE: the quantity is the value tied to a unit (MT/TN/KGS/LB); the price is the per-unit money value. Check each line: qty × price ≈ line amount (allow normal rounding). Reassign ONLY if the check fails by orders of magnitude — that means swapped columns or a misparsed format; otherwise keep the printed values. The quantity and its unit belong ONLY in the qnty/unit fields — never repeat them inside the description; description is the material/grade text alone ("12.46 NI, 8.87 CR, 1.33 MO", not "42 MT 12.46 NI…").',
-                ...(textPath ? ['SCRAMBLED TEXT: if the extracted text is visibly scrambled (whole columns arrive as separate blocks, unit tokens like "TN" detached at the end), reconstruct each line using the qty × price = amount identity. Never reshuffle a document whose layout reads normally.'] : []),
+                ...(textPath && !sheetPath ? ['SCRAMBLED TEXT: if the extracted text is visibly scrambled (whole columns arrive as separate blocks, unit tokens like "TN" detached at the end), reconstruct each line using the qty × price = amount identity. Never reshuffle a document whose layout reads normally.'] : []),
                 'UNITS — purchase contract: keep the document\'s own unit in "unit"; do NOT convert. Sales contract: convert qnty to MT ("48,000 kgs" = 48 MT; LB × 0.00045359237) and unitPrc to per-MT (per-kg price × 1000), so qty × price still equals the line amount.',
                 'DATES: European issuers write day-month-year, US/Canadian month-day-year; any component > 12 settles the order. Use the invoice/issue date, not a sales, delivery or due date. Always output ISO YYYY-MM-DD.',
                 'PARTIES: the client/vendor is the counterparty, NEVER our own "IMS Metals" or "GIS Metals" — those are us. BUYER-ISSUED documents invert the roles: a PURCHASE ORDER, PURCHASE CONTRACT or PURCHASE(S) CONFIRMATION, wording like "we confirm having purchased from you" / "our purchases and your sales", or IMS/GIS appearing as the addressee ("TO: IMS Metals…") or under "PURCHASED FROM" — in all of these the letterhead/issuing company is the BUYER (that is the client) and the IMS/GIS party is us, the seller. If the only candidate is IMS/GIS, return null.',
@@ -244,10 +275,10 @@ ${partyFields}
                 + lines.map((l, i) => `${i + 1}. ${l}`).join('\n');
         };
 
-        const buildSystemPrompt = (textPath) => `You are a document parsing assistant for a metals trading IMS.
-Extract structured data from the ${textPath ? 'document text' : 'document image(s)'}.
+        const buildSystemPrompt = (textPath, sheetPath = false) => `You are a document parsing assistant for a metals trading IMS.
+Extract structured data from the ${sheetPath ? 'spreadsheet below' : textPath ? 'document text' : 'document image(s)'}.
 ${entityLists}
-${buildRules(textPath)}
+${buildRules(textPath, sheetPath)}
 ${schemaGuide}
 Return ONLY the JSON object, no extra text.`;
 
@@ -257,7 +288,13 @@ Return ONLY the JSON object, no extra text.`;
         const model = process.env.OPENAI_DOCREADER_MODEL || 'gpt-4o';
 
         let messages;
-        if (mimeType === 'application/pdf' && !usePdfVision) {
+        if (useSheet) {
+            // Spreadsheet: the grid IS the document. No vision, no reconstruction.
+            messages = [
+                { role: 'system', content: buildSystemPrompt(true, true) },
+                { role: 'user', content: extractedText },
+            ];
+        } else if (mimeType === 'application/pdf' && !usePdfVision) {
             // Digital PDF with a usable text layer.
             messages = [
                 { role: 'system', content: buildSystemPrompt(true) },
@@ -472,7 +509,10 @@ Return ONLY the JSON object, no extra text.`;
             reconcile,
             // true whenever digits were read visually (scanned PDF pages or an image
             // upload) rather than from a text layer — the UI shows a caution note.
-            visionUsed: usePdfVision || mimeType !== 'application/pdf',
+            // Digits read from cells or a text layer are not OCR — only a rendered
+            // page or an uploaded image earns the "check the figures" caution.
+            visionUsed: !useSheet && (usePdfVision || mimeType !== 'application/pdf'),
+            sheetUsed: useSheet,
         });
 
     } catch (err) {
