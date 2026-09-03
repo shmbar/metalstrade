@@ -872,6 +872,13 @@ function TotalCell({ label = 'Total', value, onOpen }) {
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.28, ease: 'easeOut' }}
+      /* Same hover the sibling data tiles use — border deepens to full --brand (they do it
+         via a CSS class; this one needs whileHover instead because the base border is set
+         inline above, and an inline style always beats a CSS class). Border-only, no lift:
+         RankTile doesn't lift on hover either, and matching it is the point (2026-09-03:
+         "add hover effect like other cell"). Gated on onOpen — a non-interactive total
+         (no drill-down wired) shouldn't invite a click that does nothing. */
+      {...(onOpen ? { whileHover: { borderColor: 'var(--brand)' } } : {})}
     >
       <span className="responsiveTextTableTitle font-medium leading-tight truncate" style={{ color: 'var(--brand)' }}>{label}</span>
       {/* --fs-title, not --fs-stat: it shares a row with the leader tile now, and a total
