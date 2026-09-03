@@ -5,6 +5,7 @@ import { ChevronRight } from 'lucide-react'
 import { NumericFormat } from 'react-number-format'
 import CurrencyChip from '../../../../components/CurrencyChip'
 import Tltip from '../../../../components/tlTip'
+import { gradeKeyOf, gradeLabel } from './gradeKey'
 
 /* The four figure columns are bounded — each is sized to the wider of its header and
    its values — and Description is the one free-text column, so under table-layout:fixed
@@ -13,10 +14,16 @@ import Tltip from '../../../../components/tlTip'
    1280 it gets ~120px and truncates. Nothing ever scrolls sideways. */
 const COL_W = { weight: 112, avg: 96, value: 100, cur: 72 }
 
-// Group stock rows by grade (descriptionName + currency), returning total
-// quantity and the weighted average cost per MT for each grade. Shared between
-// the on-screen "Avg Cost Price per Grade" table and the Excel export so both
-// reflect the same (filtered) data.
+/* Group stock rows by GRADE + currency, returning the total quantity and the
+   weighted average cost per MT for each. Shared between the on-screen "Avg Cost
+   Price per Grade" table and the Excel export so both reflect the same data.
+
+   The grade — not the typed description — is the unit here. Grouping on the raw
+   description gave one line per SPELLING, so twenty-one lots of the same unnamed
+   NiCrMo ingot showed as twenty-one 9 MT rows instead of one 230 MT position, and
+   "IN 718 Chips" sat three times over depending on whether whoever typed it put a
+   space inside the assay. See gradeKey.js for what folds and why. Each group keeps
+   both splits it can be opened on: the spellings that fed it, and the suppliers. */
 export const computeGradeSummary = (dataTable, settings) => {
   if (!dataTable || dataTable.length === 0) return []
 
@@ -24,41 +31,54 @@ export const computeGradeSummary = (dataTable, settings) => {
   const supName = (id) => settings?.Supplier?.Supplier?.find(q => q.id === id)?.nname
     || (id && id !== '-' ? String(id) : '(no supplier)')
 
-  // Group by descriptionName + cur, sum qnty and total value; keep a per-supplier
-  // split inside each group so the row can expand to show who supplied how much.
   const groups = {}
   dataTable.forEach(row => {
     const name = row.descriptionName || '-'
     const curId = row.cur || ''
-    const key = `${name}|${curId}`
+    const { key: gradeKey, label: synthLabel } = gradeKeyOf(name)
+    const key = `${gradeKey || name}|${curId}`
     if (!groups[key]) {
-      groups[key] = { descriptionName: name, curId, totalQnty: 0, totalValue: 0, bySupplier: {} }
+      groups[key] = {
+        curId, synthLabel, totalQnty: 0, totalValue: 0, bySupplier: {}, byVariant: {},
+      }
     }
+    const g = groups[key]
     const qty = parseFloat(row.qnty) || 0
     const val = row.total === '-' ? 0 : parseFloat(row.total) || 0
-    groups[key].totalQnty += qty
-    groups[key].totalValue += val
+    g.totalQnty += qty
+    g.totalValue += val
+
     const sup = supName(row.supplier)
-    if (!groups[key].bySupplier[sup]) groups[key].bySupplier[sup] = { supplier: sup, qnty: 0, value: 0 }
-    groups[key].bySupplier[sup].qnty += qty
-    groups[key].bySupplier[sup].value += val
+    if (!g.bySupplier[sup]) g.bySupplier[sup] = { supplier: sup, qnty: 0, value: 0 }
+    g.bySupplier[sup].qnty += qty
+    g.bySupplier[sup].value += val
+
+    if (!g.byVariant[name]) g.byVariant[name] = { description: name, qnty: 0, value: 0 }
+    g.byVariant[name].qnty += qty
+    g.byVariant[name].value += val
   })
 
   return Object.values(groups)
     .filter(r => r.totalQnty > 0.1)
-    .sort((a, b) => a.descriptionName.localeCompare(b.descriptionName))
     .map(r => {
       const curCode = gCur(r.curId)
       const isoCode = curCode?.toLowerCase() === 'eur' ? 'EUR' : 'USD'
+      const variants = Object.values(r.byVariant)
+        .filter(v => v.qnty > 0.0005)
+        .sort((a, b) => b.value - a.value)
       return {
         ...r,
+        // Keeps the name under the key the Excel sheet already writes.
+        descriptionName: gradeLabel(r.synthLabel, Object.keys(r.byVariant)),
         avgPrice: r.totalQnty > 0 ? r.totalValue / r.totalQnty : 0,
         isoCode,
+        variants,
         suppliers: Object.values(r.bySupplier)
           .filter(s => s.qnty > 0.0005)
           .sort((a, b) => b.value - a.value),
       }
     })
+    .sort((a, b) => a.descriptionName.localeCompare(b.descriptionName))
 }
 
 const GradeTable = ({ dataTable, loading, settings }) => {
@@ -132,7 +152,15 @@ const GradeTable = ({ dataTable, loading, settings }) => {
               {rows.map((r, i) => {
                 const { avgPrice, isoCode } = r
                 const key = `${r.descriptionName}|${r.curId}`
-                const canExpand = (r.suppliers || []).length > 0
+                /* A grade folded from several spellings opens on THOSE — that is the
+                   breakdown behind the total, and the one the fold made invisible.
+                   A grade with a single spelling has nothing to show there, so it
+                   keeps opening on the supplier split as it always did. */
+                const variants = r.variants || []
+                const children = variants.length > 1
+                  ? variants.map(v => ({ name: v.description, qnty: v.qnty, value: v.value }))
+                  : (r.suppliers || []).map(s => ({ name: s.supplier, qnty: s.qnty, value: s.value }))
+                const canExpand = children.length > 0
                 const isOpen = !!expanded[key]
                 return (
                   <React.Fragment key={i}>
@@ -146,6 +174,9 @@ const GradeTable = ({ dataTable, loading, settings }) => {
                               style={{ transform: isOpen ? 'rotate(90deg)' : 'none', color: 'var(--endeavour)' }} />
                           )}
                           <span className='block truncate min-w-0'>{r.descriptionName}</span>
+                          {variants.length > 1 && (
+                            <span className='shrink-0' style={{ color: 'var(--regent-gray)' }}>({variants.length})</span>
+                          )}
                         </span>
                       </Tltip>
                     </td>
@@ -184,22 +215,22 @@ const GradeTable = ({ dataTable, loading, settings }) => {
                       <CurrencyChip cur={isoCode} />
                     </td>
                   </tr>
-                  {isOpen && r.suppliers.map((s, k) => (
-                    <tr key={`${i}-sup-${k}`} style={{ background: 'var(--surface-pill)' }}>
+                  {isOpen && children.map((c, k) => (
+                    <tr key={`${i}-child-${k}`} style={{ background: 'var(--surface-pill)' }}>
                       <td className="responsiveTextTable" style={{ ...tdStyle, textAlign: 'left', paddingLeft: '34px', color: 'var(--regent-gray)' }}>
-                        <Tltip direction='top' tltpText={s.supplier}>
-                          <span className='block truncate cursor-default w-full'>{s.supplier}</span>
+                        <Tltip direction='top' tltpText={c.name}>
+                          <span className='block truncate cursor-default w-full'>{c.name}</span>
                         </Tltip>
                       </td>
                       <td className="responsiveTextTable" style={{ ...tdStyle, color: 'var(--regent-gray)' }}>
-                        <NumericFormat value={s.qnty} displayType="text" thousandSeparator decimalScale={3} fixedDecimalScale />
+                        <NumericFormat value={c.qnty} displayType="text" thousandSeparator decimalScale={3} fixedDecimalScale />
                       </td>
                       <td className="responsiveTextTable" style={{ ...tdStyle, color: 'var(--regent-gray)' }}>
-                        <NumericFormat value={s.qnty > 0 ? s.value / s.qnty : 0} displayType="text" thousandSeparator
+                        <NumericFormat value={c.qnty > 0 ? c.value / c.qnty : 0} displayType="text" thousandSeparator
                           prefix={isoCode === 'EUR' ? '€' : '$'} decimalScale={2} fixedDecimalScale />
                       </td>
                       <td className="responsiveTextTable" style={{ ...tdStyle, color: 'var(--regent-gray)' }}>
-                        <NumericFormat value={s.value} displayType="text" thousandSeparator
+                        <NumericFormat value={c.value} displayType="text" thousandSeparator
                           prefix={isoCode === 'EUR' ? '€' : '$'} decimalScale={2} fixedDecimalScale />
                       </td>
                       <td style={tdStyle}></td>
