@@ -38,7 +38,7 @@ const Contracts = () => {
 
 	const { settings, dateSelect, setDateYr, setLoading, loading, ln, compData, updateCompanyData, setToast } = useContext(SettingsContext);
 	const { valueCon, setValueCon, contractsData, isOpenCon, setIsOpenCon,
-		addContract, setContractsData } = useContext(ContractsContext);
+		addContract, setContractsData, setOpenInvoiceId } = useContext(ContractsContext);
 	const { blankInvoice, setIsInvCreationCNFL } = useContext(InvoiceContext);
 	const { blankExpense } = useContext(ExpensesContext);
 	const { uidCollection } = UserAuth();
@@ -68,6 +68,11 @@ const Contracts = () => {
 			if (item) {
 				setHighlightId(openId);
 				setTimeout(() => setHighlightId(null), 3000);
+				/* &invId names ONE invoice under the contract (Shipment Tracking links each
+				   shipment separately). Set before SelectRow, because SelectRow blanks the
+				   invoice form — the Invoices tab picks this up on mount and loads that
+				   invoice instead of leaving the form empty. */
+				setOpenInvoiceId(searchParams.get('invId') || null);
 				SelectRow(item);
 				router.replace('/contracts', { scroll: false });
 			}

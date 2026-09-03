@@ -15,7 +15,7 @@ function classNames(...classes) {
 }
 
 const Page = () => {
-    const { valueCon, isButtonDisabled } = useContext(ContractsContext);
+    const { valueCon, isButtonDisabled, openInvoiceId } = useContext(ContractsContext);
     const { ln } = useContext(SettingsContext);
     let tabs = ['Contract', 'Invoices', 'Shipments Tracking', 'Inventory', 'Certificate']
 
@@ -32,7 +32,11 @@ const Page = () => {
         <div>
             <div className="p-3">
                 <div className="w-full px-0 ">
-                    <Tab.Group >
+                    {/* Arriving from an invoice link (Shipment Tracking), open on Invoices
+                        rather than on the contract — the invoice is what was clicked. The
+                        modal unmounts when it closes, so defaultIndex is read fresh each
+                        time and an ordinary open still starts on Contract. */}
+                    <Tab.Group defaultIndex={openInvoiceId ? 1 : 0}>
                         <Tab.List className="inline-flex space-x-0.5 p-0.5 mb-2 rounded-lg bg-[var(--bg-subtle)] border border-[var(--line)]">
                             {tabs.map((z, i) => (
                                 <Tab

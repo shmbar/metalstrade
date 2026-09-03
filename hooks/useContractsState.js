@@ -46,6 +46,11 @@ const useContractsState = (props) => {
     const [errors, setErrors] = useState({})
     const { setToast, setLastAction, dateYr, setLoading, ln, settings } = useContext(SettingsContext);
     const [isButtonDisabled, setIsButtonDisabled] = useState(false);
+    /* Deep link into one INVOICE of the contract about to open. Shipment Tracking lists
+       every invoice under a PO, and clicking one used to open the contract on its first
+       tab with whichever invoice happened to be loaded — so picking the second shipment
+       still landed you on the first. The Invoices tab consumes this once and clears it. */
+    const [openInvoiceId, setOpenInvoiceId] = useState(null);
 
     // Memoized so the context value only changes when state this object exposes (or
     // its closures read) actually changes — unrelated Settings churn (toast, loading)
@@ -57,6 +62,7 @@ const useContractsState = (props) => {
         isOpenCon, setIsOpenCon,
         errors, setErrors,
         isButtonDisabled, setIsButtonDisabled,
+        openInvoiceId, setOpenInvoiceId,
         addContract: async () => {
             setValueCon({ ...newContract, order: buildAutoOrder(contractsData, null) });
             setIsOpenCon(true)
@@ -349,7 +355,7 @@ const useContractsState = (props) => {
             let success = await saveStockIn(uidCollection, tmp)
             success && setToast({ show: true, text: getTtl('Stock successfully saved!', ln), clr: 'success' })
         }
-    }), [valueCon, contractsData, isOpenCon, errors, isButtonDisabled,
+    }), [valueCon, contractsData, isOpenCon, errors, isButtonDisabled, openInvoiceId,
         settings, dateYr, ln, setToast, setLoading]);
 };
 

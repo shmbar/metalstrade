@@ -48,7 +48,8 @@ const ContractModal = () => {
 	const { valueInv, setValueInv, blankInvoice, delInvoice, copyInvoice, paste_Invoice, copy_Invoice,
 		saveData_InvoiceInContracts, finilizeInvoice, cancelInvoice, errors, setErrors,
 		copyInvValue, invNum, setInvNum, setIsInvCreationCNFL, isInvCreationCNFL, setDeleteProducts } = useContext(InvoiceContext);
-	const { valueCon, setValueCon, contractsData, setContractsData, setIsOpenCon } = useContext(ContractsContext);
+	const { valueCon, setValueCon, contractsData, setContractsData, setIsOpenCon,
+		openInvoiceId, setOpenInvoiceId } = useContext(ContractsContext);
 	const clts = settings.Client.Client;
 	const client = valueInv?.client && clts.find(z => z.id === valueInv.client);
 	const [isDeleteOpen, setIsDeleteOpen] = useState(false)
@@ -172,6 +173,19 @@ const ContractModal = () => {
 		setLoading(false)
 
 	}
+
+	/* Deep link from Shipment Tracking: the row's breakdown lists every invoice under the
+	   PO, and clicking one names it with &invId. Without this the tab opened on a blank
+	   form (SelectRow blanks it) and you had to hunt the number down in the list on the
+	   left — which read as "it sent me back to the same invoice". Consumed once, so
+	   clicking around the list afterwards behaves normally. */
+	useEffect(() => {
+		if (!openInvoiceId) return;
+		const i = (valueCon?.invoices || []).findIndex(x => x?.id === openInvoiceId);
+		setOpenInvoiceId(null);
+		if (i >= 0) selectRow(i);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [openInvoiceId, valueCon?.id]);
 
 	const clearForm = () => {
 		setIsInvCreationCNFL(false)

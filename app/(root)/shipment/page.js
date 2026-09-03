@@ -929,8 +929,12 @@ const ShipmentPage = () => {
         );
     };
 
-    const navigateTo = (contractId) => {
-        router.push(`/contracts?openId=${contractId}`);
+    /* Contract number → the contract. Invoice number → that INVOICE, named by its own
+       document id, so the modal opens on the Invoices tab with it already loaded.
+       Without the id every invoice link landed on the contract's first tab and you had
+       to find the number again in the list inside. */
+    const navigateTo = (contractId, invoiceId) => {
+        router.push(`/contracts?openId=${contractId}${invoiceId ? `&invId=${invoiceId}` : ''}`);
     };
 
     const formatDate = (d) => {
@@ -1511,7 +1515,7 @@ const ShipmentPage = () => {
                                             <td>
                                                 <div className="flex justify-center items-center gap-1 responsiveTextTable">
                                                     {mainInv ? (
-                                                        <button onClick={() => navigateTo(contract.id)} className="font-medium text-[var(--brand)] hover:underline">
+                                                        <button onClick={() => navigateTo(contract.id, mainInv.id)} className="font-medium text-[var(--brand)] hover:underline">
                                                             {mainInv.invoice}
                                                         </button>
                                                     ) : <span className="text-[var(--ink-muted)]">—</span>}
@@ -1677,7 +1681,7 @@ const ShipmentPage = () => {
                                                             {shipments.map(s => (
                                                                 <tr key={s.id}>
                                                                     <td style={{ textAlign: 'left' }}>
-                                                                        <button onClick={() => navigateTo(contract.id)} className="font-medium text-[var(--brand)] hover:underline">
+                                                                        <button onClick={() => navigateTo(contract.id, s.id)} className="font-medium text-[var(--brand)] hover:underline">
                                                                             {s.invoice}{s.invType === '2222' ? ' CN' : s.invType === '3333' ? ' FN' : ''}
                                                                         </button>
                                                                         {s.canceled && <span className="ml-1 text-[var(--ink-muted)]">(cancelled)</span>}
