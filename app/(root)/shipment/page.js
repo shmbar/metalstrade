@@ -1025,15 +1025,30 @@ const ShipmentPage = () => {
     const groupingActive = groupByStatus && statusFilter === '';
     const displayRows = !groupingActive
         ? paginated.map(c => ({ type: 'row', contract: c }))
-        : GROUP_ORDER.flatMap(s => {
-            const items = paginated.filter(c => normalizeStatus(c.shipmentStatus || '') === s);
-            if (!items.length) return [];
-            const collapsed = collapsedGroups.has(s);
-            return [
-                { type: 'header', status: s, count: items.length, collapsed },
-                ...(collapsed ? [] : items.map(c => ({ type: 'row', contract: c }))),
-            ];
-        });
+        : (() => {
+            /* Grouping used to filter the page row-by-row against GROUP_ORDER and emit
+               nothing else. A contract whose stored status is not one of those seven —
+               a value from an older vocabulary that normalizeStatus has no alias for, or
+               one with stray whitespace — therefore belonged to NO group and left the
+               table silently, while still being counted in the "1–50 of 120" footer.
+               Everything on the page is placed, so a row can no longer disappear. */
+            const placed = new Set();
+            const groups = GROUP_ORDER.map(s => {
+                const items = paginated.filter(c => normalizeStatus(c.shipmentStatus || '') === s);
+                items.forEach(c => placed.add(c));
+                return { status: s, items };
+            });
+            const rest = paginated.filter(c => !placed.has(c));
+            if (rest.length) groups.push({ status: 'Other', items: rest });
+            return groups.flatMap(({ status, items }) => {
+                if (!items.length) return [];
+                const collapsed = collapsedGroups.has(status);
+                return [
+                    { type: 'header', status, count: items.length, collapsed },
+                    ...(collapsed ? [] : items.map(c => ({ type: 'row', contract: c }))),
+                ];
+            });
+        })();
 
     /* The table's own scroll box, same as every other main table in the app.
        This page had none: the table ran at its natural height and the page itself
