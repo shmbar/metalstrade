@@ -272,7 +272,8 @@ const DocumentImportOverlay = ({ documentType, suppliers, clients, currencies, e
                 if (data.error === 'SCANNED_PDF') {
                     throw new Error(data.message || 'PDF has no embedded text. Export it as an image and re-upload.');
                 }
-                if (data.error === 'LEGACY_XLS' || data.error === 'SHEET_PARSE_FAILED') {
+                if (data.error === 'LEGACY_XLS' || data.error === 'SHEET_PARSE_FAILED'
+                    || data.error === 'DOCUMENT_TOO_LONG' || data.error === 'BAD_MODEL_JSON') {
                     throw new Error(data.message);
                 }
                 if (data.error === 'PDF_PARSE_FAILED') {

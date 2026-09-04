@@ -221,7 +221,7 @@ ${partyFields}
   "rows": [{
     "material": "the label of this line — bundle/lot/package/heat number, or the material description if the lines are not numbered",
     "weight": number_or_null,
-    "elements": { "ni": number_or_null, "cr": number_or_null, "mo": number_or_null, "co": number_or_null, "nb": number_or_null, "w": number_or_null, "cu": number_or_null, "ti": number_or_null, "fe": number_or_null, "mn": number_or_null, "si": number_or_null, "c": number_or_null, "p": number_or_null, "s": number_or_null, "v": number_or_null, "al": number_or_null, "ta": number_or_null, "hf": number_or_null, "zr": number_or_null, "b": number_or_null, "n": number_or_null, "sn": number_or_null, "pb": number_or_null }
+    "elements": { "ni": 24.03, "cr": 8.82, "fe": 57.83 }
   }],
   "confidence": { "tableName": "high|medium|low", "containerNo": "high|medium|low", "unit": "high|medium|low", "rows": "high|medium|low" }
 }
@@ -230,7 +230,8 @@ HOW TO READ THIS DOCUMENT:
 - READ EVERY ELEMENT COLUMN THE DOCUMENT PRINTS, INCLUDING Fe. Fe (Iron, Железо) is an ordinary column: when there is one, transcribe it like any other. Only leave "fe" null when iron genuinely is not on the document — a superalloy certificate listing Ni/Cr/Mo/Co/W/Nb/Ti usually has none.
 - "elements" are PERCENTAGES of the alloy (0-100), never kilograms of contained metal. Documents commonly print BOTH for each element — a "%" column and a mass column ("Ni,%" beside "Ni,кг"; "Cr %" beside "Cr kg"). Always take the % column. If only a contained mass is given, divide by that line's weight and give the percentage.
 - Element columns may be headed by symbol (Ni, Cr, Mo, Co, Nb, W, Cu, Ti, Fe, Mn, Si, C, P, S, V, Al) or spelled out in English or Russian (Nickel/Никель, Chrome/Chromium/Хром, Molybdenum/Молибден, Cobalt/Кобальт, Niobium/Columbium/Cb/Ниобий, Tungsten/Wolfram/Вольфрам, Copper/Медь, Titanium/Титан, Iron/Железо, Manganese/Марганец). Cb = Nb. Carbon is often written with the Cyrillic "С", which looks identical to Latin "C" — it is carbon either way.
-- An element the document does not carry stays null. NEVER carry a value across from a neighbouring column to fill a gap.
+- "elements" holds ONLY the elements this document actually prints a value for — the example above shows three because that line had three. OMIT a key entirely rather than writing null: a 40-lot assay repeating twenty nulls per row is what makes the answer run out of room and arrive truncated. Allowed keys, lower-case: ni cr mo co nb w cu ti fe mn si c p s v al ta hf zr b n sn pb.
+- NEVER carry a value across from a neighbouring column to fill a gap. A blank cell means the element was not measured on that line; leave its key out.
 - "weight" is that line's TOTAL net weight. Sheets often print a total beside a per-package breakdown ("Total Weight" then "Weight 1", "Weight 2"…, or "Вес плавки" per heat): take the total, and do NOT emit the parts as separate rows.
 - "unit" comes from the weight column's own heading: "kg"/"кг"/"Weight Kg" → kgs; "MT"/"W/T"/"т"/"тн"/"tonnes" → mt; "lb"/"lbs" → lbs. If nothing says, use kgs.
 - SUMMARY LINES ARE NOT ROWS. A line labelled Average / Total / Итого / Среднее, or one whose identifier cell is blank while its figures are the average or sum of the lines above it, is a summary — leave it out.
@@ -341,9 +342,15 @@ Return ONLY the JSON object, no extra text.`;
         const response = await getOpenAI().chat.completions.create({
             model,
             temperature: 0,
-            // Mixed-container invoices (Donald McArthy et al.) carry 20+ material lines;
-            // headroom so the JSON never truncates mid-array.
-            max_tokens: 4000,
+            /* Mixed-container invoices (Donald McArthy et al.) carry 20+ material
+               lines; headroom so the JSON never truncates mid-array.
+
+               A packing list needs far more of it than an invoice does: 4000 was
+               sized for a 20-line invoice and a 40-lot assay blew straight through
+               it, coming back cut off mid-object — "Expected ',' or '}' … at
+               position 10884" (Sharoon, 2026-09-04). It is a ceiling, not a target,
+               so raising it for that path alone costs nothing on the others. */
+            max_tokens: documentType === 'materialtable' ? 16000 : 4000,
             response_format: { type: 'json_object' },
             messages,
             // Stay under maxDuration so a hung upstream returns OUR json error,
@@ -351,7 +358,27 @@ Return ONLY the JSON object, no extra text.`;
         }, { timeout: 50_000 });
 
         guard.recordUsage(response.usage?.total_tokens);
-        const result = JSON.parse(response.choices[0].message.content);
+
+        /* A model that runs out of output room stops mid-value, and JSON.parse then
+           reports a column number — which is what reached the user as "Expected ','
+           or '}' … at position 10884". finish_reason says exactly what happened, so
+           say it in words they can act on instead of surfacing the parser. */
+        const choice = response.choices[0];
+        if (choice.finish_reason === 'length') {
+            return Response.json({
+                error: 'DOCUMENT_TOO_LONG',
+                message: 'That document has more lines than can be read in one pass. Split it — one sheet, or the first half of the rows — and read each part into its own table.',
+            }, { status: 400 });
+        }
+        let result;
+        try {
+            result = JSON.parse(choice.message.content);
+        } catch {
+            return Response.json({
+                error: 'BAD_MODEL_JSON',
+                message: 'The reader returned a malformed answer for this document. Try it again, or split it into smaller parts.',
+            }, { status: 502 });
+        }
 
         // Which of the two named parties is the counterparty is decided in code, not by
         // the model — a buyer-issued purchase confirmation puts OUR name on the page too.

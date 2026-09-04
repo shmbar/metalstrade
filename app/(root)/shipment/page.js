@@ -3,7 +3,7 @@ import { useContext, useEffect, useState, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { SettingsContext } from "../../../contexts/useSettingsContext";
 import { UserAuth } from "../../../contexts/useAuthContext";
-import { loadData, updateContractField, ensureNotificationsBatch, deleteNotification, loadActivityByTypePrefix } from '../../../utils/utils';
+import { loadData, updateContractField, updateInvoiceField, ensureNotificationsBatch, deleteNotification, loadActivityByTypePrefix } from '../../../utils/utils';
 import VideoLoader from '../../../components/videoLoader';
 import { TableSkeleton } from "../../../components/skeletons";
 import Toast from '../../../components/toast.js';
@@ -63,7 +63,9 @@ const invDate = (d) => (typeof d === 'string' ? d : (d?.startDate || ''));
 // note (2222) supersedes the provisional invoice (1111) rather than double-counting it.
 const supersedes = (a, b) => String(a?.invType || '') > String(b?.invType || '');
 
-function NotesCell({ value, contractId, contractDate, uidCollection, onChange, onCommit }) {
+/* onSave(value, timestamp) rather than a hardwired contract write: the same cell now
+   serves a contract row and a shipment row, and those persist to different documents. */
+function NotesCell({ value, onChange, onSave }) {
     const [local, setLocal] = useState(value || '');
     const timerRef = useRef(null);
 
@@ -74,11 +76,7 @@ function NotesCell({ value, contractId, contractDate, uidCollection, onChange, o
         setLocal(v);
         onChange(v);
         clearTimeout(timerRef.current);
-        timerRef.current = setTimeout(() => {
-            const ts = Date.now();
-            updateContractField(uidCollection, contractId, contractDate, { shipmentNotes: v, shipmentUpdatedAt: ts });
-            onCommit?.(ts);
-        }, 800);
+        timerRef.current = setTimeout(() => onSave?.(v, Date.now()), 800);
     };
 
     // Flat at rest (matches read-only tables); the input box only appears on
@@ -442,7 +440,7 @@ function StatusSelect({ value, onChange }) {
 }
 
 const ShipmentPage = () => {
-    const { settings, dateSelect, loading, setLoading } = useContext(SettingsContext);
+    const { settings, dateSelect, loading, setLoading, setToast } = useContext(SettingsContext);
     const { uidCollection, logActivity } = UserAuth();
     const router = useRouter();
 
@@ -600,6 +598,7 @@ const ShipmentPage = () => {
 
                     const shipments = [...groups.values()].map(d => ({
                         id: d.id,
+                        contractId: c.id,
                         invoice: d.invoice,
                         invType: d.invType || '',
                         date: invDate(d.date),
@@ -615,6 +614,13 @@ const ShipmentPage = () => {
                         pol: d.pol || null,
                         pod: d.pod || null,
                         shpType: d.shpType || null,
+                        /* The shipment row's own tracking fields. Deliberately NOT
+                           shipData.status — that is the Release Status, a different
+                           vocabulary the PnL tab owns. This is the lifecycle status,
+                           the same words the contract row uses. */
+                        shipmentStatus: normalizeStatus(d.shipmentStatus),
+                        shipmentNotes: d.shipmentNotes || '',
+                        updatedAt: d.shipmentUpdatedAt || 0,
                     })).sort((a, b) => {
                         const da = new Date(a.date).getTime() || 0;
                         const db = new Date(b.date).getTime() || 0;
@@ -692,6 +698,17 @@ const ShipmentPage = () => {
         return null;
     };
 
+    // Same triage, measured against one shipment's own ETA.
+    const getShipmentUrgency = (s) => {
+        if ((s.shipmentStatus || '') === 'Completed' || !s.eta) return null;
+        const eta = new Date(s.eta);
+        if (isNaN(eta.getTime())) return null;
+        const days = Math.floor((Date.now() - eta.getTime()) / 86400000);
+        if (days > 0) return 'overdue';
+        if (days >= -7) return 'soon';
+        return null;
+    };
+
     const handleDateFieldChange = (contractId, field, value) => {
         setContracts(prev => prev.map(c => c.id === contractId ? { ...c, [field]: value } : c));
     };
@@ -701,6 +718,15 @@ const ShipmentPage = () => {
         const rawDate = field === 'shipmentEtd' ? getRawETD(contract) : getRawETA(contract);
         setFloatingValue({ startDate: rawDate || null, endDate: rawDate || null });
         setFloatingPicker({ contractId: contract.id, field, contractDate: contract.date, anchor, pos: pickerPos(anchor) });
+    };
+
+    /* Same picker, aimed at one shipment. `shipment` present on the picker state is
+       what tells the commit handler to write to the invoice instead of the contract. */
+    const openShipmentPicker = (anchor, shipment, field) => {
+        if (!anchor) return;
+        const raw = field === 'etd' ? shipment.etd : shipment.eta;
+        setFloatingValue({ startDate: raw || null, endDate: raw || null });
+        setFloatingPicker({ shipment, field, anchor, pos: pickerPos(anchor) });
     };
 
     // Click the datepicker input after it mounts (conditional render = always fresh/closed state)
@@ -740,6 +766,20 @@ const ShipmentPage = () => {
 
     const handleFloatingPickerChange = (val) => {
         const d = val?.startDate || '';
+        if (floatingPicker?.shipment) {
+            /* A shipment's dates live on its invoice, under shipData — the same place
+               the contract's own Shipments Tracking tab reads and writes, so the two
+               views stay in agreement. Dotted paths merge into shipData rather than
+               replacing it, leaving Outturn / Finalizing / Release Status untouched. */
+            const s = floatingPicker.shipment;
+            const ts = Date.now();
+            saveShipment(s, {
+                local: { [floatingPicker.field]: d || null },
+                remote: { [`shipData.${floatingPicker.field}`]: d ? { startDate: d, endDate: d } : '' },
+            }, ts);
+            setFloatingPicker(null);
+            return;
+        }
         if (floatingPicker) {
             const ts = Date.now();
             handleDateFieldChange(floatingPicker.contractId, floatingPicker.field, d);
@@ -822,11 +862,58 @@ const ShipmentPage = () => {
         return po - getShippedQty(contract);
     };
 
+    /* Shipment rows are shown by default — they are the point of the page — so this
+       tracks which contracts are COLLAPSED rather than which are open. */
     const toggleExpanded = (contractId) => setExpandedRows(prev => {
         const next = new Set(prev);
         if (next.has(contractId)) next.delete(contractId); else next.add(contractId);
         return next;
     });
+    const isExpanded = (contractId) => !expandedRows.has(contractId);
+
+    // One shipment's fields, in local state.
+    const patchShipment = (contractId, shipmentId, patch) => setShipMap(prev => {
+        const entry = prev[contractId];
+        if (!entry) return prev;
+        return {
+            ...prev,
+            [contractId]: {
+                ...entry,
+                shipments: entry.shipments.map(s => (s.id === shipmentId ? { ...s, ...patch } : s)),
+            },
+        };
+    });
+
+    /* …and in Firestore. A shipment row edits the INVOICE it stands for, not the
+       contract: a PO that ships three times has three sets of dates and the contract
+       has room for exactly one, which is why entering the second shipment here used to
+       be impossible. An invoice with no date can't be addressed (the collection is
+       year-bucketed), so that case is reported rather than written into a bad path. */
+    const saveShipment = async (shipment, patch, ts) => {
+        patchShipment(shipment.contractId, shipment.id, { ...patch.local, updatedAt: ts });
+        if (!shipment.date) {
+            setToast?.({ show: true, text: 'That invoice has no date, so it cannot be updated here — set it on the invoice first.', clr: 'fail' });
+            return;
+        }
+        await updateInvoiceField(uidCollection, shipment.id, shipment.date, { ...patch.remote, shipmentUpdatedAt: ts });
+    };
+
+    const handleShipmentStatusChange = async (contract, shipment, status) => {
+        const ts = Date.now();
+        await saveShipment(shipment, {
+            local: { shipmentStatus: status },
+            remote: { shipmentStatus: status },
+        }, ts);
+        if (status) {
+            logActivity?.({
+                type: 'shipment.status', entityType: 'contract', entityId: contract.id || '',
+                entityLabel: `PO ${contract.order ?? ''}`, action: 'status',
+                message: `Shipment ${shipment.invoice} (PO ${contract.order ?? ''}) marked "${status}"`,
+                notify: true,
+                severity: status === 'Completed' ? 'success' : status === 'On Hold' ? 'warning' : 'info',
+            });
+        }
+    };
 
     const shipmentClientName = (s) => {
         if (s.clientName) return s.clientName;
@@ -1062,15 +1149,16 @@ const ShipmentPage = () => {
        section header rows to the same list, which is why this measures displayRows
        rather than the page slice.
 
-       An expanded row carries a nested shipment table, so it is measured separately
-       (header + one line per shipment + the totals line) rather than as another 44px
-       row — otherwise opening a breakdown just pushed the box into scrolling. */
-    const expandedExtra = displayRows.reduce((h, e) => {
-        if (e.type !== 'row' || !expandedRows.has(e.contract.id)) return h;
-        return h + 26 + (getShipments(e.contract).length + 1) * 22 + 18;
-    }, 0);
+       A contract's shipment rows are rows of the same table, so they are counted the
+       same way — they just aren't in displayRows, which is keyed on contracts. The cap
+       lifts with them so opening a PO with four shipments doesn't immediately put the
+       box into scrolling. */
+    const shipmentRowCount = displayRows.reduce((n, e) => (
+        e.type === 'row' && isExpanded(e.contract.id) ? n + getShipments(e.contract).length : n
+    ), 0);
+    const extra = shipmentRowCount * 44;
     const dynamicMaxHeight = displayRows.length > 0
-        ? `${Math.min(displayRows.length * 44 + expandedExtra + 120, 700 + expandedExtra)}px`
+        ? `${Math.min(displayRows.length * 44 + extra + 120, 700 + extra)}px`
         : '320px';
 
     const getPageNumbers = () => {
@@ -1130,6 +1218,46 @@ const ShipmentPage = () => {
                 notes:        c.shipmentNotes || '',
             });
         });
+        /* A second sheet at shipment level, matching the rows on screen — the contract
+           sheet above can only carry one set of dates per PO, which is the same limit
+           the table itself had. */
+        const shipSheet = wb.addWorksheet('Shipments');
+        shipSheet.columns = [
+            { header: 'Contract #',    key: 'order',       width: 18 },
+            { header: 'Supplier',      key: 'supplier',    width: 20 },
+            { header: 'Invoice #',     key: 'invoice',     width: 14 },
+            { header: 'Invoice Date',  key: 'invDate',     width: 14 },
+            { header: 'Client',        key: 'client',      width: 20 },
+            { header: 'Shipped MT',    key: 'qnty',        width: 12 },
+            { header: 'Shipment Date', key: 'etd',         width: 14 },
+            { header: 'Arrival Date',  key: 'eta',         width: 14 },
+            { header: 'POL',           key: 'pol',         width: 16 },
+            { header: 'POD',           key: 'pod',         width: 16 },
+            { header: 'Ship Type',     key: 'shpType',     width: 14 },
+            { header: 'Status',        key: 'status',      width: 14 },
+            { header: 'Notes',         key: 'notes',       width: 40 },
+        ];
+        shipSheet.getRow(1).font = { bold: true };
+        sortedFiltered.forEach(c => {
+            getShipments(c).forEach(s => {
+                shipSheet.addRow({
+                    order:    c.order || '',
+                    supplier: getSupplierName(c),
+                    invoice:  `${s.invoice ?? ''}${s.invType === '2222' ? ' CN' : s.invType === '3333' ? ' FN' : ''}`,
+                    invDate:  formatDate(s.date),
+                    client:   shipmentClientName(s),
+                    qnty:     s.qnty || null,
+                    etd:      formatDate(s.etd),
+                    eta:      formatDate(s.eta),
+                    pol:      portName(settings?.POL?.POL, 'pol', s.pol),
+                    pod:      portName(settings?.POD?.POD, 'pod', s.pod),
+                    shpType:  s.shpType ? (SHP_TYPE_MAP[s.shpType] || s.shpType) : '',
+                    status:   s.shipmentStatus || '',
+                    notes:    s.shipmentNotes || '',
+                });
+            });
+        });
+
         const buf = await wb.xlsx.writeBuffer();
         saveAs(new Blob([buf]), 'Shipments_Tracking.xlsx');
     };
@@ -1157,6 +1285,14 @@ const ShipmentPage = () => {
             .date-cell-clean {
                 position: relative;
                 z-index: 20;
+            }
+            /* Shipment rows sit a step below their contract. Painted on the CELLS:
+               .custom-table td declares its own background, so a background on the
+               <tr> is covered by every cell in it and nothing appears to change.
+               (0,2,2) here, so it wins that rule without touching anything else —
+               and the row still takes the shared hover, which is !important. */
+            .custom-table tbody tr.shipment-sub td {
+                background-color: var(--bg-sunken);
             }
         `}</style>
 
@@ -1490,15 +1626,15 @@ const ShipmentPage = () => {
                                     const poQty = getPoQty(contract);
                                     const shippedQty = getShippedQty(contract);
                                     const remainingQty = getRemainingQty(contract);
-                                    const expanded = expandedRows.has(contract.id);
+                                    const expanded = isExpanded(contract.id);
                                     return (
                                         <Fragment key={contract.id}>
                                         <tr className="hover-row cursor-pointer transition-colors">
                                             <td className="td-truncate">
                                                 <span className="inline-flex items-center gap-1 max-w-full">
-                                                    {/* The breakdown is only worth opening when there is something under
-                                                        the contract; the space is held either way so the numbers stay
-                                                        on one vertical line down the column. */}
+                                                    {/* Shipment rows show by default — they are what the page is for —
+                                                        so this collapses rather than expands. The space is held either
+                                                        way so the numbers stay on one vertical line down the column. */}
                                                     {shipments.length > 0 ? (
                                                         <button
                                                             onClick={() => toggleExpanded(contract.id)}
@@ -1664,80 +1800,115 @@ const ShipmentPage = () => {
                                             <td style={{ overflow: 'visible' }}>
                                                 <NotesCell
                                                     value={contract.shipmentNotes}
-                                                    contractId={contract.id}
-                                                    contractDate={contract.date}
-                                                    uidCollection={uidCollection}
                                                     onChange={(v) => handleNotesChange(contract.id, v)}
-                                                    onCommit={(ts) => touchContract(contract.id, ts)}
+                                                    onSave={(v, ts) => { touchContract(contract.id, ts); updateContractField(uidCollection, contract.id, contract.date, { shipmentNotes: v, shipmentUpdatedAt: ts }); }}
                                                 />
                                             </td>
                                         </tr>
-                                        {expanded && (
-                                            /* Shipment-by-shipment breakdown of the contract above: what
-                                               already went out, and the balance that is still open to ship.
-                                               Each invoice carries its own dates and ports, which the single
-                                               contract row can only ever show one of. */
-                                            <tr key={`${contract.id}-detail`}>
-                                                <td colSpan={15} style={{ background: 'var(--bg-sunken)', padding: '8px 12px 10px 34px' }}>
-                                                    <table className="cashflow-detail-table" style={{ width: 'auto', minWidth: '640px' }}>
-                                                        <thead>
-                                                            <tr>
-                                                                <th style={{ textAlign: 'left' }}>Invoice #</th>
-                                                                <th style={{ textAlign: 'left' }}>Date</th>
-                                                                <th style={{ textAlign: 'left' }}>Client</th>
-                                                                <th style={{ textAlign: 'right' }}>Shipped MT</th>
-                                                                <th style={{ textAlign: 'center' }}>ETD</th>
-                                                                <th style={{ textAlign: 'center' }}>ETA</th>
-                                                                <th style={{ textAlign: 'left' }}>POL</th>
-                                                                <th style={{ textAlign: 'left' }}>POD</th>
-                                                            </tr>
-                                                        </thead>
-                                                        <tbody>
-                                                            {shipments.map(s => (
-                                                                <tr key={s.id}>
-                                                                    <td style={{ textAlign: 'left' }}>
-                                                                        <button onClick={() => navigateTo(contract.id, s.id)} className="font-medium text-[var(--brand)] hover:underline">
-                                                                            {s.invoice}{s.invType === '2222' ? ' CN' : s.invType === '3333' ? ' FN' : ''}
-                                                                        </button>
-                                                                        {s.canceled && <span className="ml-1 text-[var(--ink-muted)]">(cancelled)</span>}
-                                                                    </td>
-                                                                    <td style={{ textAlign: 'left' }}>{formatDate(s.date)}</td>
-                                                                    <td style={{ textAlign: 'left' }}>{shipmentClientName(s)}</td>
-                                                                    <td className="numeric" style={{ textAlign: 'right' }}>{frmQty(s.qnty)}</td>
-                                                                    <td style={{ textAlign: 'center' }}>{formatDate(s.etd)}</td>
-                                                                    <td style={{ textAlign: 'center' }}>{formatDate(s.eta)}</td>
-                                                                    <td style={{ textAlign: 'left' }}>{portName(settings?.POL?.POL, 'pol', s.pol)}</td>
-                                                                    <td style={{ textAlign: 'left' }}>{portName(settings?.POD?.POD, 'pod', s.pod)}</td>
-                                                                </tr>
-                                                            ))}
-                                                        </tbody>
-                                                        <tfoot>
-                                                            <tr>
-                                                                <th colSpan={3} style={{ textAlign: 'left' }}>
-                                                                    Shipped of {poQty ? `${frmQty(poQty)} MT` : 'PO'}
-                                                                </th>
-                                                                <th className="numeric" style={{ textAlign: 'right' }}>{frmQty(shippedQty)}</th>
-                                                                <th colSpan={4} style={{ textAlign: 'left' }}>
-                                                                    {remainingQty === null ? (
-                                                                        <span className="text-[var(--ink-muted)]">No quantity on the PO to measure against</span>
-                                                                    ) : Math.abs(remainingQty) < 0.0005 ? (
-                                                                        <span style={{ color: 'var(--ok-text)' }}>PO fully shipped</span>
-                                                                    ) : remainingQty > 0 ? (
-                                                                        <span style={{ color: 'var(--warn-text)' }}>
-                                                                            Remaining to ship: <span className="numeric">{frmQty(remainingQty)}</span> MT
-                                                                        </span>
-                                                                    ) : (
-                                                                        <span style={{ color: 'var(--danger-text)' }}>
-                                                                            Over-shipped by <span className="numeric">{frmQty(Math.abs(remainingQty))}</span> MT
-                                                                        </span>
-                                                                    )}
-                                                                </th>
-                                                            </tr>
-                                                        </tfoot>
-                                                    </table>
+                                        {/* One row per shipment, in the main table rather than a nested
+                                            read-only panel. A PO that ships three times needs three sets of
+                                            dates, a status and notes; the contract has room for exactly one
+                                            of each, which is why the second shipment could not be entered
+                                            here at all. These cells write to the INVOICE the row stands for
+                                            (shipData.etd/eta - the same fields the contract's own Shipments
+                                            Tracking tab reads and writes), so the two views agree. */}
+                                        {expanded && shipments.map((s, si) => (
+                                            <tr key={s.id} className="hover-row shipment-sub transition-colors">
+                                                <td className="td-truncate">
+                                                    <span className="responsiveTextTable whitespace-nowrap" style={{ color: 'var(--ink-muted)', paddingLeft: 18 }}>
+                                                        Shipment {si + 1}
+                                                    </span>
+                                                </td>
+                                                <td className="td-truncate">
+                                                    <span className="responsiveTextTable" style={{ color: 'var(--ink-muted)' }}>&mdash;</span>
+                                                </td>
+                                                <td>
+                                                    <div className="flex justify-center items-center gap-1 responsiveTextTable">
+                                                        <button onClick={() => navigateTo(contract.id, s.id)} className="font-medium text-[var(--brand)] hover:underline">
+                                                            {s.invoice}{s.invType === '2222' ? ' CN' : s.invType === '3333' ? ' FN' : ''}
+                                                        </button>
+                                                        {s.canceled && <span className="text-[var(--ink-muted)]">(cancelled)</span>}
+                                                    </div>
+                                                </td>
+                                                <td className="td-truncate">
+                                                    <Tltip direction="bottom" tltpText={shipmentClientName(s)}>
+                                                        <span className="inline-flex items-center justify-center gap-1.5 responsiveTextTable text-[var(--ink)] max-w-full">
+                                                            {shipmentClientName(s) !== '—' && <Avatar name={shipmentClientName(s)} size={18} />}
+                                                            <span className="truncate">{shipmentClientName(s)}</span>
+                                                        </span>
+                                                    </Tltip>
+                                                </td>
+                                                {/* PO QTY and Remaining describe the contract, not one
+                                                    shipment; only the shipped figure is this row's own. */}
+                                                <td><div className="responsiveTextTable text-right pr-2" style={{ color: 'var(--ink-muted)' }}>&mdash;</div></td>
+                                                <td>
+                                                    <div className="responsiveTextTable numeric text-right whitespace-nowrap pr-2 text-[var(--ink)]">
+                                                        {frmQty(s.qnty)}
+                                                    </div>
+                                                </td>
+                                                <td><div className="responsiveTextTable text-right pr-2" style={{ color: 'var(--ink-muted)' }}>&mdash;</div></td>
+                                                <td>
+                                                    <div className="flex justify-center">
+                                                        <DateCell
+                                                            rawDate={s.etd || ''}
+                                                            onOpen={(el) => openShipmentPicker(el, s, 'etd')}
+                                                            onClear={() => saveShipment(s, { local: { etd: null }, remote: { 'shipData.etd': '' } }, Date.now())}
+                                                        />
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <div className="flex justify-center">
+                                                        <DateCell
+                                                            rawDate={s.eta || ''}
+                                                            urgency={getShipmentUrgency(s)}
+                                                            onOpen={(el) => openShipmentPicker(el, s, 'eta')}
+                                                            onClear={() => saveShipment(s, { local: { eta: null }, remote: { 'shipData.eta': '' } }, Date.now())}
+                                                        />
+                                                    </div>
+                                                </td>
+                                                <td className="td-truncate">
+                                                    <Tltip direction="bottom" tltpText={portName(settings?.POL?.POL, 'pol', s.pol)}>
+                                                        <div className="responsiveTextTable text-center text-[var(--ink)] overflow-hidden text-ellipsis whitespace-nowrap">
+                                                            {portName(settings?.POL?.POL, 'pol', s.pol)}
+                                                        </div>
+                                                    </Tltip>
+                                                </td>
+                                                <td className="td-truncate">
+                                                    <Tltip direction="bottom" tltpText={portName(settings?.POD?.POD, 'pod', s.pod)}>
+                                                        <div className="responsiveTextTable text-center text-[var(--ink)] overflow-hidden text-ellipsis whitespace-nowrap">
+                                                            {portName(settings?.POD?.POD, 'pod', s.pod)}
+                                                        </div>
+                                                    </Tltip>
+                                                </td>
+                                                <td>
+                                                    <div className="responsiveTextTable text-center whitespace-nowrap text-[var(--ink)]">
+                                                        {s.shpType ? (SHP_TYPE_MAP[s.shpType] || s.shpType) : '—'}
+                                                    </div>
+                                                </td>
+                                                <td style={{ overflow: 'visible', position: 'relative', zIndex: 15 }}>
+                                                    <div className="flex justify-center">
+                                                        <StatusSelect
+                                                            value={s.shipmentStatus || ''}
+                                                            onChange={st => handleShipmentStatusChange(contract, s, st)}
+                                                        />
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <div className="flex justify-center">
+                                                        <span className="responsiveTextTable whitespace-nowrap" style={{ color: s.updatedAt ? 'var(--ink-secondary)' : 'var(--ink-muted)' }}>
+                                                            {relTime(s.updatedAt)}
+                                                        </span>
+                                                    </div>
+                                                </td>
+                                                <td style={{ overflow: 'visible' }}>
+                                                    <NotesCell
+                                                        value={s.shipmentNotes}
+                                                        onChange={(v) => patchShipment(contract.id, s.id, { shipmentNotes: v })}
+                                                        onSave={(v, ts) => saveShipment(s, { local: { shipmentNotes: v }, remote: { shipmentNotes: v } }, ts)}
+                                                    />
                                                 </td>
                                             </tr>
-                                        )}
+                                        ))}
                                         </Fragment>
                                     );
                                 })}
@@ -1855,11 +2026,8 @@ const ShipmentPage = () => {
                                             <span className="responsiveTextTable text-[var(--regent-gray)] font-semibold">Notes</span>
                                             <NotesCell
                                                 value={contract.shipmentNotes}
-                                                contractId={contract.id}
-                                                contractDate={contract.date}
-                                                uidCollection={uidCollection}
                                                 onChange={(v) => handleNotesChange(contract.id, v)}
-                                                onCommit={(ts) => touchContract(contract.id, ts)}
+                                                onSave={(v, ts) => { touchContract(contract.id, ts); updateContractField(uidCollection, contract.id, contract.date, { shipmentNotes: v, shipmentUpdatedAt: ts }); }}
                                             />
                                         </div>
                                     </div>
