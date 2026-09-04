@@ -4,7 +4,7 @@ import OpenAI from 'openai';
 import { guardAiRequest } from '../../../../utils/aiGuard';
 import { extractPdfText } from '../../../../utils/pdfExtract';
 import { resolveCounterparty } from '../../../../utils/docReaderParties';
-import { extractSheetText, isSpreadsheet, isLegacyXls } from '../../../../utils/sheetExtract';
+import { extractSheetText, extractSheetGrid, sampleGrid, readBlocks, isSpreadsheet, isLegacyXls } from '../../../../utils/sheetExtract';
 
 // Reading a multi-page / scanned document through gpt-4o routinely takes longer
 // than the platform's default function timeout — without this the client saw
@@ -15,6 +15,73 @@ let openai;
 function getOpenAI() {
     if (!openai) openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
     return openai;
+}
+
+/* The nine elements the material table ships with, then the ones these
+   certificates actually print alongside them — Mn, Si, C, P, S, V, Al are on most
+   CIS mill certificates, and dropping them silently made the reader look like it
+   had misread the sheet. The page creates a column for any of the extras that come
+   back. A fixed whitelist, not "whatever the model sends": an invented key would
+   become an invented column. */
+const ELEMENT_KEYS = [
+    'ni', 'cr', 'mo', 'co', 'nb', 'w', 'cu', 'ti', 'fe',
+    'mn', 'si', 'c', 'p', 's', 'v', 'al', 'ta', 'hf', 'zr', 'b', 'n', 'sn', 'pb',
+];
+
+const normUnit = (u) => {
+    const unit = String(u || '').toLowerCase();
+    if (['mt', 'kgs', 'lbs'].includes(unit)) return unit;
+    if (unit.startsWith('kg')) return 'kgs';
+    if (unit.startsWith('lb')) return 'lbs';
+    if (unit.startsWith('t') || unit.startsWith('т')) return 'mt';
+    return 'kgs';
+};
+
+/* Everything the page will treat as a number is coerced and bounded HERE rather
+   than trusted from upstream, and the same kind of deterministic check the other
+   paths run on qty × price runs on the chemistry — the element percentages of one
+   lot cannot exceed 100. A row that breaks it has a misread decimal point or a
+   column carried across, so `rows` drops to low confidence and the UI deselects
+   it, forcing a human look rather than a silent bad import.
+
+   Shared by both material-table paths: the grid reader, and the transcription
+   fallback. They must bound figures identically or the two disagree about what a
+   clean read looks like. */
+function normalizeMaterialResult(result) {
+    const num = (v) => {
+        const n = typeof v === 'string' ? Number(v.replace(/[^0-9.\-]/g, '')) : Number(v);
+        return Number.isFinite(n) ? n : null;
+    };
+    result.unit = normUnit(result.unit);
+
+    let suspect = false;
+    result.rows = (Array.isArray(result.rows) ? result.rows : []).map(r => {
+        const elements = {};
+        let sum = 0;
+        /* Carbon is printed with the Cyrillic Es on every Russian sheet in the
+           sample set, and it is visually identical to Latin C — so either one can
+           arrive depending on the document. */
+        const src = {};
+        Object.entries(r?.elements || {}).forEach(([k, v]) => {
+            src[String(k).toLowerCase().replace(/[Сс]/g, 'c')] = v;
+        });
+        ELEMENT_KEYS.forEach(k => {
+            const v = num(src[k]);
+            // Out of range is not a number this page can hold — drop it rather
+            // than write a 4,300% nickel into a cell.
+            const ok = v != null && v >= 0 && v <= 100;
+            if (v != null && !ok) suspect = true;
+            elements[k] = ok ? v : null;
+            if (ok) sum += v;
+        });
+        if (sum > 100.5) suspect = true;
+        return { material: String(r?.material || '').trim(), weight: num(r?.weight), elements };
+    }).filter(r => r.material || r.weight != null || ELEMENT_KEYS.some(k => r.elements[k] != null));
+
+    if (suspect || !result.rows.length) {
+        result.confidence = { ...(result.confidence || {}), rows: 'low' };
+    }
+    return result;
 }
 
 export async function POST(request) {
@@ -60,6 +127,87 @@ export async function POST(request) {
             }
             extractedText = r.text;
             useSheet = true;
+
+            /* ── A spreadsheet of material lots: map the columns, read the cells ──
+               The model used to retype every figure, which on a 50-heat assay is
+               thousands of output tokens — slow enough to be killed by the 60s
+               function ceiling however fast the model was (Sharoon's 504,
+               2026-09-04). It answers a small question instead: which row are the
+               headers on, which column is the weight, which column is Ni. The
+               server then reads every row straight out of the cells.
+
+               Output goes from thousands of tokens to a couple of hundred, the
+               read stops depending on how many lots the document has, and the
+               figures are the spreadsheet's own rather than a retyped copy. */
+            if (documentType === 'materialtable') {
+                const grid = await extractSheetGrid(buffer, mimeType, fileName);
+                if (grid.ok) {
+                    const sample = sampleGrid(grid.sheets);
+                    const layoutPrompt = `You are mapping the layout of a packing list / assay certificate so a program can read it.
+You are shown the FIRST rows of each sheet, each line prefixed by its 0-based row number and tab-separated. Return ONLY JSON:
+{
+  "tableName": "what this list is FOR — the grade or material name, or the certificate/packing-list number. Null if neither.",
+  "containerNo": "container, seal, truck or shipment number if printed, else null",
+  "unit": "the unit the WEIGHT column is in — one of: mt, kgs, lbs",
+  "blocks": [{
+    "sheet": "the sheet name exactly as given",
+    "headerRow": 0-based row number of that block's column headings,
+    "firstDataRow": 0-based row number of its FIRST material line,
+    "materialCol": 0-based column index holding the lot / heat / bundle / container identifier,
+    "weightCol": 0-based column index of the line's TOTAL weight (null if the sheet has none),
+    "elementCols": { "ni": 4, "cr": 5, "fe": 15 }
+  }]
+}
+RULES:
+- Column and row numbers are indices, 0-based, exactly as printed in the sample. Do not guess a number you cannot see.
+- elementCols maps element → the column holding its PERCENTAGE. Sheets often print a "%" column beside a mass column for the same element ("Cr,%" next to "Cr,кг"): map the % one and ignore the mass one.
+- Include ONLY elements the sheet has a column for. Allowed keys, lower-case: ${ELEMENT_KEYS.join(' ')}. Cb = nb. Carbon may be written with the Cyrillic "С".
+- Headings may be English or Russian (Ni/Никель, Cr/Хром, Fe/Железо, Mn/Марганец, "Вес плавки" = heat weight, "№ пл." = heat number).
+- weightCol is the TOTAL weight for the line. Where a sheet prints a total beside a per-package breakdown ("Total Weight" then "Weight 1", "Weight 2"…), map the total.
+- ONE ENTRY IN "blocks" PER HEADER ROW. A sheet holding two shipments has two headers and therefore two blocks. A workbook with several sheets of lots has a block per sheet.
+- Do not return the data itself. Only the map.`;
+
+                    const layoutRes = await getOpenAI().chat.completions.create({
+                        model: process.env.OPENAI_DOCREADER_SHEET_MODEL || 'gpt-4o-mini',
+                        temperature: 0,
+                        max_tokens: 1500,
+                        response_format: { type: 'json_object' },
+                        messages: [
+                            { role: 'system', content: layoutPrompt },
+                            { role: 'user', content: sample },
+                        ],
+                    }, { timeout: 40_000 });
+
+                    guard.recordUsage(layoutRes.usage?.total_tokens);
+                    let layout = null;
+                    try { layout = JSON.parse(layoutRes.choices[0].message.content); } catch { /* fall through */ }
+
+                    const rows = layout ? readBlocks(grid.sheets, layout.blocks) : [];
+                    if (rows.length) {
+                        const out = normalizeMaterialResult({
+                            tableName: layout.tableName || null,
+                            containerNo: layout.containerNo || null,
+                            unit: layout.unit,
+                            rows,
+                            confidence: { tableName: 'medium', containerNo: 'medium', unit: 'medium', rows: 'high' },
+                        });
+                        return Response.json({
+                            ...out,
+                            documentType,
+                            rawText: sample.slice(0, 500),
+                            visionUsed: false,
+                            sheetUsed: true,
+                            gridRead: true,
+                        });
+                    }
+                    /* No usable map — the sheet is laid out in some way this did not
+                       recognise. Fall through to the transcription path below, which
+                       reads the whole thing rather than mapping it. Slower, and it is
+                       what the length guard exists for, but it is a real second
+                       chance rather than an error. */
+                    console.warn('Sheet layout map produced no rows; falling back to full transcription.');
+                }
+            }
         } else if (mimeType === 'application/pdf') {
             const buffer = Buffer.from(fileBase64, 'base64');
             const r = await extractPdfText(buffer);
@@ -403,61 +551,9 @@ Return ONLY the JSON object, no extra text.`;
             resolveCounterparty(result, { documentType, suppliers, clients });
         }
 
-        /* Packing list: everything the page will treat as a number is coerced and
-           bounded HERE rather than trusted from the model, and the same deterministic
-           check the other paths run on qty × price is run on the chemistry — the
-           element percentages of one lot cannot exceed 100. A row that breaks it has a
-           misread decimal point or a column carried across, so rows drops to low
-           confidence and the UI deselects it, forcing a human look rather than a
-           silent bad import. */
-        if (documentType === 'materialtable') {
-            /* The nine the table ships with, then the ones these certificates
-               actually print alongside them — Mn, Si, C, P, S, V, Al are on most
-               CIS mill certificates, and dropping them silently made the reader
-               look like it had misread the sheet. The page creates a column for
-               any of the extras that come back. A fixed whitelist, not "whatever
-               the model sends": an invented key would become an invented column. */
-            const ELEMENT_KEYS = [
-                'ni', 'cr', 'mo', 'co', 'nb', 'w', 'cu', 'ti', 'fe',
-                'mn', 'si', 'c', 'p', 's', 'v', 'al', 'ta', 'hf', 'zr', 'b', 'n', 'sn', 'pb',
-            ];
-            const num = (v) => {
-                const n = typeof v === 'string' ? Number(v.replace(/[^0-9.\-]/g, '')) : Number(v);
-                return Number.isFinite(n) ? n : null;
-            };
-            const unit = String(result.unit || '').toLowerCase();
-            result.unit = ['mt', 'kgs', 'lbs'].includes(unit)
-                ? unit
-                : unit.startsWith('kg') ? 'kgs' : unit.startsWith('lb') || unit === 'lb' ? 'lbs' : unit.startsWith('t') ? 'mt' : 'kgs';
-
-            let suspect = false;
-            result.rows = (Array.isArray(result.rows) ? result.rows : []).map(r => {
-                const elements = {};
-                let sum = 0;
-                /* Carbon is printed with the Cyrillic Es on every Russian sheet in
-                   the sample set, and it is visually identical to Latin C — so the
-                   model hands back either one depending on the document. */
-                const src = {};
-                Object.entries(r?.elements || {}).forEach(([k, v]) => {
-                    src[String(k).toLowerCase().replace(/С/g, 'c').replace(/с/g, 'c')] = v;
-                });
-                ELEMENT_KEYS.forEach(k => {
-                    const v = num(src[k]);
-                    // Out of range is not a number this page can hold — drop it rather
-                    // than write a 4,300% nickel into a cell.
-                    const ok = v != null && v >= 0 && v <= 100;
-                    if (v != null && !ok) suspect = true;
-                    elements[k] = ok ? v : null;
-                    if (ok) sum += v;
-                });
-                if (sum > 100.5) suspect = true;
-                return { material: String(r?.material || '').trim(), weight: num(r?.weight), elements };
-            }).filter(r => r.material || r.weight != null || ELEMENT_KEYS.some(k => r.elements[k] != null));
-
-            if (suspect || !result.rows.length) {
-                result.confidence = { ...(result.confidence || {}), rows: 'low' };
-            }
-        }
+        // The transcription path's rows go through the same bounding as the grid
+        // reader's (see normalizeMaterialResult).
+        if (documentType === 'materialtable') normalizeMaterialResult(result);
 
         // Deterministic line check: when a product line carries qty, price AND total,
         // they must multiply out. Legitimate rounding is bounded by the printed price
