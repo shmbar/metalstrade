@@ -715,7 +715,14 @@ function TotalCell({ label = 'Total', value, onOpen }) {
   return (
     <Tag
       {...(onOpen ? { type: 'button', onClick: onOpen, 'aria-label': `Show everything behind ${label}` } : {})}
-      className={`rounded-2xl px-2.5 py-2 flex flex-col justify-center gap-0.5 min-w-0 ${onOpen ? 'text-left cursor-pointer transition-all' : ''}`}
+      /* justify-center -> justify-start, gap-0.5 -> gap-1.5 (2026-09-03: "bit higher, not
+         too close to the digit"). Centering as a block put the label near true-middle of
+         the cell instead of hugging the top the way every sibling RankTile does (flex-col,
+         no justify-center) — the mismatch was subtle until you looked for it, but it made
+         this one cell sit differently in the same row. Top-aligned with a wider gap now
+         matches the siblings' own rhythm and gives the label room to read as its own line
+         rather than a caption stuck to the figure. */
+      className={`rounded-2xl px-2.5 py-2 flex flex-col justify-start gap-1.5 min-w-0 ${onOpen ? 'text-left cursor-pointer transition-all' : ''}`}
       style={{
         /* WHITE, against grey tiles — Sharoon's call (2026-09-02) and the right one. It was
            --brand-soft, the same lavender family as the hero tile's meter wash sitting
@@ -741,7 +748,13 @@ function TotalCell({ label = 'Total', value, onOpen }) {
          (no drill-down wired) shouldn't invite a click that does nothing. */
       {...(onOpen ? { whileHover: { borderColor: 'var(--brand)' } } : {})}
     >
-      <span className="responsiveTextTableTitle font-medium leading-tight truncate" style={{ color: 'var(--brand)' }}>{label}</span>
+      {/* responsiveTextTableTitle (--fs-caption, the ladder's smallest step) -> responsive
+          TextTable (--fs-table) — 2026-09-03: "can stand out more with slightly larger
+          font." Matches the sibling tiles' OWN label size exactly (RankTile's "Shalex" /
+          "SJM" labels are .responsiveTextTable too), so this isn't a bespoke bump: the
+          total's label had been reading smaller/weaker than its neighbours' labels for no
+          reason, and this puts it back on the same step as the rest of the row. */}
+      <span className="responsiveTextTable font-medium leading-tight truncate" style={{ color: 'var(--brand)' }}>{label}</span>
       {/* --fs-title, not --fs-stat: it shares a row with the leader tile now, and a total
           shouting louder than the biggest entry in the list inverts the hierarchy.
           Ink, not brand violet (Sharoon, 2026-09-02). Every other figure in this grid is
