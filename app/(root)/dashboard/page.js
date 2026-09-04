@@ -2,7 +2,7 @@
 'use client';
 import { useContext, useEffect, useMemo, useState } from 'react';
 import dynamic from 'next/dynamic';
-import { cssVar, cssVarRgba, CHART_ACCENT, brandRamp } from '../../../utils/chartTheme';
+import { cssVar } from '../../../utils/chartTheme';
 import { useTheme } from '../../../contexts/useThemeContext';
 import { m, LazyMotion, domAnimation } from 'framer-motion';
 import VideoLoader from '@components/videoLoader';
@@ -33,8 +33,6 @@ import { HorizontalBar } from './charts';
 import useExchangeRates from '@hooks/useExchangeRates';
 
 // chart.js + react-chartjs-2 are loaded on demand (not in the first-load bundle).
-const Line = dynamic(() => import('./LazyCharts').then((mod) => mod.Line), { ssr: false });
-const Doughnut = dynamic(() => import('./LazyCharts').then((mod) => mod.Doughnut), { ssr: false });
 
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
@@ -99,49 +97,14 @@ function SectionHeader({ title, subtitle, right }) {
     </div>
   );
 }
-
-// Month-over-month delta from a monthly series: compares the latest non-zero
-// month to the most recent prior month that has data. Returns null when there
-// isn't enough data to compute a meaningful change.
-function computeTrend(series) {
-  if (!Array.isArray(series) || series.length < 2) return null;
-  let last = -1;
-  for (let i = series.length - 1; i >= 0; i--) {
-    if (Number.isFinite(series[i]) && series[i] !== 0) { last = i; break; }
-  }
-  if (last <= 0) return null;
-  let prev = -1;
-  for (let i = last - 1; i >= 0; i--) {
-    if (Number.isFinite(series[i])) { prev = i; break; }
-  }
-  if (prev < 0) return null;
-  const before = series[prev];
-  if (!before) return null;
-  const pct = ((series[last] - before) / Math.abs(before)) * 100;
-  if (!Number.isFinite(pct)) return null;
-  return { pct, up: pct >= 0 };
-}
-
-/* `accent` may arrive as a token (`var(--ok-text)`) or a literal (`#0ea5e9`).
- * Two things downstream cannot cope with a token:
- *   - canvas (chart.js) has no CSS parser, so `var()` is not a colour
- *   - the old `${accent}1A` trick appends hex-alpha digits, which yields
- *     `var(--ok-text)1A` — invalid CSS, so the tint silently disappears
- * Six of the eight call sites were already passing tokens BEFORE this audit, so
- * both bugs predate it; the audit added two more by tokenising the last literals.
- * Resolving to a real colour here fixes all eight. */
-const solidColor = (c) =>
-  typeof c === 'string' && c.startsWith('var(')
-    ? cssVar(c.slice(4, -1).trim(), '#2563eb')
-    : c;
-
 /* ── Business summary tile ────────────────────────────────────────────────────
    Client revision 2026-08-08: "business summaries, not big charts."
 
    Deliberately flat — a label, a figure and one line of context. No sparkline,
-   no trend pill, no icon tile. Those belong on StatKpiCard, which stays for the
-   four headline metrics; repeating them eight more times is how a dashboard
-   turns into decoration. Every figure here comes from an aggregate that already
+   no trend pill, no icon tile: that heavier treatment belonged to StatKpiCard,
+   the headline-metric card this replaced (removed below, 2026-09-03) — repeating
+   it eight more times is how a dashboard turns into decoration. Every figure
+   here comes from an aggregate that already
    existed on this page (calContracts / setMonthsInvoices / utils/finance), so a
    card can never disagree with the page it sits on.
 
@@ -220,111 +183,9 @@ function SummaryTile({ label, value, note, tone, icon: Icon, toneKey = 'gray', p
   return info ? <Tltip direction="top" tltpText={info}>{tile}</Tltip> : tile;
 }
 
-function StatKpiCard({
-  title,
-  value,
-  chartData,
-  accent = 'var(--brand)',
-  icon,
-  goodWhenUp = true,
-  info,
-}) {
-  const series = useMemo(
-    () => (Array.isArray(chartData) ? chartData : Object.values(chartData || {})).map(Number),
-    [chartData]
-  );
-  const trend = useMemo(() => computeTrend(series), [series]);
-  const good = trend ? trend.up === goodWhenUp : true;
-  const deltaColor = good ? 'var(--ok-text)' : 'var(--bad-text)';
-  const deltaBg = good ? 'var(--ok-bg)' : 'var(--bad-bg)';
-
-  return (
-    <m.div
-      className="relative h-full min-h-[140px] rounded-2xl bg-[var(--bg-card)] border border-[var(--line)] shadow-card flex flex-col overflow-hidden"
-      initial={{ opacity: 0, y: 16 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.35, ease: 'easeOut' }}
-      whileHover={{ y: -3, boxShadow: 'var(--shadow-sm)' }}
-    >
-      <div className="p-3 flex flex-col h-full">
-        {/* Icon tile + title */}
-        <div className="flex items-center gap-2">
-          {icon && (
-            <span
-              className="inline-flex items-center justify-center rounded-lg flex-shrink-0"
-              style={{ background: `color-mix(in srgb, ${accent} 10%, transparent)`, color: accent, width: 30, height: 30 }}
-            >
-              {icon}
-            </span>
-          )}
-          <span className="responsiveTextTable font-medium text-[var(--regent-gray)] leading-tight">
-            {title}
-          </span>
-          {info && (
-            <Tltip direction="top" tltpText={info}>
-              <span className="shrink-0 cursor-help text-[var(--ink-muted)] hover:text-[var(--ink)] transition-colors">
-                <Info size={12} strokeWidth={2} />
-              </span>
-            </Tltip>
-          )}
-        </div>
-
-        {/* Hero number */}
-        <div
-          className="mt-2 font-semibold text-[var(--port-gore)] leading-none"
-          style={{ fontSize: 'var(--fs-stat)', fontFamily: 'var(--font-jakarta), Manrope, sans-serif', fontVariantNumeric: 'tabular-nums' }}
-        >
-          {value}
-        </div>
-
-        {/* Trend delta */}
-        <div className="mt-1.5 flex items-center gap-1.5" style={{ minHeight: 16 }}>
-          {trend && (
-            <>
-              <span
-                className="inline-flex items-center gap-0.5 rounded-lg px-1.5 py-0.5 font-semibold"
-                style={{ background: deltaBg, color: deltaColor, fontSize: 'var(--fs-table)' }}
-              >
-                {trend.up ? '▲' : '▼'} {Math.abs(trend.pct).toFixed(1)}%
-              </span>
-              <span className="text-[var(--regent-gray)]" style={{ fontSize: 'var(--fs-caption)' }}>vs prev mo</span>
-            </>
-          )}
-        </div>
-
-        {/* Sparkline */}
-        <div className="mt-auto h-7 -mx-1">
-          <Line
-            data={{
-              labels: series.slice(0, 12).map((_, i) => i),
-              datasets: [{
-                data: series.slice(0, 12),
-                borderColor: solidColor(accent),
-                backgroundColor: `color-mix(in srgb, ${solidColor(accent)} 12%, transparent)`,
-                borderWidth: 2,
-                tension: 0.4,
-                pointRadius: 0,
-                fill: true,
-              }]
-            }}
-            options={{
-              responsive: true,
-              maintainAspectRatio: false,
-              plugins: {
-                legend: { display: false },
-                tooltip: { enabled: false }
-              },
-              scales: {
-                x: { display: false },
-                y: { display: false }
-              }
-            }}
-          />
-        </div>
-      </div>
-    </m.div>
-  );
-}
+// StatKpiCard, computeTrend and solidColor removed (2026-09-03) — StatKpiCard had no
+// remaining call sites since the KPI row it served was pulled in an earlier round of this
+// same cleanup, and Line/cssVarRgba/CHART_ACCENT/brandRamp went with it below.
 
 // Outstanding receivables split by shipment finalization. "Finalized" = the
 // final invoice has been issued (shipData.fnlzing === '4568'); "Provisional" =
@@ -1951,17 +1812,11 @@ const Dash = () => {
     return { byCur, byCat, count: rawMiscInvoices.length };
   }, [rawMiscInvoices]);
 
-  /* The GIS partner's half of the profit on shared deals. Subtracted as ONE explicit
-     figure rather than by halving revenue and cost inside the aggregators — the full
-     tonnage and the full purchase value really did move through IMS (Zak, 2026-08-31), so
-     scaling those would have halved Average Rate per MT and the Contracts ranking along
-     with the profit. Never negative: a shared deal running at a loss is IMS's loss to show,
-     not something to credit back as income. Matches the Margins sheet, which has halved
-     totalMargin on `gis` rows all along while leaving their quantity whole. */
-  const gisPartnerShare = useMemo(() => {
-    const gross = (invAgg.gisRevenue || 0) - (conAgg.gisCogs || 0) - (conAgg.gisExpenses || 0);
-    return gross > 0 ? gross / 2 : 0;
-  }, [invAgg, conAgg]);
+  /* gisPartnerShare is no longer read — its only consumer was the Capital Breakdown donut
+     legend, removed above. Left uncomputed rather than left dead: invAgg.gisRevenue /
+     conAgg.gisCogs / conAgg.gisExpenses that fed it are still collected in funcs.js (cheap
+     single-line adds inside loops that already run), so the GIS-shared P&L split is still
+     available in one line if a card wants it again. */
 
   /* Gross Profit is the Margins page's Profits figure. It already halves GIS-shared rows,
      so no separate partner-share deduction is applied on top — that would halve them twice. */
@@ -2280,203 +2135,11 @@ const Dash = () => {
     },
   };
 
-  // ── Hero trend series (Revenue area + Costs & Profit lines) ──────────────
-  const revLabels = useMemo(
-    () => Object.keys(dataInvoices).map((k) => MONTHS[Number(k) - 1] || k),
-    [dataInvoices]
-  );
-  const revenueSeries = useMemo(() => Object.values(dataInvoices).map(Number), [dataInvoices]);
-  // Costs line = cost of SOLD material + expenses (sold basis), per month.
-  const costsSeries = useMemo(
-    () => Object.keys(dataInvoices).map((k) => (Number(cogsByMonth[k]) || 0) + (Number(dataExpenses[k]) || 0)),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [conAgg, dataExpenses, dataInvoices]
-  );
-  const profitSeries = useMemo(() => dataPL.map(Number), [dataPL]);
 
-  // Canvas cannot resolve CSS variables, so charts read their colours through
-  // cssVar()/cssVarRgba() (utils/chartTheme.js): each resolves the live computed
-  // token and falls back to a literal. That follows every colour preset AND dark
-  // mode, which a hardcoded light/dark pair cannot do.
-
-  const heroData = {
-    labels: revLabels,
-    datasets: [
-      {
-        label: 'Revenue',
-        data: revenueSeries,
-        borderColor: cssVar('--primary-bright', '#2563eb'),
-        backgroundColor: (ctx) => {
-          const { chart } = ctx;
-          const { ctx: c, chartArea } = chart;
-          if (!chartArea) return cssVarRgba('--primary-bright-rgb', 0.10, 'rgba(37,99,235, 0.10)');
-          const g = c.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
-          g.addColorStop(0, cssVarRgba('--primary-bright-rgb', 0.28, 'rgba(37,99,235, 0.28)'));
-          g.addColorStop(1, cssVarRgba('--primary-bright-rgb', 0.00, 'rgba(37,99,235, 0.00)'));
-          return g;
-        },
-        borderWidth: 2.5,
-        tension: 0.4,
-        pointRadius: 0,
-        pointHoverRadius: 4,
-        fill: 'origin',
-      },
-      {
-        label: 'Costs',
-        data: costsSeries,
-        borderColor: CHART_ACCENT.costs,
-        backgroundColor: 'transparent',
-        borderWidth: 2,
-        tension: 0.4,
-        pointRadius: 0,
-        pointHoverRadius: 4,
-        fill: false,
-      },
-      {
-        label: 'Profit',
-        data: profitSeries,
-        /* Canvas can't parse CSS var() strings — it silently fell back to black, so this
-           was resolved to a real colour. But --on-brand IS white: it is the ink that goes
-           ON a brand fill, not a line colour. So the profit line was drawn white on a
-           white card — invisible, with a blank legend swatch to match, which is exactly
-           how it looked (Zak, 2026-09-02: "where is green profit line?").
-           Green, like every other profit figure on this page. */
-        borderColor: cssVar('--ok-figure', '#37815F'),
-        backgroundColor: 'transparent',
-        borderWidth: 2,
-        borderDash: [5, 4],
-        tension: 0.4,
-        pointRadius: 0,
-        pointHoverRadius: 4,
-        fill: false,
-      },
-    ],
-  };
-
-  const heroOptions = {
-    responsive: true,
-    maintainAspectRatio: false,
-    interaction: { mode: 'index', intersect: false },
-    plugins: {
-      legend: {
-        display: true,
-        position: 'top',
-        align: 'end',
-        labels: {
-          usePointStyle: true, pointStyle: 'circle', boxWidth: 6, padding: 16, font: { size: 11 }, color: cssVar('--port-gore', '#28264f'),
-          // Chart.js has no icon-to-text gap option — run the default generator and
-          // pad the label text so the marker doesn't sit flush against the word.
-          generateLabels: (chart) => {
-            const items = chart.constructor.defaults.plugins.legend.labels.generateLabels(chart);
-            items.forEach((it) => { it.text = `  ${it.text}`; });
-            return items;
-          },
-        },
-      },
-      tooltip: {
-        // Canvas can't parse 'rgba(var(--x),a)' — the black unreadable tooltip.
-        backgroundColor: cssVarRgba('--surface-card-rgb', 0.97, 'rgba(255,255,255,0.97)'),
-        titleColor: cssVar('--port-gore', '#28264f'),
-        bodyColor: cssVar('--port-gore', '#28264f'),
-        borderColor: cssVar('--selago', '#e6eef8'),
-        borderWidth: 1,
-        cornerRadius: 10,
-        padding: 12,
-        usePointStyle: true,
-        callbacks: {
-          label: (ctx) => {
-            // Rounding all three lines independently made the tooltip read e.g.
-            // "12.24 − 10.24 = 1.99". Profit is exactly revenue − costs in the
-            // data, so display it as the difference of the ROUNDED revenue and
-            // costs — the tooltip is then always internally consistent.
-            if (ctx.dataset.label === 'Profit') {
-              const rev = Number(ctx.chart.data.datasets[0]?.data?.[ctx.dataIndex]);
-              const cost = Number(ctx.chart.data.datasets[1]?.data?.[ctx.dataIndex]);
-              if (Number.isFinite(rev) && Number.isFinite(cost)) {
-                // Match fmtAutoKM's display precision: 2 decimals of the M/K unit
-                // both figures are shown in (they share a scale on this chart).
-                const unit = Math.max(Math.abs(rev), Math.abs(cost)) >= 1_000_000 ? 1_000_000
-                  : Math.max(Math.abs(rev), Math.abs(cost)) >= 1_000 ? 1_000 : 1;
-                const r2 = (v) => Math.round((v / unit) * 100) / 100;
-                return ` Profit: ${fmtAutoKM((r2(rev) - r2(cost)) * unit)}`;
-              }
-            }
-            return ` ${ctx.dataset.label}: ${fmtAutoKM(ctx.parsed.y)}`;
-          },
-        },
-      },
-    },
-    scales: {
-      x: { grid: { display: false }, ticks: { font: { size: 10 }, color: cssVar('--regent-gray', '#838ca7') }, border: { display: false } },
-      y: { grid: { color: cssVar('--selago', '#eef3f9') }, ticks: { callback: (v) => fmtAutoKM(v, 1), font: { size: 10 }, color: 'var(--regent-gray)' }, border: { display: false } },
-    },
-  };
-
-  /* ── Revenue breakdown donut ──
-     Revenue = cost of sold + contract expenses + company overheads + net profit. The
-     overhead slice is new: without it the arcs did not sum to revenue and the profit
-     slice was labelled "Net" while still being gross of overheads. */
-  const profitForArc = Math.max(Number(netProfit) || 0, 0);
-  /* The first three slices are all COST. They used to be three unrelated hues
-     (lifted brand, plum, ochre), which made the donut read as four peer
-     categories rather than "what it cost" against "what's left". They are now
-     three steps of the brand ramp, so the violet mass IS the cost and the green
-     arc is the profit. That also retires the last decorative use of --warn-text
-     on this page: Company Expenses is a category, not a caution state.
-     Side effect worth noting — the legend below used --brand for slice 1 while
-     the canvas drew --primary-bright, so the dot never matched its wedge. Both
-     now read from this one array. */
-  const costRamp = brandRamp(3);
-  const donutData = {
-    /* The GIS partner's half is its own wedge, not a silent deduction from the profit
-       slice — otherwise the ring stops adding up to deal revenue and the reader has no way
-       to see where the difference went. */
-    labels: ['Cost of Goods Sold', 'Contract Expenses', 'Company Expenses', 'GIS partner share', 'Net Profit'],
-    datasets: [{
-      data: [cogs, totalExpenses, companyExpAgg.total, gisPartnerShare, profitForArc],
-      // Canvas cannot parse var() — every colour here must be resolved first.
-      // brandRamp already returns resolved hex, so only --ok-figure needs cssVar.
-      backgroundColor: [...costRamp, cssVar('--teal-text', '#2F6560'), cssVar('--ok-figure', '#37815F')],
-      borderColor: cssVar('--on-brand', '#ffffff'),
-      borderWidth: 2,
-      hoverOffset: 6,
-    }],
-  };
-
-  // True while the cursor is over a donut slice (its tooltip is showing).
-  const [donutHover, setDonutHover] = useState(false);
-
-  const donutOptions = {
-    responsive: true,
-    maintainAspectRatio: false,
-    cutout: '72%',
-    // The center "Revenue $X" label is a DOM overlay ABOVE the canvas, and the
-    // chart tooltip is drawn ON the canvas — hovering a slice made the two
-    // overlap into unreadable soup. Hide the center label while hovering.
-    onHover: (e, els) => setDonutHover(els.length > 0),
-    plugins: {
-      legend: { display: false },
-      tooltip: {
-        // Canvas can't parse 'rgba(var(--x),a)' — the black unreadable tooltip.
-        backgroundColor: cssVarRgba('--surface-card-rgb', 0.97, 'rgba(255,255,255,0.97)'),
-        titleColor: cssVar('--port-gore', '#28264f'),
-        bodyColor: cssVar('--port-gore', '#28264f'),
-        borderColor: cssVar('--selago', '#e6eef8'),
-        borderWidth: 1,
-        cornerRadius: 10,
-        padding: 10,
-        callbacks: { label: (ctx) => ` ${ctx.label}: ${fmtAutoKM(ctx.parsed)}` },
-      },
-    },
-  };
-
-  const donutLegend = [
-    { label: 'Cost of Goods Sold', value: cogs, color: costRamp[0] },
-    { label: 'Contract Expenses', value: totalExpenses, color: costRamp[1] },
-    { label: 'Company Expenses', value: companyExpAgg.total, color: costRamp[2] },
-    ...(gisPartnerShare > 0 ? [{ label: 'GIS partner share', value: gisPartnerShare, color: 'var(--teal-text)' }] : []),
-    { label: 'Net Profit', value: netProfit, color: 'var(--ok-figure)' },
-  ];
+  /* Capital Breakdown donut removed earlier this round; this whole cluster (donutData,
+     donutOptions, donutHover, donutLegend, profitForArc, costRamp) was its leftover —
+     nothing rendered it any more. Cleaned up alongside the hero chart removal above so
+     the dead-code trail does not outlive the card that used it. */
 
   if (Object.keys(settings).length === 0) return <div className="mx-auto w-full max-w-full px-2 md:px-4 pb-4 mt-[72px]"><CardsSkeleton /></div>;
 
@@ -2799,24 +2462,15 @@ const Dash = () => {
             )}
           </div>
 
-          {/* HERO TREND — full width since the donut moved up beside Tonnage. */}
-          <div className="grid grid-cols-1 gap-5 mb-5">
-            <CardShell>
-              <div className="p-4">
-                <SectionHeader
-                  title="Revenue, Costs & Profit"
-                  subtitle="Sold basis — sales vs cost of material actually sold (unsold stock excluded) · selected period"
-                />
-                {/* 320 -> 220. The three series here (revenue, costs, profit) each
-                    have a figure of their own in the Business Summary / KPI row
-                    now, so this chart's job narrowed from "read the numbers off
-                    it" to "see the shape" — which 220px does. */}
-                <div style={{ height: 220 }}>
-                  <Line data={heroData} options={heroOptions} />
-                </div>
-              </div>
-            </CardShell>
-          </div>
+          {/* HERO TREND card removed (Zak, 2026-09-03: "this can be removed"). Its own
+              Profit line was a THIRD, unreconciled P&L: revenueSeries read invAgg (contract-
+              dated revenue, not the invoice-dated basis the Sales Revenue tile states) and
+              profitSeries summed dataPL independently of totalPL, which now comes straight
+              from the Margins page. The chart could show a monthly peak that never adds up
+              to the Gross Profit tile above it — exactly the mismatch Cost of Goods Sold and
+              Capital Breakdown were pulled for earlier in this same pass; this one just
+              survived that cleanup by sitting in its own row. Removed rather than recomputed
+              on the Margins basis: Margins has no monthly breakdown to chart. */}
           {/* SUPPLIER RANKING + EXPENSES BY TYPE. Clicking a tile opens the records behind
               it rather than filtering — the filter bar above already filters, and the tile
               was the only route to the detail (Zak, 2026-09-02). */}
