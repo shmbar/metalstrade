@@ -264,7 +264,11 @@ const DocumentImportOverlay = ({ documentType, suppliers, clients, currencies, e
             const raw = await res.text();
             let data;
             try { data = JSON.parse(raw); }
-            catch { throw new Error(`Server replied ${res.status} with an unexpected response — try again, or a smaller file.`); }
+            catch {
+                throw new Error(res.status === 504 || res.status === 408
+                    ? 'This document took too long to read. Split it — one sheet, or half the rows — and read each part into its own table.'
+                    : `Server replied ${res.status} with an unexpected response — try again, or a smaller file.`);
+            }
             stage = 'applying the result';
             if (!res.ok || data.error) {
                 // Distinguish scanned-image PDFs from parse failures so the user
@@ -273,7 +277,8 @@ const DocumentImportOverlay = ({ documentType, suppliers, clients, currencies, e
                     throw new Error(data.message || 'PDF has no embedded text. Export it as an image and re-upload.');
                 }
                 if (data.error === 'LEGACY_XLS' || data.error === 'SHEET_PARSE_FAILED'
-                    || data.error === 'DOCUMENT_TOO_LONG' || data.error === 'BAD_MODEL_JSON') {
+                    || data.error === 'DOCUMENT_TOO_LONG' || data.error === 'BAD_MODEL_JSON'
+                    || data.error === 'READ_TIMED_OUT') {
                     throw new Error(data.message);
                 }
                 if (data.error === 'PDF_PARSE_FAILED') {

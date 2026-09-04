@@ -288,10 +288,23 @@ ${buildRules(textPath, sheetPath)}
 ${schemaGuide}
 Return ONLY the JSON object, no extra text.`;
 
+        /* A SPREADSHEET is the one input where the expensive model earns nothing.
+           gpt-4o is here to read digits off unpredictable scanned layouts; a
+           worksheet arrives as an exact text grid, so there is no OCR to get
+           right — only column mapping, which mini does well.
+
+           This is a latency fix, not a cost one. A 50-heat assay generates a few
+           thousand output tokens, and on gpt-4o that is 40-60s of generation —
+           past the 60s function ceiling, which is the 504 (Sharoon, 2026-09-04).
+           mini generates roughly three times faster and brings the same document
+           in around 20s. Scans and images keep gpt-4o.
+           OPENAI_DOCREADER_SHEET_MODEL overrides it per deploy. */
         // gpt-4o (not mini) because supplier invoices have unpredictable layouts and
         // label variants — the accuracy gap on extraction is worth the cost on small
         // payloads. Overridable per-deploy without a code change.
-        const model = process.env.OPENAI_DOCREADER_MODEL || 'gpt-4o';
+        const model = useSheet
+            ? (process.env.OPENAI_DOCREADER_SHEET_MODEL || 'gpt-4o-mini')
+            : (process.env.OPENAI_DOCREADER_MODEL || 'gpt-4o');
 
         let messages;
         if (useSheet) {
@@ -353,9 +366,12 @@ Return ONLY the JSON object, no extra text.`;
             max_tokens: documentType === 'materialtable' ? 16000 : 4000,
             response_format: { type: 'json_object' },
             messages,
-            // Stay under maxDuration so a hung upstream returns OUR json error,
-            // not the platform's bare 504 page.
-        }, { timeout: 50_000 });
+            /* Stay under maxDuration so a slow upstream returns OUR json error,
+               not the platform's bare 504 page — which reaches the user as
+               "Server replied 504 with an unexpected response" and says nothing
+               about what to do. 50s left only 10s of the 60s ceiling to serialise
+               and return, and the 504 says that was not enough; 40s leaves 20s. */
+        }, { timeout: 40_000 });
 
         guard.recordUsage(response.usage?.total_tokens);
 
@@ -565,6 +581,18 @@ Return ONLY the JSON object, no extra text.`;
 
     } catch (err) {
         console.error('Document reader error:', err);
+        /* A timeout is the one failure the user can do something about, and it is
+           also the one they hit on a long assay. Left as err.message it arrives as
+           "Request timed out" (or, once the platform gives up first, a bare 504
+           HTML page) — neither of which says "this document is too long". */
+        const timedOut = err?.name === 'APIConnectionTimeoutError'
+            || /timed?\s*out/i.test(err?.message || '');
+        if (timedOut) {
+            return Response.json({
+                error: 'READ_TIMED_OUT',
+                message: 'This document took too long to read. Split it — one sheet, or half the rows — and read each part into its own table.',
+            }, { status: 504 });
+        }
         return Response.json({ error: err.message || 'Failed to read document' }, { status: 500 });
     }
 }
