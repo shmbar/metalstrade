@@ -21,12 +21,14 @@ function getNumFmtForCurrency(currency) {
 const COL_META = {
     order:          { width: 15, isQty: false, isCurrency: false, getValue: (item) => item.order || '' },
     date:           { width: 15, isQty: false, isCurrency: false, getValue: (item) => item.date || '' },
-    supplier:       { width: 20, isQty: false, isCurrency: false, getValue: (item, settings) => settings.Supplier.Supplier.find(q => q.id === item.supplier)?.nname || '' },
+    // _pre = a combined row: it holds display names already, because a grade can
+    // span several suppliers and warehouses and has no single id left to look up.
+    supplier:       { width: 20, isQty: false, isCurrency: false, getValue: (item, settings) => item._pre ? (item.supplier || '') : (settings.Supplier.Supplier.find(q => q.id === item.supplier)?.nname || '') },
     originSupplier: { width: 20, isQty: false, isCurrency: false, getValue: (item) => item.originSupplier || '' },
-    stock:          { width: 20, isQty: false, isCurrency: false, getValue: (item, settings) => settings.Stocks.Stocks.find(q => q.id === item.stock)?.nname || '' },
+    stock:          { width: 20, isQty: false, isCurrency: false, getValue: (item, settings) => item._pre ? (item.stock || '') : (settings.Stocks.Stocks.find(q => q.id === item.stock)?.nname || '') },
     descriptionName:{ width: 40, isQty: false, isCurrency: false, getValue: (item) => item.descriptionName || '' },
     qnty:           { width: 14, isQty: true,  isCurrency: false, getValue: (item) => item.qnty * 1 },
-    qTypeTable:     { width: 14, isQty: false, isCurrency: false, getValue: (item, settings) => settings.Quantity.Quantity.find(q => q.id === item.qTypeTable)?.qTypeTable || '' },
+    qTypeTable:     { width: 14, isQty: false, isCurrency: false, getValue: (item, settings) => item._pre ? (item.qTypeTable || '') : (settings.Quantity.Quantity.find(q => q.id === item.qTypeTable)?.qTypeTable || '') },
     unitPrc:        { width: 14, isQty: false, isCurrency: true,  getValue: (item) => isNaN(item.unitPrc) ? '' : item.unitPrc * 1 },
     total:          { width: 15, isQty: false, isCurrency: true,  getValue: (item) => isNaN(item.total) ? '' : (item?.total || '') },
     sType:          { width: 20, isQty: false, isCurrency: false, getValue: (item) => item.sType || '' },

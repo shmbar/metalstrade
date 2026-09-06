@@ -11,6 +11,7 @@ import SortIcon from "@components/table/SortIcon";
 import {
   flexRender,
   getCoreRowModel,
+  getExpandedRowModel,
   getFilteredRowModel,
   getPaginationRowModel,
   getSortedRowModel,
@@ -30,6 +31,7 @@ import dateBetweenFilterFn from '../../../components/table/filters/date-between-
 import { labelAwareGlobalFilter } from '../../../components/table/filters/labelAwareGlobalFilter';
 import EmptyState from '../../../components/EmptyState';
 import { TONES } from '../../../components/statusUtils';
+import { ChevronRight } from 'lucide-react';
 import { useTablePrefs, useTablePagination } from '@components/table/useTablePrefs';
 
 const Customtable = ({
@@ -56,6 +58,10 @@ const Customtable = ({
   const [quickSumEnabled, setQuickSumEnabled] = useState(false);
   const [quickSumColumns, setQuickSumColumns] = useState([]);
   const [rowSelection, setRowSelection] = useState({});
+  /* Sub-rows exist only in the Stocks page's "By grade" mode, where a row carries
+     the lines it folded in `_lines`. Everywhere else getSubRows returns undefined,
+     nothing can expand, and the model is the flat table it has always been. */
+  const [expanded, setExpanded] = useState({});
 
   /* SELECTION COLUMN */
   const columnsWithSelection = useMemo(() => {
@@ -107,16 +113,22 @@ const Customtable = ({
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     getSortedRowModel: getSortedRowModel(),
+    getExpandedRowModel: getExpandedRowModel(),
+    getSubRows: (row) => row._lines,
+    // Page size counts GRADES, not the lines hidden under them — otherwise opening
+    // one 21-lot group would shove twenty rows onto the next page.
+    paginateExpandedRows: false,
     getPaginationRowModel: getPaginationRowModel(),
     filterFns: { dateBetweenFilterFn },
     globalFilterFn: labelAwareGlobalFilter,
-    state: { globalFilter, columnVisibility, pagination, columnFilters, rowSelection, sorting },
+    state: { globalFilter, columnVisibility, pagination, columnFilters, rowSelection, sorting, expanded },
     onGlobalFilterChange: setGlobalFilter,
     onColumnFiltersChange: setColumnFilters,
     onColumnVisibilityChange: setColumnVisibility,
     onPaginationChange: setPagination,
     onRowSelectionChange: setRowSelection,
     onSortingChange: setSorting,
+    onExpandedChange: setExpanded,
   });
 
   useEffect(() => {
@@ -256,12 +268,13 @@ const Customtable = ({
                     <tr
                       key={row.id}
                       onClick={() => setSelectedRowId(row.id)}
-                      onDoubleClick={() => SelectRow(row.original)}
+                      onDoubleClick={() => { if (!row.getCanExpand()) SelectRow(row.original); }}
                       tabIndex={0}
                       className={`cursor-pointer transition-colors${selectedRowId === row.id ? ' selected-row' : ' cursor-pointer'}`}
                     >
                       {row.getVisibleCells().map((cell) => {
                         const isCompleted = cell.column.id === 'completed';
+                        const isDesc = cell.column.id === 'descriptionName';
                         const isStatus = cell.column.id === 'status' && cell.getValue();
                         let tone = undefined;
                         if (isCompleted) tone = cell.getValue() ? TONES.green : TONES.red;
@@ -297,11 +310,30 @@ const Customtable = ({
                                 <span className="px-3 py-1 rounded-lg font-normal" style={{ backgroundColor: tone?.bg, color: tone?.text, border: tone ? `1px solid ${tone.border}` : undefined }}>{cell.getValue()}</span>
                               </div>
                             ) : (
-                              <div className="flex justify-center font-normal">
+                              /* Description carries the expander in "By grade" mode: a
+                                 chevron and the lot count on a parent, an indent on the
+                                 lines underneath. Every other column, and every row in
+                                 Lines mode, renders exactly as before. */
+                              <div
+                                className={`flex items-center font-normal ${isDesc && (row.getCanExpand() || row.depth > 0) ? 'justify-start gap-1' : 'justify-center'}`}
+                                style={isDesc && row.depth > 0 ? { paddingLeft: '18px' } : undefined}
+                              >
+                                {isDesc && row.getCanExpand() && (
+                                  <button type="button" onClick={(e) => { e.stopPropagation(); row.toggleExpanded(); }}
+                                    className="shrink-0 inline-flex">
+                                    <ChevronRight className="w-3 h-3 transition-transform"
+                                      style={{ transform: row.getIsExpanded() ? 'rotate(90deg)' : 'none', color: 'var(--endeavour)' }} />
+                                  </button>
+                                )}
                                 {cell.getValue() !== null && cell.getValue() !== undefined && cell.getValue() !== '' ? (
                                   flexRender(cell.column.columnDef.cell, cell.getContext())
                                 ) : (
                                   ' '
+                                )}
+                                {isDesc && row.getCanExpand() && (
+                                  <span className="shrink-0 whitespace-nowrap" style={{ color: 'var(--regent-gray)' }}>
+                                    {row.original._lotCount} lots
+                                  </span>
                                 )}
                               </div>
                             )}

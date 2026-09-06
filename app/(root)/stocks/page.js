@@ -19,6 +19,7 @@ import { EXD } from './excel'
 import { getTtl } from '../../../utils/languages';
 import SumTable from './sumtables/sumTable'
 import GradeTable from './sumtables/gradeTable'
+import { gradeKeyOf, gradeLabel, niRangeLabel } from './sumtables/gradeKey'
 import StorageAging from './storageAging'
 import StockAudit from './stockAudit'
 import { BtnIcon } from '../../../components/buttonIcons'
@@ -69,6 +70,8 @@ const Stocks = () => {
   const [isLoadingStock, setIsLoadingStock] = useState(false)
   const [rawStockData, setRawStockData] = useState([])
   const [auditOpen, setAuditOpen] = useState(false)
+  // false = one row per stock line, true = one row per grade (see groupedData).
+  const [combine, setCombine] = useState(false)
   const [refreshTick, setRefreshTick] = useState(0) // bumped after audit write-offs to re-pull stock
 
 
@@ -347,12 +350,82 @@ const Stocks = () => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const tableData = useMemo(() => getFormatted(data), [data, settings]);
 
+  /* Lines vs grades.
+
+     The table has always listed stock LINES, while the summary cards think in
+     grades — so DMT's `Hast X`, `Hast X (47Ni 21Cr8Mo)` and `Hast X (47Ni 21Cr 8Mo)`
+     read as three positions here and one there, and an export of this table could
+     never be reconciled against the card beside it. `combine` folds the rows on the
+     same grade key the cards use, keeping every line as a subRow so nothing is lost.
+
+     Grouping happens on the FORMATTED rows (names, not ids) because a grade can span
+     suppliers and warehouses — a parent's supplier cell is the set of them, which is
+     also what keeps the search box working: typing `dmt` still matches the group. */
+  const groupByGrade = (rows) => {
+    const groups = {};
+    rows.forEach(row => {
+      const name = row.descriptionName || '-';
+      const { key: gKey, label: synth, ni } = gradeKeyOf(name);
+      const key = `${gKey || name}|${row.cur || ''}`;
+      if (!groups[key]) groups[key] = { key, synth, spellings: new Set(), niValues: [], lines: [] };
+      groups[key].spellings.add(name);
+      if (ni !== null) groups[key].niValues.push(ni);
+      groups[key].lines.push(row);
+    });
+
+    // Trim: several supplier names are stored with a trailing space, which turned
+    // a joined cell into "Shalex , Lobis".
+    const uniq = (arr) => [...new Set(arr.map(v => typeof v === 'string' ? v.trim() : v)
+      .filter(v => v !== undefined && v !== null && v !== ''))];
+    const join = (arr) => arr.length <= 2 ? arr.join(', ') : `${arr[0]} +${arr.length - 1}`;
+
+    return Object.values(groups).map(g => {
+      const qnty = g.lines.reduce((s, r) => s + (parseFloat(r.qnty) || 0), 0);
+      const total = g.lines.reduce((s, r) => s + (r.total === '-' ? 0 : parseFloat(r.total) || 0), 0);
+      const base = gradeLabel(g.synth, [...g.spellings]);
+      const span = g.synth ? niRangeLabel(g.niValues) : '';
+      return {
+        id: `grade:${g.key}`,
+        order: join(uniq(g.lines.map(r => r.order))),
+        date: '',
+        supplier: join(uniq(g.lines.map(r => r.supplier))),
+        originSupplier: join(uniq(g.lines.map(r => r.originSupplier))),
+        stock: join(uniq(g.lines.map(r => r.stock))),
+        descriptionName: span ? `${base} · ${span}` : base,
+        qnty,
+        qTypeTable: uniq(g.lines.map(r => r.qTypeTable))[0] || '',
+        // Weighted, not the mean of the lines' own unit prices.
+        unitPrc: qnty > 0 ? total / qnty : 0,
+        total,
+        sType: join(uniq(g.lines.map(r => r.sType))),
+        cur: g.lines[0]?.cur,
+        _lines: g.lines.length > 1 ? g.lines : undefined,
+        _lotCount: g.lines.length,
+      };
+    }).sort((a, b) => b.total - a.total);
+  };
+
+  const groupedData = useMemo(() => groupByGrade(tableData), [tableData]);
+  const shownData = combine ? groupedData : tableData;
+
   // Rows currently visible after the table's filters (supplier, item, warehouse, etc.).
   // Used for both the "Avg Cost Price per Grade" table and the Excel export so they
   // follow whatever the user filters on.
   const filteredData = useMemo(
     () => data.filter(x => filteredArray1.some(z => z.id === x.id)),
     [data, filteredArray1]
+  );
+
+  /* What the Data sheet exports when the table is combined. Built from the FILTERED
+     lines, so the sheet is the screen: filter to one supplier, combine, export, and
+     the file is that supplier's position by grade. `_pre` tells the exporter these
+     rows already hold display names rather than ids — a group spans suppliers, so
+     there is no single id left to look up.
+     eslint-disable-next-line react-hooks/exhaustive-deps */
+  const combinedForExport = useMemo(
+    () => groupByGrade(getFormatted(filteredData)).map(r => ({ ...r, _pre: true })),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [filteredData, settings]
   );
 
   return (
@@ -405,6 +478,22 @@ const Stocks = () => {
                     </button>
                   ))}
                 </div>
+
+                {/* Lines vs grades. Sits with the tabs because it changes what a
+                    row MEANS, which is the same class of switch. */}
+                {activeTab === 'mine' && (
+                  <div className='flex items-center bg-[var(--bg-subtle)] border border-[var(--line)] rounded-lg p-0.5 ml-3'>
+                    {[[false, 'Lines'], [true, 'By grade']].map(([val, label]) => (
+                      <button key={label} type='button' onClick={() => setCombine(val)}
+                        className={`rounded-lg transition-colors ${combine === val
+                          ? 'bg-[var(--bg-card)] text-[var(--ink)] font-medium shadow-card'
+                          : 'text-[var(--ink-secondary)]'}`}
+                        style={{ fontSize: 'var(--fs-input)', padding: '5px 14px' }}>
+                        {label}
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
 
               {activeTab === 'shared' ? (
@@ -414,14 +503,14 @@ const Stocks = () => {
               {/* Table Component */}
               <div className='mt-2'>
                 <Customtable
-                  data={tableData}
+                  data={shownData}
                   columns={propDefaults}
                   SelectRow={SelectRow}
                   cb={stockSelector}
                   type='stock'
                   invisible={invisible}
                   excellReport={(columnVisibility) => EXD(
-                    filteredData,
+                    combine ? combinedForExport : filteredData,
                     settings,
                     getTtl('Stocks', ln),
                     ln,

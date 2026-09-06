@@ -27,6 +27,13 @@ const sumTable = ({ sumData, loading, settings, ln, dataTable }) => {
         // The unit reads AFTER the figure it qualifies, and meta.narrow keeps the
         // column at the width its three-letter value needs.
         { accessorKey: 'qTypeTable', header: getTtl('WeightType', ln), cell: (props) => <div>{props.getValue()}</div>, meta: { narrow: true } },
+        /* Avg Cost /MT — the grade card carried it and this one did not, so you could
+           read that Seagull holds 397 MT worth $16.5M but not what that averages per
+           tonne. Derived, never stored: value ÷ quantity for the same rows. */
+        {
+            accessorKey: 'avgPrice', header: 'Avg Cost /MT',
+            cell: (props) => <p>{showAmount(props)}</p>,
+        },
         { accessorKey: 'total', header: getTtl('Total', ln), cell: (props) => <p>{showAmount(props)}</p> },
 
     ];
@@ -44,6 +51,7 @@ const sumTable = ({ sumData, loading, settings, ln, dataTable }) => {
                 stock: gQ(row.stock, 'Stocks', 'nname'),
                 qTypeTable: gQ(row.qTypeTable, 'Quantity', 'qTypeTable'),
                 cur: gQ(row.cur, 'Currency', 'cur'),
+                avgPrice: (row.qnty * 1) > 0 ? (row.total * 1) / (row.qnty * 1) : 0,
             }
 
             newArr.push(formattedRow)

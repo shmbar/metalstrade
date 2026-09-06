@@ -7,6 +7,7 @@ import { ensureNotification } from '../../../utils/utils';
 import { arrivalOf, daysStored, bucketOf } from './agingUtils';
 import { Warehouse, AlertTriangle, Clock, PackageCheck, ChevronRight } from 'lucide-react';
 import { TONES } from '../../../components/statusUtils';
+import SortIcon from '../../../components/table/SortIcon';
 import Tltip from '../../../components/tlTip';
 import BtnIcon from '../../../components/buttonIcons';
 
@@ -51,6 +52,8 @@ const StorageAging = ({ data = [] }) => {
     const [openTerminals, setOpenTerminals] = useState({});
     const [sumSel, setSumSel] = useState({});
     const [ageFilter, setAgeFilter] = useState('all');
+    // Oldest first: the only order this list is ever wanted in by default.
+    const [listSort, setListSort] = useState({ key: '_days', dir: 'desc' });
 
     // Per-row age + terminal grouping (only in-stock cargo, which `data` already is).
     const { byTerminal, staleRows, staleTerminals } = useMemo(() => {

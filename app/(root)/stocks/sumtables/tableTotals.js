@@ -77,7 +77,12 @@ const Customtable = ({ data, columns, ln, ttl, settings, dataTable, rmrk }) => {
                 ? formatNumber(quantity)
                 : col.accessorKey === 'total'
                   ? formatCurrency(total, config.code)
-                  : ''}
+                  /* The footer's average is value ÷ quantity for the whole column,
+                     not the mean of the rows above it — averaging averages would
+                     weight a 0.26 MT warehouse the same as a 397 MT one. */
+                  : col.accessorKey === 'avgPrice'
+                    ? (quantity > 0 ? formatCurrency(total / quantity, config.code) : '')
+                    : ''}
           </td>
         ))}
       </tr>
