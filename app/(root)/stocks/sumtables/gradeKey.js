@@ -45,12 +45,15 @@ const titleElement = (sym) => {
   return hit || sym
 }
 
-/* Returns { key, label } — key groups, label names the group. `label` is null when
-   the original description should be used as the name (the usual case); it is set
-   only where the group is a synthesised one, i.e. a collapsed assay family. */
+/* Returns { key, label, ni } — key groups, label names the group, ni is the Ni
+   percentage this description declared. `label` is null when the original
+   description should be used as the name (the usual case); it is set only where the
+   group is a synthesised one, i.e. a collapsed assay family. `ni` is what lets a
+   synthesised group show the span it covers, so "NiCrMo Ingots · 16–31Ni" says what
+   is being blended before anyone opens it. */
 export const gradeKeyOf = (description) => {
   const original = String(description ?? '').trim()
-  if (!original) return { key: '', label: null }
+  if (!original) return { key: '', label: null, ni: null }
 
   let s = deCyrillic(original)
   // A trailing/embedded "(...)" is an assay annotation or a note, never a different
@@ -59,9 +62,9 @@ export const gradeKeyOf = (description) => {
 
   // Collect the assay pairs and what is left once they are removed.
   const elements = []
-  const rest = s.replace(ASSAY, (m, _num, sym) => {
+  const rest = s.replace(ASSAY, (m, num, sym) => {
     if (!ELEMENT_SET.has(sym.toLowerCase())) return m
-    elements.push(titleElement(sym))
+    elements.push({ sym: titleElement(sym), num: parseFloat(String(num).replace(',', '.')) })
     return ' '
   })
 
@@ -74,7 +77,7 @@ export const gradeKeyOf = (description) => {
   let label = null
   let words
   if (collapsible) {
-    const seq = [...new Set(elements)].join('')
+    const seq = [...new Set(elements.map(e => e.sym))].join('')
     const form = restWords.filter(w => w.toLowerCase() !== 'and')
     label = [seq, ...form].join(' ')
     words = [seq, ...form]
@@ -86,7 +89,19 @@ export const gradeKeyOf = (description) => {
      same grade is typed both ways ("718 off grade Turnings" / "718 Turnings off
      grade", "Fines Mix" / "Mix Fines"). */
   const key = words.map(w => w.toLowerCase().replace(/\.$/, '')).sort().join(' ')
-  return { key, label }
+  const niEl = elements.find(e => e.sym === 'Ni')
+  return { key, label, ni: collapsible && Number.isFinite(niEl?.num) ? niEl.num : null }
+}
+
+/* "16–31Ni" for a synthesised group that spans a range, "24Ni" when every lot in it
+   declared the same figure. Whole numbers: the second decimal of an assay is noise
+   at the level this table reads at. */
+export const niRangeLabel = (values) => {
+  const nums = (values || []).filter(n => Number.isFinite(n))
+  if (nums.length === 0) return ''
+  const lo = Math.round(Math.min(...nums))
+  const hi = Math.round(Math.max(...nums))
+  return lo === hi ? `${lo}Ni` : `${lo}–${hi}Ni`
 }
 
 /* The name to show for a group.

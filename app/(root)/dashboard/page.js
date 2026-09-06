@@ -2056,7 +2056,7 @@ const Dash = () => {
     /* The three card TOTALS. Each opens the FULL list — including the tail the card folds
        away behind "N more" — which is exactly what a total is: everything, added up. */
     contractsTotal: {
-      title: 'Contracts — Total Value', subtitle: `Every supplier in the period · ${(hbSupps.obj.labels || []).length} in total`,
+      title: 'Suppliers — Total Value', subtitle: `Every supplier in the period · ${(hbSupps.obj.labels || []).length} in total`,
       rows: (hbSupps.obj.labels || []).map((name, i) => ({ name, value: Number(hbSupps.obj.datasets?.[0]?.data?.[i]) || 0 }))
         .sort((a, b) => b.value - a.value),
       cols: [
@@ -2488,8 +2488,15 @@ const Dash = () => {
               it rather than filtering — the filter bar above already filters, and the tile
               was the only route to the detail (Zak, 2026-09-02). */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-5">
+            {/* Titled "Contracts — $" until 2026-09-03, when Zak asked for "the same summary
+                table for suppliers" — it already WAS that table, identical to Consignees down
+                to the component, but the title said Contracts so nobody looking for the
+                supplier equivalent found it. Named for what it ranks now. Stays in the
+                Purchasing band on purpose: it is contract-dated, and moving it up beside
+                Consignees would file a contract-dated figure under a chip that reads
+                "Invoices dated …" — the basis mix this page was untangled to remove. */}
             <RankingList
-              title="Contracts — $"
+              title="Suppliers — $"
               subtitle="Purchase value by supplier — contracts dated in the period"
               labels={hbSupps.obj.labels || []}
               data={hbSupps.obj.datasets?.[0]?.data || []}

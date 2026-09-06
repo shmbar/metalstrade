@@ -197,14 +197,67 @@ export const EXD = (dataTable, settings, name, ln, sumData, columnVisibility = {
                 cell.font = { bold: true, size: 12, color: { argb: 'FFFFFF' } };
             });
 
+            /* The lots behind each grade go in as an OUTLINE level, so the sheet
+               opens folded exactly like the table and every grade expands with
+               Excel's own +/- in the margin. summaryBelow:false puts the grade
+               above the lots it totals, which is the order on screen. */
+            gSheet.properties.outlineProperties = { summaryBelow: false, summaryRight: false };
+
+            // Currency is per row and rows are now nested, so the number formats
+            // cannot be looked up by position in gradeRows any more.
+            const meta = [null]; // index 0 unused; row 1 is the header
+            // Typed descriptions carry stray double spaces. HTML collapses those, a
+            // spreadsheet cell does not, so they have to come out here.
+            const tidy = (s) => String(s || '').replace(/\s+/g, ' ').trim();
             gradeRows.forEach(r => {
+                const sym = r.isoCode === 'EUR' ? '€' : '$';
+                const lots = r.lots || [];
                 gSheet.addRow({
-                    descriptionName: r.descriptionName,
+                    // Says how many lots it holds even while the group is collapsed.
+                    descriptionName: lots.length > 1
+                        ? `${tidy(r.descriptionName)} (${lots.length} lots)`
+                        : tidy(r.descriptionName),
                     totalQnty: r.totalQnty,
                     avgPrice: r.avgPrice,
                     totalValue: r.totalValue,
-                    cur: r.isoCode === 'EUR' ? '€' : '$',
+                    cur: sym,
                 });
+                meta.push({ sym, child: false });
+
+                if (lots.length < 2) return; // nothing the grade row does not already say
+                lots.forEach(l => {
+                    const name = l.description && l.description !== r.descriptionName
+                        ? `${tidy(l.description)} · ${l.supplier}`
+                        : l.supplier;
+                    const row = gSheet.addRow({
+                        descriptionName: `    ${name}`,
+                        totalQnty: l.qnty,
+                        avgPrice: l.qnty > 0 ? l.value / l.qnty : 0,
+                        totalValue: l.value,
+                        cur: sym,
+                    });
+                    row.outlineLevel = 1;
+                    meta.push({ sym, child: true });
+                });
+            });
+
+            // One bold bottom line per currency, matching the card's total row.
+            const gTotals = gradeRows.reduce((acc, r) => {
+                const k = r.isoCode;
+                if (!acc[k]) acc[k] = { isoCode: k, qnty: 0, value: 0 };
+                acc[k].qnty += r.totalQnty;
+                acc[k].value += r.totalValue;
+                return acc;
+            }, {});
+            Object.values(gTotals).forEach(t => {
+                const sym = t.isoCode === 'EUR' ? '€' : '$';
+                const row = gSheet.addRow({
+                    descriptionName: `Total ${sym}`,
+                    totalQnty: t.qnty,
+                    totalValue: t.value,
+                });
+                row.font = { bold: true };
+                meta.push({ sym, child: false, total: true });
             });
 
             gSheet.eachRow((row, rowNumber) => {
@@ -215,10 +268,15 @@ export const EXD = (dataTable, settings, name, ln, sumData, columnVisibility = {
                         bottom: { style: 'thin' },
                         right: { style: 'thin' },
                     };
-                    if (rowNumber > 1) {
-                        const sym = gradeRows[rowNumber - 2]?.isoCode === 'EUR' ? '€' : '$';
+                    const m = meta[rowNumber - 1];
+                    if (rowNumber > 1 && m) {
                         if (colNumber === 2) cell.numFmt = `#,##0.000;[Red]#,##0.000`;
-                        if (colNumber === 3) cell.numFmt = `${sym}#,##0.00;[Red]${sym}#,##0.00`;
+                        // Total Value carried no format at all before, so the column
+                        // that matters most read as a bare number.
+                        if (colNumber === 3 || colNumber === 4) {
+                            cell.numFmt = `${m.sym}#,##0.00;[Red]${m.sym}#,##0.00`;
+                        }
+                        if (m.child) cell.font = { color: { argb: '6E6B84' }, italic: true };
                     }
                 });
             });

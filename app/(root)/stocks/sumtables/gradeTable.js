@@ -5,7 +5,7 @@ import { ChevronRight } from 'lucide-react'
 import { NumericFormat } from 'react-number-format'
 import CurrencyChip from '../../../../components/CurrencyChip'
 import Tltip from '../../../../components/tlTip'
-import { gradeKeyOf, gradeLabel } from './gradeKey'
+import { gradeKeyOf, gradeLabel, niRangeLabel } from './gradeKey'
 
 /* The four figure columns are bounded — each is sized to the wider of its header and
    its values — and Description is the one free-text column, so under table-layout:fixed
@@ -35,11 +35,11 @@ export const computeGradeSummary = (dataTable, settings) => {
   dataTable.forEach(row => {
     const name = row.descriptionName || '-'
     const curId = row.cur || ''
-    const { key: gradeKey, label: synthLabel } = gradeKeyOf(name)
+    const { key: gradeKey, label: synthLabel, ni } = gradeKeyOf(name)
     const key = `${gradeKey || name}|${curId}`
     if (!groups[key]) {
       groups[key] = {
-        curId, synthLabel, totalQnty: 0, totalValue: 0, bySupplier: {}, byVariant: {},
+        curId, synthLabel, totalQnty: 0, totalValue: 0, byLot: {}, spellings: new Set(), niValues: [],
       }
     }
     const g = groups[key]
@@ -47,15 +47,18 @@ export const computeGradeSummary = (dataTable, settings) => {
     const val = row.total === '-' ? 0 : parseFloat(row.total) || 0
     g.totalQnty += qty
     g.totalValue += val
+    g.spellings.add(name)
+    if (ni !== null) g.niValues.push(ni)
 
-    const sup = supName(row.supplier)
-    if (!g.bySupplier[sup]) g.bySupplier[sup] = { supplier: sup, qnty: 0, value: 0 }
-    g.bySupplier[sup].qnty += qty
-    g.bySupplier[sup].value += val
-
-    if (!g.byVariant[name]) g.byVariant[name] = { description: name, qnty: 0, value: 0 }
-    g.byVariant[name].qnty += qty
-    g.byVariant[name].value += val
+    /* One breakdown, not two. A row used to open on suppliers, and a folded one on
+       spellings, so the same chevron meant different things depending on the row —
+       the thing that read as confusing. A LOT (this description, from this supplier)
+       carries both facts, so there is now a single list behind every chevron. */
+    const supplier = supName(row.supplier)
+    const lotKey = `${name}|${supplier}`
+    if (!g.byLot[lotKey]) g.byLot[lotKey] = { description: name, supplier, qnty: 0, value: 0 }
+    g.byLot[lotKey].qnty += qty
+    g.byLot[lotKey].value += val
   })
 
   return Object.values(groups)
@@ -63,22 +66,22 @@ export const computeGradeSummary = (dataTable, settings) => {
     .map(r => {
       const curCode = gCur(r.curId)
       const isoCode = curCode?.toLowerCase() === 'eur' ? 'EUR' : 'USD'
-      const variants = Object.values(r.byVariant)
-        .filter(v => v.qnty > 0.0005)
-        .sort((a, b) => b.value - a.value)
+      const base = gradeLabel(r.synthLabel, [...r.spellings])
+      const span = r.synthLabel ? niRangeLabel(r.niValues) : ''
       return {
         ...r,
         // Keeps the name under the key the Excel sheet already writes.
-        descriptionName: gradeLabel(r.synthLabel, Object.keys(r.byVariant)),
+        descriptionName: span ? `${base} · ${span}` : base,
         avgPrice: r.totalQnty > 0 ? r.totalValue / r.totalQnty : 0,
         isoCode,
-        variants,
-        suppliers: Object.values(r.bySupplier)
-          .filter(s => s.qnty > 0.0005)
+        lots: Object.values(r.byLot)
+          .filter(l => l.qnty > 0.0005)
           .sort((a, b) => b.value - a.value),
       }
     })
-    .sort((a, b) => a.descriptionName.localeCompare(b.descriptionName))
+    /* Biggest position first. Alphabetical put an $857k line in the middle of 85
+       rows; this table is read to find where the money is. */
+    .sort((a, b) => b.totalValue - a.totalValue)
 }
 
 const GradeTable = ({ dataTable, loading, settings }) => {
@@ -113,6 +116,25 @@ const GradeTable = ({ dataTable, loading, settings }) => {
     whiteSpace: 'nowrap',
     textAlign: 'center',
   }
+
+  // Same band as the Summary - Stocks total row, so the two cards close the same way.
+  const footStyle = {
+    color: 'var(--ink)',
+    background: 'var(--bg-subtle)',
+    padding: '6px 10px',
+    borderTop: '1px solid var(--line)',
+    whiteSpace: 'nowrap',
+    textAlign: 'center',
+  }
+
+  // One line per currency actually present, in the order the rows use them.
+  const totals = Object.values(rows.reduce((acc, r) => {
+    const k = r.isoCode
+    if (!acc[k]) acc[k] = { isoCode: k, qnty: 0, value: 0 }
+    acc[k].qnty += r.totalQnty
+    acc[k].value += r.totalValue
+    return acc
+  }, {}))
 
   return (
     <div className="mt-5 flex-auto min-w-0">
@@ -152,15 +174,17 @@ const GradeTable = ({ dataTable, loading, settings }) => {
               {rows.map((r, i) => {
                 const { avgPrice, isoCode } = r
                 const key = `${r.descriptionName}|${r.curId}`
-                /* A grade folded from several spellings opens on THOSE — that is the
-                   breakdown behind the total, and the one the fold made invisible.
-                   A grade with a single spelling has nothing to show there, so it
-                   keeps opening on the supplier split as it always did. */
-                const variants = r.variants || []
-                const children = variants.length > 1
-                  ? variants.map(v => ({ name: v.description, qnty: v.qnty, value: v.value }))
-                  : (r.suppliers || []).map(s => ({ name: s.supplier, qnty: s.qnty, value: s.value }))
-                const canExpand = children.length > 0
+                /* Always the same thing behind the chevron: the lots that make up
+                   the total. The description is dropped from a lot's line when it
+                   only repeats the grade name above it — same row, less noise. */
+                const lots = r.lots || []
+                const children = lots.map(l => ({
+                  name: l.description && l.description !== r.descriptionName
+                    ? `${l.description} · ${l.supplier}`
+                    : l.supplier,
+                  qnty: l.qnty, value: l.value,
+                }))
+                const canExpand = children.length > 1
                 const isOpen = !!expanded[key]
                 return (
                   <React.Fragment key={i}>
@@ -174,8 +198,10 @@ const GradeTable = ({ dataTable, loading, settings }) => {
                               style={{ transform: isOpen ? 'rotate(90deg)' : 'none', color: 'var(--endeavour)' }} />
                           )}
                           <span className='block truncate min-w-0'>{r.descriptionName}</span>
-                          {variants.length > 1 && (
-                            <span className='shrink-0' style={{ color: 'var(--regent-gray)' }}>({variants.length})</span>
+                          {canExpand && (
+                            <span className='shrink-0 whitespace-nowrap' style={{ color: 'var(--regent-gray)' }}>
+                              {children.length} lots
+                            </span>
                           )}
                         </span>
                       </Tltip>
@@ -240,6 +266,28 @@ const GradeTable = ({ dataTable, loading, settings }) => {
                 )
               })}
             </tbody>
+            {/* Bottom line, one row per currency in play — the card had none, while
+                Summary - Stocks beside it did. Sticky, because this table scrolls
+                inside its own box and a total you have to scroll to find is not a
+                total. */}
+            <tfoot style={{ position: 'sticky', bottom: 0, zIndex: 10 }}>
+              {totals.map(t => (
+                <tr key={t.isoCode}>
+                  <td className="responsiveTextTable font-medium" style={{ ...footStyle, textAlign: 'left', paddingLeft: '14px' }}>
+                    Total {t.isoCode === 'EUR' ? '€' : '$'}
+                  </td>
+                  <td className="responsiveTextTable font-medium" style={footStyle}>
+                    <NumericFormat value={t.qnty} displayType="text" thousandSeparator decimalScale={3} fixedDecimalScale />
+                  </td>
+                  <td style={footStyle}></td>
+                  <td className="responsiveTextTable font-medium" style={footStyle}>
+                    <NumericFormat value={t.value} displayType="text" thousandSeparator
+                      prefix={t.isoCode === 'EUR' ? '€' : '$'} decimalScale={2} fixedDecimalScale />
+                  </td>
+                  <td style={footStyle}></td>
+                </tr>
+              ))}
+            </tfoot>
           </table>
         </div>
       </div>
