@@ -55,6 +55,10 @@ export default function Balances() {
   return (
     <Screen scroll={false} flush contentContainerStyle={{ paddingTop: insets.top + 8 }} edges={false}>
       <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
+        <Pressable onPress={() => router.back()} hitSlop={8} style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+          <Ionicons name="chevron-back" size={22} color={colors.primary} />
+          <Text variant="bodyMedium" tone="primary">Back</Text>
+        </Pressable>
         <Text variant="h2">Balances</Text>
         <PeriodSelector />
       </View>

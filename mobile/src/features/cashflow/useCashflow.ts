@@ -71,6 +71,16 @@ export interface CashflowData {
   balance: number;
   // Manual entries kept on {uid}/cashflow — read-only on mobile.
   manual: { initial: number; financedLeft: number; financedRight: number };
+  /**
+   * Web parity: the "Future" incoming figure (margins) plus the named rows an
+   * admin has typed under it (cashflow/page.js:1436-1462 `initialData`, e.g. a
+   * client's own "Airwallex" balance entry) are admin-only there — the whole
+   * block sits behind `isAdmin &&` (page.js:1433), same as the Financing editor
+   * and the Total (Left)/Balance/Total (Right) strip (page.js:1749, :2041).
+   * Individual rows, not just the `manual.initial` sum, so mobile can show the
+   * same named breakdown web's admins see instead of one opaque total.
+   */
+  manualInitialRows: { title: string; num: number }[];
 }
 
 const addCur = (map: Record<string, number>, cur: string, v: number) => {
@@ -501,6 +511,9 @@ export function computeCashflow(input: CashflowInputs): CashflowData {
     financedLeft: sumManualEntries(fin.financedLeft),
     financedRight: sumManualEntries(fin.financedRight),
   };
+  const manualInitialRows: { title: string; num: number }[] = Array.isArray(fin.initial)
+    ? fin.initial.map((r: any) => ({ title: String(r?.title ?? '').trim() || 'Untitled', num: parseFloat(r?.num) || 0 }))
+    : [];
 
   // Web bottom line (cashflow/page.js:285-329). Receivables are summed across
   // currencies here because web's Total (Left) does exactly that — see the web
@@ -532,6 +545,7 @@ export function computeCashflow(input: CashflowInputs): CashflowData {
     stocksPaidTotal: stockSplit.paidTotal,
     stocksUnpaidTotal: stockSplit.unpaidTotal,
     incoming,
+    manualInitialRows,
     totalLeft,
     totalRight,
     balance: totalLeft - totalRight,

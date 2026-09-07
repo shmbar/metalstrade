@@ -15,6 +15,10 @@ interface SettingsState {
   dateSelect: DateSelect;
   loaded: boolean;
   loading: boolean;
+  // The uidCollection the CURRENT settings/compData were loaded for. Lets load()
+  // tell "still on the same account, a background refresh" apart from "switched
+  // account, this blob is stale" — see the guard below.
+  settingsUid: string | null;
   setDateSelect: (d: DateSelect) => void;
   setYear: (year: number) => void;
   setSettings: (s: Settings) => void;
@@ -23,12 +27,13 @@ interface SettingsState {
   reset: () => void;
 }
 
-export const useSettings = create<SettingsState>((set) => ({
+export const useSettings = create<SettingsState>((set, get) => ({
   settings: {},
   compData: {},
   dateSelect: currentYearRange(),
   loaded: false,
   loading: false,
+  settingsUid: null,
 
   setDateSelect: (dateSelect) => set({ dateSelect }),
   setYear: (year) => set({ dateSelect: { start: `${year}-01-01`, end: `${year}-12-31` } }),
@@ -37,19 +42,38 @@ export const useSettings = create<SettingsState>((set) => ({
 
   load: async (uidCollection) => {
     if (!uidCollection) return;
+    // Switching account (IMS <-> GIS, or any re-auth): the settings sitting in the
+    // store right now belong to the OLD uidCollection. Every screen gates its
+    // queries on `loaded`, so leaving it true while the new account's blob is still
+    // in flight let those queries run immediately against the new account's
+    // contracts/stock lots but the OLD account's warehouse/supplier/client ids —
+    // an id that is perfectly valid in one workspace resolves nowhere in the
+    // other, so a name lookup falls through to printing the raw id (reported on
+    // Cashflow's "Stocks - paid/unpaid" warehouse rows). Clearing synchronously,
+    // before the async fetch even starts, closes that window instead of just
+    // shrinking it.
+    if (get().settingsUid && get().settingsUid !== uidCollection) {
+      set({ settings: {}, compData: {}, loaded: false });
+    }
     set({ loading: true });
     try {
       const [settings, compData] = await Promise.all([
         loadSettings(uidCollection),
         loadCompanyData(uidCollection),
       ]);
-      set({ settings: settings as Settings, compData: compData as CompanyData, loaded: true, loading: false });
+      set({
+        settings: settings as Settings,
+        compData: compData as CompanyData,
+        loaded: true,
+        loading: false,
+        settingsUid: uidCollection,
+      });
     } catch {
       set({ loading: false });
     }
   },
 
-  reset: () => set({ settings: {}, compData: {}, loaded: false, dateSelect: currentYearRange() }),
+  reset: () => set({ settings: {}, compData: {}, loaded: false, settingsUid: null, dateSelect: currentYearRange() }),
 }));
 
 // Derived helpers (mirror dashboard/page.js):

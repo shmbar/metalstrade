@@ -10,6 +10,8 @@ import {
   User,
 } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
+// @ts-ignore — plain JS module shared verbatim with the web
+import { isSuperAdmin, normalizeRole } from '@shared/permissions';
 
 // Idle-expiry parity with the web app's AuthContext. A phone is inherently a
 // "Remember me" device (users expect to stay signed in), so mobile uses the web's
@@ -54,6 +56,12 @@ interface AuthState {
   uidCollection: string | null;
   userTitle: string | null; // 'Admin' | 'accounting' | other
   gisAccount: boolean;
+  // Web parity (utils/permissions.js): superAdmin is the workspace owner or the
+  // `role` claim; isAdmin also covers a plain 'admin' role. Gates the same
+  // admin-only figures web hides from regular staff (Cashflow's Financing /
+  // Total Left-Right-Balance strip, the Airwallex-style manual incoming rows).
+  isAdmin: boolean;
+  superAdmin: boolean;
   currentUser: CurrentUser;
   error: string | null;
   signIn: (email: string, password: string) => Promise<boolean>;
@@ -86,6 +94,8 @@ export const useAuth = create<AuthState>((set, get) => ({
   uidCollection: null,
   userTitle: null,
   gisAccount: false,
+  isAdmin: false,
+  superAdmin: false,
   currentUser: buildCurrentUser(null),
   error: null,
 
@@ -180,6 +190,8 @@ export const useAuth = create<AuthState>((set, get) => ({
           uidCollection: null,
           userTitle: null,
           gisAccount: false,
+          isAdmin: false,
+          superAdmin: false,
           currentUser: buildCurrentUser(null),
           initializing: false,
         });
@@ -187,14 +199,18 @@ export const useAuth = create<AuthState>((set, get) => ({
       }
       try {
         const token = await user.getIdTokenResult();
-        const uidCollection = (token.claims.uidCollection as string) || null;
-        const userTitle = (token.claims.title as string) || null;
+        const claims = token.claims as Record<string, any>;
+        const uidCollection = (claims.uidCollection as string) || null;
+        const userTitle = (claims.title as string) || null;
+        const superAdmin = isSuperAdmin(claims, user.uid);
         const cu = buildCurrentUser(user);
         set({
           user,
           uidCollection,
           userTitle,
           gisAccount: uidCollection === GIS_UID_COLLECTION,
+          superAdmin,
+          isAdmin: superAdmin || normalizeRole(claims.role || claims.title) === 'admin',
           currentUser: cu,
           initializing: false,
         });
@@ -210,6 +226,8 @@ export const useAuth = create<AuthState>((set, get) => ({
           uidCollection: null,
           userTitle: null,
           gisAccount: false,
+          isAdmin: false,
+          superAdmin: false,
           currentUser: buildCurrentUser(user),
           initializing: false,
         });

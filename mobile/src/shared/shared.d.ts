@@ -175,6 +175,23 @@ declare module '@shared/storageUtils' {
   }): { rows: StorageRow[]; totalCost: number; totalMt: number; overall: number | null };
 }
 
+declare module '@shared/permissions' {
+  export interface RoleMeta {
+    key: 'superadmin' | 'admin' | 'user' | 'accounting';
+    label: string;
+    rank: number;
+    blurb: string;
+  }
+  export const ROLES: RoleMeta[];
+  export function normalizeRole(value: unknown): RoleMeta['key'];
+  export function roleMeta(role: unknown): RoleMeta;
+  export function roleLabel(role: unknown): string;
+  export function roleRank(role: unknown): number;
+  export function isSuperAdmin(claims?: Record<string, any>, uid?: string): boolean;
+  export function canManageUsers(claims?: Record<string, any>, uid?: string): boolean;
+  export function isProtectedAccount(targetUid?: string, targetClaims?: Record<string, any>): boolean;
+}
+
 declare module '@shared/activityStats' {
   export const DAY_MS: number;
   export const WEEK_MS: number;

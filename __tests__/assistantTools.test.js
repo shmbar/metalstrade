@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { executeTool } from '../app/api/assistant/route.js';
+import { executeTool } from '../utils/assistantTools.js';
 
 // "Overdue" and "balance" are two different questions about receivables, and the
 // client reads the answer that way: overdue = past its due date, balance = still

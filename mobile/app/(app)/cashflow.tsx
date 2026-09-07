@@ -4,12 +4,13 @@ import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Screen, Card, Text, Button, TextField, DateField, SectionHeader, ProgressBar, SkeletonList, ErrorState } from '@/components/ui';
+import { ScreenHeader } from '@/components/ScreenHeader';
 import { PeriodSelector } from '@/components/PeriodSelector';
 import { useTheme } from '@/theme/ThemeProvider';
+import { useAuth } from '@/store/auth';
 import { useSettings } from '@/store/settings';
 import { useCashflow, Counterparty } from '@/features/cashflow/useCashflow';
 import { useCashflowActions } from '@/features/cashflow/useCashflowActions';
-import { ForecastCard } from '@/features/cashflow/ForecastCard';
 import { useSharedStock } from '@/features/stocks/useSharedStock';
 import { fmtAutoKM, fmtCurKM, curSymbol, fmtMoney, dateLabel } from '@/lib/format';
 import { radius, spacing } from '@/theme/tokens';
@@ -54,6 +55,7 @@ export default function Cashflow() {
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
   const { data, isLoading, isError, error, refetch } = useCashflow();
+  const { isAdmin } = useAuth();
   const { settings } = useSettings();
   const whName = (id: string) =>
     settings?.Stocks?.Stocks?.find((w: any) => w.id === id)?.nname ||
@@ -148,14 +150,7 @@ export default function Cashflow() {
 
   return (
     <Screen contentContainerStyle={{ paddingTop: insets.top + 8 }} edges={false} refreshing={isLoading} onRefresh={refetch}>
-      <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
-        <Pressable onPress={() => router.back()} hitSlop={8} style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
-          <Ionicons name="chevron-back" size={22} color={colors.primary} />
-          <Text variant="bodyMedium" tone="primary">Back</Text>
-        </Pressable>
-        <Text variant="h2">Cashflow</Text>
-        <PeriodSelector />
-      </View>
+      <ScreenHeader title="Cashflow" right={<PeriodSelector />} />
 
       {isLoading && !data ? (
         <SkeletonList count={6} />
@@ -181,6 +176,20 @@ export default function Cashflow() {
               <Text variant="caption" tone="faint" style={{ marginTop: 2 }}>payables + expenses (USD)</Text>
             </Card>
           </View>
+
+          {/* Admin-only, matching web (cashflow/page.js:1433 `isAdmin &&`): the
+              "Future" margins figure plus each named manual row underneath it
+              (a client's own "Airwallex" balance entry, say) — regular staff
+              never see this block on web either. */}
+          {isAdmin && (
+            <Card>
+              <SectionHeader title="Future incoming" subtitle="Admin only" right={<Text variant="h3">{fmtAutoKM(data.incoming + data.manual.initial)}</Text>} />
+              <Line label="Future (margins)" v={data.incoming} />
+              {data.manualInitialRows.map((r, i) => (
+                <Line key={i} label={r.title} v={r.num} muted />
+              ))}
+            </Card>
+          )}
 
           <Card>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -264,8 +273,6 @@ export default function Cashflow() {
               Initial and Financing entries are edited on the web page; shown here read-only.
             </Text>
           </Card>
-
-          <ForecastCard />
 
           {/*
             Web splits receivables and payables into TWO sections each — "X - Payment"

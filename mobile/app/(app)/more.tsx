@@ -23,7 +23,7 @@ const GROUPS: { group: string; items: NavItem[] }[] = [
   {
     group: 'Money',
     items: [
-      { label: 'Cashflow', sub: 'Receivables, payables, expenses, unsold stock', icon: 'cash-outline', href: '/(app)/cashflow' },
+      { label: 'Balances', sub: 'Who owes what — clients & suppliers', icon: 'wallet-outline', href: '/(app)/balances' },
       { label: 'Accounting', sub: 'Sales invoices ↔ purchases & expenses', icon: 'calculator-outline', href: '/(app)/accounting' },
       { label: 'Expenses', sub: 'Supplier & company expenses', icon: 'card-outline', href: '/(app)/expenses' },
       { label: 'Misc Invoices', sub: 'Standalone sales + categories', icon: 'receipt-outline', href: '/(app)/misc-invoices' },
@@ -155,7 +155,7 @@ export default function More() {
       <TextField
         value={query}
         onChangeText={setQuery}
-        placeholder="Search tools… (e.g. cashflow, audit)"
+        placeholder="Search tools… (e.g. balances, audit)"
         autoCapitalize="none"
         rightElement={
           query ? (
