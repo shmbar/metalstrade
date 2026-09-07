@@ -14,7 +14,7 @@ const SYSTEM_PROMPT = `You are an intelligent assistant for IMS (Inventory Manag
 This IMS manages: Contracts (purchase orders), Invoices (sales), Expenses, Stocks/Inventory, and Margins/Profit tracking.
 
 ## DATA TOOLS — ALWAYS use these for data questions. NEVER guess numbers.
-- get_overdue_invoices — outstanding receivables split into two clear categories: DUE invoices (past due date, urgent) and BALANCE invoices (final invoices with balance but not yet due). Per-currency totals included.
+- get_overdue_invoices — outstanding receivables. Takes scope: "overdue" (past due date, urgent), "balance" (owed but not yet due), or "all" (both). These are DIFFERENT questions — pass the one the user asked for. Per-currency totals included.
 - get_pending_invoices — final invoices not yet fully paid (Unpaid or Partially Paid)
 - get_client_debt_ranking — clients ranked by total outstanding balance due (answers "who owes the most?")
 - get_revenue_summary — total sales from all final invoices by currency (invoiced total, collected, outstanding); accepts optional year filter
@@ -57,7 +57,8 @@ This IMS manages: Contracts (purchase orders), Invoices (sales), Expenses, Stock
 5. Under 300 words when possible
 6. Always use tools for data questions — never invent numbers
 7. PRESERVE key tool data verbatim: when a tool returns a line containing "Nd overdue" (days overdue counter), keep that exact "Nd overdue" annotation in every bullet you show — do NOT drop or rephrase it. Same rule for explicit currency amounts and invoice numbers.
-8. If a tool returns multiple sections (e.g. "🔴 DUE INVOICES" and "🟡 BALANCE INVOICES"), keep the section headers and their per-section totals. Don't merge them into one list.
+8. If a tool returns multiple sections (e.g. "🔴 OVERDUE INVOICES" and "🟡 BALANCE INVOICES"), keep the section headers and their per-section totals. Don't merge them into one list.
+8b. OVERDUE ≠ BALANCE. "Overdue"/"due"/"late"/"past due" means past the due date — call get_overdue_invoices with scope:"overdue". "Balance"/"outstanding balance" means still owed but NOT yet due — scope:"balance". Only use scope:"all" for a broad question (unpaid, receivables, who owes us). Never answer one with the other, and if the requested category is empty, say it is empty rather than showing the other one.
 9. UNITS ARE FIXED: stock quantities are already recorded in the unit shown next to them (usually MT / metric tons). NEVER convert a quantity to another unit, divide by 1000, or invent a conversion factor. If the user asks "in MT" (or any unit) and the data is already in that unit, restate the SAME number and say it is already recorded in that unit. If the stored unit differs from what they asked for, say you cannot convert and name the stored unit.
 10. For ANY follow-up question that involves data (totals, quantities, conversions, "and last year?"), call the appropriate tool again — never do arithmetic on numbers remembered from earlier in the conversation.`;
 
@@ -67,8 +68,17 @@ const TOOLS = [
         type: 'function',
         function: {
             name: 'get_overdue_invoices',
-            description: 'Outstanding receivables split into two categories: (1) DUE invoices — past their delivery/due date (urgent), and (2) BALANCE invoices — final invoices with outstanding balance but not yet due. Answers "show due invoices", "show balance invoices", "show overdue invoices", "what is unpaid?", "who hasn\'t paid?", "show outstanding receivables"',
-            parameters: { type: 'object', properties: {} }
+            description: 'Outstanding receivables, in two categories: (1) OVERDUE/DUE invoices — past their due date (urgent), and (2) BALANCE invoices — outstanding but not yet due. These are DIFFERENT questions and the user means the one they asked for. Answers "show overdue invoices", "show due invoices", "show balance invoices", "what is unpaid?", "who hasn\'t paid?", "show outstanding receivables"',
+            parameters: {
+                type: 'object',
+                properties: {
+                    scope: {
+                        type: 'string',
+                        enum: ['overdue', 'balance', 'all'],
+                        description: 'Which category the user asked for. "overdue" when they said overdue/due/late/past due — return ONLY invoices past their due date. "balance" when they said balance/outstanding balance — return ONLY not-yet-due balances. "all" only when they asked broadly (unpaid, receivables, who owes us). Default "all".',
+                    },
+                },
+            }
         }
     },
     {
@@ -274,7 +284,10 @@ const capLines = (lines, hint) => lines.length <= LIST_HARD_CAP
     ? lines.join('\n')
     : `${lines.slice(0, LIST_SOFT_CAP).join('\n')}\n…and ${lines.length - LIST_SOFT_CAP} more — ${hint}`;
 
-function executeTool(name, args, data) {
+// Exported for __tests__/assistantTools.test.js — the overdue/balance split is a
+// distinction the client reads off these answers, so it is worth a test that runs
+// the real handler rather than a copy of it.
+export function executeTool(name, args, data) {
     const { contracts = [], invoices = [], expenses = [], stocks = [], margins = [], marginAlertThreshold } = data;
     const today = new Date();
 
@@ -322,27 +335,48 @@ function executeTool(name, args, data) {
             const formatBalanceLine = (inv) =>
                 `• Invoice #${inv.invoice} — ${inv.client} — ${inv.currency} ${inv.balanceDue.toFixed(2)} outstanding — ${inv.dueDate ? `Due: ${inv.dueDate}` : 'no due date set'} — ${inv.paymentStatus}`;
 
+            // "Overdue" and "balance" are DIFFERENT questions and the client reads them
+            // that way: overdue = past its due date, balance = still owed but not yet due.
+            // Answering both to either one buried the answer they actually asked for.
+            const scope = ['overdue', 'balance', 'all'].includes(args?.scope) ? args.scope : 'all';
+
             const sections = [];
 
             // Section 1: Due invoices (past due date) — urgent, sorted by most-overdue first
-            if (due.length) {
-                const list = due
-                    .sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate))
-                    .map(formatDueLine);
-                sections.push(`🔴 DUE INVOICES — ${due.length} item(s) past due date · Total: ${sumByCur(due)}\n${capLines(list, "ask for a specific client (e.g. 'overdue invoices for SJM') to see the rest.")}`);
+            if (scope !== 'balance') {
+                if (due.length) {
+                    const list = due
+                        .sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate))
+                        .map(formatDueLine);
+                    sections.push(`🔴 OVERDUE INVOICES — ${due.length} item(s) past due date · Total: ${sumByCur(due)}\n${capLines(list, "ask for a specific client (e.g. 'overdue invoices for SJM') to see the rest.")}`);
+                } else if (scope === 'overdue') {
+                    // Say the empty answer plainly instead of silently substituting the
+                    // other category, which is how "overdue" came back reading "balance".
+                    sections.push(`🔴 OVERDUE INVOICES — none. No outstanding invoice is past its due date.`);
+                }
             }
 
             // Section 2: Balance invoices (final/issued with balance, not yet due)
-            if (balance.length) {
-                const list = balance.map(formatBalanceLine);
-                sections.push(`🟡 BALANCE INVOICES — ${balance.length} final invoice(s) with outstanding balance · Total: ${sumByCur(balance)}\n${capLines(list, "ask for a specific client to see the rest.")}`);
+            if (scope !== 'overdue') {
+                if (balance.length) {
+                    const list = balance.map(formatBalanceLine);
+                    sections.push(`🟡 BALANCE INVOICES — ${balance.length} final invoice(s) with outstanding balance, not yet due · Total: ${sumByCur(balance)}\n${capLines(list, "ask for a specific client to see the rest.")}`);
+                } else if (scope === 'balance') {
+                    sections.push(`🟡 BALANCE INVOICES — none. Every outstanding invoice is already past its due date.`);
+                }
             }
 
-            const grandTotal = sumByCur(unpaidIssued);
-            const header = `Receivables breakdown — ${unpaidIssued.length} total invoice(s) outstanding · Grand total: ${grandTotal}`;
+            // The header counts only what the answer actually covers, so the total can
+            // never describe a category the user did not ask to see.
+            const shown = scope === 'overdue' ? due : scope === 'balance' ? balance : unpaidIssued;
+            const header = scope === 'overdue'
+                ? `Overdue receivables — ${due.length} invoice(s) past due date · Total: ${sumByCur(due)}`
+                : scope === 'balance'
+                    ? `Balance receivables (not yet due) — ${balance.length} invoice(s) · Total: ${sumByCur(balance)}`
+                    : `Receivables breakdown — ${unpaidIssued.length} total invoice(s) outstanding · Grand total: ${sumByCur(unpaidIssued)}`;
             // Sources: cite urgent items first (DUE) then BALANCE, both already
             // sorted by most-overdue / order shown above. Cap at CITATIONS_MAX.
-            const sources = [...due.slice(0, 15), ...balance.slice(0, 15)]
+            const sources = shown
                 .filter(inv => inv.id)
                 .slice(0, CITATIONS_MAX)
                 .map(srcInvoice);

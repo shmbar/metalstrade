@@ -1,123 +1,3 @@
-// 'use client';
-
-// import Navbar from '@components/Navbar/navbar';
-// import Footer from '@components/Footer/footer';
-
-// export default function AboutPage() {
-//   return (
-//     <div className="w-full">
-//       <Navbar />
-//       <main className="pt-24">
-//         {/* Hero Section */}
-//         <section className="py-20 bg-blue-600 text-[var(--on-brand)]">
-//           <div className="container mx-auto px-4 text-center">
-//             <h1 className="responsiveTextHero font-bold mb-4">About MetalsTrade</h1>
-//             <p className="responsiveTextStat text-blue-100">
-//               Revolutionizing the metal trade industry with innovative solutions
-//             </p>
-//           </div>
-//         </section>
-
-//         {/* Mission Section */}
-//         <section className="py-20 bg-[var(--bg-card)]">
-//           <div className="container mx-auto px-4">
-//             <div className="grid md:grid-cols-2 gap-12 items-center">
-//               <div>
-//                 <h2 className="responsiveTextHero font-bold mb-6">Our Mission</h2>
-//                 <p className="text-gray-600 responsiveTextPage mb-4">
-//                   We believe that technology should simplify business operations, not complicate them.
-//                 </p>
-//                 <p className="text-gray-600 responsiveTextPage mb-4">
-//                   MetalsTrade was founded with a mission to provide metal trade companies with a
-//                   comprehensive, easy-to-use platform that handles all aspects of their business.
-//                 </p>
-//                 <p className="text-gray-600 responsiveTextPage">
-//                   From contracts to invoices, expenses to inventory—we've got you covered.
-//                 </p>
-//               </div>
-//               <div className="bg-blue-100 rounded-2xl h-96 flex items-center justify-center">
-//                 <div className="text-center">
-//                   <svg
-//                     className="w-20 h-20 mx-auto mb-4 text-[var(--endeavour)] opacity-50"
-//                     fill="none"
-//                     stroke="currentColor"
-//                     viewBox="0 0 24 24"
-//                   >
-//                     <path
-//                       strokeLinecap="round"
-//                       strokeLinejoin="round"
-//                       strokeWidth={2}
-//                       d="M13 10V3L4 14h7v7l9-11h-7z"
-//                     />
-//                   </svg>
-//                   <p className="text-[var(--endeavour)] opacity-75">Innovation</p>
-//                 </div>
-//               </div>
-//             </div>
-//           </div>
-//         </section>
-
-//         {/* Values Section */}
-//         <section className="py-20 bg-gray-50">
-//           <div className="container mx-auto px-4">
-//             <h2 className="responsiveTextHero font-bold text-center mb-16">Our Values</h2>
-//             <div className="grid md:grid-cols-3 gap-8">
-//               {[
-//                 {
-//                   title: 'Innovation',
-//                   description: 'We continuously innovate to provide cutting-edge solutions.',
-//                 },
-//                 {
-//                   title: 'Reliability',
-//                   description: 'Our platform is built to be stable, secure, and always available.',
-//                 },
-//                 {
-//                   title: 'Customer Focus',
-//                   description: 'Your success is our success. We prioritize your needs.',
-//                 },
-//               ].map((value, index) => (
-//                 <div key={index} className="bg-[var(--bg-card)] p-8 rounded-2xl shadow-lg">
-//                   <h3 className="text-2xl font-bold mb-4">{value.title}</h3>
-//                   <p className="text-gray-600">{value.description}</p>
-//                 </div>
-//               ))}
-//             </div>
-//           </div>
-//         </section>
-
-//         {/* Team Section */}
-//         <section className="py-20 bg-[var(--bg-card)]">
-//           <div className="container mx-auto px-4">
-//             <h2 className="responsiveTextHero font-bold text-center mb-16">Our Team</h2>
-//             <div className="grid md:grid-cols-4 gap-8">
-//               {[
-//                 { name: 'John Doe', role: 'CEO & Founder' },
-//                 { name: 'Sarah Smith', role: 'CTO' },
-//                 { name: 'Mike Johnson', role: 'Lead Developer' },
-//                 { name: 'Emma Brown', role: 'Product Manager' },
-//               ].map((member, index) => (
-//                 <div key={index} className="text-center">
-//                   <div className="bg-gradient-to-br from-blue-600 to-blue-800 w-32 h-32 rounded-full mx-auto mb-4 flex items-center justify-center">
-//                     <svg
-//                       className="w-16 h-16 text-[var(--on-brand)]"
-//                       fill="currentColor"
-//                       viewBox="0 0 24 24"
-//                     >
-//                       <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
-//                     </svg>
-//                   </div>
-//                   <h3 className="responsiveTextStat font-bold">{member.name}</h3>
-//                   <p className="text-gray-600">{member.role}</p>
-//                 </div>
-//               ))}
-//             </div>
-//           </div>
-//         </section>
-//       </main>
-//       <Footer />
-//     </div>
-//   );
-// }
 'use client';
 import { motion } from "framer-motion";
 import { Users, Shield, Target, TrendingUp, Award, Globe, BarChart,Rocket,Handshake,Headphones,BarChart3 } from "lucide-react";
@@ -127,12 +7,12 @@ import { Users, Shield, Target, TrendingUp, Award, Globe, BarChart,Rocket,Handsh
 
 export default function AboutPage() {
   return (
-    <div className="w-full bg-[var(--bg-card)] min-h-screen font-sans text-foreground">
+    <div className="marketing w-full bg-[var(--bg-card)] min-h-screen font-sans text-foreground">
       {/* Navbar Placeholder if needed - assuming layout handles it or user adds it */}
        <Navbar />
       <main className="pt-20">
      <HeroSection
-  title="About MetalsTrade"
+  title="About IMS"
   subtitle="Revolutionizing the metal trade industry with precision, innovation, and comprehensive solutions."
 />
 
@@ -149,11 +29,11 @@ export default function AboutPage() {
         transition={{ duration: 0.6 }}
       >
         <h2 className="responsiveTextDisplay font-bold text-[var(--chathams-blue)] mb-6">Our Mission</h2>
-        <p className="responsiveTextPage text-gray-600 leading-relaxed mb-4">
+        <p className="responsiveTextPage text-[var(--ink-secondary)] leading-relaxed mb-4">
           We believe technology should simplify metal trading — not complicate it.
-          MetalsTrade was built to streamline trade operations end-to-end.
+          IMS was built to streamline trade operations end-to-end.
         </p>
-        <p className="responsiveTextPage text-gray-600 leading-relaxed">
+        <p className="responsiveTextPage text-[var(--ink-secondary)] leading-relaxed">
           From real-time expense tracking, smart invoicing, contract automation, inventory
           optimization, and analytics — we provide the infrastructure for the future of metal trade.
         </p>
@@ -165,7 +45,7 @@ export default function AboutPage() {
         whileInView={{ opacity: 1, scale: 1 }}
         viewport={{ once: true }}
         transition={{ duration: 0.6, delay: 0.2 }}
-        className="relative h-[460px] bg-[var(--bg-card)] border border-gray-200 rounded-3xl shadow-lg shadow-blue-900/5 flex items-center justify-center overflow-hidden"
+        className="relative h-[460px] bg-[var(--bg-card)] border border-[var(--line)] rounded-3xl shadow-lg shadow-card flex items-center justify-center overflow-hidden"
       >
         <div className="absolute inset-0 bg-gradient-to-br from-[var(--selago)]/60 to-transparent"></div>
 
@@ -175,7 +55,7 @@ export default function AboutPage() {
           <motion.div
             animate={{ rotate: 360 }}
             transition={{ duration: 22, repeat: Infinity, ease: "linear" }}
-            className="absolute -inset-16 border border-blue-200/70 rounded-full"
+            className="absolute -inset-16 border border-[var(--line-strong)] rounded-full"
           >
             {/* OUTER ICONS */}
             <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-[var(--endeavour)] text-[var(--on-brand)] p-3 rounded-2xl shadow-md">
@@ -234,7 +114,7 @@ export default function AboutPage() {
     {/* Header */}
     <div className="text-center max-w-3xl mx-auto mb-10">
       <h2 className="responsiveTextDisplay font-bold text-[var(--chathams-blue)] mb-4">Core Values</h2>
-      <p className="text-gray-600 responsiveTextPage leading-relaxed">
+      <p className="text-[var(--ink-secondary)] responsiveTextPage leading-relaxed">
         Principles that drive our culture, our decisions, and the experiences we create.
       </p>
     </div>
@@ -275,7 +155,7 @@ export default function AboutPage() {
           <div className="absolute inset-0 opacity-0 group-hover:opacity-10 bg-[var(--endeavour)] transition-opacity duration-300"></div>
 
           {/* Icon Wrapper */}
-          <div className="relative z-10 w-16 h-16 mb-6 flex items-center justify-center rounded-2xl bg-[var(--selago)] 
+          <div className="relative z-10 w-16 h-16 mb-6 flex items-center justify-center rounded-2xl bg-[var(--bg-subtle)] 
                           shadow-md group-hover:bg-[var(--endeavour)] transition-all duration-300">
             <value.icon className="w-8 h-8 text-[var(--endeavour)] group-hover:text-[var(--on-brand)] transition-colors duration-300" />
           </div>
@@ -284,7 +164,7 @@ export default function AboutPage() {
           <h3 className="responsiveTextPage font-bold text-[var(--chathams-blue)] group-hover:text-[var(--endeavour)] transition-colors duration-300 mb-3">
             {value.title}
           </h3>
-          <p className="text-gray-600 leading-relaxed relative z-10">
+          <p className="text-[var(--ink-secondary)] leading-relaxed relative z-10">
             {value.description}
           </p>
         </motion.div>
@@ -303,7 +183,7 @@ export default function AboutPage() {
       <h2 className="responsiveTextDisplay font-bold text-[var(--chathams-blue)] mb-4">
         Why Businesses Choose Us
       </h2>
-      <p className="text-gray-500 responsiveTextPage">
+      <p className="text-[var(--ink-secondary)] responsiveTextPage">
         Trusted by global organizations for unmatched performance,
         intelligent automation, and enterprise-grade scalability.
       </p>
@@ -346,7 +226,7 @@ export default function AboutPage() {
           transition={{ delay: index * 0.1 }}
           className="bg-[var(--bg-subtle)] p-6 rounded-2xl border border-[var(--line)] shadow-sm hover:shadow-md hover:border-[var(--endeavour)] hover:-translate-y-1 transition-all duration-300 group"
         >
-          <div className="w-14 h-14 flex items-center justify-center rounded-2xl bg-[var(--selago)] mb-5 group-hover:bg-[var(--endeavour)] transition-colors duration-300">
+          <div className="w-14 h-14 flex items-center justify-center rounded-2xl bg-[var(--bg-subtle)] mb-5 group-hover:bg-[var(--endeavour)] transition-colors duration-300">
             <item.icon className="w-7 h-7 text-[var(--endeavour)] group-hover:text-[var(--on-brand)] transition-all duration-300" />
           </div>
 
@@ -354,7 +234,7 @@ export default function AboutPage() {
             {item.title}
           </h3>
 
-          <p className="text-gray-500 leading-relaxed">
+          <p className="text-[var(--ink-secondary)] leading-relaxed">
             {item.description}
           </p>
         </motion.div>

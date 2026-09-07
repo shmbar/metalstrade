@@ -22,7 +22,7 @@ export function SectionHeader({
         <h2 className="responsiveTextDisplay font-bold text-[var(--endeavour)] tracking-tight">
           {title}
         </h2>
-        <p className="text-gray-500 leading-relaxed responsiveTextPage max-w-md">
+        <p className="text-[var(--ink-secondary)] leading-relaxed responsiveTextPage max-w-md">
           {description}
         </p>
       </div>

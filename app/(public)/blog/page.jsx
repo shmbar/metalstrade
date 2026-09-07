@@ -3,6 +3,7 @@ import Navbar from '../../../components/Navbar/navbar';
 import Footer from '../../../components/Footer/footer';
 import Link from 'next/link';
 import { FaRegNewspaper, FaChartLine, FaCogs, FaUserTie, FaLightbulb, FaGlobe } from 'react-icons/fa';
+import { ArrowRight } from 'lucide-react';
 
 const blogPosts = [
   {
@@ -57,12 +58,12 @@ const blogPosts = [
 
 export default function BlogPage() {
   return (
-    <div className="w-full bg-[var(--bg-card)] min-h-screen font-sans text-foreground">
+    <div className="marketing w-full bg-[var(--bg-card)] min-h-screen font-sans text-foreground">
       <Navbar />
-      <main className="pt-15">
+      <main className="pt-20">
         {/* Hero Section - text customized for Blog page */}
         <HeroSection
-          title="MetalsTrade Blog"
+          title="IMS Blog"
           subtitle="Insights, tips, and news for modern metal traders. Stay updated with the latest trends and best practices in the industry."
         />
 
@@ -74,12 +75,20 @@ export default function BlogPage() {
             </h2>
             <div className="grid md:grid-cols-3 gap-6">
               {blogPosts.map((post, idx) => (
-                <Link key={idx} href={`/blog/${post.slug}`} className="bg-[var(--bg-card)] rounded-2xl border border-[var(--line)] overflow-hidden flex flex-col items-center p-6 hover:shadow-md hover:border-[var(--endeavour)] transition no-underline">
+                <Link key={idx} href={`/blog/${post.slug}`} className="group bg-[var(--bg-card)] shadow-card rounded-2xl border border-[var(--line)] overflow-hidden flex flex-col items-center p-6 hover:shadow-md hover:border-[var(--endeavour)] transition no-underline">
                   {post.icon}
                   <h3 className="responsiveTextPage font-bold text-[var(--chathams-blue)] mb-2 text-center">{post.title}</h3>
-                  <p className="text-gray-500 responsiveTextTitle mb-4 text-center">{post.excerpt}</p>
-                  <div className="responsiveTextInput text-[var(--text-faint)] mb-4">{post.date} &middot; {post.author}</div>
-                  <span className="responsiveTextTitle inline-block mt-auto px-4 py-2 bg-[var(--endeavour)] text-[var(--on-brand)] rounded-lg font-semibold hover:bg-[var(--brand-deep)] transition">Read More</span>
+                  <p className="text-[var(--ink-secondary)] responsiveTextTitle mb-4 text-center">{post.excerpt}</p>
+                  <div className="responsiveTextInput text-[var(--ink-muted)] mb-4">{post.date} &middot; {post.author}</div>
+                  {/* A quiet text affordance, not a filled button. The whole card
+                      is already the <Link>, so a solid --endeavour block was a
+                      second call-to-action competing with its own container —
+                      and three of them in a row made the violet the loudest
+                      thing on a page of grey cards. */}
+                  <span className="responsiveTextInput inline-flex items-center gap-1.5 mt-auto font-semibold text-[var(--endeavour)] group-hover:gap-2.5 transition-all">
+                    Read more
+                    <ArrowRight size={13} strokeWidth={2.5} />
+                  </span>
                 </Link>
               ))}
             </div>

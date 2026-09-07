@@ -5,7 +5,8 @@ import { SettingsContext } from "../../../../contexts/useSettingsContext";
 import { UserAuth } from "../../../../contexts/useAuthContext";
 import Spinner from '../../../../components/spinner';
 import Toast from '../../../../components/toast.js';
-import { loadData, loadMarginsRange, loadAllStockData, loadCompanyExpenses, resolveDueDate, resolveInvoiceDate, groupInvoicesByNumber, computeStockNetSummary } from '../../../../utils/utils';
+import { loadData, loadMarginsRange, loadAllStockData, loadCompanyExpenses, resolveInvoiceDate, groupInvoicesByNumber, computeStockNetSummary } from '../../../../utils/utils';
+import { effectiveDueDate } from '../../../../utils/finance';
 import { authedFetch, trimHistory, chatStorageKey } from '../../../../utils/aiClient';
 import { IoSend } from "react-icons/io5";
 import { BsRobot, BsPerson } from "react-icons/bs";
@@ -26,7 +27,7 @@ const quickActions = [
 ];
 
 const AssistantChat = () => {
-    const { settings, dateSelect } = useContext(SettingsContext);
+    const { settings, dateSelect, compData } = useContext(SettingsContext);
     const { uidCollection, user, userTitle } = UserAuth();
     const router = useRouter();
 
@@ -131,6 +132,13 @@ const AssistantChat = () => {
         const resolveCurrency = (f) =>
             f?.cur ? f.cur : currencyList.find(c => c.id === f)?.cur || f || '';
 
+        // Default payment term (Settings → General), the SAME resolution the floating
+        // chat, the dashboard and the alerts bar use. This page used to pass the bare
+        // delDate instead, and delDate is filled on 2 of 532 outstanding invoices — so
+        // "show overdue invoices" answered with an empty DUE section and dumped every
+        // unpaid invoice into "BALANCE — not yet due", which is a different question.
+        const termDays = parseInt(compData?.defaultTermDays, 10) > 0 ? parseInt(compData.defaultTermDays, 10) : 30;
+
         return {
             contracts: contractsData.map(con => ({
                 id: con.id,
@@ -180,7 +188,7 @@ const AssistantChat = () => {
                     amountPaid: totalPaid,
                     balanceDue: balanceDue > 0 ? balanceDue : 0,
                     currency: resolveCurrency(inv.cur),
-                    dueDate: resolveDueDate(inv),
+                    dueDate: effectiveDueDate(inv, termDays),
                     canceled: isCanceled,
                     isFinal: isIssued,
                     etd: inv.shipData?.etd?.startDate || null,
@@ -230,7 +238,9 @@ const AssistantChat = () => {
                 ? parseFloat(settings.MarginAlert.threshold)
                 : 5,
         };
-    }, [contractsData, invoicesData, expensesData, stocksData, marginsData, settings]);
+        // defaultTermDays decides which invoices count as overdue, so a change to it in
+        // Settings → General has to rebuild this payload, not wait for a reload.
+    }, [contractsData, invoicesData, expensesData, stocksData, marginsData, settings, compData?.defaultTermDays]);
 
     const handleSendMessage = async (messageText = null) => {
         const textToSend = messageText || newMessage.trim();
@@ -462,12 +472,12 @@ const AssistantChat = () => {
                             {/* Chat Area */}
                             <div className="flex-1 overflow-y-auto bg-[var(--bg-card)]" style={{ minHeight: 0 }}>
                                 {!hasMessages ? (
-                                    <div className="flex flex-col items-center justify-center py-16 px-4" style={{ minHeight: '400px' }}>
-                                        <div className="mb-6">
+                                    <div className="flex flex-col items-center justify-center py-10 px-4" style={{ minHeight: '260px' }}>
+                                        <div className="mb-3">
                                             <video
                                                 src="/logo/asistan-3d.mp4"
                                                 autoPlay loop muted playsInline
-                                                style={{ width: '140px', height: '140px', objectFit: 'contain' }}
+                                                style={{ width: '96px', height: '96px', objectFit: 'contain' }}
                                             />
                                         </div>
                                         <h2 className="responsiveTextTitle font-normal text-[var(--regent-gray)] mb-1">
@@ -478,19 +488,23 @@ const AssistantChat = () => {
                                         </p>
                                     </div>
                                 ) : (
-                                    <div className="p-4 flex flex-col gap-4">
+                                    // Density: these answers are mostly lists of invoices, and a
+                                    // 17-line list set in relaxed leading with 75% bubbles pushed
+                                    // the totals off the screen. Tighter leading, tighter padding
+                                    // and wider bubbles keep a whole answer in one view.
+                                    <div className="p-3 flex flex-col gap-2.5">
                                         {messages.map((message) => (
                                             <div
                                                 key={message.id}
                                                 className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
                                             >
                                                 {message.role === 'assistant' && (
-                                                    <div className="w-8 h-8 rounded-full bg-[var(--endeavour)]/10 flex items-center justify-center mr-2 flex-shrink-0 mt-1">
-                                                        <BsRobot className="w-4 h-4 text-[var(--endeavour)]" />
+                                                    <div className="w-6 h-6 rounded-full bg-[var(--endeavour)]/10 flex items-center justify-center mr-1.5 flex-shrink-0 mt-0.5">
+                                                        <BsRobot className="w-3.5 h-3.5 text-[var(--endeavour)]" />
                                                     </div>
                                                 )}
                                                 <div
-                                                    className={`max-w-[75%] rounded-2xl px-4 py-3 responsiveText leading-relaxed ${
+                                                    className={`max-w-[85%] rounded-2xl px-3 py-2 responsiveText leading-snug ${
                                                         message.role === 'user'
                                                             ? 'rounded-br-sm'
                                                             : message.isError
@@ -512,7 +526,7 @@ const AssistantChat = () => {
                                                         the rows the tool actually read — click through to the
                                                         invoice or contract itself. */}
                                                     {Array.isArray(message.sources) && message.sources.length > 0 && (
-                                                        <div className="mt-2 pt-2 border-t border-[var(--line)]">
+                                                        <div className="mt-1.5 pt-1.5 border-t border-[var(--line)]">
                                                             <div className="responsiveTextTable mb-1 text-[var(--ink-muted)]">
                                                                 Based on {message.sources.length} record{message.sources.length === 1 ? '' : 's'}
                                                             </div>
@@ -537,7 +551,7 @@ const AssistantChat = () => {
                                                         </div>
                                                     )}
 
-                                                    <div className="responsiveTextTable mt-1.5 text-right text-[var(--regent-gray)]">
+                                                    <div className="responsiveTextTable mt-1 text-right text-[var(--regent-gray)]">
                                                         {message.time}
                                                     </div>
                                                 </div>

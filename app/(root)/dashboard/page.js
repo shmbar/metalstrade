@@ -334,12 +334,26 @@ function DetailModal({ title, subtitle, rows = [], cols = [], formula = null, is
           : rows.length === 0
           ? <div className="responsiveText text-[var(--regent-gray)] py-6 text-center">Nothing recorded for this row in the period</div>
           : (
-            <div className="rounded-2xl border border-[var(--line)] overflow-hidden">
-              <table className="w-full">
+            /* The scroll box is THIS div, and it deliberately carries no rounding or
+               overflow-hidden. It used to: a rounded card with overflow-hidden wrapped the
+               table, and an overflow-hidden ancestor becomes the sticky container — the
+               header would have pinned to a box that never scrolls, which looks exactly
+               like sticky "not working". Border lives here, radius is dropped rather than
+               clipped, and max-h makes this the nearest scrolling ancestor so the pinned
+               header and totals resolve against it (Zak, 2026-09-07). */
+            <div className="border border-[var(--line)] rounded-2xl max-h-[52vh] overflow-y-auto custom-scroll">
+              {/* .detail-popup-table is the app-wide popup standard — tinted header band,
+                  zebra rows, and the same type rung as the summary table that opened it, so
+                  this stops being a one-off hand-rolled table. Alignment is the single
+                  deliberate delta: that class centres every cell, but these tables carry
+                  money, and a column of figures has to align right to be scannable. The
+                  class wins on specificity, so the override goes inline, which always
+                  beats it. */}
+              <table className="detail-popup-table sticky-band">
                 <thead>
                   <tr>
                     {cols.map(c => (
-                      <th key={c.key} className={`responsiveTextTableTitle text-[var(--regent-gray)] font-medium px-3 py-1.5 ${c.right ? 'text-right' : 'text-left'}`}>{c.label}</th>
+                      <th key={c.key} style={{ textAlign: c.right ? 'right' : 'left' }}>{c.label}</th>
                     ))}
                   </tr>
                 </thead>
@@ -347,7 +361,11 @@ function DetailModal({ title, subtitle, rows = [], cols = [], formula = null, is
                   {rows.map((r, i) => (
                     <tr key={i}>
                       {cols.map(c => (
-                        <td key={c.key} className={`responsiveTextTable px-3 py-1.5 ${c.right ? 'text-right numeric text-[var(--ink)]' : 'text-[var(--ink-secondary)]'}`}>
+                        <td
+                          key={c.key}
+                          className={c.right ? 'numeric' : ''}
+                          style={{ textAlign: c.right ? 'right' : 'left' }}
+                        >
                           {c.render ? c.render(r) : (r[c.key] ?? '—')}
                         </td>
                       ))}
@@ -356,10 +374,10 @@ function DetailModal({ title, subtitle, rows = [], cols = [], formula = null, is
                 </tbody>
                 <tfoot>
                   <tr>
-                    <td className="responsiveTextTable px-3 py-1.5 font-semibold text-[var(--ink)]" colSpan={cols.length - 1}>
+                    <td colSpan={cols.length - 1} style={{ textAlign: 'left' }}>
                       {rows.length} record{rows.length === 1 ? '' : 's'}
                     </td>
-                    <td className="responsiveTextTable numeric px-3 py-1.5 text-right font-semibold text-[var(--ink)]">{fmtAutoKM(total)}</td>
+                    <td className="numeric" style={{ textAlign: 'right' }}>{fmtAutoKM(total)}</td>
                   </tr>
                 </tfoot>
               </table>
@@ -464,31 +482,35 @@ function ExpenseDrillModal({ label, rows = [], settings, isOpen, setIsOpen }) {
                 </span>
                 <span className="responsiveTextTable numeric font-semibold text-[var(--ink)] flex-shrink-0">{fmtAutoKM(g.total)}</span>
               </div>
-              <table className="w-full">
+              {/* Shared popup band (tinted header, zebra rows, matching type rung). No
+                  sticky-band here on purpose: this modal renders one small table PER
+                  supplier, so pinning six separate headers would leave a stack of frozen
+                  bars and no content. Alignment inline — the class centres, money reads right. */}
+              <table className="detail-popup-table">
                 <thead>
                   <tr>
-                    <th className="responsiveTextTableTitle text-left text-[var(--regent-gray)] font-medium px-3 py-1">Invoice</th>
-                    <th className="responsiveTextTableTitle text-left text-[var(--regent-gray)] font-medium px-3 py-1">PO</th>
-                    <th className="responsiveTextTableTitle text-left text-[var(--regent-gray)] font-medium px-3 py-1">Date</th>
-                    <th className="responsiveTextTableTitle text-left text-[var(--regent-gray)] font-medium px-3 py-1">Status</th>
-                    <th className="responsiveTextTableTitle text-right text-[var(--regent-gray)] font-medium px-3 py-1">As entered</th>
-                    <th className="responsiveTextTableTitle text-right text-[var(--regent-gray)] font-medium px-3 py-1">USD</th>
+                    <th style={{ textAlign: 'left' }}>Invoice</th>
+                    <th style={{ textAlign: 'left' }}>PO</th>
+                    <th style={{ textAlign: 'left' }}>Date</th>
+                    <th style={{ textAlign: 'left' }}>Status</th>
+                    <th style={{ textAlign: 'right' }}>As entered</th>
+                    <th style={{ textAlign: 'right' }}>USD</th>
                   </tr>
                 </thead>
                 <tbody>
                   {g.lines.map((r, i) => (
                     <tr key={i}>
-                      <td className="responsiveTextTable px-3 py-1 text-[var(--ink-secondary)]">{r.ref || '—'}</td>
-                      <td className="responsiveTextTable px-3 py-1 text-[var(--ink-secondary)]">{r.order || '—'}</td>
-                      <td className="responsiveTextTable px-3 py-1 text-[var(--ink-secondary)]">{r.date || '—'}</td>
-                      <td className="responsiveTextTable px-3 py-1 text-[var(--ink-secondary)]">{r.paid || '—'}</td>
+                      <td style={{ textAlign: 'left' }}>{r.ref || '—'}</td>
+                      <td style={{ textAlign: 'left' }}>{r.order || '—'}</td>
+                      <td style={{ textAlign: 'left' }}>{r.date || '—'}</td>
+                      <td style={{ textAlign: 'left' }}>{r.paid || '—'}</td>
                       {/* "As entered" is shown beside the USD figure so a EUR expense is
                           visibly a EUR expense — the page converts everything to USD and
                           that conversion is exactly where the FX warning above bites. */}
-                      <td className="responsiveTextTable numeric px-3 py-1 text-right text-[var(--regent-gray)]">
+                      <td className="numeric" style={{ textAlign: 'right', color: 'var(--ink-secondary)' }}>
                         {curSym(r.cur)}{new Intl.NumberFormat('en-US', { maximumFractionDigits: 2 }).format(r.amount || 0)}
                       </td>
-                      <td className="responsiveTextTable numeric px-3 py-1 text-right text-[var(--ink)]">{fmtAutoKM(r.usd)}</td>
+                      <td className="numeric" style={{ textAlign: 'right' }}>{fmtAutoKM(r.usd)}</td>
                     </tr>
                   ))}
                 </tbody>

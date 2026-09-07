@@ -13,7 +13,7 @@ import PlatformSection from '../components/platform/PlatformSection';
 
 export default function HomePage() {
   return (
-    <div className="w-full">
+    <div className="marketing w-full">
       <Navbar />
       <main>
         <Hero />

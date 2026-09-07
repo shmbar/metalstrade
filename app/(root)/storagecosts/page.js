@@ -124,7 +124,8 @@ const StorageCosts = () => {
 
     const [allExpenses, setAllExpenses] = useState([]); // storage-type expenses across recent years
     const [lots, setLots] = useState([]);           // all stock lots
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(true);   // first read only — blanks the page
+    const [refreshing, setRefreshing] = useState(false); // every read after that
     const [unit, setUnit] = useState('month');
     const [year, setYear] = useState('all');        // 'all' or 'YYYY' — page-local period filter
     const [edits, setEdits] = useState({});         // id -> { storageWh, storageMonth } (triage drafts)
@@ -156,17 +157,32 @@ const StorageCosts = () => {
 
     // Load storage expenses across recent years (this page has its own year filter, independent of
     // the global date range) plus all stock, so we can show per-year figures and a summary table.
+    // Only the FIRST read is allowed to blank the page. Re-reading after the expense
+    // modal closes has a whole page already on screen, and swapping that for the
+    // skeleton below collapsed the document from several thousand pixels to a few
+    // hundred: the browser then has no scroll offset left to hold, clamps you to 0,
+    // and you come back to the top of the page having lost your place in a 47-row
+    // list. That is the "screen moves up when I close the popup" report — the modal
+    // itself was never involved. A refresh now happens underneath the page.
+    const loadedOnce = useRef(false);
     const load = useCallback(async () => {
         if (!uidCollection || Object.keys(settings).length === 0) return;
-        setLoading(true);
-        const thisYr = new Date().getFullYear();
-        const [exp, allLots] = await Promise.all([
-            loadData(uidCollection, 'expenses', { start: `${thisYr - 9}-01-01`, end: `${thisYr}-12-31` }),
-            loadAllStockData(uidCollection),
-        ]);
-        setAllExpenses((exp || []).filter(e => isStorageType(e, expTypes)));
-        setLots((allLots || []).filter(Boolean));
-        setLoading(false);
+        if (loadedOnce.current) setRefreshing(true); else setLoading(true);
+        try {
+            const thisYr = new Date().getFullYear();
+            const [exp, allLots] = await Promise.all([
+                loadData(uidCollection, 'expenses', { start: `${thisYr - 9}-01-01`, end: `${thisYr}-12-31` }),
+                loadAllStockData(uidCollection),
+            ]);
+            setAllExpenses((exp || []).filter(e => isStorageType(e, expTypes)));
+            setLots((allLots || []).filter(Boolean));
+            loadedOnce.current = true;
+        } finally {
+            // finally, not the happy path: a throw used to leave the page on the
+            // skeleton with no way back except a hard reload.
+            setLoading(false);
+            setRefreshing(false);
+        }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [uidCollection, settings]);
 
@@ -399,8 +415,16 @@ const StorageCosts = () => {
                 {/* Header + unit toggle */}
                 <div className="flex items-center justify-between flex-wrap gap-2 mb-4">
                     <div>
-                        <h1 className="text-display">
+                        <h1 className="text-display flex items-center gap-2">
                             Storage Costs
+                            {/* The page no longer disappears while it re-reads, so this is
+                                the only thing left telling you a re-read is happening. */}
+                            {refreshing && (
+                                <span className="inline-flex items-center gap-1 font-normal text-[var(--regent-gray)]"
+                                    style={{ fontSize: 'var(--fs-table)' }}>
+                                    <Loader2 className="w-3 h-3 animate-spin" /> Refreshing
+                                </span>
+                            )}
                         </h1>
                         <p className="responsiveTextTable text-[var(--regent-gray)] pl-3 mt-1">
                             Average storage cost per MT. Tag each storage invoice to a warehouse + month below; the rate updates automatically.

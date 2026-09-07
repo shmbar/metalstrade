@@ -50,12 +50,11 @@ export default function SignInPage() {
     }
   };
 
-  const handleKeyPress = (e) => {
-    if (e.key === 'Enter') handleSubmit();
-  };
+  /* handleKeyPress removed: the <form> submits on Enter natively, and keeping a
+     second Enter path alongside it fired handleSubmit twice. */
 
   return (
-    <div className="h-screen w-full overflow-hidden flex font-sans">
+    <div className="marketing h-screen w-full overflow-hidden flex font-sans">
 
       {/* LEFT — Brand Panel */}
       <div className="hidden md:flex md:w-1/2 flex-col justify-between p-12" style={{ background: 'var(--brand-deep)' }}>
@@ -64,7 +63,7 @@ export default function SignInPage() {
 
         {/* Center content */}
         <div className="text-[var(--on-brand)] text-center">
-          <p className="text-[var(--on-brand)]/80 responsiveTextTitle font-semibold uppercase tracking-[0.2em] mb-4">Welcome to IMS-Tech</p>
+          <p className="text-[var(--on-brand)]/80 responsiveTextTitle font-semibold uppercase tracking-[0.2em] mb-4">Welcome to IMS</p>
           <h2 className="responsiveTextDisplay font-bold mb-3 leading-snug">
             Unlock the power of intelligent trading
           </h2>
@@ -107,33 +106,41 @@ export default function SignInPage() {
             </p>
           </div>
 
-          {/* Form */}
-          <div className="space-y-4">
+          {/* A real <form>, not a <div> of inputs. Browser and password-manager
+              autofill keys off a form with a submit control — without one,
+              1Password/Chrome would offer to fill and then not fire, and Enter
+              only worked because of a hand-rolled onKeyPress. Native submit
+              replaces that handler. */}
+          <form className="space-y-4" onSubmit={(e) => { e.preventDefault(); handleSubmit(); }}>
 
             {/* Email */}
             <div>
-              <label className="block responsiveTextInput font-semibold text-gray-500 mb-1.5 uppercase tracking-wide">Email</label>
+              <label htmlFor="signin-email" className="block responsiveTextInput font-semibold text-[var(--ink-secondary)] mb-1.5 uppercase tracking-wide">Email</label>
               <input
+                id="signin-email"
+                name="email"
                 type="email"
+                autoComplete="username"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                onKeyPress={handleKeyPress}
                 placeholder="you@example.com"
-                className="w-full px-4 py-2.5 border border-[var(--bg-subtle)] rounded-lg responsiveTextTitle text-gray-800 placeholder-[var(--ink-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--endeavour)]/30 focus:border-[var(--endeavour)] transition-all bg-[var(--bg-card)]"
+                className="w-full px-4 py-2.5 border border-[var(--bg-subtle)] rounded-lg responsiveTextTitle text-[var(--ink)] placeholder-[var(--ink-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--endeavour)]/30 focus:border-[var(--endeavour)] transition-all bg-[var(--bg-card)]"
               />
             </div>
 
             {/* Password */}
             <div>
-              <label className="block responsiveTextInput font-semibold text-gray-500 mb-1.5 uppercase tracking-wide">Password</label>
+              <label htmlFor="signin-password" className="block responsiveTextInput font-semibold text-[var(--ink-secondary)] mb-1.5 uppercase tracking-wide">Password</label>
               <div className="relative">
                 <input
+                  id="signin-password"
+                  name="password"
+                  autoComplete="current-password"
                   type={showPassword ? 'text' : 'password'}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  onKeyPress={handleKeyPress}
                   placeholder="••••••••"
-                  className="w-full px-4 py-2.5 border border-[var(--bg-subtle)] rounded-lg responsiveTextTitle text-gray-800 placeholder-[var(--ink-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--endeavour)]/30 focus:border-[var(--endeavour)] transition-all bg-[var(--bg-card)] pr-10"
+                  className="w-full px-4 py-2.5 border border-[var(--bg-subtle)] rounded-lg responsiveTextTitle text-[var(--ink)] placeholder-[var(--ink-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--endeavour)]/30 focus:border-[var(--endeavour)] transition-all bg-[var(--bg-card)] pr-10"
                 />
                 <button
                   type="button"
@@ -147,8 +154,12 @@ export default function SignInPage() {
 
             {/* Error */}
             {err && (
-              <div className="bg-red-50 border border-red-200 rounded-lg px-3 py-2.5">
-                <span className="responsiveTextInput text-red-600 font-medium">{err}</span>
+              /* The --danger-* family, not Tailwind red: this is the one place
+                 on the marketing side showing real status, and the muted family
+                 is what the rest of the product uses for a failure. Raw red-600
+                 also never inverted, so it stayed bright on the dark card. */
+              <div className="bg-[var(--danger-bg)] border border-[var(--danger-border)] rounded-lg px-3 py-2.5" role="alert">
+                <span className="responsiveTextInput text-[var(--danger-text)] font-medium">{err}</span>
               </div>
             )}
 
@@ -161,16 +172,13 @@ export default function SignInPage() {
                   onChange={() => setRemember(!remember)}
                   className="w-3.5 h-3.5 accent-[var(--endeavour)] rounded"
                 />
-                <span className="responsiveTextInput text-gray-500">Remember me</span>
+                <span className="responsiveTextInput text-[var(--ink-secondary)] whitespace-nowrap">Remember me</span>
               </label>
-              <a href="#" className="responsiveTextInput text-[var(--endeavour)] hover:text-[var(--chathams-blue)] transition-colors font-semibold">
-                Forgot password?
-              </a>
             </div>
 
             {/* Sign In Button */}
             <button
-              onClick={handleSubmit}
+              type="submit"
               disabled={disabled && !err}
               className="w-full py-2.5 rounded-lg font-semibold responsiveTextTitle text-[var(--on-brand)] transition-all flex items-center justify-center gap-2 mt-2 hover:opacity-90 active:scale-[0.99]"
               style={{ background: 'var(--endeavour)' }}
@@ -181,7 +189,17 @@ export default function SignInPage() {
                 'Sign In'
               )}
             </button>
-          </div>
+
+            {/* Was <a href="#">Forgot password?</a> sitting opposite "Remember me"
+                — a link that went nowhere. There is no self-serve reset (accounts
+                are provisioned, see createSuperAdmin.mjs), so this states the real
+                recovery path. It lives under the button rather than beside the
+                checkbox because at this width the sentence wrapped "Remember me"
+                onto two lines. */}
+            <p className="responsiveTextInput text-[var(--ink-muted)] text-center pt-1">
+              Forgot your password? Contact your administrator.
+            </p>
+          </form>
 
           {/* Divider + copyright */}
           <div className="mt-8 pt-5 border-t border-[var(--selago)] text-center">

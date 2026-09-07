@@ -8,7 +8,7 @@ import Footer from '../../../components/Footer/footer';
 
 export default function LandingPage() {
   return (
-    <div className="w-full">
+    <div className="marketing w-full">
       <Navbar />
       <main>
         <Hero />

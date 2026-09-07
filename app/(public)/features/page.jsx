@@ -8,14 +8,17 @@ import { BarChart, PieChart, DollarSign, FileText, Layers } from "lucide-react";
 
 export default function FeaturesPage() {
   return (
-         <div className="w-full bg-[var(--bg-card)] min-h-screen font-sans text-foreground">
+         <div className="marketing w-full bg-[var(--bg-card)] min-h-screen font-sans text-foreground">
                {/* Navbar Placeholder if needed - assuming layout handles it or user adds it */}
                 <Navbar />
                <main className="pt-20">
+        {/* Was "Plans That Fit Your Business" / "Choose the option that supports
+            your growth" — pricing-page copy left on the features page. There is
+            no pricing page and nothing on this page mentions a plan. */}
         <HeroSection
-  title="Plans That Fit Your Business"
-  subtitle="Choose the option that supports your growth and helps you move forward."
-/>
+          title="Every module, in detail"
+          subtitle="What each part of the platform actually does — from purchase contracts and warehouse stock through to cashflow, margins and final settlement."
+        />
 
 
     
@@ -46,17 +49,17 @@ export default function FeaturesPage() {
           <div className="flex flex-col items-start justify-center w-full h-full p-6">
             <h4 className="responsiveTextPage font-semibold text-[var(--endeavour)] mb-2">Contracts Overview</h4>
             <div className="flex items-center justify-between w-full mb-4">
-              <span className="responsiveTextTitle text-gray-500">Active Contracts</span>
-              <span className="responsiveTextTitle font-bold text-gray-700">128</span>
+              <span className="responsiveTextTitle text-[var(--ink-secondary)]">Active Contracts</span>
+              <span className="responsiveTextTitle font-bold text-[var(--ink)]">128</span>
             </div>
-            <div className="h-2 w-full bg-[var(--selago)] rounded-full mb-2">
+            <div className="h-2 w-full bg-[var(--bg-subtle)] rounded-full mb-2">
               <div className="h-2 w-3/4 bg-[var(--endeavour)] rounded-full"></div>
             </div>
             <div className="flex items-center justify-between w-full mb-2">
-              <span className="responsiveTextTitle text-gray-500">Pending Approvals</span>
-              <span className="responsiveTextTitle font-bold text-gray-700">24</span>
+              <span className="responsiveTextTitle text-[var(--ink-secondary)]">Pending Approvals</span>
+              <span className="responsiveTextTitle font-bold text-[var(--ink)]">24</span>
             </div>
-            <div className="h-2 w-full bg-[var(--selago)] rounded-full mb-2">
+            <div className="h-2 w-full bg-[var(--bg-subtle)] rounded-full mb-2">
               <div className="h-2 w-1/3 bg-[var(--endeavour)] rounded-full"></div>
             </div>
             <div className="flex justify-center mt-4 w-full">
@@ -79,19 +82,23 @@ export default function FeaturesPage() {
         preview: (
           <div className="flex flex-col items-start justify-center w-full h-full p-6">
             <h4 className="responsiveTextPage font-semibold text-[var(--endeavour)] mb-2">Invoices Status</h4>
+            {/* Settled/Outstanding on the --ok-* and --warn-* families: these are
+                REAL statuses, which is the one thing status colour is for. The
+                raw green-600/yellow-500 they replace never inverted and were
+                also the bright hues the 2026-08-08 revision removed. */}
             <div className="flex items-center justify-between w-full mb-4">
-              <span className="responsiveTextTitle text-gray-500">Paid</span>
-              <span className="responsiveTextTitle font-bold text-gray-700">340</span>
+              <span className="responsiveTextTitle text-[var(--ink-secondary)]">Settled</span>
+              <span className="responsiveTextTitle font-bold text-[var(--ink)] tabular-nums">340</span>
             </div>
-            <div className="h-2 w-full bg-green-100 rounded-full mb-2">
-              <div className="h-2 w-3/4 bg-green-600 rounded-full"></div>
+            <div className="h-2 w-full bg-[var(--ok-bg)] rounded-full mb-2">
+              <div className="h-2 w-3/4 bg-[var(--ok-figure)] rounded-full"></div>
             </div>
             <div className="flex items-center justify-between w-full mb-2">
-              <span className="responsiveTextTitle text-gray-500">Pending</span>
-              <span className="responsiveTextTitle font-bold text-gray-700">54</span>
+              <span className="responsiveTextTitle text-[var(--ink-secondary)]">Outstanding</span>
+              <span className="responsiveTextTitle font-bold text-[var(--ink)] tabular-nums">54</span>
             </div>
-            <div className="h-2 w-full bg-yellow-100 rounded-full mb-2">
-              <div className="h-2 w-1/4 bg-yellow-500 rounded-full"></div>
+            <div className="h-2 w-full bg-[var(--warn-bg)] rounded-full mb-2">
+              <div className="h-2 w-1/4 bg-[var(--warn-text)] rounded-full"></div>
             </div>
             <div className="flex justify-center mt-4 w-full">
               <DollarSign className="w-6 h-6 text-[var(--endeavour)]" />
@@ -113,16 +120,19 @@ export default function FeaturesPage() {
         preview: (
           <div className="flex flex-col items-start justify-center w-full h-full p-6">
             <h4 className="responsiveTextPage font-semibold text-[var(--endeavour)] mb-2">Expenses Overview</h4>
+            {/* Was "Operational $12,450 / Marketing $7,320" — a marketing budget
+                is not a cost line a metals trader carries. Freight and storage
+                are, and they are what the expenses module actually tracks. */}
             <div className="flex items-center justify-between w-full mb-4">
-              <span className="responsiveTextTitle text-gray-500">Operational</span>
-              <span className="responsiveTextTitle font-bold text-gray-700">$12,450</span>
+              <span className="responsiveTextTitle text-[var(--ink-secondary)]">Freight</span>
+              <span className="responsiveTextTitle font-bold text-[var(--ink)] tabular-nums">12,450 EUR</span>
             </div>
-            <div className="h-2 w-full bg-red-100 rounded-full mb-2">
-              <div className="h-2 w-1/2 bg-red-600 rounded-full"></div>
+            <div className="h-2 w-full bg-[var(--violet-bg)] rounded-full mb-2">
+              <div className="h-2 w-1/2 bg-[var(--endeavour)] rounded-full"></div>
             </div>
             <div className="flex items-center justify-between w-full mb-2">
-              <span className="responsiveTextTitle text-gray-500">Marketing</span>
-              <span className="responsiveTextTitle font-bold text-gray-700">$7,320</span>
+              <span className="responsiveTextTitle text-[var(--ink-secondary)]">Storage</span>
+              <span className="responsiveTextTitle font-bold text-[var(--ink)] tabular-nums">7,320 EUR</span>
             </div>
             {/* purple-600 is not in the tailwind.config colour map, so it stayed
                 raw Tailwind violet — the one bright thing on either theme. */}
@@ -146,7 +156,7 @@ export default function FeaturesPage() {
                 <h3 className="responsiveTextPage font-bold text-[var(--chathams-blue)] mb-3">
                   {feature.title}
                 </h3>
-                <p className="text-gray-600 responsiveTextPage leading-relaxed mb-6">
+                <p className="text-[var(--ink-secondary)] responsiveTextPage leading-relaxed mb-6">
                   {feature.description}
                 </p>
 
@@ -154,7 +164,7 @@ export default function FeaturesPage() {
                   {feature.features.map((feat, i) => (
                     <li key={i} className="flex items-center">
                       <svg
-                        className="w-5 h-5 text-green-500 mr-3"
+                        className="w-5 h-5 text-[var(--ok-text)] mr-3"
                         fill="currentColor"
                         viewBox="0 0 20 20"
                       >
@@ -164,7 +174,7 @@ export default function FeaturesPage() {
                           clipRule="evenodd"
                         />
                       </svg>
-                      <span className="responsiveTextTitle text-gray-700">{feat}</span>
+                      <span className="responsiveTextTitle text-[var(--ink)]">{feat}</span>
                     </li>
                   ))}
                 </ul>
@@ -211,7 +221,7 @@ export default function FeaturesPage() {
                 <h3 className="responsiveTextPage font-bold text-[var(--chathams-blue)] mb-3">
                   {feature.title}
                 </h3>
-                <p className="text-gray-600 responsiveTextPage leading-relaxed mb-6">
+                <p className="text-[var(--ink-secondary)] responsiveTextPage leading-relaxed mb-6">
                   {feature.description}
                 </p>
 
@@ -219,7 +229,7 @@ export default function FeaturesPage() {
                   {feature.features.map((feat, i) => (
                     <li key={i} className="flex items-center">
                       <svg
-                        className="w-5 h-5 text-green-500 mr-3"
+                        className="w-5 h-5 text-[var(--ok-text)] mr-3"
                         fill="currentColor"
                         viewBox="0 0 20 20"
                       >
@@ -229,7 +239,7 @@ export default function FeaturesPage() {
                           clipRule="evenodd"
                         />
                       </svg>
-                      <span className="responsiveTextTitle text-gray-700">{feat}</span>
+                      <span className="responsiveTextTitle text-[var(--ink)]">{feat}</span>
                     </li>
                   ))}
                 </ul>

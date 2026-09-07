@@ -589,9 +589,36 @@ html.dark img[src*="/_next/static/media/logo"][src$=".svg"] {
    that was supposed to set it said 700.
    Line-height and tracking ride along because they matter most at these sizes,
    and a heading picking them up from two different rules is how they drift. */
-.responsiveTextDisplay    { font-size: var(--fs-display); font-weight: 600; line-height: 1.15; letter-spacing: -0.011em; }
-.responsiveTextHero       { font-size: var(--fs-hero);    font-weight: 600; line-height: 1.15; letter-spacing: -0.015em; }
-.responsiveTextHeroXL     { font-size: var(--fs-hero-xl); font-weight: 700; line-height: 1.05; letter-spacing: -0.02em; }
+.responsiveTextDisplay    { font-size: var(--fs-display); font-weight: 600; line-height: 1.15; letter-spacing: -0.011em; word-spacing: var(--ws-display); }
+.responsiveTextHero       { font-size: var(--fs-hero);    font-weight: 600; line-height: 1.15; letter-spacing: -0.015em; word-spacing: var(--ws-display); }
+.responsiveTextHeroXL     { font-size: var(--fs-hero-xl); font-weight: 700; line-height: 1.05; letter-spacing: -0.02em;  word-spacing: var(--ws-display); }
+
+/* ── Why these carry word-spacing ─────────────────────────────────────────────
+   Plus Jakarta Sans draws a 0.175em word space. That is narrow for the family —
+   Inter, the font this site is measured against, draws 0.256em — and it is fine
+   at CRM sizes, where text is short labels in table cells and nothing runs on.
+
+   It stops being fine the moment negative tracking is applied. `letter-spacing`
+   subtracts from EVERY gap including the space, so the display rungs above were
+   landing on a ~0.16em word gap while simultaneously pulling the letters inside
+   each word tighter. The two effects compound and short words stop separating:
+   measured on /blog at 1440, "practices in the industry" and "with the latest"
+   read as single words. Reported from a screenshot, 2026-09-07.
+
+   The compensation is a word-space, not less tracking — the tight tracking is
+   what makes a large headline look drawn rather than typed, and it should stay.
+   0.08em restores the gap to ~0.24em, level with Inter, and is applied ONLY to
+   these three marketing rungs: `app/(root)` uses neither (checked), and the
+   dense table ladder must keep its narrow spaces. */
+:root { --ws-display: 0.08em; }
+
+/* Marketing PROSE has the same problem one step down: the lede under a hero and
+   the paragraph under a section head are long lines of running text set in a
+   font whose space is narrow, but they sit on .responsiveTextTitle — a rung the
+   CRM uses for table headers and card titles, where 0.175em is correct and a
+   wider space would loosen every column. So the fix cannot live on the rung; it
+   is scoped to the marketing page wrapper instead and inherits from there. */
+.marketing { word-spacing: 0.05em; }
 
 /* ── Figures never break mid-number ───────────────────────────────────────────
    The .responsiveText* ladder carries `break-words`, which is right for prose
@@ -905,6 +932,56 @@ th input, th select, th textarea, th button {
 .detail-popup-table tbody tr:nth-child(even) td {
   background-color: var(--bg-subtle);
 }
+
+/* ── .detail-popup-table.sticky-band: pinned header + totals ─────────────────
+   Opt-in, not automatic: every existing popup in the app already renders through
+   .detail-popup-table, and silently pinning their headers would change screens
+   nobody asked me to touch. A popup adds this class when its table is long
+   enough to scroll.
+
+   Three things this has to get right, all learned on .cashflow-detail-table:
+     - sticky goes on the CELLS, never the <tr>. A sticky row is ignored in most
+       engines, so the header just scrolls away and you assume sticky is broken.
+     - each pinned cell needs its OWN background. Without it the rows sliding
+       underneath show straight through the header, which reads as a rendering
+       bug rather than a missing declaration.
+     - the pinned cell needs a z-index above the body cells, or a tall figure in
+       row 1 paints over the header it is supposed to slide beneath.
+
+   The box-shadow is the separator: a pinned row with no shadow reads as part of
+   the content it is holding still, so the eye loses which row is the total.
+
+   NOTE for the caller: sticky resolves against the nearest SCROLLING ancestor.
+   An `overflow-hidden` wrapper (a rounded card, typically) becomes that
+   ancestor and silently swallows the effect — the cells pin to a box that never
+   scrolls, so nothing appears to happen. The scroll box must be the element
+   with max-height + overflow-y-auto, with no clipping ancestor between. */
+.detail-popup-table.sticky-band thead th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: var(--bg-subtle);
+  box-shadow: 0 1px 0 var(--line-strong);
+}
+
+.detail-popup-table.sticky-band tfoot td,
+.detail-popup-table.sticky-band tfoot th {
+  position: sticky;
+  bottom: 0;
+  z-index: 2;
+  background: var(--bg-subtle);
+  box-shadow: 0 -1px 0 var(--line-strong);
+}
+
+/* A totals row is a figure row, not a header row — same reasoning as the
+   cashflow footer: a <th> in a tfoot inherits the header's 600, which makes
+   every total read bolder than the numbers it totals. */
+.detail-popup-table.sticky-band tfoot th,
+.detail-popup-table.sticky-band tfoot td {
+  font-weight: 500;
+  color: var(--ink);
+}
+
 
 /* The popup's own title band. Same rung and weight as the summary card title it
    opens from, so the card and the popup read as one object. */
