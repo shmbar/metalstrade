@@ -111,7 +111,11 @@ export default function SignInPage() {
               1Password/Chrome would offer to fill and then not fire, and Enter
               only worked because of a hand-rolled onKeyPress. Native submit
               replaces that handler. */}
-          <form className="space-y-4" onSubmit={(e) => { e.preventDefault(); handleSubmit(); }}>
+          {/* noValidate: this form's only rule is "both fields filled", which
+              handleSubmit and Firebase already enforce with real messages.
+              Browser constraint validation adds nothing here and, as above, its
+              default email rule locks out every username login. */}
+          <form className="space-y-4" noValidate onSubmit={(e) => { e.preventDefault(); handleSubmit(); }}>
 
             {/* Email */}
             <div>
@@ -119,11 +123,19 @@ export default function SignInPage() {
               <input
                 id="signin-email"
                 name="email"
-                type="email"
+                /* type="text", NOT type="email". Staff sign in with a bare
+                   username — completeUserEmail() in actions/validations.js turns
+                   "sharonims" into "sharonims@ims-metals.com" — so a bare handle
+                   is the NORMAL path, not a mistake. This was a <div> with a
+                   click handler until 2026-09-07, so the browser never validated
+                   the field; wrapping it in a real <form> switched constraint
+                   validation on and "sharonims" started being rejected before
+                   handleSubmit could ever run. */
+                type="text"
                 autoComplete="username"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="you@example.com"
+                placeholder="username or you@example.com"
                 className="w-full px-4 py-2.5 border border-[var(--bg-subtle)] rounded-lg responsiveTextTitle text-[var(--ink)] placeholder-[var(--ink-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--endeavour)]/30 focus:border-[var(--endeavour)] transition-all bg-[var(--bg-card)]"
               />
             </div>
