@@ -118,8 +118,34 @@ export default function SumBasket({ items = [], onRemove, onClear }) {
                 { header: 'Currency', key: 'cur', width: 10 },
                 { header: metricLabel[metric], key: 'v', width: 16 },
             ];
-            ws.getRow(1).font = { bold: true };
-            ws.getRow(1).alignment = { horizontal: 'center', vertical: 'middle' };
+            // Same dressing as every other export in the app: the header band is the
+            // purple fill with white bold 12pt (stocks / invoices / contracts / expenses),
+            // and the subtotal lines get the light-blue totals fill with borders
+            // (InvoicesReview&Statement). A sheet from here should be indistinguishable
+            // from one saved off any other page.
+            const HEADER_FILL = { type: 'pattern', pattern: 'solid', fgColor: { argb: '800080' } };
+            const TOTAL_FILL = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'BFDBFE' } };
+            const THIN_BORDER = {
+                top: { style: 'thin' }, left: { style: 'thin' },
+                bottom: { style: 'thin' }, right: { style: 'thin' },
+            };
+            // Fills a whole row across the five columns — addRow only touches the cells
+            // it was given values for, so an unfilled 'kind'/'sub' cell would leave a
+            // white gap through the middle of the total band.
+            const dressTotalRow = (row) => {
+                for (let c = 1; c <= ws.columns.length; c++) {
+                    const cell = row.getCell(c);
+                    cell.fill = TOTAL_FILL;
+                    cell.font = { bold: true };
+                    cell.border = THIN_BORDER;
+                }
+            };
+
+            ws.getRow(1).eachCell((cell) => {
+                cell.fill = HEADER_FILL;
+                cell.font = { bold: true, size: 12, color: { argb: 'FFFFFF' } };
+                cell.alignment = { horizontal: 'center', vertical: 'middle' };
+            });
 
             rows.forEach(r => {
                 const row = ws.addRow({
@@ -137,12 +163,12 @@ export default function SumBasket({ items = [], onRemove, onClear }) {
             ws.addRow({});
             if (hasUsd) {
                 const t = ws.addRow({ label: 'Subtotal USD', v: usd });
-                t.font = { bold: true };
+                dressTotalRow(t);
                 t.getCell('v').numFmt = '"$"#,##0.00';
             }
             if (hasEur) {
                 const t = ws.addRow({ label: 'Subtotal EUR', v: eur });
-                t.font = { bold: true };
+                dressTotalRow(t);
                 t.getCell('v').numFmt = '"€"#,##0.00';
             }
             if (naCount) ws.addRow({ label: `${naCount} row(s) with no ${metricLabel[metric]} figure` });
