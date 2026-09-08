@@ -391,30 +391,36 @@ export const runStocks = async (uidCollection, settings, yr, contractsData = [],
 
             totalObj['unitPrc'] = (isNumber(untPrc) ? untPrc : totalObj.unitPrc)
 
-            // A row groups every lot of one material in one warehouse, so those lots can
-            // carry DIFFERENT purchase prices — the same alloy bought twice. Valuing the
-            // whole summed quantity at ONE lot's price invents money: 19.976 @ 3,371.132
-            // plus 19.870 @ 3,604.482 is 138,962.79, but 39.846 × 3,604.482 reads
-            // 143,624.19. So when the lots disagree on price, value the row at the
-            // weighted-average cost of what came IN. 'out' lots carry a SALE price, so
-            // they only reduce the quantity — they must never be valued at it, or a
-            // fully-sold row stops netting to zero.
+            // What a row is worth comes from the LOTS — the Materials Breakdown, which is
+            // filled from the received supplier invoices. Two things used to break that:
+            //
+            //   1. The contract (PO) product-line price above WINS over the lot's price,
+            //      so a PO line reading 10,300 buried the 7,420 actually invoiced. The PO
+            //      is the estimate; the lot is what was really paid. The PO price stays as
+            //      a fallback for a lot that carries no price of its own.
+            //   2. A row groups every lot of one material in one warehouse, so lots can
+            //      carry DIFFERENT prices (the same alloy bought twice). Valuing the whole
+            //      summed quantity at ONE price invents money: 19.976 @ 3,371.132 plus
+            //      19.870 @ 3,604.482 is 138,962.79, not 39.846 × 3,604.482 = 143,624.19.
+            //
+            // So: value the row at the weighted-average cost of the in-lots that actually
+            // carry a price. 'out' lots hold a SALE price and only reduce the quantity —
+            // valuing them would stop a fully-sold row netting to zero. When no in-lot has
+            // a price at all, the resolution above still decides, so those rows never move.
             const lotPrice = (z) => {
-                const p = z.productsData?.find(y => y.id === (z.descriptionId || z.description))?.unitPrc;
-                return parseFloat(isNumber(p) ? p : z.unitPrc) || 0;
+                const own = parseFloat(z.unitPrc);
+                if (Number.isFinite(own) && own !== 0) return own;
+                return parseFloat(z.productsData?.find(y =>
+                    y.id === (z.descriptionId || z.description))?.unitPrc) || 0;
             };
             const lotQty = (z) => (Math.abs(parseFloat(z.qnty)) || 0) +
                 ((z.finalqnty && z.finalqnty * 1 !== z.qnty * 1) ? (z.qnty * 1 - z.finalqnty * 1) * -1 : 0);
-            const inLots = filteredData.filter(z => z.type === 'in');
-            // Single-price rows keep the resolution above untouched, so only genuinely
-            // mixed-price rows move (18 of 688 on the live data; GIS has none).
-            if (new Set(inLots.map(z => lotPrice(z).toFixed(4))).size > 1) {
-                const inQty = inLots.reduce((s, z) => s + lotQty(z), 0);
-                if (inQty) {
-                    // Weighted average, so the row still reconciles on screen: the price
-                    // shown × the quantity shown equals the total shown.
-                    totalObj['unitPrc'] = inLots.reduce((s, z) => s + lotQty(z) * lotPrice(z), 0) / inQty;
-                }
+            const pricedInLots = filteredData.filter(z => z.type === 'in' && lotPrice(z) > 0);
+            const pricedQty = pricedInLots.reduce((s, z) => s + lotQty(z), 0);
+            if (pricedInLots.length && pricedQty) {
+                // Weighted average, so the row still reconciles on screen: the price shown
+                // × the quantity shown equals the total shown.
+                totalObj['unitPrc'] = pricedInLots.reduce((s, z) => s + lotQty(z) * lotPrice(z), 0) / pricedQty;
             }
             totalObj['total'] = totalObj.unitPrc * totalObj.qnty
             totalObj['data'] = filteredData

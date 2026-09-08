@@ -246,30 +246,34 @@ export function computeInventory(
       if (isNumber(untPrc)) {
         totalObj.unitPrc = untPrc;
       }
-      /* web funcs.js — a row groups every lot of one material in one warehouse, so
-         those lots can carry DIFFERENT purchase prices (the same alloy bought
-         twice). Valuing the whole summed quantity at ONE lot's price invents money:
-         19.976 @ 3,371.132 plus 19.870 @ 3,604.482 is 138,962.79, but
-         39.846 x 3,604.482 reads 143,624.19. When the lots disagree on price, value
-         the row at the weighted-average cost of what came IN. 'out' lots carry a
-         SALE price, so they only reduce the quantity — valuing them would stop a
-         fully-sold row from netting to zero. */
+      /* web funcs.js — a row is worth what the LOTS say (the Materials Breakdown,
+         filled from the received supplier invoices). Two things used to break that:
+         the contract (PO) price above won over the lot's own price, so a PO line
+         reading 10,300 buried the 7,420 actually invoiced; and a row groups every lot
+         of one material in one warehouse, so lots can carry DIFFERENT prices — valuing
+         the summed quantity at ONE price invents money (19.976 @ 3,371.132 plus 19.870
+         @ 3,604.482 is 138,962.79, not 39.846 x 3,604.482 = 143,624.19). So value the
+         row at the weighted-average cost of the in-lots that carry a price. 'out' lots
+         hold a SALE price and only reduce quantity. With no priced in-lot, the
+         resolution above still decides, so those rows never move. */
       const lotPrice = (z: any) => {
-        const p = z.productsData?.find(
-          (y: any) => y.id === (z.descriptionId || z.description)
-        )?.unitPrc;
-        return f(isNumber(p) ? p : z.unitPrc) || 0;
+        const own = f(z.unitPrc);
+        if (Number.isFinite(own) && own !== 0) return own;
+        return (
+          f(
+            z.productsData?.find((y: any) => y.id === (z.descriptionId || z.description))
+              ?.unitPrc
+          ) || 0
+        );
       };
       const lotQty = (z: any) =>
         (Math.abs(f(z.qnty)) || 0) +
         (z.finalqnty && f(z.finalqnty) !== f(z.qnty) ? (f(z.qnty) - f(z.finalqnty)) * -1 : 0);
-      const inLots = group.filter((z: any) => z.type === 'in');
-      if (new Set(inLots.map((z: any) => lotPrice(z).toFixed(4))).size > 1) {
-        const inQty = inLots.reduce((s: number, z: any) => s + lotQty(z), 0);
-        if (inQty) {
-          totalObj.unitPrc =
-            inLots.reduce((s: number, z: any) => s + lotQty(z) * lotPrice(z), 0) / inQty;
-        }
+      const pricedInLots = group.filter((z: any) => z.type === 'in' && lotPrice(z) > 0);
+      const pricedQty = pricedInLots.reduce((s: number, z: any) => s + lotQty(z), 0);
+      if (pricedInLots.length && pricedQty) {
+        totalObj.unitPrc =
+          pricedInLots.reduce((s: number, z: any) => s + lotQty(z) * lotPrice(z), 0) / pricedQty;
       }
       totalObj.total = f(totalObj.qnty) * f(totalObj.unitPrc);
     } else {
