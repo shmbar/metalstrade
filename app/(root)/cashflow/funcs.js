@@ -390,6 +390,32 @@ export const runStocks = async (uidCollection, settings, yr, contractsData = [],
                 (filteredData[0].descriptionId || filteredData[0].description))?.unitPrc
 
             totalObj['unitPrc'] = (isNumber(untPrc) ? untPrc : totalObj.unitPrc)
+
+            // A row groups every lot of one material in one warehouse, so those lots can
+            // carry DIFFERENT purchase prices — the same alloy bought twice. Valuing the
+            // whole summed quantity at ONE lot's price invents money: 19.976 @ 3,371.132
+            // plus 19.870 @ 3,604.482 is 138,962.79, but 39.846 × 3,604.482 reads
+            // 143,624.19. So when the lots disagree on price, value the row at the
+            // weighted-average cost of what came IN. 'out' lots carry a SALE price, so
+            // they only reduce the quantity — they must never be valued at it, or a
+            // fully-sold row stops netting to zero.
+            const lotPrice = (z) => {
+                const p = z.productsData?.find(y => y.id === (z.descriptionId || z.description))?.unitPrc;
+                return parseFloat(isNumber(p) ? p : z.unitPrc) || 0;
+            };
+            const lotQty = (z) => (Math.abs(parseFloat(z.qnty)) || 0) +
+                ((z.finalqnty && z.finalqnty * 1 !== z.qnty * 1) ? (z.qnty * 1 - z.finalqnty * 1) * -1 : 0);
+            const inLots = filteredData.filter(z => z.type === 'in');
+            // Single-price rows keep the resolution above untouched, so only genuinely
+            // mixed-price rows move (18 of 688 on the live data; GIS has none).
+            if (new Set(inLots.map(z => lotPrice(z).toFixed(4))).size > 1) {
+                const inQty = inLots.reduce((s, z) => s + lotQty(z), 0);
+                if (inQty) {
+                    // Weighted average, so the row still reconciles on screen: the price
+                    // shown × the quantity shown equals the total shown.
+                    totalObj['unitPrc'] = inLots.reduce((s, z) => s + lotQty(z) * lotPrice(z), 0) / inQty;
+                }
+            }
             totalObj['total'] = totalObj.unitPrc * totalObj.qnty
             totalObj['data'] = filteredData
             // Rows group by warehouse x description only, so lots from DIFFERENT suppliers

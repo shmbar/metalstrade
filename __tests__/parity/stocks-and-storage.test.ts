@@ -132,7 +132,15 @@ const HASH = {
   // "04.02.26" before "1.04.26"). Mobile's cashflow hook sorts its own lists by
   // invoice number or total, not by this display string, so it never had the bug
   // and needs no matching change — checked useCashflow.ts before re-recording.
-  runStocks: 'd55b757fbc43', // app/(root)/cashflow/funcs.js:188
+  // Re-recorded 2026-09-08: a row groups every lot of one material in one warehouse,
+  // and those lots can carry different purchase prices. The total was `one lot's
+  // price x the summed quantity`, which invents money — the client entered 19.976 @
+  // 3,371.132 and 19.870 @ 3,604.482 (138,962.79) and the row read 143,624.18. A
+  // mixed-price row is now valued at the weighted-average cost of the in-lots;
+  // single-price rows are untouched (685 of 688 live rows are byte-identical, GIS
+  // all 81). Ported to mobile in the same change (features/stocks/aggregate.ts) and
+  // the transcribed mirror above carries it too.
+  runStocks: '8425d13ae408', // app/(root)/cashflow/funcs.js:188
   staleDays: 'a2e0c4822268', // app/(root)/stocks/storageAging.js:11
   demurrageDays: 'f6b09c3eafe3', // app/(root)/stocks/storageAging.js:12
   storageExpYear: '07ada9eea708', // app/(root)/storagecosts/page.js:142
@@ -369,6 +377,26 @@ const webRunStocksRows = (rawStockData: any[], settings: any): any[] => {
       )?.unitPrc;
 
       totalObj['unitPrc'] = webIsNumber(untPrc) ? untPrc : totalObj.unitPrc;
+
+      // Lots of one material in one warehouse can carry DIFFERENT purchase prices.
+      // Valuing the summed quantity at one lot's price invents money, so a mixed-price
+      // row is valued at the weighted-average cost of what came IN. 'out' lots hold a
+      // SALE price and only reduce quantity.
+      const webLotPrice = (z: any) => {
+        const p = z.productsData?.find((y: any) => y.id === (z.descriptionId || z.description))?.unitPrc;
+        return parseFloat(webIsNumber(p) ? p : z.unitPrc) || 0;
+      };
+      const webLotQty = (z: any) =>
+        (Math.abs(parseFloat(z.qnty)) || 0) +
+        (z.finalqnty && z.finalqnty * 1 !== z.qnty * 1 ? (z.qnty * 1 - z.finalqnty * 1) * -1 : 0);
+      const webInLots = filteredData.filter((z: any) => z.type === 'in');
+      if (new Set(webInLots.map((z: any) => webLotPrice(z).toFixed(4))).size > 1) {
+        const inQty = webInLots.reduce((s: number, z: any) => s + webLotQty(z), 0);
+        if (inQty) {
+          totalObj['unitPrc'] =
+            webInLots.reduce((s: number, z: any) => s + webLotQty(z) * webLotPrice(z), 0) / inQty;
+        }
+      }
       totalObj['total'] = totalObj.unitPrc * totalObj.qnty;
       totalObj['data'] = filteredData;
       totalObj['date'] = dateFormat(filteredData.find((z: any) => z.contractData)?.contractData?.date, 'dd.mm.yy');
@@ -1260,11 +1288,13 @@ describe('Tier 3 — cashflow mode (cashflow/funcs.js runStocks)', () => {
     expect(cf[0].total).toBe(700);
   });
 
-  it('cashflow copies the in-lot fields with no quantity guard, so a 0-qnty row can set the price', () => {
-    // funcs.js:342 has no `parseFloat(currentObj.qnty) > 0` — page.js:183 does. The
-    // last in-row wins, whatever its quantity.
-    // productsData carries a blank price so the contract-line override (funcs.js:354)
-    // stays out of the way; this test is about the field copy only.
+  it('cashflow values a mixed-price row at weighted-average cost, not at the last lot seen', () => {
+    // This used to assert the opposite — that the last in-row set the price whatever
+    // its quantity — which valued 10 MT bought at 1,000 as 50 because a 0-qnty lot
+    // priced at 5 happened to come last. The last-lot copy still governs every OTHER
+    // field; it just no longer decides the money when the lots disagree on price.
+    // productsData carries a blank price so the contract-line override stays out of
+    // the way.
     const noPrice = [makeProduct({ id: 'prd-1', unitPrc: '' })];
     const lots = [
       makeStockLot({ id: 'c1', qnty: '10', unitPrc: '1000', productsData: noPrice }),
@@ -1273,7 +1303,40 @@ describe('Tier 3 — cashflow mode (cashflow/funcs.js runStocks)', () => {
     const web = webRunStocksRows(structuredClone(lots), SETTINGS);
     const mobile = computeInventory(structuredClone(lots), SETTINGS, { minQnty: 0, cashflow: true }).rows;
     expect(mobile.map(rowShape)).toEqual(web.map(rowShape));
-    expect(mobile[0].unitPrc).toBe('5');
+    expect(mobile[0].unitPrc).toBe(1000);
+    expect(mobile[0].total).toBe(10000);
+  });
+
+  it('cashflow sums the line totals when one material was bought twice at different prices', () => {
+    // The client's report: 19.976 @ 3,371.132 + 19.870 @ 3,604.482 was entered in the
+    // Materials Breakdown, and the cashflow stock row read 39.846 @ 3,604.48 =
+    // 143,624.18 — the whole quantity valued at the SECOND lot's price. The row must
+    // carry the money that was actually spent.
+    const noPrice = [makeProduct({ id: 'prd-1', unitPrc: '' })];
+    const lots = [
+      makeStockLot({ id: 'm1', qnty: '19.976', unitPrc: '3371.132', productsData: noPrice }),
+      makeStockLot({ id: 'm2', invoice: 1098, qnty: '19.870', unitPrc: '3604.482', productsData: noPrice }),
+    ];
+    const web = webRunStocksRows(structuredClone(lots), SETTINGS);
+    const mobile = computeInventory(structuredClone(lots), SETTINGS, { minQnty: 0, cashflow: true }).rows;
+    expect(mobile.map(rowShape)).toEqual(web.map(rowShape));
+    expect(parseFloat(mobile[0].qnty)).toBeCloseTo(39.846, 3);
+    expect(mobile[0].total).toBeCloseTo(138962.79, 2);   // not 143,624.18
+    // price x quantity still reconciles on screen
+    expect(mobile[0].unitPrc * parseFloat(mobile[0].qnty)).toBeCloseTo(mobile[0].total, 2);
+  });
+
+  it('a fully sold mixed-price row still nets to zero', () => {
+    // out-lots carry a SALE price. Valuing them would leave a phantom balance behind
+    // on a row whose stock is gone.
+    const noPrice = [makeProduct({ id: 'prd-1', unitPrc: '' })];
+    const lots = [
+      makeStockLot({ id: 's1', qnty: '10', unitPrc: '1000', productsData: noPrice }),
+      makeStockLot({ id: 's2', invoice: 1099, qnty: '5', unitPrc: '2000', productsData: noPrice }),
+      makeStockLot({ id: 's3', invoice: 1100, type: 'out', qnty: '15', unitPrc: '9999', productsData: noPrice }),
+    ];
+    const web = webRunStocksRows(structuredClone(lots), SETTINGS);
+    expect(web).toHaveLength(0); // qnty 0 rows are dropped, so nothing is left valued
   });
 
   it('cashflow line value uses the raw summed quantity, before the 3-decimal rounding', () => {
