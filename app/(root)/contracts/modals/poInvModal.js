@@ -12,7 +12,8 @@ import { getTtl } from '@utils/languages';
 import { loadData } from '@utils/utils';
 import Datepicker from "react-tailwindcss-datepicker";
 import { Button } from '@components/ui/button';
-import { Save, CirclePlus, CircleMinus, Trash, ArrowBigRight, FileText, Download, X } from "lucide-react";
+import { CirclePlus, CircleMinus, Trash, ArrowBigRight, FileText, Download, X } from "lucide-react";
+import { BtnIcon } from "@components/buttonIcons";
 import DocumentImportOverlay from '@components/DocumentImportOverlay';
 
 // Mutual-invoice mirroring (IMS ↔ GIS). Same account uids and counterpart supplier
@@ -549,7 +550,7 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowStockModal }) => {
                     className="h-8 px-3"
                     onClick={() => saveData_payments(uidCollection)}
                 >
-                    <Save className='scale-110' />
+                    <BtnIcon action="save" />
                     {getTtl('save', ln)}
                 </Button>
                 <Button

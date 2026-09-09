@@ -122,9 +122,15 @@ module.exports = {
 				   warn, emerald IS ok, rose IS danger. Collapsing the synonyms is what
 				   stops the same state being drawn in two different colours on two
 				   different pages. */
-				gray: { 50: 'var(--surface-base)', 100: 'var(--surface-muted)', 200: 'var(--border-neutral)', 300: 'var(--border-neutral-strong)', 500: 'var(--text-mid)', 600: 'var(--text-mid)', 700: 'var(--text-strong)' },
-				slate: { 50: 'var(--surface-base)', 100: 'var(--surface-muted)', 200: 'var(--border-neutral)', 300: 'var(--border-neutral-strong)', 500: 'var(--text-mid)', 600: 'var(--text-mid)', 700: 'var(--text-strong)' },
-				zinc: { 50: 'var(--surface-base)', 100: 'var(--surface-muted)', 200: 'var(--border-neutral)', 300: 'var(--border-neutral-strong)' },
+				/* The 400 rung is here because it was the one hole in this map. slate-400
+				   is the border on 15 inputs/selects across contracts, settings and the
+				   shared selectors, and with no entry it fell straight through to stock
+				   Tailwind — a fixed grey that ignored dark mode and every preset while
+				   the 300 and 500 borders beside it moved. Same fix as the rest of this
+				   block: close it HERE, not at the call sites. */
+				gray: { 50: 'var(--surface-base)', 100: 'var(--surface-muted)', 200: 'var(--border-neutral)', 300: 'var(--border-neutral-strong)', 400: 'var(--border-neutral-strong)', 500: 'var(--text-mid)', 600: 'var(--text-mid)', 700: 'var(--text-strong)' },
+				slate: { 50: 'var(--surface-base)', 100: 'var(--surface-muted)', 200: 'var(--border-neutral)', 300: 'var(--border-neutral-strong)', 400: 'var(--border-neutral-strong)', 500: 'var(--text-mid)', 600: 'var(--text-mid)', 700: 'var(--text-strong)' },
+				zinc: { 50: 'var(--surface-base)', 100: 'var(--surface-muted)', 200: 'var(--border-neutral)', 300: 'var(--border-neutral-strong)', 400: 'var(--border-neutral-strong)' },
 				neutral: { 50: 'var(--surface-base)', 100: 'var(--surface-muted)', 200: 'var(--border-neutral)' },
 				red: { 50: 'var(--danger-soft)', 100: 'var(--danger-bg)', 200: 'var(--danger-border)', 300: 'var(--danger-border)', 400: 'var(--danger-text)', 500: 'var(--danger-text)', 600: 'var(--danger-text)', 700: 'var(--danger-strong)', 800: 'var(--danger-strong)', 900: 'var(--danger-strong)' },
 				rose: { 50: 'var(--danger-soft)', 100: 'var(--danger-bg)', 200: 'var(--danger-border)', 300: 'var(--danger-border)', 400: 'var(--danger-text)', 500: 'var(--danger-text)', 600: 'var(--danger-text)', 700: 'var(--danger-strong)' },
@@ -134,7 +140,10 @@ module.exports = {
 				amber: { 50: 'var(--warn-soft)', 100: 'var(--warn-bg)', 200: 'var(--warn-border)', 300: 'var(--warn-border)', 400: 'var(--warn-text)', 500: 'var(--warn-text)', 600: 'var(--warn-text)', 700: 'var(--warn-strong)', 800: 'var(--warn-strong)' },
 				orange: { 50: 'var(--warn-soft)', 100: 'var(--warn-bg)', 200: 'var(--warn-border)', 300: 'var(--warn-border)', 400: 'var(--warn-text)', 500: 'var(--warn-text)', 600: 'var(--warn-text)', 700: 'var(--warn-strong)', 800: 'var(--warn-strong)' },
 				yellow: { 50: 'var(--warn-soft)', 100: 'var(--warn-bg)', 200: 'var(--warn-border)', 300: 'var(--warn-border)', 400: 'var(--warn-text)', 500: 'var(--warn-text)', 600: 'var(--warn-text)', 700: 'var(--warn-strong)' },
-				blue: { 50: 'var(--selago)', 100: 'var(--surface-header)', 200: 'var(--border-divider)', 300: 'var(--rock-blue)', 500: 'var(--primary-bright)', 600: 'var(--primary-bright)', 900: 'var(--chathams-blue)' },
+				/* 400 = the editing border on EditableCell, which pairs it with a
+				   focus:ring-blue-500 that WAS mapped — so the ring followed the theme
+				   and the border it sat inside did not. */
+				blue: { 50: 'var(--selago)', 100: 'var(--surface-header)', 200: 'var(--border-divider)', 300: 'var(--rock-blue)', 400: 'var(--rock-blue)', 500: 'var(--primary-bright)', 600: 'var(--primary-bright)', 900: 'var(--chathams-blue)' },
 				purple: { 50: 'var(--violet-soft)', 100: 'var(--violet-bg)' },
 				violet: { 50: 'var(--violet-soft)', 100: 'var(--violet-bg)' },
 				indigo: { 50: 'var(--violet-soft)', 100: 'var(--violet-bg)' },

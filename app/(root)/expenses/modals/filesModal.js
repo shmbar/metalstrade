@@ -2,7 +2,7 @@ import { useEffect, useState, useContext } from 'react'
 import Modal from '../../../../components/modal.js'
 import { uploadFile, getAllfiles, deleteFile } from '../../../../utils/utils'
 import Link from 'next/link'
-import { VscArchive } from 'react-icons/vsc'
+import { BtnIcon } from '../../../../components/buttonIcons'
 import { FileUploader } from "react-drag-drop-files"
 import { SettingsContext } from "../../../../contexts/useSettingsContext"
 import { getTtl } from '../../../../utils/languages'
@@ -55,8 +55,11 @@ const ExpenseFilesModal = ({ isOpen, setIsOpen, folderId, setToast }) => {
                                 <Link href={x.url} target="_blank">
                                     <p className='responsiveTextTable'>{x.name}</p>
                                 </Link>
-                                <VscArchive className='self-center flex scale-110 cursor-pointer font-medium text-blue-900 drop-shadow-lg'
-                                    onClick={() => deletefiles(x.name)} />
+                                {/* Same delete affordance as the contracts files modal — it was an
+                                    archive box in blue on a button that deletes. */}
+                                <button type="button" aria-label={`Delete ${x.name}`}
+                                    className='self-center cell-clear text-[var(--ink-muted)]'
+                                    onClick={() => deletefiles(x.name)}><BtnIcon action="delete" /></button>
                             </li>
                         ))}
                         {list.length === 0 && (

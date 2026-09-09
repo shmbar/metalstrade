@@ -1,8 +1,6 @@
 import React, { useRef, useEffect , useContext} from 'react'
-import { BiEditAlt } from 'react-icons/bi';
-import { MdDeleteOutline } from 'react-icons/md';
 import { useState } from 'react'
-import { IoAddCircleOutline } from 'react-icons/io5';
+import { BtnIcon } from "@components/buttonIcons";
 import { v4 as uuidv4 } from 'uuid';
 import { SettingsContext } from "@contexts/useSettingsContext";
 import { getTtl } from '@utils/languages';
@@ -65,7 +63,7 @@ const FinalRemarks = ({ value, setValue }) => {
                     h-7 border border-slate-400 bg-slate-700 rounded-lg responsiveTextTitle
                     hover:bg-slate-400 shadow-lg"
                         onClick={() => addItem()}>
-                        <IoAddCircleOutline className='scale-110' /> {getTtl('Add', ln)}
+                        <BtnIcon action="add" /> {getTtl('Add', ln)}
                     </button>
                     <span className="absolute hidden group-hover:flex top-8 w-fit p-1
     bg-[var(--tooltip-bg)] border border-[var(--tooltip-border)] shadow-pop rounded-lg text-center text-[var(--tooltip-ink)] responsiveTextInput z-10 whitespace-nowrap -left-1.5">
@@ -95,8 +93,8 @@ focus:outline-0 focus:border-slate-600 indent-1.5 responsiveTextTitle text-[var(
                             }
 
                             {edit.id !== x.id && <div className='flex gap-4'>
-                                <BiEditAlt className='scale-125 opacity-50 cursor-pointer' onClick={() => editItem(x)} />
-                                <MdDeleteOutline className='scale-125 opacity-50 cursor-pointer' onClick={() => deleteItem(x)} />
+                                <button type="button" aria-label="Edit remark" className='opacity-50 hover:opacity-100 cursor-pointer' onClick={() => editItem(x)}><BtnIcon action="edit" /></button>
+                                <button type="button" aria-label="Delete remark" className='opacity-50 hover:opacity-100 cursor-pointer' onClick={() => deleteItem(x)}><BtnIcon action="delete" /></button>
                             </div>}
                         </li>
 

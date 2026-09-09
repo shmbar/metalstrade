@@ -316,6 +316,48 @@ gate('type-ladder', 'Off-ladder font size (use --fs-* or a .responsiveText* clas
     return hits;
 });
 
+/* 5. A Tailwind palette shade with no entry in tailwind.config.js.
+      Most of the palette IS tokenised there — `text-red-500` compiles to
+      var(--danger-text), `bg-slate-100` to var(--surface-muted) — so a call site
+      writing those is fine and follows the theme. The bug is a shade the map
+      does NOT cover: it falls straight through to stock Tailwind and freezes,
+      ignoring dark mode and every colour preset while its neighbours move. That
+      is how `border-slate-400` ended up on fifteen inputs whose 300/500 siblings
+      themed correctly, and how EditableCell got a fixed border inside a themed
+      focus ring.
+
+      The fix for a hit here is normally ONE line in tailwind.config.js — add the
+      rung to the map — not an edit at the call site. Kept in step with that file:
+      if a palette gains a shade there, add it here too. Advisory, because the
+      answer is a config edit rather than something a page author did wrong. */
+const PALETTE_MAP = {
+    gray: [50, 100, 200, 300, 400, 500, 600, 700], slate: [50, 100, 200, 300, 400, 500, 600, 700],
+    zinc: [50, 100, 200, 300, 400], neutral: [50, 100, 200],
+    red: [50, 100, 200, 300, 400, 500, 600, 700, 800, 900], rose: [50, 100, 200, 300, 400, 500, 600, 700],
+    green: [50, 100, 200, 300, 400, 500, 600, 700, 800, 900], emerald: [50, 100, 200, 300, 400, 500, 600, 700, 800],
+    teal: [50, 100, 400, 500, 600, 700], amber: [50, 100, 200, 300, 400, 500, 600, 700, 800],
+    orange: [50, 100, 200, 300, 400, 500, 600, 700, 800], yellow: [50, 100, 200, 300, 400, 500, 600, 700],
+    blue: [50, 100, 200, 300, 400, 500, 600, 900], purple: [50, 100], violet: [50, 100], indigo: [50, 100],
+    pink: [50, 100, 200, 300, 400, 500, 600, 700], fuchsia: [50, 100, 400, 500, 600, 700],
+};
+const PALETTE_RE = new RegExp(
+    '\\b(?:[a-z-]+:)?(?:text|bg|border|ring|divide|from|to|via)-('
+    + Object.keys(PALETTE_MAP).concat(['lime', 'cyan', 'sky', 'stone']).join('|')
+    + ')-(\\d{2,3})\\b', 'g');
+gate('palette-rung', 'Tailwind palette shade with no token mapping (add the rung in tailwind.config.js)', (file, src) => {
+    if (TOKEN_SOURCES.has(file) || UNTHEMED.test(file) || MARKETING.test(file)) return [];
+    const hits = [];
+    src.split('\n').forEach((l, i) => {
+        if (/^\s*(\/\/|\/?\*|\*)/.test(l)) return;
+        for (const m of l.matchAll(PALETTE_RE)) {
+            const [hit, pal, shade] = m;
+            if (!PALETTE_MAP[pal] || !PALETTE_MAP[pal].includes(Number(shade)))
+                hits.push(`${file}:${i + 1}: ${hit}`);
+        }
+    });
+    return hits;
+}, false);
+
 // ── run ─────────────────────────────────────────────────────────────────────
 let failed = 0;
 const sources = targets.map(f => [f, read(f)]).filter(([, s]) => s !== null);

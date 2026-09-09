@@ -3,7 +3,6 @@ import { useNumericCaret } from '@utils/numericCaret';
 import Datepicker from "react-tailwindcss-datepicker";
 import { SettingsContext } from "@contexts/useSettingsContext";
 import { InvoiceContext } from "@contexts/useInvoiceContext";
-import { MdPayments } from 'react-icons/md';
 import { ContractsContext } from "@contexts/useContractsContext";
 import dateFormat from "dateformat";
 import { UserAuth } from "@contexts/useAuthContext";
@@ -177,7 +176,7 @@ const Payments = ({ showPayments }) => {
                                         <input type='text' className="number-separator input shadow-lg h-7 -mt-[0.03rem] responsiveTextInput" style={{ fontFamily: 'inherit' }} name='pmnt'
                                             value={addComma(x.pmnt)} onChange={e => { rememberCaret(e); handleValue(e, i); }} />
                                         {i === 0 && <button className='relative right-6 '>
-                                            <MdPayments className='scale-125 text-[var(--regent-gray)]' onClick={setPrepPayment} />
+                                            <BtnIcon action="payments" className='text-[var(--ink-muted)]' onClick={setPrepPayment} />
                                         </button>}
                                     </div>
                                 </div>

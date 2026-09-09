@@ -1053,7 +1053,7 @@ export const StocksUnSold = ({ supplier, stockDataAllArray, settings, uidCollect
                                     </span>
                                 </th>
                                 <th className="text-center w-14">{showMatTotals ? 'Quantity' : ''}</th>
-                                <th className="text-left w-20">{showMatTotals ? 'Avg Price' : ''}</th>
+                                <th className="text-right w-20">{showMatTotals ? 'Avg Price' : ''}</th>
                                 <th className="text-right w-20">{showMatTotals ? 'Total' : 'click to expand'}</th>
                             </tr>
                         </thead>
@@ -1069,7 +1069,7 @@ export const StocksUnSold = ({ supplier, stockDataAllArray, settings, uidCollect
                                     <td className="text-center">
                                         <NumericFormat value={g.qnty} displayType="text" thousandSeparator decimalScale='3' fixedDecimalScale />
                                     </td>
-                                    <td className="text-left">
+                                    <td className="text-right">
                                         <NumericFormat value={g.qnty > 0 ? g.total / g.qnty : 0} displayType="text" thousandSeparator
                                             prefix={g.cur === 'us' ? '$' : '€'} decimalScale='2' fixedDecimalScale />
                                     </td>
@@ -1412,9 +1412,9 @@ export const ClientDetails = ({ client, data, type, uidCollection, setDateSelect
                                 <th className="text-center">ETD</th>
                                 <th className="text-center">ETA</th>
                                 <th className="text-center">Pmn</th>
-                                <th className="text-left px-2 py-0">
+                                <th className="text-center px-2 py-0">
                                     <Tltip direction='right' tltpText='Select all'>
-                                        <div className='flex items-center justify-start'>
+                                        <div className='flex items-center justify-center'>
                                             {filteredArr.length > 0 && <CheckBox size='size-3' checked={!!toggleClientPartial[filteredArr[0]?.client]}
                                                 onChange={() => toggleCheckClientAll('PartPaid', filteredArr)}
                                             />
@@ -1476,16 +1476,16 @@ export const ClientDetails = ({ client, data, type, uidCollection, setDateSelect
                                         <td className="text-center">{dateFormat(z.shipData?.eta?.startDate, 'dd.mm.yy')}</td>
                                         <td className="text-center !py-1">
                                             <Tltip direction='right' tltpText='Partial Payment'>
-                                                <div className='flex items-center justify-start'>
+                                                <div className='flex items-center justify-center'>
                                                     <DoalogModalClient obj={z}
                                                         clientPartialPayment={clientPartialPayment}
                                                     />
                                                 </div>
                                             </Tltip>
                                         </td>
-                                        <td className="text-left !py-1">
+                                        <td className="text-center !py-1">
                                             <Tltip direction='right' tltpText='Set full payment'>
-                                                <div className='flex items-center justify-start'>
+                                                <div className='flex items-center justify-center'>
                                                     <CheckBox size='size-3' checked={z.checked}
                                                         onChange={() => toggleCheckClient(z, 'PartPaid')} />
                                                 </div>
@@ -1516,8 +1516,8 @@ export const ClientDetails = ({ client, data, type, uidCollection, setDateSelect
                                 <th></th>
                                 <th></th>
                                 <th></th>
-                                <th className="text-left">
-                                    <div className='flex items-center justify-start'>
+                                <th className="text-center">
+                                    <div className='flex items-center justify-center'>
                                         <button className='p-0 bg-transparent border-0 outline-none leading-none text-[var(--endeavour)] hover:opacity-70'
                                             onClick={() => savePmntClient(filteredArr[0]?.client)}
                                             disabled={filteredArr.length === 0}>
@@ -1545,9 +1545,9 @@ export const ClientDetails = ({ client, data, type, uidCollection, setDateSelect
                                 <FinalTh />
                                 <th className="text-center">ETD</th>
                                 <th className="text-center">Pmn</th>
-                                <th className="text-left p-1 2xl:p-1 py-0">
+                                <th className="text-center p-1 2xl:p-1 py-0">
                                     <Tltip direction='right' tltpText='Select all'>
-                                        <div className='flex items-center justify-start'>
+                                        <div className='flex items-center justify-center'>
                                             {filteredArr1.length > 0 && <CheckBox size='size-3' checked={!!toggleClientFull[filteredArr1[0]?.client]}
                                                 onChange={() => toggleCheckClientAll('InDebt', filteredArr1)} />
                                             }
@@ -1597,7 +1597,7 @@ export const ClientDetails = ({ client, data, type, uidCollection, setDateSelect
                                         <td className="text-center">{dateFormat(z.shipData?.etd?.startDate, 'dd.mm.yy')}</td>
                                         <td className="text-center !py-1">
                                             <Tltip direction='right' tltpText='Partial Payment'>
-                                                <div className='flex items-center justify-start'>
+                                                <div className='flex items-center justify-center'>
                                                     <DoalogModalClient obj={z}
                                                         clientPartialPayment={clientPartialPayment}
                                                     />
@@ -1605,9 +1605,9 @@ export const ClientDetails = ({ client, data, type, uidCollection, setDateSelect
                                             </Tltip>
                                         </td>
 
-                                        <td className="text-left !py-1">
+                                        <td className="text-center !py-1">
                                             <Tltip direction='right' tltpText='Set full payment'>
-                                                <div className='flex items-center justify-start'>
+                                                <div className='flex items-center justify-center'>
                                                     <CheckBox size='size-3' checked={z.checked}
                                                         onChange={() => toggleCheckClient(z, 'InDebt')} />
                                                 </div>
@@ -1633,8 +1633,8 @@ export const ClientDetails = ({ client, data, type, uidCollection, setDateSelect
                                 <th></th>
                                 <th></th>
                                 <th></th>
-                                <th className="text-left">
-                                    <div className='flex items-center justify-start'>
+                                <th className="text-center">
+                                    <div className='flex items-center justify-center'>
                                         <button className='p-0 bg-transparent border-0 outline-none leading-none text-[var(--endeavour)] hover:opacity-70'
                                             onClick={() => savePmntClient(filteredArr1[0]?.client)}
                                             disabled={filteredArr1.length === 0}>
@@ -1866,16 +1866,20 @@ export const SupplierDetails = ({ supplier, data, uidCollection, setDateSelect,
                         <SumTh />
                         <SortTh colKey="order" label="PO#" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left po-col" />
                         <SortTh colKey="invoice" label="Invoice" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left w-12" />
-                        <SortTh colKey="invValue" label="Value" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left" />
+                        {/* Money reads right-aligned, like Payment and Balance beside it and
+                            every other figure column in cashflow — this one column was left,
+                            so the decimal points in Value never lined up with each other or
+                            with its own total. */}
+                        <SortTh colKey="invValue" label="Value" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-right" />
                         <SortTh colKey="pmnt" label="Payment" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-right" />
                         <SortTh colKey="blnc" label="Balance" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-right" />
                         <th className="text-center">ETD</th>
                         <th className="text-center">ETA</th>
                         <FinalTh />
                         <th className="text-center">Pmn</th>
-                        <th className="text-left py-0">
+                        <th className="text-center py-0">
                             <Tltip direction='right' tltpText='Select all'>
-                                <div className='flex items-center justify-start'>
+                                <div className='flex items-center justify-center'>
                                     {filteredArr.length > 0 && <CheckBox size='size-3' checked={!!toggleSupplier[filteredArr[0]?.supplier + '-' + type]}
                                         onChange={() => toggleCheckSupplierAll(filteredArr)}
                                     />
@@ -1897,7 +1901,7 @@ export const SupplierDetails = ({ supplier, data, uidCollection, setDateSelect,
                                         setValueCon, setIsOpenCon, blankInvoice, router, setToast)}
                                 ><Tltip direction='top' tltpText={z.order || ''}><span className="block truncate">{z.order}</span></Tltip></td>
                                 <td className="text-left 2xl:max-w-24 truncate cursor-pointer text-[var(--endeavour)] hover:underline" onClick={() => openInvModal && openInvModal(z, 'supplier')}><Tltip direction='top' tltpText='Click to preview invoice'><span className="block truncate">{z.invoice}</span></Tltip></td>
-                                <td className="text-left">{
+                                <td className="text-right">{
                                     <NumericFormat
                                         value={z.invValue}
                                         displayType="text"
@@ -1943,14 +1947,14 @@ export const SupplierDetails = ({ supplier, data, uidCollection, setDateSelect,
                                 <td className="text-center"><FinalBadge fnlzing={z.fnlzing} invoiceNo={z.invoice} /></td>
                                 <td className="text-center !py-1">
                                     <Tltip direction='right' tltpText='Partial Payment'>
-                                        <div className='flex items-center justify-start'>
+                                        <div className='flex items-center justify-center'>
                                             <DoalogModal obj={z} supplierPartialPayment={supplierPartialPayment} />
                                         </div>
                                     </Tltip>
                                 </td>
-                                <td className="text-left !py-1">
+                                <td className="text-center !py-1">
                                     <Tltip direction='right' tltpText='Set full payment'>
-                                        <div className='flex items-center justify-start'>
+                                        <div className='flex items-center justify-center'>
                                             <CheckBox size='size-3' checked={z.checked}
                                                 onChange={() => toggleCheckSupplier(z, filteredArr)} />
                                         </div>
@@ -1965,7 +1969,7 @@ export const SupplierDetails = ({ supplier, data, uidCollection, setDateSelect,
                         <th></th>
                         <th className="text-left">Total</th>
                         <th></th>
-                        <th className="text-left">
+                        <th className="text-right">
                             {showAmount(filteredArr.reduce((sum, item) => sum + item.invValue * 1, 0), 'usd')}
                         </th>
                         <th className="text-right">
@@ -1978,8 +1982,8 @@ export const SupplierDetails = ({ supplier, data, uidCollection, setDateSelect,
                         <th></th>
                         <th></th>
                         <th></th>
-                        <th className="text-left">
-                            <div className='flex items-center justify-start'>
+                        <th className="text-center">
+                            <div className='flex items-center justify-center'>
                                 <button className='p-0 bg-transparent border-0 outline-none leading-none text-[var(--endeavour)] hover:opacity-70'
                                     onClick={() => savePmntSupplier(filteredArr)}
                                     disabled={filteredArr.length === 0}>
@@ -2095,9 +2099,9 @@ export const ExpensesToolTip = ({ supplier, expensesAll, settings, uidCollection
                         <SortTh colKey="amount" label="Amount" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-right" />
                         <SortTh colKey="date" label="Date" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-center" />
                         <th className="text-right">Payment</th>
-                        <th className="text-left">
+                        <th className="text-center">
                             <Tltip direction='right' tltpText='Select all'>
-                                <div className='flex items-center justify-start'>
+                                <div className='flex items-center justify-center'>
                                     {filteredArr.length > 0 && <CheckBox size='size-3' checked={!!toggleExp[filteredArr[0]?.supplier]}
                                         onChange={() => toggleCheckExpAll(filteredArr)}
                                     />
@@ -2140,9 +2144,9 @@ export const ExpensesToolTip = ({ supplier, expensesAll, settings, uidCollection
                                         green/orange instead of TONES. */}
                                     <span style={{ color: z.paid === '111' ? TONES.green.text : TONES.amber.text, fontWeight: 500 }}>{z.paid === '111' ? 'Paid' : 'Unpaid'}</span>
                                 </td>
-                                <td className="text-left !py-1">
+                                <td className="text-center !py-1">
                                     <Tltip direction='right' tltpText='Set full payment'>
-                                        <div className='flex items-center justify-start'>
+                                        <div className='flex items-center justify-center'>
                                             <CheckBox size='size-3' checked={z.checked}
                                                 onChange={() => toggleCheckExp(z)} />
                                         </div>
@@ -2177,8 +2181,8 @@ export const ExpensesToolTip = ({ supplier, expensesAll, settings, uidCollection
                         </th>
                         <th></th>
                         <th></th>
-                        <th className="text-left">
-                            <div className='flex items-center justify-start'>
+                        <th className="text-center">
+                            <div className='flex items-center justify-center'>
                                 <button className='p-0 bg-transparent border-0 outline-none leading-none text-[var(--endeavour)] hover:opacity-70'
                                     onClick={() => savePmntExp(filteredArr)}
                                     disabled={filteredArr.length === 0}>

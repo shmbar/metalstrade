@@ -12,7 +12,6 @@ import { CardsSkeleton } from "../../../components/skeletons";
 import { loadData, loadDataSettings, loadInvoice, loadMargins, loadSharedStock, loadStockData, loadAllStockData, saveCashflow, saveCashflowFinanced, saveDataSettings, saveMultipleData, saveStockIn, syncSpecialInvoicesPaidStatus, updateClientPayment, updateExpPayments } from "../../../utils/utils";
 import { UserAuth } from "../../../contexts/useAuthContext";
 import { NumericFormat } from "react-number-format";
-import { MdDeleteOutline } from "react-icons/md";
 import { addComma, ClientDetails, clientToolTip, entityName, ExpensesToolTip, FinalSummaryBadge, getTotals, getTotalsSupPayments, runExpenses, runInvoices, runStocks, runSupPayments, SharedStockDetails, StocksUnSold, StoclToolTip, SupplierDetails, supplierToolTip } from "./funcs";
 import Tltip from "../../../components/tlTip";
 import { FaSortAmountDown } from "react-icons/fa";
@@ -1455,7 +1454,7 @@ const Cashflow = () => {
                                                             <NumericFormat className='input w-44 responsiveText tnum font-medium text-[var(--ink)]'
                                                                 value={z.num} thousandSeparator allowNegative={false} decimalScale={2} fixedDecimalScale prefix='$'
                                                                 onValueChange={values => handleChangeInitial({ target: { value: values.value } }, i, 'num')} />
-                                                            <button onClick={() => delItem(i)} className="text-red-500 px-2 h-8 rounded-lg hover:bg-red-50 transition-all"><MdDeleteOutline className="scale-110" /></button>
+                                                            <button onClick={() => delItem(i)} aria-label="Remove line" className="text-[var(--danger-text)] px-2 h-8 rounded-lg hover:bg-[var(--danger-bg)] transition-all"><BtnIcon action="delete" /></button>
                                                         </div>
                                                     )
                                                 })}
