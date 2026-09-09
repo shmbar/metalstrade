@@ -24,6 +24,20 @@
  *   node scripts/provision-demo-workspace.js --commit         # actually writes
  *   node scripts/provision-demo-workspace.js --commit --password 'Str0ng-Pass'
  *
+ * FLAGS
+ *   --commit              Actually write. Omit for a dry run.
+ *   --email <address>     Demo account to provision. Default: test@ims-tech.com.
+ *   --create              Create the account if it does not exist yet. Needs
+ *                         --password. Refuses to guess a password for you.
+ *   --password <value>    Set (or, with --create, initialise) the account's
+ *                         password.
+ *   --role <role>         Custom-claim role to give the account. Default: 'user'.
+ *                         Refusing to silently change an EXISTING account's role
+ *                         is deliberate — this warns instead if it would.
+ *   --use-test-workspace  Point the claim at an already-populated throwaway test
+ *                         workspace instead of cloning IMS fresh. Nothing is
+ *                         written to Firestore in this mode — just the claim.
+ *
  * Needs ./serviceAccountKey.json (gitignored) at the repo root.
  *
  * THIS IS NOT ENOUGH ON ITS OWN. The Firestore rules that are live today are
@@ -42,6 +56,14 @@ const SOURCE_WORKSPACE = 'DQ9gNTpvXqh6K9BqMTPTgCfxD2Z2'; // IMS, from utils/acti
 const DEMO_WORKSPACE = 'DEMO_WORKSPACE_APPSTORE';
 const DEMO_EMAIL = 'test@ims-tech.com';
 const DEMO_DISPLAY_NAME = 'App Review Demo';
+
+// A test workspace that predates this script, holding ~39 contracts, 76 invoices
+// and 225 stock lots of throwaway data ("AAA Sup2", "RotZZZ", order "zxcvvb").
+// Checked 2026-09-10: one supplier name overlaps with live IMS, no client names
+// do, so it carries no meaningful customer data. Preferring it with
+// --use-test-workspace is the cheap path — one claim change and nothing written
+// to Firestore at all, versus cloning several thousand documents.
+const EXISTING_TEST_WORKSPACE = '1wD74Rzav1PZ40MxXStjn9WgtJm2';
 
 // Keys whose string value is shown to a user as somebody's name or contact
 // detail. These get replaced. Anything not listed here is left alone, so enum-ish
@@ -268,8 +290,20 @@ async function cloneCollection(srcCol, destCol, ctx, depth = 0) {
 async function main() {
   const argv = process.argv.slice(2);
   const commit = argv.includes('--commit');
+  const useExisting = argv.includes('--use-test-workspace');
+  const createMissing = argv.includes('--create');
   const pwIndex = argv.indexOf('--password');
   const newPassword = pwIndex !== -1 ? argv[pwIndex + 1] : null;
+  const emailIndex = argv.indexOf('--email');
+  const email = emailIndex !== -1 ? argv[emailIndex + 1] : DEMO_EMAIL;
+  // Explicit, because silently rewriting the role of an account that already
+  // exists is a good way to demote a colleague's login. 'Admin' shows a reviewer
+  // the whole app, which is harmless in a throwaway workspace.
+  const roleIndex = argv.indexOf('--role');
+  const role = roleIndex !== -1 ? argv[roleIndex + 1] : 'user';
+
+  // Point at the workspace that already exists rather than building a new one.
+  const targetWorkspace = useExisting ? EXISTING_TEST_WORKSPACE : DEMO_WORKSPACE;
 
   let serviceAccount;
   try {
@@ -289,27 +323,65 @@ async function main() {
     : 'DRY RUN — nothing will be written. Re-run with --commit to apply.\n');
 
   // 1. The demo user.
-  let user;
+  let user = null;
   try {
-    user = await auth.getUserByEmail(DEMO_EMAIL);
-    console.log(`Found demo user ${DEMO_EMAIL} (uid ${user.uid})`);
+    user = await auth.getUserByEmail(email);
+    console.log(`Found demo user ${email} (uid ${user.uid})`);
     const currentWs = user.customClaims && user.customClaims.uidCollection;
     console.log(`  current workspace claim: ${currentWs || '(none)'}`);
     if (currentWs === SOURCE_WORKSPACE) {
       console.log('  ^ this is the live IMS workspace — the reason real data is showing.');
+    } else if (currentWs === targetWorkspace) {
+      console.log('  ^ already the target workspace; the claim below is a no-op.');
     }
-  } catch {
-    console.error(`No Firebase user with email ${DEMO_EMAIL}. Create it first.`);
-    process.exit(1);
+  } catch (e) {
+    // A credential, permission or network failure is NOT a missing user, and
+    // saying so sent me chasing the wrong thing once already.
+    if (e.code !== 'auth/user-not-found') {
+      console.error(`Could not look up ${email}: ${e.code || ''} ${e.message}`);
+      process.exit(1);
+    }
+    console.log(`No account exists for ${email}.`);
+    if (!createMissing) {
+      console.error('\nEither pass --create to make it, or --email <address> to point');
+      console.error('this at an account that already exists.');
+      process.exit(1);
+    }
+    if (!newPassword) {
+      console.error('\n--create needs --password <value> to set the initial password.');
+      process.exit(1);
+    }
+    console.log(`Would create it${commit ? '' : ' (dry run)'} in workspace ${targetWorkspace}.`);
+    if (commit) {
+      user = await auth.createUser({
+        email,
+        password: newPassword,
+        displayName: DEMO_DISPLAY_NAME,
+        emailVerified: true,
+        disabled: false,
+      });
+      console.log(`  created (uid ${user.uid})`);
+    }
+  }
+
+  // Nothing further to do in a dry run that would have created the account.
+  if (!user) {
+    console.log('\nDry run stops here — re-run with --commit to create the account.');
+    return;
   }
 
   // 2. Repoint its claim at the demo workspace, and keep it a plain user.
   const claims = {
-    uidCollection: DEMO_WORKSPACE,
-    role: 'user',
-    title: 'user',
+    uidCollection: targetWorkspace,
+    role,
+    title: role,
     pages: null,
   };
+  const previousRole = (user.customClaims || {}).role || (user.customClaims || {}).title;
+  if (previousRole && previousRole.toLowerCase() !== role.toLowerCase()) {
+    console.log(`\nNOTE: this changes the account's role ${previousRole} -> ${role}.`);
+    console.log('      Pass --role to keep the one it has.');
+  }
   console.log(`\nClaim to set: ${JSON.stringify(claims)}`);
   if (commit) {
     await auth.setCustomUserClaims(user.uid, claims);
@@ -320,7 +392,21 @@ async function main() {
     if (newPassword) console.log('  password changed.');
   }
 
-  // 3. Clone IMS into the demo workspace, scrubbing as we go.
+  // 3. Data. With --use-test-workspace there is nothing to do: the workspace is
+  // already populated, so the claim change above is the whole job.
+  if (useExisting) {
+    const existing = await db.collection(EXISTING_TEST_WORKSPACE).doc('cmpnyData').get();
+    console.log(`\nUsing the existing test workspace ${EXISTING_TEST_WORKSPACE}`);
+    console.log(`  company name on file: ${JSON.stringify(existing.data()?.name || '(unset)')}`);
+    console.log('  no documents written — it is already populated.');
+    console.log(commit
+      ? '\nDone. The demo user must sign out and back in — custom claims are read\nfrom the ID token, so an existing session keeps the old workspace.'
+      : '\nNothing was written. Re-run with --commit when the above looks right.');
+    console.log('\nREMINDER: publish the hardened rules in firestore.rules. Until then the');
+    console.log('live rule allows any signed-in account to read every workspace.');
+    return;
+  }
+
   console.log(`\nCloning ${SOURCE_WORKSPACE} -> ${DEMO_WORKSPACE}`);
   const ctx = {
     commit,

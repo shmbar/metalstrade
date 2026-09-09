@@ -173,19 +173,56 @@ gives a new user the claim of whichever admin created them. A demo account made
 from Settings → Users therefore lands in the **live IMS workspace** and shows real
 customer records. That is what happened with the first attempt.
 
-Give it a workspace of its own:
+### Decided: the account given to Apple
 
-```bash
-node scripts/provision-demo-workspace.js                             # dry run
-node scripts/provision-demo-workspace.js --commit --password '<strong>'
+```
+Email     imstest@test.test
+Password  test123
 ```
 
-The script repoints the claim at `DEMO_WORKSPACE_APPSTORE` and clones the IMS
-workspace into it with every name replaced and every commercial figure rescaled.
-It clones rather than writing fixtures so document shapes stay exactly right and
-every screen still renders; record **ids are preserved**, so cross-references
-between contracts, invoices, stock and settings survive intact. The demo user
-must sign out and back in afterwards — claims are read from the ID token.
+Verified 2026-09-10 against the live auth endpoint: it signs in, and the ID token
+carries `uidCollection: 1wD74Rzav1PZ40MxXStjn9WgtJm2` with role `Admin` — the
+test workspace, so the reviewer sees throwaway data and, being Admin, the whole
+app. The same account is used for the store screenshots.
+
+Do not change or disable it until the app is live; `is@is.is` shares this
+workspace, so changing the password would affect that login too.
+
+**The weak password only stays acceptable once `firestore.rules` is published.**
+Today's live rule is `allow read, write: if request.auth.uid != null`, under
+which these credentials — which will sit in App Store Connect — grant read and
+write to IMS and GIS live data. After publishing, this account can reach nothing
+but its own workspace. Publish the rules before submitting.
+
+### Background: why this workspace
+
+`1wD74Rzav1PZ40MxXStjn9WgtJm2`
+predates all this and holds ~39 contracts, 76 invoices, 225 stock lots and 34
+expenses of throwaway data — suppliers named "AAA Sup2" and "RotZZZ", an order
+called "zxcvvb". Checked 2026-09-10: one supplier name overlaps with live IMS,
+no client names do. It is already isolated by claim, so the whole job is one
+auth user:
+
+No provisioning is needed for the decision above — `imstest@test.test` already
+lives there. If a purpose-built account is ever wanted instead:
+
+```bash
+node scripts/provision-demo-workspace.js --use-test-workspace --create \
+  --email appreview@ims-tech.io --role Admin --password '<strong>'    # dry run
+# add --commit to apply
+```
+
+That writes **nothing** to Firestore. The script warns before changing an
+existing account's role, so it cannot quietly demote a colleague's login.
+
+Fallback, if that workspace is ever judged unsuitable: omit
+`--use-test-workspace` and the script builds `DEMO_WORKSPACE_APPSTORE` by cloning
+live IMS (~6,500 documents) with every name replaced and every commercial figure
+rescaled. It clones rather than writing fixtures so document shapes stay exactly
+right; record **ids are preserved**, so cross-references survive intact.
+
+Either way the demo user must sign out and back in — claims are read from the ID
+token, so an existing session keeps the old workspace.
 
 Mobile needs no change: `src/store/auth.ts` reads the claim directly and has no
 account switcher, so the demo account can only ever see its own workspace. The
