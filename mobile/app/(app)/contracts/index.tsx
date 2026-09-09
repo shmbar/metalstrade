@@ -122,7 +122,7 @@ export default function ContractsList() {
                 }}
               >
                 {active && <Ionicons name="arrow-down" size={11} color={colors.primary} />}
-                <Text variant="caption" tone={active ? 'primary' : 'muted'} style={{ fontFamily: 'Inter_600SemiBold' }}>
+                <Text variant="caption" tone={active ? 'primary' : 'muted'} style={{ fontFamily: 'PlusJakartaSans_600SemiBold' }}>
                   {s.label}
                 </Text>
               </Pressable>

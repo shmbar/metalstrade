@@ -91,8 +91,12 @@ function NavRow({ item, first, isAdmin }: { item: NavItem; first: boolean; isAdm
 
 export default function More() {
   const { colors, pref, setPref } = useTheme();
-  const { currentUser, userTitle, gisAccount, signOut } = useAuth();
-  const isAdmin = userTitle === 'Admin';
+  // Web parity (utils/permissions.js): a superadmin-role claim, or an admin
+  // whose legacy `title` claim isn't literally the string 'Admin' (different
+  // capitalisation, say), used to fall through this page's OWN ad-hoc
+  // `userTitle === 'Admin'` check and lose the Margins/Formulas group and its
+  // badge — the auth store's isAdmin is the one place this is now derived.
+  const { currentUser, gisAccount, isAdmin, signOut } = useAuth();
   const [query, setQuery] = useState('');
 
   const themeOptions: { key: 'light' | 'dark' | 'system'; icon: keyof typeof Ionicons.glyphMap }[] = [

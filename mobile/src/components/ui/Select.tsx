@@ -5,6 +5,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Text } from './Text';
 import { useTheme } from '@/theme/ThemeProvider';
 import { radius, spacing } from '@/theme/tokens';
+import { hapticTap } from '@/lib/haptics';
 
 export interface SelectOption {
   value: string;
@@ -140,7 +141,7 @@ export function Select({
                   placeholder="Search…"
                   placeholderTextColor={colors.textFaint}
                   autoCapitalize="none"
-                  style={{ flex: 1, paddingVertical: 10, marginLeft: 6, color: colors.text, fontFamily: 'Inter_400Regular' }}
+                  style={{ flex: 1, paddingVertical: 10, marginLeft: 6, color: colors.text, fontFamily: 'PlusJakartaSans_400Regular' }}
                 />
               </View>
             </View>
@@ -155,6 +156,7 @@ export function Select({
               return (
                 <Pressable
                   onPress={() => {
+                    if (!active) hapticTap();
                     onChange(item.value);
                     setOpen(false);
                   }}

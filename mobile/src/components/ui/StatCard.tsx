@@ -60,7 +60,7 @@ export function StatCard({ label, value, icon, accent, sub, delta, onPress }: St
               <Text
                 variant="caption"
                 color={delta.good ? colors.positive : colors.negative}
-                style={{ fontFamily: 'Inter_600SemiBold' }}
+                style={{ fontFamily: 'PlusJakartaSans_600SemiBold' }}
               >
                 {delta.up ? '▲' : '▼'} {Math.abs(delta.pct).toFixed(1)}%
               </Text>

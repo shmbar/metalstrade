@@ -3,6 +3,7 @@ import { View, ScrollView, RefreshControl, ScrollViewProps } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '@/theme/ThemeProvider';
 import { spacing } from '@/theme/tokens';
+import { hapticTap } from '@/lib/haptics';
 
 interface ScreenProps extends ScrollViewProps {
   scroll?: boolean;
@@ -51,7 +52,10 @@ export function Screen({
       showsVerticalScrollIndicator={false}
       refreshControl={
         onRefresh ? (
-          <RefreshControl refreshing={!!refreshing} onRefresh={onRefresh} tintColor={colors.primary} />
+          // Fires the instant the pull-to-refresh triggers, every screen that
+          // uses <Screen onRefresh>, the way pulling to refresh feels on a
+          // banking app's transaction list.
+          <RefreshControl refreshing={!!refreshing} onRefresh={() => { hapticTap(); onRefresh(); }} tintColor={colors.primary} />
         ) : undefined
       }
       {...rest}

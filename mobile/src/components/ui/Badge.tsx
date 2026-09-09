@@ -35,7 +35,7 @@ export function Badge({ label, tone = 'neutral' }: { label: string; tone?: Badge
       }}
     >
       <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: dot[tone] }} />
-      <Text variant="caption" tone="muted" style={{ fontFamily: 'Inter_500Medium' }}>
+      <Text variant="caption" tone="muted" style={{ fontFamily: 'PlusJakartaSans_500Medium' }}>
         {label}
       </Text>
     </View>

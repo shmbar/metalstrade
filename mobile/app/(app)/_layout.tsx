@@ -74,7 +74,7 @@ export default function AppLayout() {
           paddingTop: 8,
           ...getShadow(scheme, 'lg'),
         },
-        tabBarLabelStyle: { fontFamily: 'Inter_600SemiBold', fontSize: 10.5, marginTop: -2 },
+        tabBarLabelStyle: { fontFamily: 'PlusJakartaSans_600SemiBold', fontSize: 10.5, marginTop: -2 },
       }}
     >
       <Tabs.Screen

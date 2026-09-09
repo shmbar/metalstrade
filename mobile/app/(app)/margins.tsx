@@ -7,18 +7,22 @@ import { Screen, Card, Text, StatCard, Button, SectionHeader, SkeletonList, Erro
 import { PeriodSelector } from '@/components/PeriodSelector';
 import { useTheme } from '@/theme/ThemeProvider';
 import { useAuth } from '@/store/auth';
+import { usePrivacyStore, maskIfHidden } from '@/store/privacy';
 import { MonthEditor } from '@/features/margins/MonthEditor';
 import { useMargins } from '@/features/margins/useMargins';
 import { gisPurchasedDecimals, GIS_OUTSTANDING_DECIMALS } from '@/features/margins/derive';
 import { streamSse, apiConfigured } from '@/lib/api';
 import { fmtAutoKM, fmtMoney } from '@/lib/format';
+import { hapticTap } from '@/lib/haptics';
 
 const mt = (n: number) => `${fmtMoney(n, 0)} MT`;
 
 export default function Margins() {
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
-  const { userTitle, gisAccount } = useAuth();
+  const { isAdmin, gisAccount } = useAuth();
+  const hideBalances = usePrivacyStore((s) => s.hidden);
+  const togglePrivacy = usePrivacyStore((s) => s.toggle);
   const { totals, alertedItems, threshold, isLoading, isError, error, refetch } = useMargins();
   const [aiText, setAiText] = useState('');
   const [aiBusy, setAiBusy] = useState(false);
@@ -42,7 +46,11 @@ export default function Margins() {
     </Pressable>
   );
 
-  if (userTitle !== 'Admin') {
+  // Web parity (utils/permissions.js isAdmin) — was `userTitle !== 'Admin'`,
+  // an exact-string match on the legacy claim that a superadmin-role account
+  // (role claim, title something else) could fail and get locked out of their
+  // own admin page.
+  if (!isAdmin) {
     return (
       <Screen contentContainerStyle={{ paddingTop: insets.top + 8 }} edges={false}>
         {back}
@@ -59,7 +67,12 @@ export default function Margins() {
             on the GIS workspace (components/const.js:69). Mobile said 'Margins',
             which is what the page does but not what anyone calls it. */}
         <Text variant="h2">{gisAccount ? 'Gis Admin' : 'Sharon Admin'}</Text>
-        <PeriodSelector />
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+          <Pressable onPress={() => { hapticTap(); togglePrivacy(); }} hitSlop={8}>
+            <Ionicons name={hideBalances ? 'eye-off' : 'eye'} size={20} color={colors.textFaint} />
+          </Pressable>
+          <PeriodSelector />
+        </View>
       </View>
 
       {isLoading ? (
@@ -68,28 +81,37 @@ export default function Margins() {
         <ErrorState message={(error as Error)?.message || 'Failed to load.'} onRetry={refetch} />
       ) : (
         <View style={{ gap: 14 }}>
-          {/* Headline stats */}
+          {/* Headline stats — web's 5-card strip (firstpart.js): Incoming,
+              Outstanding shipment, Quantity, Profits, Shipped. Mobile was
+              missing the Incoming card even though useMargins already
+              computed it (totals.incoming, = margins remaining). */}
           <View style={{ flexDirection: 'row', gap: 14 }}>
             <View style={{ flex: 1 }}>
-              <StatCard label="Profit" value={fmtAutoKM(totals.profit)} accent={colors.positive} sub="total margin $" icon={<Ionicons name="trending-up" size={16} color={colors.positive} />} />
+              <StatCard label="Incoming" value={maskIfHidden(hideBalances, fmtAutoKM(totals.incoming))} accent={colors.info} sub="margins remaining" icon={<Ionicons name="arrow-down-circle" size={16} color={colors.info} />} />
             </View>
             <View style={{ flex: 1 }}>
-              <StatCard label="Quantity" value={mt(totals.quantity)} accent={colors.primary} sub="purchased" icon={<Ionicons name="cube" size={16} color={colors.primary} />} />
+              <StatCard label="Profit" value={maskIfHidden(hideBalances, fmtAutoKM(totals.profit))} accent={colors.positive} sub="total margin $" icon={<Ionicons name="trending-up" size={16} color={colors.positive} />} />
             </View>
           </View>
           <View style={{ flexDirection: 'row', gap: 14 }}>
             <View style={{ flex: 1 }}>
-              <StatCard label="Shipped" value={mt(totals.shipped)} accent={colors.info} sub="qty − open" icon={<Ionicons name="boat" size={16} color={colors.info} />} />
+              <StatCard label="Quantity" value={mt(totals.quantity)} accent={colors.primary} sub="purchased" icon={<Ionicons name="cube" size={16} color={colors.primary} />} />
             </View>
+            <View style={{ flex: 1 }}>
+              <StatCard label="Shipped" value={mt(totals.shipped)} accent={colors.primary} sub="qty − open" icon={<Ionicons name="boat" size={16} color={colors.primary} />} />
+            </View>
+          </View>
+          <View style={{ flexDirection: 'row', gap: 14 }}>
             <View style={{ flex: 1 }}>
               <StatCard label="Outstanding" value={mt(totals.outstandingShip)} accent={colors.warn} sub="open shipment" icon={<Ionicons name="hourglass" size={16} color={colors.warn} />} />
             </View>
+            <View style={{ flex: 1 }} />
           </View>
 
           {gisAccount && (
             <Card style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
               <Text variant="label" tone="muted">GIS profit</Text>
-              <Text variant="h3" tone="positive">{fmtAutoKM(totals.profitGIS)}</Text>
+              <Text variant="h3" tone="positive">{maskIfHidden(hideBalances, fmtAutoKM(totals.profitGIS))}</Text>
               <View style={{ flexDirection: 'row', gap: 14, marginTop: 8 }}>
                 <View style={{ flex: 1 }}>
                   <Text variant="caption" tone="muted">Purchased</Text>
@@ -103,7 +125,7 @@ export default function Margins() {
                 </View>
                 <View style={{ flex: 1 }}>
                   <Text variant="caption" tone="muted">Remaining</Text>
-                  <Text variant="bodyMedium" style={{ fontVariant: ['tabular-nums'] }}>{fmtAutoKM(totals.remainingGIS)}</Text>
+                  <Text variant="bodyMedium" style={{ fontVariant: ['tabular-nums'] }}>{maskIfHidden(hideBalances, fmtAutoKM(totals.remainingGIS))}</Text>
                 </View>
               </View>
             </Card>

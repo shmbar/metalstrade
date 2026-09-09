@@ -148,7 +148,7 @@ export default function AccStatement() {
               {/* Header */}
               <View style={{ flexDirection: 'row', borderBottomWidth: 1, borderBottomColor: colors.borderStrong, paddingBottom: 6 }}>
                 {COLS.map((c) => (
-                  <Text key={c.key} variant="caption" tone="muted" style={{ width: c.w, textAlign: c.money ? 'right' : 'left', fontFamily: 'Inter_600SemiBold' }}>
+                  <Text key={c.key} variant="caption" tone="muted" style={{ width: c.w, textAlign: c.money ? 'right' : 'left', fontFamily: 'PlusJakartaSans_600SemiBold' }}>
                     {c.label}
                   </Text>
                 ))}
@@ -173,17 +173,17 @@ export default function AccStatement() {
                   the client receives and only one here. */}
               {(['us', 'eu'] as const).map((cur) => (
                 <View key={cur} style={{ flexDirection: 'row', paddingVertical: 8 }}>
-                  <Text variant="caption" tone="primary" style={{ width: COLS[0].w + COLS[1].w, fontFamily: 'Inter_600SemiBold' }}>
+                  <Text variant="caption" tone="primary" style={{ width: COLS[0].w + COLS[1].w, fontFamily: 'PlusJakartaSans_600SemiBold' }}>
                     Total {cur === 'us' ? 'USD' : 'EUR'}
                   </Text>
-                  <Text variant="caption" tone="primary" style={{ width: 90, textAlign: 'right', fontFamily: 'Inter_600SemiBold', fontVariant: ['tabular-nums'] }}>
+                  <Text variant="caption" tone="primary" style={{ width: 90, textAlign: 'right', fontFamily: 'PlusJakartaSans_600SemiBold', fontVariant: ['tabular-nums'] }}>
                     {stmtMoney(totals[cur].amount, cur)}
                   </Text>
                   <Text variant="caption" tone="faint" style={{ width: 90, textAlign: 'right' }}>—</Text>
-                  <Text variant="caption" tone="primary" style={{ width: 90, textAlign: 'right', fontFamily: 'Inter_600SemiBold', fontVariant: ['tabular-nums'] }}>
+                  <Text variant="caption" tone="primary" style={{ width: 90, textAlign: 'right', fontFamily: 'PlusJakartaSans_600SemiBold', fontVariant: ['tabular-nums'] }}>
                     {stmtMoney(totals[cur].paid, cur)}
                   </Text>
-                  <Text variant="caption" tone="primary" style={{ width: 90, textAlign: 'right', fontFamily: 'Inter_600SemiBold', fontVariant: ['tabular-nums'] }}>
+                  <Text variant="caption" tone="primary" style={{ width: 90, textAlign: 'right', fontFamily: 'PlusJakartaSans_600SemiBold', fontVariant: ['tabular-nums'] }}>
                     {stmtMoney(totals[cur].notPaid, cur)}
                   </Text>
                 </View>

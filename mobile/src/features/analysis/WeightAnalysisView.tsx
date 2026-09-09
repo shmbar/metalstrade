@@ -105,7 +105,7 @@ export function WeightAnalysisView() {
 
 function H({ w, children }: { w: number; children: React.ReactNode }) {
   return (
-    <Text variant="caption" tone="muted" style={{ width: w, fontFamily: 'Inter_600SemiBold' }} numberOfLines={1}>
+    <Text variant="caption" tone="muted" style={{ width: w, fontFamily: 'PlusJakartaSans_600SemiBold' }} numberOfLines={1}>
       {children}
     </Text>
   );
@@ -121,7 +121,7 @@ function C({ w, children, strong, diff }: { w: number; children: any; strong?: b
       numberOfLines={1}
       style={{
         width: w,
-        ...(strong ? { fontFamily: 'Inter_600SemiBold' } : {}),
+        ...(strong ? { fontFamily: 'PlusJakartaSans_600SemiBold' } : {}),
         ...(color ? { color } : {}),
       }}
     >

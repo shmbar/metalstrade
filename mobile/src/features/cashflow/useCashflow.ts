@@ -69,18 +69,21 @@ export interface CashflowData {
   totalLeft: number;
   totalRight: number;
   balance: number;
-  // Manual entries kept on {uid}/cashflow — read-only on mobile.
+  // Manual entries kept on {uid}/cashflow — sums, still used by the totals above.
   manual: { initial: number; financedLeft: number; financedRight: number };
   /**
    * Web parity: the "Future" incoming figure (margins) plus the named rows an
    * admin has typed under it (cashflow/page.js:1436-1462 `initialData`, e.g. a
    * client's own "Airwallex" balance entry) are admin-only there — the whole
    * block sits behind `isAdmin &&` (page.js:1433), same as the Financing editor
-   * and the Total (Left)/Balance/Total (Right) strip (page.js:1749, :2041).
-   * Individual rows, not just the `manual.initial` sum, so mobile can show the
-   * same named breakdown web's admins see instead of one opaque total.
+   * (page.js:1749/:1986, `financedLeft`/`financedRight`) and the Total (Left)/
+   * Balance/Total (Right) strip (page.js:2041). Individual rows, not just the
+   * `manual.*` sums, so mobile can edit the same named breakdown web's admins
+   * do — see useCashflowActions.saveManualRows.
    */
   manualInitialRows: { title: string; num: number }[];
+  financedLeftRows: { title: string; num: number }[];
+  financedRightRows: { title: string; num: number }[];
 }
 
 const addCur = (map: Record<string, number>, cur: string, v: number) => {
@@ -504,16 +507,21 @@ export function computeCashflow(input: CashflowInputs): CashflowData {
 
   const incoming = sumMarginsRemaining(margins);
 
-  // Manual entries live on {uid}/cashflow — read-only here (web lets you edit them).
+  // Manual entries live on {uid}/cashflow, admin-editable from the mobile screen
+  // now too (useCashflowActions.saveManualRows writes the same field back).
   const fin = (cashflowDoc as any)?.financed || {};
   const manual = {
     initial: sumManualEntries(fin.initial),
     financedLeft: sumManualEntries(fin.financedLeft),
     financedRight: sumManualEntries(fin.financedRight),
   };
-  const manualInitialRows: { title: string; num: number }[] = Array.isArray(fin.initial)
-    ? fin.initial.map((r: any) => ({ title: String(r?.title ?? '').trim() || 'Untitled', num: parseFloat(r?.num) || 0 }))
-    : [];
+  const rowsOf = (arr: any): { title: string; num: number }[] =>
+    Array.isArray(arr)
+      ? arr.map((r: any) => ({ title: String(r?.title ?? '').trim() || 'Untitled', num: parseFloat(r?.num) || 0 }))
+      : [];
+  const manualInitialRows = rowsOf(fin.initial);
+  const financedLeftRows = rowsOf(fin.financedLeft);
+  const financedRightRows = rowsOf(fin.financedRight);
 
   // Web bottom line (cashflow/page.js:285-329). Receivables are summed across
   // currencies here because web's Total (Left) does exactly that — see the web
@@ -546,6 +554,8 @@ export function computeCashflow(input: CashflowInputs): CashflowData {
     stocksUnpaidTotal: stockSplit.unpaidTotal,
     incoming,
     manualInitialRows,
+    financedLeftRows,
+    financedRightRows,
     totalLeft,
     totalRight,
     balance: totalLeft - totalRight,

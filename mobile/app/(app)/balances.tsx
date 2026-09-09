@@ -3,7 +3,7 @@ import { View, Pressable, FlatList } from 'react-native';
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Screen, Card, Text, TextField, SegmentedControl, SkeletonList, ErrorState, EmptyState } from '@/components/ui';
+import { Screen, Card, Text, TextField, SegmentedControl, SkeletonList, ErrorState, EmptyState, FadeInItem } from '@/components/ui';
 import { PeriodSelector } from '@/components/PeriodSelector';
 import { useTheme } from '@/theme/ThemeProvider';
 import { useInvoicesReview, PartyStatement } from '@/features/review/useInvoicesReview';
@@ -144,7 +144,8 @@ export default function Balances() {
               )}
             </Card>
           }
-          renderItem={({ item }) => (
+          renderItem={({ item, index }) => (
+            <FadeInItem index={index}>
             <Card
               style={{ marginBottom: 10 }}
               /* Straight through to the invoices behind the number — the whole point
@@ -184,6 +185,7 @@ export default function Balances() {
                 {side === 'clients' && <Ionicons name="chevron-forward" size={16} color={colors.textFaint} />}
               </View>
             </Card>
+            </FadeInItem>
           )}
         />
       )}

@@ -124,15 +124,15 @@ export default function Materials() {
                   <View>
                     {/* Header */}
                     <View style={{ flexDirection: 'row', borderBottomWidth: 1, borderBottomColor: colors.borderStrong, paddingBottom: 6 }}>
-                      <Text variant="caption" tone="muted" style={{ width: 130, fontFamily: 'Inter_600SemiBold' }}>Material</Text>
-                      <Text variant="caption" tone="muted" style={{ width: COL, textAlign: 'right', fontFamily: 'Inter_600SemiBold' }}>{unit}</Text>
+                      <Text variant="caption" tone="muted" style={{ width: 130, fontFamily: 'PlusJakartaSans_600SemiBold' }}>Material</Text>
+                      <Text variant="caption" tone="muted" style={{ width: COL, textAlign: 'right', fontFamily: 'PlusJakartaSans_600SemiBold' }}>{unit}</Text>
                       {elements.map((el) => (
-                        <Text key={el.key} variant="caption" tone="muted" style={{ width: COL, textAlign: 'right', fontFamily: 'Inter_600SemiBold' }}>{el.label}</Text>
+                        <Text key={el.key} variant="caption" tone="muted" style={{ width: COL, textAlign: 'right', fontFamily: 'PlusJakartaSans_600SemiBold' }}>{el.label}</Text>
                       ))}
                       {showCosts && (
                         <>
-                          <Text variant="caption" tone="muted" style={{ width: COST_COL, textAlign: 'right', fontFamily: 'Inter_600SemiBold' }}>Cost PMT</Text>
-                          <Text variant="caption" tone="muted" style={{ width: COST_COL, textAlign: 'right', fontFamily: 'Inter_600SemiBold' }}>Cost Total</Text>
+                          <Text variant="caption" tone="muted" style={{ width: COST_COL, textAlign: 'right', fontFamily: 'PlusJakartaSans_600SemiBold' }}>Cost PMT</Text>
+                          <Text variant="caption" tone="muted" style={{ width: COST_COL, textAlign: 'right', fontFamily: 'PlusJakartaSans_600SemiBold' }}>Cost Total</Text>
                         </>
                       )}
                     </View>
@@ -162,7 +162,7 @@ export default function Materials() {
                             <Text variant="caption" tone="primary" style={{ width: COST_COL, textAlign: 'right' }}>
                               {costPmt(r) ? money(costPmt(r)) : ''}
                             </Text>
-                            <Text variant="caption" tone="primary" style={{ width: COST_COL, textAlign: 'right', fontFamily: 'Inter_600SemiBold' }}>
+                            <Text variant="caption" tone="primary" style={{ width: COST_COL, textAlign: 'right', fontFamily: 'PlusJakartaSans_600SemiBold' }}>
                               {costTotal(r) ? money(costTotal(r)) : ''}
                             </Text>
                           </>
@@ -172,7 +172,7 @@ export default function Materials() {
                             <Text variant="caption" tone="primary" style={{ width: COST_COL, textAlign: 'right' }}>
                               {salesMt(r) ? money(salesMt(r)) : ''}
                             </Text>
-                            <Text variant="caption" tone="primary" style={{ width: COST_COL, textAlign: 'right', fontFamily: 'Inter_600SemiBold' }}>
+                            <Text variant="caption" tone="primary" style={{ width: COST_COL, textAlign: 'right', fontFamily: 'PlusJakartaSans_600SemiBold' }}>
                               {salesTot(r) ? money(salesTot(r)) : ''}
                             </Text>
                           </>
@@ -187,10 +187,10 @@ export default function Materials() {
                     {/* Weighted-average totals */}
                     {allRows.length > 0 && (
                       <View style={{ flexDirection: 'row', paddingVertical: 6 }}>
-                        <Text variant="caption" tone="primary" style={{ width: 130, fontFamily: 'Inter_600SemiBold' }}>{rows.length} items</Text>
-                        <Text variant="caption" tone="primary" style={{ width: COL, textAlign: 'right', fontFamily: 'Inter_600SemiBold' }}>{fmtWeight(totalKgs, unitKey)}</Text>
+                        <Text variant="caption" tone="primary" style={{ width: 130, fontFamily: 'PlusJakartaSans_600SemiBold' }}>{rows.length} items</Text>
+                        <Text variant="caption" tone="primary" style={{ width: COL, textAlign: 'right', fontFamily: 'PlusJakartaSans_600SemiBold' }}>{fmtWeight(totalKgs, unitKey)}</Text>
                         {elements.map((el) => (
-                          <Text key={el.key} variant="caption" tone="primary" style={{ width: COL, textAlign: 'right', fontFamily: 'Inter_600SemiBold' }}>
+                          <Text key={el.key} variant="caption" tone="primary" style={{ width: COL, textAlign: 'right', fontFamily: 'PlusJakartaSans_600SemiBold' }}>
                             {/* Web leaves the cell EMPTY when the average is zero, so
                                 an element with no data doesn't read as a measured 0. */}
                             {fmtAvg(weighted(el.key))}
@@ -198,10 +198,10 @@ export default function Materials() {
                         ))}
                         {showCosts && (
                           <>
-                            <Text variant="caption" tone="primary" style={{ width: COST_COL, textAlign: 'right', fontFamily: 'Inter_600SemiBold' }}>
+                            <Text variant="caption" tone="primary" style={{ width: COST_COL, textAlign: 'right', fontFamily: 'PlusJakartaSans_600SemiBold' }}>
                               {totalKgs === 0 ? '' : money(footCostPmt)}
                             </Text>
-                            <Text variant="caption" tone="primary" style={{ width: COST_COL, textAlign: 'right', fontFamily: 'Inter_600SemiBold' }}>
+                            <Text variant="caption" tone="primary" style={{ width: COST_COL, textAlign: 'right', fontFamily: 'PlusJakartaSans_600SemiBold' }}>
                               {money(footCostTotal)}
                             </Text>
                           </>
@@ -210,10 +210,10 @@ export default function Materials() {
                           <>
                             {/* No '$' and blank at zero — these fall through web's
                                 GENERIC footer branch, not the cost one. */}
-                            <Text variant="caption" tone="primary" style={{ width: COST_COL, textAlign: 'right', fontFamily: 'Inter_600SemiBold' }}>
+                            <Text variant="caption" tone="primary" style={{ width: COST_COL, textAlign: 'right', fontFamily: 'PlusJakartaSans_600SemiBold' }}>
                               {fmtAvg(footSalesMt)}
                             </Text>
-                            <Text variant="caption" tone="primary" style={{ width: COST_COL, textAlign: 'right', fontFamily: 'Inter_600SemiBold' }}>
+                            <Text variant="caption" tone="primary" style={{ width: COST_COL, textAlign: 'right', fontFamily: 'PlusJakartaSans_600SemiBold' }}>
                               {fmtAvg(footSalesTotal)}
                             </Text>
                           </>
@@ -267,15 +267,15 @@ function GrandTotals({ tables }: { tables: any[] }) {
       <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 14, paddingBottom: 14 }}>
         <View>
           <View style={{ flexDirection: 'row', borderBottomWidth: 1, borderBottomColor: colors.borderStrong, paddingBottom: 6 }}>
-            <Text variant="caption" tone="muted" style={{ width: COL, textAlign: 'right', fontFamily: 'Inter_600SemiBold' }}>Kgs</Text>
+            <Text variant="caption" tone="muted" style={{ width: COL, textAlign: 'right', fontFamily: 'PlusJakartaSans_600SemiBold' }}>Kgs</Text>
             {DEFAULT_ELEMENTS.map((el) => (
-              <Text key={el.key} variant="caption" tone="muted" style={{ width: COL, textAlign: 'right', fontFamily: 'Inter_600SemiBold' }}>{el.label}</Text>
+              <Text key={el.key} variant="caption" tone="muted" style={{ width: COL, textAlign: 'right', fontFamily: 'PlusJakartaSans_600SemiBold' }}>{el.label}</Text>
             ))}
           </View>
           <View style={{ flexDirection: 'row', paddingVertical: 6 }}>
-            <Text variant="caption" tone="primary" style={{ width: COL, textAlign: 'right', fontFamily: 'Inter_600SemiBold' }}>{fmt(result.kgs)}</Text>
+            <Text variant="caption" tone="primary" style={{ width: COL, textAlign: 'right', fontFamily: 'PlusJakartaSans_600SemiBold' }}>{fmt(result.kgs)}</Text>
             {DEFAULT_ELEMENTS.map((el) => (
-              <Text key={el.key} variant="caption" tone="primary" style={{ width: COL, textAlign: 'right', fontFamily: 'Inter_600SemiBold' }}>{fmt(result[el.key])}</Text>
+              <Text key={el.key} variant="caption" tone="primary" style={{ width: COL, textAlign: 'right', fontFamily: 'PlusJakartaSans_600SemiBold' }}>{fmt(result[el.key])}</Text>
             ))}
           </View>
         </View>
@@ -304,7 +304,7 @@ function Cell({
         width: w,
         textAlign: align,
         fontSize: 12,
-        fontFamily: 'Inter_400Regular',
+        fontFamily: 'PlusJakartaSans_400Regular',
         color: colors.text,
         paddingVertical: 2,
         paddingHorizontal: 4,

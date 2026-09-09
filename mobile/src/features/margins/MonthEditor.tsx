@@ -170,7 +170,7 @@ export function MonthEditor() {
 
 function Head({ w, children }: { w: number; children: React.ReactNode }) {
   return (
-    <Text variant="caption" tone="muted" style={{ width: w, fontFamily: 'Inter_600SemiBold' }} numberOfLines={1}>
+    <Text variant="caption" tone="muted" style={{ width: w, fontFamily: 'PlusJakartaSans_600SemiBold' }} numberOfLines={1}>
       {children}
     </Text>
   );
@@ -192,7 +192,7 @@ function Inp({
       onChangeText={onChange}
       keyboardType={numeric ? 'decimal-pad' : 'default'}
       style={{
-        width: w, textAlign: align, fontSize: 12, fontFamily: 'Inter_400Regular',
+        width: w, textAlign: align, fontSize: 12, fontFamily: 'PlusJakartaSans_400Regular',
         color: colors.text, paddingVertical: 3, paddingHorizontal: 5,
         borderWidth: 1, borderColor: colors.border, borderRadius: 6, backgroundColor: colors.surfaceAlt,
       }}

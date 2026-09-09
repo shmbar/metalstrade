@@ -35,12 +35,13 @@ function NavRow({ title, count, icon, onPress }: { title: string; count: number;
 export default function SettingsScreen() {
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
-  const { userTitle } = useAuth();
+  // Web parity (utils/permissions.js isAdmin) — was an exact-string
+  // `userTitle === 'Admin'` check that a superadmin-role account could fail.
+  const { isAdmin } = useAuth();
   const { settings, compData } = useSettings();
   const { saveCompany } = useSettingsEdit();
   const rate = useSettings(selectCompanyRate);
   const termDays = useSettings(selectTermDays);
-  const isAdmin = userTitle === 'Admin';
 
   const [editCompany, setEditCompany] = useState(false);
   const [rateInput, setRateInput] = useState('');

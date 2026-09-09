@@ -13,6 +13,8 @@
 // had bright #0f9d58 / #dc2626 / #e08600 where web uses #2E6A4F / #98393B / #805A28.
 // Do not "brighten" these back — the muting was the client's explicit request.
 
+import { Platform } from 'react-native';
+
 export const palette = {
   // --brand / --endeavour, and its light+dark partners
   brand: '#6D5CE0',
@@ -148,16 +150,25 @@ export const radius = {
   pill: 999,
 } as const;
 
+// Web parity: "Plus Jakarta Sans — the only family in the app" (CLAUDE.md).
+// `display` was Inter_700Bold — web's own .text-display comment explains why
+// that's wrong at this size: "600, not the reference's 700. At 22px Jakarta a
+// full bold reads heavy at the top of every screen; semibold keeps the
+// hierarchy without the weight." `mono` was never actually monospaced (plain
+// Inter_600SemiBold) despite the name — web's one documented exception to
+// "everything is Jakarta" is --font-mono, a system monospace stack for
+// IDs/hashes (globals.css:297), which RN reaches via Platform.select rather
+// than a single cross-platform family string.
 export const typography = {
-  display: { fontFamily: 'Inter_700Bold', fontSize: 28, lineHeight: 34, letterSpacing: -0.6 },
-  h1: { fontFamily: 'Inter_600SemiBold', fontSize: 22, lineHeight: 28, letterSpacing: -0.4 },
-  h2: { fontFamily: 'Inter_600SemiBold', fontSize: 18, lineHeight: 24, letterSpacing: -0.3 },
-  h3: { fontFamily: 'Inter_600SemiBold', fontSize: 15, lineHeight: 20, letterSpacing: -0.15 },
-  body: { fontFamily: 'Inter_400Regular', fontSize: 14, lineHeight: 20 },
-  bodyMedium: { fontFamily: 'Inter_500Medium', fontSize: 14, lineHeight: 20 },
-  label: { fontFamily: 'Inter_500Medium', fontSize: 12, lineHeight: 16, letterSpacing: 0.2 },
-  caption: { fontFamily: 'Inter_400Regular', fontSize: 11, lineHeight: 14 },
-  mono: { fontFamily: 'Inter_600SemiBold', fontSize: 20, lineHeight: 24 },
+  display: { fontFamily: 'PlusJakartaSans_600SemiBold', fontSize: 28, lineHeight: 34, letterSpacing: -0.6 },
+  h1: { fontFamily: 'PlusJakartaSans_600SemiBold', fontSize: 22, lineHeight: 28, letterSpacing: -0.4 },
+  h2: { fontFamily: 'PlusJakartaSans_600SemiBold', fontSize: 18, lineHeight: 24, letterSpacing: -0.3 },
+  h3: { fontFamily: 'PlusJakartaSans_600SemiBold', fontSize: 15, lineHeight: 20, letterSpacing: -0.15 },
+  body: { fontFamily: 'PlusJakartaSans_400Regular', fontSize: 14, lineHeight: 20 },
+  bodyMedium: { fontFamily: 'PlusJakartaSans_500Medium', fontSize: 14, lineHeight: 20 },
+  label: { fontFamily: 'PlusJakartaSans_500Medium', fontSize: 12, lineHeight: 16, letterSpacing: 0.2 },
+  caption: { fontFamily: 'PlusJakartaSans_400Regular', fontSize: 11, lineHeight: 14 },
+  mono: { fontFamily: Platform.select({ ios: 'Menlo', android: 'monospace', default: 'monospace' }), fontSize: 20, lineHeight: 24 },
 } as const;
 
 export type ColorSchemeName = 'light' | 'dark';

@@ -49,7 +49,7 @@ export function ReceivablesCard({ byCur, onPress }: { byCur: Record<string, Rece
         <View style={{ flex: 1, backgroundColor: '#ecfdf522', borderRadius: radius.md, borderWidth: 1, borderColor: '#a7f3d055', padding: 10 }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
             <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: colors.positive }} />
-            <Text variant="caption" color={colors.positive} style={{ fontFamily: 'Inter_600SemiBold' }}>
+            <Text variant="caption" color={colors.positive} style={{ fontFamily: 'PlusJakartaSans_600SemiBold' }}>
               FINALIZED
             </Text>
           </View>
@@ -66,7 +66,7 @@ export function ReceivablesCard({ byCur, onPress }: { byCur: Record<string, Rece
         <View style={{ flex: 1, backgroundColor: '#fffbeb22', borderRadius: radius.md, borderWidth: 1, borderColor: '#fde68a55', padding: 10 }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
             <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: colors.warn }} />
-            <Text variant="caption" color={colors.warn} style={{ fontFamily: 'Inter_600SemiBold' }}>
+            <Text variant="caption" color={colors.warn} style={{ fontFamily: 'PlusJakartaSans_600SemiBold' }}>
               PROVISIONAL
             </Text>
           </View>
@@ -120,7 +120,7 @@ export function AgingCard({ buckets, onPress }: { buckets: AgingBucket[]; onPres
               <View style={{ width: 84, alignItems: 'flex-end' }}>
                 {curs.length ? (
                   curs.map((c) => (
-                    <Text key={c} variant="caption" style={{ fontFamily: 'Inter_500Medium' }}>
+                    <Text key={c} variant="caption" style={{ fontFamily: 'PlusJakartaSans_500Medium' }}>
                       {fmtCurKM(c, b.byCur[c])}
                     </Text>
                   ))
@@ -211,7 +211,7 @@ export function RankingCard({
                   justifyContent: 'center',
                 }}
               >
-                <Text variant="caption" color="#fff" style={{ fontFamily: 'Inter_600SemiBold' }}>
+                <Text variant="caption" color="#fff" style={{ fontFamily: 'PlusJakartaSans_600SemiBold' }}>
                   {initials(r.name)}
                 </Text>
               </View>
@@ -221,7 +221,7 @@ export function RankingCard({
                 </Text>
                 <ProgressBar pct={(r.value / max) * 100} color={color} height={12} />
               </View>
-              <Text variant="caption" style={{ fontFamily: 'Inter_600SemiBold', width: 64, textAlign: 'right' }}>
+              <Text variant="caption" style={{ fontFamily: 'PlusJakartaSans_600SemiBold', width: 64, textAlign: 'right' }}>
                 {format ? format(r.value) : fmtAutoKM(r.value)}
               </Text>
             </View>

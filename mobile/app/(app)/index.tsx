@@ -9,23 +9,32 @@ import { PeriodSelector } from '@/components/PeriodSelector';
 import { useTheme } from '@/theme/ThemeProvider';
 import { useAuth } from '@/store/auth';
 import { useSettings } from '@/store/settings';
+import { usePrivacyStore, maskIfHidden } from '@/store/privacy';
 import { useDashboard, DashboardFilters } from '@/features/dashboard/useDashboard';
 import { ReceivablesCard, AgingCard, RankingCard } from '@/features/dashboard/components';
 import { MetalPricesStrip } from '@/features/prices/MetalPricesStrip';
 import { fmtCurKM, fmtMT, fmtAutoKM } from '@/lib/format';
+import { hapticTap } from '@/lib/haptics';
 import { spacing, radius } from '@/theme/tokens';
-
-const QUICK = [
-  { label: 'New Contract', icon: 'add-circle', href: '/(app)/contracts/edit' },
-  { label: 'Invoices', icon: 'receipt', href: '/(app)/invoices' },
-  { label: 'Cashflow', icon: 'cash', href: '/(app)/cashflow' },
-  { label: 'Assistant', icon: 'sparkles', href: '/(app)/assistant' },
-] as const;
 
 export default function Dashboard() {
   const { colors, scheme } = useTheme();
   const insets = useSafeAreaInsets();
-  const { currentUser, userTitle } = useAuth();
+  const { currentUser, userTitle, isAdmin, gisAccount } = useAuth();
+  const hideBalances = usePrivacyStore((s) => s.hidden);
+  const togglePrivacy = usePrivacyStore((s) => s.toggle);
+  // Admin-only shortcut straight to Margins — web calls that page 'Sharon Admin'
+  // / 'Gis Admin' depending on the workspace (components/const.js:69), which is
+  // also how mobile's More menu labels it, so the two match.
+  const QUICK = [
+    { label: 'New Contract', icon: 'add-circle', href: '/(app)/contracts/edit' },
+    { label: 'Invoices', icon: 'receipt', href: '/(app)/invoices' },
+    { label: 'Cashflow', icon: 'cash', href: '/(app)/cashflow' },
+    ...(isAdmin
+      ? [{ label: gisAccount ? 'Gis Admin' : 'Sharon Admin', icon: 'stats-chart', href: '/(app)/margins' } as const]
+      : []),
+    { label: 'Assistant', icon: 'sparkles', href: '/(app)/assistant' },
+  ] as const;
   const { dateSelect } = useSettings();
   // Supplier / Client / Material filters — web parity. Every aggregate on the page
   // narrows with them.
@@ -111,7 +120,22 @@ export default function Dashboard() {
               <Text variant="caption" color="rgba(255,255,255,0.7)">Welcome back</Text>
               <Text variant="h2" color="#ffffff">{firstName}</Text>
             </View>
-            <PeriodSelector />
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+              {/* Privacy toggle — masks headline figures across the app (this
+                  hero, Cashflow's Incoming/Outgoing, Margins' Profit/Incoming)
+                  for a screen shared over someone's shoulder, the way every
+                  banking app's eye icon works. One global switch, not a
+                  per-screen one, so turning it on before you hand over your
+                  phone actually covers the whole app. */}
+              <Pressable
+                onPress={() => { hapticTap(); togglePrivacy(); }}
+                hitSlop={8}
+                style={{ width: 32, height: 32, borderRadius: 16, backgroundColor: 'rgba(255,255,255,0.16)', alignItems: 'center', justifyContent: 'center' }}
+              >
+                <Ionicons name={hideBalances ? 'eye-off' : 'eye'} size={16} color="#ffffff" />
+              </Pressable>
+              <PeriodSelector />
+            </View>
           </View>
 
           <Pressable onPress={() => router.push('/(app)/invoices')} style={{ marginTop: 20 }}>
@@ -119,17 +143,17 @@ export default function Dashboard() {
             {/* ONE USD figure, like web's Sales Revenue KPI — the per-currency
                 breakdown moves to the caption beneath so nothing is lost. */}
             <Text variant="display" color="#ffffff" style={{ fontSize: 36, lineHeight: 42, marginTop: 2, fontVariant: ['tabular-nums'] }} numberOfLines={1} adjustsFontSizeToFit>
-              {data ? fmtAutoKM(data.revenueUsd) : '—'}
+              {data ? maskIfHidden(hideBalances, fmtAutoKM(data.revenueUsd)) : '—'}
             </Text>
             {data && Object.keys(data.revenueByCur).length > 0 && (
               <Text variant="caption" color="rgba(255,255,255,0.7)" style={{ marginTop: 2 }} numberOfLines={1}>
-                {curLine(data.revenueByCur)}
+                {maskIfHidden(hideBalances, curLine(data.revenueByCur))}
               </Text>
             )}
             {trend && (
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 6, alignSelf: 'flex-start', backgroundColor: 'rgba(255,255,255,0.16)', borderRadius: 999, paddingHorizontal: 10, paddingVertical: 3 }}>
                 <Ionicons name={trend.pct >= 0 ? 'trending-up' : 'trending-down'} size={13} color={trend.pct >= 0 ? '#9CCFB4' : '#EDACA9'} />
-                <Text variant="caption" color={trend.pct >= 0 ? '#9CCFB4' : '#EDACA9'} style={{ fontFamily: 'Inter_600SemiBold' }}>
+                <Text variant="caption" color={trend.pct >= 0 ? '#9CCFB4' : '#EDACA9'} style={{ fontFamily: 'PlusJakartaSans_600SemiBold' }}>
                   {trend.pct >= 0 ? '+' : ''}{trend.pct.toFixed(1)}% {MONTHS[trend.last]} vs {MONTHS[trend.prev]}
                 </Text>
               </View>
@@ -145,7 +169,7 @@ export default function Dashboard() {
             ].map((c) => (
               <Pressable key={c.k} onPress={() => router.push(c.href as any)} style={{ flex: 1, backgroundColor: 'rgba(255,255,255,0.14)', borderRadius: radius.lg, borderWidth: 1, borderColor: 'rgba(255,255,255,0.18)', padding: 10 }}>
                 <Text variant="caption" color="rgba(255,255,255,0.7)" numberOfLines={1}>{c.k}</Text>
-                <Text variant="bodyMedium" color="#ffffff" numberOfLines={1} adjustsFontSizeToFit style={{ marginTop: 2, fontFamily: 'Inter_600SemiBold', fontVariant: ['tabular-nums'] }}>{c.v}</Text>
+                <Text variant="bodyMedium" color="#ffffff" numberOfLines={1} adjustsFontSizeToFit style={{ marginTop: 2, fontFamily: 'PlusJakartaSans_600SemiBold', fontVariant: ['tabular-nums'] }}>{c.v}</Text>
               </Pressable>
             ))}
           </View>
@@ -167,8 +191,9 @@ export default function Dashboard() {
           <Select label="" value={filters.material} options={[{ value: '', label: 'All materials' }, ...options.materials]} onChange={(v) => setFilters((f) => ({ ...f, material: v }))} />
         </View>
 
-        {/* Quick actions */}
-        <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: spacing.lg, marginTop: 18 }}>
+        {/* Quick actions — wraps to a second row once the admin-only 5th tile
+            (Sharon/Gis Admin) joins the other four. */}
+        <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', rowGap: 14, paddingHorizontal: spacing.lg, marginTop: 18 }}>
           {QUICK.map((q) => (
             <Pressable key={q.label} onPress={() => router.push(q.href as any)} style={{ alignItems: 'center', gap: 6, width: '23%' }}>
               <View style={{ width: 54, height: 54, borderRadius: radius.lg, backgroundColor: colors.card, borderWidth: 1, borderColor: colors.border, alignItems: 'center', justifyContent: 'center', shadowColor: '#1E1B39', shadowOpacity: scheme === 'dark' ? 0.35 : 0.08, shadowRadius: 10, shadowOffset: { width: 0, height: 4 }, elevation: 2 }}>

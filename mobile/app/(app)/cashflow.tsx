@@ -3,16 +3,18 @@ import { View, Pressable, Modal, FlatList, Alert } from 'react-native';
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Screen, Card, Text, Button, TextField, DateField, SectionHeader, ProgressBar, SkeletonList, ErrorState } from '@/components/ui';
+import { Screen, Card, Text, Button, TextField, DateField, SectionHeader, ProgressBar, SkeletonList, ErrorState, FadeInItem } from '@/components/ui';
 import { ScreenHeader } from '@/components/ScreenHeader';
 import { PeriodSelector } from '@/components/PeriodSelector';
 import { useTheme } from '@/theme/ThemeProvider';
 import { useAuth } from '@/store/auth';
 import { useSettings } from '@/store/settings';
+import { usePrivacyStore, maskIfHidden } from '@/store/privacy';
 import { useCashflow, Counterparty } from '@/features/cashflow/useCashflow';
 import { useCashflowActions } from '@/features/cashflow/useCashflowActions';
 import { useSharedStock } from '@/features/stocks/useSharedStock';
 import { fmtAutoKM, fmtCurKM, curSymbol, fmtMoney, dateLabel } from '@/lib/format';
+import { hapticTap } from '@/lib/haptics';
 import { radius, spacing } from '@/theme/tokens';
 
 type Kind = 'client' | 'supplier' | 'expense';
@@ -37,16 +39,53 @@ function CounterpartyList({ rows, accent, onSelect }: { rows: Counterparty[]; ac
   if (!rows.length) return <Text variant="body" tone="muted">None in this period.</Text>;
   return (
     <View style={{ gap: 8 }}>
-      {rows.map((r) => (
-        <Pressable key={r.name} onPress={() => onSelect(r)} style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-          <View style={{ flex: 1, minWidth: 0 }}>
-            <Text variant="caption" numberOfLines={1} style={{ marginBottom: 3 }}>{r.name}</Text>
-            <ProgressBar pct={(r.usd / max) * 100} color={accent} height={10} />
+      {rows.map((r, i) => (
+        <FadeInItem key={r.name} index={i}>
+          <Pressable onPress={() => onSelect(r)} style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+            <View style={{ flex: 1, minWidth: 0 }}>
+              <Text variant="caption" numberOfLines={1} style={{ marginBottom: 3 }}>{r.name}</Text>
+              <ProgressBar pct={(r.usd / max) * 100} color={accent} height={10} />
+            </View>
+            <Text variant="caption" style={{ fontFamily: 'PlusJakartaSans_600SemiBold', width: 70, textAlign: 'right', color: colors.text }}>{curLine(r.byCur)}</Text>
+            <Ionicons name="chevron-forward" size={14} color={colors.textFaint} />
+          </Pressable>
+        </FadeInItem>
+      ))}
+    </View>
+  );
+}
+
+/** One admin-editable manual row list — "Future incoming", or one side of
+    Financing — with an "Add entry" affordance below it. */
+function ManualRowsList({
+  rows,
+  onEdit,
+  onAdd,
+}: {
+  rows: { title: string; num: number }[];
+  onEdit: (index: number) => void;
+  onAdd: () => void;
+}) {
+  const { colors } = useTheme();
+  return (
+    <View>
+      {rows.map((r, i) => (
+        <Pressable
+          key={i}
+          onPress={() => onEdit(i)}
+          style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 3 }}
+        >
+          <Text variant="caption" tone="muted">{r.title}</Text>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+            <Text variant="body" style={{ fontVariant: ['tabular-nums'] }}>{fmtAutoKM(r.num)}</Text>
+            <Ionicons name="pencil" size={12} color={colors.textFaint} />
           </View>
-          <Text variant="caption" style={{ fontFamily: 'Inter_600SemiBold', width: 70, textAlign: 'right', color: colors.text }}>{curLine(r.byCur)}</Text>
-          <Ionicons name="chevron-forward" size={14} color={colors.textFaint} />
         </Pressable>
       ))}
+      <Pressable onPress={onAdd} style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 8 }}>
+        <Ionicons name="add-circle-outline" size={16} color={colors.primary} />
+        <Text variant="caption" tone="primary">Add entry</Text>
+      </Pressable>
     </View>
   );
 }
@@ -56,19 +95,25 @@ export default function Cashflow() {
   const insets = useSafeAreaInsets();
   const { data, isLoading, isError, error, refetch } = useCashflow();
   const { isAdmin } = useAuth();
+  const hideBalances = usePrivacyStore((s) => s.hidden);
+  const togglePrivacy = usePrivacyStore((s) => s.toggle);
   const { settings } = useSettings();
   const whName = (id: string) =>
     settings?.Stocks?.Stocks?.find((w: any) => w.id === id)?.nname ||
     settings?.Stocks?.Stocks?.find((w: any) => w.id === id)?.stock || id || '—';
-  const { paySupplier, payExpense, partialPay, payClient, saveInitialEntries } = useCashflowActions();
+  const { paySupplier, payExpense, partialPay, payClient, saveManualRows } = useCashflowActions();
   const shared = useSharedStock();
   const [detail, setDetail] = useState<{ kind: Kind; cp: Counterparty } | null>(null);
   // Partial-payment entry for a supplier purchase invoice.
   const [payItem, setPayItem] = useState<any | null>(null);
   const [amount, setAmount] = useState('');
   const [payDate, setPayDate] = useState(new Date().toISOString().slice(0, 10));
-  // Editing a "Future incoming" manual row (index === null → adding a new one).
-  const [entryEditor, setEntryEditor] = useState<{ index: number | null; title: string; num: string } | null>(null);
+  // Editing one manual row — "Future" incoming (`initial`) or a Financing entry
+  // (`financedLeft`/`financedRight`). index === null → adding a new one.
+  type ManualField = 'initial' | 'financedLeft' | 'financedRight';
+  const [entryEditor, setEntryEditor] = useState<{ field: ManualField; index: number | null; title: string; num: string } | null>(null);
+  const manualRowsOf = (field: ManualField) =>
+    field === 'initial' ? data?.manualInitialRows : field === 'financedLeft' ? data?.financedLeftRows : data?.financedRightRows;
 
   const net = data ? data.payablesUsd + data.expensesUsd : 0;
 
@@ -150,20 +195,29 @@ export default function Cashflow() {
     }
   };
 
-  // "Future incoming" manual rows — web parity (cashflow/page.js saveInitData):
-  // the whole array is re-saved on every change, so add/edit/delete are all one
-  // mutation from here too.
-  const openEntryEditor = (index: number | null) => {
+  // Manual cashflow rows — web parity (cashflow/page.js saveInitData): the whole
+  // array for whichever field is being edited is re-saved on every change, so
+  // add/edit/delete are all one mutation from here, shared across the three
+  // lists (Future incoming, Financing left, Financing right).
+  const FIELD_LABEL: Record<ManualField, string> = {
+    initial: 'Future incoming',
+    financedLeft: 'Financing (left)',
+    financedRight: 'Financing (right)',
+  };
+
+  const openEntryEditor = (field: ManualField, index: number | null) => {
     if (index == null) {
-      setEntryEditor({ index: null, title: '', num: '' });
+      setEntryEditor({ field, index: null, title: '', num: '' });
       return;
     }
-    const r = data?.manualInitialRows[index];
-    setEntryEditor({ index, title: r?.title || '', num: r?.num != null ? String(r.num) : '' });
+    const r = manualRowsOf(field)?.[index];
+    setEntryEditor({ field, index, title: r?.title || '', num: r?.num != null ? String(r.num) : '' });
   };
 
   const saveEntry = async () => {
-    if (!entryEditor || !data) return;
+    if (!entryEditor) return;
+    const rowsNow = manualRowsOf(entryEditor.field);
+    if (!rowsNow) return;
     const title = entryEditor.title.trim();
     const numVal = parseFloat(entryEditor.num);
     if (!title) {
@@ -174,11 +228,11 @@ export default function Cashflow() {
       Alert.alert('Invalid amount', 'Enter a numeric amount.');
       return;
     }
-    const rows = data.manualInitialRows.map((r) => ({ title: r.title, num: String(r.num) }));
+    const rows = rowsNow.map((r) => ({ title: r.title, num: String(r.num) }));
     if (entryEditor.index == null) rows.push({ title, num: String(numVal) });
     else rows[entryEditor.index] = { title, num: String(numVal) };
     try {
-      await saveInitialEntries.mutateAsync(rows);
+      await saveManualRows.mutateAsync({ field: entryEditor.field, rows });
       setEntryEditor(null);
     } catch (e: any) {
       Alert.alert('Failed', e?.message || 'Could not save.');
@@ -186,19 +240,19 @@ export default function Cashflow() {
   };
 
   const deleteEntry = () => {
-    if (!entryEditor || entryEditor.index == null || !data) return;
-    const index = entryEditor.index;
-    Alert.alert('Delete entry?', `Remove "${data.manualInitialRows[index]?.title}" from Future incoming?`, [
+    if (!entryEditor || entryEditor.index == null) return;
+    const { field, index } = entryEditor;
+    const rowsNow = manualRowsOf(field);
+    if (!rowsNow) return;
+    Alert.alert('Delete entry?', `Remove "${rowsNow[index]?.title}" from ${FIELD_LABEL[field]}?`, [
       { text: 'Cancel', style: 'cancel' },
       {
         text: 'Delete',
         style: 'destructive',
         onPress: async () => {
-          const rows = data.manualInitialRows
-            .filter((_, i) => i !== index)
-            .map((r) => ({ title: r.title, num: String(r.num) }));
+          const rows = rowsNow.filter((_, i) => i !== index).map((r) => ({ title: r.title, num: String(r.num) }));
           try {
-            await saveInitialEntries.mutateAsync(rows);
+            await saveManualRows.mutateAsync({ field, rows });
             setEntryEditor(null);
           } catch (e: any) {
             Alert.alert('Failed', e?.message || 'Could not delete.');
@@ -210,7 +264,17 @@ export default function Cashflow() {
 
   return (
     <Screen contentContainerStyle={{ paddingTop: insets.top + 8 }} edges={false} refreshing={isLoading} onRefresh={refetch}>
-      <ScreenHeader title="Cashflow" right={<PeriodSelector />} />
+      <ScreenHeader
+        title="Cashflow"
+        right={
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+            <Pressable onPress={() => { hapticTap(); togglePrivacy(); }} hitSlop={8}>
+              <Ionicons name={hideBalances ? 'eye-off' : 'eye'} size={20} color={colors.textFaint} />
+            </Pressable>
+            <PeriodSelector />
+          </View>
+        }
+      />
 
       {isLoading && !data ? (
         <SkeletonList count={6} />
@@ -224,7 +288,7 @@ export default function Cashflow() {
                 <Ionicons name="arrow-down-circle" size={16} color={colors.positive} />
                 <Text variant="label" tone="muted">Incoming</Text>
               </View>
-              <Text variant="h2" tone="positive" style={{ marginTop: 6 }} adjustsFontSizeToFit numberOfLines={1}>{curLine(data.receivablesByCur)}</Text>
+              <Text variant="h2" tone="positive" style={{ marginTop: 6 }} adjustsFontSizeToFit numberOfLines={1}>{maskIfHidden(hideBalances, curLine(data.receivablesByCur))}</Text>
               <Text variant="caption" tone="faint" style={{ marginTop: 2 }}>receivables</Text>
             </Card>
             <Card style={{ flex: 1 }}>
@@ -232,7 +296,7 @@ export default function Cashflow() {
                 <Ionicons name="arrow-up-circle" size={16} color={colors.negative} />
                 <Text variant="label" tone="muted">Outgoing</Text>
               </View>
-              <Text variant="h2" tone="negative" style={{ marginTop: 6 }} adjustsFontSizeToFit numberOfLines={1}>{fmtAutoKM(net)}</Text>
+              <Text variant="h2" tone="negative" style={{ marginTop: 6 }} adjustsFontSizeToFit numberOfLines={1}>{maskIfHidden(hideBalances, fmtAutoKM(net))}</Text>
               <Text variant="caption" tone="faint" style={{ marginTop: 2 }}>payables + expenses (USD)</Text>
             </Card>
           </View>
@@ -243,25 +307,40 @@ export default function Cashflow() {
               never see this block on web either. */}
           {isAdmin && (
             <Card>
+              {/* "Future (margins)" is computed automatically from the Margins /
+                  Admin page — not editable here, same as web. Only the named
+                  rows underneath it (a client's own "Airwallex" balance, say)
+                  are manual, and those ARE editable below. */}
               <SectionHeader title="Future incoming" subtitle="Admin only" right={<Text variant="h3">{fmtAutoKM(data.incoming + data.manual.initial)}</Text>} />
               <Line label="Future (margins)" v={data.incoming} />
-              {data.manualInitialRows.map((r, i) => (
-                <Pressable
-                  key={i}
-                  onPress={() => openEntryEditor(i)}
-                  style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 3 }}
-                >
-                  <Text variant="caption" tone="muted">{r.title}</Text>
-                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-                    <Text variant="body" style={{ fontVariant: ['tabular-nums'] }}>{fmtAutoKM(r.num)}</Text>
-                    <Ionicons name="pencil" size={12} color={colors.textFaint} />
-                  </View>
-                </Pressable>
-              ))}
-              <Pressable onPress={() => openEntryEditor(null)} style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 8 }}>
-                <Ionicons name="add-circle-outline" size={16} color={colors.primary} />
-                <Text variant="caption" tone="primary">Add entry</Text>
-              </Pressable>
+              <ManualRowsList
+                rows={data.manualInitialRows}
+                onEdit={(i) => openEntryEditor('initial', i)}
+                onAdd={() => openEntryEditor('initial', null)}
+              />
+            </Card>
+          )}
+
+          {/* Financing — the two lists either side of web's Total (Left)/(Right)
+              strip (page.js:1749 "Financing" left, :1986 right). Admin-only on
+              web, and add/edit/delete there too — same mutation as above, just
+              a different field on the same doc. */}
+          {isAdmin && (
+            <Card>
+              <SectionHeader title="Financing" subtitle="Admin only — either side of the balance" />
+              <Text variant="label" tone="muted" style={{ marginTop: 2, marginBottom: 4 }}>Left</Text>
+              <ManualRowsList
+                rows={data.financedLeftRows}
+                onEdit={(i) => openEntryEditor('financedLeft', i)}
+                onAdd={() => openEntryEditor('financedLeft', null)}
+              />
+              <View style={{ height: 14 }} />
+              <Text variant="label" tone="muted" style={{ marginBottom: 4 }}>Right</Text>
+              <ManualRowsList
+                rows={data.financedRightRows}
+                onEdit={(i) => openEntryEditor('financedRight', i)}
+                onAdd={() => openEntryEditor('financedRight', null)}
+              />
             </Card>
           )}
 
@@ -344,7 +423,9 @@ export default function Cashflow() {
               <Line label="Balance" v={data.balance} strong tone={data.balance >= 0 ? 'positive' : 'negative'} />
             </View>
             <Text variant="caption" tone="faint" style={{ marginTop: 8 }}>
-              Initial and Financing entries are edited on the web page; shown here read-only.
+              {isAdmin
+                ? 'Initial and Financing entries are editable in the admin-only cards above.'
+                : 'Initial and Financing entries are set by an admin.'}
             </Text>
           </Card>
 
@@ -510,7 +591,7 @@ export default function Cashflow() {
                 onPress={() => payItem && setAmount(((payItem.balance * p) / 100).toFixed(2))}
                 style={{ flex: 1, paddingVertical: 8, borderRadius: radius.md, borderWidth: 1.5, borderColor: colors.border, alignItems: 'center' }}
               >
-                <Text variant="caption" tone="primary" style={{ fontFamily: 'Inter_600SemiBold' }}>{p}%</Text>
+                <Text variant="caption" tone="primary" style={{ fontFamily: 'PlusJakartaSans_600SemiBold' }}>{p}%</Text>
               </Pressable>
             ))}
           </View>
@@ -521,20 +602,22 @@ export default function Cashflow() {
         </View>
       </Modal>
 
-      {/* Add/edit a "Future incoming" manual row (Airwallex etc.) — admin only. */}
+      {/* Add/edit a manual row — Future incoming (Airwallex etc.) or a Financing
+          entry — admin only. */}
       <Modal visible={!!entryEditor} transparent animationType="slide" onRequestClose={() => setEntryEditor(null)}>
         <Pressable style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.4)' }} onPress={() => setEntryEditor(null)} />
         <View style={{ backgroundColor: colors.bgElevated, borderTopLeftRadius: radius['2xl'], borderTopRightRadius: radius['2xl'], padding: spacing.lg, paddingBottom: insets.bottom + spacing.lg, gap: spacing.md }}>
-          <Text variant="h2">{entryEditor?.index == null ? 'Add incoming entry' : 'Edit incoming entry'}</Text>
+          <Text variant="h2">{entryEditor?.index == null ? 'Add entry' : 'Edit entry'}</Text>
           {entryEditor && (
             <>
+              <Text variant="caption" tone="faint">{FIELD_LABEL[entryEditor.field]}</Text>
               <TextField label="Title" value={entryEditor.title} onChangeText={(v) => setEntryEditor({ ...entryEditor, title: v })} placeholder="e.g. Airwallex" autoFocus={entryEditor.index == null} />
               <TextField label="Amount (USD)" value={entryEditor.num} onChangeText={(v) => setEntryEditor({ ...entryEditor, num: v })} placeholder="0.00" keyboardType="decimal-pad" />
             </>
           )}
-          <Button title="Save" loading={saveInitialEntries.isPending} onPress={saveEntry} />
+          <Button title="Save" loading={saveManualRows.isPending} onPress={saveEntry} />
           {entryEditor?.index != null && (
-            <Button title="Delete entry" variant="danger" loading={saveInitialEntries.isPending} onPress={deleteEntry} />
+            <Button title="Delete entry" variant="danger" loading={saveManualRows.isPending} onPress={deleteEntry} />
           )}
         </View>
       </Modal>

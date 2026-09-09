@@ -38,7 +38,7 @@ export function TextField({ label, error, rightElement, style, onFocus, onBlur, 
             {
               flex: 1,
               paddingVertical: 12,
-              fontFamily: 'Inter_400Regular',
+              fontFamily: 'PlusJakartaSans_400Regular',
               fontSize: 15,
               color: colors.text,
             },

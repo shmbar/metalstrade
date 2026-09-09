@@ -46,14 +46,14 @@ function OutRow({ label, value }: { label: string; value: string }) {
 export default function Formulas() {
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
-  const { uidCollection, userTitle } = useAuth();
+  const { uidCollection, isAdmin } = useAuth();
   const [tab, setTab] = useState<FormulaTab>('fenicr');
   const [value, setValue] = useState<any>({ general: {} });
   const [seeded, setSeeded] = useState(false);
   const [saving, setSaving] = useState(false);
 
   const { data, isLoading } = useQuery({
-    enabled: !!uidCollection && userTitle === 'Admin',
+    enabled: !!uidCollection && isAdmin,
     queryKey: ['formulas', uidCollection],
     queryFn: () => loadDataSettings(uidCollection as string, 'formulasCalc'),
   });
@@ -106,7 +106,9 @@ export default function Formulas() {
     </Pressable>
   );
 
-  if (userTitle !== 'Admin') {
+  // Web parity (utils/permissions.js isAdmin) — was an exact-string
+  // `userTitle !== 'Admin'` check that a superadmin-role account could fail.
+  if (!isAdmin) {
     return (
       <Screen contentContainerStyle={{ paddingTop: insets.top + 8 }} edges={false}>
         {back}

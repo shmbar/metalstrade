@@ -3,6 +3,7 @@ import { View, Pressable } from 'react-native';
 import { Text } from './Text';
 import { useTheme } from '@/theme/ThemeProvider';
 import { radius } from '@/theme/tokens';
+import { hapticTap } from '@/lib/haptics';
 
 interface SegmentedControlProps<T extends string> {
   options: { value: T; label: string }[];
@@ -29,7 +30,7 @@ export function SegmentedControl<T extends string>({ options, value, onChange }:
         return (
           <Pressable
             key={o.value}
-            onPress={() => onChange(o.value)}
+            onPress={() => { if (!active) hapticTap(); onChange(o.value); }}
             style={{
               flex: 1,
               paddingVertical: 8,
@@ -43,7 +44,7 @@ export function SegmentedControl<T extends string>({ options, value, onChange }:
               elevation: active ? 1 : 0,
             }}
           >
-            <Text variant="label" tone={active ? 'primary' : 'muted'} style={{ fontFamily: 'Inter_600SemiBold' }}>
+            <Text variant="label" tone={active ? 'primary' : 'muted'} style={{ fontFamily: 'PlusJakartaSans_600SemiBold' }}>
               {o.label}
             </Text>
           </Pressable>

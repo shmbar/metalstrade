@@ -3,7 +3,7 @@ import { View, Pressable, FlatList } from 'react-native';
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Screen, Card, Text, Button, SkeletonList, ErrorState, EmptyState } from '@/components/ui';
+import { Screen, Card, Text, Button, SkeletonList, ErrorState, EmptyState, FadeInItem } from '@/components/ui';
 import { useTheme } from '@/theme/ThemeProvider';
 import { useNotificationFeed, NotificationRow, Priority } from '@/features/push/useNotificationFeed';
 import { PRIORITY_ORDER } from '@shared/notificationPriority';
@@ -166,7 +166,7 @@ export default function Notifications() {
           contentContainerStyle={{ paddingBottom: insets.bottom + 96 }}
           onRefresh={refetch}
           refreshing={isLoading}
-          renderItem={({ item }) => {
+          renderItem={({ item, index }) => {
             if (item.kind === 'header') {
               return (
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 6, marginBottom: 8 }}>
@@ -183,6 +183,7 @@ export default function Notifications() {
             const accent = toneFor(p);
             const isSelected = !!selected[n.id];
             return (
+              <FadeInItem index={index}>
               <View>
                 <Card
                   style={{
@@ -246,6 +247,7 @@ export default function Notifications() {
                   </View>
                 )}
               </View>
+              </FadeInItem>
             );
           }}
         />

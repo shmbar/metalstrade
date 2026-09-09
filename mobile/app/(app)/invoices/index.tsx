@@ -127,7 +127,7 @@ export default function InvoicesList() {
                 backgroundColor: active ? colors.primary + '14' : 'transparent',
               }}
             >
-              <Text variant="caption" tone={active ? 'primary' : 'muted'} style={{ fontFamily: 'Inter_600SemiBold' }}>
+              <Text variant="caption" tone={active ? 'primary' : 'muted'} style={{ fontFamily: 'PlusJakartaSans_600SemiBold' }}>
                 {f}
               </Text>
             </Pressable>
@@ -162,7 +162,7 @@ export default function InvoicesList() {
                   }}
                 >
                   {active && <Ionicons name="arrow-down" size={11} color={colors.primary} />}
-                  <Text variant="caption" tone={active ? 'primary' : 'muted'} style={{ fontFamily: 'Inter_600SemiBold' }}>
+                  <Text variant="caption" tone={active ? 'primary' : 'muted'} style={{ fontFamily: 'PlusJakartaSans_600SemiBold' }}>
                     {s.label}
                   </Text>
                 </Pressable>
@@ -171,7 +171,7 @@ export default function InvoicesList() {
           </View>
         </View>
         {Object.keys(outstanding).length > 0 && (
-          <Text variant="caption" tone="negative" style={{ fontFamily: 'Inter_600SemiBold' }} numberOfLines={1}>
+          <Text variant="caption" tone="negative" style={{ fontFamily: 'PlusJakartaSans_600SemiBold' }} numberOfLines={1}>
             {Object.entries(outstanding)
               .map(([c, v]) => fmtCurKM(c, v))
               .join('  ')}{' '}

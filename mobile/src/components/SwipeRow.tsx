@@ -38,7 +38,7 @@ export function SwipeRow({ children, actionLabel, actionIcon, actionColor, onAct
       }}
     >
       <Ionicons name={actionIcon} size={20} color="#ffffff" />
-      <Text variant="caption" color="#ffffff" style={{ fontFamily: 'Inter_600SemiBold' }}>
+      <Text variant="caption" color="#ffffff" style={{ fontFamily: 'PlusJakartaSans_600SemiBold' }}>
         {actionLabel}
       </Text>
     </Pressable>

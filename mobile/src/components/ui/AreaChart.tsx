@@ -92,7 +92,7 @@ export function AreaChart({ data, labels, height = 140, color, formatY, tooltipL
             }}
           >
             <Text variant="caption" tone="muted">{tipLabel}</Text>
-            <Text variant="caption" style={{ fontFamily: 'Inter_600SemiBold', fontVariant: ['tabular-nums'] }}>{tipValue}</Text>
+            <Text variant="caption" style={{ fontFamily: 'PlusJakartaSans_600SemiBold', fontVariant: ['tabular-nums'] }}>{tipValue}</Text>
           </View>
         )}
       </View>

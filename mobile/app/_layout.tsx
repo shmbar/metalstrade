@@ -7,13 +7,15 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client';
 import * as SplashScreen from 'expo-splash-screen';
+// Plus Jakarta Sans, matching web's font consolidation — "the only family in
+// the app... there is no Inter and no Poppins" (CLAUDE.md). Mobile had been
+// left on Inter (and an unused Poppins dependency) since before that change.
 import {
   useFonts,
-  Inter_400Regular,
-  Inter_500Medium,
-  Inter_600SemiBold,
-  Inter_700Bold,
-} from '@expo-google-fonts/inter';
+  PlusJakartaSans_400Regular,
+  PlusJakartaSans_500Medium,
+  PlusJakartaSans_600SemiBold,
+} from '@expo-google-fonts/plus-jakarta-sans';
 import * as QuickActions from 'expo-quick-actions';
 import { useQuickActionRouting } from 'expo-quick-actions/router';
 import { ThemeProvider, useTheme } from '@/theme/ThemeProvider';
@@ -74,10 +76,9 @@ function RootNavigator() {
 export default function RootLayout() {
   const initAuth = useAuth((s) => s.init);
   const [fontsLoaded] = useFonts({
-    Inter_400Regular,
-    Inter_500Medium,
-    Inter_600SemiBold,
-    Inter_700Bold,
+    PlusJakartaSans_400Regular,
+    PlusJakartaSans_500Medium,
+    PlusJakartaSans_600SemiBold,
   });
 
   // Subscribe to Firebase auth once for the whole app session.
