@@ -36,6 +36,7 @@ export default function Footer() {
             <ul className="space-y-2">
               <li><Link href="/about" className={linkCls}>About IMS</Link></li>
               <li><Link href="/blog" className={linkCls}>Blog</Link></li>
+              <li><Link href="/support" className={linkCls}>Support</Link></li>
             </ul>
           </div>
 
@@ -43,7 +44,7 @@ export default function Footer() {
           <div>
             <h4 className="font-semibold text-[var(--chathams-blue)] mb-3 responsiveTextInput tracking-wide uppercase">Legal</h4>
             <ul className="space-y-2">
-              <li><Link href="/about" className={linkCls}>Privacy Policy</Link></li>
+              <li><Link href="/privacy" className={linkCls}>Privacy Policy</Link></li>
               <li><Link href="/about" className={linkCls}>Terms of Service</Link></li>
             </ul>
           </div>
