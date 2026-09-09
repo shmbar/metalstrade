@@ -128,15 +128,21 @@ export const MainNav = () => {
         {/* Global Search */}
         <div className='relative flex items-center gap-1.5' ref={searchRef}>
 
-          <div className='flex-1 min-w-0 z-50'>
-            <Selector arr={accounts} value={accounts.find(x => x.id === uidCollection)}
-              // Remember the switch, or the next token refresh (on focus) puts the
-              // user back on their home account without saying so.
-              onChange={(e) => { writeActiveAccount(e); setUidCollection(e); }}
-              name='uidCollection'
-              secondaryName='name'
-            />
-          </div>
+          {/* Only members of a trading workspace get the switcher. A user whose
+              workspace is neither IMS nor GIS (the App Store demo account) has
+              nothing to switch to, and showing them the two real accounts would
+              offer a door that only leads to a permission error. */}
+          {accounts.length > 1 && (
+            <div className='flex-1 min-w-0 z-50'>
+              <Selector arr={accounts} value={accounts.find(x => x.id === uidCollection)}
+                // Remember the switch, or the next token refresh (on focus) puts the
+                // user back on their home account without saying so.
+                onChange={(e) => { writeActiveAccount(e); setUidCollection(e); }}
+                name='uidCollection'
+                secondaryName='name'
+              />
+            </div>
+          )}
 
           {!openSearch ? (
             <button

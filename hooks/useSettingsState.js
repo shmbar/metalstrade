@@ -13,7 +13,14 @@ function useSettingsState() {
     const [uidCollection, setUidCollection] = useState(null)
     // One list, shared with the code that remembers which account is selected —
     // two copies of these ids would be two places for them to drift apart.
-    const accounts = ACCOUNTS
+    //
+    // Offered only to someone already inside one of the two trading workspaces.
+    // The App Store demo account lives in its own workspace and must not be
+    // handed a control that points at real company data.
+    const accounts = useMemo(
+        () => (ACCOUNTS.some(a => a.id === uidCollection) ? ACCOUNTS : []),
+        [uidCollection]
+    )
     // Computed language value for easy access
     const ln = useMemo(() => compData?.lng || 'English', [compData?.lng]);
 

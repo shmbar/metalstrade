@@ -45,7 +45,7 @@ export default function Footer() {
             <h4 className="font-semibold text-[var(--chathams-blue)] mb-3 responsiveTextInput tracking-wide uppercase">Legal</h4>
             <ul className="space-y-2">
               <li><Link href="/privacy" className={linkCls}>Privacy Policy</Link></li>
-              <li><Link href="/about" className={linkCls}>Terms of Service</Link></li>
+              <li><Link href="/terms" className={linkCls}>Terms of Service</Link></li>
             </ul>
           </div>
         </div>

@@ -120,8 +120,16 @@ your organisation's administrator; the app does not offer public sign-up.
 **Marketing URL** (optional): `https://www.ims-tech.io`
 
 > Both URLs are new pages in this repo — `app/(public)/privacy/` and
-> `app/(public)/support/`. **They must be deployed to production before you
-> submit**; a reviewer clicks them and a 404 is an immediate rejection.
+> `app/(public)/support/`, with `app/(public)/terms/` behind the footer's Terms
+> link. **They must be deployed to production before you submit**; a reviewer
+> clicks them and a 404 is an immediate rejection.
+>
+> Being under `app/(public)/` is not enough to make a page public. The auth
+> context wraps every route and bounces anything missing from the
+> `publicRoutes` list in `contexts/useAuthContext.js` to `/signin` — which is
+> what happened to `/privacy` and `/support` on the first attempt, and what had
+> been quietly happening to every `/blog/<slug>` post. **Add any new public page
+> to that list**, and check it in a logged-out browser rather than assuming.
 > The support page publishes `SUPPORT_EMAIL` from `utils/publicContact.js`
 > (currently `info@ims-metals.com`) — make sure that mailbox actually receives
 > mail, since a reviewer may write to it. The address is on a different domain
@@ -157,6 +165,38 @@ The app is entirely behind a login and there is **no public sign-up**. Without
 working credentials the reviewer sees only a sign-in screen and rejects under
 Guideline 2.1. Fill in the demo account fields with a **real, working account
 that has representative data in it**, and keep it enabled until the app is live.
+
+### The demo account must not see live data
+
+A user's workspace is the `uidCollection` custom claim, and `actions/pass.js`
+gives a new user the claim of whichever admin created them. A demo account made
+from Settings → Users therefore lands in the **live IMS workspace** and shows real
+customer records. That is what happened with the first attempt.
+
+Give it a workspace of its own:
+
+```bash
+node scripts/provision-demo-workspace.js                             # dry run
+node scripts/provision-demo-workspace.js --commit --password '<strong>'
+```
+
+The script repoints the claim at `DEMO_WORKSPACE_APPSTORE` and clones the IMS
+workspace into it with every name replaced and every commercial figure rescaled.
+It clones rather than writing fixtures so document shapes stay exactly right and
+every screen still renders; record **ids are preserved**, so cross-references
+between contracts, invoices, stock and settings survive intact. The demo user
+must sign out and back in afterwards — claims are read from the ID token.
+
+Mobile needs no change: `src/store/auth.ts` reads the claim directly and has no
+account switcher, so the demo account can only ever see its own workspace. The
+web app's switcher is now hidden for anyone outside the two trading workspaces.
+
+> **Publish `firestore.rules` before submitting.** The rule that is live today is
+> `allow read, write: if request.auth.uid != null` — any signed-in account can
+> read and write every workspace regardless of its claim. Until the hardened
+> rules in that file are published, the demo credentials you hand Apple are
+> credentials to all live data. Do not submit with a weak password on that
+> account.
 
 Suggested notes to paste into "Notes":
 

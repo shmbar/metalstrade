@@ -123,7 +123,13 @@ const AuthContextProvider = ({ children }) => {
   // On mount or route change, if not authenticated, redirect to sign-in
     // Robust: Only redirect after Firebase auth state is loaded
     useEffect(() => {
-      const publicRoutes = ['/', '/about', '/contact', '/signin', '/signin', '/blog', '/features', '/landing'];
+      // Pages that must render without a session. /privacy and /support are the
+      // URLs on the App Store listing — a reviewer opens them logged out, and a
+      // bounce to /signin there fails review outright. The match is by prefix
+      // for /blog because posts live at /blog/<slug>, which the old exact-match
+      // list quietly sent to the sign-in page as well.
+      const publicRoutes = ['/', '/about', '/contact', '/signin', '/blog', '/features', '/landing', '/privacy', '/support', '/terms'];
+      const isPublicRoute = publicRoutes.includes(pathName) || pathName?.startsWith('/blog/');
       // Logged in but still sitting on the form — send them into the app. Sole owner of
       // the post-login redirect: SignIn and the sign-in page each fired their own push in
       // the same commit, so three navigations raced for one login. Checked ahead of the
@@ -136,7 +142,7 @@ const AuthContextProvider = ({ children }) => {
       }
       if (loadingPage) return; // Wait for Firebase to finish checking
       if (!user) {
-        if (!publicRoutes.includes(pathName)) {
+        if (!isPublicRoute) {
           router.replace('/signin');
         }
       }
