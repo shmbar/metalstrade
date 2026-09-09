@@ -1160,6 +1160,22 @@ export async function saveDataSettings(uidCollection: string, docId: string, obj
   return true;
 }
 
+// Web's admin-only "Future" incoming rows (cashflow/page.js saveInitData →
+// saveCashflowFinanced) — the client's own manual entries like "Airwallex".
+// Scoped to JUST `financed.initial`, not the whole `financed` map: web always
+// re-saves financedLeft/financedRight alongside it because it holds all three
+// in state already, but mobile doesn't edit those, and { merge: true } on a
+// nested object field merges key-by-key rather than replacing the whole map —
+// so financedLeft/financedRight (edited only on web) and the doc's per-year
+// totals are left exactly as they were.
+export async function saveCashflowInitialEntries(
+  uidCollection: string,
+  initial: { title: string; num: string }[]
+): Promise<boolean> {
+  await setDoc(doc(db, uidCollection, 'cashflow'), { financed: { initial } }, { merge: true });
+  return true;
+}
+
 // ── storage tagging ──────────────────────────────────────────────────────────
 // Patch a field on an expense doc — port of utils.js updateExpenseField. Used to
 // tag a storage invoice to a warehouse + month (self-contained write).

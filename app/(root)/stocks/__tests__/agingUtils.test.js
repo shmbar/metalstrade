@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { dStr, arrivalOf, daysStored, bucketOf } from '../agingUtils.js';
+import { dStr, arrivalOf, daysStored, bucketOf, formatDuration } from '../agingUtils.js';
 
 describe('dStr', () => {
     it('returns string dates as-is', () => expect(dStr('2026-01-15')).toBe('2026-01-15'));
@@ -73,4 +73,29 @@ describe('bucketOf', () => {
         expect(bucketOf(500)).toBe('90+');
     });
     it('returns unknown for null age', () => expect(bucketOf(null)).toBe('unknown'));
+});
+
+describe('formatDuration', () => {
+    it('says days below a month', () => {
+        expect(formatDuration(0)).toBe('0d');
+        expect(formatDuration(17)).toBe('17d');
+        expect(formatDuration(30)).toBe('30d');
+    });
+    it('says months, with the odd days, up to a year', () => {
+        expect(formatDuration(31)).toBe('1m 1d');
+        expect(formatDuration(60)).toBe('2m');
+        expect(formatDuration(73)).toBe('2m 13d');
+        expect(formatDuration(364)).toBe('12m 4d');
+    });
+    it('says years and months past a year', () => {
+        expect(formatDuration(365)).toBe('1y');
+        expect(formatDuration(903)).toBe('2y 5m');
+        expect(formatDuration(982)).toBe('2y 8m');
+        expect(formatDuration(1006)).toBe('2y 9m');
+    });
+    it('returns empty for no age', () => {
+        expect(formatDuration(null)).toBe('');
+        expect(formatDuration(undefined)).toBe('');
+        expect(formatDuration(NaN)).toBe('');
+    });
 });

@@ -1,8 +1,6 @@
 'use client';
 
 import { useContext } from "react";
-import { FaSearch } from "react-icons/fa";
-import { TiDeleteOutline } from "react-icons/ti";
 import ColFilter from "./ColumnsFilter";
 import { getTtl } from '../../utils/languages';
 import { SettingsContext } from "../../contexts/useSettingsContext";
@@ -10,7 +8,7 @@ import { usePathname } from 'next/navigation';
 import { GrAddCircle } from "react-icons/gr";
 import Image from 'next/image';
 import Tltip from "../../components/tlTip";
-import { BtnIcon } from "../buttonIcons";
+import { BtnIcon, SearchAdornment } from "../buttonIcons";
 import { MdDeleteOutline } from "react-icons/md";
 import { GrDocumentPdf } from "react-icons/gr";
 import { QuickSumButton, QuickSumTotals } from './quicksum/QuickSumControl';
@@ -82,15 +80,7 @@ const Header = ({
                 onChange={e => setGlobalFilter(e.target.value)}
                 type='text'
               />
-              {globalFilter === '' ? (
-                <FaSearch className="text-[var(--regent-gray)] absolute right-3 top-1.5" style={{ fontSize: 14 }} />
-              ) : (
-                <TiDeleteOutline
-                  className="text-[var(--regent-gray)] absolute right-3 top-2 cursor-pointer hover:text-red-500 transition-colors"
-                  onClick={() => setGlobalFilter('')}
-                  style={{ fontSize: 16 }}
-                />
-              )}
+              <SearchAdornment value={globalFilter} onClear={() => setGlobalFilter('')} />
             </div>
             {/* + Add Tables */}
             {addTable && (
@@ -170,15 +160,7 @@ const Header = ({
                 onChange={e => setGlobalFilter(e.target.value)}
                 type='text'
               />
-              {globalFilter === '' ? (
-                <FaSearch className="text-[var(--regent-gray)] absolute right-3 top-1.5" style={{ fontSize: 14 }} />
-              ) : (
-                <TiDeleteOutline
-                  className="text-[var(--regent-gray)] absolute right-3 top-2 cursor-pointer hover:text-red-500 transition-colors"
-                  onClick={() => setGlobalFilter('')}
-                  style={{ fontSize: 16 }}
-                />
-              )}
+              <SearchAdornment value={globalFilter} onClear={() => setGlobalFilter('')} />
             </div>
           )}
 

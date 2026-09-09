@@ -1,7 +1,7 @@
 // Storage-aging helpers — port of web app/(root)/stocks/agingUtils.js. Pure.
 export const DAY = 86400000;
 export const STALE_DAYS = 60; // sitting too long
-export const DEMURRAGE_DAYS = 90; // possible storage / demurrage charges
+export const LONG_STAY_DAYS = 90; // second tier: sitting long enough to want an answer
 
 export type Bucket = '0-30' | '31-60' | '61-90' | '90+' | 'unknown';
 
@@ -18,6 +18,24 @@ export const bucketOf = (days: number | null): Bucket => {
   if (days <= 60) return '31-60';
   if (days <= 90) return '61-90';
   return '90+';
+};
+
+// Port of web agingUtils.js formatDuration — a storage age, said the way a
+// person would say it, rather than a raw day count. Approximate on purpose
+// (365-day years, 30-day months): this is a "how long has this been here"
+// label, not a billing calculation.
+export const formatDuration = (days: number | null | undefined): string => {
+  if (days == null || !Number.isFinite(days)) return '';
+  const d = Math.max(0, Math.floor(days));
+  if (d < 31) return `${d}d`;
+  if (d < 365) {
+    const m = Math.floor(d / 30);
+    const rd = d - m * 30;
+    return rd > 0 ? `${m}m ${rd}d` : `${m}m`;
+  }
+  const y = Math.floor(d / 365);
+  const rm = Math.floor((d - y * 365) / 30);
+  return rm > 0 ? `${y}y ${rm}m` : `${y}y`;
 };
 
 /**

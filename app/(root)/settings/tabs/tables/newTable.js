@@ -10,9 +10,8 @@ import {
 } from "@tanstack/react-table";
 import { useEffect, useMemo, useState } from "react";
 
-import { FaSearch } from "react-icons/fa";
-import { TiDeleteOutline } from "react-icons/ti";
 import { LuFilter } from "react-icons/lu";
+import { SearchAdornment } from "../../../../../components/buttonIcons";
 import ColFilter from "../../../../../components/table/ColumnsFilter";
 
 import { Paginator } from "../../../../../components/table/Paginator";
@@ -90,11 +89,7 @@ const Customtable = ({
               onChange={e => setGlobalFilter(e.target.value)}
               type='text'
             />
-            {globalFilter === '' ? (
-              <FaSearch className="text-[var(--endeavour)] absolute right-3" style={{ fontSize: 12 }} />
-            ) : (
-              <TiDeleteOutline className="text-[var(--regent-gray)] absolute right-3 cursor-pointer hover:text-red-500" onClick={() => setGlobalFilter('')} style={{ fontSize: 16 }} />
-            )}
+            <SearchAdornment value={globalFilter} onClear={() => setGlobalFilter('')} />
           </div>
           <div className="w-7 h-7 inline-flex items-center justify-center rounded hover:bg-[var(--selago)] cursor-pointer text-[var(--endeavour)]">
             <ColFilter table={table} iconClassName="text-[var(--endeavour)]" iconSize={16} />

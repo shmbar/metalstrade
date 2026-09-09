@@ -13,7 +13,6 @@ import { loadData, loadDataSettings, loadInvoice, loadMargins, loadSharedStock, 
 import { UserAuth } from "../../../contexts/useAuthContext";
 import { NumericFormat } from "react-number-format";
 import { MdDeleteOutline } from "react-icons/md";
-import { MdOutlineClose } from "react-icons/md";
 import { addComma, ClientDetails, clientToolTip, entityName, ExpensesToolTip, FinalSummaryBadge, getTotals, getTotalsSupPayments, runExpenses, runInvoices, runStocks, runSupPayments, SharedStockDetails, StocksUnSold, StoclToolTip, SupplierDetails, supplierToolTip } from "./funcs";
 import Tltip from "../../../components/tlTip";
 import { FaSortAmountDown } from "react-icons/fa";
@@ -1751,7 +1750,7 @@ const Cashflow = () => {
                                                             <SectionHeader icon={Banknote} title="Financing">
                                                                 <button
                                                                     type="button"
-                                                                    className="blackButton"
+                                                                    className="blackButton blackButtonSm"
                                                                     onClick={() => { setFinancedLeft([...financedLeft, { title: '', num: '' }]); setBalancesDirty(true); }}
                                                                 >
                                                                     <BtnIcon action="add" />Add
@@ -1760,10 +1759,22 @@ const Cashflow = () => {
                                                             <div className="py-0 px-0 mb-1 ">
                                                                 {
                                                                     financedLeft?.map((z, i) => {
+                                                                        // Same row shell as the Clients / Suppliers lists above — py-0.5 rhythm,
+                                                                        // gap-1.5, and the figure on the right in the same ladder rung. This block
+                                                                        // used to set its own responsiveTextInput on the row and a taller inner
+                                                                        // control, so a Financing line sat a rung larger than every balance row
+                                                                        // beside it.
                                                                         return (
-                                                                            <div className="flex items-center justify-between rounded-2xl px-0 responsiveTextInput hover:bg-[var(--bg-subtle)] transition-colors" key={i}>
-                                                                                <div className="flex items-center gap-1 min-w-0 flex-1">
-                                                                                    <button onClick={() => { setFinancedLeft(financedLeft.filter((z, k) => k !== i)); setBalancesDirty(true); }}><MdOutlineClose className="scale-110" /></button>
+                                                                            <div className="flex items-center justify-between py-0.5 px-0 rounded-2xl hover:bg-[var(--bg-subtle)] transition-colors" key={i}>
+                                                                                <div className="flex items-center gap-1.5 min-w-0 flex-1">
+                                                                                    <button
+                                                                                        type="button"
+                                                                                        aria-label="Remove financing line"
+                                                                                        className="cell-clear text-[var(--ink-muted)]"
+                                                                                        onClick={() => { setFinancedLeft(financedLeft.filter((z, k) => k !== i)); setBalancesDirty(true); }}
+                                                                                    >
+                                                                                        <BtnIcon action="close" />
+                                                                                    </button>
                                                                                     {/* responsiveText unconditionally: the filled state used to carry no
                                                                                         size class at all, so it fell through to the browser's default
                                                                                         input size (13.3px) and only happened to match the page at
@@ -1773,7 +1784,11 @@ const Cashflow = () => {
                                                                                         z.title === '' ? 'input' : '')} value={z.title}
                                                                                         onChange={e => handleChangeFinance(e, i, 'left', 'title')} />
                                                                                 </div>
-                                                                                <NumericFormat className={cn('h-6 bg-transparent flex-shrink-0 responsiveText tnum font-medium text-[var(--ink)] text-right',
+                                                                                {/* `tabular-nums`, not `.tnum`: .tnum also lifts the figure to 500, and
+                                                                                    every balance list on this screen sets the raw utility and stays at
+                                                                                    400. Financing sitting a weight above the Clients rows beside it is
+                                                                                    the difference that read as "different font". */}
+                                                                                <NumericFormat className={cn('h-6 bg-transparent flex-shrink-0 responsiveText tabular-nums text-[var(--ink)] text-right',
                                                                                     z.num === '' ? 'input w-24' : 'outline-none')}
                                                                                     value={z.num} thousandSeparator allowNegative={false} decimalScale={2} fixedDecimalScale prefix='$'
                                                                                     onValueChange={values => handleChangeFinance({ target: { value: values.value } }, i, 'left', 'num')}
@@ -1988,24 +2003,35 @@ const Cashflow = () => {
                                                             <SectionHeader icon={Banknote} title="Financing">
                                                                 <button
                                                                     type="button"
-                                                                    className="blackButton"
+                                                                    className="blackButton blackButtonSm"
                                                                     onClick={() => { setFinancedRight([...financedRight, { title: '', num: '' }]); setBalancesDirty(true); }}
                                                                 >
                                                                     <BtnIcon action="add" />Add
                                                                 </button>
                                                             </SectionHeader>
-                                                            <div className="flex gap-1 mt-1 pt-2 flex-col" >
+                                                            {/* mt-1 only: the pt-2 and the gap-1 between rows made this list breathe
+                                                                differently from the balances list on the same screen, which stacks its
+                                                                rows on a plain py-0.5. */}
+                                                            <div className="flex mt-1 flex-col" >
                                                                 {
                                                                     financedRight?.map((z, i) => {
                                                                         return (
-                                                                            <div className="flex items-center justify-between rounded-2xl px-0 responsiveTextInput hover:bg-[var(--bg-subtle)] transition-colors" key={i}>
-                                                                                <div className="flex items-center gap-1 min-w-0 flex-1">
-                                                                                    <button onClick={() => { setFinancedRight(financedRight.filter((z, k) => k !== i)); setBalancesDirty(true); }}><MdOutlineClose className="scale-110" /></button>
+                                                                            <div className="flex items-center justify-between py-0.5 px-0 rounded-2xl hover:bg-[var(--bg-subtle)] transition-colors" key={i}>
+                                                                                <div className="flex items-center gap-1.5 min-w-0 flex-1">
+                                                                                    <button
+                                                                                        type="button"
+                                                                                        aria-label="Remove financing line"
+                                                                                        className="cell-clear text-[var(--ink-muted)]"
+                                                                                        onClick={() => { setFinancedRight(financedRight.filter((z, k) => k !== i)); setBalancesDirty(true); }}
+                                                                                    >
+                                                                                        <BtnIcon action="close" />
+                                                                                    </button>
                                                                                     <input className={cn('flex-1 min-w-0 outline-none h-6 responsiveText font-medium text-[var(--ink)] bg-transparent',
                                                                                         z.title === '' ? 'input' : '')}
                                                                                         value={z.title} onChange={e => handleChangeFinance(e, i, 'right', 'title')} />
                                                                                 </div>
-                                                                                <NumericFormat className={cn('flex-shrink-0 h-6 responsiveText tnum font-medium text-[var(--ink)] bg-transparent text-right',
+                                                                                {/* tabular-nums, not .tnum — see the left-hand Financing list. */}
+                                                                                <NumericFormat className={cn('flex-shrink-0 h-6 responsiveText tabular-nums text-[var(--ink)] bg-transparent text-right',
                                                                                     z.num === '' ? 'input w-24' : 'outline-none')}
                                                                                     value={z.num} thousandSeparator allowNegative={false} decimalScale={2} fixedDecimalScale prefix='$'
                                                                                     onValueChange={values => handleChangeFinance({ target: { value: values.value } }, i, 'right', 'num')} />

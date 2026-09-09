@@ -1139,6 +1139,18 @@ thead th {
     box-shadow: var(--shadow-xs);
   }
 
+  /* The compact rung of the same band, for an action that sits INSIDE a section
+     header rather than on the page. A full h-8 primary next to a 7-line list of
+     28px rows is the loudest thing in the card — on Cashflow the "Add" outweighed
+     the Financing total it sits above. h-7 (24px) is the documented next rung
+     down; the type, radius, colour and icon size are unchanged, so it still reads
+     as the same button, just not as the headline. Modifier, not a new button:
+     write `className="blackButton blackButtonSm"`. */
+  .blackButtonSm {
+    @apply h-7 px-2 gap-1;
+    box-shadow: none;
+  }
+
   .whiteButton {
     @apply bg-[var(--bg-card)] border-[var(--line-strong)] hover:bg-[var(--bg-subtle)] text-[var(--ink)] flex items-center gap-1.5 justify-center rounded-control border px-2.5 h-8 font-medium focus:outline-none transition-colors disabled:opacity-50 disabled:cursor-not-allowed;
     font-size: 0.75rem; /* 12px fixed — matches the reference */
@@ -1212,6 +1224,56 @@ thead th {
     width: var(--icon-cell);
     height: var(--icon-cell);
     flex: none;
+  }
+
+  /* The same mark one rung up, for the trailing adornment inside a SEARCH FIELD
+     rather than a data cell. A field is 12-13px type in a 28px box, so the 10px
+     cell glyph reads as a speck in it — 12px in a 20px hit box keeps the mark
+     legible without competing with the text being typed.
+
+     This exists because the five search fields in the app had each picked their
+     own: TiDeleteOutline at 16px on the shared table header, on Shipment and in
+     Settings; a lucide X at 14px on Margins; IoClose at 20px in global search —
+     three glyph families, three sizes, and `hover:text-red-500` (a raw Tailwind
+     red, off the token ladder) on three of them. Consumed by SearchAdornment in
+     components/buttonIcons.js — never restate it at a call site. */
+  .field-clear {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    flex: none;
+    border-radius: var(--radius-pill);
+    color: var(--ink-muted);
+    opacity: 0.7;
+    transition: opacity 0.12s ease, color 0.12s ease;
+  }
+
+  .field-clear:hover {
+    opacity: 1;
+    color: var(--danger-text);
+  }
+
+  .field-clear svg,
+  .field-search svg {
+    width: 12px;
+    height: 12px;
+    flex: none;
+  }
+
+  /* Its resting twin — the magnifier shown while the field is empty. Same box,
+     no hover affordance: it is a label, not a control. */
+  .field-search {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    flex: none;
+    color: var(--ink-muted);
+    opacity: 0.7;
+    pointer-events: none;
   }
 
   /* Focus ring — one definition, visible in both modes. Applied to every

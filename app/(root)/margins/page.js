@@ -18,10 +18,10 @@ import Tltip from "../../../components/tlTip";
 import FirstPart from "./firstpart";
 import ThirdPart from "./thirdpart";
 import dateFormat from "dateformat";
-import { AlertTriangle, Loader2, X, ChevronDown, ChevronUp, Info, GripVertical, Search } from 'lucide-react';
+import { AlertTriangle, Loader2, X, ChevronDown, ChevronUp, Info, GripVertical } from 'lucide-react';
 import { authedFetch } from '../../../utils/aiClient';
 import { TONES } from '../../../components/statusUtils';
-import { BtnIcon } from '../../../components/buttonIcons';
+import { BtnIcon, SearchAdornment } from '../../../components/buttonIcons';
 
 // needed for table body level scope DnD setup
 import {
@@ -781,13 +781,7 @@ const Margins = () => {
                                             aria-label='Search margin rows'
                                             type='text'
                                         />
-                                        {query === '' ? (
-                                            <Search className="absolute right-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5" style={{ color: 'var(--ink-muted)' }} />
-                                        ) : (
-                                            <X className="absolute right-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 cursor-pointer hover:text-[var(--bad-text)] transition-colors"
-                                                style={{ color: 'var(--ink-muted)' }}
-                                                onClick={() => setQuery('')} aria-label='Clear search' />
-                                        )}
+                                        <SearchAdornment value={query} onClear={() => setQuery('')} />
                                     </div>
                                 </div>
 

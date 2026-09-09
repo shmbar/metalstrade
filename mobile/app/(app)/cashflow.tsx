@@ -60,13 +60,15 @@ export default function Cashflow() {
   const whName = (id: string) =>
     settings?.Stocks?.Stocks?.find((w: any) => w.id === id)?.nname ||
     settings?.Stocks?.Stocks?.find((w: any) => w.id === id)?.stock || id || '—';
-  const { paySupplier, payExpense, partialPay, payClient } = useCashflowActions();
+  const { paySupplier, payExpense, partialPay, payClient, saveInitialEntries } = useCashflowActions();
   const shared = useSharedStock();
   const [detail, setDetail] = useState<{ kind: Kind; cp: Counterparty } | null>(null);
   // Partial-payment entry for a supplier purchase invoice.
   const [payItem, setPayItem] = useState<any | null>(null);
   const [amount, setAmount] = useState('');
   const [payDate, setPayDate] = useState(new Date().toISOString().slice(0, 10));
+  // Editing a "Future incoming" manual row (index === null → adding a new one).
+  const [entryEditor, setEntryEditor] = useState<{ index: number | null; title: string; num: string } | null>(null);
 
   const net = data ? data.payablesUsd + data.expensesUsd : 0;
 
@@ -148,6 +150,64 @@ export default function Cashflow() {
     }
   };
 
+  // "Future incoming" manual rows — web parity (cashflow/page.js saveInitData):
+  // the whole array is re-saved on every change, so add/edit/delete are all one
+  // mutation from here too.
+  const openEntryEditor = (index: number | null) => {
+    if (index == null) {
+      setEntryEditor({ index: null, title: '', num: '' });
+      return;
+    }
+    const r = data?.manualInitialRows[index];
+    setEntryEditor({ index, title: r?.title || '', num: r?.num != null ? String(r.num) : '' });
+  };
+
+  const saveEntry = async () => {
+    if (!entryEditor || !data) return;
+    const title = entryEditor.title.trim();
+    const numVal = parseFloat(entryEditor.num);
+    if (!title) {
+      Alert.alert('Missing title', 'Enter a name for this entry.');
+      return;
+    }
+    if (!Number.isFinite(numVal)) {
+      Alert.alert('Invalid amount', 'Enter a numeric amount.');
+      return;
+    }
+    const rows = data.manualInitialRows.map((r) => ({ title: r.title, num: String(r.num) }));
+    if (entryEditor.index == null) rows.push({ title, num: String(numVal) });
+    else rows[entryEditor.index] = { title, num: String(numVal) };
+    try {
+      await saveInitialEntries.mutateAsync(rows);
+      setEntryEditor(null);
+    } catch (e: any) {
+      Alert.alert('Failed', e?.message || 'Could not save.');
+    }
+  };
+
+  const deleteEntry = () => {
+    if (!entryEditor || entryEditor.index == null || !data) return;
+    const index = entryEditor.index;
+    Alert.alert('Delete entry?', `Remove "${data.manualInitialRows[index]?.title}" from Future incoming?`, [
+      { text: 'Cancel', style: 'cancel' },
+      {
+        text: 'Delete',
+        style: 'destructive',
+        onPress: async () => {
+          const rows = data.manualInitialRows
+            .filter((_, i) => i !== index)
+            .map((r) => ({ title: r.title, num: String(r.num) }));
+          try {
+            await saveInitialEntries.mutateAsync(rows);
+            setEntryEditor(null);
+          } catch (e: any) {
+            Alert.alert('Failed', e?.message || 'Could not delete.');
+          }
+        },
+      },
+    ]);
+  };
+
   return (
     <Screen contentContainerStyle={{ paddingTop: insets.top + 8 }} edges={false} refreshing={isLoading} onRefresh={refetch}>
       <ScreenHeader title="Cashflow" right={<PeriodSelector />} />
@@ -186,8 +246,22 @@ export default function Cashflow() {
               <SectionHeader title="Future incoming" subtitle="Admin only" right={<Text variant="h3">{fmtAutoKM(data.incoming + data.manual.initial)}</Text>} />
               <Line label="Future (margins)" v={data.incoming} />
               {data.manualInitialRows.map((r, i) => (
-                <Line key={i} label={r.title} v={r.num} muted />
+                <Pressable
+                  key={i}
+                  onPress={() => openEntryEditor(i)}
+                  style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 3 }}
+                >
+                  <Text variant="caption" tone="muted">{r.title}</Text>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                    <Text variant="body" style={{ fontVariant: ['tabular-nums'] }}>{fmtAutoKM(r.num)}</Text>
+                    <Ionicons name="pencil" size={12} color={colors.textFaint} />
+                  </View>
+                </Pressable>
               ))}
+              <Pressable onPress={() => openEntryEditor(null)} style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 8 }}>
+                <Ionicons name="add-circle-outline" size={16} color={colors.primary} />
+                <Text variant="caption" tone="primary">Add entry</Text>
+              </Pressable>
             </Card>
           )}
 
@@ -444,6 +518,24 @@ export default function Cashflow() {
           <DateField label="Payment date" value={payDate} onChange={setPayDate} />
           <Button title="Record payment" loading={partialPay.isPending} onPress={submitPartial} />
           <Button title="Pay full balance" variant="ghost" loading={paySupplier.isPending} onPress={payFull} />
+        </View>
+      </Modal>
+
+      {/* Add/edit a "Future incoming" manual row (Airwallex etc.) — admin only. */}
+      <Modal visible={!!entryEditor} transparent animationType="slide" onRequestClose={() => setEntryEditor(null)}>
+        <Pressable style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.4)' }} onPress={() => setEntryEditor(null)} />
+        <View style={{ backgroundColor: colors.bgElevated, borderTopLeftRadius: radius['2xl'], borderTopRightRadius: radius['2xl'], padding: spacing.lg, paddingBottom: insets.bottom + spacing.lg, gap: spacing.md }}>
+          <Text variant="h2">{entryEditor?.index == null ? 'Add incoming entry' : 'Edit incoming entry'}</Text>
+          {entryEditor && (
+            <>
+              <TextField label="Title" value={entryEditor.title} onChangeText={(v) => setEntryEditor({ ...entryEditor, title: v })} placeholder="e.g. Airwallex" autoFocus={entryEditor.index == null} />
+              <TextField label="Amount (USD)" value={entryEditor.num} onChangeText={(v) => setEntryEditor({ ...entryEditor, num: v })} placeholder="0.00" keyboardType="decimal-pad" />
+            </>
+          )}
+          <Button title="Save" loading={saveInitialEntries.isPending} onPress={saveEntry} />
+          {entryEditor?.index != null && (
+            <Button title="Delete entry" variant="danger" loading={saveInitialEntries.isPending} onPress={deleteEntry} />
+          )}
         </View>
       </Modal>
     </Screen>

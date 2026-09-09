@@ -4,7 +4,7 @@ import { NumericFormat } from 'react-number-format';
 import { UserAuth } from '../../../contexts/useAuthContext';
 import { SettingsContext } from '../../../contexts/useSettingsContext';
 import { ensureNotification } from '../../../utils/utils';
-import { arrivalOf, daysStored, bucketOf } from './agingUtils';
+import { arrivalOf, daysStored, bucketOf, formatDuration } from './agingUtils';
 import { Warehouse, AlertTriangle, Clock, PackageCheck, ChevronRight } from 'lucide-react';
 import { TONES } from '../../../components/statusUtils';
 import SortIcon from '../../../components/table/SortIcon';
@@ -35,7 +35,7 @@ const AGE_FILTERS = [
 // Aging thresholds (days). Constants for now — surfacing these in Settings is a
 // follow-up (#11 "configurable thresholds").
 const STALE_DAYS = 60;       // flag as sitting too long
-const DEMURRAGE_DAYS = 90;   // warn about possible storage / demurrage charges
+const LONG_STAY_DAYS = 90;   // second tier: sitting long enough to want an answer
 
 const fmtQty = (n) => new Intl.NumberFormat('en-US', { minimumFractionDigits: 3 }).format(Number(n) || 0);
 
@@ -52,8 +52,11 @@ const StorageAging = ({ data = [] }) => {
     const [openTerminals, setOpenTerminals] = useState({});
     const [sumSel, setSumSel] = useState({});
     const [ageFilter, setAgeFilter] = useState('all');
-    // Oldest first: the only order this list is ever wanted in by default.
-    const [listSort, setListSort] = useState({ key: '_days', dir: 'desc' });
+    /* Supplier A→Z by default. Oldest-first sounds like the obvious order, but the
+       list is worked through by chasing whoever the material sits with, so grouping
+       a supplier's lots together beats scattering them among everyone else's. Days
+       is still one click away in the header. */
+    const [listSort, setListSort] = useState({ key: '_supplier', dir: 'asc' });
 
     // Per-row age + terminal grouping (only in-stock cargo, which `data` already is).
     const { byTerminal, staleRows, staleTerminals } = useMemo(() => {
@@ -90,14 +93,14 @@ const StorageAging = ({ data = [] }) => {
             .sort((a, b) => (b._days || 0) - (a._days || 0));
 
         // Aggregate stale cargo per terminal for the monthly digest notification
-        // (count, how many at demurrage risk, oldest) — one nudge per terminal.
+        // (count, how many in the long-stay tier, oldest) — one nudge per terminal.
         const staleGroups = {};
         stale.forEach(r => {
             const key = r.stock || '—';
-            if (!staleGroups[key]) staleGroups[key] = { terminal: key, name: stockName(r.stock), count: 0, demurrage: 0, oldest: 0 };
+            if (!staleGroups[key]) staleGroups[key] = { terminal: key, name: stockName(r.stock), count: 0, longStay: 0, oldest: 0 };
             const g = staleGroups[key];
             g.count += 1;
-            if (r._days >= DEMURRAGE_DAYS) g.demurrage += 1;
+            if (r._days >= LONG_STAY_DAYS) g.longStay += 1;
             if (r._days > g.oldest) g.oldest = r._days;
         });
 
@@ -113,22 +116,22 @@ const StorageAging = ({ data = [] }) => {
     }, [data, settings]);
 
     // One idempotent monthly DIGEST per terminal (not per item) — collapses many
-    // aged items into a single actionable nudge: total aged, how many at demurrage
-    // risk, and the oldest. Monthly id = a fresh digest each month it keeps sitting.
+    // aged items into a single actionable nudge: total aged, how many in the long-stay
+    // tier, and the oldest. Monthly id = a fresh digest each month it keeps sitting.
     // Full per-item detail lives in the panel below + the Stocks page.
     useEffect(() => {
         if (!uidCollection || notifiedRef.current || !staleTerminals.length) return;
         notifiedRef.current = true;
         const ym = new Date().toISOString().slice(0, 7).replace('-', ''); // YYYYMM
         staleTerminals.forEach(t => {
-            const hasDemurrage = t.demurrage > 0;
+            const hasLongStay = t.longStay > 0;
             ensureNotification(uidCollection, `stale:terminal:${t.terminal}:${ym}`, {
                 type: 'stock.stale', entityType: 'stock', entityId: t.terminal || '',
                 entityLabel: t.name,
-                action: 'aging', severity: hasDemurrage ? 'warning' : 'info',
+                action: 'aging', severity: hasLongStay ? 'warning' : 'info',
                 message: `${t.name}: ${t.count} cargo item${t.count !== 1 ? 's' : ''} aged ${STALE_DAYS}+ days`
-                    + (hasDemurrage ? ` — ${t.demurrage} at demurrage risk (${DEMURRAGE_DAYS}+d)` : '')
-                    + ` · oldest ${t.oldest}d`,
+                    + (hasLongStay ? ` — ${t.longStay} over ${LONG_STAY_DAYS} days` : '')
+                    + ` · oldest ${formatDuration(t.oldest)}`,
             });
         });
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -183,8 +186,12 @@ const StorageAging = ({ data = [] }) => {
             const x = a[key], y = b[key];
             const nx = typeof x === 'number' ? x : parseFloat(x);
             const ny = typeof y === 'number' ? y : parseFloat(y);
-            if (Number.isFinite(nx) && Number.isFinite(ny)) return (nx - ny) * sign;
-            return String(x ?? '').localeCompare(String(y ?? '')) * sign;
+            const primary = Number.isFinite(nx) && Number.isFinite(ny)
+                ? (nx - ny) * sign
+                : String(x ?? '').localeCompare(String(y ?? '')) * sign;
+            // Within one supplier the oldest still comes first, so grouping by who
+            // holds the material does not scramble the ages inside each group.
+            return primary || (b._days || 0) - (a._days || 0);
         });
     })();
     const listQty = listRows.reduce((s, r) => s + (parseFloat(r.qnty) || 0), 0);
@@ -233,7 +240,7 @@ const StorageAging = ({ data = [] }) => {
             {/* Per-terminal summary */}
             <div className='grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3'>
                 {shownTerminals.map((g) => {
-                    const danger = g.oldest >= DEMURRAGE_DAYS;
+                    const danger = g.oldest >= LONG_STAY_DAYS;
                     const warn = g.oldest >= STALE_DAYS;
                     const isOpen = !!openTerminals[g.terminal];
                     return (
@@ -246,7 +253,7 @@ const StorageAging = ({ data = [] }) => {
                                     {g.name}
                                 </span>
                                 <span className='flex items-center gap-1' style={{ fontSize: 'var(--fs-table)', color: danger ? TONES.red.text : warn ? TONES.amber.text : 'var(--ink-muted)' }}>
-                                    <Clock className='w-3 h-3' /> oldest {g.oldest}d
+                                    <Clock className='w-3 h-3' /> <span title={`${g.oldest} days`}>oldest {formatDuration(g.oldest)}</span>
                                 </span>
                             </div>
                             <div className='flex flex-wrap items-center gap-x-3 gap-y-0.5 mb-2' style={{ fontSize: 'var(--fs-table)', color: 'var(--ink)' }}>
@@ -306,10 +313,10 @@ const StorageAging = ({ data = [] }) => {
                                                     <td>
                                                         <span className='px-1.5 py-0.5 rounded-lg' style={{
                                                             fontSize: 'var(--fs-caption)',
-                                                            background: r._days == null ? 'var(--bg-subtle)' : r._days >= DEMURRAGE_DAYS ? TONES.red.bg : r._days >= STALE_DAYS ? TONES.amber.bg : TONES.green.bg,
-                                                            color: r._days == null ? 'var(--ink-muted)' : r._days >= DEMURRAGE_DAYS ? TONES.red.text : r._days >= STALE_DAYS ? TONES.amber.text : TONES.green.text,
+                                                            background: r._days == null ? 'var(--bg-subtle)' : r._days >= LONG_STAY_DAYS ? TONES.red.bg : r._days >= STALE_DAYS ? TONES.amber.bg : TONES.green.bg,
+                                                            color: r._days == null ? 'var(--ink-muted)' : r._days >= LONG_STAY_DAYS ? TONES.red.text : r._days >= STALE_DAYS ? TONES.amber.text : TONES.green.text,
                                                         }}>
-                                                            {r._days == null ? 'no date' : `${r._days}d`}
+                                                            {r._days == null ? 'no date' : formatDuration(r._days)}
                                                         </span>
                                                     </td>
                                                 </tr>
@@ -382,10 +389,10 @@ const StorageAging = ({ data = [] }) => {
                                         <td>
                                             <span className='px-1.5 py-0.5 rounded-lg whitespace-nowrap' style={{
                                                 fontSize: 'var(--fs-caption)',
-                                                background: r._days >= DEMURRAGE_DAYS ? TONES.red.bg : TONES.amber.bg,
-                                                color: r._days >= DEMURRAGE_DAYS ? TONES.red.text : TONES.amber.text,
+                                                background: r._days >= LONG_STAY_DAYS ? TONES.red.bg : TONES.amber.bg,
+                                                color: r._days >= LONG_STAY_DAYS ? TONES.red.text : TONES.amber.text,
                                             }}>
-                                                {r._days}d{r._days >= DEMURRAGE_DAYS ? ' · demurrage' : ''}
+                                                {formatDuration(r._days)}
                                             </span>
                                         </td>
                                     </tr>

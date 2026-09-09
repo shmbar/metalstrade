@@ -147,4 +147,45 @@ export function BtnIcon({ action, spin = false, className = '', ...rest }) {
   );
 }
 
+/**
+ * The trailing adornment inside a search field: a magnifier while the field is
+ * empty, a clear mark once it has text.
+ *
+ *   <div className="relative …">
+ *     <input … />
+ *     <SearchAdornment value={globalFilter} onClear={() => setGlobalFilter('')} />
+ *   </div>
+ *
+ * Same reason this file exists at all: every search field had picked its own
+ * glyph, size and hover colour — TiDeleteOutline at 16px here, a lucide X at
+ * 14px there, IoClose at 20px in global search, and a raw `text-red-500` hover
+ * on three of them. The wrapper needs `position: relative`; everything else —
+ * placement, size, colour, hit box — is settled here and in .field-clear.
+ *
+ * `onClear` is optional: a read-only filter display can show the magnifier
+ * alone. Positioning can be nudged per field with `className` when a field's
+ * padding differs, but prefer leaving it.
+ */
+export function SearchAdornment({ value, onClear, label = 'Clear search', className = '' }) {
+  const hasText = value != null && String(value) !== '';
+  const place = `absolute right-2 top-1/2 -translate-y-1/2${className ? ' ' + className : ''}`;
+  if (!hasText || !onClear) {
+    return (
+      <span className={`field-search ${place}`}>
+        <Search aria-hidden="true" focusable="false" />
+      </span>
+    );
+  }
+  return (
+    <button
+      type="button"
+      aria-label={label}
+      onClick={onClear}
+      className={`field-clear cursor-pointer ${place}`}
+    >
+      <X aria-hidden="true" focusable="false" />
+    </button>
+  );
+}
+
 export default BtnIcon;

@@ -6,7 +6,7 @@ import { Card, Text, Badge, SkeletonList, ErrorState, EmptyState } from '@/compo
 import { useTheme } from '@/theme/ThemeProvider';
 import { useSettings } from '@/store/settings';
 import { useStocks } from './useStocks';
-import { computeAging, BUCKET_TONE, STALE_DAYS, DEMURRAGE_DAYS } from './aging';
+import { computeAging, BUCKET_TONE, STALE_DAYS, LONG_STAY_DAYS, formatDuration } from './aging';
 
 const fmtQty = (n: number) => new Intl.NumberFormat('en-US', { minimumFractionDigits: 3 }).format(Number(n) || 0);
 const BUCKETS = ['0-30', '31-60', '61-90', '90+'] as const;
@@ -39,13 +39,13 @@ export function AgingView() {
       </View>
 
       {byTerminal.map((g) => {
-        const danger = g.oldest >= DEMURRAGE_DAYS;
+        const danger = g.oldest >= LONG_STAY_DAYS;
         const warn = g.oldest >= STALE_DAYS;
         return (
           <Card key={g.terminal} style={{ marginBottom: 12, borderColor: danger ? colors.negative : warn ? colors.borderStrong : colors.border, borderWidth: 1 }}>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
               <Text variant="bodyMedium" numberOfLines={1} style={{ flex: 1 }}>{g.name}</Text>
-              <Text variant="caption" tone={danger ? 'negative' : warn ? 'warn' : 'faint'}>oldest {g.oldest}d</Text>
+              <Text variant="caption" tone={danger ? 'negative' : warn ? 'warn' : 'faint'}>oldest {formatDuration(g.oldest)}</Text>
             </View>
             <Text variant="caption" tone="muted" style={{ marginBottom: 8 }}>{g.count} item(s) · {fmtQty(g.qty)} qty</Text>
 
@@ -77,12 +77,12 @@ export function AgingView() {
           </Text>
           <View style={{ gap: 6 }}>
             {staleRows.slice(0, 100).map((r) => {
-              const risk = r.days >= DEMURRAGE_DAYS;
+              const risk = r.days >= LONG_STAY_DAYS;
               return (
                 <View key={r.id} style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 8, backgroundColor: colors.card, borderWidth: 1, borderColor: colors.borderStrong, borderRadius: 8, paddingHorizontal: 10, paddingVertical: 7 }}>
                   <Text variant="caption" numberOfLines={1} style={{ flex: 1 }}>{r.descriptionName} · {r.terminalName} · {fmtQty(r.qnty)}</Text>
                   <View style={{ backgroundColor: risk ? colors.surfaceAlt : colors.surfaceAlt, borderRadius: 10, paddingHorizontal: 8, paddingVertical: 3 }}>
-                    <Text variant="caption" style={{ color: risk ? colors.negative : colors.warn }}>{r.days}d{risk ? ' · demurrage' : ''}</Text>
+                    <Text variant="caption" style={{ color: risk ? colors.negative : colors.warn }}>{formatDuration(r.days)}</Text>
                   </View>
                 </View>
               );

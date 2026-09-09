@@ -33,6 +33,7 @@ import {
   arrivalOf as webArrivalOf,
   daysStored as webDaysStored,
   bucketOf as webBucketOf,
+  formatDuration as webFormatDuration,
 } from '../../app/(root)/stocks/agingUtils.js';
 import {
   EUR_USD as WEB_EUR_USD,
@@ -58,9 +59,10 @@ import { computeGradeSummary as mobileGradeSummary } from '@/features/stocks/gra
 import {
   DAY as MOBILE_DAY,
   STALE_DAYS as MOBILE_STALE_DAYS,
-  DEMURRAGE_DAYS as MOBILE_DEMURRAGE_DAYS,
+  LONG_STAY_DAYS as MOBILE_LONG_STAY_DAYS,
   daysStored as mobileDaysStored,
   bucketOf as mobileBucketOf,
+  formatDuration as mobileFormatDuration,
   computeAging,
 } from '@/features/stocks/aging';
 import { buildAudit } from '@/features/stocks/audit';
@@ -149,7 +151,12 @@ const HASH = {
   // carries it too.
   runStocks: '8610638a2344', // app/(root)/cashflow/funcs.js:188
   staleDays: 'a2e0c4822268', // app/(root)/stocks/storageAging.js:11
-  demurrageDays: 'f6b09c3eafe3', // app/(root)/stocks/storageAging.js:12
+  // Re-recorded 2026-09-09: DEMURRAGE_DAYS renamed to LONG_STAY_DAYS — the value
+  // (90) is unchanged, but "demurrage" implied a specific shipping-contract charge
+  // this app never calculated; the tier is just "sitting long enough to want an
+  // answer". Ported to mobile (features/stocks/aging.ts, AgingView.tsx) in the
+  // same change; the mirror below carries the new name too.
+  longStayDays: '85bb24469e2b', // app/(root)/stocks/storageAging.js:12
   storageExpYear: '07ada9eea708', // app/(root)/storagecosts/page.js:142
   storagePerYear: '564748e563bd', // app/(root)/storagecosts/page.js:157
   storageSuggestWh: 'd33cb7953f78', // app/(root)/storagecosts/page.js:193
@@ -477,7 +484,7 @@ const webComputeGradeSummary = (dataTable: any[], settings: any): any[] => {
 
 /** app/(root)/stocks/storageAging.js:11-12 thresholds, and :25-65 byTerminal/staleRows. */
 const WEB_STALE_DAYS = 60;
-const WEB_DEMURRAGE_DAYS = 90;
+const WEB_LONG_STAY_DAYS = 90;
 const webStorageAging = (data: any[], stockName: (id: string) => string, today: number) => {
   const rows = (data || []).map((r: any) => {
     const arrival = webArrivalOf(r);
@@ -812,7 +819,7 @@ describe('drift alarm — every web formula mirrored below', () => {
     ['utils/utils.js', 'filteredArray', HASH.filteredArray],
     ['app/(root)/cashflow/funcs.js', 'runStocks', HASH.runStocks],
     ['app/(root)/stocks/storageAging.js', 'STALE_DAYS', HASH.staleDays],
-    ['app/(root)/stocks/storageAging.js', 'DEMURRAGE_DAYS', HASH.demurrageDays],
+    ['app/(root)/stocks/storageAging.js', 'LONG_STAY_DAYS', HASH.longStayDays],
     ['app/(root)/storagecosts/page.js', 'expYear', HASH.storageExpYear],
     ['app/(root)/storagecosts/page.js', 'perYear', HASH.storagePerYear],
     ['app/(root)/storagecosts/page.js', 'suggestWh', HASH.storageSuggestWh],
@@ -1485,10 +1492,17 @@ describe('Tier 3 — avg cost per grade (sumtables/gradeTable.js computeGradeSum
 describe('Tier 3 — storage aging by terminal (stocks/storageAging.js)', () => {
   const stockName = (id: string) => SETTINGS.Stocks.Stocks.find((s: any) => s.id === id)?.nname || id || '—';
 
-  it('uses the same stale and demurrage thresholds as web', () => {
+  it('uses the same stale and long-stay thresholds as web', () => {
     // storageAging.js:11-12.
     expect(MOBILE_STALE_DAYS).toBe(WEB_STALE_DAYS);
-    expect(MOBILE_DEMURRAGE_DAYS).toBe(WEB_DEMURRAGE_DAYS);
+    expect(MOBILE_LONG_STAY_DAYS).toBe(WEB_LONG_STAY_DAYS);
+  });
+
+  it('formats a duration the same way as web (agingUtils.js formatDuration)', () => {
+    for (const days of [0, 17, 30, 31, 60, 73, 364, 365, 903, 982, 1006]) {
+      expect(mobileFormatDuration(days)).toBe(webFormatDuration(days));
+    }
+    expect(mobileFormatDuration(null)).toBe(webFormatDuration(null));
   });
 
   it('groups by terminal with the same counts, tonnage, buckets and oldest age as web', () => {

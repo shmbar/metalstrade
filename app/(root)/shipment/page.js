@@ -10,8 +10,6 @@ import Toast from '../../../components/toast.js';
 import DateRangePicker from '../../../components/dateRangePicker';
 import Datepicker from "react-tailwindcss-datepicker";
 import { useRouter } from 'next/navigation';
-import { FaSearch } from 'react-icons/fa';
-import { TiDeleteOutline } from 'react-icons/ti';
 import { HiMiniChevronUpDown } from 'react-icons/hi2';
 import Image from 'next/image';
 import Tltip from '../../../components/tlTip';
@@ -20,7 +18,7 @@ import Tltip from '../../../components/tlTip';
    following the theme — which is exactly how the chat and filter icons here
    ended up off-theme while the PDF icon beside them was fine. */
 import { FileSpreadsheet, MessageSquare, Filter, Check } from 'lucide-react';
-import BtnIcon from '../../../components/buttonIcons';
+import BtnIcon, { SearchAdornment } from '../../../components/buttonIcons';
 import ProgressBar from '../../../components/ProgressBar';
 import Avatar from '../../../components/Avatar';
 // exceljs is imported dynamically inside exportExcel so it stays off the
@@ -1359,15 +1357,7 @@ const ShipmentPage = () => {
                                     onChange={e => setSearch(e.target.value)}
                                     type="text"
                                 />
-                                {search === '' ? (
-                                    <FaSearch className="text-[var(--regent-gray)] absolute right-3 top-1.5" style={{ fontSize: 14 }} />
-                                ) : (
-                                    <TiDeleteOutline
-                                        className="text-[var(--regent-gray)] absolute right-3 top-2 cursor-pointer hover:text-red-500 transition-colors"
-                                        onClick={() => setSearch('')}
-                                        style={{ fontSize: 16 }}
-                                    />
-                                )}
+                                <SearchAdornment value={search} onClear={() => setSearch('')} />
                             </div>
 
                             {/* Chat */}

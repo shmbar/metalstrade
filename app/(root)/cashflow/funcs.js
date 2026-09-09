@@ -660,11 +660,18 @@ export const StoclToolTip = ({ stock, stockDataAll, settings, uidCollection, set
         return own.length === 1 ? (own[0]?.description || 'Materials') : '';
     };
 
+    // Suppliers A-Z, then newest lot first inside each supplier. This warehouse view
+    // lists every supplier at once, so a pure date order interleaved them — Shalex,
+    // Lobis, Shalex, DMT, Shalex — and you could not read off what one supplier holds
+    // without hunting. Grouping by name keeps each supplier's lots together while the
+    // date order (and its PO# tie-break) still decides the sequence within a supplier.
+    // The map has to come FIRST: _supplierName is what we sort on.
     const base = stockDataAll
         .filter(z => z.stock === stock)
-        // Newest lot first (falls back to PO# for ties), matching the Unsold Stocks ordering.
-        .sort(byNewestThenPO)
-        .map(z => ({ ...z, _supplierName: supplierLabel(z, settings), _groupDesc: groupDescOf(z) }));
+        .map(z => ({ ...z, _supplierName: supplierLabel(z, settings), _groupDesc: groupDescOf(z) }))
+        .sort((a, b) =>
+            (a._supplierName || '').localeCompare(b._supplierName || '', undefined, { sensitivity: 'base' })
+            || byNewestThenPO(a, b));
     const filteredArr = sortKey ? sortRows(base, sortKey, sortDir) : base;
 
     const buildSumItem = (z) => ({
@@ -682,9 +689,9 @@ export const StoclToolTip = ({ stock, stockDataAll, settings, uidCollection, set
                         <SumTh />
                         <SortTh colKey="order" label="PO#" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left po-col" />
                         <SortTh colKey="_supplierName" label="Supplier" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left w-16" />
-                        <SortTh colKey="descriptionName" label="Description" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left w-28 max-w-28" />
+                        <SortTh colKey="descriptionName" label="Description" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left w-44 max-w-44" />
                         <SortTh colKey="qnty" label="Quantity" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-center w-14" />
-                        <SortTh colKey="unitPrc" label="Unit Price" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-right w-20" />
+                        <SortTh colKey="unitPrc" label="Unit Price" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-right w-16" />
                         <SortTh colKey="total" label="Total" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-right w-20" />
                     </tr>
                 </thead>
@@ -700,7 +707,7 @@ export const StoclToolTip = ({ stock, stockDataAll, settings, uidCollection, set
                                         setValueCon, setIsOpenCon, blankInvoice, router, setToast)}>
                                     <Tltip direction='top' tltpText={z.order || ''}><span className="block truncate">{z.order}</span></Tltip></td>
                                 <td className="text-left w-16"><Tltip direction='top' tltpText={[supplierNames(z, settings).join(' + '), settings.Supplier.Supplier.find(q => q.id === z.originSupplier)?.nname ? 'Org: ' + settings.Supplier.Supplier.find(q => q.id === z.originSupplier)?.nname : ''].filter(Boolean).join(' · ')}><span className="flex items-center gap-1.5 min-w-0 cursor-default"><Avatar name={z._supplierName} size={18} /><span className="block truncate">{z._supplierName}</span></span></Tltip></td>
-                                <td className="text-left w-28 max-w-28">
+                                <td className="text-left w-44 max-w-44">
                                     <span className={`flex items-center gap-1.5 min-w-0 ${indent ? 'pl-4' : ''}`}>
                                         <Tltip direction='top' tltpText={z.descriptionName || ''}><span className='block truncate cursor-default'>{z.descriptionName}</span></Tltip>
                                         <DraftUseBadge use={draftMaterials[z.descriptionId] || draftMaterials[z.description]} />
@@ -778,7 +785,7 @@ export const StoclToolTip = ({ stock, stockDataAll, settings, uidCollection, set
                                                 <span className="block truncate">{z._supplierName}</span>
                                             </span>
                                         </td>
-                                        <td className="text-left w-28 max-w-28">
+                                        <td className="text-left w-44 max-w-44">
                                             <span className="flex items-center gap-1 font-medium" style={{ color: 'var(--chathams-blue)' }}>
                                                 <span className="inline-block transition-transform" style={{ transform: isOpen ? 'rotate(90deg)' : 'none' }}>›</span>
                                                 <span className="truncate">{z._groupDesc}</span>
@@ -872,10 +879,10 @@ export const StocksUnSold = ({ supplier, stockDataAllArray, settings, uidCollect
                     <tr>
                         <SumTh />
                         <SortTh colKey="order" label="PO#" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left po-col" />
-                        <SortTh colKey="description" label="Description" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left w-28 max-w-28" />
+                        <SortTh colKey="description" label="Description" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left w-44 max-w-44" />
                         <SortTh colKey="stockName" label="Stock" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left w-20" />
                         <SortTh colKey="qnty" label="Quantity" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-center w-14" />
-                        <SortTh colKey="unitPrc" label="Unit Price" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-right w-20" />
+                        <SortTh colKey="unitPrc" label="Unit Price" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-right w-16" />
                         <SortTh colKey="total" label="Total" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-right w-20" />
                     </tr>
                 </thead>
@@ -890,7 +897,7 @@ export const StocksUnSold = ({ supplier, stockDataAllArray, settings, uidCollect
                                     onClick={() => moveToContracts(z, 'order', uidCollection, setDateSelect,
                                         setValueCon, setIsOpenCon, blankInvoice, router, setToast)}>
                                     <Tltip direction='top' tltpText={[z.order, settings.Supplier.Supplier.find(q => q.id === z.originSupplier)?.nname ? 'Org: ' + settings.Supplier.Supplier.find(q => q.id === z.originSupplier)?.nname : ''].filter(Boolean).join(' · ')}><span className="block truncate">{indent ? '' : z.order}</span></Tltip></td>
-                                <td className="text-left w-28 max-w-28">
+                                <td className="text-left w-44 max-w-44">
                                     <span className={`flex items-center gap-1.5 min-w-0 ${indent ? 'pl-4' : ''}`}>
                                         <Tltip direction='top' tltpText={z.description || ''}><span className='block truncate cursor-default'>{z.description}</span></Tltip>
                                         {/* Rows here spread the contract material row, so its id IS the material id. */}
@@ -966,7 +973,7 @@ export const StocksUnSold = ({ supplier, stockDataAllArray, settings, uidCollect
                                             onClick={(e) => { e.stopPropagation(); moveToContracts(z, 'order', uidCollection, setDateSelect, setValueCon, setIsOpenCon, blankInvoice, router, setToast); }}>
                                             <span className="block truncate cursor-pointer hover:underline">{z.order}</span>
                                         </td>
-                                        <td className="text-left w-28 max-w-28">
+                                        <td className="text-left w-44 max-w-44">
                                             <span className="flex items-center gap-1 font-medium" style={{ color: 'var(--chathams-blue)' }}>
                                                 <span className="inline-block transition-transform" style={{ transform: isOpen ? 'rotate(90deg)' : 'none' }}>›</span>
                                                 <span className="truncate">{z.groupDesc || 'Materials'}</span>
@@ -1131,7 +1138,7 @@ export const SharedStockDetails = ({ rows, settings }) => {
                             <SortTh colKey="_mat" label="Material" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left" />
                             <SortTh colKey="_wh" label="Warehouse" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left" />
                             <SortTh colKey="qnty" label="Quantity" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-center w-14" />
-                            <SortTh colKey="unitPrc" label="Unit Price" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-right w-20" />
+                            <SortTh colKey="unitPrc" label="Unit Price" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-right w-16" />
                             <SortTh colKey="_fin" label="Financed" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left w-16" />
                             <SortTh colKey="_total" label="Total" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-right w-20" />
                         </tr>

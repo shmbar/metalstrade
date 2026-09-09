@@ -1,6 +1,12 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/store/auth';
-import { markPoInvoicePaid, markExpensesPaid, partialPayPoInvoice, clientPartialPayment } from '@/data/writes';
+import {
+  markPoInvoicePaid,
+  markExpensesPaid,
+  partialPayPoInvoice,
+  clientPartialPayment,
+  saveCashflowInitialEntries,
+} from '@/data/writes';
 
 // Mark a supplier purchase invoice (poInvoice) fully paid, or an expense paid.
 // Both refresh the cashflow + dashboard so balances update.
@@ -52,5 +58,16 @@ export function useCashflowActions() {
     onSuccess: refresh,
   });
 
-  return { paySupplier, payExpense, partialPay, payClient };
+  // Admin-only "Future" incoming rows (web cashflow/page.js saveInitData) — the
+  // whole edited list is passed in, so add/edit/delete are all just "save the
+  // array again" from the screen's point of view.
+  const saveInitialEntries = useMutation({
+    mutationFn: async (rows: { title: string; num: string }[]) => {
+      if (!uidCollection) throw new Error('Not authenticated');
+      await saveCashflowInitialEntries(uidCollection, rows);
+    },
+    onSuccess: refresh,
+  });
+
+  return { paySupplier, payExpense, partialPay, payClient, saveInitialEntries };
 }

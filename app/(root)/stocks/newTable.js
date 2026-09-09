@@ -311,13 +311,13 @@ const Customtable = ({
                               </div>
                             ) : (
                               /* Description carries the expander in "By grade" mode: a
-                                 chevron and the lot count on a parent, an indent on the
-                                 lines underneath. Every other column, and every row in
-                                 Lines mode, renders exactly as before. */
-                              <div
-                                className={`flex items-center font-normal ${isDesc && (row.getCanExpand() || row.depth > 0) ? 'justify-start gap-1' : 'justify-center'}`}
-                                style={isDesc && row.depth > 0 ? { paddingLeft: '18px' } : undefined}
-                              >
+                                 chevron and the lot count sit either side of the grade
+                                 name, all three inside ONE centred group. They must not
+                                 flip the cell to left-aligned — this table is centred
+                                 throughout, and aligning only the expandable rows left
+                                 made the column read ragged down the page. Every other
+                                 column, and every row in Lines mode, is unchanged. */
+                              <div className="flex items-center justify-center gap-1 font-normal">
                                 {isDesc && row.getCanExpand() && (
                                   <button type="button" onClick={(e) => { e.stopPropagation(); row.toggleExpanded(); }}
                                     className="shrink-0 inline-flex">
