@@ -70,7 +70,11 @@ const Signatiure = (doc, compData, gisAccount) => {
 
 }
 
-export const Pdf = async (valueCon, arrTable, settings, compData, gisAccount, mode = 'save') => {
+/* `view` carries the unit/currency the caller already expressed arrTable in, when the
+   products table's "View in" overlay is active — { qtyLabel: 'MT', curLabel: 'USD' }.
+   Omitted (the normal case) the header keeps reading the contract's own stored
+   labels, so nothing changes for a PO that is being read in the unit it was keyed in. */
+export const Pdf = async (valueCon, arrTable, settings, compData, gisAccount, mode = 'save', view = undefined) => {
     await ensurePdfLibs();
 
 
@@ -289,8 +293,8 @@ export const Pdf = async (valueCon, arrTable, settings, compData, gisAccount, mo
         headStyles: { fillColor: [9, 110, 182], textColor: [255, 255, 255], fontSize: 8, halign: 'center', font: 'PoppinsB', borderRadius: '10px' },
         bodyStyles: { fontSize: 8, font: 'Plus Jakarta Sans', textColor: [32, 55, 100] },
         head: [['#', 'Description', 'Quantity', valueCon.priceMode === 'content' ? 'Price per content' : 'Unit Price'],
-        ['', '', `${valueCon.qTypeTable && getD(settings.Quantity.Quantity, valueCon, 'qTypeTable')}`,
-            `${valueCon.cur && getD(settings.Currency.Currency, valueCon, 'cur')}`
+        ['', '', `${view?.qtyLabel || (valueCon.qTypeTable && getD(settings.Quantity.Quantity, valueCon, 'qTypeTable'))}`,
+            `${view?.curLabel || (valueCon.cur && getD(settings.Currency.Currency, valueCon, 'cur'))}`
         ]],
         body: arrTable,
         columnStyles: {

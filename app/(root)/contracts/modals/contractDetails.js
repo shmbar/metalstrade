@@ -6,6 +6,8 @@ import { InvoiceContext } from "@contexts/useInvoiceContext";
 import Datepicker from "react-tailwindcss-datepicker";
 import { Pdf } from './pdf/pdfContract.js';
 import ProductsTable from './productsTable.js';
+import { convertWeight, convertPrice, convertCurrency, UNIT_LABEL } from '@utils/units';
+import { numericFormatter } from 'react-number-format';
 import Remarks from './remarksSelection.js'
 import PriceRemarks from './priceRemarks.js'
 import { usePathname } from 'next/navigation';
@@ -91,34 +93,67 @@ const ContractModal = () => {
 	const [pdfPreview, setPdfPreview] = useState(null);
 	const [showHistory, setShowHistory] = useState(false);
 	const [showComments, setShowComments] = useState(false);
+	/* The "View in" overlay on the products table, reported up by ProductsTable. The
+	   contract still STORES its own unit/currency — this only decides what the PO PDF
+	   is expressed in, so a PO keyed in LB and read in MT prints MT. Null until the
+	   table mounts, which is the same thing as "no conversion". */
+	const [poView, setPoView] = useState(null);
 
 	// Build the PO product-table rows exactly as the PO PDF generator expects them.
 	// Shared by both the Preview and the Download (PDF) buttons so they can't drift.
-	const buildPoTable = () =>
-		reOrderTableCon(valueCon.productsData.filter(x => !x.import)).map(({ ['id']: _, ...rest }) => rest)
+	const buildPoTable = () => {
+		const baseCur = valueCon.cur !== '' ? getD(settings.Currency.Currency, valueCon, 'cur') : 'USD';
+		const v = poView?.isViewing ? poView : null;
+		const qDec = v ? (v.qDec ?? 3) : 3;
+		// USD<->EUR at the contract-date rate (rate = USD per 1 EUR) — the same helper
+		// the table converts with, so the sheet and the PDF cannot disagree.
+		const convCur = (p) => v ? convertCurrency(p, v.baseCur, v.cur, v.rate) : p;
+		return reOrderTableCon(valueCon.productsData.filter(x => !x.import)).map(({ ['id']: _, ...rest }) => rest)
 			.map((row, index) => {
 				// Keep the positional read the table has always used (description, qnty, unitPrc
 				// are the first three keys) while still reaching contentPrc by name.
 				const values = Object.values(row);
-				const number = values[1];
-				const number1 = values[2];
-				const formattedNumber = new Intl.NumberFormat('en-US', { minimumFractionDigits: 3 }).format(number);
+				const rawPrice = values[2];
+				const priceIsNumeric = !isNaN(rawPrice * 1) && rawPrice !== '' && rawPrice != null;
+
+				/* Converted rows are formatted with the SAME formatter the table cells use
+				   (react-number-format), not Intl. The two disagree on the last digit —
+				   react-number-format truncates where Intl rounds — so $1.50/LB read in MT
+				   is 3,306.93 on screen and would have printed 3,306.94. A PO that does not
+				   match the screen it was approved on is the whole complaint here, one digit
+				   further down. Un-converted rows keep the Intl path exactly as before. */
+				const formattedNumber = v
+					? numericFormatter(String(convertWeight(Number(values[1]) || 0, v.baseUnit, v.unit)),
+						{ thousandSeparator: true, decimalScale: qDec, fixedDecimalScale: true })
+					: new Intl.NumberFormat('en-US', { minimumFractionDigits: 3 }).format(values[1]);
+
 				// Priced on element content: print whatever basis was typed into the cell, and
 				// fall back to deferring to the Price Remarks below. Stored prices are left alone.
 				const formattedNumber1 = valueCon.priceMode === 'content'
-					? (String(row.contentPrc ?? '').trim() || 'See below*') :
-					isNaN(number1 * 1) ? number1 :
-						new Intl.NumberFormat('en-US', {
-							style: 'currency',
-							currency: valueCon.cur !== '' ? getD(settings.Currency.Currency, valueCon, 'cur') : 'USD',
-							minimumFractionDigits: 2
-						}).format(number1);
+					? (String(row.contentPrc ?? '').trim() || 'See below*')
+					: !priceIsNumeric ? rawPrice
+						: v
+							? numericFormatter(String(convCur(convertPrice(Number(rawPrice) || 0, v.baseUnit, v.unit))),
+								{ thousandSeparator: true, decimalScale: 2, fixedDecimalScale: true, prefix: v.symbol || '' })
+							: new Intl.NumberFormat('en-US', {
+								style: 'currency',
+								currency: baseCur,
+								minimumFractionDigits: 2
+							}).format(rawPrice);
 				return [index + 1, values[0], formattedNumber, formattedNumber1];
 			});
+	};
+
+	/* Column headers for the PDF: the unit and currency the rows above are actually
+	   expressed in. Undefined when no view is active, so the generator keeps reading
+	   the contract's own labels exactly as before. */
+	const poViewLabels = poView?.isViewing
+		? { qtyLabel: UNIT_LABEL[poView.unit] || '', curLabel: poView.cur || '' }
+		: undefined;
 
 	// Open the PO as an in-app preview (looks exactly like the supplier's PDF, no download).
 	const openPoPreview = async () => {
-		const res = await Pdf(valueCon, buildPoTable(), settings, compData, gisAccount, 'preview');
+		const res = await Pdf(valueCon, buildPoTable(), settings, compData, gisAccount, 'preview', poViewLabels);
 		if (res?.blob) setPdfPreview({ blob: res.blob, filename: res.filename });
 	};
 
@@ -683,6 +718,7 @@ const ContractModal = () => {
 						<ProductsTable value={valueCon} setValue={setValueCon} currency={settings.Currency.Currency}
 							quantityTable={settings.Quantity.Quantity} setShowPoInvModal={setShowPoInvModal}
 							setShowStockModal={setShowStockModal} setToast={setToast} contractsData={contractsData}
+							onViewChange={setPoView}
 						/>
 					</div>
 				</div>
@@ -769,7 +805,7 @@ const ContractModal = () => {
 					<Tltip direction='top' tltpText='Create PDF document'>
 					<button
 						className="whiteButton py-1"
-						onClick={() => Pdf(valueCon, buildPoTable(), settings, compData, gisAccount)}
+						onClick={() => Pdf(valueCon, buildPoTable(), settings, compData, gisAccount, 'save', poViewLabels)}
 					>
 						<BtnIcon action="pdf" />
 						PDF

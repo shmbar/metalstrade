@@ -3,6 +3,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { NumericFormat } from 'react-number-format';
 import ChkBox from '@components/checkbox.js'
 import { getD, reOrderTableCon } from '@utils/utils.js';
+import { UNIT_LABEL, Q_DEC, unitFromLabel, convertWeight, convertPrice, convertCurrency } from '@utils/units';
 import { CalculateNum } from '@components/calculate';
 import { SettingsContext } from "@contexts/useSettingsContext";
 import { getTtl } from '@utils/languages.js';
@@ -16,36 +17,17 @@ import { BtnIcon } from '@components/buttonIcons';
 // the contracts list, derived invoices/stock — reads these raw numbers. So conversions here
 // are display-only: a per-cell Lb/Kg input helper (converts entry to the base unit) and an
 // ephemeral "View in" overlay (re-expresses the table on screen). Stored data never changes.
-const LB_PER_MT = 2204.6226218; // 1 metric tonne = 2204.6226218 lb
-const KG_PER_MT = 1000;         // 1 metric tonne = 1000 kg
-
-// 1 MT expressed in each unit (weight). Used as a common pivot for unit<->unit conversion.
-const W_FACTOR = { mt: 1, kg: KG_PER_MT, lb: LB_PER_MT };
-const UNIT_LABEL = { mt: 'MT', kg: 'KGS', lb: 'LB' };
+// The factors and the two conversions live in utils/units.js: the PO PDF converts with
+// them too, and a copy here is how the sheet on screen and the printed sheet drift.
 // Contracts priced on element content (Ni/Cr/Mo) have no single unit price to print, so the
 // column defers to the Price Remarks block that prints right under the table on the PO PDF.
 // Display-only, exactly like the unit/currency overlay above: unitPrc keeps its stored number
 // so margins, derived invoices and stock are untouched, and switching back reveals it again.
 const SEE_BELOW = 'See below*';
-// Display decimals per weight unit (kg/lb numbers are larger, so fewer decimals).
-const Q_DEC = { mt: 3, kg: 1, lb: 1 };
 
 const roundTo = (n, d) => { const f = 10 ** d; return Math.round(n * f) / f; };
 
-// Map a Quantity label ('MT' | 'KGS' | 'LB') to a unit code. Empty/unknown -> 'mt'.
-const unitFromLabel = (label) => {
-    const l = String(label || '').toLowerCase();
-    if (l.includes('kg')) return 'kg';
-    if (l.includes('lb')) return 'lb';
-    return 'mt';
-};
-
-// Weight: value_to = value_from * (1 MT in `to`) / (1 MT in `from`).
-const convertWeight = (num, fromUnit, toUnit) => num * ((W_FACTOR[toUnit] ?? 1) / (W_FACTOR[fromUnit] ?? 1));
-// Per-unit price moves the opposite way (per-lb -> per-MT multiplies up).
-const convertPrice = (num, fromUnit, toUnit) => num * ((W_FACTOR[fromUnit] ?? 1) / (W_FACTOR[toUnit] ?? 1));
-
-const ProductsTable = ({ value, setValue, currency, quantityTable, setShowPoInvModal, setShowStockModal, setToast, contractsData }) => {
+const ProductsTable = ({ value, setValue, currency, quantityTable, setShowPoInvModal, setShowStockModal, setToast, contractsData, onViewChange }) => {
 
     const [checkedItems, setCheckedItems] = useState([]);
     const [edit, setEdit] = useState({ status: false, id: null, header: null });
@@ -196,13 +178,9 @@ const ProductsTable = ({ value, setValue, currency, quantityTable, setShowPoInvM
     const qDec = viewUnit ? (Q_DEC[effViewUnit] ?? 3) : 3;
     const viewSymbol = (currency.find(x => x.cur === effViewCur)?.symbol) || curSymbol;
 
-    // USD<->EUR at the contract-date rate (rate = USD per 1 EUR). Same/unknown currency passes through.
-    const convCur = (price) => {
-        const p = Number(price);
-        if (!effViewCur || effViewCur === baseCode || !rate) return p;
-        const usd = baseCode === 'USD' ? p : p * rate;          // base -> USD
-        return effViewCur === 'USD' ? usd : usd / rate;         // USD -> view
-    };
+    // USD<->EUR at the contract-date rate (rate = USD per 1 EUR). Same/unknown currency
+    // passes through. Shared with the PO PDF via utils/units.
+    const convCur = (price) => convertCurrency(price, baseCode, effViewCur, rate);
     const toDispQnty = (raw) => (raw === '' || raw == null) ? '' : convertWeight(Number(raw), baseUnit, effViewUnit);
     const toDispPrice = (raw) => (raw === '' || raw == null) ? '' : convCur(convertPrice(Number(raw), baseUnit, effViewUnit));
 
@@ -211,6 +189,18 @@ const ProductsTable = ({ value, setValue, currency, quantityTable, setShowPoInvM
     const priceHeaderLabel = (viewUnit || viewCur)
         ? effViewCur + (effViewUnit === 'mt' ? '' : '/' + UNIT_LABEL[effViewUnit])
         : c;
+
+    /* Report the active view up so the PO PDF can print what is on screen. The toggle
+       is still display-only for STORAGE — nothing here writes to the contract — but a
+       PDF made while viewing MT that comes out in LB is the toggle lying to you. Deps
+       are primitives, so this fires only when the view actually changes. */
+    useEffect(() => {
+        onViewChange?.({
+            unit: effViewUnit, cur: effViewCur, rate, isViewing,
+            baseUnit, baseCur: baseCode, symbol: viewSymbol, qDec,
+        });
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [effViewUnit, effViewCur, rate, isViewing, baseUnit, baseCode, viewSymbol, qDec]);
 
     // The "other" convertible currency for the view toggle (USD<->EUR only).
     const otherCur = baseCode === 'USD' ? 'EUR' : baseCode === 'EUR' ? 'USD' : '';
