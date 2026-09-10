@@ -115,6 +115,12 @@ const Customtable = ({
     getSortedRowModel: getSortedRowModel(),
     getExpandedRowModel: getExpandedRowModel(),
     getSubRows: (row) => row._lines,
+    /* Filter the GRADES, never the lines inside them. A fold's quantity and value are
+       the sum of all its lines, so letting the search reach the sub-rows made a row
+       that reads "698 Turnings 6 lots · 56.876 MT" open to a single 1.318 MT line —
+       parent and children that cannot be reconciled. Filtering only the top level
+       means opening a fold always shows exactly what its total is made of. */
+    maxLeafRowFilterDepth: 0,
     // Page size counts GRADES, not the lines hidden under them — otherwise opening
     // one 21-lot group would shove twenty rows onto the next page.
     paginateExpandedRows: false,
@@ -271,8 +277,12 @@ const Customtable = ({
                       onDoubleClick={() => { if (!row.getCanExpand()) SelectRow(row.original); }}
                       tabIndex={0}
                       className={`cursor-pointer transition-colors${selectedRowId === row.id ? ' selected-row' : ' cursor-pointer'}`}
+                      style={row.depth > 0 ? {
+                        background: 'var(--bg-subtle)',
+                        color: 'var(--ink-secondary)',
+                      } : undefined}
                     >
-                      {row.getVisibleCells().map((cell) => {
+                      {row.getVisibleCells().map((cell, cellIdx) => {
                         const isCompleted = cell.column.id === 'completed';
                         const isDesc = cell.column.id === 'descriptionName';
                         const isStatus = cell.column.id === 'status' && cell.getValue();
@@ -288,7 +298,12 @@ const Customtable = ({
                             key={cell.id}
                             className={`px-2 py-2 transition-colors duration-150 group/cell relative cell-hover-effect`}
                             style={{
-                              color: 'var(--ink)',
+                              // A folded line reads a rung quieter than the grade above it;
+                              // the cell sets colour inline, so the row's own colour cannot
+                              // reach it.
+                              color: row.depth > 0 ? 'var(--ink-secondary)' : 'var(--ink)',
+                              // The accent that says "this row belongs to the one above".
+                              borderLeft: row.depth > 0 && cellIdx === 0 ? '3px solid var(--brand)' : undefined,
                               width: cell.column.id === 'select' ? '50px'
                                 : cell.column.columnDef.meta?.narrow ? '1%' : undefined,
                               maxWidth: cell.column.id === 'select' ? '50px' : undefined,
@@ -318,6 +333,9 @@ const Customtable = ({
                                  made the column read ragged down the page. Every other
                                  column, and every row in Lines mode, is unchanged. */
                               <div className="flex items-center justify-center gap-1 font-normal">
+                                {isDesc && row.depth > 0 && (
+                                  <span className="shrink-0" style={{ color: 'var(--brand)' }} aria-hidden>&#8627;</span>
+                                )}
                                 {isDesc && row.getCanExpand() && (
                                   <button type="button" onClick={(e) => { e.stopPropagation(); row.toggleExpanded(); }}
                                     className="shrink-0 inline-flex">

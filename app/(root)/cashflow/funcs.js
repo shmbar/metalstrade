@@ -431,6 +431,13 @@ export const runStocks = async (uidCollection, settings, yr, contractsData = [],
             totalObj['supplierIds'] = [...new Set(filteredData
                 .filter(x => x.type === 'in' && x.supplier)
                 .map(x => x.supplier))]
+            // The PO number has exactly the same problem, and it was left behind when the
+            // supplier was fixed. Fines Mix in one warehouse is 20.200 from PO 131125 plus
+            // 19.876 from PO 271025; the row summed them to 40.076 and labelled the lot
+            // "271025", so the line read as though that single PO weighed 40 tonnes.
+            totalObj['orders'] = [...new Set(filteredData
+                .filter(x => x.type === 'in' && x.order)
+                .map(x => x.order))]
             // `date` is a DISPLAY string (dd.mm.yy), so it cannot be sorted — text order
             // on it puts the 1st of April before the 4th of February, exactly the trap
             // the PO-number sort fell into. Keep the raw value as a timestamp beside it
@@ -704,7 +711,15 @@ export const StoclToolTip = ({ stock, stockDataAll, settings, uidCollection, set
                                 <td className="text-left cursor-pointer text-[var(--endeavour)] hover:underline po-col truncate"
                                     onClick={() => moveToContracts(z, 'stock', uidCollection, setDateSelect,
                                         setValueCon, setIsOpenCon, blankInvoice, router, setToast)}>
-                                    <Tltip direction='top' tltpText={z.order || ''}><span className="block truncate">{z.order}</span></Tltip></td>
+                                    {/* A row can cover several POs (warehouse x material grouping), and
+                                        the quantity beside it is their SUM. Naming one of them made the
+                                        line read as that PO's weight — Fines Mix showed 40.076 against
+                                        PO 271025 when 271025 is 19.876 of it. Say how many, and list
+                                        them in the tooltip, exactly as the supplier column does. */}
+                                    <Tltip direction='top' tltpText={(z.orders?.length > 1 ? z.orders.join(' + ') : z.order) || ''}>
+                                        <span className="block truncate">
+                                            {z.orders?.length > 1 ? `${z.orders.length} POs` : z.order}
+                                        </span></Tltip></td>
                                 <td className="text-left w-16"><Tltip direction='top' tltpText={[supplierNames(z, settings).join(' + '), settings.Supplier.Supplier.find(q => q.id === z.originSupplier)?.nname ? 'Org: ' + settings.Supplier.Supplier.find(q => q.id === z.originSupplier)?.nname : ''].filter(Boolean).join(' · ')}><span className="flex items-center gap-1.5 min-w-0 cursor-default"><Avatar name={z._supplierName} size={18} /><span className="block truncate">{z._supplierName}</span></span></Tltip></td>
                                 <td className="text-left w-44 max-w-44">
                                     <span className={`flex items-center gap-1.5 min-w-0 ${indent ? 'pl-4' : ''}`}>
@@ -832,8 +847,18 @@ export const StoclToolTip = ({ stock, stockDataAll, settings, uidCollection, set
                                 />
                             }
                         </th>
+                        {/* Unit prices are per-MT rates for DIFFERENT materials, so adding them
+                            up produces a number that is neither money nor a price — $2,075/MT of
+                            Fines Mix plus $8,590/MT of Ta Ingots is not $10,665 of anything. It
+                            sat next to a real total, so it read as if it meant something. The
+                            honest figure for this column is the weighted average: what the whole
+                            pile cost per unit, which is total value over total weight. */}
                         <th className="text-right">
-                            {showAmount(filteredArr.reduce((sum, item) => sum + item.unitPrc * 1, 0), 'usd')}
+                            {(() => {
+                                const q = filteredArr.reduce((s, item) => s + (item.qnty * 1 || 0), 0);
+                                const v = filteredArr.reduce((s, item) => s + (item.total * 1 || 0), 0);
+                                return q ? showAmount(v / q, 'usd') : '';
+                            })()}
                         </th>
                         <th className="text-right">
                             {showAmount(filteredArr.reduce((sum, item) => sum + item.total * 1, 0), 'usd')}

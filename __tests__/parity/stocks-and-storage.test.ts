@@ -162,7 +162,17 @@ const HASH = {
   // IMS 661 of 690 rows identical, GIS 79 of 81; no row drops to zero. Ported to
   // mobile in the same change (features/stocks/aggregate.ts); the mirror above
   // carries it too.
-  runStocks: '83edb789b4fa', // app/(root)/cashflow/funcs.js:188
+  // Re-recorded 2026-09-10: totalObj gained `orders`, the DISTINCT PO numbers behind an
+  // aggregated row — the same fix `supplierIds` got, which the PO column never received.
+  // Grouping is warehouse x material, so one row can sum several POs while the PO cell
+  // named whichever lot was written last: Fines Mix in wh 6cef5ad6 is 20.200 from PO
+  // 131125 plus 19.876 from PO 271025, and the row read "40.076 · 271025" — a weight
+  // that belongs to no single PO. Reporting only; no total, balance or grouping moved.
+  // Mobile's aggregate.ts copies `order` the same last-write-wins way, but the only
+  // place mobile prints a PO is the invoice/expense ledger in app/(app)/cashflow.tsx,
+  // whose rows are one-PO-per-row by construction. Its aggregated stock rows are not
+  // rendered with a PO, so there is nothing to mislabel there — checked, not assumed.
+  runStocks: 'f36728a15664', // app/(root)/cashflow/funcs.js:188
   staleDays: 'a2e0c4822268', // app/(root)/stocks/storageAging.js:11
   // Re-recorded 2026-09-09: DEMURRAGE_DAYS renamed to LONG_STAY_DAYS — the value
   // (90) is unchanged, but "demurrage" implied a specific shipping-contract charge

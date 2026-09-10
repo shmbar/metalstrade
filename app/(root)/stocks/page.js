@@ -266,12 +266,20 @@ const Stocks = () => {
 
   }, [selectedStock, settings, uidCollection, refreshTick])
 
+  /* What the table is currently showing, as RAW line ids. In Lines mode a row is a
+     line and this is its own id; in By grade mode a row is a fold and this expands to
+     the lines under it. */
+  const filteredLineIds = useMemo(
+    () => new Set(filteredArray1.flatMap(r => r._lineIds ?? [r.id])),
+    [filteredArray1]
+  );
+
   useEffect(() => {
 
     //**Totals */
-    const arrId = filteredArray1/*.map(z => z.original)*/.map(a => a.id)
-    setTotals(data.filter(z => arrId.includes(z.id)))
-  }, [filteredArray1])
+    setTotals(data.filter(z => filteredLineIds.has(z.id)))
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filteredLineIds])
 
 
   const setTotals = (newArr) => {
@@ -401,6 +409,12 @@ const Stocks = () => {
         cur: g.lines[0]?.cur,
         _lines: g.lines.length > 1 ? g.lines : undefined,
         _lotCount: g.lines.length,
+        /* Every underlying line id, even for a single-line grade. A grade row's own
+           id is synthetic ("grade:<key>") and exists nowhere in `data`, so anything
+           that resolves the filtered rows back to raw lines — the Summary card, the
+           Avg Cost per Grade card, the Excel export — has to expand through this.
+           Without it, switching to By grade emptied all three. */
+        _lineIds: g.lines.map(l => l.id),
       };
     }).sort((a, b) => b.total - a.total);
   };
@@ -412,8 +426,8 @@ const Stocks = () => {
   // Used for both the "Avg Cost Price per Grade" table and the Excel export so they
   // follow whatever the user filters on.
   const filteredData = useMemo(
-    () => data.filter(x => filteredArray1.some(z => z.id === x.id)),
-    [data, filteredArray1]
+    () => data.filter(x => filteredLineIds.has(x.id)),
+    [data, filteredLineIds]
   );
 
   /* What the Data sheet exports when the table is combined. Built from the FILTERED
