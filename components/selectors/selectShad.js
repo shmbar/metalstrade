@@ -9,7 +9,7 @@ import {
 import { cn } from "@lib/utils"
 import { sortArr } from "@utils/utils"
 import { X } from "lucide-react"
-import { useState } from "react"
+import { useRef, useState } from "react"
 
 
 /* sizeVar: the rung the trigger renders at, as a --fs-* variable. Undefined keeps
@@ -28,6 +28,7 @@ export function Selector({ arr, value, onChange, name, clear, disabled, secondar
 
     // Type-to-filter for long lists (client request: every list gets a search box).
     const [query, setQuery] = useState('')
+    const searchRef = useRef(null)
 
     const clearSelection = (e) => {
         e.stopPropagation()
@@ -37,7 +38,12 @@ export function Selector({ arr, value, onChange, name, clear, disabled, secondar
 
     const base = arr.filter(x => !x.deleted && x.id !== '' && x.id != null)
     const labelOf = (k) => String((secondaryName ? k[secondaryName] : k[name]) ?? '')
-    const searchable = base.length > 7
+    /* Was > 7, which is roughly "only once the panel scrolls". But the cost of
+       hunting starts well before the list overflows — the Materials Breakdown has
+       a Stock column filled row after row, and five names still means reading five
+       names every time. Five is the line: below that the box is more chrome than
+       help. */
+    const searchable = base.length > 4
     const shown = query ? base.filter(k => labelOf(k).toLowerCase().includes(query.toLowerCase())) : base
 
     return (
@@ -81,14 +87,32 @@ export function Selector({ arr, value, onChange, name, clear, disabled, secondar
 
 
             </SelectTrigger>
+            {/* Put the caret in the search box the moment the menu opens, so the list
+                is filtered by typing rather than by scrolling. Without this the box was
+                there but unfocused: you had to open, aim at it, click, and only then
+                type — which is why it still read as "scroll the whole list". Radix
+                focuses the option list by default, so that has to be prevented first;
+                the rAF waits for the panel to be in the DOM before we take focus. */}
             <SelectContent style={sizeVar ? { fontSize: sizeVar } : undefined}
+                onOpenAutoFocus={(e) => {
+                    if (!searchable) return
+                    e.preventDefault()
+                    requestAnimationFrame(() => searchRef.current?.focus())
+                }}
                 className="z-dropdown responsiveTextInput min-w-[var(--radix-select-trigger-width)] max-h-72 overflow-auto">
                 {searchable && (
                     <div className="sticky top-0 z-sticky bg-[var(--surface-card)] p-1.5 border-b border-[var(--selago)]">
                         <input
+                            ref={searchRef}
                             value={query}
                             onChange={(e) => setQuery(e.target.value)}
-                            onKeyDown={(e) => e.stopPropagation()}
+                            /* Character keys are swallowed so Radix's own first-letter
+                               typeahead doesn't fight what is being typed here — but the
+                               navigation keys have to reach it, or the only way out of
+                               the box is the mouse. Type, ArrowDown, Enter. */
+                            onKeyDown={(e) => {
+                                if (!['ArrowDown', 'ArrowUp', 'Enter', 'Escape', 'Tab'].includes(e.key)) e.stopPropagation()
+                            }}
                             onPointerDown={(e) => e.stopPropagation()}
                             placeholder="Search…"
                             className="w-full h-7 px-2 rounded-lg border border-[var(--line-strong)] bg-[var(--bg-subtle)] responsiveTextInput text-[var(--chathams-blue)] focus:outline-none focus:border-[var(--endeavour)]"

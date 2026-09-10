@@ -572,7 +572,12 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowPoInvModal }) => {
                 </div>
             </div>
 
-            <div className='flex gap-4 p-2 border-t'>
+            {/* Pinned to the bottom of the modal's scroll box — the pattern components/modal.js
+                asks forms to use. This row sat in normal flow after the rows, so a breakdown
+                with twenty materials pushed Save off the bottom: you filled the list, then had
+                to scroll the whole way back down to commit it. flex-wrap because the bar
+                carries six actions and the panel narrows on smaller screens. */}
+            <div className='sticky bottom-0 z-sticky flex flex-wrap gap-2 p-2 border-t border-[var(--line)] bg-[var(--bg-card)]'>
                 <Button
                     className="h-8 px-3"
                     onClick={saveD}
