@@ -406,6 +406,37 @@ describe('finance.contractPurchaseValue — Σ poInvoices.pmnt, kept per currenc
   });
 });
 
+describe('finance.settledInQty — a zero-weight settlement line is not an arrival', () => {
+  // utils/finance.js. An `in` lot counts its SETTLED weight, except when the lot was
+  // entered with no weight at all: those are the zero-quantity lines added so a final
+  // settlement can list items the client found after sorting a shipment. That material
+  // is at the buyer's premises, not in a warehouse, so it must not become stock.
+  it('an unsettled lot counts what was received', () => {
+    expect(both(webFinance.settledInQty, mobFinance.settledInQty, { qnty: '12.5' })).toBe(12.5);
+    expect(both(webFinance.settledInQty, mobFinance.settledInQty, { qnty: '12.5', finalqnty: '' })).toBe(12.5);
+    expect(both(webFinance.settledInQty, mobFinance.settledInQty, { qnty: '12.5', finalqnty: '12.5' })).toBe(12.5);
+  });
+
+  it('a settled lot counts its settled weight, up or down', () => {
+    expect(both(webFinance.settledInQty, mobFinance.settledInQty, { qnty: '0.876', finalqnty: '0.634' })).toBeCloseTo(0.634, 6);
+    expect(both(webFinance.settledInQty, mobFinance.settledInQty, { qnty: '0.284', finalqnty: '0.290' })).toBeCloseTo(0.29, 6);
+  });
+
+  it('a lot entered at zero weight contributes nothing, whatever the settlement says', () => {
+    // Nicrometal PO 181024: 718 Solids and Waspaloy Solids read 0.254 and 0.310 MT
+    // while every real gram had shipped out on invoice 1186.
+    expect(both(webFinance.settledInQty, mobFinance.settledInQty, { qnty: '0', finalqnty: '0.254' })).toBe(0);
+    expect(both(webFinance.settledInQty, mobFinance.settledInQty, { qnty: '0', finalqnty: '0.287' })).toBe(0);
+    expect(both(webFinance.settledInQty, mobFinance.settledInQty, { qnty: 0, finalqnty: 40.293 })).toBe(0);
+  });
+
+  it('missing and unparseable quantities are zero, never NaN', () => {
+    expect(both(webFinance.settledInQty, mobFinance.settledInQty, {})).toBe(0);
+    expect(both(webFinance.settledInQty, mobFinance.settledInQty, undefined)).toBe(0);
+    expect(both(webFinance.settledInQty, mobFinance.settledInQty, { qnty: 'abc', finalqnty: '5' })).toBe(0);
+  });
+});
+
 describe('finance.toMT — quantity is converted through the contract\'s own unit setting', () => {
   it('exposes the unit factors the Inventory tab uses', () => {
     // utils/finance.js:22 — { MT: 1, KGS: 0.001, LB: 0.0005 }.
@@ -1724,7 +1755,7 @@ const SHARED_EXPORTS: Record<string, { covered: string[]; untestable?: Record<st
       'DEFAULT_TERM_DAYS', 'FINALIZED_FLAG', 'UNIT_TO_MT', 'agingBuckets', 'contractPurchaseValue',
       'effectiveDueDate', 'fx', 'groupInvoices', 'invoiceBalance', 'invoicePaid', 'invoiceRevenue',
       'isFinalNote', 'isFinalized', 'isIssued', 'isOverdue', 'num', 'pnl', 'receivables',
-      'resolveCur', 'toMT', 'unitOf',
+      'resolveCur', 'settledInQty', 'toMT', 'unitOf',
     ],
     untestable: {
       resolveDueDate: 're-export of pureHelpers.resolveDueDate (finance.js:9-11) — covered there',

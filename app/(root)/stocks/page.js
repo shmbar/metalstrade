@@ -14,6 +14,7 @@ import VideoLoader from '../../../components/videoLoader';
 import { TableSkeleton } from "../../../components/skeletons";
 import { UserAuth } from "../../../contexts/useAuthContext"
 import { loadStockData, filteredArray, loadAllStockData } from '../../../utils/utils'
+import { settledInQty } from '../../../utils/finance'
 import { Selector } from '../../../components/selectors/selectShad.js'
 import { EXD } from './excel'
 import { getTtl } from '../../../utils/languages';
@@ -190,9 +191,8 @@ const Stocks = () => {
           fieldValues.forEach(key => {
             if (key === 'qnty') {
               totalObj[key] = (parseFloat(totalObj[key]) || 0) +
-                (currentObj.type === 'in' ? (Math.abs(parseFloat(currentObj[key])) || 0) +
-                  ((currentObj.finalqnty && currentObj.finalqnty * 1 !== currentObj.qnty * 1) ?
-                    (currentObj.qnty * 1 - currentObj.finalqnty * 1) * -1 : 0)
+                (currentObj.type === 'in'
+                  ? settledInQty(currentObj)
                   : (parseFloat(currentObj[key]) * -1 || 0));
             } else if (currentObj.type === 'in' && currentObj.description && parseFloat(currentObj.qnty) > 0) { //referring to Contract invoices; skip 0-qnty balancing rows so their invoice-total doesn't overwrite the real unit price
               totalObj[key] = currentObj[key];

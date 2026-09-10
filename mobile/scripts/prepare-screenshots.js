@@ -98,7 +98,10 @@ async function main() {
     index += 1;
     const src = path.join(args.in, file);
     const meta = await sharp(src).metadata();
-    const outName = `${String(index).padStart(2, '0')}-${path.parse(file).name}.png`;
+    // Strip any ordering prefix the source already carries, so a folder named
+    // 01-dashboard.jpeg does not come out as 01-01-dashboard.png.
+    const stem = path.parse(file).name.replace(/^\d+[-_ ]+/, '');
+    const outName = `${String(index).padStart(2, '0')}-${stem}.png`;
     const dest = path.join(args.out, outName);
 
     await sharp(src)

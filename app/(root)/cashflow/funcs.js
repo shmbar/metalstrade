@@ -1,5 +1,6 @@
 import { useState, useContext } from 'react';
 import { SettingsContext } from "../../../contexts/useSettingsContext";
+import { settledInQty } from "../../../utils/finance";
 
 import CheckBox from "../../../components/checkbox";
 import Avatar from "../../../components/Avatar";
@@ -372,9 +373,8 @@ export const runStocks = async (uidCollection, settings, yr, contractsData = [],
                 fieldValues.forEach(key => {
                     if (key === 'qnty') {
                         totalObj[key] = (parseFloat(totalObj[key]) || 0) +
-                            (currentObj.type === 'in' ? (Math.abs(parseFloat(currentObj[key])) || 0) +
-                                ((currentObj.finalqnty && currentObj.finalqnty * 1 !== currentObj.qnty * 1) ?
-                                    (currentObj.qnty * 1 - currentObj.finalqnty * 1) * -1 : 0)
+                            (currentObj.type === 'in'
+                                ? settledInQty(currentObj)
                                 : (parseFloat(currentObj[key]) * -1 || 0));
                     } else if (currentObj.type === 'in' && currentObj.description) { //referring to Contract invoices
                         totalObj[key] = currentObj[key];
@@ -413,8 +413,7 @@ export const runStocks = async (uidCollection, settings, yr, contractsData = [],
                 return parseFloat(z.productsData?.find(y =>
                     y.id === (z.descriptionId || z.description))?.unitPrc) || 0;
             };
-            const lotQty = (z) => (Math.abs(parseFloat(z.qnty)) || 0) +
-                ((z.finalqnty && z.finalqnty * 1 !== z.qnty * 1) ? (z.qnty * 1 - z.finalqnty * 1) * -1 : 0);
+            const lotQty = (z) => settledInQty(z);
             const pricedInLots = filteredData.filter(z => z.type === 'in' && lotPrice(z) > 0);
             const pricedQty = pricedInLots.reduce((s, z) => s + lotQty(z), 0);
             if (pricedInLots.length && pricedQty) {

@@ -24,6 +24,21 @@ export function filteredArray(arr: Lot[]): Lot[] {
 
 const f = (v: any) => parseFloat(v);
 
+/* Port of utils/finance.js settledInQty. An `in` lot counts its SETTLED weight, but
+   a lot whose original quantity is zero counts nothing: those are the zero-weight
+   lines added so a final settlement can show items the client found after sorting a
+   shipment. That material was found at the buyer's end, so it is not in a warehouse.
+   Keep this in step with the web helper — the parity suite compares them. */
+const settledInQty = (lot: any): number => {
+  const base = Math.abs(f(lot?.qnty)) || 0;
+  if (base === 0) return 0;
+  const q = f(lot?.qnty) || 0;
+  const fin = f(lot?.finalqnty) || 0;
+  const settle = lot?.finalqnty && fin !== q ? fin - q : 0;
+  return base + settle;
+};
+
+
 // Verbatim port of web cashflow/funcs.js isNumber (:314). Deliberately STRICT:
 // a non-string is not a number, and the whole trimmed string must be numeric.
 // runStocks gates its contract-line unit-price override on exactly this, so a
@@ -216,10 +231,7 @@ export function computeInventory(
           totalObj[k] =
             (f(totalObj[k]) || 0) +
             (currentObj.type === 'in'
-              ? (Math.abs(f(currentObj[k])) || 0) +
-                (currentObj.finalqnty && f(currentObj.finalqnty) !== f(currentObj.qnty)
-                  ? (f(currentObj.qnty) - f(currentObj.finalqnty)) * -1
-                  : 0)
+              ? settledInQty(currentObj)
               : f(currentObj[k]) * -1 || 0);
         } else if (
           currentObj.type === 'in' &&
@@ -266,9 +278,7 @@ export function computeInventory(
           ) || 0
         );
       };
-      const lotQty = (z: any) =>
-        (Math.abs(f(z.qnty)) || 0) +
-        (z.finalqnty && f(z.finalqnty) !== f(z.qnty) ? (f(z.qnty) - f(z.finalqnty)) * -1 : 0);
+      const lotQty = (z: any) => settledInQty(z);
       const pricedInLots = group.filter((z: any) => z.type === 'in' && lotPrice(z) > 0);
       const pricedQty = pricedInLots.reduce((s: number, z: any) => s + lotQty(z), 0);
       if (pricedInLots.length && pricedQty) {

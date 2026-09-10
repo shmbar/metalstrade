@@ -93,7 +93,11 @@ export function buildAudit(stockData: any[], settings: any) {
     if (r.descNm) g.names.add(r.descNm);
     if (r.type === 'in') {
       const useQ = r.finalqnty != null && r.finalqnty !== r.qnty ? r.finalqnty : r.qnty;
-      g.inQty += Math.abs(useQ);
+      // Port of the web guard: a zero-quantity lot is a settlement line, not an
+      // arrival — the client found the item after sorting a shipment, so it sits at
+      // their premises, not in a warehouse. Counting its settled weight invented an
+      // "unsold leftover". See utils/finance.js settledInQty.
+      g.inQty += r.qnty === 0 ? 0 : Math.abs(useQ);
       g.inRows += 1;
       // Representative in-row: supplies price/currency/supplier/PO for the leftover
       // valuation and any write-off row created from this group.

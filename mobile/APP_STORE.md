@@ -9,6 +9,103 @@ version page in ASC ("Add for Review") and cannot be done from the CLI.
 
 ---
 
+# CHECKLIST — work straight down this
+
+Every line has a longer explanation further down. This part is the whole job.
+
+## Before opening App Store Connect
+
+- [ ] **Publish the Firestore rules.** Firebase console → Firestore → Rules →
+      paste all of `firestore.rules` → Publish. Then save an edit on a contract
+      to confirm nothing broke.
+- [ ] **Deploy the website.** Then open each of these in a private window and
+      confirm it loads without a login:
+      `/privacy` · `/support` · `/terms`
+- [ ] **Build.** `cd mobile && npx eas-cli build --platform ios --profile production`
+- [ ] **Upload.** `npx eas-cli submit --platform ios --latest`, then wait for
+      Apple's "processing complete" email.
+
+## In App Store Connect → Distribution
+
+**1. Version number** — scroll to *General Information* → **Version** field →
+change `1.0` to `1.0.3` → **Save**.
+Do this first: ASC only offers builds matching the version on the page, so 1.0.3
+builds stay invisible until you do.
+
+**2. Screenshots** — upload the five files from `mobile/store-assets/shots/`.
+Drag so the first three read **Dashboard → Stocks → Assistant** (only the first
+three appear on the install sheet).
+
+**3. Promotional text**
+```
+Run contracts, stock, invoices and cashflow from your phone — with AI document reading that turns a supplier PDF into a filled-in record.
+```
+
+**4. Description** — paste the block in section 4 below.
+
+**5. Keywords**
+```
+alloys,inventory,contracts,invoices,cashflow,stock,commodity,scrap,shipment,supplier,margin,B2B
+```
+
+**6. URLs**
+| Field | Value |
+|---|---|
+| Support URL | `https://www.ims-tech.io/support` |
+| Marketing URL | `https://www.ims-tech.io` |
+| Privacy Policy URL | `https://www.ims-tech.io/privacy` |
+
+**7. Copyright** — `2026 IMS Inc.`
+
+**8. App Information** (left sidebar) — Subtitle `Metals trading operations`,
+Category **Business** / **Productivity**, Age rating **4+**.
+
+**9. Pricing and Availability** — **Free**, all territories.
+
+**10. App Privacy** (left sidebar) — three items, all *linked to the user*, all
+*App Functionality*, none used for tracking: **Email address**, **User ID**,
+**Other User Content**. Answer **No** to the tracking question. Everything else
+is *not collected*. Detail in section 5.
+
+**11. App Review Information** — tick *Sign-in required*, then:
+```
+Email     imstest@test.test
+Password  test123
+```
+Paste this into the **Notes** box. Do not skip it — a login-only app with no
+explanation is the classic Guideline 2.1 rejection:
+```
+IMS is a B2B subscription platform for metals and alloys trading companies.
+Accounts are provisioned by each customer's own administrator, so the app has
+no public sign-up screen by design.
+
+Please sign in with the demo account provided above. It is a populated
+demonstration workspace, not live customer data.
+
+The app is sold commercially to trading companies rather than being an
+internal tool for a single organisation; product information is at
+https://www.ims-tech.io.
+
+Face ID / Touch ID sign-in is optional and only appears after a first
+successful password sign-in on the device. Email and password work throughout.
+
+Some screens use AI to read uploaded trade documents. Sample documents are
+already present in the demo workspace under Contracts and Stock.
+```
+Also fill the **Contact Information** fields (your name, phone, email) — they
+are required and Apple uses them if the reviewer needs to reach you.
+
+**12. Build** — click **Add Build** and pick **build 30**. Not 29: 29 is a
+universal binary and brings the iPad screenshot requirement back.
+
+**13.** Click **Add for Review**, then **Submit**.
+
+Apple usually replies in 24–48 hours.
+
+---
+
+# REFERENCE
+
 ## 1. Version alignment
 
 The ASC version page was created as **1.0**; every uploaded build is **1.0.3**.
@@ -269,13 +366,5 @@ already present in the demo workspace under Contracts and Stock.
 
 ## 7. Order of operations
 
-1. Deploy the web app so `/privacy` and `/support` are live.
-2. `eas build --platform ios --profile production` → build 30.
-3. `eas submit --platform ios --latest`, wait for processing.
-4. In ASC: change the version number 1.0 → 1.0.3.
-5. Capture screenshots on device, run `prepare-screenshots.js`, upload.
-6. Paste the listing copy, set category, age rating, price and the URLs.
-7. Complete App Privacy.
-8. Fill in App Review demo credentials and notes.
-9. Attach **build 30**.
-10. **Add for Review**.
+See the CHECKLIST at the top of this file. It is the single ordered list —
+keeping a second copy here only guaranteed the two would drift apart.

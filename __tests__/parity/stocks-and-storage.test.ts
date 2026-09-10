@@ -26,6 +26,19 @@ import {
 } from './_helpers/fixtures';
 import { repoFileText, expectWebUnchanged } from './_helpers/webSource';
 
+/* Mirror of utils/finance.js settledInQty. An `in` lot counts its SETTLED weight;
+   a lot whose ORIGINAL quantity is zero counts nothing, because those are the
+   zero-weight lines added so a final settlement can list items the client found
+   after sorting a shipment — material that is at the buyer's, not in a warehouse. */
+const settledInQty = (lot: any): number => {
+  const base = Math.abs(parseFloat(lot?.qnty)) || 0;
+  if (base === 0) return 0;
+  const q = parseFloat(lot?.qnty) || 0;
+  const fin = parseFloat(lot?.finalqnty) || 0;
+  const settle = lot?.finalqnty && fin !== q ? fin - q : 0;
+  return base + settle;
+};
+
 // ── web modules that DO import ───────────────────────────────────────────────
 import {
   DAY as WEB_DAY,
@@ -96,7 +109,7 @@ import {
 // RECORDED WEB HASHES — the drift alarm. See __tests__/parity/README.md.
 // ═════════════════════════════════════════════════════════════════════════════
 const HASH = {
-  loadtStocks: 'fa7444d47770', // app/(root)/stocks/page.js:132  (aggregation core)
+  loadtStocks: '798293542752', // app/(root)/stocks/page.js:132  (aggregation core)
   setTotals: '0878395a5db7', // app/(root)/stocks/page.js:263
   getFormatted: 'ce2b9a9845ad', // app/(root)/stocks/page.js:312
   showWeight: 'eff225f4c25c', // app/(root)/stocks/page.js:288
@@ -119,7 +132,7 @@ const HASH = {
   addComma: '9d2dc43091c5', // app/(root)/stocks/whModal.js:52
   sumShowAmount: '61cca0f1837f', // app/(root)/stocks/sumtables/sumTable.js:8
   gradeSummary: '3c54892bacca', // app/(root)/stocks/sumtables/gradeTable.js:11
-  buildAudit: '7e246498a7e0', // app/(root)/stocks/stockAudit.js:35
+  buildAudit: '8475451a4c58', // app/(root)/stocks/stockAudit.js:35
   resolveDescName: '826bf84cceac', // app/(root)/stocks/stockAudit.js:21
   filteredArray: '2c0d632f5d81', // utils/utils.js:207
   // Re-recorded 2026-08-17: runStocks gained supplierIds, the DISTINCT suppliers
@@ -149,7 +162,7 @@ const HASH = {
   // IMS 661 of 690 rows identical, GIS 79 of 81; no row drops to zero. Ported to
   // mobile in the same change (features/stocks/aggregate.ts); the mirror above
   // carries it too.
-  runStocks: '8610638a2344', // app/(root)/cashflow/funcs.js:188
+  runStocks: '83edb789b4fa', // app/(root)/cashflow/funcs.js:188
   staleDays: 'a2e0c4822268', // app/(root)/stocks/storageAging.js:11
   // Re-recorded 2026-09-09: DEMURRAGE_DAYS renamed to LONG_STAY_DAYS — the value
   // (90) is unchanged, but "demurrage" implied a specific shipping-contract charge
@@ -249,10 +262,7 @@ const webLoadStocks = (rawStockData: any[], settings: any): any[] => {
           totalObj[k] =
             (parseFloat(totalObj[k]) || 0) +
             (currentObj.type === 'in'
-              ? (Math.abs(parseFloat(currentObj[k])) || 0) +
-                (currentObj.finalqnty && currentObj.finalqnty * 1 !== currentObj.qnty * 1
-                  ? (currentObj.qnty * 1 - currentObj.finalqnty * 1) * -1
-                  : 0)
+              ? settledInQty(currentObj)
               : parseFloat(currentObj[k]) * -1 || 0);
         } else if (currentObj.type === 'in' && currentObj.description && parseFloat(currentObj.qnty) > 0) {
           totalObj[k] = currentObj[k];
@@ -373,10 +383,7 @@ const webRunStocksRows = (rawStockData: any[], settings: any): any[] => {
             totalObj[k] =
               (parseFloat(totalObj[k]) || 0) +
               (currentObj.type === 'in'
-                ? (Math.abs(parseFloat(currentObj[k])) || 0) +
-                  (currentObj.finalqnty && currentObj.finalqnty * 1 !== currentObj.qnty * 1
-                    ? (currentObj.qnty * 1 - currentObj.finalqnty * 1) * -1
-                    : 0)
+                ? settledInQty(currentObj)
                 : parseFloat(currentObj[k]) * -1 || 0);
           } else if (currentObj.type === 'in' && currentObj.description) {
             totalObj[k] = currentObj[k];
@@ -404,9 +411,7 @@ const webRunStocksRows = (rawStockData: any[], settings: any): any[] => {
           z.productsData?.find((y: any) => y.id === (z.descriptionId || z.description))?.unitPrc
         ) || 0;
       };
-      const webLotQty = (z: any) =>
-        (Math.abs(parseFloat(z.qnty)) || 0) +
-        (z.finalqnty && z.finalqnty * 1 !== z.qnty * 1 ? (z.qnty * 1 - z.finalqnty * 1) * -1 : 0);
+      const webLotQty = (z: any) => settledInQty(z);
       const webPriced = filteredData.filter((z: any) => z.type === 'in' && webLotPrice(z) > 0);
       const webPricedQty = webPriced.reduce((s: number, z: any) => s + webLotQty(z), 0);
       if (webPriced.length && webPricedQty) {
@@ -590,7 +595,7 @@ const webBuildAudit = (stockData: any[], settings: any) => {
     if (r.descNm) groupBuckets[k].names.add(r.descNm);
     if (r.type === 'in') {
       const useQ = r.finalqnty != null && r.finalqnty !== r.qnty ? r.finalqnty : r.qnty;
-      groupBuckets[k].inQty += Math.abs(useQ);
+      groupBuckets[k].inQty += r.qnty === 0 ? 0 : Math.abs(useQ);
       groupBuckets[k].inRows += 1;
       if (!groupBuckets[k].rep || (r.unitPrc > 0 && !groupBuckets[k].rep.unitPrc)) {
         groupBuckets[k].rep = {

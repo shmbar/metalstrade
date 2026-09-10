@@ -95,7 +95,11 @@ const buildAudit = (stockData, settings) => {
     if (r.descNm) groupBuckets[k].names.add(r.descNm)
     if (r.type === 'in') {
       const useQ = r.finalqnty != null && r.finalqnty !== r.qnty ? r.finalqnty : r.qnty
-      groupBuckets[k].inQty += Math.abs(useQ)
+      // A lot whose ORIGINAL quantity is zero never arrived — it is a settlement
+      // line for material the client found after sorting a shipment (see
+      // settledInQty). Counting its settled weight invented an "unsold leftover"
+      // the warehouse never held.
+      groupBuckets[k].inQty += r.qnty === 0 ? 0 : Math.abs(useQ)
       groupBuckets[k].inRows += 1
       // Representative in-row: supplies price/currency/supplier/PO for the
       // leftover valuation and any write-off row created from this group.

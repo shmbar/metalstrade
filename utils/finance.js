@@ -97,6 +97,37 @@ export const unitOf = (contract, settings) =>
 
 export const toMT = (qty, contract, settings) => num(qty) * (UNIT_TO_MT[unitOf(contract, settings)] ?? 1);
 
+/* How much an `in` lot actually put into the warehouse.
+
+   `qnty` is what the PO said; `finalqnty` is what it weighed at settlement, so a
+   settled lot counts its settled figure — a 0.876 lot that weighed 0.634 is 0.634.
+
+   The exception is a lot whose ORIGINAL quantity is zero, and it is not an edge
+   case — it is a working practice. When a shipment is sorted at the client's
+   premises and items turn up that were never on the PO, those items are entered
+   back on the contract as ZERO-weight lines, purely so the final settlement can
+   show them and the supplier can be paid. The material was found at the buyer's
+   end: it left the warehouse with the shipment and never returned. Booking its
+   settled weight as an arrival invents stock that does not exist.
+
+   Nicrometal PO 181024 was exactly this. 718 Solids read 0.254 MT and Waspaloy
+   Solids 0.310 MT, and every real gram had already shipped out on invoice 1186 —
+   the whole remaining balance was zero-weight settlement lines.
+
+   The stocks page already calls these "0-qnty balancing rows" and refuses to let
+   one overwrite a row's unit price. Quantity was the field that never got the
+   same guard. */
+export const settledInQty = (lot) => {
+  const base = Math.abs(num(lot?.qnty));
+  if (base === 0) return 0;
+  const q = num(lot?.qnty);
+  const fin = num(lot?.finalqnty);
+  // Kept in the original shape (base + delta) rather than "return finalqnty", so a
+  // negatively-signed qnty behaves exactly as it did before.
+  const settle = lot?.finalqnty && fin !== q ? fin - q : 0;
+  return base + settle;
+};
+
 // ── grouping ─────────────────────────────────────────────────────────────────
 // Dedupe a flat list of invoice docs by invoice number. When a group contains a
 // Credit/Final note, those supersede the original '1111' invoice; payments are
