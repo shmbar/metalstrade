@@ -47,6 +47,7 @@ import {
   PanelTopOpen,
   PenLine,
   Plus,
+  RefreshCw,
   RotateCcw,
   Save,
   ScrollText,
@@ -89,6 +90,8 @@ export const ACTION_ICONS = {
   copy: Copy,
   undo: Undo2,
   reopen: RotateCcw,
+  // Fetch again now — the market strips' refresh (RotateCcw is reopen/undo-ish).
+  refresh: RefreshCw,
   confirm: Check,
   // A panel's list toggle: down hides the list, up brings it back (the
   // floating selection tally in components/SumPanel).

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 
 const STORAGE_KEY = 'metal-prices-history';
 const DAY_MS = 24 * 60 * 60 * 1000;
@@ -32,21 +32,34 @@ function getPrice24hAgo(history, sym) {
     return closest;
 }
 
+/* Polls /api/metal-prices every 60 s — the route's own TTL, so each poll can land
+   on a new minute's prices.
+
+   `rateTime` is when metals-api stamped the prices, as a Date in the viewer's
+   clock. The ticker prints that, not the provider's `date`, which is a UTC
+   calendar date and so read yesterday for a UAE user until 04:00 local.
+   `stale` means the prices are the last good ones — the route's provider is
+   failing, or this browser could not reach the route.
+
+   `loading` is the first load and a manual refresh only. It used to flip on every
+   60 s poll, which blinked the ticker label to "Loading…" once a minute.
+   `refresh()` asks the route to skip its cache (?fresh=1). */
 export default function useMetalPrices(refreshInterval = 60 * 1000) {
     const [prices, setPrices] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [lastUpdated, setLastUpdated] = useState(null);
     const [apiDate, setApiDate] = useState(null);
+    const [rateTime, setRateTime] = useState(null);
+    const [stale, setStale] = useState(false);
+    const hasPricesRef = useRef(false);
 
-    const fetchPrices = useCallback(async () => {
+    const fetchPrices = useCallback(async (manual = false) => {
+        if (manual) setLoading(true);
         try {
-            setLoading(true);
-            setError(null);
-            const res = await fetch('/api/metal-prices');
-            if (!res.ok) throw new Error(`HTTP ${res.status}`);
-            const json = await res.json();
-            if (json.error) throw new Error(json.error);
+            const res = await fetch(manual ? '/api/metal-prices?fresh=1' : '/api/metal-prices', { cache: 'no-store' });
+            const json = await res.json().catch(() => ({}));
+            if (!res.ok || !json.prices) throw new Error(json.error || `HTTP ${res.status}`);
 
             const incoming = json.prices || {};
 
@@ -80,17 +93,25 @@ export default function useMetalPrices(refreshInterval = 60 * 1000) {
 
             setPrices(incoming);
             setApiDate(json.date || null);
+            setRateTime(json.timestamp ? new Date(json.timestamp * 1000) : null);
+            setStale(!!json.stale);
+            setError(json.stale ? (json.error || 'Price provider unavailable') : null);
             setLastUpdated(new Date());
+            hasPricesRef.current = true;
         } catch (err) {
+            // Keep the prices already on screen, but stop calling them current.
+            if (hasPricesRef.current) setStale(true);
             setError(err.message);
         } finally {
             setLoading(false);
         }
     }, []);
 
+    const refresh = useCallback(() => fetchPrices(true), [fetchPrices]);
+
     useEffect(() => {
-        fetchPrices();
-        const interval = setInterval(fetchPrices, refreshInterval);
+        fetchPrices(false);
+        const interval = setInterval(() => fetchPrices(false), refreshInterval);
         return () => clearInterval(interval);
     }, [fetchPrices, refreshInterval]);
 
@@ -104,5 +125,5 @@ export default function useMetalPrices(refreshInterval = 60 * 1000) {
         }).format(price);
     }, []);
 
-    return { prices, loading, error, lastUpdated, apiDate, refresh: fetchPrices, formatPrice };
+    return { prices, loading, error, lastUpdated, apiDate, rateTime, stale, refresh, formatPrice };
 }

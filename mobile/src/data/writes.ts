@@ -1178,6 +1178,16 @@ export async function saveCashflowManualRows(
   return true;
 }
 
+// Web's admin "Total for {year}" input under the Totals strip — utils.js
+// saveCashflow(uid, yr, { [`total${yr}`]: value }): the year is a map field on
+// the same document, merged so the other years and `financed` are untouched.
+// Stored as the digits-only string web's removeNonNumeric produces.
+export async function saveCashflowYearTotal(uidCollection: string, year: number, value: string): Promise<boolean> {
+  const clean = String(value ?? '').replace(/[^0-9.]/g, '');
+  await setDoc(doc(db, uidCollection, 'cashflow'), { [year]: { [`total${year}`]: clean } }, { merge: true });
+  return true;
+}
+
 // ── storage tagging ──────────────────────────────────────────────────────────
 // Patch a field on an expense doc — port of utils.js updateExpenseField. Used to
 // tag a storage invoice to a warehouse + month (self-contained write).

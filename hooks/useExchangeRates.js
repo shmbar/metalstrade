@@ -1,43 +1,77 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 
-// Free API - no key required for basic usage
-// Can be replaced with XE API or other providers later
-const API_URL = 'https://api.exchangerate-api.com/v4/latest/USD';
+/* Exchange rates for the dashboard: the ticker strip, and the EUR→USD figure the
+   dashboard converts euro totals with.
+
+   Primary: the `fx` block of /api/metal-prices — metals-api, the same paid,
+   minute-updated plan as the metal prices, fetched in the same upstream call so
+   it costs no extra quota. Fallback: exchangerate-api's open feed, which is what
+   this hook used to call directly. That feed publishes ONCE a day (00:00 UTC), so
+   the strip was showing a day's rate with no date on it and no way to refresh.
+
+   The shape is unchanged: `rates` is USD-based (rates.EUR = euros per 1 USD).
+   `rateTime` is when the provider stamped the rates; `source` is 'live' or
+   'daily'; `stale` means these are the last good rates, not current ones.
+
+   Not the rate contracts are saved at — that is /api/fx (ECB reference rates),
+   deliberately separate. */
+const FALLBACK_URL = 'https://api.exchangerate-api.com/v4/latest/USD';
 
 const CURRENCIES = ['EUR', 'ILS', 'GBP', 'RUB', 'AED', 'CNY'];
 
-export default function useExchangeRates(refreshInterval = 30 * 60 * 1000) {
+const pickRates = (all) => ({ USD: 1, ...Object.fromEntries(CURRENCIES.map((c) => [c, Number(all?.[c])])) });
+const isComplete = (r) => CURRENCIES.every((c) => r[c] > 0);
+
+async function fromLive(manual) {
+    const res = await fetch(manual ? '/api/metal-prices?fresh=1' : '/api/metal-prices', { cache: 'no-store' });
+    const json = await res.json();
+    const rates = pickRates(json?.fx);
+    if (!isComplete(rates)) throw new Error(json?.error || 'live FX unavailable');
+    return {
+        rates,
+        time: json.timestamp ? new Date(json.timestamp * 1000) : null,
+        source: 'live',
+        stale: !!json.stale,
+    };
+}
+
+async function fromDaily() {
+    const res = await fetch(FALLBACK_URL, { cache: 'no-store' });
+    if (!res.ok) throw new Error('Failed to fetch exchange rates');
+    const data = await res.json();
+    return {
+        rates: pickRates(data.rates),
+        time: data.time_last_updated ? new Date(data.time_last_updated * 1000) : null,
+        source: 'daily',
+        stale: false,
+    };
+}
+
+export default function useExchangeRates(refreshInterval = 60 * 1000) {
     const [rates, setRates] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [lastUpdated, setLastUpdated] = useState(null);
+    const [rateTime, setRateTime] = useState(null);
+    const [source, setSource] = useState(null);
+    const [stale, setStale] = useState(false);
+    const hasRatesRef = useRef(false);
 
-    const fetchRates = useCallback(async () => {
+    const fetchRates = useCallback(async (manual = false) => {
+        if (manual) setLoading(true);
         try {
-            setLoading(true);
+            const got = await fromLive(manual).catch(() => fromDaily());
+            setRates(got.rates);
+            setRateTime(got.time);
+            setSource(got.source);
+            setStale(got.stale);
             setError(null);
-
-            const response = await fetch(API_URL);
-            if (!response.ok) {
-                throw new Error('Failed to fetch exchange rates');
-            }
-
-            const data = await response.json();
-
-            // Extract only the currencies we need
-            const filteredRates = {
-                USD: 1,
-                ...CURRENCIES.reduce((acc, cur) => {
-                    acc[cur] = data.rates[cur];
-                    return acc;
-                }, {})
-            };
-
-            setRates(filteredRates);
             setLastUpdated(new Date());
+            hasRatesRef.current = true;
         } catch (err) {
+            if (hasRatesRef.current) setStale(true);
             setError(err.message);
             console.error('Exchange rate fetch error:', err);
         } finally {
@@ -45,11 +79,12 @@ export default function useExchangeRates(refreshInterval = 30 * 60 * 1000) {
         }
     }, []);
 
+    const refresh = useCallback(() => fetchRates(true), [fetchRates]);
+
     // Initial fetch and interval refresh
     useEffect(() => {
-        fetchRates();
-
-        const interval = setInterval(fetchRates, refreshInterval);
+        fetchRates(false);
+        const interval = setInterval(() => fetchRates(false), refreshInterval);
         return () => clearInterval(interval);
     }, [fetchRates, refreshInterval]);
 
@@ -73,7 +108,10 @@ export default function useExchangeRates(refreshInterval = 30 * 60 * 1000) {
         loading,
         error,
         lastUpdated,
-        refresh: fetchRates,
+        rateTime,
+        source,
+        stale,
+        refresh,
         convert,
         formatRate,
         currencies: ['USD', ...CURRENCIES]

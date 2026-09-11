@@ -1,7 +1,8 @@
 import { useMemo, useState } from 'react';
 import { View, Alert, ActivityIndicator } from 'react-native';
 import { Pressable } from '@/components/ui/Pressable';
-import { useLocalSearchParams, router } from 'expo-router';
+import { BackButton } from '@/components/ui/BackButton';
+import { useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import * as DocumentPicker from 'expo-document-picker';
 import * as FileSystem from 'expo-file-system/legacy';
@@ -178,11 +179,5 @@ export default function CertChecker() {
 }
 
 function Back() {
-  const { colors } = useTheme();
-  return (
-    <Pressable onPress={() => router.back()} hitSlop={8} style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
-      <Ionicons name="chevron-back" size={22} color={colors.primary} />
-      <Text variant="bodyMedium" tone="primary">Back</Text>
-    </Pressable>
-  );
+  return <BackButton />;
 }

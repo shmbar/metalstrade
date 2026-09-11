@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { View, Alert, KeyboardAvoidingView, Platform } from 'react-native';
-import { Pressable } from '@/components/ui/Pressable';
-import { router } from 'expo-router';
+import { Pressable } from '@/components/ui/Pressable';
+import { BackButton } from '@/components/ui/BackButton';
 import { Ionicons } from '@expo/vector-icons';
 import { useQuery } from '@tanstack/react-query';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -101,10 +101,7 @@ export default function Formulas() {
   }, [tab, value]);
 
   const back = (
-    <Pressable onPress={() => router.back()} hitSlop={8} style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
-      <Ionicons name="chevron-back" size={22} color={colors.primary} />
-      <Text variant="bodyMedium" tone="primary">Back</Text>
-    </Pressable>
+    <BackButton />
   );
 
   // Web parity (utils/permissions.js isAdmin) — was an exact-string

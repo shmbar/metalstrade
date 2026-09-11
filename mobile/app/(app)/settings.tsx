@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { View, Modal, Alert } from 'react-native';
 import { Pressable } from '@/components/ui/Pressable';
+import { BackButton } from '@/components/ui/BackButton';
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -87,9 +88,7 @@ export default function SettingsScreen() {
   return (
     <Screen contentContainerStyle={{ paddingTop: insets.top + 8 }} edges={false}>
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 14 }}>
-        <Pressable onPress={() => router.back()} hitSlop={8}>
-          <Ionicons name="chevron-back" size={24} color={colors.primary} />
-        </Pressable>
+        <BackButton />
         <View style={{ flex: 1 }}>
           <Text variant="h1">Settings</Text>
           <Text variant="caption" tone="faint">Manage suppliers, clients & company config</Text>

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { View, FlatList } from 'react-native';
-import { Pressable } from '@/components/ui/Pressable';
+import { Pressable } from '@/components/ui/Pressable';
+import { BackButton } from '@/components/ui/BackButton';
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -57,10 +58,7 @@ export default function Expenses() {
   return (
     <Screen scroll={false} flush contentContainerStyle={{ paddingTop: insets.top + 8 }} edges={false}>
       <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
-        <Pressable onPress={() => router.back()} hitSlop={8} style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
-          <Ionicons name="chevron-back" size={22} color={colors.primary} />
-          <Text variant="bodyMedium" tone="primary">Back</Text>
-        </Pressable>
+        <BackButton />
         <Text variant="h2">Expenses</Text>
         <PeriodSelector />
       </View>

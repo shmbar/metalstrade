@@ -23,6 +23,44 @@ export interface Counterparty {
   items: any[];
 }
 
+/** One lot behind a warehouse row — web StoclToolTip columns: PO#, Supplier, Description, Quantity, Unit Price, Total. */
+export interface StockLotRow {
+  id: string;
+  order: string;
+  supplierName: string;
+  description: string;
+  qnty: number;
+  unitPrc: number;
+  total: number;
+  cur: string;
+}
+
+export interface StockWarehouseRow {
+  stock: string;
+  total: number;
+  count: number;
+  items: StockLotRow[];
+}
+
+/** One contract line behind an unsold supplier — web StocksUnSold columns: PO#, Description, Stock, Quantity, Unit Price, Total. */
+export interface UnsoldLineRow {
+  order: string;
+  description: string;
+  stockName: string;
+  qnty: number;
+  unitPrc: number;
+  total: number;
+  cur: string;
+}
+
+export interface UnsoldSupplierRow {
+  supplier: string;
+  name: string;
+  total: number;
+  cur: string;
+  items: UnsoldLineRow[];
+}
+
 export interface CashflowData {
   // Incoming — outstanding client receivables (per currency; includes credit balances).
   // COMBINED total across both buckets below — still what the bottom line sums.
@@ -59,11 +97,30 @@ export interface CashflowData {
   expenseSuppliers: Counterparty[];
   // Unsold stock value (capital tied up).
   unsoldByCur: Record<string, number>;
-  // Stocks split by whether their purchase invoice has been paid (web sections).
-  stocksPaid: { stock: string; total: number; count: number }[];
-  stocksUnpaid: { stock: string; total: number; count: number }[];
+  // Stocks split by whether their purchase invoice has been paid — web's
+  // "Stocks - Paid" / "Stocks - UnPaid". One row per WAREHOUSE, as web lists
+  // them; `items` are the lots each warehouse opens onto.
+  stocksPaid: StockWarehouseRow[];
+  stocksUnpaid: StockWarehouseRow[];
   stocksPaidTotal: number;
   stocksUnpaidTotal: number;
+  /**
+   * Web's "Unsold Stocks" TAB (cashflow/page.js:1370): one row per SUPPLIER
+   * (unSoldArrTitles), each opening onto its contract lines (StocksUnSold).
+   * unsoldByCur is the same rows folded per currency.
+   */
+  unsoldBySupplier: UnsoldSupplierRow[];
+  /** Web's tab footer: every supplier's total summed as-is, printed with '$'. */
+  unsoldTotal: number;
+  /**
+   * Web's KPI strip (page.js:1263-1280). Clients due = Σ debtBlnc over both client
+   * sections (currencies summed as-is, as web does); Suppliers due = Σ blnc with
+   * EUR already converted (getTotalsSupPayments); Expenses = Σ amount with EUR×1.08
+   * (runExpenses). Total Balance (admin) is `balance`.
+   */
+  kpi: { clientsDue: number; suppliersDue: number; expenses: number };
+  /** Admin "Total for {year}" inputs — {uid}/cashflow[year].total{year}, one per year in web's `yr`. */
+  yearTotals: { year: number; value: string }[];
   // Web bottom line: Total (Left) − Total (Right) = Balance.
   incoming: number;
   totalLeft: number;
@@ -141,7 +198,8 @@ function computeReceivablesWeb(invoices: Invoice[]): any[] {
 // The poInvoice is resolved from the LIVE contract first: lots carry a snapshot of
 // poInvoices taken at breakdown-save time, and payments recorded later never
 // refreshed it — that snapshot is what kept paid stock showing as unpaid (ELG 010726).
-function splitStocksPaidUnpaid(inventoryRows: any[], contractsData: any[]) {
+function splitStocksPaidUnpaid(inventoryRows: any[], contractsData: any[], settings: any) {
+  const supName = (id: string) => settings?.Supplier?.Supplier?.find((x: any) => x.id === id)?.nname || '';
   const paid: any[] = [];
   const unpaid: any[] = [];
 
@@ -166,15 +224,28 @@ function splitStocksPaidUnpaid(inventoryRows: any[], contractsData: any[]) {
   const sumTotal = (rows: any[]) =>
     rows.reduce((s, r) => s + (r.total === '-' ? 0 : parseFloat(r.total) || 0), 0);
 
-  // Per-warehouse roll-up for display.
-  const byWarehouse = (rows: any[]) => {
-    const m: Record<string, { stock: string; total: number; count: number }> = {};
+  // Per-warehouse roll-up; each row keeps its lots so a warehouse can open onto
+  // them (web's StoclToolTip). Web orders warehouses by total, descending.
+  const byWarehouse = (rows: any[]): StockWarehouseRow[] => {
+    const m: Record<string, StockWarehouseRow> = {};
     rows.forEach((r) => {
       const k = r.stock || '—';
-      (m[k] ||= { stock: k, total: 0, count: 0 });
-      m[k].total += r.total === '-' ? 0 : parseFloat(r.total) || 0;
+      (m[k] ||= { stock: k, total: 0, count: 0, items: [] });
+      const total = r.total === '-' ? 0 : parseFloat(r.total) || 0;
+      m[k].total += total;
       m[k].count += 1;
+      m[k].items.push({
+        id: String(r.id ?? ''),
+        order: r.order || '',
+        supplierName: r.supplier && r.supplier !== '-' ? supName(r.supplier) : '',
+        description: r.descriptionName || '',
+        qnty: Number(r.qnty) || 0,
+        unitPrc: Number(r.unitPrc) || 0,
+        total,
+        cur: r.cur === 'eu' ? 'eu' : 'us',
+      });
     });
+    Object.values(m).forEach((w) => w.items.sort((a, b) => b.total - a.total));
     return Object.values(m).sort((a, b) => b.total - a.total);
   };
 
@@ -283,17 +354,51 @@ function computeUnsoldWeb(contractsData: any[], stockData: any[], settings: any)
       if (qnty <= 0.0005) continue; // nothing left (or represented by the per-alloy lines)
 
       const unitPrc = Number(prod.unitPrc) || 0;
-      rows.push({ order: con.order, supplier: con.supplier, qnty, unitPrc, total: qnty * unitPrc, cur: con.cur });
+      // Warehouse(s) the unsold material physically sits in, from its lots — web
+      // funcs.js runStocks stockName, verbatim.
+      const stockName = [
+        ...new Set(
+          unsoldLots
+            .map((l: any) => {
+              const w = settings?.Stocks?.Stocks?.find((k: any) => k.id === l.stock);
+              return w?.stock || w?.nname;
+            })
+            .filter(Boolean)
+        ),
+      ].join(', ');
+      rows.push({
+        order: con.order,
+        supplier: con.supplier,
+        description: prod.description || '',
+        stockName,
+        qnty,
+        unitPrc,
+        total: qnty * unitPrc,
+        cur: con.cur,
+      });
     }
     return rows;
   });
 
-  // Per-supplier totals (web unSoldArrTitles).
-  const bySupplier: Record<string, { supplier: string; total: number; cur: string }> = {};
+  // Per-supplier totals (web unSoldArrTitles), each keeping its contract lines
+  // (web unSoldAll filtered per supplier by StocksUnSold).
+  const supName = (id: string) => settings?.Supplier?.Supplier?.find((x: any) => x.id === id)?.nname || '—';
+  const bySupplier: Record<string, UnsoldSupplierRow> = {};
   unSoldAll.forEach((item: any) => {
     if (!item?.order) return;
-    if (!bySupplier[item.supplier]) bySupplier[item.supplier] = { supplier: item.supplier, total: 0, cur: item.cur };
+    if (!bySupplier[item.supplier]) {
+      bySupplier[item.supplier] = { supplier: item.supplier, name: supName(item.supplier), total: 0, cur: item.cur, items: [] };
+    }
     bySupplier[item.supplier].total += Number(item.total) || 0;
+    bySupplier[item.supplier].items.push({
+      order: item.order,
+      description: item.description,
+      stockName: item.stockName,
+      qnty: item.qnty,
+      unitPrc: item.unitPrc,
+      total: item.total,
+      cur: item.cur === 'eu' ? 'eu' : 'us',
+    });
   });
   return Object.values(bySupplier);
 }
@@ -397,6 +502,9 @@ export function computeCashflow(input: CashflowInputs): CashflowData {
       paid: (inv.payments || []).reduce((t: number, p: any) => t + num(p?.pmnt), 0),
       // Web marks the invoice number with FN / CN on final and credit notes.
       marker: inv.invType === '3333' ? 'FN' : inv.invType === '2222' ? 'CN' : '',
+      // Web ClientDetails lists unpaid invoices a second time as "Prepayment":
+      // percentage% and totalAmount × percentage / 100.
+      percentage: Number(inv.percentage) || 0,
       etd: inv.shipData?.etd?.startDate || '',
       eta: inv.shipData?.eta?.startDate || '',
     };
@@ -483,15 +591,21 @@ export function computeCashflow(input: CashflowInputs): CashflowData {
         cur: isUs ? 'us' : 'eu',
         expense: e.expense,
         poSupplier: e.poSupplier,
+        // Web ExpensesToolTip: PO# falls back to 'Comp. Exp.' for company expenses;
+        // the type is the Expenses settings label, not the raw id.
+        order: e.poSupplier?.order ?? 'Comp. Exp.',
+        expType: settings?.Expenses?.Expenses?.find((q: any) => q.id === e.expType)?.expType || '',
       });
       expMap.set(name, c);
     });
 
   // ── Unsold stock value — web Sold/Unsold lot-status algorithm ──────────
   const unsoldByCur: Record<string, number> = {};
-  computeUnsoldWeb(contracts2y, stocks, settings).forEach((row) =>
-    addCur(unsoldByCur, row.cur === 'eu' ? 'eu' : 'us', row.total)
-  );
+  const unsoldBySupplier = computeUnsoldWeb(contracts2y, stocks, settings);
+  unsoldBySupplier.forEach((row) => addCur(unsoldByCur, row.cur === 'eu' ? 'eu' : 'us', row.total));
+  // Web's tab footer (page.js:1417): parseFloat(item.total) summed across every
+  // supplier regardless of currency, printed with a '$' prefix.
+  const unsoldTotal = unsoldBySupplier.reduce((sum, r) => sum + (Number(r.total) || 0), 0);
 
   // ── Stocks Paid / UnPaid (web sections + Total-Left components) ────────
   // Web runStocks filters the ledger BEFORE aggregating (funcs.js:192-193):
@@ -503,7 +617,7 @@ export function computeCashflow(input: CashflowInputs): CashflowData {
   // The predicate itself lives beside computeInventory (cashflowStockLots) so the
   // parity suite can check it against web's runStocks directly.
   const inventoryRows = computeInventory(cashflowStockLots(stocks), settings, { minQnty: 0, cashflow: true }).rows;
-  const stockSplit = splitStocksPaidUnpaid(inventoryRows, contracts2y || []);
+  const stockSplit = splitStocksPaidUnpaid(inventoryRows, contracts2y || [], settings);
 
   const incoming = sumMarginsRemaining(margins);
 
@@ -531,6 +645,17 @@ export function computeCashflow(input: CashflowInputs): CashflowData {
     incoming + manual.initial + stockSplit.paidTotal + stockSplit.unpaidTotal + receivablesAll + manual.financedLeft;
   const totalRight = payablesUsd + expensesUsd + manual.financedRight;
 
+  // Web's KPI strip reuses exactly the section reduces above (page.js:1263-1265).
+  const kpi = { clientsDue: receivablesAll, suppliersDue: payablesUsd, expenses: expensesUsd };
+
+  // Admin "Total for {year}" — web reads cashflowDoc[year][`total${year}`] for
+  // each year in `yr` = [currentYear - 1, currentYear] (page.js:101, :217-221).
+  const thisYear = new Date().getFullYear();
+  const yearTotals = [thisYear - 1, thisYear].map((year) => {
+    const v = (cashflowDoc as any)?.[year]?.[`total${year}`];
+    return { year, value: v == null ? '' : String(v) };
+  });
+
   // No cap. Web renders EVERY counterparty row, and each section's Total is the
   // reduce over that same array — so truncating to 8 made the visible rows
   // disagree with the header total sitting above them.
@@ -548,6 +673,10 @@ export function computeCashflow(input: CashflowInputs): CashflowData {
     expensesUsd,
     expenseSuppliers: sortByUsd(expMap),
     unsoldByCur,
+    unsoldBySupplier,
+    unsoldTotal,
+    kpi,
+    yearTotals,
     stocksPaid: stockSplit.paid,
     stocksUnpaid: stockSplit.unpaid,
     stocksPaidTotal: stockSplit.paidTotal,

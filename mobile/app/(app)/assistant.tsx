@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react';
 import { View, FlatList, TextInput, KeyboardAvoidingView, Platform, ActivityIndicator } from 'react-native';
 import { Pressable } from '@/components/ui/Pressable';
+import { BackButton } from '@/components/ui/BackButton';
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -87,9 +88,7 @@ export default function Assistant() {
   return (
     <View style={{ flex: 1, backgroundColor: colors.bg, paddingTop: insets.top + 8 }}>
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: spacing.lg, marginBottom: 8 }}>
-        <Pressable onPress={() => router.back()} hitSlop={8}>
-          <Ionicons name="chevron-back" size={24} color={colors.primary} />
-        </Pressable>
+        <BackButton />
         <View style={{ flex: 1 }}>
           <Text variant="h2">Assistant</Text>
           <Text variant="caption" tone="faint">Ask about your contracts, invoices, receivables…</Text>

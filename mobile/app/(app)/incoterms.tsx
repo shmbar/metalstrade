@@ -1,7 +1,6 @@
 import { useMemo, useState } from 'react';
 import { View } from 'react-native';
-import { Pressable } from '@/components/ui/Pressable';
-import { router } from 'expo-router';
+import { BackButton } from '@/components/ui/BackButton';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Screen, Card, Text, TextField, Badge, SegmentedControl, EmptyState } from '@/components/ui';
@@ -40,9 +39,7 @@ export default function Incoterms() {
   return (
     <Screen contentContainerStyle={{ paddingTop: insets.top + 8 }} edges={false}>
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 14 }}>
-        <Pressable onPress={() => router.back()} hitSlop={8}>
-          <Ionicons name="chevron-back" size={24} color={colors.primary} />
-        </Pressable>
+        <BackButton />
         <View style={{ flex: 1 }}>
           <Text variant="h1">Incoterms 2020</Text>
           <Text variant="caption" tone="faint">Who pays, who carries the risk, where it transfers</Text>

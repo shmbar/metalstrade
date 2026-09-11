@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { View, Alert, Modal } from 'react-native';
 import { Pressable } from '@/components/ui/Pressable';
+import { BackButton } from '@/components/ui/BackButton';
 import { useLocalSearchParams, router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { Screen, Card, Text, Badge, Button, ProgressBar, SectionHeader, EmptyState, SkeletonList } from '@/components/ui';
@@ -369,17 +370,5 @@ export default function ContractDetail() {
 }
 
 function BackBar() {
-  const { colors } = useTheme();
-  return (
-    <Pressable
-      onPress={() => router.back()}
-      hitSlop={8}
-      style={{ flexDirection: 'row', alignItems: 'center', gap: 4, alignSelf: 'flex-start' }}
-    >
-      <Ionicons name="chevron-back" size={22} color={colors.primary} />
-      <Text variant="bodyMedium" tone="primary">
-        Contracts
-      </Text>
-    </Pressable>
-  );
+  return <BackButton label="Back to contracts" />;
 }

@@ -6,6 +6,7 @@ import {
   partialPayPoInvoice,
   clientPartialPayment,
   saveCashflowManualRows,
+  saveCashflowYearTotal,
 } from '@/data/writes';
 import { hapticSuccess, hapticWarning } from '@/lib/haptics';
 
@@ -84,5 +85,15 @@ export function useCashflowActions() {
     onError,
   });
 
-  return { paySupplier, payExpense, partialPay, payClient, saveManualRows };
+  // Admin "Total for {year}" (web cashflow/page.js handleChange + saveInitData).
+  const saveYearTotal = useMutation({
+    mutationFn: async (args: { year: number; value: string }) => {
+      if (!uidCollection) throw new Error('Not authenticated');
+      await saveCashflowYearTotal(uidCollection, args.year, args.value);
+    },
+    onSuccess: refresh,
+    onError,
+  });
+
+  return { paySupplier, payExpense, partialPay, payClient, saveManualRows, saveYearTotal };
 }

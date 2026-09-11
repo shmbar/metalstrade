@@ -1,7 +1,8 @@
 import { useMemo, useState } from 'react';
 import { View, Alert } from 'react-native';
-import { Pressable } from '@/components/ui/Pressable';
-import { useLocalSearchParams, router } from 'expo-router';
+import { Pressable } from '@/components/ui/Pressable';
+import { BackButton } from '@/components/ui/BackButton';
+import { useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Screen, Card, Text, Select, TextField, DateField, Button, SectionHeader, SegmentedControl, EmptyState, SkeletonList } from '@/components/ui';
@@ -214,11 +215,5 @@ function Row({ label, v, strong, color }: { label: string; v: string; strong?: b
 }
 
 function Back() {
-  const { colors } = useTheme();
-  return (
-    <Pressable onPress={() => router.back()} hitSlop={8} style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
-      <Ionicons name="chevron-back" size={22} color={colors.primary} />
-      <Text variant="bodyMedium" tone="primary">Back</Text>
-    </Pressable>
-  );
+  return <BackButton />;
 }

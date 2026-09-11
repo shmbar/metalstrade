@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { View, Switch, Alert, KeyboardAvoidingView, Platform } from 'react-native';
 import { Pressable } from '@/components/ui/Pressable';
+import { BackButton } from '@/components/ui/BackButton';
 import { useLocalSearchParams, router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -196,11 +197,5 @@ export default function StockIn() {
 }
 
 function Back() {
-  const { colors } = useTheme();
-  return (
-    <Pressable onPress={() => router.back()} hitSlop={8} style={{ flexDirection: 'row', alignItems: 'center', gap: 4, alignSelf: 'flex-start' }}>
-      <Ionicons name="chevron-back" size={22} color={colors.primary} />
-      <Text variant="bodyMedium" tone="primary">Back</Text>
-    </Pressable>
-  );
+  return <BackButton />;
 }

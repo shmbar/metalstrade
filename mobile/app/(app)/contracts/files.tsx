@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { View, Alert, Linking, ActivityIndicator } from 'react-native';
 import { Pressable } from '@/components/ui/Pressable';
-import { useLocalSearchParams, router } from 'expo-router';
+import { BackButton } from '@/components/ui/BackButton';
+import { useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import * as DocumentPicker from 'expo-document-picker';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -55,10 +56,7 @@ export default function ContractFiles() {
   return (
     <Screen contentContainerStyle={{ paddingTop: insets.top + 8 }} edges={false}>
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 14 }}>
-        <Pressable onPress={() => router.back()} hitSlop={8} style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
-          <Ionicons name="chevron-back" size={22} color={colors.primary} />
-          <Text variant="bodyMedium" tone="primary">Back</Text>
-        </Pressable>
+        <BackButton />
         <Text variant="h2" style={{ flex: 1 }}>Attachments</Text>
       </View>
 

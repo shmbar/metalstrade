@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { View, FlatList, Modal, Alert } from 'react-native';
-import { Pressable } from '@/components/ui/Pressable';
-import { router } from 'expo-router';
+import { Pressable } from '@/components/ui/Pressable';
+import { BackButton } from '@/components/ui/BackButton';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Screen, Card, Text, Badge, TextField, Button, SkeletonList, ErrorState, EmptyState } from '@/components/ui';
@@ -65,10 +65,7 @@ export default function Accounting() {
   return (
     <Screen scroll={false} flush contentContainerStyle={{ paddingTop: insets.top + 8 }} edges={false}>
       <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
-        <Pressable onPress={() => router.back()} hitSlop={8} style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
-          <Ionicons name="chevron-back" size={22} color={colors.primary} />
-          <Text variant="bodyMedium" tone="primary">Back</Text>
-        </Pressable>
+        <BackButton />
         <Text variant="h2">Accounting</Text>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
           <Pressable onPress={onExport} hitSlop={8}>

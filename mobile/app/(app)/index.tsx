@@ -1,5 +1,5 @@
 import { useMemo, useRef, useState } from 'react';
-import { View, RefreshControl, Animated } from 'react-native';
+import { View, ScrollView, RefreshControl, Animated } from 'react-native';
 import { Pressable } from '@/components/ui/Pressable';
 import { router, Redirect } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -182,21 +182,29 @@ export default function Dashboard() {
           </View>
         </LinearGradient>
 
-        {/* Filters — narrow every figure below (web's filter bar). */}
-        <View style={{ paddingHorizontal: spacing.lg, marginTop: 14, gap: 8 }}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-            <Ionicons name="funnel-outline" size={15} color={colors.textMuted} />
-            <Text variant="caption" tone="muted">Filters</Text>
-            {activeFilters > 0 && (
-              <Pressable onPress={() => setFilters({ supplier: '', client: '', material: '' })} hitSlop={8} style={{ marginLeft: 'auto' }}>
-                <Text variant="caption" tone="primary">Clear ({activeFilters})</Text>
-              </Pressable>
-            )}
-          </View>
-          <Select label="" value={filters.supplier} options={[{ value: '', label: 'All suppliers' }, ...options.suppliers]} onChange={(v) => setFilters((f) => ({ ...f, supplier: v }))} />
-          <Select label="" value={filters.client} options={[{ value: '', label: 'All clients' }, ...options.clients]} onChange={(v) => setFilters((f) => ({ ...f, client: v }))} />
-          <Select label="" value={filters.material} options={[{ value: '', label: 'All materials' }, ...options.materials]} onChange={(v) => setFilters((f) => ({ ...f, material: v }))} />
-        </View>
+        {/* Filters — web's filter bar, as one swipeable row of chips instead of
+            three full-width dropdowns stacked above the page. A chip shows its
+            choice, tints while set, clears with its own ✕ and opens the picker. */}
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          style={{ marginTop: 14 }}
+          contentContainerStyle={{ gap: 8, paddingHorizontal: spacing.lg, alignItems: 'center' }}
+        >
+          <Select variant="chip" label="Supplier" placeholder="All suppliers" value={filters.supplier} options={options.suppliers} onChange={(v) => setFilters((f) => ({ ...f, supplier: v }))} />
+          <Select variant="chip" label="Client" placeholder="All clients" value={filters.client} options={options.clients} onChange={(v) => setFilters((f) => ({ ...f, client: v }))} />
+          <Select variant="chip" label="Material" placeholder="All materials" value={filters.material} options={options.materials} onChange={(v) => setFilters((f) => ({ ...f, material: v }))} />
+          {activeFilters > 0 && (
+            <Pressable
+              onPress={() => setFilters({ supplier: '', client: '', material: '' })}
+              hitSlop={8}
+              accessibilityRole="button"
+              style={{ height: 36, justifyContent: 'center', paddingHorizontal: 6 }}
+            >
+              <Text variant="label" tone="primary">Clear all</Text>
+            </Pressable>
+          )}
+        </ScrollView>
 
         {/* Quick actions — wraps to a second row once the admin-only 5th tile
             (Sharon/Gis Admin) joins the other four. */}
