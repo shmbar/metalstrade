@@ -277,10 +277,7 @@ const Customtable = ({
                       onDoubleClick={() => { if (!row.getCanExpand()) SelectRow(row.original); }}
                       tabIndex={0}
                       className={`cursor-pointer transition-colors${selectedRowId === row.id ? ' selected-row' : ' cursor-pointer'}`}
-                      style={row.depth > 0 ? {
-                        background: 'var(--bg-subtle)',
-                        color: 'var(--ink-secondary)',
-                      } : undefined}
+                      style={row.depth > 0 ? { color: 'var(--ink-secondary)' } : undefined}
                     >
                       {row.getVisibleCells().map((cell, cellIdx) => {
                         const isCompleted = cell.column.id === 'completed';
@@ -304,6 +301,18 @@ const Customtable = ({
                               color: row.depth > 0 ? 'var(--ink-secondary)' : 'var(--ink)',
                               // The accent that says "this row belongs to the one above".
                               borderLeft: row.depth > 0 && cellIdx === 0 ? '3px solid var(--brand)' : undefined,
+                              /* Whole-row tint for a folded line. On the CELL, not the <tr>:
+                                 globals.css gives every .custom-table td a --bg-card background,
+                                 which painted straight over a row-level colour — so the tint
+                                 this used to set on the row was never once visible, and only the
+                                 Description indent read as different. --bg-sunken is one step
+                                 darker than the card, enough to see across the full width. */
+                              backgroundColor: row.depth > 0 ? 'var(--bg-sunken)' : undefined,
+                              /* The row's leading edge steps in, so the whole line reads as
+                                 sitting under its grade. Only PO# and Description move; the
+                                 figure columns stay exactly under their headers, because a
+                                 number shifted out from under its column is a misread total. */
+                              paddingLeft: row.depth > 0 && cell.column.id === 'order' ? '30px' : undefined,
                               width: cell.column.id === 'select' ? '50px'
                                 : cell.column.columnDef.meta?.narrow ? '1%' : undefined,
                               maxWidth: cell.column.id === 'select' ? '50px' : undefined,
@@ -339,7 +348,7 @@ const Customtable = ({
                                  what made the totals look wrong. The step is what says
                                  "this belongs to the row above" at a glance. */
                               <div className="flex items-center justify-center gap-1 font-normal"
-                                style={isDesc && row.depth > 0 ? { paddingLeft: '5rem' } : undefined}>
+                                style={isDesc && row.depth > 0 ? { paddingLeft: '30px' } : undefined}>
                                 {isDesc && row.depth > 0 && (
                                   <span className="shrink-0" style={{ color: 'var(--brand)' }} aria-hidden>&#8627;</span>
                                 )}
