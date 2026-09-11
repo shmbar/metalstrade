@@ -8,11 +8,11 @@ import { getTtl } from '../../../../utils/languages'
 import Logos from './logos.js';
 import Tltip from '../../../../components/tlTip.js';
 import { Button } from '@components/ui/button';
-import { Save } from 'lucide-react';
+import { BtnIcon } from '@components/buttonIcons';
 
 // Standard form field styling (matches the app's control spec app-wide).
 const fieldCls = "w-full h-8 px-3 rounded-control border border-[var(--line-strong)] bg-[var(--bg-card)] text-[var(--ink)] outline-none transition-colors focus:border-[var(--brand)] focus:ring-[3px] focus:ring-[var(--brand-soft)] responsiveTextTitle";
-const sectionCls = 'responsiveTextTitle font-semibold mb-2.5 text-[var(--ink)] font-display';
+const sectionCls = 'responsiveTextTitle font-semibold mb-2 text-[var(--ink)] font-display';
 const labelCls = "responsiveTextTable font-medium text-[var(--ink-muted)]";
 
 
@@ -47,9 +47,9 @@ const General = () => {
                     <div className='border border-[var(--line)] rounded-2xl bg-[var(--bg-card)] mt-1 overflow-hidden'>
 
                         {/* Company */}
-                        <div className='p-4'>
+                        <div className='p-3'>
                             <p className={sectionCls}>Company</p>
-                            <div className='grid grid-cols-12 gap-3'>
+                            <div className='grid grid-cols-12 gap-2.5'>
                                 <div className='col-span-12 md:col-span-6 flex flex-col gap-1'>
                                     <p className={labelCls}>{getTtl('cmpName', ln)}</p>
                                     <input
@@ -76,9 +76,9 @@ const General = () => {
                         </div>
 
                         {/* Address & Registration */}
-                        <div className='p-4 border-t border-[var(--line)]'>
+                        <div className='p-3 border-t border-[var(--line)]'>
                             <p className={sectionCls}>Address &amp; Registration</p>
-                            <div className='grid grid-cols-12 gap-3'>
+                            <div className='grid grid-cols-12 gap-2.5'>
                                 <div className='col-span-12 md:col-span-5 flex flex-col gap-1'>
                                     <p className={labelCls}>{getTtl('street', ln)}</p>
                                     <input
@@ -146,9 +146,9 @@ const General = () => {
                         </div>
 
                         {/* Online */}
-                        <div className='p-4 border-t border-[var(--line)]'>
+                        <div className='p-3 border-t border-[var(--line)]'>
                             <p className={sectionCls}>Online</p>
-                            <div className='grid grid-cols-12 gap-3'>
+                            <div className='grid grid-cols-12 gap-2.5'>
                                 <div className='col-span-12 md:col-span-5 flex flex-col gap-1'>
                                     <p className={labelCls}>{getTtl('cmpemail', ln)}</p>
                                     <input
@@ -171,9 +171,9 @@ const General = () => {
                         </div>
 
                         {/* Contact */}
-                        <div className='p-4 border-t border-[var(--line)]'>
+                        <div className='p-3 border-t border-[var(--line)]'>
                             <p className={sectionCls}>Contact</p>
-                            <div className='grid grid-cols-12 gap-3'>
+                            <div className='grid grid-cols-12 gap-2.5'>
                                 <div className='col-span-6 md:col-span-3 flex flex-col gap-1'>
                                     <p className={labelCls}>{getTtl('cmpPhone', ln)}</p>
                                     <input
@@ -212,77 +212,72 @@ const General = () => {
                                 </div>
                             </div>
                         </div>
-                    </div>
-
-                    {/* <div className=' border border-slate-300 p-4 rounded-2xl  mt-5 w-full'>
-                        <Logos compData={compData} setCompData={setCompData} />
-                    </div> */}
-                    <div className='border border-[var(--line)] p-4 rounded-2xl bg-[var(--bg-card)] mt-5 w-full'>
-                        <p className='responsiveTextTitle font-semibold mb-3 text-[var(--ink)] font-display'>Invoice wording</p>
-                        <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-                            <div className='flex flex-col gap-1.5'>
-                                <p className={labelCls}>Prepayment label:</p>
-                                <input
-                                    type='input'
-                                    placeholder='Prepayment'
-                                    className={fieldCls}
-                                    value={compData?.invPrepaymentLabel || ''}
-                                    onChange={e => setCompData({ ...(compData || {}), invPrepaymentLabel: e.target.value })}
-                                />
+                        <div className='p-3 border-t border-[var(--line)]'>
+                            <p className={sectionCls}>Invoice wording</p>
+                            <div className='grid grid-cols-1 md:grid-cols-2 gap-2.5'>
+                                <div className='flex flex-col gap-1'>
+                                    <p className={labelCls}>Prepayment label:</p>
+                                    <input
+                                        type='input'
+                                        placeholder='Prepayment'
+                                        className={fieldCls}
+                                        value={compData?.invPrepaymentLabel || ''}
+                                        onChange={e => setCompData({ ...(compData || {}), invPrepaymentLabel: e.target.value })}
+                                    />
+                                </div>
+                                <div className='flex flex-col gap-1'>
+                                    <p className={labelCls}>Invoice note (Non&#8209;Radioactive):</p>
+                                    <textarea
+                                        rows={2}
+                                        placeholder='e.g. We hereby certify the goods are non-radioactive and free of contamination.'
+                                        className="w-full px-3 py-2 rounded-control border border-[var(--line-strong)] bg-[var(--bg-card)] text-[var(--ink)] outline-none transition-colors focus:border-[var(--brand)] focus:ring-[3px] focus:ring-[var(--brand-soft)] responsiveTextTitle resize-y"
+                                        style={{ fontFamily: 'inherit' }}
+                                        value={compData?.invNonRadioText || ''}
+                                        onChange={e => setCompData({ ...(compData || {}), invNonRadioText: e.target.value })}
+                                    />
+                                </div>
                             </div>
-                            <div className='flex flex-col gap-1.5'>
-                                <p className={labelCls}>Invoice note (Non&#8209;Radioactive):</p>
-                                <textarea
-                                    rows={2}
-                                    placeholder='e.g. We hereby certify the goods are non-radioactive and free of contamination.'
-                                    className="w-full px-3 py-2 rounded-control border border-[var(--line-strong)] bg-[var(--bg-card)] text-[var(--ink)] outline-none transition-colors focus:border-[var(--brand)] focus:ring-[3px] focus:ring-[var(--brand-soft)] responsiveTextTitle resize-y"
-                                    style={{ fontFamily: 'inherit' }}
-                                    value={compData?.invNonRadioText || ''}
-                                    onChange={e => setCompData({ ...(compData || {}), invNonRadioText: e.target.value })}
-                                />
-                            </div>
+                            <p className='responsiveText text-[var(--ink-muted)] mt-2'>
+                                Prepayment label replaces the word &quot;Prepayment&quot; on invoices. The note prints on the invoice PDF under Remarks — leave blank to omit.
+                            </p>
                         </div>
-                        <p className='responsiveText text-[var(--ink-muted)] mt-3'>
-                            Prepayment label replaces the word &quot;Prepayment&quot; on invoices. The note prints on the invoice PDF under Remarks — leave blank to omit.
-                        </p>
-                    </div>
-
-                    <div className='border border-[var(--line)] p-4 rounded-2xl bg-[var(--bg-card)] mt-5 w-full'>
-                        <p className='responsiveTextTitle font-semibold mb-3 text-[var(--ink)] font-display'>Currency &amp; Terms</p>
-                        <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-                            <div className='flex flex-col gap-1.5'>
-                                <p className={labelCls}>Standard EUR &rarr; USD rate:</p>
-                                <input
-                                    type='number'
-                                    step='0.0001'
-                                    placeholder='e.g. 1.08'
-                                    className={fieldCls}
-                                    value={compData?.eurUsdRate ?? ''}
-                                    onChange={e => setCompData({ ...(compData || {}), eurUsdRate: e.target.value })}
-                                />
+                        <div className='p-3 border-t border-[var(--line)]'>
+                            <p className={sectionCls}>Currency &amp; Terms</p>
+                            <div className='grid grid-cols-1 md:grid-cols-2 gap-2.5'>
+                                <div className='flex flex-col gap-1'>
+                                    <p className={labelCls}>Standard EUR &rarr; USD rate:</p>
+                                    <input
+                                        type='number'
+                                        step='0.0001'
+                                        placeholder='e.g. 1.08'
+                                        className={fieldCls}
+                                        value={compData?.eurUsdRate ?? ''}
+                                        onChange={e => setCompData({ ...(compData || {}), eurUsdRate: e.target.value })}
+                                    />
+                                </div>
+                                <div className='flex flex-col gap-1'>
+                                    <p className={labelCls}>Default payment term (days):</p>
+                                    <input
+                                        type='number'
+                                        step='1'
+                                        placeholder='30'
+                                        className={fieldCls}
+                                        value={compData?.defaultTermDays ?? ''}
+                                        onChange={e => setCompData({ ...(compData || {}), defaultTermDays: e.target.value })}
+                                    />
+                                </div>
                             </div>
-                            <div className='flex flex-col gap-1.5'>
-                                <p className={labelCls}>Default payment term (days):</p>
-                                <input
-                                    type='number'
-                                    step='1'
-                                    placeholder='30'
-                                    className={fieldCls}
-                                    value={compData?.defaultTermDays ?? ''}
-                                    onChange={e => setCompData({ ...(compData || {}), defaultTermDays: e.target.value })}
-                                />
-                            </div>
+                            <p className='responsiveText text-[var(--ink-muted)] mt-2'>
+                                EUR&rarr;USD rate converts EUR to USD for combined dashboard totals (leave blank to use each contract&apos;s rate). Payment term: an invoice with no due date is treated as due this many days after its date (default 30) — drives the overdue alert.
+                            </p>
                         </div>
-                        <p className='responsiveText text-[var(--ink-muted)] mt-3'>
-                            EUR&rarr;USD rate converts EUR to USD for combined dashboard totals (leave blank to use each contract&apos;s rate). Payment term: an invoice with no due date is treated as due this many days after its date (default 30) — drives the overdue alert.
-                        </p>
                     </div>
 
-                    <div className="flex mt-3 ml-3">
+                    <div className="flex mt-2">
                         <Tltip direction='top' tltpText='Save/update company data'>
                             <Button variant='customBlue'
                                 onClick={() => updateCompanyData(uidCollection)}
-                            >  <Save />  {getTtl('save', ln)}</Button>
+                            >  <BtnIcon action="save" />  {getTtl('save', ln)}</Button>
                         </Tltip>
 
                     </div>
