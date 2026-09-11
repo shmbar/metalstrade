@@ -1,30 +1,37 @@
-﻿'use client'
+'use client'
 
 import React, { useState } from 'react'
 import { ChevronRight } from 'lucide-react'
 import { NumericFormat } from 'react-number-format'
 import CurrencyChip from '../../../../components/CurrencyChip'
 import Tltip from '../../../../components/tlTip'
+import CheckBox from '../../../../components/checkbox'
+import ChemistryPopover from '../../../../components/ChemistryPopover'
+import { BtnIcon } from '../../../../components/buttonIcons'
+import { resolveGrade } from '../../../../utils/grades'
 import { gradeKeyOf, gradeLabel, niRangeLabel } from './gradeKey'
+import MergeGradeModal from './mergeGrade'
 
 /* The four figure columns are bounded — each is sized to the wider of its header and
    its values — and Description is the one free-text column, so under table-layout:fixed
    it takes whatever is left. That is what lets this card be handed any width and still
    fit: on a 1920 row Description gets ~730px and a full grade name reads end to end, at
    1280 it gets ~120px and truncates. Nothing ever scrolls sideways. */
-const COL_W = { weight: 112, avg: 96, value: 100, cur: 72 }
+const COL_W = { pick: 30, weight: 112, avg: 96, value: 100, cur: 72 }
 
 /* Group stock rows by GRADE + currency, returning the total quantity and the
    weighted average cost per MT for each. Shared between the on-screen "Avg Cost
    Price per Grade" table and the Excel export so both reflect the same data.
 
-   The grade — not the typed description — is the unit here. Grouping on the raw
-   description gave one line per SPELLING, so twenty-one lots of the same unnamed
-   NiCrMo ingot showed as twenty-one 9 MT rows instead of one 230 MT position, and
-   "IN 718 Chips" sat three times over depending on whether whoever typed it put a
-   space inside the assay. See gradeKey.js for what folds and why. Each group keeps
-   both splits it can be opened on: the spellings that fed it, and the suppliers. */
-export const computeGradeSummary = (dataTable, settings) => {
+   The grade — not the typed description — is the unit here. A DECLARED grade (the
+   registry in utils/grades.js: a PO line's explicit assignment, else the grade its
+   spelling belongs to) wins; everything not yet declared falls back to the text fold in
+   gradeKey.js exactly as before, so nothing regresses while the registry is still being
+   filled. Grouping on the raw description gave one line per SPELLING, so twenty-one lots
+   of the same unnamed NiCrMo ingot showed as twenty-one 9 MT rows instead of one 230 MT
+   position. Each group keeps the lots behind it, which is what the chemistry popup and
+   the merge action both need. */
+export const computeGradeSummary = (dataTable, settings, gradeIndex = null) => {
   if (!dataTable || dataTable.length === 0) return []
 
   const gCur = (id) => settings?.Currency?.Currency?.find(q => q.id === id)?.cur || id
@@ -35,11 +42,17 @@ export const computeGradeSummary = (dataTable, settings) => {
   dataTable.forEach(row => {
     const name = row.descriptionName || '-'
     const curId = row.cur || ''
+    const inLots = (row.data || []).filter(l => l && l.type === 'in')
+    const declared = resolveGrade(gradeIndex, {
+      description: name,
+      lineId: inLots.find(l => l.description)?.description,
+    })
     const { key: gradeKey, label: synthLabel, ni } = gradeKeyOf(name)
-    const key = `${gradeKey || name}|${curId}`
+    const key = declared ? `grade:${declared.id}|${curId}` : `${gradeKey || name}|${curId}`
     if (!groups[key]) {
       groups[key] = {
-        curId, synthLabel, totalQnty: 0, totalValue: 0, byLot: {}, spellings: new Set(), niValues: [],
+        curId, grade: declared || null, synthLabel: declared ? null : synthLabel,
+        totalQnty: 0, totalValue: 0, byLot: {}, spellings: new Set(), niValues: [], inLots: [],
       }
     }
     const g = groups[key]
@@ -49,6 +62,7 @@ export const computeGradeSummary = (dataTable, settings) => {
     g.totalValue += val
     g.spellings.add(name)
     if (ni !== null) g.niValues.push(ni)
+    g.inLots.push(...inLots)
 
     /* One breakdown, not two. A row used to open on suppliers, and a folded one on
        spellings, so the same chevron meant different things depending on the row —
@@ -56,9 +70,10 @@ export const computeGradeSummary = (dataTable, settings) => {
        carries both facts, so there is now a single list behind every chevron. */
     const supplier = supName(row.supplier)
     const lotKey = `${name}|${supplier}`
-    if (!g.byLot[lotKey]) g.byLot[lotKey] = { description: name, supplier, qnty: 0, value: 0 }
+    if (!g.byLot[lotKey]) g.byLot[lotKey] = { description: name, supplier, qnty: 0, value: 0, lots: [] }
     g.byLot[lotKey].qnty += qty
     g.byLot[lotKey].value += val
+    g.byLot[lotKey].lots.push(...inLots)
   })
 
   return Object.values(groups)
@@ -66,10 +81,12 @@ export const computeGradeSummary = (dataTable, settings) => {
     .map(r => {
       const curCode = gCur(r.curId)
       const isoCode = curCode?.toLowerCase() === 'eur' ? 'EUR' : 'USD'
-      const base = gradeLabel(r.synthLabel, [...r.spellings])
+      const base = r.grade ? r.grade.name : gradeLabel(r.synthLabel, [...r.spellings])
       const span = r.synthLabel ? niRangeLabel(r.niValues) : ''
       return {
         ...r,
+        spellings: [...r.spellings],
+        declared: !!r.grade,
         // Keeps the name under the key the Excel sheet already writes.
         descriptionName: span ? `${base} · ${span}` : base,
         avgPrice: r.totalQnty > 0 ? r.totalValue / r.totalQnty : 0,
@@ -84,17 +101,34 @@ export const computeGradeSummary = (dataTable, settings) => {
     .sort((a, b) => b.totalValue - a.totalValue)
 }
 
-const GradeTable = ({ dataTable, loading, settings }) => {
+const fmtMT = (q) => (Number(q) || 0).toLocaleString('en-US', { minimumFractionDigits: 3, maximumFractionDigits: 3 })
+
+const GradeTable = ({ dataTable, loading, settings, gradeIndex }) => {
   // Expanded state per grade row (keyed by descriptionName|cur).
   const [expanded, setExpanded] = useState({})
+  // Ticked spellings → their tonnage, for "Merge into grade".
+  const [picked, setPicked] = useState({})
+  const [mergeOpen, setMergeOpen] = useState(false)
 
   if (loading) return null
 
-  const rows = computeGradeSummary(dataTable, settings)
+  const rows = computeGradeSummary(dataTable, settings, gradeIndex)
 
   if (rows.length === 0) return null
 
   const toggle = (k) => setExpanded(prev => ({ ...prev, [k]: !prev[k] }))
+
+  // Tonnage per spelling across every row, so a ticked spelling carries its whole weight.
+  const spellingQty = {}
+  rows.forEach(r => r.lots.forEach(l => { spellingQty[l.description] = (spellingQty[l.description] || 0) + l.qnty }))
+
+  const pickSpellings = (names, on) => setPicked(prev => {
+    const next = { ...prev }
+    names.forEach(n => { if (on) next[n] = spellingQty[n] || 0; else delete next[n] })
+    return next
+  })
+  const pickedNames = Object.keys(picked)
+  const pickedQty = pickedNames.reduce((s, n) => s + (picked[n] || 0), 0)
 
   const thStyle = {
     color: 'var(--ink-muted)',
@@ -117,6 +151,8 @@ const GradeTable = ({ dataTable, loading, settings }) => {
     textAlign: 'center',
   }
 
+  const pickStyle = { ...tdStyle, padding: '6px 4px 6px 12px' }
+
   // Same band as the Summary - Stocks total row, so the two cards close the same way.
   const footStyle = {
     color: 'var(--ink)',
@@ -136,6 +172,8 @@ const GradeTable = ({ dataTable, loading, settings }) => {
     return acc
   }, {}))
 
+  const stop = (e) => e.stopPropagation()
+
   return (
     <div className="mt-5 flex-auto min-w-0">
       <div
@@ -148,7 +186,7 @@ const GradeTable = ({ dataTable, loading, settings }) => {
       >
         {/* Title */}
         <div
-          className="responsiveTextCardTitle text-center"
+          className="responsiveTextCardTitle flex items-center justify-between gap-3"
           style={{
             background: 'var(--bg-subtle)',
             padding: '8px 16px',
@@ -157,12 +195,33 @@ const GradeTable = ({ dataTable, loading, settings }) => {
             fontWeight: '400'
           }}
         >
-          Avg Cost Price per Grade
+          <span className="w-28 shrink-0" />
+          <span className="text-center truncate">Avg Cost Price per Grade</span>
+          <span className="w-28 shrink-0 text-right responsiveTextTable text-[var(--ink-muted)]">Tick rows to merge</span>
         </div>
+
+        {/* Merge bar — only while something is ticked. */}
+        {pickedNames.length > 0 && (
+          <div className="flex items-center justify-between gap-3 flex-wrap px-4 py-1.5 border-b border-[var(--line)] bg-[var(--brand-soft)]">
+            <span className="responsiveTextTable font-medium text-[var(--brand-strong)]">
+              {pickedNames.length} spelling{pickedNames.length === 1 ? '' : 's'} · {fmtMT(pickedQty)} MT selected
+            </span>
+            <span className="flex items-center gap-2">
+              <button type="button" className="whiteButton blackButtonSm" onClick={() => setPicked({})}>
+                <BtnIcon action="clear" />Clear
+              </button>
+              <button type="button" className="blackButton blackButtonSm" onClick={() => setMergeOpen(true)}>
+                <BtnIcon action="merge" />Merge into grade…
+              </button>
+            </span>
+          </div>
+        )}
+
         <div className="overflow-x-auto" style={{ maxHeight: '380px', overflowY: 'auto' }}>
           <table className="w-full" style={{ tableLayout: 'fixed', borderCollapse: 'collapse' }}>
             <thead style={{ position: 'sticky', top: 0, zIndex: 10 }}>
               <tr>
+                <th className="responsiveTextTable font-medium" style={{ ...thStyle, width: COL_W.pick }} />
                 <th className="responsiveTextTable font-medium text-center" style={thStyle}>Description</th>
                 <th className="responsiveTextTable font-medium text-center" style={{ ...thStyle, width: COL_W.weight }}>Total Weight (MT)</th>
                 <th className="responsiveTextTable font-medium text-center" style={{ ...thStyle, width: COL_W.avg }}>Avg Cost /MT</th>
@@ -182,29 +241,41 @@ const GradeTable = ({ dataTable, loading, settings }) => {
                   name: l.description && l.description !== r.descriptionName
                     ? `${l.description} · ${l.supplier}`
                     : l.supplier,
+                  spelling: l.description,
+                  lots: l.lots,
                   qnty: l.qnty, value: l.value,
                 }))
                 const canExpand = children.length > 1
                 const isOpen = !!expanded[key]
+                const allPicked = r.spellings.every(s => picked[s] !== undefined)
+                const tip = r.declared
+                  ? [r.grade.name, r.grade.spec && `nominal ${r.grade.spec}`, `${r.spellings.length} spelling${r.spellings.length === 1 ? '' : 's'}`].filter(Boolean).join(' · ')
+                  : r.descriptionName
                 return (
                   <React.Fragment key={i}>
                   <tr style={{ background: 'var(--bg-card)', cursor: canExpand ? 'pointer' : 'default' }}
                     onClick={() => canExpand && toggle(key)}>
-                    <td className="responsiveTextTable" style={{ ...tdStyle, textAlign: 'left', paddingLeft: '14px' }}>
-                      <Tltip direction='top' tltpText={r.descriptionName}>
-                        <span className='flex items-center gap-1 cursor-default w-full'>
-                          {canExpand && (
-                            <ChevronRight className='w-3 h-3 shrink-0 transition-transform'
-                              style={{ transform: isOpen ? 'rotate(90deg)' : 'none', color: 'var(--endeavour)' }} />
-                          )}
-                          <span className='block truncate min-w-0'>{r.descriptionName}</span>
-                          {canExpand && (
-                            <span className='shrink-0 whitespace-nowrap' style={{ color: 'var(--regent-gray)' }}>
-                              {children.length} lots
-                            </span>
-                          )}
-                        </span>
-                      </Tltip>
+                    <td style={pickStyle} onClick={stop}>
+                      <CheckBox size='size-3' checked={allPicked} onChange={() => pickSpellings(r.spellings, !allPicked)} />
+                    </td>
+                    <td className="responsiveTextTable" style={{ ...tdStyle, textAlign: 'left', paddingLeft: '6px' }}>
+                      <span className='flex items-center gap-1 w-full min-w-0'>
+                        {canExpand && (
+                          <ChevronRight className='w-3 h-3 shrink-0 transition-transform'
+                            style={{ transform: isOpen ? 'rotate(90deg)' : 'none', color: 'var(--endeavour)' }} />
+                        )}
+                        <Tltip direction='top' tltpText={tip}>
+                          <span className={`block truncate min-w-0 cursor-default ${r.declared ? 'font-medium text-[var(--brand-strong)]' : ''}`}>
+                            {r.descriptionName}
+                          </span>
+                        </Tltip>
+                        <ChemistryPopover lots={r.inLots} description={r.descriptionName} grade={r.grade} />
+                        {canExpand && (
+                          <span className='shrink-0 whitespace-nowrap' style={{ color: 'var(--regent-gray)' }}>
+                            {children.length} lots
+                          </span>
+                        )}
+                      </span>
                     </td>
                     <td className="responsiveTextTable" style={tdStyle}>
                       <NumericFormat
@@ -243,10 +314,17 @@ const GradeTable = ({ dataTable, loading, settings }) => {
                   </tr>
                   {isOpen && children.map((c, k) => (
                     <tr key={`${i}-child-${k}`} style={{ background: 'var(--surface-pill)' }}>
-                      <td className="responsiveTextTable" style={{ ...tdStyle, textAlign: 'left', paddingLeft: '34px', color: 'var(--regent-gray)' }}>
-                        <Tltip direction='top' tltpText={c.name}>
-                          <span className='block truncate cursor-default w-full'>{c.name}</span>
-                        </Tltip>
+                      <td style={pickStyle} onClick={stop}>
+                        <CheckBox size='size-3' checked={picked[c.spelling] !== undefined}
+                          onChange={() => pickSpellings([c.spelling], picked[c.spelling] === undefined)} />
+                      </td>
+                      <td className="responsiveTextTable" style={{ ...tdStyle, textAlign: 'left', paddingLeft: '28px', color: 'var(--regent-gray)' }}>
+                        <span className='flex items-center gap-1 min-w-0 w-full'>
+                          <Tltip direction='top' tltpText={c.name}>
+                            <span className='block truncate cursor-default min-w-0'>{c.name}</span>
+                          </Tltip>
+                          <ChemistryPopover lots={c.lots} description={c.spelling} grade={r.grade} />
+                        </span>
                       </td>
                       <td className="responsiveTextTable" style={{ ...tdStyle, color: 'var(--regent-gray)' }}>
                         <NumericFormat value={c.qnty} displayType="text" thousandSeparator decimalScale={3} fixedDecimalScale />
@@ -273,7 +351,8 @@ const GradeTable = ({ dataTable, loading, settings }) => {
             <tfoot style={{ position: 'sticky', bottom: 0, zIndex: 10 }}>
               {totals.map(t => (
                 <tr key={t.isoCode}>
-                  <td className="responsiveTextTable font-medium" style={{ ...footStyle, textAlign: 'left', paddingLeft: '14px' }}>
+                  <td style={footStyle}></td>
+                  <td className="responsiveTextTable font-medium" style={{ ...footStyle, textAlign: 'left', paddingLeft: '6px' }}>
                     Total {t.isoCode === 'EUR' ? '€' : '$'}
                   </td>
                   <td className="responsiveTextTable font-medium" style={footStyle}>
@@ -291,6 +370,13 @@ const GradeTable = ({ dataTable, loading, settings }) => {
           </table>
         </div>
       </div>
+
+      <MergeGradeModal
+        isOpen={mergeOpen}
+        setIsOpen={setMergeOpen}
+        spellings={pickedNames.map(name => ({ name, qnty: picked[name] }))}
+        onDone={() => setPicked({})}
+      />
     </div>
   )
 }

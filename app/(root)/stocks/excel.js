@@ -34,7 +34,7 @@ const COL_META = {
     sType:          { width: 20, isQty: false, isCurrency: false, getValue: (item) => item.sType || '' },
 };
 
-export const EXD = (dataTable, settings, name, ln, sumData, columnVisibility = {}, allColumns = []) => {
+export const EXD = (dataTable, settings, name, ln, sumData, columnVisibility = {}, allColumns = [], gradeIndex = null) => {
 
     const exportExcel = async () => {
 
@@ -182,7 +182,7 @@ export const EXD = (dataTable, settings, name, ln, sumData, columnVisibility = {
         // ---- Avg Cost Price per Grade (separate sheet) ----
         // Total weight + weighted average cost per MT for each grade, based on the
         // same (filtered) rows shown in the table.
-        const gradeRows = computeGradeSummary(dataTable, settings);
+        const gradeRows = computeGradeSummary(dataTable, settings, gradeIndex);
         if (gradeRows.length > 0) {
             const gSheet = wb.addWorksheet('Avg Cost per Grade');
             gSheet.views = [{ rightToLeft: false }];

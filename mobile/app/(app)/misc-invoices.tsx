@@ -11,7 +11,6 @@ import { useSettings } from '@/store/settings';
 import { useMiscInvoices, useSetMiscCategory, MISC_CATS, MiscRow, MiscCat } from '@/features/misc/useMiscInvoices';
 import { apiConfigured, postJson } from '@/lib/api';
 import { curSymbol, fmtMoney } from '@/lib/format';
-import { radius, spacing } from '@/theme/tokens';
 
 const CAT_TONE: Record<string, 'info' | 'warn' | 'positive' | 'neutral'> = {
   shipments: 'info',

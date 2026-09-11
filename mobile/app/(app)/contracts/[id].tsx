@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { View, Alert } from 'react-native';
+import { View } from 'react-native';
 import { Pressable } from '@/components/ui/Pressable';
 import { BackButton } from '@/components/ui/BackButton';
 import { useLocalSearchParams, router } from 'expo-router';

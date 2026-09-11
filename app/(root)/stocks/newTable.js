@@ -140,8 +140,14 @@ const Customtable = ({
   useEffect(() => {
     // Optional callback — callers like SharedStock render this table without it,
     // and calling it unguarded white-screened the whole /stocks page.
+    /* `data` is a dependency on purpose: the rows this table is handed change on their
+       own — the find-by-spec box narrows them, Lines/By grade swaps them for folds —
+       and everything downstream (totals, the grade card, the export, the spec read-back)
+       reads what was last reported here. Reporting only on a filter change left all of
+       that on the pre-spec rows while the table itself showed nine. */
     setFilteredArray1?.(table.getFilteredRowModel().rows.map(r => r.original));
-  }, [globalFilter, columnFilters]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [globalFilter, columnFilters, data]);
 
   const resetTable = () => table.resetColumnFilters();
 

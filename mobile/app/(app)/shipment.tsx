@@ -9,7 +9,6 @@ import { PeriodSelector } from '@/components/PeriodSelector';
 import { useTheme } from '@/theme/ThemeProvider';
 import { useShipment, useSetShipmentStatus, ShipmentRow, fmtShipDate } from '@/features/shipment/useShipment';
 import { SHIPMENT_STATUSES } from '@shared/shipmentStatus';
-import { radius, spacing } from '@/theme/tokens';
 
 const tone = (s: string): 'neutral' | 'info' | 'positive' | 'negative' | 'warn' => {
   if (s === 'Completed') return 'positive';

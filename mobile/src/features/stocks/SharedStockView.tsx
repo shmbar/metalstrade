@@ -1,9 +1,9 @@
 import React, { useMemo, useState } from 'react';
-import { View, ScrollView, Modal, Alert, RefreshControl } from 'react-native';
+import { View, ScrollView, Alert, RefreshControl } from 'react-native';
 import { Pressable } from '@/components/ui/Pressable';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Card, Text, Select, TextField, Button, LoadingState, ErrorState } from '@/components/ui';
+import { Card, Text, Select, TextField, Button, LoadingState, ErrorState , Sheet } from '@/components/ui';
 import { useTheme } from '@/theme/ThemeProvider';
 import { radius, spacing } from '@/theme/tokens';
 import { GradeSummaryCard } from './GradeSummaryCard';
@@ -215,136 +215,126 @@ export function SharedStockView() {
         )}
       </ScrollView>
 
-      <Modal visible={open} transparent animationType="slide" onRequestClose={() => setOpen(false)}>
-        <Pressable style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.4)' }} onPress={() => setOpen(false)} />
-        <View
-          style={{
-            backgroundColor: colors.bgElevated,
-            borderTopLeftRadius: radius['2xl'],
-            borderTopRightRadius: radius['2xl'],
-            paddingBottom: insets.bottom + spacing.lg,
-            maxHeight: '88%',
-          }}
-        >
-          <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={{ padding: spacing.lg, gap: spacing.md }}>
-            <Text variant="h2">{lot.id ? 'Edit shared stock' : 'Add shared stock'}</Text>
-
-            {pickOptions.length > 0 && (
-              <View
-                style={{
-                  backgroundColor: colors.surfaceAlt, borderRadius: radius.lg,
-                  borderWidth: 1, borderColor: colors.border, padding: 10, gap: 6,
-                }}
-              >
-                <Select
-                  label="Pick from my current stock"
-                  value={lot.sourceId || ''}
-                  options={pickOptions}
-                  onChange={pickFromStock}
-                />
-                <Text variant="caption" tone="faint">
-                  Selecting a lot fills everything in from your inventory ({accountName}) — lower the quantity
-                  if you&apos;re sharing only part of it. The lot also stays in your own stock list.
-                </Text>
-              </View>
-            )}
-
-            <TextField
-              label="Material / description *"
-              value={lot.descriptionText}
-              onChangeText={(v) => setF('descriptionText', v)}
-              placeholder="e.g. 56Ni 14Cr 13Co Turnings"
-            />
-            <TextField
-              label="Quantity (MT) *"
-              value={String(lot.qnty ?? '')}
-              onChangeText={(v) => setF('qnty', v.replace(/[^0-9.]/g, ''))}
-              keyboardType="decimal-pad"
-            />
-            <Select label="Warehouse / location *" value={lot.stock} options={whOptions} onChange={(v) => setF('stock', v)} required />
-            <TextField
-              label="Unit price"
-              value={String(lot.unitPrc ?? '')}
-              onChangeText={(v) => setF('unitPrc', v.replace(/[^0-9.]/g, ''))}
-              keyboardType="decimal-pad"
-            />
-            <Select label="Currency" value={lot.cur} options={curOptions} onChange={(v) => setF('cur', v)} />
-            <Select label="Supplier (optional)" value={lot.supplier} options={supOptions} onChange={(v) => setF('supplier', v)} />
-            <TextField
-              label="Shipment status (optional)"
-              value={lot.status}
-              onChangeText={(v) => setF('status', v)}
-              placeholder="e.g. Arrived / In transit"
-            />
-
-            <View>
-              <Text variant="label" tone="muted" style={{ marginBottom: 6 }}>Owners</Text>
-              <View style={{ flexDirection: 'row', gap: 10 }}>
-                {OWNERS.map((o) => {
-                  const on = lot.owners.includes(o);
-                  return (
-                    <Pressable
-                      key={o}
-                      onPress={() => toggleOwner(o)}
-                      style={{
-                        flexDirection: 'row', alignItems: 'center', gap: 6,
-                        paddingHorizontal: 12, paddingVertical: 7, borderRadius: 999,
-                        backgroundColor: on ? colors.primary : colors.surfaceAlt,
-                        borderWidth: 1, borderColor: on ? colors.primary : colors.border,
-                      }}
-                    >
-                      <Ionicons
-                        name={on ? 'checkbox' : 'square-outline'}
-                        size={15}
-                        color={on ? '#fff' : colors.textFaint}
-                      />
-                      <Text variant="caption" color={on ? '#fff' : colors.textMuted}>{o}</Text>
-                    </Pressable>
-                  );
-                })}
-              </View>
-              <Text variant="caption" tone="faint" style={{ marginTop: 4 }}>
-                Both accounts see this lot regardless; owners records who holds it.
+      <Sheet
+        visible={open}
+        onClose={() => setOpen(false)}
+        title={lot.id ? 'Edit shared stock' : 'Add shared stock'}
+        subtitle="Visible to both IMS and GIS"
+        footer={<Button title="Save" loading={save.isPending} onPress={doSave} />}
+      >
+        <View style={{ gap: spacing.md }}>
+          {pickOptions.length > 0 && (
+            <View
+              style={{
+                backgroundColor: colors.surfaceAlt, borderRadius: radius.lg,
+                borderWidth: 1, borderColor: colors.border, padding: 10, gap: 6,
+              }}
+            >
+              <Select
+                label="Pick from my current stock"
+                value={lot.sourceId || ''}
+                options={pickOptions}
+                onChange={pickFromStock}
+              />
+              <Text variant="caption" tone="faint">
+                Selecting a lot fills everything in from your inventory ({accountName}) — lower the quantity
+                if you&apos;re sharing only part of it. The lot also stays in your own stock list.
               </Text>
             </View>
+          )}
 
-            <View>
-              <Text variant="label" tone="muted" style={{ marginBottom: 6 }}>Financed by</Text>
-              <View style={{ flexDirection: 'row', gap: 8, flexWrap: 'wrap' }}>
-                {FINANCING.map((f) => {
-                  const on = (lot.financedBy || 'BOTH') === f;
-                  return (
-                    <Pressable
-                      key={f}
-                      onPress={() => setF('financedBy', f as Financing)}
-                      style={{
-                        paddingHorizontal: 12, paddingVertical: 7, borderRadius: 999,
-                        backgroundColor: on ? colors.primary : colors.surfaceAlt,
-                        borderWidth: 1, borderColor: on ? colors.primary : colors.border,
-                      }}
-                    >
-                      <Text variant="caption" color={on ? '#fff' : colors.textMuted}>
-                        {f === 'BOTH' ? 'Both (50/50)' : f}
-                      </Text>
-                    </Pressable>
-                  );
-                })}
-              </View>
-              <Text variant="caption" tone="faint" style={{ marginTop: 4 }}>
-                Who paid for this stock — drives the financing totals below the list.
-              </Text>
+          <TextField
+            label="Material / description *"
+            value={lot.descriptionText}
+            onChangeText={(v) => setF('descriptionText', v)}
+            placeholder="e.g. 56Ni 14Cr 13Co Turnings"
+          />
+          <TextField
+            label="Quantity (MT) *"
+            value={String(lot.qnty ?? '')}
+            onChangeText={(v) => setF('qnty', v.replace(/[^0-9.]/g, ''))}
+            keyboardType="decimal-pad"
+          />
+          <Select label="Warehouse / location *" value={lot.stock} options={whOptions} onChange={(v) => setF('stock', v)} required />
+          <TextField
+            label="Unit price"
+            value={String(lot.unitPrc ?? '')}
+            onChangeText={(v) => setF('unitPrc', v.replace(/[^0-9.]/g, ''))}
+            keyboardType="decimal-pad"
+          />
+          <Select label="Currency" value={lot.cur} options={curOptions} onChange={(v) => setF('cur', v)} />
+          <Select label="Supplier (optional)" value={lot.supplier} options={supOptions} onChange={(v) => setF('supplier', v)} />
+          <TextField
+            label="Shipment status (optional)"
+            value={lot.status}
+            onChangeText={(v) => setF('status', v)}
+            placeholder="e.g. Arrived / In transit"
+          />
+
+          <View>
+            <Text variant="label" tone="muted" style={{ marginBottom: 6 }}>Owners</Text>
+            <View style={{ flexDirection: 'row', gap: 10 }}>
+              {OWNERS.map((o) => {
+                const on = lot.owners.includes(o);
+                return (
+                  <Pressable
+                    key={o}
+                    onPress={() => toggleOwner(o)}
+                    style={{
+                      flexDirection: 'row', alignItems: 'center', gap: 6,
+                      paddingHorizontal: 12, paddingVertical: 7, borderRadius: 999,
+                      backgroundColor: on ? colors.primary : colors.surfaceAlt,
+                      borderWidth: 1, borderColor: on ? colors.primary : colors.border,
+                    }}
+                  >
+                    <Ionicons
+                      name={on ? 'checkbox' : 'square-outline'}
+                      size={15}
+                      color={on ? '#fff' : colors.textFaint}
+                    />
+                    <Text variant="caption" color={on ? '#fff' : colors.textMuted}>{o}</Text>
+                  </Pressable>
+                );
+              })}
             </View>
+            <Text variant="caption" tone="faint" style={{ marginTop: 4 }}>
+              Both accounts see this lot regardless; owners records who holds it.
+            </Text>
+          </View>
 
-            <Button title="Save" loading={save.isPending} onPress={doSave} />
-            <Button title="Cancel" variant="secondary" onPress={() => setOpen(false)} />
-            {!!lot.id && (
-              <Pressable onPress={doRemove} style={{ alignSelf: 'center', paddingVertical: 8 }}>
-                <Text variant="bodyMedium" style={{ color: colors.negative }}>Remove</Text>
-              </Pressable>
-            )}
-          </ScrollView>
+          <View>
+            <Text variant="label" tone="muted" style={{ marginBottom: 6 }}>Financed by</Text>
+            <View style={{ flexDirection: 'row', gap: 8, flexWrap: 'wrap' }}>
+              {FINANCING.map((f) => {
+                const on = (lot.financedBy || 'BOTH') === f;
+                return (
+                  <Pressable
+                    key={f}
+                    onPress={() => setF('financedBy', f as Financing)}
+                    style={{
+                      paddingHorizontal: 12, paddingVertical: 7, borderRadius: 999,
+                      backgroundColor: on ? colors.primary : colors.surfaceAlt,
+                      borderWidth: 1, borderColor: on ? colors.primary : colors.border,
+                    }}
+                  >
+                    <Text variant="caption" color={on ? '#fff' : colors.textMuted}>
+                      {f === 'BOTH' ? 'Both (50/50)' : f}
+                    </Text>
+                  </Pressable>
+                );
+              })}
+            </View>
+            <Text variant="caption" tone="faint" style={{ marginTop: 4 }}>
+              Who paid for this stock — drives the financing totals below the list.
+            </Text>
+          </View>
+          {!!lot.id && (
+            <Pressable onPress={doRemove} accessibilityRole="button" style={{ alignSelf: 'center', paddingVertical: 8 }}>
+              <Text variant="bodyMedium" style={{ color: colors.negative }}>Remove</Text>
+            </Pressable>
+          )}
         </View>
-      </Modal>
+      </Sheet>
     </>
   );
 }

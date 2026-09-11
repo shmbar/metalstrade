@@ -22,9 +22,12 @@ import { getTtl } from '../../../utils/languages';
 import SumTable from './sumtables/sumTable'
 import GradeTable from './sumtables/gradeTable'
 import { gradeKeyOf, gradeLabel, niRangeLabel } from './sumtables/gradeKey'
+import ChemistryPopover from '../../../components/ChemistryPopover'
+import useGrades from '../../../hooks/useGrades'
+import { resolveGrade, parseSpecQuery, assayMatches, assayOf, describeSpec } from '../../../utils/grades'
 import StorageAging from './storageAging'
 import StockAudit from './stockAudit'
-import { BtnIcon } from '../../../components/buttonIcons'
+import { BtnIcon, SearchAdornment } from '../../../components/buttonIcons'
 import { isNumber } from 'mathjs';
 import dateFormat from 'dateformat';
 
@@ -56,6 +59,27 @@ const CB = (settings, handleSelectStock, selectedStock) => {
 
 
 
+/* The description, with the chemistry behind it one click away. A component rather than
+   an inline cell so it reads the grade registry itself: the column definitions are
+   memoised on the language alone and must not rebuild on every grade edit. A grade row
+   (By grade) carries its lines in _all; a line row carries its lots in data. */
+const DescriptionCell = ({ row, value }) => {
+  const { index } = useGrades()
+  const lines = row?._all || [row]
+  const lots = lines.flatMap(l => l?.data || []).filter(l => l && l.type === 'in')
+  const first = lines[0]
+  const grade = resolveGrade(index, {
+    description: first?.descriptionName,
+    lineId: (first?.data || []).find(l => l && l.type === 'in' && l.description)?.description,
+  })
+  return (
+    <span className='inline-flex items-center gap-1 min-w-0 max-w-full'>
+      <span className='truncate'>{value}</span>
+      <ChemistryPopover lots={lots} description={value} grade={grade} />
+    </span>
+  )
+}
+
 const Stocks = () => {
 
   const { settings, setLoading, loading, ln } = useContext(SettingsContext);
@@ -75,6 +99,10 @@ const Stocks = () => {
   // false = one row per stock line, true = one row per grade (see groupedData).
   const [combine, setCombine] = useState(false)
   const [refreshTick, setRefreshTick] = useState(0) // bumped after audit write-offs to re-pull stock
+  // Find by spec — "Ni 28-33 Cr 15-20 Ti>0". Narrows the whole page (table, summary, grade
+  // card, export) to lines holding a lot whose chemistry fits, whatever it was called.
+  const [specQuery, setSpecQuery] = useState('')
+  const { index: gradeIndex } = useGrades()
 
 
   const handleSelectStock = (x) => {
@@ -129,7 +157,7 @@ const Stocks = () => {
       meta: { filterVariant: 'selectStock' },
       filterFn: oneOf,
     },
-    { accessorKey: 'descriptionName', header: getTtl('Description', ln), cell: (props) => <p>{props.getValue()}</p> },
+    { accessorKey: 'descriptionName', header: getTtl('Description', ln), cell: (props) => <DescriptionCell row={props.row.original} value={props.getValue()} /> },
     /* The search box looks for names, POs and grades — not digits inside a money
        figure. It was matching every column, so typing "202" for 202 Turnings also
        returned IN 600 Chips, because its total is $39,202.84. The three figure
@@ -369,7 +397,12 @@ const Stocks = () => {
 
   // Stable table data — getFormatted only reads `settings` (covered by deps).
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  const tableData = useMemo(() => getFormatted(data), [data, settings]);
+  const spec = useMemo(() => parseSpecQuery(specQuery), [specQuery]);
+  const specData = useMemo(() => !spec ? data : data.filter(row =>
+    (row.data || []).some(l => l && l.type === 'in' && assayMatches(assayOf(l, row.descriptionName).assay, spec))),
+    [data, spec]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const tableData = useMemo(() => getFormatted(specData), [specData, settings]);
 
   /* Lines vs grades.
 
@@ -386,9 +419,14 @@ const Stocks = () => {
     const groups = {};
     rows.forEach(row => {
       const name = row.descriptionName || '-';
+      // A declared grade (utils/grades.js) wins over the text fold.
+      const declared = resolveGrade(gradeIndex, {
+        description: name,
+        lineId: (row.data || []).find(l => l && l.type === 'in' && l.description)?.description,
+      });
       const { key: gKey, label: synth, ni } = gradeKeyOf(name);
-      const key = `${gKey || name}|${row.cur || ''}`;
-      if (!groups[key]) groups[key] = { key, synth, spellings: new Set(), niValues: [], lines: [] };
+      const key = declared ? `grade:${declared.id}|${row.cur || ''}` : `${gKey || name}|${row.cur || ''}`;
+      if (!groups[key]) groups[key] = { key, synth: declared ? null : synth, grade: declared || null, spellings: new Set(), niValues: [], lines: [] };
       groups[key].spellings.add(name);
       if (ni !== null) groups[key].niValues.push(ni);
       groups[key].lines.push(row);
@@ -403,7 +441,7 @@ const Stocks = () => {
     return Object.values(groups).map(g => {
       const qnty = g.lines.reduce((s, r) => s + (parseFloat(r.qnty) || 0), 0);
       const total = g.lines.reduce((s, r) => s + (r.total === '-' ? 0 : parseFloat(r.total) || 0), 0);
-      const base = gradeLabel(g.synth, [...g.spellings]);
+      const base = g.grade ? g.grade.name : gradeLabel(g.synth, [...g.spellings]);
       const span = g.synth ? niRangeLabel(g.niValues) : '';
       return {
         id: `grade:${g.key}`,
@@ -421,6 +459,8 @@ const Stocks = () => {
         sType: join(uniq(g.lines.map(r => r.sType))),
         cur: g.lines[0]?.cur,
         _lines: g.lines.length > 1 ? g.lines : undefined,
+        // Every line, even for a single-line grade — the chemistry cell reads lots from here.
+        _all: g.lines,
         _lotCount: g.lines.length,
         /* Every underlying line id, even for a single-line grade. A grade row's own
            id is synthetic ("grade:<key>") and exists nowhere in `data`, so anything
@@ -432,7 +472,8 @@ const Stocks = () => {
     }).sort((a, b) => b.total - a.total);
   };
 
-  const groupedData = useMemo(() => groupByGrade(tableData), [tableData]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const groupedData = useMemo(() => groupByGrade(tableData), [tableData, gradeIndex]);
   const shownData = combine ? groupedData : tableData;
 
   // Rows currently visible after the table's filters (supplier, item, warehouse, etc.).
@@ -443,6 +484,17 @@ const Stocks = () => {
     [data, filteredLineIds]
   );
 
+  // What a spec search found, read back beside the box.
+  const specSummary = useMemo(() => {
+    if (!spec) return '';
+    const q = filteredData.reduce((s, r) => s + (parseFloat(r.qnty) || 0), 0);
+    const v = filteredData.reduce((s, r) => s + (r.total === '-' ? 0 : parseFloat(r.total) || 0), 0);
+    const oneCur = new Set(filteredData.map(r => r.cur)).size === 1;
+    const n = filteredData.length;
+    return `${n} line${n === 1 ? '' : 's'} · ${q.toLocaleString('en-US', { minimumFractionDigits: 3, maximumFractionDigits: 3 })} MT`
+      + (oneCur && q > 0 ? ` · avg ${Math.round(v / q).toLocaleString('en-US')}/MT` : '');
+  }, [spec, filteredData]);
+
   /* What the Data sheet exports when the table is combined. Built from the FILTERED
      lines, so the sheet is the screen: filter to one supplier, combine, export, and
      the file is that supplier's position by grade. `_pre` tells the exporter these
@@ -452,7 +504,7 @@ const Stocks = () => {
   const combinedForExport = useMemo(
     () => groupByGrade(getFormatted(filteredData)).map(r => ({ ...r, _pre: true })),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [filteredData, settings]
+    [filteredData, settings, gradeIndex]
   );
 
   return (
@@ -493,7 +545,7 @@ const Stocks = () => {
             <div className="page-card rounded-2xl p-3 sm:p-5 border border-[var(--line)] shadow-card w-full bg-[var(--bg-card)]">
 
               {/* Tabs: this account's stock vs the IMS+GIS shared pool */}
-              <div className='mt-3 flex'>
+              <div className='mt-3 flex flex-wrap items-start gap-y-2'>
                 <div className='flex items-center bg-[var(--bg-subtle)] border border-[var(--line)] rounded-lg p-0.5'>
                   {[['mine', 'My Stock'], ['shared', 'Shared (IMS + GIS)']].map(([key, label]) => (
                     <button key={key} type='button' onClick={() => setActiveTab(key)}
@@ -521,6 +573,27 @@ const Stocks = () => {
                     ))}
                   </div>
                 )}
+
+                {/* Find by spec. Chemistry, not names: every lot whose assay fits, whatever
+                    it was ever called — the way to reach material that never had a good name. */}
+                {activeTab === 'mine' && (
+                  <div className='ml-auto flex flex-col items-end gap-0.5'>
+                    <div className='relative w-64 max-w-full'>
+                      <input value={specQuery} onChange={e => setSpecQuery(e.target.value)}
+                        placeholder='Find by spec · Ni 28-33 Cr 15-20 Ti>0'
+                        aria-label='Find by chemistry'
+                        className='input w-full h-8 pr-8' />
+                      <SearchAdornment value={specQuery} onClear={() => setSpecQuery('')} />
+                    </div>
+                    {specQuery.trim() && (
+                      <span className='responsiveTextTable text-[var(--ink-muted)] whitespace-nowrap'>
+                        {spec
+                          ? <>{describeSpec(spec)} — <span className='tnum text-[var(--ink)]'>{specSummary}</span></>
+                          : 'Name an element, e.g. Ni 28-33'}
+                      </span>
+                    )}
+                  </div>
+                )}
               </div>
 
               {activeTab === 'shared' ? (
@@ -543,7 +616,8 @@ const Stocks = () => {
                     ln,
                     sumData,
                     columnVisibility,
-                    propDefaults
+                    propDefaults,
+                    gradeIndex
                   )}
                   ln={ln}
                   setFilteredArray1={setFilteredArray1}
@@ -567,6 +641,7 @@ const Stocks = () => {
                   dataTable={filteredData}
                   loading={loading}
                   settings={settings}
+                  gradeIndex={gradeIndex}
                 />
               </div>
 

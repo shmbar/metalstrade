@@ -1,9 +1,7 @@
 import React, { useMemo, useState } from 'react';
-import { View, Modal, ScrollView, Alert } from 'react-native';
-import { Pressable } from '@/components/ui/Pressable';
+import { View, Alert } from 'react-native';
 import { router } from 'expo-router';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Text, Select, TextField, Button } from '@/components/ui';
+import { Text, Select, TextField, Button, Sheet } from '@/components/ui';
 import { useTheme } from '@/theme/ThemeProvider';
 import { radius, spacing } from '@/theme/tokens';
 import { useSettings } from '@/store/settings';
@@ -25,7 +23,6 @@ const fmtQ = (n: any) => new Intl.NumberFormat('en-US', { minimumFractionDigits:
 // target at all, so moving stock between warehouses was impossible on the phone.
 export function LotSheet({ item, onClose }: { item: any | null; onClose: () => void }) {
   const { colors } = useTheme();
-  const insets = useSafeAreaInsets();
   const { settings } = useSettings();
   const move = useMoveStock();
 
@@ -44,6 +41,9 @@ export function LotSheet({ item, onClose }: { item: any | null; onClose: () => v
 
   const sym = curSymbol(item.cur);
   const contractId = item.data?.find((d: any) => d.contractData)?.contractData?.id;
+  const subtitle = [item.warehouseName, item.supplierName, item.order ? `PO ${item.order}` : '']
+    .filter(Boolean)
+    .join(' · ');
 
   const doMove = async () => {
     try {
@@ -57,78 +57,76 @@ export function LotSheet({ item, onClose }: { item: any | null; onClose: () => v
   };
 
   return (
-    <Modal visible transparent animationType="slide" onRequestClose={onClose}>
-      <Pressable style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.4)' }} onPress={onClose} />
-      <View
-        style={{
-          backgroundColor: colors.bgElevated,
-          borderTopLeftRadius: radius['2xl'],
-          borderTopRightRadius: radius['2xl'],
-          paddingBottom: insets.bottom + spacing.lg,
-          maxHeight: '85%',
-        }}
-      >
-        <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={{ padding: spacing.lg, gap: spacing.md }}>
-          <Text variant="h2" numberOfLines={2}>{item.descriptionName || '—'}</Text>
-
-          {/* Read-only summary, matching web's top block. */}
-          <View style={{ gap: 4 }}>
-            <Row label="Weight" v={`${fmtQ(item.qnty)} ${item.qTypeLabel || 'MT'}`} />
-            <Row label="Unit price" v={item.unitPrc ? `${sym}${fmtLotPrice(item.unitPrc)}` : '-'} />
-            <Row label="Total" v={item.total === '-' ? '—' : `${sym}${fmtMoney(item.total)}`} />
-            <Row label="Warehouse" v={item.warehouseName || '—'} />
-            {!!item.supplierName && <Row label="Supplier" v={item.supplierName} />}
-            {!!item.order && <Row label="PO" v={item.order} />}
-          </View>
-
-          {/* Change Stock — moves part of the lot to another warehouse. */}
-          <View
-            style={{
-              backgroundColor: colors.surfaceAlt, borderRadius: radius.lg,
-              borderWidth: 1, borderColor: colors.border, padding: 12, gap: 10,
+    <Sheet
+      visible
+      onClose={onClose}
+      title={item.descriptionName || '—'}
+      subtitle={subtitle || undefined}
+      footer={
+        contractId ? (
+          <Button
+            title="Open contract"
+            variant="secondary"
+            onPress={() => {
+              onClose();
+              router.push(`/(app)/contracts/${contractId}`);
             }}
-          >
-            <Text variant="label" tone="muted">Move to another warehouse</Text>
-            <TextField
-              label={`Quantity (max ${fmtQ(item.qnty)})`}
-              value={qnty}
-              onChangeText={(t) => setQnty(t.replace(/[^0-9.]/g, ''))}
-              keyboardType="decimal-pad"
-            />
-            <Select label="Target warehouse" value={toStock} options={whOptions} onChange={setToStock} required />
-            <Button
-              title="Move stock"
-              loading={move.isPending}
-              disabled={!qnty || !toStock}
-              onPress={doMove}
-            />
-            <Text variant="caption" tone="faint">
-              Recorded as an out + in pair, so the move is reversible and never counts as a sale.
-            </Text>
-          </View>
+          />
+        ) : undefined
+      }
+    >
+      <View style={{ gap: spacing.md }}>
+        {/* Read-only summary, matching web's top block. */}
+        <View>
+          <Row label="Weight" v={`${fmtQ(item.qnty)} ${item.qTypeLabel || 'MT'}`} first />
+          <Row label="Unit price" v={item.unitPrc ? `${sym}${fmtLotPrice(item.unitPrc)}` : '-'} />
+          <Row label="Total" v={item.total === '-' ? '—' : `${sym}${fmtMoney(item.total)}`} />
+          <Row label="Warehouse" v={item.warehouseName || '—'} />
+          {!!item.supplierName && <Row label="Supplier" v={item.supplierName} />}
+          {!!item.order && <Row label="PO" v={item.order} />}
+        </View>
 
-          {!!contractId && (
-            <Button
-              title="Open contract"
-              variant="secondary"
-              onPress={() => {
-                onClose();
-                router.push(`/(app)/contracts/${contractId}`);
-              }}
-            />
-          )}
-          <Button title="Close" variant="secondary" onPress={onClose} />
-        </ScrollView>
+        {/* Change Stock — moves part of the lot to another warehouse. */}
+        <View
+          style={{
+            backgroundColor: colors.surfaceAlt, borderRadius: radius.lg,
+            borderWidth: 1, borderColor: colors.border, padding: 12, gap: 10,
+          }}
+        >
+          <Text variant="label" tone="muted">Move to another warehouse</Text>
+          <TextField
+            label={`Quantity (max ${fmtQ(item.qnty)})`}
+            value={qnty}
+            onChangeText={(t) => setQnty(t.replace(/[^0-9.]/g, ''))}
+            keyboardType="decimal-pad"
+          />
+          <Select label="Target warehouse" value={toStock} options={whOptions} onChange={setToStock} required />
+          <Button
+            title="Move stock"
+            loading={move.isPending}
+            disabled={!qnty || !toStock}
+            onPress={doMove}
+          />
+          <Text variant="caption" tone="faint">
+            Recorded as an out + in pair, so the move is reversible and never counts as a sale.
+          </Text>
+        </View>
       </View>
-    </Modal>
+    </Sheet>
   );
 }
 
-function Row({ label, v }: { label: string; v: string }) {
+function Row({ label, v, first }: { label: string; v: string; first?: boolean }) {
+  const { colors } = useTheme();
   return (
-    <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 3 }}>
+    <View
+      style={{
+        flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 12,
+        paddingVertical: 8, borderTopWidth: first ? 0 : 1, borderTopColor: colors.border,
+      }}
+    >
       <Text variant="body" tone="muted">{label}</Text>
-      <Text variant="bodyMedium" style={{ fontVariant: ['tabular-nums'] }}>{v}</Text>
+      <Text variant="bodyMedium" numberOfLines={1} style={{ flexShrink: 1, fontVariant: ['tabular-nums'] }}>{v}</Text>
     </View>
   );
 }

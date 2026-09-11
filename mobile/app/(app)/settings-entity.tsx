@@ -10,7 +10,7 @@ import { useTheme } from '@/theme/ThemeProvider';
 import { useSettings } from '@/store/settings';
 import { useSettingsEdit } from '@/features/settings/useSettingsEdit';
 import { newId } from '@/data/writes';
-import { radius, spacing } from '@/theme/tokens';
+import { spacing } from '@/theme/tokens';
 
 // Per-type config: category key, display field, label, and the editable fields.
 function configFor(type: string) {

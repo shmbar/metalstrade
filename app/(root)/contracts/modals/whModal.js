@@ -15,6 +15,7 @@ import { Selector } from '@components/selectors/selectShad.js';
 import { Button } from '@components/ui/button.jsx';
 import { Save, CirclePlus, ScrollText, Trash, FileText, Copy, Pencil } from "lucide-react";
 import DocumentImportOverlay from '@components/DocumentImportOverlay';
+import AssayEditor from '@components/AssayEditor';
 
 
 
@@ -243,12 +244,12 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowPoInvModal }) => {
                 const prod = {
                     id: uuidv4(), description: softenCaps(p.description),
                     qnty: qtyMT || '', unitPrc: unitPrc || '', total: total || '',
-                    import: true, importedFrom: { doc: 'supplier-invoice' },
+                    import: true, importedFrom: { doc: 'supplier-invoice' }, analysis: p.analysis || '',
                 }
                 newProducts.push(prod)
                 match = prod
             }
-            return { ...newStock, ...sharedSeed, id: uuidv4(), description: match?.id || '', qnty: qtyMT || '', unitPrc, total }
+            return { ...newStock, ...sharedSeed, id: uuidv4(), description: match?.id || '', qnty: qtyMT || '', unitPrc, total, analysis: p.analysis || '' }
         })
         if (newProducts.length) setValueCon(prev => ({ ...prev, productsData: [...(prev.productsData || []), ...newProducts] }))
         if (lines.length) setData(prev => [...prev, ...lines])
@@ -276,6 +277,8 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowPoInvModal }) => {
             qnty: p.qnty ?? '',
             unitPrc: p.unitPrc ?? '',
             total: ((parseFloat(p.qnty) || 0) * (parseFloat(p.unitPrc) || 0)) || '',
+            // The line's analysis (kept by the document reader) is the lot's starting assay.
+            analysis: p.analysis ?? '',
         } : {}
         setData([...data, { ...newStock, id: uuidv4(), ...seed }])
     }
@@ -493,6 +496,8 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowPoInvModal }) => {
                                             onClick={() => setEditNameRow(x.id)} />
                                     </Tltip>
                                 )}
+                                <AssayEditor value={x.analysis || ''}
+                                    onChange={(v) => handleValue1({ target: { name: 'analysis', value: v } }, i)} />
                             </div>
 
                             <input type='text' className="number-separator tnum input h-7 responsiveTextTable" name='qnty' style={{ fontFamily: 'inherit' }}

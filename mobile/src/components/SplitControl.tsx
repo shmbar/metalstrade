@@ -8,11 +8,10 @@
 // Firestore write path (expenses_/companyExpenses/invoices_), exactly like web.
 
 import React, { useState } from 'react';
-import { View, Modal, ScrollView } from 'react-native';
+import { View } from 'react-native';
 import { Pressable } from '@/components/ui/Pressable';
 import { Ionicons } from '@expo/vector-icons';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Text, TextField, Button } from '@/components/ui';
+import { Text, TextField, Button , Sheet } from '@/components/ui';
 import { useTheme } from '@/theme/ThemeProvider';
 import { radius, spacing } from '@/theme/tokens';
 import { useAuth } from '@/store/auth';
@@ -43,7 +42,6 @@ export function SplitControl({
   onPersist,
 }: SplitControlProps) {
   const { colors } = useTheme();
-  const insets = useSafeAreaInsets();
   const { uidCollection, currentUser } = useAuth();
 
   const status = splitStatusOf(row);
@@ -167,86 +165,73 @@ export function SplitControl({
           'checkmark-circle-outline', openModal
         )}
 
-      <Modal visible={open} transparent animationType="slide" onRequestClose={() => setOpen(false)}>
-        <Pressable style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.4)' }} onPress={() => setOpen(false)} />
-        <View
-          style={{
-            backgroundColor: colors.bgElevated,
-            borderTopLeftRadius: radius['2xl'],
-            borderTopRightRadius: radius['2xl'],
-            paddingBottom: insets.bottom + spacing.lg,
-            maxHeight: '85%',
-          }}
-        >
-          <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={{ padding: spacing.lg, gap: spacing.md }}>
-            <Text variant="h2">IMS / GIS split</Text>
-
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-              <Text variant="body" tone="muted" numberOfLines={1} style={{ flex: 1 }}>
-                {entityLabel || 'Item'}
-              </Text>
-              <Text variant="bodyMedium">{sym}{fmt(amount)}</Text>
-            </View>
-
-            <View>
-              <Text variant="label" tone="muted" style={{ marginBottom: 6 }}>% to IMS</Text>
-              <TextField
-                value={ratio}
-                onChangeText={(v) => setRatio(v.replace(/[^0-9]/g, ''))}
-                keyboardType="number-pad"
-              />
-              <Text variant="caption" tone="faint" style={{ marginTop: 4 }}>
-                GIS gets {100 - r}%
-              </Text>
-              <View style={{ flexDirection: 'row', gap: 6, marginTop: 8 }}>
-                {[50, 60, 70, 100].map((p) => {
-                  const on = r === p;
-                  return (
-                    <Pressable
-                      key={p}
-                      onPress={() => setRatio(String(p))}
-                      style={{
-                        paddingHorizontal: 10, paddingVertical: 4, borderRadius: 999,
-                        backgroundColor: on ? colors.primary : colors.surfaceAlt,
-                        borderWidth: 1, borderColor: on ? colors.primary : colors.border,
-                      }}
-                    >
-                      <Text variant="caption" color={on ? '#fff' : colors.textMuted}>{p}/{100 - p}</Text>
-                    </Pressable>
-                  );
-                })}
-              </View>
-            </View>
-
-            <View style={{ flexDirection: 'row', gap: 10 }}>
-              <View
-                style={{
-                  flex: 1, alignItems: 'center', padding: 10, borderRadius: radius.lg,
-                  backgroundColor: colors.surfaceAlt, borderWidth: 1, borderColor: colors.border,
-                }}
-              >
-                <Text variant="caption" tone="muted">IMS</Text>
-                <Text variant="h3" style={{ marginTop: 2 }}>{sym}{fmt(preview.imsShare)}</Text>
-              </View>
-              <View
-                style={{
-                  flex: 1, alignItems: 'center', padding: 10, borderRadius: radius.lg,
-                  backgroundColor: colors.surfaceAlt, borderWidth: 1, borderColor: colors.border,
-                }}
-              >
-                <Text variant="caption" tone="muted">GIS</Text>
-                <Text variant="h3" tone="primary" style={{ marginTop: 2 }}>{sym}{fmt(preview.gisShare)}</Text>
-              </View>
-            </View>
-
-            <TextField label="Note (optional)" value={note} onChangeText={setNote} multiline />
-
+      <Sheet
+        visible={open}
+        onClose={() => setOpen(false)}
+        title="IMS / GIS split"
+        subtitle={`${entityLabel || 'Item'} · ${sym}${fmt(amount)}`}
+        footer={
+          <View style={{ gap: 8 }}>
             <Button title="Save split" loading={busy} onPress={saveSplit} />
             {status === 'done' && <Button title="Reopen" variant="secondary" onPress={reopen} />}
-            <Button title="Cancel" variant="secondary" onPress={() => setOpen(false)} />
-          </ScrollView>
+          </View>
+        }
+      >
+        <View style={{ gap: spacing.md }}>
+          <View>
+            <Text variant="label" tone="muted" style={{ marginBottom: 6 }}>% to IMS</Text>
+            <TextField
+              value={ratio}
+              onChangeText={(v) => setRatio(v.replace(/[^0-9]/g, ''))}
+              keyboardType="number-pad"
+            />
+            <Text variant="caption" tone="faint" style={{ marginTop: 4 }}>
+              GIS gets {100 - r}%
+            </Text>
+            <View style={{ flexDirection: 'row', gap: 6, marginTop: 8 }}>
+              {[50, 60, 70, 100].map((p) => {
+                const on = r === p;
+                return (
+                  <Pressable
+                    key={p}
+                    onPress={() => setRatio(String(p))}
+                    style={{
+                      paddingHorizontal: 10, paddingVertical: 4, borderRadius: 999,
+                      backgroundColor: on ? colors.primary : colors.surfaceAlt,
+                      borderWidth: 1, borderColor: on ? colors.primary : colors.border,
+                    }}
+                  >
+                    <Text variant="caption" color={on ? '#fff' : colors.textMuted}>{p}/{100 - p}</Text>
+                  </Pressable>
+                );
+              })}
+            </View>
+          </View>
+
+          <View style={{ flexDirection: 'row', gap: 10 }}>
+            <View
+              style={{
+                flex: 1, alignItems: 'center', padding: 10, borderRadius: radius.lg,
+                backgroundColor: colors.surfaceAlt, borderWidth: 1, borderColor: colors.border,
+              }}
+            >
+              <Text variant="caption" tone="muted">IMS</Text>
+              <Text variant="h3" style={{ marginTop: 2 }}>{sym}{fmt(preview.imsShare)}</Text>
+            </View>
+            <View
+              style={{
+                flex: 1, alignItems: 'center', padding: 10, borderRadius: radius.lg,
+                backgroundColor: colors.surfaceAlt, borderWidth: 1, borderColor: colors.border,
+              }}
+            >
+              <Text variant="caption" tone="muted">GIS</Text>
+              <Text variant="h3" tone="primary" style={{ marginTop: 2 }}>{sym}{fmt(preview.gisShare)}</Text>
+            </View>
+          </View>
+
+          <TextField label="Note (optional)" value={note} onChangeText={setNote} multiline />
         </View>
-      </Modal>
+      </Sheet>
     </View>
   );
 }

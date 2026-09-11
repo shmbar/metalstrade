@@ -7,6 +7,7 @@ import Suppliers from './tabs/suppliers'
 import Clients from './tabs/clients'
 import BankAccount from './tabs/bankAccounts'
 import Stocks from './tabs/stocks'
+import Grades from './tabs/grades'
 import Toast from '../../../components/toast.js'
 import { SettingsContext } from "../../../contexts/useSettingsContext";
 import { getTtl } from "../../../utils/languages";
@@ -23,38 +24,32 @@ function classNames(...classes) {
   return classes.filter(Boolean).join(' ')
 }
 
+/* Panels by tab NAME. They used to be picked by position (0 → Company Details …
+   8 → Users), so inserting a tab — Grades, next to Stocks — would have silently
+   shifted every panel after it onto the wrong tab. */
+const PANELS = {
+  'Company Details': CompanyDetails,
+  'Setup': Setup,
+  'Suppliers': Suppliers,
+  'Clients': Clients,
+  'Bank Account': BankAccount,
+  'Stocks': Stocks,
+  'Grades': Grades,
+  'Documents': Documents,
+  'Email Setup': EmailSetup,
+  'Users': Users,
+}
+
 const Page = () => {
 
   const { compData, loading } = useContext(SettingsContext);
   const ln = compData?.lng || 'English';
   const { canManageUsers } = UserAuth();
 
-  let tabs = ['Company Details', 'Setup', 'Suppliers', 'Clients', 'Bank Account', 'Stocks', 'Documents', 'Email Setup']
+  let tabs = ['Company Details', 'Setup', 'Suppliers', 'Clients', 'Bank Account', 'Stocks', 'Grades', 'Documents', 'Email Setup']
   // Super Admins and Admins both manage people; the role hierarchy inside the
   // tab decides who each of them is allowed to touch.
   if (canManageUsers) tabs.push('Users');
-
-  const SetDiv = (x) => {
-    if (x === 0) {
-      return <CompanyDetails />
-    } else if (x === 1) {
-      return <Setup />
-    } else if (x === 2) {
-      return <Suppliers />
-    } else if (x === 3) {
-      return <Clients />
-    } else if (x === 4) {
-      return <BankAccount />
-    } else if (x === 5) {
-      return <Stocks />
-    } else if (x === 6) {
-      return <Documents />
-    } else if (x === 7) {
-      return <EmailSetup />
-    } else if (x === 8) {
-      return <Users />
-    }
-  }
 
 
   return (
@@ -90,14 +85,17 @@ const Page = () => {
             </TabList>
            <div className="page-card relative mt-3 rounded-2xl border border-[var(--line)] bg-[var(--bg-card)] shadow-card p-4">
   <TabPanels>
-    {tabs.map((tab, idx) => (
-      <TabPanel
-        key={idx}
-        className="focus:outline-none"
-      >
-        {SetDiv(idx)}
-      </TabPanel>
-    ))}
+    {tabs.map((tab) => {
+      const Panel = PANELS[tab];
+      return (
+        <TabPanel
+          key={tab}
+          className="focus:outline-none"
+        >
+          {Panel ? <Panel /> : null}
+        </TabPanel>
+      );
+    })}
   </TabPanels>
 </div>
 

@@ -343,12 +343,17 @@ const DocumentImportOverlay = ({ documentType, suppliers, clients, currencies, e
                     // unit + line total let the Materials Breakdown convert to MT and
                     // reproduce the exact invoice amount (harmless extras elsewhere).
                     unit: p.unit || '', lineTotal: p.lineTotal ?? '',
+                    // The element analysis the reader already extracts, kept on the line
+                    // instead of only as prose in comments — the Materials Breakdown copies
+                    // it onto each lot, and the Stocks chemistry popup reads it from there.
+                    // Not a column: the PO table shows id/description/qnty/unitPrc only.
+                    analysis: p.analysis || '',
                 }));
             }
             // `remarks` is a structured ARRAY in this app — never overwrite it with a
             // freeform string. The AI's notes go to the plain-string `comments` field.
-            // Chemistry (element analysis) + scale pricing have no structured field yet, so
-            // fold them into comments so the extracted detail isn't lost.
+            // Chemistry is ALSO folded into comments, so it stays readable on the contract
+            // itself; scale pricing has no structured field yet.
             {
                 const extra = [];
                 if (selected.remarks && result.remarks) extra.push(String(result.remarks));

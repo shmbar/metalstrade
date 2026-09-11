@@ -1,10 +1,10 @@
 import { useMemo, useState } from 'react';
-import { View, Alert, KeyboardAvoidingView, Platform, Modal } from 'react-native';
+import { View, Alert, KeyboardAvoidingView, Platform } from 'react-native';
 import { Pressable } from '@/components/ui/Pressable';
 import { BackButton } from '@/components/ui/BackButton';
 import { useLocalSearchParams, router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Screen, Card, Text, Select, TextField, DateField, Button, EmptyState } from '@/components/ui';
+import { Screen, Card, Text, Select, TextField, DateField, Button, EmptyState , Sheet } from '@/components/ui';
 import { useTheme } from '@/theme/ThemeProvider';
 import { useSettings } from '@/store/settings';
 import {
@@ -193,36 +193,12 @@ export default function ExpenseEdit() {
 
         {/* Invoice finder — web's findInvoiceModal. Look the sales invoice up by
             number + year, then migrate this expense onto it and its contract. */}
-        <Modal visible={findOpen} transparent animationType="slide" onRequestClose={() => setFindOpen(false)}>
-          <Pressable style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.4)' }} onPress={() => setFindOpen(false)} />
-          <View
-            style={{
-              backgroundColor: colors.bgElevated,
-              borderTopLeftRadius: 20,
-              borderTopRightRadius: 20,
-              padding: 20,
-              paddingBottom: insets.bottom + 20,
-              gap: 12,
-            }}
-          >
-            <Text variant="h2">Move to shipment</Text>
-            <Text variant="caption" tone="muted">
-              Appends this expense to the sales invoice and its contract, then removes the
-              company-expense copy. The company copy is deleted last, so a failure part-way
-              leaves it intact.
-            </Text>
-            <TextField
-              label="Invoice #"
-              value={findInv}
-              keyboardType="number-pad"
-              onChangeText={(t) => setFindInv(t.replace(/[^0-9]/g, ''))}
-            />
-            <TextField
-              label="Year"
-              value={findYr}
-              keyboardType="number-pad"
-              onChangeText={(t) => setFindYr(t.replace(/[^0-9]/g, ''))}
-            />
+        <Sheet
+          visible={findOpen}
+          onClose={() => setFindOpen(false)}
+          title="Move to shipment"
+          subtitle="Appends this expense to the sales invoice and its contract, then removes the company-expense copy."
+          footer={
             <Button
               title="Find and move"
               loading={finding || moveShip.isPending}
@@ -250,9 +226,26 @@ export default function ExpenseEdit() {
                 }
               }}
             />
-            <Button title="Cancel" variant="secondary" onPress={() => setFindOpen(false)} />
+          }
+        >
+          <View style={{ gap: 12 }}>
+            <TextField
+              label="Invoice #"
+              value={findInv}
+              keyboardType="number-pad"
+              onChangeText={(t) => setFindInv(t.replace(/[^0-9]/g, ''))}
+            />
+            <TextField
+              label="Year"
+              value={findYr}
+              keyboardType="number-pad"
+              onChangeText={(t) => setFindYr(t.replace(/[^0-9]/g, ''))}
+            />
+            <Text variant="caption" tone="faint">
+              The company copy is deleted last, so a failure part-way leaves it intact.
+            </Text>
           </View>
-        </Modal>
+        </Sheet>
       </Screen>
     </KeyboardAvoidingView>
   );

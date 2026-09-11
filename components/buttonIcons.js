@@ -38,10 +38,12 @@ import {
   FileText,
   FileUp,
   Files,
+  FlaskConical,
   History,
   Import,
   LayoutGrid,
   Loader2,
+  Merge,
   MessageSquare,
   Paperclip,
   PanelTopOpen,
@@ -124,6 +126,11 @@ export const ACTION_ICONS = {
   audit: ClipboardList,
   analysis: TrendingUp,
   sum: Sigma,
+  // Grades & chemistry (utils/grades.js). One flask for a lot's assay — the popup on
+  // Stocks and the editor in Materials Breakdown are the same idea. Merge folds several
+  // spellings into one declared grade.
+  assay: FlaskConical,
+  merge: Merge,
   // The IMS/GIS split — a branch, not a Copy. It is now the whole label on the
   // "put under control" button, so the glyph has to carry the meaning alone.
   split: Split,

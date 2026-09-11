@@ -20,7 +20,7 @@ import { invoiceHtml } from '@/lib/pdfTemplates';
 import { num } from '@shared/finance';
 import { curSymbol, fmtMoney, fmtCurKM, dateLabel } from '@/lib/format';
 import { hapticSuccess } from '@/lib/haptics';
-import { radius, spacing } from '@/theme/tokens';
+import { spacing } from '@/theme/tokens';
 
 export default function InvoiceDetail() {
   const { id, pay } = useLocalSearchParams<{ id: string; pay?: string }>();
