@@ -1978,7 +1978,7 @@ const Cashflow = () => {
                                                                         </div>
                                                                     </div>
                                                                 }>
-                                                                    <ExpensesToolTip supplier={x.supplier} expensesAll={expensesAll} settings={settings} uidCollection={uidCollection} setDateSelect={setDateSelect} setValueExp={setValueExp} setIsOpen={setIsOpen} blankInvoice={blankInvoice} router={router} toggleCheckExp={toggleCheckExp} toggleCheckExpAll={toggleCheckExpAll} toggleExp={toggleExp} savePmntExp={savePmntExp} sumSel={sumSel} toggleSum={toggleSum} />
+                                                                    <ExpensesToolTip supplier={x.supplier} expensesAll={expensesAll} settings={settings} uidCollection={uidCollection} setDateSelect={setDateSelect} setValueExp={setValueExp} setIsOpen={setIsOpen} blankInvoice={blankInvoice} router={router} toggleCheckExp={toggleCheckExp} toggleCheckExpAll={toggleCheckExpAll} toggleExp={toggleExp} savePmntExp={savePmntExp} openInvModal={openInvModal} sumSel={sumSel} toggleSum={toggleSum} />
                                                                 </MyAccordion>
                                                             </div>
 

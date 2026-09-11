@@ -2087,7 +2087,7 @@ export const runExpenses = async (uidCollection, settings, yr) => {
 
 export const ExpensesToolTip = ({ supplier, expensesAll, settings, uidCollection, setDateSelect,
     setValueExp, setIsOpen, blankInvoice, router, toggleCheckExp, toggleCheckExpAll,
-    toggleExp, savePmntExp, sumSel = {}, toggleSum }) => {
+    toggleExp, savePmntExp, openInvModal, sumSel = {}, toggleSum }) => {
     const { sortKey, sortDir, handleSort } = useSortState();
     const { setToast } = useContext(SettingsContext);
 
@@ -2146,7 +2146,11 @@ export const ExpensesToolTip = ({ supplier, expensesAll, settings, uidCollection
                                     onClick={() => moveToContracts(z, z.poSupplier ? 'expense' : 'compexpense', uidCollection, setDateSelect,
                                         setValueExp, setIsOpen, blankInvoice, router, setToast)}>
                                     <Tltip direction='top' tltpText={z.poSupplier?.order ?? 'Comp. Exp.'}><span className="block truncate">{z.poSupplier?.order ?? 'Comp. Exp.'}</span></Tltip></td>
-                                <td className="text-left"><Tltip direction='top' tltpText={z.expense || ''}><span className="block truncate max-w-20">{z.expense}</span></Tltip></td>
+                                {/* Opens the attached expense invoice — the same preview the
+                                    supplier and client invoice numbers open. It was plain text. */}
+                                <td className="text-left cursor-pointer text-[var(--endeavour)] hover:underline"
+                                    onClick={() => openInvModal && openInvModal(z, 'expense')}>
+                                    <Tltip direction='top' tltpText={z.expense ? `${z.expense} · click to preview invoice` : 'Click to preview invoice'}><span className="block truncate max-w-20">{z.expense || '—'}</span></Tltip></td>
                                 <td className="text-left"><Tltip direction='top' tltpText={settings.Expenses.Expenses.find(q => q.id === z.expType)?.expType || ''}><span className="block truncate max-w-20">{settings.Expenses.Expenses.find(q => q.id === z.expType)?.expType}</span></Tltip></td>
                                 <td className="text-right">{
                                     <NumericFormat

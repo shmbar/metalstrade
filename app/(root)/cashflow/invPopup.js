@@ -563,12 +563,228 @@ function ClientDocPreview({ inv, onClose, settings, compData, gisAccount }) {
     );
 }
 
+// ── Expense invoice preview ────────────────────────────────────────────────────
+/* Cashflow's expense rows had no way to see the invoice behind them: the supplier
+   and client rows open a preview from their invoice number, the expense row's number
+   was plain text. An expense's document is whatever was attached with the Files
+   button on the expense form — stored in a folder named by the expense id
+   (expenses/modals/filesModal.js) — so that is what this reads, and where a drop here
+   writes, so a file added from Cashflow shows up on the expense form as well.
+   Company expenses are keyed the same way. */
+const isPdfName = (n = '') => /\.pdf(\?|$)/i.test(n);
+const isImageName = (n = '') => /\.(png|jpe?g|gif|webp|bmp)(\?|$)/i.test(n);
+
+function ExpenseDocPreview({ inv, onClose, settings, gisAccount }) {
+    const supplier = (settings?.Supplier?.Supplier || []).find(s => s.id === inv.supplier);
+    const expType = (settings?.Expenses?.Expenses || []).find(q => q.id === inv.expType)?.expType || '';
+
+    const currencyCode = settings?.Currency?.Currency
+        ? (getD(settings.Currency.Currency, inv, 'cur') || (inv.cur === 'us' ? 'USD' : 'EUR'))
+        : (inv.cur === 'us' ? 'USD' : 'EUR');
+    const fmtAmt = (v) => {
+        try {
+            return new Intl.NumberFormat('en-US', { style: 'currency', currency: currencyCode, minimumFractionDigits: 2 }).format(v || 0);
+        } catch {
+            return `${(inv.cur === 'us' ? '$' : '€')}${(Number(v) || 0).toFixed(2)}`;
+        }
+    };
+
+    const folder = inv.id;
+    const [files, setFiles] = useState([]);
+    const [loadingFiles, setLoadingFiles] = useState(true);
+    useEffect(() => {
+        let active = true;
+        if (!folder) { setLoadingFiles(false); return; }
+        setLoadingFiles(true);
+        (async () => {
+            try {
+                const arr = await getAllfiles(folder);
+                if (active) setFiles(Array.isArray(arr) ? arr : []);
+            } catch {
+                if (active) setFiles([]);
+            } finally {
+                if (active) setLoadingFiles(false);
+            }
+        })();
+        return () => { active = false; };
+    }, [folder]);
+
+    const primaryFile = files.find(f => isPdfName(f.name)) || files.find(f => isImageName(f.name)) || files[0] || null;
+
+    const [uploading, setUploading] = useState(false);
+    const [uploadErr, setUploadErr] = useState('');
+    const handleUpload = async (file) => {
+        setUploadErr('');
+        if (!file) return;
+        if (!folder) { setUploadErr('Cannot attach — this expense has not been saved.'); return; }
+        setUploading(true);
+        try {
+            await uploadFile(folder, file, setFiles);
+            // Re-list from storage, as the supplier preview does, so what is shown is
+            // what actually persisted.
+            const arr = await getAllfiles(folder);
+            setFiles(Array.isArray(arr) ? arr : []);
+        } catch (e) {
+            console.error('expense invoice upload failed:', e);
+            setUploadErr('Upload failed — ' + (e?.message || 'please try again.'));
+        } finally {
+            setUploading(false);
+        }
+    };
+
+    const amount = parseFloat(inv.amount) || 0;
+    const isPaid = inv.paid === '111';
+    const tone = isPaid ? TONES.green : TONES.amber;
+    const po = inv.poSupplier?.order;
+    const watermark = gisAccount ? '/logo/gisBlur.jpg' : '/logo/imsblur1.jpeg';
+
+    return (
+        <Dialog open={!!inv} onOpenChange={onClose}>
+            <DialogContent className="p-0 overflow-hidden flex flex-col" style={{
+                maxWidth: 'min(95vw, 860px)',
+                maxHeight: '92vh',
+                borderRadius: 'var(--radius-card)',
+                border: '1px solid var(--line)',
+                boxShadow: 'var(--shadow-md)',
+                fontFamily: "var(--font-jakarta), 'Plus Jakarta Sans', sans-serif",
+            }}>
+                <DialogTitle className="sr-only">Expense Invoice {inv.expense || ''}</DialogTitle>
+                <div style={{
+                    background: 'var(--bg-subtle)',
+                    borderBottom: '1px solid var(--line-strong)',
+                    padding: '8px 44px 8px 16px',
+                    display: 'flex', justifyContent: 'flex-start', gap: '6px', alignItems: 'center',
+                    fontSize: 'var(--fs-body)',
+                    flexShrink: 0,
+                }}>
+                    <div className="flex gap-3 items-center">
+                        <span style={{ color: 'var(--regent-gray)', fontWeight: '600', letterSpacing: '0.5px' }}>EXPENSE INVOICE {inv.expense || ''}</span>
+                        <span style={{ color: 'var(--border-neutral-strong)' }}>•</span>
+                        <span><span style={{ color: 'var(--regent-gray)' }}>Amount:</span> <strong style={{ color: 'var(--chathams-blue)' }}>{fmtAmt(amount)}</strong></span>
+                    </div>
+                    <span style={{
+                        padding: '3px 10px', borderRadius: '12px',
+                        fontSize: 'var(--fs-table)', fontWeight: '600',
+                        background: tone.bg, color: tone.text,
+                    }}>{isPaid ? 'PAID' : 'UNPAID'}</span>
+                </div>
+
+                <div className="overflow-y-auto flex-1" style={{ background: 'var(--bg-subtle)' }}>
+                    <div className="mx-auto my-4" style={{
+                        background: 'var(--surface-card)',
+                        width: 'calc(100% - 32px)',
+                        maxWidth: '800px',
+                        boxShadow: '0 2px 16px rgba(var(--shadow-rgb), 0.10)',
+                        borderRadius: '4px',
+                        padding: '32px 36px 28px',
+                        color: 'var(--chathams-blue)',
+                        position: 'relative',
+                    }}>
+                        <img src={watermark} alt="" style={{
+                            position: 'absolute',
+                            top: '55%', left: '50%', transform: 'translate(-50%, -50%)',
+                            width: '420px', opacity: 0.07, pointerEvents: 'none', zIndex: 0,
+                        }} />
+
+                        <div style={{ position: 'relative', zIndex: 1 }}>
+                            <div className="flex justify-between items-start mb-4 flex-wrap gap-x-6 gap-y-2">
+                                <div style={{ minWidth: '200px' }}>
+                                    <p style={{ fontSize: 'var(--fs-table)', fontWeight: '600', borderBottom: '1px solid var(--chathams-blue)', display: 'inline-block', paddingBottom: '1px', marginBottom: '4px' }}>
+                                        From (Vendor):
+                                    </p>
+                                    <p style={{ fontSize: 'var(--fs-table)', fontWeight: '600' }}>{supplier?.nname || ''}</p>
+                                    <p style={{ fontSize: 'var(--fs-table)' }}>{supplier?.street || ''}</p>
+                                    <p style={{ fontSize: 'var(--fs-table)' }}>{supplier?.city || ''}</p>
+                                    <p style={{ fontSize: 'var(--fs-table)' }}>{supplier?.country || ''}</p>
+                                </div>
+                                <div style={{ minWidth: '220px', display: 'flex', justifyContent: 'flex-end' }}>
+                                    <table style={{ fontSize: 'var(--fs-table)', borderCollapse: 'collapse' }}>
+                                        <tbody>
+                                            <tr>
+                                                <td style={{ fontWeight: '600', paddingRight: '12px', paddingBottom: '3px' }}>Invoice No:</td>
+                                                <td style={{ paddingBottom: '3px' }}>{inv.expense || ''}</td>
+                                            </tr>
+                                            <tr>
+                                                <td style={{ fontWeight: '600', paddingRight: '12px', paddingBottom: '3px' }}>Type:</td>
+                                                <td style={{ paddingBottom: '3px' }}>{expType}</td>
+                                            </tr>
+                                            <tr>
+                                                <td style={{ fontWeight: '600', paddingRight: '12px', paddingBottom: '3px' }}>{po ? 'Contract #:' : 'Kind:'}</td>
+                                                <td style={{ paddingBottom: '3px' }}>{po || 'Company expense'}</td>
+                                            </tr>
+                                            <tr>
+                                                <td style={{ fontWeight: '600', paddingRight: '12px', paddingBottom: '3px' }}>Date:</td>
+                                                <td style={{ paddingBottom: '3px' }}>{inv.date ? dateFormat(inv.date, 'dd.mm.yy') : ''}</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            {loadingFiles ? (
+                                <div style={{ textAlign: 'center', fontSize: 'var(--fs-body)', color: 'var(--regent-gray)', padding: '40px 0' }}>
+                                    Loading invoice…
+                                </div>
+                            ) : primaryFile ? (
+                                <div>
+                                    {isPdfName(primaryFile.name) ? (
+                                        <PdfPagesView src={primaryFile.url} height='68vh' />
+                                    ) : isImageName(primaryFile.name) ? (
+                                        <img src={primaryFile.url} alt={primaryFile.name}
+                                            style={{ display: 'block', maxWidth: '100%', margin: '0 auto', borderRadius: '6px', border: '1px solid var(--border-cell)' }} />
+                                    ) : (
+                                        <div style={{ fontSize: 'var(--fs-body)', color: 'var(--regent-gray)', padding: '12px 0' }}>
+                                            This file type can’t be previewed inline — open it with the link below.
+                                        </div>
+                                    )}
+                                    <div style={{ marginTop: '10px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                                        {files.map((f, i) => (
+                                            <a key={i} href={f.url} target="_blank" rel="noreferrer"
+                                                style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: 'var(--fs-table)', color: 'var(--endeavour)' }}>
+                                                <FaFilePdf size={11} /> {f.name}{f === primaryFile ? ' (shown above)' : ''}
+                                            </a>
+                                        ))}
+                                    </div>
+                                </div>
+                            ) : (
+                                <div>
+                                    <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '8px', fontSize: 'var(--fs-table)' }}>
+                                        <tbody>
+                                            <tr>
+                                                <td colSpan={3} />
+                                                <td className="text-left responsiveTextTable px-2" style={{ borderTop: '1px solid var(--chathams-blue)', padding: '6px 8px 4px', whiteSpace: 'nowrap', width: '18%' }}>Amount:</td>
+                                                <td className="text-right responsiveTextTable px-2" style={{ borderTop: '1px solid var(--chathams-blue)', padding: '6px 8px 4px', width: '15%' }}>{fmtAmt(amount)}</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                    <p style={{ marginTop: '24px', textAlign: 'center', fontSize: 'var(--fs-body)', color: 'var(--regent-gray)' }}>
+                                        No invoice file attached to this expense yet.
+                                    </p>
+                                    <div style={{ marginTop: '12px', display: 'flex', justifyContent: 'center' }}>
+                                        <FileUploader handleChange={handleUpload} name="file" types={['PDF', 'PNG', 'JPG', 'JPEG']} disabled={uploading || !folder} />
+                                    </div>
+                                    {uploading && <p style={{ marginTop: '8px', textAlign: 'center', fontSize: 'var(--fs-table)', color: 'var(--endeavour)' }}>Uploading…</p>}
+                                    {uploadErr && <p style={{ marginTop: '8px', textAlign: 'center', fontSize: 'var(--fs-table)', color: 'var(--danger-text)' }}>{uploadErr}</p>}
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            </DialogContent>
+        </Dialog>
+    );
+}
+
 // ── Main export ────────────────────────────────────────────────────────────────
 export default function InvPopup({ inv, onClose, settings, compData, gisAccount }) {
     if (!inv) return null;
 
     if (inv._type === 'client') {
         return <ClientDocPreview inv={inv} onClose={onClose} settings={settings} compData={compData} gisAccount={gisAccount} />;
+    }
+
+    if (inv._type === 'expense') {
+        return <ExpenseDocPreview inv={inv} onClose={onClose} settings={settings} gisAccount={gisAccount} />;
     }
 
     return <SupplierDocPreview inv={inv} onClose={onClose} settings={settings} gisAccount={gisAccount} />;
