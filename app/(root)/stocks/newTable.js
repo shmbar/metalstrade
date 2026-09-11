@@ -327,12 +327,19 @@ const Customtable = ({
                             ) : (
                               /* Description carries the expander in "By grade" mode: a
                                  chevron and the lot count sit either side of the grade
-                                 name, all three inside ONE centred group. They must not
-                                 flip the cell to left-aligned — this table is centred
+                                 name, all three inside ONE centred group. Top-level rows
+                                 must not flip to left-aligned — this table is centred
                                  throughout, and aligning only the expandable rows left
-                                 made the column read ragged down the page. Every other
-                                 column, and every row in Lines mode, is unchanged. */
-                              <div className="flex items-center justify-center gap-1 font-normal">
+                                 made the column read ragged down the page.
+
+                                 The LINES under an open fold are the exception, and it
+                                 is deliberate: they step to the right. Tint, accent bar
+                                 and the ↳ were not enough on their own — a child still
+                                 read as a sibling with a different number, which is
+                                 what made the totals look wrong. The step is what says
+                                 "this belongs to the row above" at a glance. */
+                              <div className="flex items-center justify-center gap-1 font-normal"
+                                style={isDesc && row.depth > 0 ? { paddingLeft: '5rem' } : undefined}>
                                 {isDesc && row.depth > 0 && (
                                   <span className="shrink-0" style={{ color: 'var(--brand)' }} aria-hidden>&#8627;</span>
                                 )}
