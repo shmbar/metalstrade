@@ -3,7 +3,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { NumericFormat } from 'react-number-format';
 import ChkBox from '@components/checkbox.js'
 import { } from 'lucide-react';
-import { filteredArray, getD, loadStockDataPerDescription, sortArr } from '@utils/utils.js';
+import { filteredArray, getD, loadStockDataPerDescription, loadStockOnHandByLine, sortArr } from '@utils/utils.js';
 import { SettingsContext } from "@contexts/useSettingsContext";
 import SlctOpt from '@components/invoicePrdSlct'
 import { CalculateNum } from '@components/calculate';
@@ -37,6 +37,30 @@ const ProductsTable = ({ value, setValue, currency, settings, uidCollection, set
     const { setToast, ln, compData } = useContext(SettingsContext);
     const [valueDesc, setValueDesc] = useState('')
     const [openFindContract, setOpenFindContract] = useState(false)
+
+    /* Stock on hand per contract line, shown beside each material in the dropdown.
+       Loaded once per contract (null = still loading, so the hint stays quiet rather
+       than reading "none in stock" for a moment on every line). This is the guard
+       against GIS invoice 46: the sale was written against a line with nothing under
+       it while the same tonnage sat under a duplicate line — with the figure next to
+       each option, that choice is visibly wrong at the moment it is made. */
+    const [onHand, setOnHand] = useState(null);
+    const lineIdsKey = (materialsArr || []).map(x => x.id).join('|');
+    useEffect(() => {
+        let alive = true;
+        setOnHand(null);
+        if (!uidCollection || !lineIdsKey) return;
+        loadStockOnHandByLine(uidCollection, lineIdsKey.split('|'))
+            .then(m => { if (alive) setOnHand(m); })
+            .catch(() => { if (alive) setOnHand({}); });   // no hint beats a wrong one
+        return () => { alive = false; };
+    }, [uidCollection, lineIdsKey]);
+    const stockHint = (k) => {
+        if (!onHand || !(k.id in onHand)) return null;
+        const q = onHand[k.id];
+        if (Math.abs(q) < 0.0005) return { text: 'none in stock', tone: 'danger' };
+        return { text: `${q.toFixed(3)} in stock` };
+    };
 
 
     useEffect(() => {
@@ -530,6 +554,7 @@ const ProductsTable = ({ value, setValue, currency, settings, uidCollection, set
                                                             value={value.productsDataInvoice[i]}
                                                             onChange={(e) => handleChange(e, 'descriptionId', i)}
                                                             name='descriptionId'
+                                                            hint={stockHint}
                                                         />
                                                         :
                                                         <div className='w-full'

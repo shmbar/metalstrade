@@ -1185,6 +1185,44 @@ export const deleteSharedStock = async (id) => {
   catch (e) { console.warn('deleteSharedStock failed:', e?.message || e); }
 }
 
+// Net stock on hand per material line, across every warehouse — { [lineId]: qty }.
+// For the sales-invoice material dropdown, which needs the answer for EVERY line
+// before one is picked: the per-description loader below wants a warehouse and a
+// single material, i.e. it can only tell you after the choice is made. That is how
+// GIS invoice 46 was written against a line with nothing under it while the same
+// 5.202 MT sat under a duplicate line the autofill had created — with the on-hand
+// figure beside each option, a line with nothing behind it is obvious at the
+// moment of choosing. Superseded invoice docs are dropped the same way every other
+// stock reader drops them (filteredArray); drafts are not stock.
+export const loadStockOnHandByLine = async (uidCollection, lineIds = [], stock = null) => {
+  const ids = [...new Set(lineIds.filter(Boolean))];
+  if (!ids.length) return {};
+  const lots = [];
+  for (let i = 0; i < ids.length; i += 30) {                 // Firestore `in` cap
+    const chunk = ids.slice(i, i + 30);
+    for (const field of ['description', 'descriptionId']) {
+      const snap = await getDocs(query(collection(db, uidCollection, 'data', 'stocks'), where(field, 'in', chunk)));
+      snap.docs.forEach(d => lots.push({ id: d.id, ...d.data() }));
+    }
+  }
+  // a lot can match on both fields — count it once
+  const seen = new Set();
+  const kept = filteredArray(lots.filter(l => {
+    if (seen.has(l.id)) return false;
+    seen.add(l.id);
+    if (stock && l.stock !== stock) return false;   // one warehouse, when asked
+    return l.draft !== true && l.total !== 0;
+  }));
+  const onHand = {};
+  ids.forEach(id => { onHand[id] = 0; });
+  kept.forEach(l => {
+    const key = ids.includes(l.description) ? l.description : l.descriptionId;
+    if (!(key in onHand)) return;
+    onHand[key] += (Number(l.qnty) || 0) * (l.type === 'in' ? 1 : -1);
+  });
+  return onHand;
+};
+
 export const loadStockDataPerDescription = async (uidCollection, stock, description) => {
 
   const q = query(

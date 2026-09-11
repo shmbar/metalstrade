@@ -23,8 +23,13 @@ import { useRef, useState } from "react"
    tailwind-merge does not dedupe two custom classes, so both land on the element
    and the one declared later in globals.css takes it. The --fs-* vars exist for
    exactly this — inline sizes that still ride the shared ladder. */
+/* hint: optional (item) => { text, tone } rendered as a muted suffix on each OPTION
+   only — never on the closed trigger, so the cell stays clean once a choice is made.
+   tone 'danger' colours the suffix as a warning. First use: stock on hand beside each
+   material in the sales-invoice dropdown, so a line with nothing behind it is
+   obvious at the moment of choosing rather than weeks later in cashflow. */
 export function Selector({ arr, value, onChange, name, clear, disabled, secondaryName, classes, row,
-    sizeVar }) {
+    sizeVar, hint }) {
 
     // Type-to-filter for long lists (client request: every list gets a search box).
     const [query, setQuery] = useState('')
@@ -138,6 +143,16 @@ export function Selector({ arr, value, onChange, name, clear, disabled, secondar
                                 className={cn((k.id === 'EditTextDelTime' || k.id === 'allStocks' || k.id === 'EditTextRmrks' || k.id === 'EditTextTermPmnt') &&
                                     'font-semibold italic text-[var(--brand-strong)]')} >
                                 {secondaryName ? k[secondaryName] : k[name]}
+                                {(() => {
+                                    const h = hint ? hint(k) : null;
+                                    if (!h?.text) return null;
+                                    return (
+                                        <span className={cn('ml-2 tabular-nums',
+                                            h.tone === 'danger' ? 'text-[var(--danger-text)]' : 'text-[var(--ink-muted)]')}>
+                                            {h.text}
+                                        </span>
+                                    );
+                                })()}
                             </SelectItem>
                         )
                     })}

@@ -3,7 +3,8 @@ import { useState, useContext, useMemo } from 'react';
 import dateFormat from "dateformat";
 import { v4 as uuidv4 } from 'uuid';
 import { getD, setNewInvoiceNum, loadDataSettings, updatePnl, updateDocument, delField, loadInvoice } from '@utils/utils.js';
-import { validate, saveData, delDoc, saveDataFinalCancel, saveStockIn, delStock } from '@utils/utils'
+import { validate, saveData, delDoc, saveDataFinalCancel, saveStockIn, delStock, loadStockOnHandByLine } from '@utils/utils'
+import { duplicateLineTrap as trapGuard } from '@utils/stockGuards'
 import { SettingsContext } from '@contexts/useSettingsContext'
 import { getTtl } from '@utils/languages';
 
@@ -54,6 +55,11 @@ const newInvoice = {
 //
 // Symmetric on purpose. Ticking Draft on an invoice that already shipped removes
 // its movements and gives the weight back; clearing the tick writes them again.
+// The duplicate-line trap lives in utils/stockGuards.js (pure, tested); this just
+// hands it the real ledger read. See that file for what it catches and why.
+const duplicateLineTrap = (uidCollection, invoice, contractProducts) =>
+    trapGuard(invoice, contractProducts, (ids, wh) => loadStockOnHandByLine(uidCollection, ids, wh));
+
 const writeInvoiceStockMovements = async (uidCollection, invoice, rows) => {
     if (!rows.length) return;
     if (invoice?.draft) {
@@ -175,6 +181,9 @@ const useInvoiceState = () => {
                 setToast({ show: true, text: getTtl('The following fields in the materials table are empty:', ln) + ' ' + arrfields.map(x => ' ' + x), clr: 'fail' })
                 return false;
             }
+
+            const trap = await duplicateLineTrap(uidCollection, valueInv, valueCon.productsData);
+            if (trap) { setToast({ show: true, text: trap, clr: 'fail' }); return false; }
 
             const NetWTKgsTmp = (valueInv.productsDataInvoice.filter(q => q.qnty !== 's').map(x => x.qnty)
                 .reduce((accumulator, currentValue) => accumulator + currentValue * 1, 0) * 1000) || 0;
@@ -320,6 +329,11 @@ const useInvoiceState = () => {
                 setToast({ show: true, text: getTtl('The following fields in the materials table are empty:', ln) + ' ' + arrfields.map(x => ' ' + x), clr: 'fail' })
                 return false;
             }
+
+            // The contract is only fetched further down; the guard needs its lines now.
+            const conForTrap = valueInv.poSupplier ? await loadInvoice(uidCollection, 'contracts', valueInv.poSupplier).catch(() => null) : null;
+            const trap = await duplicateLineTrap(uidCollection, valueInv, conForTrap?.productsData || []);
+            if (trap) { setToast({ show: true, text: trap, clr: 'fail' }); return false; }
 
             const NetWTKgsTmp = (valueInv.productsDataInvoice.filter(q => q.qnty !== 's').map(x => x.qnty)
                 .reduce((accumulator, currentValue) => accumulator + currentValue * 1, 0) * 1000) || 0;
