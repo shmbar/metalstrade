@@ -1308,27 +1308,6 @@ const Cashflow = () => {
                                     <p className="responsiveTextInput text-[var(--ink-muted)] mt-0.5">Cash position across stocks, clients, suppliers & expenses</p>
                                 </div>
                                 <div className="flex items-center gap-2 group">
-                                    {/* A find tool, not a scope: totalLeft/totalRight are computed from the
-                                        full period and deliberately do NOT move with this box, so the cash
-                                        position stays honest while you look someone up. Said out loud below,
-                                        because "filter" would otherwise imply the totals had narrowed too.
-                                        The magnifier is what makes it read as a search box at all beside
-                                        Export and the year picker; pr-8 keeps text clear of it. */}
-                                    <div className="relative" style={{ width: 210 }}>
-                                        <input
-                                            value={nameQ}
-                                            onChange={(e) => setNameQ(e.target.value)}
-                                            placeholder="Find a client, supplier or stock"
-                                            aria-label="Find a client, supplier or stock"
-                                            className="input h-8 pr-8"
-                                        />
-                                        <SearchAdornment value={nameQ} onClear={() => setNameQ('')} />
-                                    </div>
-                                    {nameQ.trim() && (
-                                        <span className="responsiveTextTable text-[var(--ink-muted)] whitespace-nowrap">
-                                            rows only — totals cover the full period
-                                        </span>
-                                    )}
                                     <Tltip direction='bottom' tltpText='Export the current cashflow tables to Excel'>
                                         <button
                                             type="button"
@@ -1345,20 +1324,44 @@ const Cashflow = () => {
                             {/* AI Cash Forecast Panel */}
                             <ForecastPanel />
 
-                            {/* Tabs */}
-                            <div className="inline-flex gap-1 mb-2 bg-[var(--bg-subtle)] border border-[var(--line)] rounded-lg p-0.5">
-                                <button
-                                    onClick={() => setActiveTab('general')}
-                                    className={`px-4 py-1 responsiveTextInput rounded-lg transition-all ${activeTab === 'general' ? 'bg-[var(--bg-card)] text-[var(--ink)] font-medium shadow-card' : 'text-[var(--ink-secondary)]'}`}
-                                >
-                                    General Cashflow
-                                </button>
-                                <button
-                                    onClick={() => setActiveTab('unsold')}
-                                    className={`px-4 py-1 responsiveTextInput rounded-lg transition-all ${activeTab === 'unsold' ? 'bg-[var(--bg-card)] text-[var(--ink)] font-medium shadow-card' : 'text-[var(--ink-secondary)]'}`}
-                                >
-                                    Unsold Stocks
-                                </button>
+                            {/* Tabs, with the find box beside them. It sits here rather than in the page
+                                header because it narrows the rows of whichever tab is open — byName()
+                                runs on General Cashflow and Unsold Stocks alike. A find tool, not a
+                                scope: totalLeft/totalRight are computed from the full period and
+                                deliberately do NOT move with this box, so the cash position stays
+                                honest while you look someone up — said out loud by the note beside it.
+                                items-stretch + !h-auto lets the box take the tab strip's height rather
+                                than sit a few px shorter; min-h-8 keeps the band's 28px floor when the
+                                row wraps and the box is alone on its line. */}
+                            <div className="flex flex-wrap items-stretch gap-2 mb-2">
+                                <div className="inline-flex gap-1 bg-[var(--bg-subtle)] border border-[var(--line)] rounded-lg p-0.5">
+                                    <button
+                                        onClick={() => setActiveTab('general')}
+                                        className={`px-4 py-1 responsiveTextInput rounded-lg transition-all ${activeTab === 'general' ? 'bg-[var(--bg-card)] text-[var(--ink)] font-medium shadow-card' : 'text-[var(--ink-secondary)]'}`}
+                                    >
+                                        General Cashflow
+                                    </button>
+                                    <button
+                                        onClick={() => setActiveTab('unsold')}
+                                        className={`px-4 py-1 responsiveTextInput rounded-lg transition-all ${activeTab === 'unsold' ? 'bg-[var(--bg-card)] text-[var(--ink)] font-medium shadow-card' : 'text-[var(--ink-secondary)]'}`}
+                                    >
+                                        Unsold Stocks
+                                    </button>
+                                </div>
+                                <div className="search-field !h-auto min-h-8" style={{ width: 210 }}>
+                                    <input
+                                        value={nameQ}
+                                        onChange={(e) => setNameQ(e.target.value)}
+                                        placeholder="Find a client, supplier or stock"
+                                        aria-label="Find a client, supplier or stock"
+                                    />
+                                    <SearchAdornment value={nameQ} onClear={() => setNameQ('')} />
+                                </div>
+                                {nameQ.trim() && (
+                                    <span className="self-center responsiveTextTable text-[var(--ink-muted)] whitespace-nowrap">
+                                        rows only — totals cover the full period
+                                    </span>
+                                )}
                             </div>
 
                             {/* KPI summary strip (same values as the section totals below) */}
