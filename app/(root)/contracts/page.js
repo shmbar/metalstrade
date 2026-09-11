@@ -32,6 +32,7 @@ import { updateContractField } from '../../../utils/utils';
 import { useGlobalSearch } from '../../../contexts/useGlobalSearchContext';
 import { BtnIcon } from '@components/buttonIcons';
 import CurrencyChip from '@components/CurrencyChip';
+import { oneOf } from '@components/table/filters/oneOfFilter';
 import { useUndo } from '@hooks/useUndo';
 
 const Contracts = () => {
@@ -181,6 +182,11 @@ const Contracts = () => {
 			meta: { filterVariant: 'dates' },
 			filterFn: 'dateBetweenFilterFn'
 		},
+		/* Every dropdown-backed column filters as a checklist (filterVariant 'multi'
+		   + oneOf). The row holds a settings ID in each of these, and the old text
+		   box matched against that id — so typing "Rotterdam" into POD found
+		   nothing, and the only way to filter was to know the id. The checklist
+		   lists the labels from meta.options, and takes several at once. */
 		{
 			accessorKey: 'supplier',
 			header: getTtl('Supplier', ln),
@@ -192,7 +198,8 @@ const Contracts = () => {
 					.filter(s => !s.deleted)
 					.sort((a, b) => (a.nname || '').localeCompare(b.nname || ''))
 					.map(s => ({ value: s.id, label: s.nname }))
-			}
+			},
+			filterFn: oneOf,
 		},
 		{
 			accessorKey: 'originSupplier',
@@ -200,81 +207,96 @@ const Contracts = () => {
 			cell: EditableSelectCell,
 			meta: {
 				avatar: true,
+				filterVariant: 'multi',
 				options: (settings.Supplier?.Supplier ?? [])
 					.filter(s => !s.deleted)
 					.sort((a, b) => (a.nname || '').localeCompare(b.nname || ''))
 					.map(s => ({ value: s.id, label: s.nname }))
-			}
+			},
+			filterFn: oneOf,
 		},
 		{
 			accessorKey: 'shpType',
 			header: getTtl('Shipment', ln),
 			cell: EditableSelectCell,
 			meta: {
+				filterVariant: 'multi',
 				options: settings.Shipment?.Shipment?.map(s => ({
 					value: s.id,
 					label: s.shpType
 				})) ?? []
-			}
+			},
+			filterFn: oneOf,
 		},
 		{
 			accessorKey: 'origin',
 			header: getTtl('Origin', ln),
 			cell: EditableSelectCell,
 			meta: {
+				filterVariant: 'multi',
 				options: settings.Origin?.Origin?.map(o => ({
 					value: o.id,
 					label: o.origin
 				})) ?? []
-			}
+			},
+			filterFn: oneOf,
 		},
 		{
 			accessorKey: 'delTerm',
 			header: getTtl('Delivery Terms', ln),
 			cell: EditableSelectCell,
 			meta: {
+				filterVariant: 'multi',
 				options: settings['Delivery Terms']?.['Delivery Terms']?.map(d => ({
 					value: d.id,
 					label: d.delTerm
 				})) ?? []
-			}
+			},
+			filterFn: oneOf,
 		},
 		{
 			accessorKey: 'pol', header: getTtl('POL', ln),
 			cell: EditableSelectCell,
-			meta: { options: settings.POL?.POL?.map(p => ({ value: p.id, label: p.pol })) ?? [] }
+			meta: { filterVariant: 'multi', options: settings.POL?.POL?.map(p => ({ value: p.id, label: p.pol })) ?? [] },
+			filterFn: oneOf,
 		},
 		{
 			accessorKey: 'pod', header: getTtl('POD', ln),
 			cell: EditableSelectCell,
-			meta: { options: settings.POD?.POD?.map(p => ({ value: p.id, label: p.pod })) ?? [] }
+			meta: { filterVariant: 'multi', options: settings.POD?.POD?.map(p => ({ value: p.id, label: p.pod })) ?? [] },
+			filterFn: oneOf,
 		},
 		{
 			accessorKey: 'packing', header: getTtl('Packing', ln),
 			cell: EditableSelectCell,
-			meta: { options: settings.Packing?.Packing?.map(p => ({ value: p.id, label: p.packing })) ?? [] }
+			meta: { filterVariant: 'multi', options: settings.Packing?.Packing?.map(p => ({ value: p.id, label: p.packing })) ?? [] },
+			filterFn: oneOf,
 		},
 		{
 			accessorKey: 'contType', header: getTtl('Container Type', ln),
 			cell: EditableSelectCell,
-			meta: { options: settings['Container Type']?.['Container Type']?.map(c => ({ value: c.id, label: c.contType })) ?? [] }
+			meta: { filterVariant: 'multi', options: settings['Container Type']?.['Container Type']?.map(c => ({ value: c.id, label: c.contType })) ?? [] },
+			filterFn: oneOf,
 		},
 		{
 			accessorKey: 'size', header: getTtl('Size', ln),
 			cell: EditableSelectCell,
-			meta: { options: settings.Size?.Size?.map(s => ({ value: s.id, label: s.size })) ?? [] }
+			meta: { filterVariant: 'multi', options: settings.Size?.Size?.map(s => ({ value: s.id, label: s.size })) ?? [] },
+			filterFn: oneOf,
 		},
 		{
 			accessorKey: 'deltime', header: getTtl('Delivery Time', ln),
 			size: 110, minSize: 90, maxSize: 130,
 			cell: EditableSelectCell,
-			meta: { options: settings['Delivery Time']?.['Delivery Time']?.map(d => ({ value: d.id, label: d.deltime })) ?? [] }
+			meta: { filterVariant: 'multi', options: settings['Delivery Time']?.['Delivery Time']?.map(d => ({ value: d.id, label: d.deltime })) ?? [] },
+			filterFn: oneOf,
 		},
 		{
 			accessorKey: 'cur',
 			header: getTtl('Currency', ln),
 			cell: (props) => <CurrencyChip cur={props.getValue()} />,
-			meta: { excludeFromQuickSum: true }
+			meta: { excludeFromQuickSum: true, filterVariant: 'multi', options: [{ value: 'us', label: 'USD' }, { value: 'eu', label: 'EUR' }] },
+			filterFn: oneOf,
 		},
 		{ accessorKey: 'qTypeTable', header: getTtl('QTY', ln), cell: (props) => <span>{showQTY(props)}</span> },
 		{

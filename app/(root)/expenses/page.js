@@ -25,6 +25,7 @@ import useInlineEdit from '../../../hooks/useInlineEdit';
 import { useRouter, useSearchParams } from 'next/navigation';
 import EditableCell from '../../../components/table/inlineEditing/EditableCell';
 import EditableSelectCell from '../../../components/table/inlineEditing/EditableSelectCell';
+import { oneOf } from '../../../components/table/filters/oneOfFilter';
 import { updateExpenseField } from '../../../utils/utils';
 import { useGlobalSearch } from '../../../contexts/useGlobalSearchContext';
 import SplitControl from '../../../components/SplitControl';
@@ -219,12 +220,13 @@ const Expenses = () => {
 		}).format(x.getValue())
 	}, [gQ])
 
-	const caseInsensitiveEquals = (row, columnId, filterValue) =>
-		row.getValue(columnId).toLowerCase() === filterValue.toLowerCase();
-
 	// Memoized: cells read settings/ln (labels, options), the settings-derived
 	// showAmount1, and the split cell reads uidCollection/currentUser/logActivity/
 	// persistSplit — all deps below.
+	//
+	// The dropdown-backed columns filter as a checklist (filterVariant 'multi' +
+	// oneOf): the row holds a settings ID, which the old text box matched against
+	// literally, so a vendor's NAME typed into its filter found nothing.
 	const propDefaults = useMemo(() => Object.keys(settings).length === 0 ? [] : [
 		{ accessorKey: 'lstSaved', header: getTtl('Last Saved', ln), cell: (props) => <p className="whitespace-nowrap">{dateFormat(props.getValue(), 'dd-mmm-yy HH:MM')}</p>, meta: { excludeFromQuickSum: true } },
 		{
@@ -235,7 +237,8 @@ const Expenses = () => {
 				avatar: true,
 				filterVariant: 'selectSupplier',
 				options: settings.Supplier?.Supplier?.map(s => ({ value: s.id, label: s.nname })) ?? []
-			}
+			},
+			filterFn: oneOf,
 		},
 		{
 			accessorKey: 'date', header: getTtl('Date', ln), cell: (props) => <p>{dateFormat(props.getValue(), 'dd.mm.yy')}</p>,
@@ -251,8 +254,10 @@ const Expenses = () => {
 			header: getTtl('Currency', ln),
 			cell: EditableSelectCell,
 			meta: {
+				filterVariant: 'multi',
 				options: settings.Currency?.Currency?.map(c => ({ value: c.id, label: c.cur })) ?? []
-			}
+			},
+			filterFn: oneOf,
 		},
 		{
 			accessorKey: 'amount',
@@ -297,8 +302,10 @@ const Expenses = () => {
 			header: getTtl('Expense Type', ln),
 			cell: EditableSelectCell,
 			meta: {
+				filterVariant: 'multi',
 				options: settings.Expenses?.Expenses?.map(e => ({ value: e.id, label: e.expType })) ?? []
-			}
+			},
+			filterFn: oneOf,
 		},
 		{
 			accessorKey: 'paid',
@@ -308,7 +315,7 @@ const Expenses = () => {
 				filterVariant: 'paidNotPaidExp',
 				options: settings.ExpPmnt?.ExpPmnt?.map(p => ({ value: p.id, label: p.paid })) ?? [],
 			},
-			filterFn: caseInsensitiveEquals,
+			filterFn: oneOf,
 		},
 
 		{ accessorKey: 'comments', header: getTtl('Comments', ln), cell: EditableCell },

@@ -23,7 +23,8 @@ import CBox from '../../../components/combobox.js'
 import { EXD } from './excel'
 import { EXD as EXDStatement } from '../contractsstatement/excel'
 import { lotIsSold, computeLineSold, aggregateRollups, lineStatus } from '../contractsstatement/soldStatus'
-import { SHIPMENT_STATUS_STYLES } from '../contractsstatement/shipmentStatus'
+import { SHIPMENT_STATUSES, SHIPMENT_STATUS_STYLES } from '../contractsstatement/shipmentStatus'
+import { oneOf } from '../../../components/table/filters/oneOfFilter'
 import dateFormat from "dateformat";
 import { getTtl } from '../../../utils/languages';
 import DateRangePicker from '../../../components/dateRangePicker';
@@ -190,14 +191,26 @@ const arrayIncludesString = (row, columnId, filterValue) => {
     });
 };
 
-// Filters the Status column by the visible status label (shipment status or derived lifecycle)
-const statusRollupFilter = (row, columnId, filterValue) => {
-    if (!filterValue) return true;
-    const fv = String(filterValue).toLowerCase().trim();
-    if (!fv) return true;
-    const { key, label } = lineStatus({ shipmentStatus: row.original?.shipmentStatus, rollup: row.original?.soldRollup });
-    return String(label).toLowerCase().includes(fv) || String(key).toLowerCase().includes(fv);
+// What the Status column holds for filtering and sorting: one token per line, so the
+// checklist offers "Unsold" once rather than "Unsold 20 MT" and "Unsold 15 MT" as two
+// boxes. A manual lifecycle status is its own name. The auto-derived ones carry an
+// `auto:` prefix because the filter matches case-insensitively and "Pending" set on
+// the Shipment page and the derived "Sold · pending shipment" must stay two boxes;
+// the one exception is derived-shipped, which IS "Shipped" and folds into it.
+const statusToken = (r) => {
+    const { key, isShipment } = lineStatus({ shipmentStatus: r?.shipmentStatus, rollup: r?.soldRollup });
+    if (isShipment) return key;
+    return key === 'shipped' ? 'Shipped' : `auto:${key}`;
 };
+// Labels for those tokens, in lifecycle order — the checklist keeps this order and
+// the global search resolves a token to its label through the same list.
+const STATUS_FILTER_OPTIONS = [
+    ...SHIPMENT_STATUSES.filter(Boolean).map(s => ({ value: s, label: s })),
+    { value: 'auto:partial', label: 'Partially shipped' },
+    { value: 'auto:pending', label: 'Sold · pending shipment' },
+    { value: 'auto:unsold', label: 'Unsold' },
+    { value: 'auto:none', label: '—' },
+];
 
 // Matched to .whiteButton, which is what sits either side of it: the caption rung
 // (9/10/11/12) and --chathams-blue at weight 500. It used to render 12px in accent
@@ -546,6 +559,7 @@ const ContractsMerged = () => {
             meta: {
                 filterVariant: 'selectSupplier',
             },
+            filterFn: oneOf,
         },
         {
             accessorKey: 'conValue', header: getTtl('purchaseValue', ln), cell: (props) => <p>{showAmount(props.getValue())}</p>, ttl: showAmount(totals[0]?.conValue),
@@ -652,10 +666,14 @@ const ContractsMerged = () => {
             meta: {
                 filterVariant: 'selectSupplier',
             },
+            filterFn: oneOf,
         },
         {
             accessorKey: 'client', header: getTtl('Consignee', ln),
-            filterFn: arrayIncludesString,
+            // The cell stacks one client per line; the checklist lists each of them
+            // once and a line passes when any of its clients is ticked.
+            meta: { filterVariant: 'multi' },
+            filterFn: oneOf,
             cell: (props) => <StackCell value={props.getValue()} avatar />,
         },
         { accessorKey: 'poWeight', header: getTtl('Quantity', ln), cell: (props) => <p>{showWeight(props.getValue())}</p> },
@@ -675,8 +693,14 @@ const ContractsMerged = () => {
                 }</span>
         },
         {
-            accessorKey: 'status', header: getTtl('Status', ln),
-            filterFn: statusRollupFilter,
+            // accessorFn, not accessorKey: row.status is always '' — the chip reads
+            // shipmentStatus + soldRollup directly — so the column's VALUE was empty
+            // and neither sort nor filter had anything to work with. The token is
+            // what the checklist ticks and what sorting orders by.
+            id: 'status', header: getTtl('Status', ln),
+            accessorFn: statusToken,
+            meta: { filterVariant: 'multi', options: STATUS_FILTER_OPTIONS, excludeFromQuickSum: true },
+            filterFn: oneOf,
             cell: (props) => <StatusChip shipmentStatus={props.row.original.shipmentStatus} rollup={props.row.original.soldRollup} />,
         },
         {

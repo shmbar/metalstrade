@@ -25,6 +25,7 @@ import Tltip from '../../../components/tlTip';
 import { v4 as uuidv4 } from 'uuid';
 import TableTotals from './totals/tableTotals';
 import { BtnIcon } from "@components/buttonIcons";
+import { oneOf } from '../../../components/table/filters/oneOfFilter';
 import { NameCell } from '../../../components/Avatar';
 import CurrencyChip from '../../../components/CurrencyChip';
 import { curCode } from '../../../utils/currency';
@@ -140,9 +141,6 @@ const Expenses = () => {
         }).format(x.getValue())
     }
 
-    const caseInsensitiveEquals = (row, columnId, filterValue) =>
-        row.getValue(columnId).toLowerCase() === filterValue.toLowerCase();
-
     // Memoized: the split cell's persistSplit closes over expensesData (dep, so the
     // optimistic update/revert always sees current rows); other cells read only
     // settings/ln/uid/user/logActivity.
@@ -154,6 +152,7 @@ const Expenses = () => {
             meta: {
                 filterVariant: 'selectSupplier',
             },
+            filterFn: oneOf,
         },
         {
             accessorKey: 'date', header: getTtl('Date', ln), cell: (props) => <p>{dateFormat(props.getValue(), 'dd.mm.yy')}</p>,
@@ -162,7 +161,11 @@ const Expenses = () => {
             },
             filterFn: 'dateBetweenFilterFn'
         },
-        { accessorKey: 'cur', header: getTtl('Currency', ln), cell: (props) => <CurrencyChip cur={props.getValue()} /> },
+        {
+            accessorKey: 'cur', header: getTtl('Currency', ln), cell: (props) => <CurrencyChip cur={props.getValue()} />,
+            meta: { filterVariant: 'multi', options: [{ value: 'us', label: 'USD' }, { value: 'eu', label: 'EUR' }] },
+            filterFn: oneOf,
+        },
         {
             accessorKey: 'amount', header: getTtl('Amount', ln), cell: (props) => <p>{showAmount(props)}</p>,
             meta: {
@@ -201,7 +204,7 @@ const Expenses = () => {
             accessorKey: 'paid', header: getTtl('Status', ln), meta: {
                 filterVariant: 'paidNotPaidExp',
             },
-            filterFn: caseInsensitiveEquals,
+            filterFn: oneOf,
         },
         { accessorKey: 'comments', header: getTtl('Comments', ln) },
 

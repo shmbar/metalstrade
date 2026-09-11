@@ -20,6 +20,7 @@ import VideoLoader from '../../../components/videoLoader';
 import Modal from '../../../components/modal';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../../components/ui/select';
 import { NameCell } from '../../../components/Avatar';
+import { oneOf } from '../../../components/table/filters/oneOfFilter';
 
 // Rows of the detail panel that hold an entity NAME, and so get the initial-avatar
 // chip. Keyed by the panel's own label because that panel is built from label/value
@@ -173,11 +174,6 @@ const SpecialInvoices = () => {
         await updateSpecialInvoiceField(uidCollection, id, { category });
     };
 
-    const exactMatchFilter = (row, columnId, filterValue) => {
-        const cellValue = row.getValue(columnId);
-        return cellValue === filterValue || filterValue === '';
-    };
-
     const setDecimals = (x) => {
         if (x === undefined || x === null) return ''; // or return x, or '0', depending on your use case
 
@@ -201,10 +197,13 @@ const SpecialInvoices = () => {
             meta: {
                 filterVariant: 'selectSupplier',
             },
+            filterFn: oneOf,
         },
         {
             accessorKey: 'originSupplier', header: 'Original supplier',
             cell: (props) => <NameCell name={props.getValue()} />,
+            meta: { filterVariant: 'multi' },
+            filterFn: oneOf,
         },
         { accessorKey: 'order', header: getTtl('PO', ln) + '#', meta: { excludeFromQuickSum: true } },
         { accessorKey: 'salesInvoice', header: 'Sales Invoice', meta: { excludeFromQuickSum: true } },
@@ -224,7 +223,7 @@ const SpecialInvoices = () => {
             meta: {
                 filterVariant: 'paidNotPaid',
             },
-            filterFn: exactMatchFilter,
+            filterFn: oneOf,
         },
         {
             id: 'category', header: 'Category',

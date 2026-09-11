@@ -4,6 +4,7 @@ import { NumericFormat } from 'react-number-format';
 import { useRouter } from 'next/navigation';
 import dateFormat from 'dateformat';
 import { NameCell } from '../../../components/Avatar';
+import { oneOf } from '../../../components/table/filters/oneOfFilter';
 import Customtable from '../contracts/newTable';
 import MyDetailsModal from './modals/dataModal.js';
 import PurchaseContractModal from '../contracts/modals/dataModal.js';
@@ -216,10 +217,11 @@ const SalesContracts = () => {
                     options: (settings.Client?.Client ?? [])
                         .filter(c => c && c.id)
                         .map(c => ({ value: c.id, label: c.nname || c.client || '' })),
-                    // …and a proper per-column dropdown, the same control the Invoices and
-                    // Invoices Review tables already give this field.
+                    // …and a proper per-column checklist, the same control the Invoices and
+                    // Invoices Review tables give this field.
                     filterVariant: 'selectClient',
                 },
+                filterFn: oneOf,
             },
             {
                 id: 'poOrder', header: 'Purchase Contract',
@@ -276,7 +278,8 @@ const SalesContracts = () => {
             {
                 accessorKey: 'cur', header: getTtl('Currency', ln),
                 cell: (props) => <CurrencyChip cur={props.getValue()} />,
-                meta: { excludeFromQuickSum: true }
+                meta: { excludeFromQuickSum: true, filterVariant: 'multi', options: [{ value: 'us', label: 'USD' }, { value: 'eu', label: 'EUR' }] },
+                filterFn: oneOf,
             },
             {
                 id: 'qty', header: getTtl('Quantity', ln), meta: { money: false },

@@ -25,6 +25,7 @@ import useInlineEdit from '../../../hooks/useInlineEdit';
 import { useRouter, useSearchParams } from 'next/navigation';
 import EditableCell from '../../../components/table/inlineEditing/EditableCell';
 import EditableSelectCell from '../../../components/table/inlineEditing/EditableSelectCell';
+import { oneOf } from '../../../components/table/filters/oneOfFilter';
 import { updateInvoiceField, ensureSplitNotificationsBatch } from '../../../utils/utils';
 import { useGlobalSearch } from '../../../contexts/useGlobalSearchContext';
 import dynamic from 'next/dynamic';
@@ -242,11 +243,22 @@ const Invoices = () => {
 			size: 120
 		},
 		{
-			accessorKey: 'invoiceStatus',
+			// accessorFn, not the stored `invoiceStatus` field: the badge derives
+			// Draft / Final / Canceled from `final` + `canceled`, and the stored field
+			// is blank on most rows — so the column's value was empty and the Status
+			// filter and sort had nothing to work with.
+			id: 'invoiceStatus',
+			accessorFn: (r) => !r.final ? 'Draft' : !r.canceled ? 'Final' : 'Canceled',
 			header: getTtl('Status', ln),
 			cell: (props) => <StatusBadge label={setInvStatus(props)} />,
+			meta: { filterVariant: 'multi', options: ['Draft', 'Final', 'Canceled'].map(s => ({ value: s, label: s })) },
+			filterFn: oneOf,
 			size: 100
 		},
+		/* The dropdown-backed columns filter as a checklist (filterVariant 'multi'
+		   + oneOf). The row holds a settings ID in each, which the old text box
+		   matched against literally, so a consignee's NAME typed into its filter
+		   found nothing. The checklist lists the labels and takes several at once. */
 		{
 			accessorKey: 'client',
 			header: getTtl('Consignee', ln),
@@ -259,6 +271,7 @@ const Invoices = () => {
 					label: c.nname
 				})) ?? []
 			},
+			filterFn: oneOf,
 			size: 150
 		},
 		{
@@ -266,11 +279,13 @@ const Invoices = () => {
 			header: getTtl('Shipment', ln),
 			cell: EditableSelectCell,
 			meta: {
+				filterVariant: 'multi',
 				options: settings.Shipment?.Shipment?.map(s => ({
 					value: s.id,
 					label: s.shpType
 				})) ?? []
 			},
+			filterFn: oneOf,
 			size: 130
 		},
 		{
@@ -278,11 +293,13 @@ const Invoices = () => {
 			header: getTtl('Origin', ln),
 			cell: EditableSelectCell,
 			meta: {
+				filterVariant: 'multi',
 				options: settings.Origin?.Origin?.map(o => ({
 					value: o.id,
 					label: o.origin
 				})) ?? []
 			},
+			filterFn: oneOf,
 			size: 120
 		},
 		{
@@ -290,38 +307,45 @@ const Invoices = () => {
 			header: getTtl('Delivery Terms', ln),
 			cell: EditableSelectCell,
 			meta: {
+				filterVariant: 'multi',
 				options: settings['Delivery Terms']?.['Delivery Terms']?.map(d => ({
 					value: d.id,
 					label: d.delTerm
 				})) ?? []
 			},
+			filterFn: oneOf,
 			size: 140
 		},
 		{
 			accessorKey: 'pol',
 			header: getTtl('POL', ln),
 			cell: EditableSelectCell,
-			meta: { options: settings.POL?.POL?.map(p => ({ value: p.id, label: p.pol })) ?? [] },
+			meta: { filterVariant: 'multi', options: settings.POL?.POL?.map(p => ({ value: p.id, label: p.pol })) ?? [] },
+			filterFn: oneOf,
 			size: 100
 		},
 		{
 			accessorKey: 'pod',
 			header: getTtl('POD', ln),
 			cell: EditableSelectCell,
-			meta: { options: settings.POD?.POD?.map(p => ({ value: p.id, label: p.pod })) ?? [] },
+			meta: { filterVariant: 'multi', options: settings.POD?.POD?.map(p => ({ value: p.id, label: p.pod })) ?? [] },
+			filterFn: oneOf,
 			size: 100
 		},
 		{
 			accessorKey: 'packing',
 			header: getTtl('Packing', ln),
 			cell: EditableSelectCell,
-			meta: { options: settings.Packing?.Packing?.map(p => ({ value: p.id, label: p.packing })) ?? [] },
+			meta: { filterVariant: 'multi', options: settings.Packing?.Packing?.map(p => ({ value: p.id, label: p.packing })) ?? [] },
+			filterFn: oneOf,
 			size: 120
 		},
 		{
 			accessorKey: 'cur',
 			header: getTtl('Currency', ln),
 			cell: (props) => <CurrencyChip cur={props.getValue()} />,
+			meta: { filterVariant: 'multi', options: [{ value: 'us', label: 'USD' }, { value: 'eu', label: 'EUR' }] },
+			filterFn: oneOf,
 			size: 100
 		},
 		{

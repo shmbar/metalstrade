@@ -1,15 +1,30 @@
 import React, { useEffect, useState } from "react";
+import { MultiSelectFilter } from "./MultiSelectFilter";
+import { SearchAdornment } from "../../buttonIcons";
 
+/* Every select-type variant is the same checklist now. The names are kept so no
+   page has to change its meta — they used to pick which row field the native
+   <select> listed (client / supplier / stock / sType / paid), and the checklist
+   reads the column's own value instead, so the distinction is gone. A column
+   on one of these variants must set `filterFn: oneOf` (./oneOfFilter): the
+   value written is a list, and the default includesString would stringify it. */
+const CHECKLIST_VARIANTS = new Set([
+    'multi', 'selectClient', 'selectSupplier', 'selectStock', 'selectStockType', 'paidNotPaid', 'paidNotPaidExp',
+]);
 
 export const Filter = ({ column, table, filterOn }) => {
     const columnFilterValue = column.getFilterValue();
     const { filterVariant } = column.columnDef.meta || {};
 
     const inputCls = 'responsiveText font-normal bg-[var(--bg-card)] border border-[var(--line-strong)] rounded-lg px-2 py-0.5 h-6 focus:outline-none focus:ring-1 focus:ring-[var(--endeavour)] text-[var(--chathams-blue)] w-full';
-    const selectCls = 'responsiveText font-normal bg-[var(--bg-card)] border border-[var(--line-strong)] rounded-lg px-2 py-0.5 h-6 focus:outline-none focus:ring-1 focus:ring-[var(--endeavour)] text-[var(--chathams-blue)] w-full appearance-none cursor-pointer';
 
-    return filterOn &&
-        (filterVariant === 'range' ? (
+    if (!filterOn) return null;
+
+    if (CHECKLIST_VARIANTS.has(filterVariant)) {
+        return <MultiSelectFilter column={column} table={table} />;
+    }
+
+    return filterVariant === 'range' ? (
             <div className="flex gap-1">
                 <DebouncedInput
                     type="number"
@@ -26,63 +41,6 @@ export const Filter = ({ column, table, filterOn }) => {
                     inputCls={inputCls}
                 />
             </div>
-        ) : filterVariant === 'selectClient' ? (
-            <select onChange={e => column.setFilterValue(e.target.value)} value={columnFilterValue?.toString()} className={selectCls}>
-                <option value="">All</option>
-                {(() => {
-                    /* Same id→label resolution selectSupplier below already does, and for the
-                       same reason. Most pages feed this table client NAMES (getFormatted
-                       resolves them first), but Sales Contracts keeps the raw client id in the
-                       row — so without meta.options this dropdown listed opaque ids. Falls back
-                       to the raw values when a column supplies no options, which is every
-                       existing call site, so their behaviour is unchanged. */
-                    const options = column.columnDef.meta?.options;
-                    if (options?.length) {
-                        const usedIds = [...new Set(table.options.data.map(x => x.client).filter(Boolean))];
-                        return options.filter(o => usedIds.includes(o.value)).map(o => <option value={o.value} key={o.value}>{o.label}</option>);
-                    }
-                    return [...new Set(table.options.data.map(x => x.client).filter(z => z !== ''))].map(q => <option value={q} key={q}>{q}</option>);
-                })()}
-            </select>
-        ) : filterVariant === 'selectSupplier' ? (
-            <select onChange={e => column.setFilterValue(e.target.value)} value={columnFilterValue?.toString()} className={selectCls}>
-                <option value="">All</option>
-                {(() => {
-                    const options = column.columnDef.meta?.options;
-                    if (options?.length) {
-                        const usedIds = [...new Set(table.options.data.map(x => x.supplier).filter(Boolean))];
-                        return options.filter(o => usedIds.includes(o.value)).map(o => <option value={o.value} key={o.value}>{o.label}</option>);
-                    }
-                    return [...new Set(table.options.data.map(x => x.supplier).filter(z => z !== ''))].map(q => <option value={q} key={q}>{q}</option>);
-                })()}
-            </select>
-        ) : filterVariant === 'selectStock' ? (
-            <select onChange={e => column.setFilterValue(e.target.value)} value={columnFilterValue?.toString()} className={selectCls}>
-                <option value="">All</option>
-                {[...new Set(table.options.data.map(x => x.stock).filter(z => z !== ''))].map(q => <option value={q} key={q}>{q}</option>)}
-            </select>
-        ) : filterVariant === 'selectStockType' ? (
-            <select onChange={e => column.setFilterValue(e.target.value)} value={columnFilterValue?.toString()} className={selectCls}>
-                <option value="">All</option>
-                {[...new Set(table.options.data.map(x => x.sType).filter(z => z !== ''))].map(q => <option value={q} key={q}>{q}</option>)}
-            </select>
-        ) : filterVariant === 'paidNotPaidExp' ? (
-            <select onChange={e => column.setFilterValue(e.target.value)} value={columnFilterValue?.toString()} className={selectCls}>
-                <option value="">All</option>
-                {(() => {
-                    const options = column.columnDef.meta?.options;
-                    if (options?.length) {
-                        const usedIds = [...new Set(table.options.data.map(x => x.paid).filter(Boolean))];
-                        return options.filter(o => usedIds.includes(o.value)).map(o => <option value={o.value} key={o.value}>{o.label}</option>);
-                    }
-                    return [...new Set(table.options.data.map(x => x.paid).filter(z => z !== ''))].map(q => <option value={q} key={q}>{q}</option>);
-                })()}
-            </select>
-        ) : filterVariant === 'paidNotPaid' ? (
-            <select onChange={e => column.setFilterValue(e.target.value)} value={columnFilterValue?.toString()} className={selectCls}>
-                <option value="">All</option>
-                {[...new Set(table.options.data.map(x => x.paidNotPaid).filter(z => z !== ''))].map(q => <option value={q} key={q}>{q}</option>)}
-            </select>
         ) : filterVariant === 'dates' ? (
             <div className="flex items-center gap-1">
                 <input
@@ -102,14 +60,20 @@ export const Filter = ({ column, table, filterOn }) => {
                 />
             </div>
         ) : (
-            <DebouncedInput
-                onChange={value => column.setFilterValue(value)}
-                placeholder="Search..."
-                type="text"
-                value={(columnFilterValue ?? '')}
-                inputCls={inputCls}
-            />
-        ));
+            /* Free text. The magnifier says what the box is for once the placeholder
+               is gone, and the clear mark it turns into is the only way to empty a
+               24px field without selecting the text first. */
+            <div className="relative">
+                <DebouncedInput
+                    onChange={value => column.setFilterValue(value)}
+                    placeholder="Search..."
+                    type="text"
+                    value={(columnFilterValue ?? '')}
+                    inputCls={`${inputCls} pr-6`}
+                />
+                <SearchAdornment value={columnFilterValue} onClear={() => column.setFilterValue('')} className="!right-1" />
+            </div>
+        );
 
 }
 

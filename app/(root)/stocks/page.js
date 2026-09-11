@@ -4,6 +4,7 @@ import Customtable from './newTable';
 import SharedStock from './SharedStock';
 import KpiStrip from '../../../components/KpiStrip';
 import { NameCell } from '../../../components/Avatar';
+import { oneOf } from '../../../components/table/filters/oneOfFilter';
 import { Boxes, Warehouse, Factory, Layers } from 'lucide-react';
 import MyDetailsModal from './whModal.js'
 import { SettingsContext } from "../../../contexts/useSettingsContext";
@@ -106,29 +107,42 @@ const Stocks = () => {
       },
       filterFn: 'dateBetweenFilterFn'
     },
+    /* Supplier, original supplier and warehouse all filter as a checklist: the
+       client's "I can't search two stocks or two suppliers together". */
     {
       accessorKey: 'supplier', header: getTtl('Supplier', ln),
       cell: (props) => <NameCell name={props.getValue()} />,
       meta: {
         filterVariant: 'selectSupplier',
       },
+      filterFn: oneOf,
     },
     {
       accessorKey: 'originSupplier', header: 'Original supplier',
       cell: (props) => <NameCell name={props.getValue()} />,
+      meta: { filterVariant: 'multi' },
+      filterFn: oneOf,
     },
     {
       accessorKey: 'stock', header: getTtl('warehouse', ln),
       cell: (props) => <NameCell name={props.getValue()} />,
+      meta: { filterVariant: 'selectStock' },
+      filterFn: oneOf,
     },
     { accessorKey: 'descriptionName', header: getTtl('Description', ln), cell: (props) => <p>{props.getValue()}</p> },
-    { accessorKey: 'qnty', header: getTtl('Quantity', ln), cell: (props) => <p>{showWeight(props)}</p> },
+    /* The search box looks for names, POs and grades — not digits inside a money
+       figure. It was matching every column, so typing "202" for 202 Turnings also
+       returned IN 600 Chips, because its total is $39,202.84. The three figure
+       columns opt out; they keep their own column filters (the range filter on
+       Total is untouched). */
+    { accessorKey: 'qnty', header: getTtl('Quantity', ln), cell: (props) => <p>{showWeight(props)}</p>, enableGlobalFilter: false },
     // MT / KGS / LB — the widest value is three characters, so the column takes
     // only what its header needs and leaves the rest to Description.
     { accessorKey: 'qTypeTable', header: getTtl('WeightType', ln), meta: { narrow: true } },
-    { accessorKey: 'unitPrc', header: getTtl('UnitPrice', ln), cell: (props) => <p>{showAmount(props)}</p> },
+    { accessorKey: 'unitPrc', header: getTtl('UnitPrice', ln), cell: (props) => <p>{showAmount(props)}</p>, enableGlobalFilter: false },
     {
       accessorKey: 'total', header: getTtl('Total', ln), cell: (props) => <p>{showAmount(props)}</p>,
+      enableGlobalFilter: false,
       meta: {
         filterVariant: 'range',
 
@@ -137,9 +151,8 @@ const Stocks = () => {
     {
       accessorKey: 'sType', header: getTtl('Warehouse type', ln), meta: {
         filterVariant: 'selectStockType',
-        filterFn: 'equals',
       },
-      filterFn: 'equals',
+      filterFn: oneOf,
     },
   ], [ln]);
 
