@@ -46,21 +46,35 @@ export function Screen({
   }
 
   return (
-    <ScrollView
-      style={{ flex: 1, backgroundColor: colors.bg }}
-      contentContainerStyle={[pad, contentContainerStyle]}
-      showsVerticalScrollIndicator={false}
-      refreshControl={
-        onRefresh ? (
-          // Fires the instant the pull-to-refresh triggers, every screen that
-          // uses <Screen onRefresh>, the way pulling to refresh feels on a
-          // banking app's transaction list.
-          <RefreshControl refreshing={!!refreshing} onRefresh={() => { hapticTap(); onRefresh(); }} tintColor={colors.primary} />
-        ) : undefined
-      }
-      {...rest}
-    >
-      {children}
-    </ScrollView>
+    <View style={{ flex: 1, backgroundColor: colors.bg }}>
+      <ScrollView
+        style={{ flex: 1 }}
+        contentContainerStyle={[pad, contentContainerStyle]}
+        showsVerticalScrollIndicator={false}
+        // With a search box focused, a tap on a row used to do nothing but dismiss
+        // the keyboard, so the row needed a second tap — one source of "some need
+        // to press a few times". "handled" lets the tap land on the control and
+        // still dismisses the keyboard when the tap is on empty space.
+        keyboardShouldPersistTaps="handled"
+        refreshControl={
+          onRefresh ? (
+            // Fires the instant the pull-to-refresh triggers, every screen that
+            // uses <Screen onRefresh>, the way pulling to refresh feels on a
+            // banking app's transaction list.
+            <RefreshControl refreshing={!!refreshing} onRefresh={() => { hapticTap(); onRefresh(); }} tintColor={colors.primary} />
+          ) : undefined
+        }
+        {...rest}
+      >
+        {children}
+      </ScrollView>
+      {/* Status-bar backdrop. Scrolled content used to run underneath the clock
+          and battery with nothing behind them — the client's screenshot has
+          "17:24" printed straight over "Stocks paid". */}
+      <View
+        pointerEvents="none"
+        style={{ position: 'absolute', top: 0, left: 0, right: 0, height: insets.top, backgroundColor: colors.bg }}
+      />
+    </View>
   );
 }

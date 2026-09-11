@@ -9,6 +9,9 @@ export default function ContractsLayout() {
     <Stack
       screenOptions={{
         headerShown: false,
+        // The list underneath a pushed detail/edit screen stops re-rendering until
+        // it is back on top — same reason as the tab bar's freezeOnBlur.
+        freezeOnBlur: true,
         contentStyle: { backgroundColor: colors.bg },
       }}
     >

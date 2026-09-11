@@ -55,7 +55,7 @@ export function WeightAnalysisView() {
       ) : rows.length === 0 ? (
         <EmptyState title="No data" message="No contracted-vs-returned pairs for this supplier in the period." />
       ) : (
-        <ScrollView showsVerticalScrollIndicator={false}>
+        <ScrollView keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
           {groups.map(([order, list]) => (
             <Card key={order} padded={false} style={{ marginBottom: 12 }}>
               <View style={{ padding: 14, paddingBottom: 8 }}>

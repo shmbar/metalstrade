@@ -63,6 +63,13 @@ export default function AppLayout() {
     <Tabs
       screenOptions={{
         headerShown: false,
+        // A visited tab stays mounted, and without this it keeps re-rendering in
+        // the background: one live-sync event from a teammate re-ran Cashflow's
+        // and Inventory's full computations in hidden tabs (~100 ms each on a
+        // laptop, several times that on a phone) while the user was tapping
+        // somewhere else — the "press a few times" freezes. A frozen tab renders
+        // nothing until it is focused again, then catches up once.
+        freezeOnBlur: true,
         tabBarActiveTintColor: colors.tabActive,
         tabBarInactiveTintColor: colors.tabInactive,
         tabBarStyle: {

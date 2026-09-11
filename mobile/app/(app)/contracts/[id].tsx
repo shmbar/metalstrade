@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
-import { View, Pressable, Alert, Modal } from 'react-native';
+import { View, Alert, Modal } from 'react-native';
+import { Pressable } from '@/components/ui/Pressable';
 import { useLocalSearchParams, router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { Screen, Card, Text, Badge, Button, ProgressBar, SectionHeader, EmptyState, SkeletonList } from '@/components/ui';

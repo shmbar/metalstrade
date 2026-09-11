@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
-import { View, Pressable, FlatList, Alert } from 'react-native';
+import { View, FlatList, Alert } from 'react-native';
+import { Pressable } from '@/components/ui/Pressable';
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -121,7 +122,7 @@ export default function StockAudit() {
           icon={<Ionicons name="checkmark-done-outline" size={40} color={colors.positive} />}
         />
       ) : (
-        <FlatList
+        <FlatList keyboardShouldPersistTaps="handled"
           data={list}
           keyExtractor={(r, i) => r.id || `${r.stockId}|${r.descId}` || String(i)}
           showsVerticalScrollIndicator={false}

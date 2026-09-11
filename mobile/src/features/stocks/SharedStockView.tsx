@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from 'react';
-import { View, ScrollView, Pressable, Modal, Alert, RefreshControl } from 'react-native';
+import { View, ScrollView, Modal, Alert, RefreshControl } from 'react-native';
+import { Pressable } from '@/components/ui/Pressable';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Card, Text, Select, TextField, Button, LoadingState, ErrorState } from '@/components/ui';
@@ -128,7 +129,7 @@ export function SharedStockView() {
 
   return (
     <>
-      <ScrollView
+      <ScrollView keyboardShouldPersistTaps="handled"
         style={{ flex: 1 }}
         contentContainerStyle={{ paddingBottom: insets.bottom + 96 }}
         showsVerticalScrollIndicator={false}
@@ -225,7 +226,7 @@ export function SharedStockView() {
             maxHeight: '88%',
           }}
         >
-          <ScrollView contentContainerStyle={{ padding: spacing.lg, gap: spacing.md }}>
+          <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={{ padding: spacing.lg, gap: spacing.md }}>
             <Text variant="h2">{lot.id ? 'Edit shared stock' : 'Add shared stock'}</Text>
 
             {pickOptions.length > 0 && (

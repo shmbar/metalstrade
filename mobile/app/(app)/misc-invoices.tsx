@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
-import { View, Pressable, FlatList, Modal, ActivityIndicator, Alert } from 'react-native';
+import { View, FlatList, Modal, ActivityIndicator, Alert } from 'react-native';
+import { Pressable } from '@/components/ui/Pressable';
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -94,7 +95,7 @@ export default function MiscInvoices() {
       ) : rows.length === 0 ? (
         <EmptyState title="No misc invoices" message="None in the selected period." icon={<Ionicons name="receipt-outline" size={40} color={colors.textFaint} />} />
       ) : (
-        <FlatList
+        <FlatList keyboardShouldPersistTaps="handled"
           data={rows}
           keyExtractor={(r) => r.id}
           showsVerticalScrollIndicator={false}

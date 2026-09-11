@@ -1,8 +1,9 @@
 'use client';
-import { useRef, useState } from 'react';
+import { useState } from 'react';
 import { NumericFormat } from 'react-number-format';
 import { saveAs } from 'file-saver';
-import { Sigma, X, ChevronDown, ChevronUp, Copy, Check, FileSpreadsheet } from 'lucide-react';
+import { X } from 'lucide-react';
+import SumPanel, { SumPanelAction, SumStat } from '../../../components/SumPanel';
 
 const kindLabel = { client: 'Client', supplier: 'Supplier', expense: 'Expense', stock: 'Stock' };
 
@@ -21,33 +22,15 @@ const fmt = (v, cur) => new Intl.NumberFormat('en-US', {
 const isNum = (v) => typeof v === 'number' && !isNaN(v);
 
 // Floating "selection basket" — a scratch tally of any rows the user ticks across
-// the cashflow sections. Draggable + collapsible, with a metric switcher. Never persisted.
+// the cashflow sections. Collapsible, with a metric switcher. Never persisted.
+// The card itself — position, drag, header, stat pills — is components/SumPanel,
+// the same shell the tables' Quick Sum renders, so the two cannot drift apart.
 export default function SumBasket({ items = [], onRemove, onClear }) {
     const [collapsed, setCollapsed] = useState(false);
     const [copied, setCopied] = useState(false);
     const [metric, setMetric] = useState('auto');
     const [exporting, setExporting] = useState(false);
     const [exportErr, setExportErr] = useState(false);
-
-    // Where the panel sits. Default is now top-right, under the header, not
-    // bottom-centre: the bottom edge already carries the toast (bottom-left), the
-    // ⌘K hint (bottom-4 right-20) and the chat launcher (bottom-4 right-4), and at
-    // 19rem wide this panel landed on top of the rows you were ticking.
-    //
-    // A dragged position is remembered. It was reset on every remount, so anyone
-    // who moved it out of the way had to move it again the next time they selected
-    // anything.
-    const [pos, setPos] = useState(() => {
-        try {
-            const saved = JSON.parse(localStorage.getItem(POS_KEY) || 'null');
-            // Ignore a stored position that is off-screen — a smaller window, or a
-            // second monitor that is no longer attached, would strand the panel.
-            if (saved && saved.left >= 0 && saved.top >= 0
-                && saved.left < window.innerWidth - 40 && saved.top < window.innerHeight - 40) return saved;
-        } catch { /* private mode, or nothing stored */ }
-        return null;
-    });
-    const ref = useRef(null);
 
     if (!items.length) return null;
 
@@ -63,33 +46,6 @@ export default function SumBasket({ items = [], onRemove, onClear }) {
     const hasUsd = rows.some(r => r.cur === 'us' && r.v != null);
     const hasEur = rows.some(r => r.cur !== 'us' && r.v != null);
     const naCount = rows.filter(r => r.v == null).length;
-
-    // ── Drag (header handle) ───────────────────────────────────────────────
-    const startDrag = (e) => {
-        const el = ref.current;
-        if (!el) return;
-        const rect = el.getBoundingClientRect();
-        const dx = e.clientX - rect.left;
-        const dy = e.clientY - rect.top;
-        const move = (ev) => {
-            setPos({
-                left: Math.min(Math.max(8, ev.clientX - dx), window.innerWidth - rect.width - 8),
-                top: Math.min(Math.max(8, ev.clientY - dy), window.innerHeight - 44),
-            });
-        };
-        const up = () => {
-            // Remember it: the panel used to snap back to its default on every
-            // remount, so moving it out of the way had to be redone each time.
-            setPos(cur => {
-                try { if (cur) localStorage.setItem(POS_KEY, JSON.stringify(cur)); } catch { /* private mode */ }
-                return cur;
-            });
-            window.removeEventListener('pointermove', move);
-            window.removeEventListener('pointerup', up);
-        };
-        window.addEventListener('pointermove', move);
-        window.addEventListener('pointerup', up);
-    };
 
     // The same tally as the clipboard copy, as a spreadsheet: one row per selection
     // with its own currency, then the per-currency subtotals at the bottom. Amounts
@@ -199,53 +155,19 @@ export default function SumBasket({ items = [], onRemove, onClear }) {
     };
 
     return (
-        <div
-            ref={ref}
-            className={`fixed z-40 w-[19rem] rounded-2xl overflow-hidden font-sans
-                border border-[var(--line)]
-                bg-[var(--glass)] backdrop-blur-md shadow-pop
-                animate-in fade-in slide-in-from-top-3 duration-300
-                ${pos ? '' : 'top-20 right-4'}`}
-            style={pos ? { left: pos.left, top: pos.top } : undefined}
+        <SumPanel
+            title="Selected invoices"
+            count={items.length}
+            storageKey={POS_KEY}
+            actions={<>
+                <SumPanelAction action="excel" onClick={exportExcel} disabled={exporting} pulse={exporting} danger={exportErr}
+                    title={exportErr ? 'Export failed — see the browser console' : 'Export selection to Excel'} />
+                <SumPanelAction action={copied ? 'confirm' : 'copy'} onClick={copySummary} title="Copy summary" />
+                <SumPanelAction action={collapsed ? 'expand' : 'collapse'} onClick={() => setCollapsed(c => !c)}
+                    title={collapsed ? 'Show list' : 'Hide list'} />
+                <SumPanelAction action="close" onClick={onClear} title="Clear all" />
+            </>}
         >
-            {/* Header — drag handle */}
-            <div
-                onPointerDown={startDrag}
-                className="flex items-center justify-between gap-2 px-3 py-2 cursor-grab active:cursor-grabbing select-none
-                    bg-[var(--bg-card)] border-b border-[var(--line)] text-[var(--ink)]"
-            >
-                <div className="flex items-center gap-2 min-w-0">
-                    <span className="grid place-items-center w-6 h-6 rounded-lg bg-[var(--brand-soft)] text-[var(--brand)] shrink-0">
-                        <Sigma className="w-3.5 h-3.5" />
-                    </span>
-                    <span className="font-semibold responsiveTextInput truncate">Selected invoices</span>
-                    <span className="shrink-0 responsiveTextTable font-bold px-1.5 py-0.5 rounded-lg bg-[var(--bg-subtle)] text-[var(--ink-secondary)]">
-                        {items.length}
-                    </span>
-                </div>
-                <div className="flex items-center gap-0.5 shrink-0 text-[var(--ink-secondary)]">
-                    <button onPointerDown={e => e.stopPropagation()} onClick={exportExcel}
-                        disabled={exporting}
-                        title={exportErr ? 'Export failed — see the browser console' : 'Export selection to Excel'}
-                        className="p-1 rounded-lg hover:bg-[var(--bg-subtle)] transition-colors disabled:opacity-50"
-                        style={exportErr ? { color: 'var(--danger-text)' } : undefined}>
-                        <FileSpreadsheet className={`w-3.5 h-3.5 ${exporting ? 'animate-pulse' : ''}`} />
-                    </button>
-                    <button onPointerDown={e => e.stopPropagation()} onClick={copySummary}
-                        title="Copy summary" className="p-1 rounded-lg hover:bg-[var(--bg-subtle)] transition-colors">
-                        {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
-                    </button>
-                    <button onPointerDown={e => e.stopPropagation()} onClick={() => setCollapsed(c => !c)}
-                        title={collapsed ? 'Show list' : 'Hide list'} className="p-1 rounded-lg hover:bg-[var(--bg-subtle)] transition-colors">
-                        {collapsed ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
-                    </button>
-                    <button onPointerDown={e => e.stopPropagation()} onClick={onClear}
-                        title="Clear all" className="p-1 rounded-lg hover:bg-[var(--bg-subtle)] transition-colors">
-                        <X className="w-3.5 h-3.5" />
-                    </button>
-                </div>
-            </div>
-
             {/* Metric switcher */}
             <div className="flex items-center gap-1 px-2 py-1.5 bg-[var(--bg-subtle)] border-b border-[var(--line)]">
                 {METRICS.map(m => (
@@ -261,26 +183,12 @@ export default function SumBasket({ items = [], onRemove, onClear }) {
             {/* Subtotals — always visible, shown as soft stat pills */}
             <div className="px-3 py-2.5 flex flex-col gap-1.5 bg-[var(--surface-card)]">
                 {hasUsd &&
-                    <div className="flex items-center justify-between rounded-2xl px-2.5 py-1.5 bg-[var(--bg-subtle)] border border-[var(--line)]">
-                        <span className="flex items-center gap-1.5 responsiveTextTable font-semibold text-[var(--ink-muted)]">
-                            <span className="grid place-items-center w-4 h-4 rounded-full bg-[var(--brand)] text-[var(--on-brand)] responsiveTextTable font-bold leading-none">$</span>
-                            {metricLabel[metric]}
-                        </span>
-                        <NumericFormat value={usd} displayType="text" thousandSeparator prefix="$"
-                            decimalScale={2} fixedDecimalScale
-                            className="tabular-nums responsiveTextTitle font-bold text-[var(--ink)] leading-none" />
-                    </div>
+                    <SumStat badge="$" label={metricLabel[metric]}
+                        value={<NumericFormat value={usd} displayType="text" thousandSeparator prefix="$" decimalScale={2} fixedDecimalScale />} />
                 }
                 {hasEur &&
-                    <div className="flex items-center justify-between rounded-2xl px-2.5 py-1.5 bg-[var(--bg-subtle)] border border-[var(--line)]">
-                        <span className="flex items-center gap-1.5 responsiveTextTable font-semibold text-[var(--ink-muted)]">
-                            <span className="grid place-items-center w-4 h-4 rounded-full bg-[var(--brand-strong)] text-[var(--on-brand)] responsiveTextTable font-bold leading-none">€</span>
-                            {metricLabel[metric]}
-                        </span>
-                        <NumericFormat value={eur} displayType="text" thousandSeparator prefix="€"
-                            decimalScale={2} fixedDecimalScale
-                            className="tabular-nums responsiveTextTitle font-bold text-[var(--ink)] leading-none" />
-                    </div>
+                    <SumStat badge="€" label={metricLabel[metric]}
+                        value={<NumericFormat value={eur} displayType="text" thousandSeparator prefix="€" decimalScale={2} fixedDecimalScale />} />
                 }
                 {naCount > 0 &&
                     <div className="responsiveTextTable text-[var(--ink-muted)] italic">
@@ -315,6 +223,6 @@ export default function SumBasket({ items = [], onRemove, onClear }) {
                     ))}
                 </div>
             }
-        </div>
+        </SumPanel>
     );
 }

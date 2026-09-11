@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
-import { View, Pressable, Switch, Alert, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, Switch, Alert, KeyboardAvoidingView, Platform } from 'react-native';
+import { Pressable } from '@/components/ui/Pressable';
 import { useLocalSearchParams, router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -150,7 +151,7 @@ export default function StockIn() {
                 </View>
 
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                  <Text variant="caption" tone="muted">Total</Text>
+                  <Text variant="body" tone="muted">Total</Text>
                   <Text variant="bodyMedium" tone="primary">{sym}{fmtMoney(num(l.total))}</Text>
                 </View>
 

@@ -1,5 +1,5 @@
 import React, { useRef } from 'react';
-import { Pressable } from 'react-native';
+import { Pressable } from '@/components/ui/Pressable';
 import ReanimatedSwipeable, { SwipeableMethods } from 'react-native-gesture-handler/ReanimatedSwipeable';
 import { Ionicons } from '@expo/vector-icons';
 import { Text } from '@/components/ui';

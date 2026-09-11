@@ -5,7 +5,7 @@ import { createPortal } from 'react-dom';
 import { detectNumericCols } from './detectNumericCols';
 import { useQuickSum } from './useQuickSum';
 import { BtnIcon } from '../../buttonIcons';
-import { FileSpreadsheet } from 'lucide-react';
+import SumPanel, { SumPanelAction, SumStat } from '../../SumPanel';
 import { exportQuickSum } from './exportQuickSum';
 
 /**
@@ -195,7 +195,10 @@ export function QuickSumButton({
 }
 
 /**
- * QuickSumTotals — displays the totals row, rendered separately below controls
+ * QuickSumTotals — the selection tally, as the same floating panel Cashflow's
+ * basket uses (components/SumPanel). It used to be an inline bar between the
+ * toolbar and the table, which pushed every row down the moment the first one was
+ * ticked; floating, the table never moves under the cursor.
  */
 export function QuickSumTotals({
   table,
@@ -210,74 +213,85 @@ export function QuickSumTotals({
   });
   // Declared above the early returns below — a hook cannot sit behind a condition.
   const [exporting, setExporting] = useState(false);
+  const [exportErr, setExportErr] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   if (!enabled) return null;
 
   if (selectedCount === 0) return null;
 
+  // One pill per figure. A plain or single-currency column is one line; a column
+  // whose rows mix $ and € is one line per currency — never added across them.
+  const stats = (totals || []).flatMap((t) => {
+    // A column header can be a render function (sortable headers are); only a
+    // string is a label. Falls back to the column id rather than rendering nothing.
+    const header = table.getAllColumns().find(c => c.id === t.id)?.columnDef?.header;
+    const label = typeof header === 'string' ? header : t.id;
+    // Money is always 2dp. A quantity is not: these tables carry tonnages to
+    // three ("18.289"), and forcing 2 turned a 285.864 MT total into 285.86.
+    const fmt = (n) => new Intl.NumberFormat('en-US',
+      t.money === false
+        ? { minimumFractionDigits: 0, maximumFractionDigits: 3 }
+        : { minimumFractionDigits: 2, maximumFractionDigits: 2 }
+    ).format(n);
+
+    if (t.byCurrency && Object.keys(t.byCurrency).length > 0) {
+      const out = [];
+      if (t.byCurrency.USD != null) out.push({ key: `${t.id}-usd`, label, badge: '$', text: `$${fmt(t.byCurrency.USD)}` });
+      if (t.byCurrency.EUR != null) out.push({ key: `${t.id}-eur`, label, badge: '€', text: `€${fmt(t.byCurrency.EUR)}` });
+      if (t.byCurrency.plain != null) out.push({ key: `${t.id}-plain`, label, text: fmt(t.byCurrency.plain) });
+      return out;
+    }
+    return [{ key: t.id, label, text: fmt(t.total) }];
+  });
+
+  const copySummary = () => {
+    const out = `Selected rows (${selectedCount})\n${stats.map(s => `${s.label}\t${s.text}`).join('\n')}`;
+    navigator.clipboard?.writeText(out).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    }).catch(() => {});
+  };
+
+  // Same totals the panel is showing, as a spreadsheet. Lives here rather than in
+  // each page's excel.js so every Quick Sum table has it, including future ones.
+  const runExport = async () => {
+    if (exporting) return;
+    setExporting(true);
+    try {
+      await exportQuickSum({ table, totals, summedColumnIds: selectedColumnIds, filename: exportName });
+    } catch (e) {
+      // Said on the button, not only in the console — a silent catch looks idle.
+      console.error('Quick Sum export failed', e);
+      setExportErr(true);
+      setTimeout(() => setExportErr(false), 2500);
+    } finally {
+      setExporting(false);
+    }
+  };
+
   return (
-    <div className="inline-flex flex-wrap items-center gap-1.5 responsiveTextInput text-[var(--port-gore)] border border-[var(--endeavour)] rounded-2xl bg-[var(--bg-card)] px-3 py-1.5 shadow-sm">
-      <span className="font-semibold text-[var(--endeavour)]">{selectedCount} selected</span>
-      <span className="text-[var(--rock-blue)]">|</span>
-      {(totals || []).map((t) => {
-        const col = table.getAllColumns().find(c => c.id === t.id);
-        const label = col?.columnDef?.header || t.id;
-        // Money is always 2dp. A quantity is not: these tables carry tonnages to
-        // three ("18.289"), and forcing 2 turned a 285.864 MT total into 285.86.
-        const fmt = (n) => new Intl.NumberFormat('en-US',
-          t.money === false
-            ? { minimumFractionDigits: 0, maximumFractionDigits: 3 }
-            : { minimumFractionDigits: 2, maximumFractionDigits: 2 }
-        ).format(n);
-
-        // Multi-currency: show $ and € separately
-        if (t.byCurrency && Object.keys(t.byCurrency).length > 0) {
-          const parts = [];
-          if (t.byCurrency.USD != null) parts.push(`$${fmt(t.byCurrency.USD)}`);
-          if (t.byCurrency.EUR != null) parts.push(`€${fmt(t.byCurrency.EUR)}`);
-          if (t.byCurrency.plain != null) parts.push(fmt(t.byCurrency.plain));
-          return (
-            <span key={t.id} className="bg-[var(--bg-card)] border border-[var(--line)] rounded-lg px-3 py-0.5 responsiveText whitespace-nowrap font-medium">
-              {label}: <span className="text-[var(--endeavour)]">{parts.join(' | ')}</span>
-            </span>
-          );
-        }
-
-        // Single currency / plain number
-        return (
-          <span key={t.id} className="bg-[var(--bg-card)] border border-[var(--line)] rounded-lg px-3 py-0.5 responsiveText whitespace-nowrap font-medium">
-            {label}: <span className="text-[var(--endeavour)]">{fmt(t.total)}</span>
-          </span>
-        );
-      })}
-      {/* Same totals the bar is showing, as a spreadsheet. Lives here rather than in
-          each page's excel.js so every Quick Sum table has it, including future ones. */}
-      <button
-        type="button"
-        disabled={exporting}
-        className="inline-flex items-center gap-1 responsiveText text-[var(--endeavour)] ml-1 disabled:opacity-50"
-        onClick={async () => {
-          setExporting(true);
-          try {
-            await exportQuickSum({ table, totals, summedColumnIds: selectedColumnIds, filename: exportName });
-          } catch (e) {
-            console.error('Quick Sum export failed', e);
-          } finally {
-            setExporting(false);
-          }
-        }}
-      >
-        <FileSpreadsheet className="w-3.5 h-3.5" />
-        {exporting ? 'Exporting…' : 'Export'}
-      </button>
-      <button
-        type="button"
-        className="responsiveText underline text-[var(--endeavour)] ml-1"
-        onClick={() => table.resetRowSelection()}
-      >
-        Clear rows
-      </button>
-    </div>
+    <SumPanel
+      title="Selected rows"
+      count={selectedCount}
+      storageKey="ims:quickSumPos"
+      actions={<>
+        <SumPanelAction action="excel" onClick={runExport} disabled={exporting} pulse={exporting} danger={exportErr}
+          title={exportErr ? 'Export failed — see the browser console' : 'Export selection to Excel'} />
+        <SumPanelAction action={copied ? 'confirm' : 'copy'} onClick={copySummary} disabled={!stats.length} title="Copy summary" />
+        <SumPanelAction action="close" onClick={() => table.resetRowSelection()} title="Clear rows" />
+      </>}
+    >
+      <div className="px-3 py-2.5 flex flex-col gap-1.5 bg-[var(--surface-card)]">
+        {stats.length ? (
+          stats.map(s => <SumStat key={s.key} label={s.label} badge={s.badge} value={s.text} />)
+        ) : (
+          <div className="responsiveTextTable text-[var(--ink-muted)] italic">
+            No columns summed — pick them from Columns ▾
+          </div>
+        )}
+      </div>
+    </SumPanel>
   );
 }
 

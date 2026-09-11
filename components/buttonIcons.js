@@ -25,6 +25,8 @@ import {
   Banknote,
   Boxes,
   Check,
+  ChevronDown,
+  ChevronUp,
   ClipboardCheck,
   ClipboardList,
   Copy,
@@ -88,6 +90,10 @@ export const ACTION_ICONS = {
   undo: Undo2,
   reopen: RotateCcw,
   confirm: Check,
+  // A panel's list toggle: down hides the list, up brings it back (the
+  // floating selection tally in components/SumPanel).
+  collapse: ChevronDown,
+  expand: ChevronUp,
 
   // ── Documents & output ─────────────────────────────────────────────────
   pdf: FileText,

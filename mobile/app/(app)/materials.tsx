@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { View, Pressable, ScrollView, TextInput, Alert } from 'react-native';
+import { View, ScrollView, TextInput, Alert } from 'react-native';
+import { Pressable } from '@/components/ui/Pressable';
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';

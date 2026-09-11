@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
-import { View, FlatList, Pressable } from 'react-native';
+import { View, FlatList } from 'react-native';
+import { Pressable } from '@/components/ui/Pressable';
 import { router, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { Screen, Text, TextField, SkeletonList, FadeInItem, ErrorState, EmptyState } from '@/components/ui';
@@ -193,7 +194,7 @@ export default function InvoicesList() {
           onAction={search || filter !== 'All' ? undefined : () => router.push('/(app)/contracts')}
         />
       ) : (
-        <FlatList
+        <FlatList keyboardShouldPersistTaps="handled"
           data={filtered}
           keyExtractor={(v) => v.id}
           renderItem={({ item, index }) => (

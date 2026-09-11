@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from 'react';
-import { View, FlatList, Pressable } from 'react-native';
+import { View, FlatList } from 'react-native';
+import { Pressable } from '@/components/ui/Pressable';
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -111,7 +112,7 @@ export function InventoryView() {
                         paddingTop: 8, marginTop: 6, borderTopWidth: 1, borderTopColor: colors.borderStrong,
                       }}
                     >
-                      <Text variant="label" style={{ flex: 1 }}>Total {iso === 'EUR' ? '€' : '$'}</Text>
+                      <Text variant="bodyMedium" style={{ flex: 1, fontFamily: 'PlusJakartaSans_600SemiBold' }}>Total {iso === 'EUR' ? '€' : '$'}</Text>
                       <Text variant="bodyMedium" style={{ marginHorizontal: 10, fontVariant: ['tabular-nums'] }}>
                         {fmtQty(quantity)}
                       </Text>
@@ -135,7 +136,7 @@ export function InventoryView() {
         );
 
         return rows.length === 0 ? (
-          <FlatList
+          <FlatList keyboardShouldPersistTaps="handled"
             data={[]}
             renderItem={null}
             keyExtractor={() => 'x'}
@@ -153,7 +154,7 @@ export function InventoryView() {
             }
           />
         ) : (
-        <FlatList
+        <FlatList keyboardShouldPersistTaps="handled"
           data={rows}
           keyExtractor={(r) => r.id}
           showsVerticalScrollIndicator={false}

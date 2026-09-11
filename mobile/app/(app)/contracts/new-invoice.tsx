@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
-import { View, Pressable, Alert, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, Alert, KeyboardAvoidingView, Platform } from 'react-native';
+import { Pressable } from '@/components/ui/Pressable';
 import { useLocalSearchParams, router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -109,7 +110,7 @@ export default function NewInvoice() {
             <DateField label="Invoice date" required value={inv.dateRange?.startDate} onChange={(iso) => set({ dateRange: { startDate: iso, endDate: iso } })} />
             <DateField label="Delivery date" value={(inv.delDate as any)?.startDate} onChange={(iso) => set({ delDate: { startDate: iso, endDate: iso } })} />
             <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-              <Text variant="label" tone="muted">Currency</Text>
+              <Text variant="body" tone="muted">Currency</Text>
               <Text variant="bodyMedium">{sym.trim() === '€' ? 'EUR' : 'USD'} (from contract)</Text>
             </View>
           </Card>

@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from 'react';
-import { View, Pressable, Modal, ScrollView, Alert } from 'react-native';
+import { View, Modal, ScrollView, Alert } from 'react-native';
+import { Pressable } from '@/components/ui/Pressable';
 import { router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Text, Select, TextField, Button } from '@/components/ui';
@@ -67,7 +68,7 @@ export function LotSheet({ item, onClose }: { item: any | null; onClose: () => v
           maxHeight: '85%',
         }}
       >
-        <ScrollView contentContainerStyle={{ padding: spacing.lg, gap: spacing.md }}>
+        <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={{ padding: spacing.lg, gap: spacing.md }}>
           <Text variant="h2" numberOfLines={2}>{item.descriptionName || '—'}</Text>
 
           {/* Read-only summary, matching web's top block. */}

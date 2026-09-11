@@ -256,18 +256,19 @@ const Header = ({
       </div>
       )}
 
-      {/* Quick Sum Totals - separate row below, only shows when rows selected */}
+      {/* Quick Sum totals — a floating panel (the one Cashflow's basket uses), so
+          ticking the first row no longer pushes the table down under the cursor.
+          No wrapper: it is position: fixed, and an empty padded div here would
+          still nudge the table the moment Quick Sum is switched on. */}
       {pathname !== '/materialtables' && quickSumEnabled && (
-        <div className="px-2 pb-1">
-          <QuickSumTotals
-            table={table}
-            enabled={quickSumEnabled}
-            selectedColumnIds={quickSumColumns}
-            /* Names the exported file after the page it came from, so a folder of
-               these is still readable: "contracts-selection-2026-08-31.xlsx". */
-            exportName={`${(pathname || '/table').replace(/^\//, '').replace(/[^a-z0-9]+/gi, '-') || 'table'}-selection-${new Date().toISOString().slice(0, 10)}`}
-          />
-        </div>
+        <QuickSumTotals
+          table={table}
+          enabled={quickSumEnabled}
+          selectedColumnIds={quickSumColumns}
+          /* Names the exported file after the page it came from, so a folder of
+             these is still readable: "contracts-selection-2026-08-31.xlsx". */
+          exportName={`${(pathname || '/table').replace(/^\//, '').replace(/[^a-z0-9]+/gi, '-') || 'table'}-selection-${new Date().toISOString().slice(0, 10)}`}
+        />
       )}
     </div>
   );

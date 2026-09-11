@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { View, TextInput, TextInputProps, Pressable } from 'react-native';
+import { View, TextInput, TextInputProps } from 'react-native';
+import { Pressable } from './Pressable';
 import { Text } from './Text';
 import { useTheme } from '@/theme/ThemeProvider';
 import { radius, spacing } from '@/theme/tokens';

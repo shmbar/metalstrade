@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from 'react';
-import { View, ScrollView, Pressable, Modal, Alert, RefreshControl } from 'react-native';
+import { View, ScrollView, Modal, Alert, RefreshControl } from 'react-native';
+import { Pressable } from '@/components/ui/Pressable';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Card, Text, Select, Button, SegmentedControl, LoadingState, ErrorState } from '@/components/ui';
@@ -135,7 +136,7 @@ export function StorageView() {
   };
 
   return (
-    <ScrollView
+    <ScrollView keyboardShouldPersistTaps="handled"
       style={{ flex: 1 }}
       contentContainerStyle={{ paddingBottom: insets.bottom + 96 }}
       showsVerticalScrollIndicator={false}

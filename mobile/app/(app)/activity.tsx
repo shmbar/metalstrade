@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
-import { View, Pressable, FlatList } from 'react-native';
+import { View, FlatList } from 'react-native';
+import { Pressable } from '@/components/ui/Pressable';
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useQuery } from '@tanstack/react-query';
@@ -159,7 +160,7 @@ function FeedTab({ query }: { query: any }) {
           icon={<Ionicons name="pulse-outline" size={40} color={colors.textFaint} />}
         />
       ) : (
-        <FlatList
+        <FlatList keyboardShouldPersistTaps="handled"
           data={rows}
           keyExtractor={(r, i) => r.id || String(i)}
           showsVerticalScrollIndicator={false}
@@ -225,7 +226,7 @@ function OnlineTab({ query }: { query: any }) {
   );
 
   return (
-    <FlatList
+    <FlatList keyboardShouldPersistTaps="handled"
       data={[{ k: 'online' }, { k: 'away' }]}
       keyExtractor={(s) => s.k}
       showsVerticalScrollIndicator={false}
@@ -278,7 +279,7 @@ function SummaryTab({ query }: { query: any }) {
   const maxWeek = weeks.reduce((m: number, w: any) => Math.max(m, w.total), 0) || 1;
 
   return (
-    <FlatList
+    <FlatList keyboardShouldPersistTaps="handled"
       data={[{ k: 'board' }, { k: 'logins' }, { k: 'weeks' }]}
       keyExtractor={(s) => s.k}
       showsVerticalScrollIndicator={false}

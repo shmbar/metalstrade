@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { View, Pressable, Alert, Linking, ActivityIndicator } from 'react-native';
+import { View, Alert, Linking, ActivityIndicator } from 'react-native';
+import { Pressable } from '@/components/ui/Pressable';
 import { useLocalSearchParams, router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import * as DocumentPicker from 'expo-document-picker';

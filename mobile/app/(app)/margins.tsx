@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { View, Pressable, ActivityIndicator } from 'react-native';
+import { View, ActivityIndicator } from 'react-native';
+import { Pressable } from '@/components/ui/Pressable';
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -68,7 +69,7 @@ export default function Margins() {
             which is what the page does but not what anyone calls it. */}
         <Text variant="h2">{gisAccount ? 'Gis Admin' : 'Sharon Admin'}</Text>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-          <Pressable onPress={() => { hapticTap(); togglePrivacy(); }} hitSlop={8}>
+          <Pressable onPress={() => { hapticTap(); togglePrivacy(); }} hitSlop={12}>
             <Ionicons name={hideBalances ? 'eye-off' : 'eye'} size={20} color={colors.textFaint} />
           </Pressable>
           <PeriodSelector />

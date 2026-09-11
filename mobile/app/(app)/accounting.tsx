@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
-import { View, Pressable, FlatList, Modal, Alert } from 'react-native';
+import { View, FlatList, Modal, Alert } from 'react-native';
+import { Pressable } from '@/components/ui/Pressable';
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -93,7 +94,7 @@ export default function Accounting() {
       ) : groups.length === 0 ? (
         <EmptyState title="No entries" message="No invoices in the selected period." icon={<Ionicons name="reader-outline" size={40} color={colors.textFaint} />} />
       ) : (
-        <FlatList
+        <FlatList keyboardShouldPersistTaps="handled"
           data={groups}
           keyExtractor={(g) => g.invoice}
           showsVerticalScrollIndicator={false}

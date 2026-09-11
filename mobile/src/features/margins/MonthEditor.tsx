@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { View, Pressable, ScrollView, TextInput, Alert } from 'react-native';
+import { View, ScrollView, TextInput, Alert } from 'react-native';
+import { Pressable } from '@/components/ui/Pressable';
 import { Ionicons } from '@expo/vector-icons';
 import { Card, Text, Button } from '@/components/ui';
 import { useTheme } from '@/theme/ThemeProvider';

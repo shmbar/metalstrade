@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
-import { View, FlatList, Pressable } from 'react-native';
+import { View, FlatList } from 'react-native';
+import { Pressable } from '@/components/ui/Pressable';
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -144,7 +145,7 @@ export default function ContractsList() {
           onAction={search ? undefined : () => router.push('/(app)/contracts/edit')}
         />
       ) : (
-        <FlatList
+        <FlatList keyboardShouldPersistTaps="handled"
           data={filtered}
           keyExtractor={(c) => c.id}
           renderItem={({ item, index }) => (

@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { View, Pressable, FlatList, Modal, ScrollView } from 'react-native';
+import { View, FlatList, Modal, ScrollView } from 'react-native';
+import { Pressable } from '@/components/ui/Pressable';
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -112,7 +113,7 @@ export default function Shipment() {
       ) : rows.length === 0 ? (
         <EmptyState title="No shipments" message="No contracts match the current filters." icon={<Ionicons name="boat-outline" size={40} color={colors.textFaint} />} />
       ) : (
-        <FlatList
+        <FlatList keyboardShouldPersistTaps="handled"
           data={rows}
           keyExtractor={(r) => r.id}
           showsVerticalScrollIndicator={false}

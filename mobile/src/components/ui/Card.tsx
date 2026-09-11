@@ -1,5 +1,6 @@
 import React from 'react';
-import { View, ViewProps, Pressable } from 'react-native';
+import { View, ViewProps } from 'react-native';
+import { Pressable } from './Pressable';
 import { useTheme } from '@/theme/ThemeProvider';
 import { radius, spacing, getShadow, Elevation } from '@/theme/tokens';
 

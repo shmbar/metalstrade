@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
-import { View, Pressable, Modal, Alert, ScrollView } from 'react-native';
+import { View, Modal, Alert, ScrollView } from 'react-native';
+import { Pressable } from '@/components/ui/Pressable';
 import { useLocalSearchParams, router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';

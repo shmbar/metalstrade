@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
-import { View, Pressable, Alert, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, Alert, KeyboardAvoidingView, Platform } from 'react-native';
+import { Pressable } from '@/components/ui/Pressable';
 import { useLocalSearchParams, router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -122,13 +123,13 @@ export default function PoInvoices() {
               </View>
 
               <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                <Text variant="caption" tone="muted">Total paid</Text>
+                <Text variant="body" tone="muted">Total paid</Text>
                 <Text variant="bodyMedium" tone="positive" style={{ fontVariant: ['tabular-nums'] }}>
                   {sym}{fmtMoney(parseFloat(inv.pmnt) || 0)}
                 </Text>
               </View>
               <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                <Text variant="caption" tone="muted">Balance</Text>
+                <Text variant="body" tone="muted">Balance</Text>
                 <Text
                   variant="bodyMedium"
                   style={{ fontVariant: ['tabular-nums'], color: (parseFloat(inv.blnc) || 0) > 0.01 ? colors.negative : colors.positive }}

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import { View, KeyboardAvoidingView, Platform, Pressable, ScrollView, Alert, ActivityIndicator } from 'react-native';
+import { View, KeyboardAvoidingView, Platform, ScrollView, Alert, ActivityIndicator } from 'react-native';
+import { Pressable } from '@/components/ui/Pressable';
 import { Redirect } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';

@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
-import { View, Pressable, FlatList } from 'react-native';
+import { View, FlatList } from 'react-native';
+import { Pressable } from '@/components/ui/Pressable';
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -108,7 +109,7 @@ export default function Balances() {
           icon={<Ionicons name="checkmark-circle-outline" size={40} color={colors.textFaint} />}
         />
       ) : (
-        <FlatList
+        <FlatList keyboardShouldPersistTaps="handled"
           data={rows}
           keyExtractor={(r) => r.name}
           showsVerticalScrollIndicator={false}

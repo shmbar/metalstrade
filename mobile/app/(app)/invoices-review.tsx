@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
-import { View, Pressable, FlatList } from 'react-native';
+import { View, FlatList } from 'react-native';
+import { Pressable } from '@/components/ui/Pressable';
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -80,7 +81,7 @@ export default function InvoicesReview() {
         filtered.length === 0 ? (
           <EmptyState title="No invoices" message="None in the selected period." icon={<Ionicons name="receipt-outline" size={40} color={colors.textFaint} />} />
         ) : (
-          <FlatList
+          <FlatList keyboardShouldPersistTaps="handled"
             data={filtered}
             keyExtractor={(r) => r.id}
             showsVerticalScrollIndicator={false}
@@ -91,7 +92,7 @@ export default function InvoicesReview() {
           />
         )
       ) : (
-        <FlatList
+        <FlatList keyboardShouldPersistTaps="handled"
           data={[0]}
           keyExtractor={() => 'statement'}
           showsVerticalScrollIndicator={false}

@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { View, Pressable, Modal, FlatList, Alert } from 'react-native';
+import { View, Modal, FlatList, Alert } from 'react-native';
+import { Pressable } from '@/components/ui/Pressable';
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -43,10 +44,10 @@ function CounterpartyList({ rows, accent, onSelect }: { rows: Counterparty[]; ac
         <FadeInItem key={r.name} index={i}>
           <Pressable onPress={() => onSelect(r)} style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
             <View style={{ flex: 1, minWidth: 0 }}>
-              <Text variant="caption" numberOfLines={1} style={{ marginBottom: 3 }}>{r.name}</Text>
-              <ProgressBar pct={(r.usd / max) * 100} color={accent} height={10} />
+              <Text variant="body" numberOfLines={1} style={{ marginBottom: 4 }}>{r.name}</Text>
+              <ProgressBar pct={(r.usd / max) * 100} color={accent} height={8} />
             </View>
-            <Text variant="caption" style={{ fontFamily: 'PlusJakartaSans_600SemiBold', width: 70, textAlign: 'right', color: colors.text }}>{curLine(r.byCur)}</Text>
+            <Text variant="bodyMedium" numberOfLines={1} style={{ minWidth: 84, textAlign: 'right', color: colors.text, fontVariant: ['tabular-nums'] }}>{curLine(r.byCur)}</Text>
             <Ionicons name="chevron-forward" size={14} color={colors.textFaint} />
           </Pressable>
         </FadeInItem>
@@ -75,9 +76,9 @@ function ManualRowsList({
           onPress={() => onEdit(i)}
           style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 3 }}
         >
-          <Text variant="caption" tone="muted">{r.title}</Text>
+          <Text variant="body" tone="muted">{r.title}</Text>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-            <Text variant="body" style={{ fontVariant: ['tabular-nums'] }}>{fmtAutoKM(r.num)}</Text>
+            <Text variant="bodyMedium" style={{ fontVariant: ['tabular-nums'] }}>{fmtAutoKM(r.num)}</Text>
             <Ionicons name="pencil" size={12} color={colors.textFaint} />
           </View>
         </Pressable>
@@ -268,7 +269,7 @@ export default function Cashflow() {
         title="Cashflow"
         right={
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-            <Pressable onPress={() => { hapticTap(); togglePrivacy(); }} hitSlop={8}>
+            <Pressable onPress={() => { hapticTap(); togglePrivacy(); }} hitSlop={12}>
               <Ionicons name={hideBalances ? 'eye-off' : 'eye'} size={20} color={colors.textFaint} />
             </Pressable>
             <PeriodSelector />
@@ -491,7 +492,7 @@ export default function Cashflow() {
             </View>
             <Pressable onPress={() => setDetail(null)} hitSlop={8}><Ionicons name="close" size={22} color={colors.textMuted} /></Pressable>
           </View>
-          <FlatList
+          <FlatList keyboardShouldPersistTaps="handled"
             data={detail?.cp.items || []}
             keyExtractor={(it, i) => (it.id || it.poInvoiceId || i) + ''}
             contentContainerStyle={{ paddingHorizontal: spacing.lg }}
@@ -644,9 +645,17 @@ function WhRow({ name, total, count, first }: { name: string; total: number; cou
   );
 }
 
-// One line of the bottom-line strip.
+const SEMIBOLD = { fontFamily: 'PlusJakartaSans_600SemiBold' };
+
+// One line of the bottom-line strip. Label and figure sit at ONE size — web's
+// cashflow collapses every row onto a single rung (.cf-uniform in globals.css:
+// "the page reads at one size top to bottom"). Mobile had 11px labels beside
+// 14px figures, and some labels a shade lighter than the rest, which is what the
+// client circled as "fonts are not equal". Weight alone now separates them —
+// 400 label, 500 figure, 600 on totals (the CLAUDE.md weight rule). `muted`
+// stays in the type so call sites don't churn; it no longer changes the look.
 function Line({
-  label, v, strong, muted, tone,
+  label, v, strong, tone,
 }: {
   label: string;
   v: number;
@@ -657,11 +666,11 @@ function Line({
   const { colors } = useTheme();
   const color = tone === 'positive' ? colors.positive : tone === 'negative' ? colors.negative : undefined;
   return (
-    <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 3 }}>
-      <Text variant={strong ? 'bodyMedium' : 'caption'} tone={muted ? 'faint' : 'muted'}>{label}</Text>
+    <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 4 }}>
+      <Text variant="body" tone={strong ? 'default' : 'muted'} style={strong ? SEMIBOLD : undefined}>{label}</Text>
       <Text
-        variant={strong ? 'bodyMedium' : 'body'}
-        style={{ fontVariant: ['tabular-nums'], ...(color ? { color } : {}) }}
+        variant="bodyMedium"
+        style={{ fontVariant: ['tabular-nums'], ...(strong ? SEMIBOLD : {}), ...(color ? { color } : {}) }}
       >
         {fmtAutoKM(v)}
       </Text>
@@ -669,12 +678,12 @@ function Line({
   );
 }
 
-// Footer total line inside a counterparty detail sheet.
+// Footer total line inside a counterparty detail sheet — same one-size rule.
 function TotalLine({ label, v, strong }: { label: string; v: number; strong?: boolean }) {
   return (
     <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: spacing.lg }}>
-      <Text variant={strong ? 'bodyMedium' : 'caption'} tone="muted">{label}</Text>
-      <Text variant={strong ? 'bodyMedium' : 'caption'} style={{ fontVariant: ['tabular-nums'] }}>
+      <Text variant="body" tone={strong ? 'default' : 'muted'} style={strong ? SEMIBOLD : undefined}>{label}</Text>
+      <Text variant="bodyMedium" style={{ fontVariant: ['tabular-nums'], ...(strong ? SEMIBOLD : {}) }}>
         {fmtAutoKM(v)}
       </Text>
     </View>

@@ -17,12 +17,35 @@ export const queryClient = new QueryClient({
   },
 });
 
+// Live market data — metal prices polled every 60 s, FX every 30 min — lives on
+// its OWN client that is never persisted. The persister below re-serialises the
+// ENTIRE app cache after any query update; measured against production data on
+// 2026-09-11 that is ~10.7 MB for an ordinary session (3,325 stock lots alone are
+// 5.1 MB), 154 ms of JSON.stringify on a laptop and several times that on a phone.
+// Polling prices on the persisted client would schedule that freeze every minute;
+// on this one a price tick touches nothing else.
+export const marketsQueryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: 1,
+      refetchOnWindowFocus: false,
+      gcTime: 1000 * 60 * 30,
+    },
+  },
+});
+
 // Persist the query cache to device storage so previously loaded contracts,
 // invoices, stocks etc. render instantly on launch — even with no internet.
+//
+// throttleTime was 2 s. Every refetch — each screen visit past staleTime, each
+// live-sync event from a teammate — re-serialised those ~10.7 MB on the JS thread
+// two seconds later, and a tap that landed in that window did nothing: the
+// client's "some need to press a few times". At 30 s the offline copy is at most
+// half a minute behind, and the stall is rare instead of constant.
 export const asyncStoragePersister = createAsyncStoragePersister({
   storage: AsyncStorage,
   key: 'ims-query-cache',
-  throttleTime: 2000,
+  throttleTime: 30_000,
 });
 
 // Feed real connectivity into TanStack Query so it pauses/retries fetches

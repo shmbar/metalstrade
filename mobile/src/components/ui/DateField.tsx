@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { View, Pressable, Platform, Modal } from 'react-native';
+import { View, Platform, Modal } from 'react-native';
+import { Pressable } from './Pressable';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Ionicons } from '@expo/vector-icons';
 import { Text } from './Text';

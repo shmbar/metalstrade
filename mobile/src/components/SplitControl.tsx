@@ -8,7 +8,8 @@
 // Firestore write path (expenses_/companyExpenses/invoices_), exactly like web.
 
 import React, { useState } from 'react';
-import { View, Pressable, Modal, ScrollView } from 'react-native';
+import { View, Modal, ScrollView } from 'react-native';
+import { Pressable } from '@/components/ui/Pressable';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Text, TextField, Button } from '@/components/ui';
@@ -177,7 +178,7 @@ export function SplitControl({
             maxHeight: '85%',
           }}
         >
-          <ScrollView contentContainerStyle={{ padding: spacing.lg, gap: spacing.md }}>
+          <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={{ padding: spacing.lg, gap: spacing.md }}>
             <Text variant="h2">IMS / GIS split</Text>
 
             <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>

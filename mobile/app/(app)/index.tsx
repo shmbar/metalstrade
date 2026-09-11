@@ -1,5 +1,6 @@
-import { useMemo, useState } from 'react';
-import { View, ScrollView, RefreshControl, Pressable } from 'react-native';
+import { useMemo, useRef, useState } from 'react';
+import { View, RefreshControl, Animated } from 'react-native';
+import { Pressable } from '@/components/ui/Pressable';
 import { router, Redirect } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -12,7 +13,7 @@ import { useSettings } from '@/store/settings';
 import { usePrivacyStore, maskIfHidden } from '@/store/privacy';
 import { useDashboard, DashboardFilters } from '@/features/dashboard/useDashboard';
 import { ReceivablesCard, AgingCard, RankingCard } from '@/features/dashboard/components';
-import { MetalPricesStrip } from '@/features/prices/MetalPricesStrip';
+import { MarketsTicker } from '@/features/prices/MarketsTicker';
 import { fmtCurKM, fmtMT, fmtAutoKM } from '@/lib/format';
 import { hapticTap } from '@/lib/haptics';
 import { spacing, radius } from '@/theme/tokens';
@@ -23,6 +24,9 @@ export default function Dashboard() {
   const { currentUser, userTitle, isAdmin, gisAccount } = useAuth();
   const hideBalances = usePrivacyStore((s) => s.hidden);
   const togglePrivacy = usePrivacyStore((s) => s.toggle);
+  // Scroll position drives the status-bar backdrop (fades in once the hero has
+  // scrolled away), on the native driver so it costs the JS thread nothing.
+  const scrollY = useRef(new Animated.Value(0)).current;
   // Admin-only shortcut straight to Margins — web calls that page 'Sharon Admin'
   // / 'Gis Admin' depending on the workspace (components/const.js:69), which is
   // also how mobile's More menu labels it, so the two match.
@@ -103,8 +107,11 @@ export default function Dashboard() {
 
   return (
     <View style={{ flex: 1, backgroundColor: colors.bg }}>
-      <ScrollView
+      <Animated.ScrollView
         showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
+        scrollEventThrottle={16}
+        onScroll={Animated.event([{ nativeEvent: { contentOffset: { y: scrollY } } }], { useNativeDriver: true })}
         contentContainerStyle={{ paddingBottom: insets.bottom + 96 }}
         refreshControl={<RefreshControl refreshing={isLoading} onRefresh={refetch} tintColor={colors.primary} progressViewOffset={insets.top + 60} />}
       >
@@ -129,7 +136,7 @@ export default function Dashboard() {
                   phone actually covers the whole app. */}
               <Pressable
                 onPress={() => { hapticTap(); togglePrivacy(); }}
-                hitSlop={8}
+                hitSlop={12}
                 style={{ width: 32, height: 32, borderRadius: 16, backgroundColor: 'rgba(255,255,255,0.16)', alignItems: 'center', justifyContent: 'center' }}
               >
                 <Ionicons name={hideBalances ? 'eye-off' : 'eye'} size={16} color="#ffffff" />
@@ -204,9 +211,10 @@ export default function Dashboard() {
           ))}
         </View>
 
-        {/* Live metal prices */}
+        {/* Markets - web's MarketsTicker: exchange rates + LME metal prices,
+            both scrolling and refreshing live. */}
         <View style={{ paddingHorizontal: spacing.lg, marginTop: 18 }}>
-          <MetalPricesStrip />
+          <MarketsTicker />
         </View>
 
         {/* Body */}
@@ -308,7 +316,7 @@ export default function Dashboard() {
                         justifyContent: 'space-between',
                       }}
                     >
-                      <Text variant="caption" tone="muted">Unsold stock · capital tied up</Text>
+                      <Text variant="body" tone="muted">Unsold stock · capital tied up</Text>
                       <Text variant="bodyMedium" style={{ fontVariant: ['tabular-nums'] }}>
                         {fmtAutoKM(data.unsoldValue)}
                       </Text>
@@ -404,7 +412,21 @@ export default function Dashboard() {
             </View>
           ) : null}
         </View>
-      </ScrollView>
+      </Animated.ScrollView>
+      {/* Status-bar backdrop: transparent over the gradient hero, solid once the
+          page has scrolled far enough that content would sit under the clock. */}
+      <Animated.View
+        pointerEvents="none"
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          height: insets.top,
+          backgroundColor: colors.bg,
+          opacity: scrollY.interpolate({ inputRange: [0, 140], outputRange: [0, 1], extrapolate: 'clamp' }),
+        }}
+      />
     </View>
   );
 }
