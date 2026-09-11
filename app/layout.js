@@ -22,12 +22,21 @@ const jakarta = Plus_Jakarta_Sans({
 	variable: '--font-jakarta',
 });
 
+/* The product is IMS Tech (ims-tech.io). "IMS Metals & Alloys" is one of the trading
+   companies that uses it — that name stays on its own invoices and PDFs, not on the
+   browser tab or a shared link's preview card.
+
+   Icons: logoNew.svg is a wide wordmark in a mostly-empty 600x500 box, so every square
+   slot (tab, home screen, link preview) cropped or squeezed it. imsTechIcon.svg is the
+   IMS mark centred in a square; the touch icon is a PNG because iOS ignores SVG ones. */
 export const metadata = {
-	title: 'IMS-Metals',
+	title: 'IMS Tech',
+	applicationName: 'IMS Tech',
 	description: 'Invoices & Contracts',
+	openGraph: { title: 'IMS Tech', siteName: 'IMS Tech' },
 	icons: {
-		icon: '/logo/logoNew.svg',
-		apple: '/logo/logoNew.svg',
+		icon: [{ url: '/logo/imsTechIcon.svg', type: 'image/svg+xml' }],
+		apple: [{ url: '/logo/imsTech-apple-180.png', sizes: '180x180', type: 'image/png' }],
 	},
 };
 

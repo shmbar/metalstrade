@@ -1,9 +1,9 @@
 import React, { useMemo, useState } from 'react';
-import { View, ScrollView, Modal, Alert, RefreshControl } from 'react-native';
+import { View, ScrollView, Alert, RefreshControl } from 'react-native';
 import { Pressable } from '@/components/ui/Pressable';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Card, Text, Select, Button, SegmentedControl, LoadingState, ErrorState } from '@/components/ui';
+import { Card, Text, Select, Button, SegmentedControl, LoadingState, ErrorState, Sheet } from '@/components/ui';
 import { useTheme } from '@/theme/ThemeProvider';
 import { useSettings } from '@/store/settings';
 import { useStorage, useTagStorage, suggestWh, defaultMonth } from './useStorage';
@@ -322,24 +322,17 @@ export function StorageView() {
       </Card>
 
       {/* Tag modal */}
-      <Modal visible={!!tagging} transparent animationType="slide" onRequestClose={() => setTagging(null)}>
-        <Pressable style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.4)' }} onPress={() => setTagging(null)} />
-        <View
-          style={{
-            backgroundColor: colors.bgElevated,
-            borderTopLeftRadius: radius['2xl'],
-            borderTopRightRadius: radius['2xl'],
-            padding: spacing.lg,
-            paddingBottom: insets.bottom + spacing.lg,
-            gap: spacing.lg,
-          }}
-        >
-          <Text variant="h2">Tag storage invoice</Text>
+      <Sheet
+        visible={!!tagging}
+        onClose={() => setTagging(null)}
+        title="Tag storage invoice"
+        footer={<Button title="Save tag" loading={tag.isPending} onPress={saveTag} />}
+      >
+        <View style={{ gap: spacing.lg }}>
           <Select label="Warehouse" value={tagWh} options={whOptions} onChange={setTagWh} required />
           <MonthPicker value={tagMonth} onChange={setTagMonth} />
-          <Button title="Save tag" loading={tag.isPending} onPress={saveTag} />
         </View>
-      </Modal>
+      </Sheet>
     </ScrollView>
   );
 }

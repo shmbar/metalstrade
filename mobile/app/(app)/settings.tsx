@@ -1,11 +1,11 @@
 import { useState } from 'react';
-import { View, Modal, Alert } from 'react-native';
+import { View, Alert } from 'react-native';
 import { Pressable } from '@/components/ui/Pressable';
 import { BackButton } from '@/components/ui/BackButton';
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Screen, Card, Text, Badge, Button, TextField, SectionHeader } from '@/components/ui';
+import { Screen, Card, Text, Badge, Button, TextField, SectionHeader, Sheet } from '@/components/ui';
 import { useTheme } from '@/theme/ThemeProvider';
 import { useAuth } from '@/store/auth';
 import { useSettings, selectCompanyRate, selectTermDays } from '@/store/settings';
@@ -168,10 +168,13 @@ export default function SettingsScreen() {
       </Card>
 
       {/* Company edit sheet */}
-      <Modal visible={editCompany} transparent animationType="slide" onRequestClose={() => setEditCompany(false)}>
-        <Pressable style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.4)' }} onPress={() => setEditCompany(false)} />
-        <View style={{ backgroundColor: colors.bgElevated, borderTopLeftRadius: radius['2xl'], borderTopRightRadius: radius['2xl'], padding: spacing.lg, paddingBottom: insets.bottom + spacing.lg, gap: spacing.md }}>
-          <Text variant="h2">Company settings</Text>
+      <Sheet
+        visible={editCompany}
+        onClose={() => setEditCompany(false)}
+        title="Company settings"
+        footer={<Button title="Save" loading={busy} onPress={saveCompanyEdit} />}
+      >
+        <View style={{ gap: spacing.md }}>
           <TextField label="EUR → USD rate (blank = per-contract)" value={rateInput} onChangeText={setRateInput} keyboardType="decimal-pad" placeholder="e.g. 1.08" />
           <TextField label="Default payment term (days)" value={termInput} onChangeText={setTermInput} keyboardType="number-pad" placeholder="30" />
 
@@ -191,10 +194,8 @@ export default function SettingsScreen() {
               );
             })}
           </View>
-
-          <Button title="Save" loading={busy} onPress={saveCompanyEdit} />
         </View>
-      </Modal>
+      </Sheet>
     </Screen>
   );
 }

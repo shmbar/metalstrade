@@ -1,10 +1,10 @@
 import { useMemo, useState } from 'react';
-import { View, FlatList, Modal, Alert } from 'react-native';
+import { View, FlatList, Alert } from 'react-native';
 import { Pressable } from '@/components/ui/Pressable';
 import { BackButton } from '@/components/ui/BackButton';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Screen, Card, Text, Badge, TextField, Button, SkeletonList, ErrorState, EmptyState } from '@/components/ui';
+import { Screen, Card, Text, Badge, TextField, Button, SkeletonList, ErrorState, EmptyState, Sheet } from '@/components/ui';
 import { PeriodSelector } from '@/components/PeriodSelector';
 import { useTheme } from '@/theme/ThemeProvider';
 import { useAccounting, AccountingGroup } from '@/features/accounting/useAccounting';
@@ -171,13 +171,12 @@ export default function Accounting() {
       )}
 
       {/* Inline edit — web's edit mode, restricted to non-Purchase rows. */}
-      <Modal visible={!!editLine} transparent animationType="slide" onRequestClose={() => setEditLine(null)}>
-        <Pressable style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.4)' }} onPress={() => setEditLine(null)} />
-        <View style={{ backgroundColor: colors.bgElevated, borderTopLeftRadius: 20, borderTopRightRadius: 20, padding: 20, paddingBottom: insets.bottom + 20, gap: 12 }}>
-          <Text variant="h2">Edit expense</Text>
-          <Text variant="caption" tone="muted">{editLine?.supplierName}</Text>
-          <TextField label="Expense invoice #" value={draft.expInvoice} onChangeText={(t) => setDraft((d) => ({ ...d, expInvoice: t }))} />
-          <TextField label="Amount" value={draft.amountExp} keyboardType="decimal-pad" onChangeText={(t) => setDraft((d) => ({ ...d, amountExp: t.replace(/[^0-9.-]/g, '') }))} />
+      <Sheet
+        visible={!!editLine}
+        onClose={() => setEditLine(null)}
+        title="Edit expense"
+        subtitle={editLine?.supplierName}
+        footer={
           <Button
             title="Save"
             loading={editExpense.isPending}
@@ -194,9 +193,13 @@ export default function Accounting() {
               }
             }}
           />
-          <Button title="Cancel" variant="secondary" onPress={() => setEditLine(null)} />
+        }
+      >
+        <View style={{ gap: 12 }}>
+          <TextField label="Expense invoice #" value={draft.expInvoice} onChangeText={(t) => setDraft((d) => ({ ...d, expInvoice: t }))} />
+          <TextField label="Amount" value={draft.amountExp} keyboardType="decimal-pad" onChangeText={(t) => setDraft((d) => ({ ...d, amountExp: t.replace(/[^0-9.-]/g, '') }))} />
         </View>
-      </Modal>
+      </Sheet>
     </Screen>
   );
 }

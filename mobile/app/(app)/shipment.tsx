@@ -1,10 +1,10 @@
 import { useState } from 'react';
-import { View, FlatList, Modal, ScrollView } from 'react-native';
+import { View, FlatList, ScrollView } from 'react-native';
 import { Pressable } from '@/components/ui/Pressable';
 import { BackButton } from '@/components/ui/BackButton';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Screen, Card, Text, Badge, TextField, SkeletonList, ErrorState, EmptyState } from '@/components/ui';
+import { Screen, Card, Text, Badge, TextField, SkeletonList, ErrorState, EmptyState, Sheet } from '@/components/ui';
 import { PeriodSelector } from '@/components/PeriodSelector';
 import { useTheme } from '@/theme/ThemeProvider';
 import { useShipment, useSetShipmentStatus, ShipmentRow, fmtShipDate } from '@/features/shipment/useShipment';
@@ -182,28 +182,26 @@ export default function Shipment() {
       )}
 
       {/* Status picker */}
-      <Modal visible={!!editing} transparent animationType="slide" onRequestClose={() => setEditing(null)}>
-        <Pressable style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.4)' }} onPress={() => setEditing(null)} />
-        <View style={{ backgroundColor: colors.bgElevated, borderTopLeftRadius: radius['2xl'], borderTopRightRadius: radius['2xl'], padding: spacing.lg, paddingBottom: insets.bottom + spacing.lg }}>
-          <Text variant="h2" style={{ marginBottom: 8 }}>Shipment status</Text>
-          {SHIPMENT_STATUSES.map((s: string) => {
-            const active = (editing?.status || '') === s;
-            return (
-              <Pressable
-                key={s || 'none'}
-                onPress={async () => {
-                  if (editing) await setStatus.mutateAsync({ contract: editing.raw, status: s });
-                  setEditing(null);
-                }}
-                style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 13 }}
-              >
-                <Text variant="body" tone={active ? 'primary' : 'default'}>{s || 'No status'}</Text>
-                {active && <Ionicons name="checkmark" size={18} color={colors.primary} />}
-              </Pressable>
-            );
-          })}
-        </View>
-      </Modal>
+      <Sheet visible={!!editing} onClose={() => setEditing(null)} title="Shipment status">
+        {SHIPMENT_STATUSES.map((s: string) => {
+          const active = (editing?.status || '') === s;
+          return (
+            <Pressable
+              key={s || 'none'}
+              onPress={async () => {
+                if (editing) await setStatus.mutateAsync({ contract: editing.raw, status: s });
+                setEditing(null);
+              }}
+              accessibilityRole="button"
+              accessibilityState={{ selected: active }}
+              style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 14 }}
+            >
+              <Text variant="body" tone={active ? 'primary' : 'default'}>{s || 'No status'}</Text>
+              {active && <Ionicons name="checkmark-circle" size={20} color={colors.primary} />}
+            </Pressable>
+          );
+        })}
+      </Sheet>
     </Screen>
   );
 }

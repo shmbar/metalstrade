@@ -1,11 +1,11 @@
 import { useMemo, useState } from 'react';
-import { View, Modal, Alert, ScrollView } from 'react-native';
+import { View, Alert } from 'react-native';
 import { Pressable } from '@/components/ui/Pressable';
 import { BackButton } from '@/components/ui/BackButton';
 import { useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Screen, Card, Text, TextField, Button, EmptyState } from '@/components/ui';
+import { Screen, Card, Text, TextField, Button, EmptyState, Sheet } from '@/components/ui';
 import { useTheme } from '@/theme/ThemeProvider';
 import { useSettings } from '@/store/settings';
 import { useSettingsEdit } from '@/features/settings/useSettingsEdit';
@@ -183,18 +183,18 @@ export default function SettingsEntity() {
       )}
 
       {/* Edit/new sheet */}
-      <Modal visible={!!editing} transparent animationType="slide" onRequestClose={() => setEditing(null)}>
-        <Pressable style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.4)' }} onPress={() => setEditing(null)} />
-        <View style={{ backgroundColor: colors.bgElevated, borderTopLeftRadius: radius['2xl'], borderTopRightRadius: radius['2xl'], padding: spacing.lg, paddingBottom: insets.bottom + spacing.lg, gap: spacing.md, maxHeight: '88%' }}>
-          <Text variant="h2">{form.id ? `Edit ${label.toLowerCase()}` : `New ${label.toLowerCase()}`}</Text>
-          <ScrollView keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false} contentContainerStyle={{ gap: spacing.md, paddingBottom: spacing.sm }}>
-            {FIELDS.map((f) => (
-              <TextField key={f.key} label={f.label} value={String(form[f.key] ?? '')} onChangeText={(t) => setForm((p: any) => ({ ...p, [f.key]: t }))} />
-            ))}
-          </ScrollView>
-          <Button title="Save" loading={busy} onPress={onSave} />
+      <Sheet
+        visible={!!editing}
+        onClose={() => setEditing(null)}
+        title={form.id ? `Edit ${label.toLowerCase()}` : `New ${label.toLowerCase()}`}
+        footer={<Button title="Save" loading={busy} onPress={onSave} />}
+      >
+        <View style={{ gap: spacing.md }}>
+          {FIELDS.map((f) => (
+            <TextField key={f.key} label={f.label} value={String(form[f.key] ?? '')} onChangeText={(t) => setForm((p: any) => ({ ...p, [f.key]: t }))} />
+          ))}
         </View>
-      </Modal>
+      </Sheet>
     </Screen>
   );
 }

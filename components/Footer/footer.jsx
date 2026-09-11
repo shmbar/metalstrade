@@ -12,9 +12,10 @@ export default function Footer() {
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-6 mb-4">
           {/* Brand Column */}
           <div className="md:col-span-2">
-            <div className="mb-3 overflow-hidden h-11">
-              <img src="/logo/logoNew.svg" alt="IMS Logo" className="h-24 w-auto -mt-[26px]" />
-            </div>
+            {/* Cropped to its artwork, so no overflow box and negative margin are needed
+                to hide the empty half of the old 600x500 canvas. */}
+            <img src="/logo/imsTech.svg" alt="IMS Tech" className="mb-3 h-11 w-auto" />
+
             <p className="text-[var(--chathams-blue)] responsiveTextTitle leading-relaxed max-w-xs opacity-80">
               The operations platform for metals &amp; alloys trading — contracts, inventory,
               cashflow and AI-assisted document handling in one place.

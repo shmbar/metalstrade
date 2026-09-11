@@ -1,10 +1,10 @@
 import { useMemo, useState } from 'react';
-import { View, Alert, Modal } from 'react-native';
+import { View, Alert } from 'react-native';
 import { Pressable } from '@/components/ui/Pressable';
 import { BackButton } from '@/components/ui/BackButton';
 import { useLocalSearchParams, router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { Screen, Card, Text, Badge, Button, ProgressBar, SectionHeader, EmptyState, SkeletonList } from '@/components/ui';
+import { Screen, Card, Text, Badge, Button, ProgressBar, SectionHeader, EmptyState, SkeletonList, Sheet } from '@/components/ui';
 import { useTheme } from '@/theme/ThemeProvider';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useSettings } from '@/store/settings';
@@ -339,23 +339,23 @@ export default function ContractDetail() {
       </View>
 
       {/* Template picker for customs doc export */}
-      <Modal visible={!!docPicker} transparent animationType="slide" onRequestClose={() => setDocPicker(null)}>
-        <Pressable style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.4)' }} onPress={() => setDocPicker(null)} />
-        <View style={{ backgroundColor: colors.bgElevated, borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 20, paddingBottom: insets.bottom + 20, gap: 6, maxHeight: '70%' }}>
-          <Text variant="h2" style={{ marginBottom: 4 }}>{docPicker === 'annex' ? 'Annex VII' : 'ISF'} template</Text>
-          <Text variant="caption" tone="muted" style={{ marginBottom: 8 }}>Pick a saved template to fill the document, or use the contract data as-is.</Text>
-          <Pressable onPress={() => docPicker && exportDoc(docPicker)} style={{ paddingVertical: 13, borderBottomWidth: 1, borderBottomColor: colors.border, flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-            <Ionicons name="document-outline" size={18} color={colors.textMuted} />
-            <Text variant="bodyMedium">No template (contract data)</Text>
+      <Sheet
+        visible={!!docPicker}
+        onClose={() => setDocPicker(null)}
+        title={`${docPicker === 'annex' ? 'Annex VII' : 'ISF'} template`}
+        subtitle="Pick a saved template to fill the document, or use the contract data as-is."
+      >
+        <Pressable onPress={() => docPicker && exportDoc(docPicker)} accessibilityRole="button" style={{ paddingVertical: 14, borderBottomWidth: 1, borderBottomColor: colors.border, flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+          <Ionicons name="document-outline" size={18} color={colors.textMuted} />
+          <Text variant="bodyMedium">No template (contract data)</Text>
+        </Pressable>
+        {(docPicker === 'annex' ? annexTemplates : isfTemplates).map((t: any) => (
+          <Pressable key={t.id} onPress={() => docPicker && exportDoc(docPicker, t)} accessibilityRole="button" style={{ paddingVertical: 14, borderBottomWidth: 1, borderBottomColor: colors.border, flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+            <Ionicons name="sparkles-outline" size={18} color={colors.primary} />
+            <Text variant="bodyMedium" tone="primary">{t.name || '(unnamed)'}</Text>
           </Pressable>
-          {(docPicker === 'annex' ? annexTemplates : isfTemplates).map((t: any) => (
-            <Pressable key={t.id} onPress={() => docPicker && exportDoc(docPicker, t)} style={{ paddingVertical: 13, borderBottomWidth: 1, borderBottomColor: colors.border, flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-              <Ionicons name="sparkles-outline" size={18} color={colors.primary} />
-              <Text variant="bodyMedium" tone="primary">{t.name || '(unnamed)'}</Text>
-            </Pressable>
-          ))}
-        </View>
-      </Modal>
+        ))}
+      </Sheet>
       {(contract.stock?.length || 0) > 0 && (
         <Button
           title="Final Settlement"

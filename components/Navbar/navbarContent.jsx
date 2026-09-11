@@ -3,7 +3,7 @@
 
 import React from 'react';
 import Image from 'next/image';
-import logo from '../../public/logo/logoNew.svg';
+import logo from '../../public/logo/imsTech.svg';
 
 export default function NavbarContent({ isMenuOpen, toggleMenu, children }) {
   return (
@@ -12,7 +12,9 @@ export default function NavbarContent({ isMenuOpen, toggleMenu, children }) {
         {/* Logo */}
 
         <div className="flex-shrink-0 flex items-center ml-8">
-          <Image src={logo} alt="IMS Logo" width={80} height={100} />
+          {/* 84x43 is the wordmark's own 484:250 ratio; the old 80x100 only looked
+              right because the previous file was half empty canvas. */}
+          <Image src={logo} alt="IMS Tech" width={84} height={43} />
         </div>
 
         {/* Desktop Navigation */}

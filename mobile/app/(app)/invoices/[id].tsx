@@ -1,11 +1,11 @@
 import { useMemo, useState } from 'react';
-import { View, Modal, Alert } from 'react-native';
+import { View, Alert } from 'react-native';
 import { Pressable } from '@/components/ui/Pressable';
 import { BackButton } from '@/components/ui/BackButton';
 import { useLocalSearchParams, router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Screen, Card, Text, Badge, Button, SectionHeader, TextField, DateField, EmptyState, SkeletonList } from '@/components/ui';
+import { Screen, Card, Text, Badge, Button, SectionHeader, TextField, DateField, EmptyState, SkeletonList, Sheet } from '@/components/ui';
 import { useTheme } from '@/theme/ThemeProvider';
 import { useSettings } from '@/store/settings';
 import { useInvoices, deriveInvoice } from '@/features/invoices/useInvoices';
@@ -319,55 +319,42 @@ export default function InvoiceDetail() {
       )}
 
       {/* Reminder sheet */}
-      <Modal visible={showReminder} transparent animationType="slide" onRequestClose={() => setShowReminder(false)}>
-        <Pressable style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.4)' }} onPress={() => setShowReminder(false)} />
-        <View style={{ backgroundColor: colors.bgElevated, borderTopLeftRadius: radius['2xl'], borderTopRightRadius: radius['2xl'], padding: spacing.lg, paddingBottom: insets.bottom + spacing.lg, gap: spacing.md, maxHeight: '85%' }}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-            <Ionicons name="sparkles" size={18} color={colors.primary} />
-            <Text variant="h2">Payment reminder</Text>
-            {genReminder.isPending && <Text variant="caption" tone="faint">drafting…</Text>}
-          </View>
+      <Sheet
+        visible={showReminder}
+        onClose={() => setShowReminder(false)}
+        title="Payment reminder"
+        subtitle={genReminder.isPending ? 'Drafting with AI…' : 'Drafted with AI — review before sending'}
+        headerRight={<Ionicons name="sparkles" size={18} color={colors.primary} />}
+        footer={<Button title="Send email" loading={sendReminder.isPending} onPress={doSendReminder} />}
+      >
+        <View style={{ gap: spacing.md }}>
           <TextField label="To" value={to} onChangeText={setTo} placeholder="client@email.com" autoCapitalize="none" keyboardType="email-address" />
           <TextField label="Subject" value={subject} onChangeText={setSubject} />
           <TextField label="Message" value={body} onChangeText={setBody} multiline numberOfLines={6} style={{ minHeight: 130, textAlignVertical: 'top' }} />
-          <Button title="Send email" loading={sendReminder.isPending} onPress={doSendReminder} />
         </View>
-      </Modal>
+      </Sheet>
 
       {/* Add payment sheet — content rendered only while open so the native date
           picker isn't mounted behind a hidden modal. */}
-      <Modal visible={showAdd} transparent animationType="slide" onRequestClose={() => setShowAdd(false)}>
-        {showAdd && (
-          <>
-            <Pressable style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.4)' }} onPress={() => setShowAdd(false)} />
-            <View
-              style={{
-                backgroundColor: colors.bgElevated,
-                borderTopLeftRadius: radius['2xl'],
-                borderTopRightRadius: radius['2xl'],
-                padding: spacing.lg,
-                paddingBottom: insets.bottom + spacing.lg,
-                gap: spacing.lg,
-              }}
-            >
-              <Text variant="h2">Record payment</Text>
-              <Text variant="caption" tone="muted">
-                Invoice #{view.number} · balance {view.balanceLabel}
-              </Text>
-              <TextField
-                label={`Amount (${sym.trim() || view.cur})`}
-                value={amount}
-                onChangeText={setAmount}
-                placeholder="0.00"
-                keyboardType="decimal-pad"
-                autoFocus
-              />
-              <DateField label="Payment date" value={payDate} onChange={setPayDate} />
-              <Button title="Save payment" loading={addPayment.isPending} onPress={submitPayment} />
-            </View>
-          </>
-        )}
-      </Modal>
+      <Sheet
+        visible={showAdd}
+        onClose={() => setShowAdd(false)}
+        title="Record payment"
+        subtitle={`Invoice #${view.number} · balance ${view.balanceLabel}`}
+        footer={<Button title="Save payment" loading={addPayment.isPending} onPress={submitPayment} />}
+      >
+        <View style={{ gap: spacing.lg }}>
+          <TextField
+            label={`Amount (${sym.trim() || view.cur})`}
+            value={amount}
+            onChangeText={setAmount}
+            placeholder="0.00"
+            keyboardType="decimal-pad"
+            autoFocus
+          />
+          <DateField label="Payment date" value={payDate} onChange={setPayDate} />
+        </View>
+      </Sheet>
     </Screen>
   );
 }

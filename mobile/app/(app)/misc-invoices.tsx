@@ -1,10 +1,10 @@
 import { useMemo, useState } from 'react';
-import { View, FlatList, Modal, ActivityIndicator, Alert } from 'react-native';
+import { View, FlatList, ActivityIndicator, Alert } from 'react-native';
 import { Pressable } from '@/components/ui/Pressable';
 import { BackButton } from '@/components/ui/BackButton';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Screen, Card, Text, Badge, SectionHeader, SkeletonList, ErrorState, EmptyState } from '@/components/ui';
+import { Screen, Card, Text, Badge, SectionHeader, SkeletonList, ErrorState, EmptyState, Sheet } from '@/components/ui';
 import { PeriodSelector } from '@/components/PeriodSelector';
 import { useTheme } from '@/theme/ThemeProvider';
 import { useSettings } from '@/store/settings';
@@ -152,36 +152,43 @@ export default function MiscInvoices() {
       )}
 
       {/* Category picker */}
-      <Modal visible={!!editing} transparent animationType="slide" onRequestClose={() => setEditing(null)}>
-        <Pressable style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.4)' }} onPress={() => setEditing(null)} />
-        <View style={{ backgroundColor: colors.bgElevated, borderTopLeftRadius: radius['2xl'], borderTopRightRadius: radius['2xl'], padding: spacing.lg, paddingBottom: insets.bottom + spacing.lg, gap: 6 }}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-            <Text variant="h2">Category</Text>
-            {apiConfigured() && editing && (
-              <Pressable onPress={() => suggestCategory(editing)} hitSlop={8} style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
-                {aiBusy ? <ActivityIndicator size="small" color={colors.primary} /> : <Ionicons name="sparkles" size={16} color={colors.primary} />}
-                <Text variant="caption" tone="primary" style={{ fontFamily: 'PlusJakartaSans_600SemiBold' }}>AI suggest</Text>
-              </Pressable>
-            )}
-          </View>
-          {[{ id: '' as MiscCat, label: 'Uncategorized' }, ...MISC_CATS.map((c) => ({ id: c.id as MiscCat, label: c.label }))].map((c) => {
-            const active = (editing?.category || '') === c.id;
-            return (
-              <Pressable
-                key={c.id || 'none'}
-                onPress={async () => {
-                  if (editing) await setCat.mutateAsync({ id: editing.id, category: c.id });
-                  setEditing(null);
-                }}
-                style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 14 }}
-              >
-                <Text variant="body" tone={active ? 'primary' : 'default'}>{c.label}</Text>
-                {active && <Ionicons name="checkmark" size={18} color={colors.primary} />}
-              </Pressable>
-            );
-          })}
-        </View>
-      </Modal>
+      <Sheet
+        visible={!!editing}
+        onClose={() => setEditing(null)}
+        title="Category"
+        headerRight={
+          apiConfigured() && editing ? (
+            <Pressable
+              onPress={() => suggestCategory(editing)}
+              hitSlop={8}
+              accessibilityRole="button"
+              style={{ flexDirection: 'row', alignItems: 'center', gap: 5, paddingHorizontal: 10, paddingVertical: 6, borderRadius: 999, backgroundColor: colors.primary + '1A' }}
+            >
+              {aiBusy ? <ActivityIndicator size="small" color={colors.primary} /> : <Ionicons name="sparkles" size={14} color={colors.primary} />}
+              <Text variant="label" tone="primary">AI suggest</Text>
+            </Pressable>
+          ) : undefined
+        }
+      >
+        {[{ id: '' as MiscCat, label: 'Uncategorized' }, ...MISC_CATS.map((c) => ({ id: c.id as MiscCat, label: c.label }))].map((c) => {
+          const active = (editing?.category || '') === c.id;
+          return (
+            <Pressable
+              key={c.id || 'none'}
+              onPress={async () => {
+                if (editing) await setCat.mutateAsync({ id: editing.id, category: c.id });
+                setEditing(null);
+              }}
+              accessibilityRole="button"
+              accessibilityState={{ selected: active }}
+              style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 14 }}
+            >
+              <Text variant="body" tone={active ? 'primary' : 'default'}>{c.label}</Text>
+              {active && <Ionicons name="checkmark-circle" size={20} color={colors.primary} />}
+            </Pressable>
+          );
+        })}
+      </Sheet>
     </Screen>
   );
 }

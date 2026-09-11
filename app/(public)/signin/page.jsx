@@ -6,7 +6,7 @@ import { RiRefreshLine } from "react-icons/ri";
 import { UserAuth } from '../../../contexts/useAuthContext';
 import { completeUserEmail } from '../../../actions/validations';
 import Image from 'next/image';
-import imsLogo from '../../../public/logo/logoNew.svg';
+import imsLogo from '../../../public/logo/imsTech.svg';
 
 export default function SignInPage() {
   const { SignIn, err } = UserAuth();
@@ -98,7 +98,7 @@ export default function SignInPage() {
           {/* Header */}
           <div className="mb-7 text-center">
             <div className="mb-5 flex justify-center">
-              <Image src={imsLogo} alt="IMS Logo" width={90} height={44} priority className="mb-1" />
+              <Image src={imsLogo} alt="IMS Tech" width={90} height={46} priority className="mb-1" />
             </div>
             <h1 className="responsiveTextStat font-bold text-[var(--chathams-blue)]">Welcome back</h1>
             <p className="responsiveTextTitle text-[var(--text-faint)] mt-0.5">
