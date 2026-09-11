@@ -305,9 +305,9 @@ const Customtable = ({
                                  globals.css gives every .custom-table td a --bg-card background,
                                  which painted straight over a row-level colour — so the tint
                                  this used to set on the row was never once visible, and only the
-                                 Description indent read as different. --bg-sunken is one step
-                                 darker than the card, enough to see across the full width. */
-                              backgroundColor: row.depth > 0 ? 'var(--bg-sunken)' : undefined,
+                                 Description indent read as different. --brand-soft is the brand violet
+                                 at its lightest: it reads as purple rather than grey, and ties the line to the violet bar and arrow beside it. */
+                              backgroundColor: row.depth > 0 ? 'var(--brand-soft)' : undefined,
                               /* The row's leading edge steps in, so the whole line reads as
                                  sitting under its grade. Only PO# and Description move; the
                                  figure columns stay exactly under their headers, because a

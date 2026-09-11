@@ -81,9 +81,8 @@ const Customtable = ({
       <div>
         {/* Custom header: Search + Edit + Columns + Filter icons */}
         <div className="flex items-center gap-2 p-2">
-          <div className="flex items-center relative w-[140px] h-7 border border-[var(--selago)] rounded-2xl bg-[var(--bg-card)] shadow-sm">
+          <div className="search-field w-[140px]">
             <input
-              className="bg-[var(--bg-card)] border-0 shadow-none pr-8 pl-3 focus:outline-none w-full text-[var(--endeavour)] placeholder:text-[var(--endeavour)] h-full responsiveTextInput rounded-2xl"
               placeholder="Search..."
               value={globalFilter ?? ''}
               onChange={e => setGlobalFilter(e.target.value)}
@@ -126,7 +125,7 @@ const Customtable = ({
                       )}
                       {filterOn && header.column.getCanFilter() && (
                         <input
-                          className="mt-1 w-full border border-[var(--selago)] rounded-lg px-2 py-0.5 responsiveTextTable font-medium focus:outline-none focus:border-[var(--endeavour)]"
+                          className="mt-1 w-full border border-[var(--line-strong)] bg-[var(--bg-card)] rounded-lg px-2 py-0.5 responsiveTextTable font-medium focus:outline-none focus:border-[var(--endeavour)]"
                           value={header.column.getFilterValue() ?? ''}
                           onChange={e => header.column.setFilterValue(e.target.value)}
                           placeholder="Filter..."

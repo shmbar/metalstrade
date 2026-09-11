@@ -5,8 +5,8 @@ export const Filter = ({ column, table, filterOn }) => {
     const columnFilterValue = column.getFilterValue();
     const { filterVariant } = column.columnDef.meta || {};
 
-    const inputCls = 'responsiveText font-normal bg-[var(--bg-subtle)] border border-[var(--line)] rounded-lg px-2 py-0.5 h-6 focus:outline-none focus:ring-1 focus:ring-[var(--endeavour)] text-[var(--chathams-blue)] w-full';
-    const selectCls = 'responsiveText font-normal bg-[var(--bg-subtle)] border border-[var(--line)] rounded-lg px-2 py-0.5 h-6 focus:outline-none focus:ring-1 focus:ring-[var(--endeavour)] text-[var(--chathams-blue)] w-full appearance-none cursor-pointer';
+    const inputCls = 'responsiveText font-normal bg-[var(--bg-card)] border border-[var(--line-strong)] rounded-lg px-2 py-0.5 h-6 focus:outline-none focus:ring-1 focus:ring-[var(--endeavour)] text-[var(--chathams-blue)] w-full';
+    const selectCls = 'responsiveText font-normal bg-[var(--bg-card)] border border-[var(--line-strong)] rounded-lg px-2 py-0.5 h-6 focus:outline-none focus:ring-1 focus:ring-[var(--endeavour)] text-[var(--chathams-blue)] w-full appearance-none cursor-pointer';
 
     return filterOn &&
         (filterVariant === 'range' ? (
@@ -142,6 +142,6 @@ const DebouncedInput = ({
 
     return (
         <input {...props} type={type} value={value} onChange={e => setValue(e.target.value)}
-            className={inputCls || `responsiveText font-normal bg-[var(--bg-subtle)] border border-[var(--line)] rounded-lg px-2 py-0.5 h-6 focus:outline-none focus:ring-1 focus:ring-[var(--endeavour)] text-[var(--chathams-blue)] w-full`} />
+            className={inputCls || `responsiveText font-normal bg-[var(--bg-card)] border border-[var(--line-strong)] rounded-lg px-2 py-0.5 h-6 focus:outline-none focus:ring-1 focus:ring-[var(--endeavour)] text-[var(--chathams-blue)] w-full`} />
     );
 }
