@@ -493,6 +493,22 @@ body {
   color: var(--ink);
 }
 
+/* Placeholder text is --ink-muted. Left to preflight it was theme('colors.gray.400'),
+   and tailwind.config.js maps gray-400 onto --border-neutral-strong — so every
+   placeholder without its own utility was painted in the BORDER colour, #DAD6E8 on
+   white, about 1.4:1. That is why cashflow's "Find a client, supplier or stock" all
+   but vanished. --ink-muted is the token already documented as carrying placeholder
+   text (see --regent-gray), and it sits a clear step under --ink so a prompt never
+   reads as a typed value — the margins search settled the same thing locally.
+   @layer base so it lands after preflight on equal specificity, while a
+   placeholder:text-* utility at a call site still outranks it. */
+@layer base {
+  input::placeholder,
+  textarea::placeholder {
+    color: var(--ink-muted);
+  }
+}
+
 /* Numeric data aligns in columns everywhere.
    NOTE: this deliberately sets tabular-nums ONLY, and does NOT switch tables to
    Inter — which is what the reference does, and it is right. Jakarta already has

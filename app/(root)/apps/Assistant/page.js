@@ -601,7 +601,7 @@ const AssistantChat = () => {
                                            global input:focus-visible outline drew a second
                                            ring inside it and read as an internal border.
                                            Focus is still visible; it is just not drawn twice. */
-                                        className="flex-1 outline-none focus-visible:outline-none text-[var(--port-gore)] placeholder-[var(--rock-blue)] disabled:opacity-50 disabled:cursor-not-allowed"
+                                        className="flex-1 outline-none focus-visible:outline-none text-[var(--port-gore)] disabled:opacity-50 disabled:cursor-not-allowed"
                                         style={{ backgroundColor: 'transparent', fontSize: 'inherit' }}
                                     />
                                     {/* While an answer is streaming the send button has nothing

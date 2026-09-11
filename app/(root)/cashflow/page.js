@@ -31,7 +31,7 @@ import ForecastPanel from "./ForecastPanel";
 import SumBasket from "./sumBasket";
 import { exportCashflowToExcel } from "./excel";
 import KpiStrip from "../../../components/KpiStrip";
-import { BtnIcon } from "../../../components/buttonIcons";
+import { BtnIcon, SearchAdornment } from "../../../components/buttonIcons";
 import Avatar from "../../../components/Avatar";
 import { Boxes, Users, Factory, Wallet, Banknote } from "lucide-react";
 
@@ -1311,14 +1311,19 @@ const Cashflow = () => {
                                     {/* A find tool, not a scope: totalLeft/totalRight are computed from the
                                         full period and deliberately do NOT move with this box, so the cash
                                         position stays honest while you look someone up. Said out loud below,
-                                        because "filter" would otherwise imply the totals had narrowed too. */}
-                                    <input
-                                        value={nameQ}
-                                        onChange={(e) => setNameQ(e.target.value)}
-                                        placeholder="Find a client, supplier or stock"
-                                        className="input h-8"
-                                        style={{ width: 210 }}
-                                    />
+                                        because "filter" would otherwise imply the totals had narrowed too.
+                                        The magnifier is what makes it read as a search box at all beside
+                                        Export and the year picker; pr-8 keeps text clear of it. */}
+                                    <div className="relative" style={{ width: 210 }}>
+                                        <input
+                                            value={nameQ}
+                                            onChange={(e) => setNameQ(e.target.value)}
+                                            placeholder="Find a client, supplier or stock"
+                                            aria-label="Find a client, supplier or stock"
+                                            className="input h-8 pr-8"
+                                        />
+                                        <SearchAdornment value={nameQ} onClear={() => setNameQ('')} />
+                                    </div>
                                     {nameQ.trim() && (
                                         <span className="responsiveTextTable text-[var(--ink-muted)] whitespace-nowrap">
                                             rows only — totals cover the full period
