@@ -1,5 +1,5 @@
 'use client';
-import { useMemo } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Popover, PopoverContent, PopoverTrigger } from '@components/ui/popover';
 import { BtnIcon } from '@components/buttonIcons';
 import { ELEMENTS, assayOf, assayRange, formatAssay, hasAssay, parseAssay } from '@utils/grades';
@@ -13,7 +13,13 @@ import { ELEMENTS, assayOf, assayRange, formatAssay, hasAssay, parseAssay } from
    measurement of the lot, and the two must not be read as the same kind of number.
 
    Click, not hover: this sits inside rows that expand and open on click, and a hover
-   card over a dense table fires on every pass of the mouse. */
+   card over a dense table fires on every pass of the mouse.
+
+   The rows underneath open their detail modal on DOUBLE-click, and a double-click is
+   two clicks: on the flask it toggled the card twice and then bubbled up and opened
+   the modal as well, leaving the card floating over the dialog. So the open state is
+   held here: a double-click on the flask ends with the card open and goes no further,
+   and a double-click anywhere else closes it before whatever it opens appears. */
 
 const fmtQty = (q) => (Number(q) || 0).toLocaleString('en-US', { minimumFractionDigits: 3, maximumFractionDigits: 3 });
 const fmtEl = (v) => (Number.isFinite(v) ? String(Math.round(v * 100) / 100) : '');
@@ -32,22 +38,35 @@ export default function ChemistryPopover({ lots = [], description = '', grade = 
     const withAssay = rows.filter(r => hasAssay(r.assay));
     const range = withAssay.length > 1 ? assayRange(withAssay.map(r => r.assay)) : null;
     const recorded = rows.some(r => r.source === 'analysis');
+    const [open, setOpen] = useState(false);
+    const triggerRef = useRef(null);
+
+    useEffect(() => {
+        if (!open) return;
+        const onDoubleClick = (e) => {
+            if (triggerRef.current?.contains(e.target) || e.target.closest?.('[data-chemistry-popover]')) return;
+            setOpen(false);
+        };
+        document.addEventListener('dblclick', onDoubleClick, true);
+        return () => document.removeEventListener('dblclick', onDoubleClick, true);
+    }, [open]);
     const nominal = grade?.spec ? (formatAssay(parseAssay(grade.spec)) || grade.spec) : '';
     const stop = (e) => e.stopPropagation();
 
     if (!rows.length) return null;
 
     return (
-        <Popover>
+        <Popover open={open} onOpenChange={setOpen}>
             <PopoverTrigger asChild>
-                <button type="button" aria-label="Chemistry per lot" title="Chemistry per lot"
+                <button type="button" aria-label="Chemistry per lot" title="Chemistry per lot" ref={triggerRef}
                     onClick={stop} onPointerDown={stop}
+                    onDoubleClick={(e) => { stop(e); setOpen(true); }}
                     className={`inline-flex items-center justify-center shrink-0 w-5 h-5 rounded-control transition-opacity
                         ${recorded ? 'text-[var(--brand)]' : 'text-[var(--ink-muted)] opacity-60 hover:opacity-100'}`}>
                     <BtnIcon action="assay" />
                 </button>
             </PopoverTrigger>
-            <PopoverContent align="start" onClick={stop}
+            <PopoverContent align="start" onClick={stop} data-chemistry-popover
                 className="w-auto min-w-[300px] max-w-[560px] p-3 bg-[var(--bg-card)] border-[var(--line)]">
                 <div className="flex items-baseline justify-between gap-3">
                     <p className="responsiveText font-semibold text-[var(--ink)] truncate">

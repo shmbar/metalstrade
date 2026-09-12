@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { View, Switch, Alert, KeyboardAvoidingView, Platform } from 'react-native';
-import { Pressable } from '@/components/ui/Pressable';
 import { useLocalSearchParams, router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -13,6 +12,8 @@ import {
   DateField,
   Button,
   SectionHeader,
+  StackHeader,
+  SkeletonList,
 } from '@/components/ui';
 import { useTheme } from '@/theme/ThemeProvider';
 import { useSettings } from '@/store/settings';
@@ -41,7 +42,7 @@ export default function ContractEdit() {
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
   const { settings } = useSettings();
-  const { data: contracts } = useContracts();
+  const { data: contracts, isLoading: contractsLoading } = useContracts();
   const save = useSaveContract();
   const del = useDeleteContract();
 
@@ -56,6 +57,21 @@ export default function ContractEdit() {
   const [errors, setErrors] = useState<Record<string, boolean>>({});
   const [submitted, setSubmitted] = useState(false);
   const [customTerms, setCustomTerms] = useState<boolean>(!!existing?.isTermPmntText);
+
+  /* Open ?id=… by deep link (a push notification, "Open in IMS", a cold start) and
+     the contracts query has not resolved on first render: the form seeded BLANK and
+     stayed blank while the header flipped from "New contract" to "Edit contract" —
+     and a save would then have written a brand-new contract instead of editing this
+     one. Seed once, when the record arrives, and never again, so typing is not
+     overwritten by a background refetch. */
+  const seededId = useRef<string | null>(null);
+  useEffect(() => {
+    if (existing && seededId.current !== existing.id) {
+      seededId.current = existing.id;
+      setValue({ ...existing });
+      setCustomTerms(!!existing.isTermPmntText);
+    }
+  }, [existing]);
 
   // After the first save attempt, re-validate on every change so error marks
   // clear the moment a field is filled (inline validation).
@@ -172,20 +188,24 @@ export default function ContractEdit() {
     );
   };
 
+  // Waiting for the record this screen was opened on.
+  if (id && !existing && contractsLoading) {
+    return (
+      <Screen contentContainerStyle={{ paddingTop: insets.top + 8 }} edges={false}>
+        <StackHeader title="Edit contract" backLabel="Cancel" />
+        <SkeletonList count={5} />
+      </Screen>
+    );
+  }
+
   return (
     <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <Screen contentContainerStyle={{ paddingTop: insets.top + 8 }} edges={false}>
-        {/* Header */}
-        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
-          <Pressable onPress={() => router.back()} hitSlop={8} style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
-            <Ionicons name="chevron-back" size={22} color={colors.primary} />
-            <Text variant="bodyMedium" tone="primary">
-              Cancel
-            </Text>
-          </Pressable>
-          <Text variant="h3">{isNew ? 'New Contract' : 'Edit Contract'}</Text>
-          <View style={{ width: 60 }} />
-        </View>
+        <StackHeader
+          title={isNew ? 'New contract' : 'Edit contract'}
+          subtitle={isNew ? 'Purchase order' : value.order || undefined}
+          backLabel="Cancel"
+        />
 
         <View style={{ gap: 14 }}>
           {isNew && apiConfigured() && (
@@ -213,6 +233,7 @@ export default function ContractEdit() {
 
           {/* Identity */}
           <Card style={{ gap: 14 }}>
+            <SectionHeader title="Contract" style={{ marginBottom: 0 }} />
             {renderSelect('supplier', onSupplierChange)}
             <TextField
               label="PO Number *"
@@ -233,6 +254,7 @@ export default function ContractEdit() {
 
           {/* Currency / quantity */}
           <Card style={{ gap: 14 }}>
+            <SectionHeader title="Currency & units" style={{ marginBottom: 0 }} />
             {renderSelect('cur')}
             {renderSelect('qTypeTable')}
           </Card>

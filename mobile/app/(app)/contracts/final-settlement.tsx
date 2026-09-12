@@ -1,10 +1,9 @@
 import { useEffect, useMemo, useState } from 'react';
 import { View, Switch, Alert } from 'react-native';
-import { BackButton } from '@/components/ui/BackButton';
 import { useLocalSearchParams, router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Screen, Card, Text, TextField, Button, LoadingState, ErrorState, EmptyState } from '@/components/ui';
+import { Screen, Card, Text, TextField, Button, LoadingState, ErrorState, EmptyState, StackHeader } from '@/components/ui';
 import { useTheme } from '@/theme/ThemeProvider';
 import { useSettings } from '@/store/settings';
 import { useContracts } from '@/features/contracts/useContracts';
@@ -80,7 +79,7 @@ export default function FinalSettlement() {
   if (!contract) {
     return (
       <Screen>
-        <Back />
+        <StackHeader title="Final settlement" />
         <EmptyState title="Contract not found" message="Open it from the contracts list." />
       </Screen>
     );
@@ -88,13 +87,9 @@ export default function FinalSettlement() {
 
   return (
     <Screen contentContainerStyle={{ paddingTop: insets.top + 8 }} edges={false}>
-      <Back />
+      <StackHeader title="Final settlement" subtitle={contract.order} />
 
-      <View style={{ marginTop: 8, marginBottom: 14 }}>
-        <Text variant="h1">Final Settlement</Text>
-        <Text variant="body" tone="muted" style={{ marginTop: 2 }}>
-          {contract.order}
-        </Text>
+      <View style={{ marginBottom: 14 }}>
       </View>
 
       {/* Draft toggle */}
@@ -220,6 +215,3 @@ export default function FinalSettlement() {
   );
 }
 
-function Back() {
-  return <BackButton />;
-}

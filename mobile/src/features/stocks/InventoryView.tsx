@@ -1,10 +1,9 @@
 import React, { useMemo, useState } from 'react';
 import { View, FlatList } from 'react-native';
-import { Pressable } from '@/components/ui/Pressable';
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Card, Text, TextField, Badge, SkeletonList, FadeInItem, ErrorState, EmptyState } from '@/components/ui';
+import { Card, Text, Badge, SkeletonList, FadeInItem, ErrorState, EmptyState, SearchField, Chip } from '@/components/ui';
 import { useTheme } from '@/theme/ThemeProvider';
 import { useStocks } from './useStocks';
 import { GradeSummaryCard } from './GradeSummaryCard';
@@ -21,6 +20,10 @@ export function InventoryView() {
   const [search, setSearch] = useState('');
   // Tapping a row opens the Materials Breakdown sheet (web whModal).
   const [lot, setLot] = useState<any | null>(null);
+  // The per-warehouse × unit × currency rows (web's Summary-Stocks table) run to
+  // twenty lines on a busy account and pushed the actual inventory below the
+  // fold. The portfolio totals lead; the breakdown opens on demand.
+  const [showBreakdown, setShowBreakdown] = useState(false);
 
   // Web's global filter runs over EVERY column whose first value is a string or a
   // number — including the two hidden ones (date, originSupplier) — and it matches
@@ -42,21 +45,7 @@ export function InventoryView() {
 
   return (
     <View style={{ flex: 1 }}>
-      <TextField
-        value={search}
-        onChangeText={setSearch}
-        placeholder="Search material, warehouse, supplier…"
-        autoCapitalize="none"
-        rightElement={
-          search ? (
-            <Pressable onPress={() => setSearch('')} hitSlop={8}>
-              <Ionicons name="close-circle" size={18} color={colors.textFaint} />
-            </Pressable>
-          ) : (
-            <Ionicons name="search" size={18} color={colors.textFaint} />
-          )
-        }
-      />
+      <SearchField value={search} onChangeText={setSearch} placeholder="Search material, warehouse, supplier…" />
 
       {/* Totals + count scroll WITH the list (header), so the whole tab scrolls
           as one — a fixed totals card was swallowing the screen at 10+ warehouses. */}
@@ -65,43 +54,25 @@ export function InventoryView() {
           <View>
             {(totals.length) > 0 && (
               <Card style={{ marginTop: 12 }}>
-                <Text variant="label" tone="muted" style={{ marginBottom: 8 }}>
-                  On-hand totals
-                </Text>
-                {totals.map((t, i) => (
-                  <View
-                    key={i}
-                    style={{
-                      flexDirection: 'row',
-                      justifyContent: 'space-between',
-                      alignItems: 'center',
-                      paddingVertical: 6,
-                      borderTopWidth: i === 0 ? 0 : 1,
-                      borderTopColor: colors.border,
-                    }}
-                  >
-                    <Text variant="body" numberOfLines={1} style={{ flex: 1 }}>
-                      {t.warehouseName}
-                    </Text>
-                    {/* Web prints whatever the lot's weight type resolves to and
-                        leaves it BLANK when there is none — it never assumes MT. */}
-                    <Text variant="bodyMedium" style={{ marginHorizontal: 10, fontVariant: ['tabular-nums'] }}>
-                      {fmtQty(t.qnty)} {t.qTypeLabel}
-                    </Text>
-                    <Text variant="bodyMedium" tone="primary" style={{ fontVariant: ['tabular-nums'] }}>
-                      {/* web sumTable showAmount: a total of exactly 0 renders bare */}
-                      {warehouseTotalCell(t.total, t.cur)}
-                    </Text>
-                  </View>
-                ))}
-
+                <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10, marginBottom: 4 }}>
+                  <Text variant="label" tone="muted">
+                    On-hand totals
+                  </Text>
+                  <Chip
+                    label={showBreakdown ? 'Hide breakdown' : `By warehouse · ${totals.length}`}
+                    icon={showBreakdown ? 'chevron-up' : 'chevron-down'}
+                    active={showBreakdown}
+                    onPress={() => setShowBreakdown((v) => !v)}
+                  />
+                </View>
                 {/* Portfolio grand totals — web's "Total $" / "Total €" footer rows
                     (sumtables/tableTotals.js:43-53), which mobile had no equivalent
                     of at all: there was no way to see total USD vs EUR inventory
                     value without adding the warehouse rows by hand. */}
-                {(['USD', 'EUR'] as const).map((iso) => {
+                {(['USD', 'EUR'] as const)
+                  .filter((iso) => totals.some((t) => String(t.curLabel).toUpperCase() === iso))
+                  .map((iso, gi) => {
                   const slice = totals.filter((t) => String(t.curLabel).toUpperCase() === iso);
-                  if (slice.length === 0) return null;
                   const quantity = slice.reduce((s, t) => s + (t.qnty || 0), 0);
                   const total = slice.reduce((s, t) => s + (t.total || 0), 0);
                   return (
@@ -109,7 +80,7 @@ export function InventoryView() {
                       key={iso}
                       style={{
                         flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
-                        paddingTop: 8, marginTop: 6, borderTopWidth: 1, borderTopColor: colors.borderStrong,
+                        paddingVertical: 6, borderTopWidth: gi === 0 ? 0 : 1, borderTopColor: colors.border,
                       }}
                     >
                       <Text variant="bodyMedium" style={{ flex: 1, fontFamily: 'PlusJakartaSans_600SemiBold' }}>Total {iso === 'EUR' ? '€' : '$'}</Text>
@@ -122,6 +93,36 @@ export function InventoryView() {
                     </View>
                   );
                 })}
+                {showBreakdown && (
+                  <View style={{ marginTop: 8, paddingTop: 4, borderTopWidth: 1, borderTopColor: colors.borderStrong }}>
+                    {totals.map((t, i) => (
+                      <View
+                        key={i}
+                        style={{
+                          flexDirection: 'row',
+                          justifyContent: 'space-between',
+                          alignItems: 'center',
+                          paddingVertical: 6,
+                          borderTopWidth: i === 0 ? 0 : 1,
+                          borderTopColor: colors.border,
+                        }}
+                      >
+                        <Text variant="body" numberOfLines={1} style={{ flex: 1 }}>
+                          {t.warehouseName}
+                        </Text>
+                        {/* Web prints whatever the lot's weight type resolves to and
+                            leaves it BLANK when there is none — it never assumes MT. */}
+                        <Text variant="bodyMedium" style={{ marginHorizontal: 10, fontVariant: ['tabular-nums'] }}>
+                          {fmtQty(t.qnty)} {t.qTypeLabel}
+                        </Text>
+                        <Text variant="bodyMedium" tone="primary" style={{ fontVariant: ['tabular-nums'] }}>
+                          {/* web sumTable showAmount: a total of exactly 0 renders bare */}
+                          {warehouseTotalCell(t.total, t.cur)}
+                        </Text>
+                      </View>
+                    ))}
+                  </View>
+                )}
               </Card>
             )}
             {/* Avg cost price per grade — web parity (stocks page GradeTable), fed

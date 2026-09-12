@@ -6,6 +6,7 @@ import { Selector } from './selectors/selectShad';
 import { FileText, Receipt, Banknote, Package, Settings as SettingsIcon, Activity, RefreshCw, Loader2, Search, LogIn } from 'lucide-react';
 import { TONES } from './statusUtils';
 import { NameCell } from './Avatar';
+import { matchesAllWords } from '@utils/search';
 
 // Visual identity per entity type (aligns with the status-color system in statusUtils).
 const ENTITY_META = {
@@ -114,10 +115,7 @@ const ActivityLog = ({ entityType, entityId, showFilters = false }) => {
         if (actorFilter !== 'all') rows = rows.filter(r => r.actorName === actorFilter);
         const term = q.trim().toLowerCase();
         if (term) {
-            rows = rows.filter(r =>
-                [r.message, r.entityLabel, r.actorName, r.action]
-                    .filter(Boolean).join(' ').toLowerCase().includes(term)
-            );
+            rows = rows.filter(r => matchesAllWords([r.message, r.entityLabel, r.actorName, r.action], term));
         }
         return rows;
     }, [items, showFilters, typeFilter, actorFilter, q]);

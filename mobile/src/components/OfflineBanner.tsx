@@ -4,6 +4,7 @@ import { onlineManager } from '@tanstack/react-query';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Text } from '@/components/ui';
+import { palette } from '@/theme/tokens';
 
 // Slim status bar shown while the device has no connection. Data on screen keeps
 // working from the persisted cache; queries auto-refetch when back online.
@@ -35,7 +36,7 @@ export function OfflineBanner() {
         elevation: 6,
       }}
     >
-      <Ionicons name="cloud-offline-outline" size={14} color="#ffd479" />
+      <Ionicons name="cloud-offline-outline" size={14} color={palette.warnBorder} />
       <Text variant="caption" color="#ffffff" style={{ fontFamily: 'PlusJakartaSans_500Medium' }}>
         Offline — showing saved data
       </Text>

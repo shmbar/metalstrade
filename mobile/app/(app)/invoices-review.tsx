@@ -1,15 +1,16 @@
 import { useMemo, useState } from 'react';
 import { View, FlatList } from 'react-native';
-import { BackButton } from '@/components/ui/BackButton';
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Screen, Card, Text, TextField, SegmentedControl, SectionHeader, SkeletonList, ErrorState, EmptyState } from '@/components/ui';
+import { Screen, Card, Text, SegmentedControl, SectionHeader, SkeletonList, ErrorState, EmptyState, SearchField } from '@/components/ui';
 import { PeriodSelector } from '@/components/PeriodSelector';
 import { useTheme } from '@/theme/ThemeProvider';
 import { InvoiceCard } from '@/features/invoices/InvoiceCard';
 import { useInvoicesReview, PartyStatement } from '@/features/review/useInvoicesReview';
 import { fmtCurKM } from '@/lib/format';
+import { StackHeader } from '@/components/StackHeader';
+import { matchesAllWords, searchWords } from '@shared/search';
 
 const curLine = (byCur: Record<string, number>) => {
   const ents = Object.entries(byCur).filter(([, v]) => Math.abs(v) > 0.005);
@@ -39,18 +40,14 @@ export default function InvoicesReview() {
   const [search, setSearch] = useState('');
 
   const filtered = useMemo(() => {
-    const q = search.trim().toLowerCase();
-    if (!q) return rows;
-    return rows.filter((r) => String(r.number ?? '').includes(q) || r.clientName.toLowerCase().includes(q));
+    const words = searchWords(search);
+    if (!words.length) return rows;
+    return rows.filter((r) => matchesAllWords([r.number, r.clientName], words));
   }, [rows, search]);
 
   return (
     <Screen scroll={false} flush contentContainerStyle={{ paddingTop: insets.top + 8 }} edges={false}>
-      <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
-        <BackButton />
-        <Text variant="h2">Invoices Review</Text>
-        <PeriodSelector />
-      </View>
+      <StackHeader title="Invoices Review" right={<PeriodSelector />} />
 
       <View style={{ marginBottom: 14 }}>
         <SegmentedControl
@@ -65,7 +62,7 @@ export default function InvoicesReview() {
 
       {tab === 'review' && (
         <>
-          <TextField value={search} onChangeText={setSearch} placeholder="Search invoice # or client…" autoCapitalize="none" rightElement={<Ionicons name="search" size={18} color={colors.textFaint} />} />
+          <SearchField value={search} onChangeText={setSearch} placeholder="Search invoice # or client…" />
           <View style={{ height: 12 }} />
         </>
       )}

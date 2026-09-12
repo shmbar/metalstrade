@@ -1,10 +1,8 @@
 import { useState } from 'react';
 import { View, ActivityIndicator } from 'react-native';
-import { Pressable } from '@/components/ui/Pressable';
-import { BackButton } from '@/components/ui/BackButton';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Screen, Card, Text, StatCard, Button, SectionHeader, SkeletonList, ErrorState, EmptyState } from '@/components/ui';
+import { Screen, Card, Text, StatCard, Button, SectionHeader, SkeletonList, ErrorState, EmptyState, IconButton, StackHeader } from '@/components/ui';
 import { PeriodSelector } from '@/components/PeriodSelector';
 import { useTheme } from '@/theme/ThemeProvider';
 import { useAuth } from '@/store/auth';
@@ -40,10 +38,6 @@ export default function Margins() {
     }
   };
 
-  const back = (
-    <BackButton />
-  );
-
   // Web parity (utils/permissions.js isAdmin) — was `userTitle !== 'Admin'`,
   // an exact-string match on the legacy claim that a superadmin-role account
   // (role claim, title something else) could fail and get locked out of their
@@ -51,7 +45,7 @@ export default function Margins() {
   if (!isAdmin) {
     return (
       <Screen contentContainerStyle={{ paddingTop: insets.top + 8 }} edges={false}>
-        {back}
+        <StackHeader title="Margins" />
         <EmptyState title="Admin only" message="Margins are restricted to Admin accounts." icon={<Ionicons name="lock-closed-outline" size={40} color={colors.textFaint} />} />
       </Screen>
     );
@@ -59,19 +53,23 @@ export default function Margins() {
 
   return (
     <Screen contentContainerStyle={{ paddingTop: insets.top + 8 }} edges={false} refreshing={isLoading} onRefresh={refetch}>
-      <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
-        {back}
-        {/* Web titles this by ACCOUNT, not by page — 'Sharon Admin', or 'Gis Admin'
-            on the GIS workspace (components/const.js:69). Mobile said 'Margins',
-            which is what the page does but not what anyone calls it. */}
-        <Text variant="h2">{gisAccount ? 'Gis Admin' : 'Sharon Admin'}</Text>
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-          <Pressable onPress={() => { hapticTap(); togglePrivacy(); }} hitSlop={12}>
-            <Ionicons name={hideBalances ? 'eye-off' : 'eye'} size={20} color={colors.textFaint} />
-          </Pressable>
-          <PeriodSelector />
-        </View>
-      </View>
+      {/* Web titles this by ACCOUNT, not by page — 'Sharon Admin', or 'Gis Admin'
+          on the GIS workspace (components/const.js:69). Mobile said 'Margins',
+          which is what the page does but not what anyone calls it. */}
+      <StackHeader
+        title={gisAccount ? 'Gis Admin' : 'Sharon Admin'}
+        subtitle="Margins — monthly profit, quantity & shipped"
+        right={
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+            <IconButton
+              icon={hideBalances ? 'eye-off-outline' : 'eye-outline'}
+              accessibilityLabel={hideBalances ? 'Show balances' : 'Hide balances'}
+              onPress={() => { hapticTap(); togglePrivacy(); }}
+            />
+            <PeriodSelector />
+          </View>
+        }
+      />
 
       {isLoading ? (
         <SkeletonList count={6} />

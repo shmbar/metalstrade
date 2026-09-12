@@ -224,7 +224,7 @@ const WHvModal = ({ isOpen, setIsOpen, item, setItem, data, setData }) => {
 
             {/* Info fields */}
             <div className='grid grid-cols-12 gap-3 p-3 m-3 rounded-2xl border border-[var(--line)]' style={{ background: 'var(--bg-subtle)' }}>
-                <div className='col-span-12 md:col-span-5 flex flex-col'>
+                <div className='col-span-12 md:col-span-4 flex flex-col'>
                     <p className={labelCls}>{getTtl('Description', ln)}:</p>
                     <input type='text' disabled value={item.descriptionName} name='descriptionName' className={inputCls} />
                 </div>
@@ -232,7 +232,7 @@ const WHvModal = ({ isOpen, setIsOpen, item, setItem, data, setData }) => {
                     <p className={labelCls}>{getTtl('Weight', ln)}</p>
                     <input type='text' disabled className={inputCls} name='qnty' value={addComma(item.qnty, false)} onChange={() => {}} />
                 </div>
-                <div className='col-span-6 md:col-span-1 flex flex-col'>
+                <div className='col-span-6 md:col-span-2 flex flex-col'>
                     <p className={labelCls}>{getTtl('Price', ln)}:</p>
                     <input type='text' disabled className={inputCls} name='unitPrc' value={item.unitPrc ? addComma(item.unitPrc, true) : '-'} onChange={e => handleValuePmnt(e)} />
                 </div>

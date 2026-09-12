@@ -1,4 +1,3 @@
-import '../global.css';
 import { useEffect } from 'react';
 import { Stack, router } from 'expo-router';
 import * as Linking from 'expo-linking';
@@ -20,6 +19,7 @@ import * as QuickActions from 'expo-quick-actions';
 import { useQuickActionRouting } from 'expo-quick-actions/router';
 import { ThemeProvider, useTheme } from '@/theme/ThemeProvider';
 import { PrivacyLock } from '@/components/PrivacyLock';
+import { ToastHost } from '@/components/ToastHost';
 import { queryClient, asyncStoragePersister } from '@/query/client';
 import { useAuth } from '@/store/auth';
 
@@ -69,6 +69,7 @@ function RootNavigator() {
         <Stack.Screen name="(app)" />
       </Stack>
       <PrivacyLock />
+      <ToastHost />
     </>
   );
 }

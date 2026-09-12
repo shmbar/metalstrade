@@ -1,10 +1,9 @@
 import { useState } from 'react';
 import { View, ScrollView, TextInput, Alert } from 'react-native';
 import { Pressable } from '@/components/ui/Pressable';
-import { BackButton } from '@/components/ui/BackButton';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Screen, Card, Text, Button, SkeletonList, ErrorState, EmptyState } from '@/components/ui';
+import { Screen, Card, Text, Button, SkeletonList, ErrorState, EmptyState, Chip } from '@/components/ui';
 import { useTheme } from '@/theme/ThemeProvider';
 import { useMaterials, cleanElement, cleanKgs } from '@/features/materials/useMaterials';
 import { DEFAULT_ELEMENTS, UNIT_LABELS } from '@/features/materials/constants';
@@ -31,6 +30,7 @@ import {
   footerSalesCol,
   grandTotals,
 } from '@/features/materials/tableMath';
+import { StackHeader } from '@/components/StackHeader';
 
 const COL = 56; // element column width
 const COST_COL = 76;
@@ -46,16 +46,11 @@ export default function Materials() {
 
   return (
     <Screen contentContainerStyle={{ paddingTop: insets.top + 8 }} edges={false} refreshing={isLoading} onRefresh={refetch}>
-      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 14 }}>
-        <BackButton />
-        <View style={{ flex: 1 }}>
-          <Text variant="h1">Material Tables</Text>
-          <Text variant="caption" tone="faint">Element composition (Ni, Cr, Mo…)</Text>
-        </View>
-        <Pressable onPress={() => setEditing((e) => !e)} hitSlop={8}>
-          <Text variant="bodyMedium" tone="primary">{editing ? 'Done' : 'Edit'}</Text>
-        </Pressable>
-      </View>
+      <StackHeader
+        title="Material Tables"
+        subtitle="Element composition (Ni, Cr, Mo…)"
+        right={<Chip label={editing ? 'Done' : 'Edit'} icon={editing ? 'checkmark' : 'create-outline'} active={editing} onPress={() => setEditing((e) => !e)} />}
+      />
 
       {editing && (
         <View style={{ flexDirection: 'row', gap: 10, marginBottom: 14 }}>
@@ -177,7 +172,7 @@ export default function Materials() {
                           </>
                         )}
                         {editing && (
-                          <Pressable onPress={() => removeRow(table.id, r.id)} hitSlop={8} style={{ paddingLeft: 8, justifyContent: 'center' }}>
+                          <Pressable onPress={() => removeRow(table.id, r.id)} hitSlop={8} accessibilityRole="button" accessibilityLabel="Remove row" style={{ paddingLeft: 8, justifyContent: 'center' }}>
                             <Ionicons name="close-circle-outline" size={16} color={colors.negative} />
                           </Pressable>
                         )}

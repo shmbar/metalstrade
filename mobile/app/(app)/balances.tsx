@@ -1,15 +1,15 @@
 import { useMemo, useState } from 'react';
 import { View, FlatList } from 'react-native';
-import { Pressable } from '@/components/ui/Pressable';
-import { BackButton } from '@/components/ui/BackButton';
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Screen, Card, Text, TextField, SegmentedControl, SkeletonList, ErrorState, EmptyState, FadeInItem } from '@/components/ui';
+import { Screen, Card, Text, SearchField, Avatar, SegmentedControl, SkeletonList, ErrorState, EmptyState, FadeInItem } from '@/components/ui';
 import { PeriodSelector } from '@/components/PeriodSelector';
 import { useTheme } from '@/theme/ThemeProvider';
 import { useInvoicesReview, PartyStatement } from '@/features/review/useInvoicesReview';
 import { curSymbol, fmtMoney } from '@/lib/format';
+import { StackHeader } from '@/components/StackHeader';
+import { matchesAllWords, searchWords } from '@shared/search';
 
 /**
  * BALANCES — who owes what, on its own screen.
@@ -39,8 +39,8 @@ export default function Balances() {
 
   const rows = useMemo(() => {
     const list = side === 'clients' ? clients : suppliers;
-    const q = search.trim().toLowerCase();
-    const filtered = q ? list.filter((r) => r.name.toLowerCase().includes(q)) : list;
+    const words = searchWords(search);
+    const filtered = words.length ? list.filter((r) => matchesAllWords(r.name, words)) : list;
     // Biggest debt first — the reason you open this screen.
     return [...filtered].sort((a, b) => total(b) - total(a));
   }, [clients, suppliers, side, search]);
@@ -56,11 +56,7 @@ export default function Balances() {
 
   return (
     <Screen scroll={false} flush contentContainerStyle={{ paddingTop: insets.top + 8 }} edges={false}>
-      <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
-        <BackButton />
-        <Text variant="h2">Balances</Text>
-        <PeriodSelector />
-      </View>
+      <StackHeader title="Balances" right={<PeriodSelector />} />
 
       <View style={{ marginBottom: 12 }}>
         <SegmentedControl
@@ -73,20 +69,10 @@ export default function Balances() {
         />
       </View>
 
-      <TextField
+      <SearchField
         value={search}
         onChangeText={setSearch}
         placeholder={side === 'clients' ? 'Search client…' : 'Search supplier…'}
-        autoCapitalize="none"
-        rightElement={
-          search ? (
-            <Pressable onPress={() => setSearch('')} hitSlop={8}>
-              <Ionicons name="close-circle" size={18} color={colors.textFaint} />
-            </Pressable>
-          ) : (
-            <Ionicons name="search" size={18} color={colors.textFaint} />
-          )
-        }
       />
       <View style={{ height: 12 }} />
 
@@ -157,9 +143,13 @@ export default function Balances() {
               }
             >
               <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 12 }}>
+                <Avatar name={item.name} size={40} />
                 <View style={{ flex: 1, minWidth: 0 }}>
                   <Text variant="bodyMedium" numberOfLines={1}>
                     {item.name}
+                  </Text>
+                  <Text variant="caption" tone="faint">
+                    {side === 'clients' ? 'Owes us' : 'We owe'}
                   </Text>
                 </View>
                 <View style={{ alignItems: 'flex-end' }}>

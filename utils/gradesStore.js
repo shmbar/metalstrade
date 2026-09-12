@@ -22,10 +22,16 @@ export const subscribeGrades = (onData, onError) =>
  */
 export const saveGrades = async (grades, by = '') => {
     if (!grades?.length) return true;
-    const batch = writeBatch(db);
     const now = Date.now();
-    grades.forEach(g => batch.set(doc(db, SHARED_STOCK_UID, 'data', 'grades', g.id),
-        { ...g, updatedAt: now, ...(by ? { updatedBy: by } : {}) }));
-    await batch.commit();
+    /* A Firestore batch takes 500 writes. One merge changes two or three grades, but
+       naming every group on the Stocks page in one pass can change many more, so the
+       write is chunked. Each chunk is still atomic, and the guarantee that matters — a
+       spelling never sitting on two grades — holds within the pair that moved it. */
+    for (let i = 0; i < grades.length; i += 400) {
+        const batch = writeBatch(db);
+        grades.slice(i, i + 400).forEach(g => batch.set(doc(db, SHARED_STOCK_UID, 'data', 'grades', g.id),
+            { ...g, updatedAt: now, ...(by ? { updatedBy: by } : {}) }));
+        await batch.commit();
+    }
     return true;
 };

@@ -1,7 +1,6 @@
 import { useMemo, useState } from 'react';
 import { View, FlatList } from 'react-native';
 import { Pressable } from '@/components/ui/Pressable';
-import { BackButton } from '@/components/ui/BackButton';
 import { Ionicons } from '@expo/vector-icons';
 import { useQuery } from '@tanstack/react-query';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -9,12 +8,13 @@ import {
   Screen,
   Card,
   Text,
-  TextField,
   SegmentedControl,
   ProgressBar,
   SkeletonList,
   ErrorState,
   EmptyState,
+  SearchField,
+  StackHeader,
 } from '@/components/ui';
 import { useTheme } from '@/theme/ThemeProvider';
 import { useAuth } from '@/store/auth';
@@ -29,6 +29,7 @@ import {
   WEEK_MS,
 } from '@shared/activityStats';
 import { radius } from '@/theme/tokens';
+import { matchesAllWords, searchWords } from '@shared/search';
 
 /* Web's three tabs, same ids, same blurbs (activity/page.js:9-13). Each panel
    loads its own data, so a tab nobody opened never pulls the collection. */
@@ -62,7 +63,6 @@ const relativeTime = (ms?: number) => {
 };
 
 export default function Activity() {
-  const { colors } = useTheme();
   const insets = useSafeAreaInsets();
   const { uidCollection } = useAuth();
   const [tab, setTab] = useState<TabId>('feed');
@@ -84,11 +84,7 @@ export default function Activity() {
 
   return (
     <Screen scroll={false} flush contentContainerStyle={{ paddingTop: insets.top + 8 }} edges={false}>
-      <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
-        <BackButton />
-        <Text variant="h2">Activity Log</Text>
-        <View style={{ width: 56 }} />
-      </View>
+      <StackHeader title="Activity Log" subtitle="Who did what, and who is online" />
 
       {/* The blurb changes with the tab, as web's does — it is what tells the
           reader what they are looking at. */}
@@ -123,14 +119,11 @@ function FeedTab({ query }: { query: any }) {
   const types = useMemo(() => [...new Set(items.map((i) => i.entityType).filter(Boolean))], [items]);
 
   const rows = useMemo(() => {
-    const needle = q.trim().toLowerCase();
+    const words = searchWords(q);
     return items.filter((i) => {
       if (type !== 'all' && i.entityType !== type) return false;
       if (actor !== 'all' && i.actorName !== actor) return false;
-      if (!needle) return true;
-      return [i.message, i.entityLabel, i.actorName, i.action]
-        .filter(Boolean)
-        .some((v: string) => String(v).toLowerCase().includes(needle));
+      return matchesAllWords([i.message, i.entityLabel, i.actorName, i.action], words);
     });
   }, [items, q, type, actor]);
 
@@ -139,13 +132,7 @@ function FeedTab({ query }: { query: any }) {
 
   return (
     <>
-      <TextField
-        value={q}
-        onChangeText={setQ}
-        placeholder="Search the feed…"
-        autoCapitalize="none"
-        rightElement={<Ionicons name="search" size={18} color={colors.textFaint} />}
-      />
+      <SearchField value={q} onChangeText={setQ} placeholder="Search the feed…" />
       <View style={{ height: 8 }} />
       <Chips label="Type" value={type} options={['all', ...types]} onChange={setType} />
       {actors.length > 1 && <Chips label="Who" value={actor} options={['all', ...actors]} onChange={setActor} />}
@@ -382,7 +369,7 @@ function Chips({
                 borderWidth: 1, borderColor: on ? colors.primary : colors.border,
               }}
             >
-              <Text variant="caption" color={on ? '#FFFFFF' : colors.textMuted}>{item}</Text>
+              <Text variant="caption" color={on ? colors.primaryText : colors.textMuted}>{item}</Text>
             </Pressable>
           );
         }}

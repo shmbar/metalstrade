@@ -1,11 +1,10 @@
 import { useEffect, useMemo, useState } from 'react';
 import { View, Switch, Alert, KeyboardAvoidingView, Platform } from 'react-native';
 import { Pressable } from '@/components/ui/Pressable';
-import { BackButton } from '@/components/ui/BackButton';
 import { useLocalSearchParams, router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Screen, Card, Text, TextField, Select, DateField, Button, LoadingState, EmptyState } from '@/components/ui';
+import { Screen, Card, Text, TextField, Select, DateField, Button, LoadingState, EmptyState, StackHeader, IconButton } from '@/components/ui';
 import { useTheme } from '@/theme/ThemeProvider';
 import { useSettings } from '@/store/settings';
 import { useContracts } from '@/features/contracts/useContracts';
@@ -112,7 +111,7 @@ export default function StockIn() {
   if (!contract) {
     return (
       <Screen>
-        <Back />
+        <StackHeader title="Warehouse stock" />
         <EmptyState title="Contract not found" message="Open it from the contracts list." />
       </Screen>
     );
@@ -121,11 +120,7 @@ export default function StockIn() {
   return (
     <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <Screen contentContainerStyle={{ paddingTop: insets.top + 8 }} edges={false}>
-        <Back />
-        <View style={{ marginTop: 8, marginBottom: 14 }}>
-          <Text variant="h1">Warehouse Stock</Text>
-          <Text variant="body" tone="muted" style={{ marginTop: 2 }}>{contract.order}</Text>
-        </View>
+        <StackHeader title="Warehouse stock" subtitle={contract.order} />
 
         {isLoading && !seeded ? (
           <LoadingState label="Loading lots…" />
@@ -135,9 +130,7 @@ export default function StockIn() {
               <Card key={l.id} style={{ gap: 12 }}>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
                   <Text variant="label" tone="muted">Lot {i + 1}</Text>
-                  <Pressable onPress={() => remove(i)} hitSlop={8}>
-                    <Ionicons name="trash-outline" size={20} color={colors.negative} />
-                  </Pressable>
+                  <IconButton icon="trash-outline" tone="danger" size={36} accessibilityLabel="Remove line" onPress={() => remove(i)} />
                 </View>
 
                 <Select label="Material" value={l.description} options={productOptions} onChange={(v) => update(i, { description: v })} required />
@@ -196,6 +189,3 @@ export default function StockIn() {
   );
 }
 
-function Back() {
-  return <BackButton />;
-}

@@ -152,7 +152,13 @@ export function SplitControl({
       {status === 'pending' && (
         <>
           {pill(colors.surfaceAlt, colors.warn, colors.warn, 'Pending split', 'time-outline', openModal)}
-          <Pressable onPress={removeControl} disabled={busy} hitSlop={8}>
+          <Pressable
+            onPress={removeControl}
+            disabled={busy}
+            hitSlop={8}
+            accessibilityRole="button"
+            accessibilityLabel="Remove split"
+          >
             <Ionicons name="close" size={14} color={colors.warn} />
           </Pressable>
         </>

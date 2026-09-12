@@ -23,6 +23,7 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { createHash } from 'node:crypto';
 
 import { expectWebUnchanged, webFnSource, repoFileText } from './_helpers/webSource';
+import { matchesAllWords as webMatchesAllWords } from '../../utils/search.js';
 import {
   FIXED_NOW,
   makeSettings,
@@ -50,6 +51,8 @@ import {
   buildShipmentRows,
   computeShipmentCounts,
   filterShipmentRows,
+  buildShipmentQtyMap,
+  poQtyOf,
   shipmentFilterOptions,
   shipmentWriteDate,
   type ShipmentRow,
@@ -262,8 +265,21 @@ const NO_FILTERS: WebFilterState = {
   search: '',
 };
 
-/** Mirror of page.js:598-617 `filtered`. Transcribed verbatim. */
-const webFiltered = (contracts: any[], settings: any, invoiceMap: any, f: WebFilterState) =>
+/** Mirror of page.js:1042-1066 `filtered`. Transcribed verbatim.
+ *
+ * Re-transcribed 2026-09-12: the search half is now web's keyword matcher over the
+ * PO, both party names, the main invoice AND every shipment's invoice number
+ * (utils/search.js matchesAllWords — imported, not re-transcribed, because Tier 1
+ * proves mobile's copy is byte-identical). The old rule tested one substring against
+ * four fields separately, so a two-word query matched nothing and the second
+ * shipment's number could not be found at all. */
+const webFiltered = (
+  contracts: any[],
+  settings: any,
+  invoiceMap: any,
+  f: WebFilterState,
+  shipMap: Record<string, { shipments: { invoice: any }[] }> = {}
+) =>
   contracts.filter((c) => {
     const matchStatus = f.statusFilter === '' || (c.shipmentStatus || '') === f.statusFilter;
     if (!matchStatus) return false;
@@ -278,11 +294,15 @@ const webFiltered = (contracts: any[], settings: any, invoiceMap: any, f: WebFil
     if (!f.search.trim()) return true;
     const q = f.search.toLowerCase();
     const inv = webGetMainInvoice(c);
-    return (
-      (c.order || '').toLowerCase().includes(q) ||
-      webGetSupplierName(c, settings).toLowerCase().includes(q) ||
-      webGetClientName(c.id, settings, invoiceMap).toLowerCase().includes(q) ||
-      (inv?.invoice?.toString() || '').includes(q)
+    return webMatchesAllWords(
+      [
+        c.order,
+        webGetSupplierName(c, settings),
+        webGetClientName(c.id, settings, invoiceMap),
+        inv?.invoice,
+        (shipMap[c.id]?.shipments || []).map((x) => x.invoice),
+      ],
+      q
     );
   });
 
@@ -361,8 +381,16 @@ describe('shipment — web drift alarms for every mirrored formula', () => {
   it("web's SHP_TYPE_MAP has not drifted", () => expectWebUnchanged(SHIP, 'SHP_TYPE_MAP', '5885fa5b516b'));
   it("web's getMainInvoice has not drifted", () => expectWebUnchanged(SHIP, 'getMainInvoice', '74d88bf66bd8'));
   it("web's invYears window has not drifted", () => expectWebUnchanged(SHIP, 'invYears', '2f5ae934148d'));
-  it("web's filter predicate has not drifted", () => expectWebUnchanged(SHIP, 'filtered', '32dd3e37e532'));
-  it("web's getSortValue has not drifted", () => expectWebUnchanged(SHIP, 'getSortValue', '6bf1a8081611'));
+  /* Re-recorded 2026-09-12 after PORTING both changes, not to silence the alarm.
+     8845db10 (2026-09-02) gave web three quantity columns — contracted PO, shipped and
+     remaining — and taught getSortValue to order by them; mobile had none of the three,
+     so the phone could not answer "how much of this PO is still coming?". Today's
+     working-tree change put the keyword matcher behind the search box and made EVERY
+     shipment's invoice searchable, not just the main one. Both are now in
+     useShipment.ts (poQtyOf, buildShipmentQtyMap, the ShipmentRow quantity fields and
+     the search predicate) and asserted below; the mirror above was re-transcribed. */
+  it("web's filter predicate has not drifted", () => expectWebUnchanged(SHIP, 'filtered', '73e05fa64706'));
+  it("web's getSortValue has not drifted", () => expectWebUnchanged(SHIP, 'getSortValue', 'c766a1a98b24'));
   it("web's handleStatusChange has not drifted", () =>
     expectWebUnchanged(SHIP, 'handleStatusChange', '816e11397406'));
 
@@ -1042,6 +1070,108 @@ const webTotalRight = (p: {
  */
 const webSupBlnc = (item: any) =>
   item.cur === 'us' ? parseFloat(item.blnc) : parseFloat(String(item.blnc * item.euroToUSD));
+
+
+// ═════════════════════════════════════════════════════════════════════════════
+describe('shipment — contracted, shipped and remaining quantities (web 8845db10)', () => {
+  const settings = shipSettings();
+
+  /* Web's getPoQty: the contract's own quantity unit, converted to MT, with the
+     reader's hidden 'import' lines excluded (page.js:842-852). */
+  const webGetPoQty = (contract: any) => {
+    const W_PER_MT: Record<string, number> = { mt: 1, kg: 1000, lb: 2204.6226218 };
+    const label = settings?.Quantity?.Quantity?.find((q: any) => q.id === contract.qTypeTable)?.qTypeTable || '';
+    const l = String(label).toLowerCase();
+    const unit = l.includes('kg') ? 'kg' : l.includes('lb') || l.includes('pound') ? 'lb' : 'mt';
+    const factor = W_PER_MT[unit] || 1;
+    const raw = (contract.productsData || [])
+      .filter((p: any) => p && !p.import)
+      .reduce((sum: number, p: any) => sum + (parseFloat(p.qnty) || 0), 0);
+    return raw / factor;
+  };
+
+  it('the contracted figure is read in MT whatever unit the PO is priced in', () => {
+    for (const [qType, expected] of [['q-mt', 20], ['q-kgs', 0.02], ['q-lb', 20 / 2204.6226218]] as const) {
+      const c = makeContract({ qTypeTable: qType, productsData: [{ qnty: '20' }] });
+      expect(poQtyOf(c, settings)).toBeCloseTo(expected as number, 9);
+      expect(poQtyOf(c, settings)).toBeCloseTo(webGetPoQty(c), 9);
+    }
+  });
+
+  it("the reader's hidden import lines are excluded, exactly as the PO table excludes them", () => {
+    const c = makeContract({ productsData: [{ qnty: '10' }, { qnty: '90', import: true }] });
+    expect(poQtyOf(c, settings)).toBe(10);
+    expect(poQtyOf(c, settings)).toBe(webGetPoQty(c));
+  });
+
+  it('a contract with no quantity reports no remaining figure rather than a fake zero', () => {
+    // page.js:858-862 — null, so the cell reads '—'.
+    const c = makeContract({ id: 'c-noqty', productsData: [] });
+    const row = buildShipmentRows([c], {}, {}, settings, {})[0];
+    expect(row.poQty).toBe(0);
+    expect(row.remainingQty).toBeNull();
+  });
+
+  it('shipped sums every shipment under the contract, and remaining is PO − shipped', () => {
+    const c = makeContract({ id: 'c-q', productsData: [{ qnty: '30' }] });
+    const invoices = [
+      makeInvoice({ id: 'i1', invoice: 7001, poSupplier: { id: 'c-q' }, productsDataInvoice: [{ qnty: '10' }] }),
+      makeInvoice({ id: 'i2', invoice: 7002, poSupplier: { id: 'c-q' }, productsDataInvoice: [{ qnty: '8' }, { qnty: '2' }] }),
+    ];
+    const qtyMap = buildShipmentQtyMap(invoices);
+    const row = buildShipmentRows([c], {}, {}, settings, qtyMap)[0];
+    expect(row.shippedQty).toBe(20);
+    expect(row.remainingQty).toBe(10);
+    expect(row.shipments.map((x) => x.invoice)).toEqual(['7001', '7002']);
+  });
+
+  it('a cancelled invoice ships nothing, and a credit note supersedes the original', () => {
+    // page.js:605 (canceled → 0) and :63 supersedes — invType compared as a STRING.
+    const c = makeContract({ id: 'c-x', productsData: [{ qnty: '30' }] });
+    const qtyMap = buildShipmentQtyMap([
+      makeInvoice({ id: 'a', invoice: 7100, poSupplier: { id: 'c-x' }, canceled: true, productsDataInvoice: [{ qnty: '9' }] }),
+      makeInvoice({ id: 'b', invoice: 7101, invType: '1111', poSupplier: { id: 'c-x' }, productsDataInvoice: [{ qnty: '5' }] }),
+      makeInvoice({ id: 'c', invoice: 7101, invType: '3333', poSupplier: { id: 'c-x' }, productsDataInvoice: [{ qnty: '4' }] }),
+    ]);
+    expect(qtyMap['c-x'].shipments).toHaveLength(2);
+    // 0 for the cancelled one + 4 from the note that superseded invoice 7101.
+    expect(qtyMap['c-x'].shipped).toBe(4);
+  });
+
+  it('over-shipping produces a NEGATIVE remaining rather than clamping at zero', () => {
+    // The web cell colours that case red; the figure has to be able to go past 0.
+    const c = makeContract({ id: 'c-over', productsData: [{ qnty: '5' }] });
+    const qtyMap = buildShipmentQtyMap([
+      makeInvoice({ id: 'o1', invoice: 7200, poSupplier: { id: 'c-over' }, productsDataInvoice: [{ qnty: '7' }] }),
+    ]);
+    expect(buildShipmentRows([c], {}, {}, settings, qtyMap)[0].remainingQty).toBe(-2);
+  });
+
+  it("searching for the SECOND shipment's invoice number finds the contract", () => {
+    // web page.js:1060 — every shipment's invoice, not just getMainInvoice's.
+    const c = makeContract({ id: 'c-s', order: 'PO-SEARCH', invoices: [{ invType: '1111', invoice: 8001 }] });
+    const qtyMap = buildShipmentQtyMap([
+      makeInvoice({ id: 's1', invoice: 8001, poSupplier: { id: 'c-s' }, productsDataInvoice: [{ qnty: '1' }] }),
+      makeInvoice({ id: 's2', invoice: 8002, poSupplier: { id: 'c-s' }, productsDataInvoice: [{ qnty: '1' }] }),
+    ]);
+    const rows = buildShipmentRows([c], {}, {}, settings, qtyMap);
+    expect(filterShipmentRows(rows, { search: '8002' }).map((r) => r.id)).toEqual(['c-s']);
+    const webKept = webFiltered([c], settings, {}, { ...NO_FILTERS, search: '8002' }, qtyMap).map((x: any) => x.id);
+    expect(webKept).toEqual(['c-s']);
+  });
+
+  it('every keyword must match, in any order, across different fields', () => {
+    // utils/search.js — "search acme" is the PO and the supplier, one word each.
+    const c = makeContract({ id: 'c-kw', order: 'PO-SEARCH', supplier: 'sup-1' });
+    const rows = buildShipmentRows([c], {}, {}, settings, {});
+    expect(filterShipmentRows(rows, { search: 'search acme' }).map((r) => r.id)).toEqual(['c-kw']);
+    expect(filterShipmentRows(rows, { search: 'acme search' }).map((r) => r.id)).toEqual(['c-kw']);
+    expect(filterShipmentRows(rows, { search: 'search nothing-matches' })).toEqual([]);
+    expect(
+      webFiltered([c], settings, {}, { ...NO_FILTERS, search: 'search acme' }, {}).map((x: any) => x.id)
+    ).toEqual(['c-kw']);
+  });
+});
 
 describe('cashflow — web drift alarms', () => {
   const CF = 'app/(root)/cashflow/page.js';

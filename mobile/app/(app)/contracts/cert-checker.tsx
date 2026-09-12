@@ -1,19 +1,18 @@
 import { useMemo, useState } from 'react';
-import { View, Alert, ActivityIndicator } from 'react-native';
+import { View, Alert } from 'react-native';
 import { Pressable } from '@/components/ui/Pressable';
-import { BackButton } from '@/components/ui/BackButton';
 import { useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import * as DocumentPicker from 'expo-document-picker';
 import * as FileSystem from 'expo-file-system/legacy';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Screen, Card, Text, TextField, Button, SectionHeader, Badge, EmptyState } from '@/components/ui';
+import { Screen, Card, Text, TextField, Button, SectionHeader, Badge, EmptyState, StackHeader, IconButton } from '@/components/ui';
 import { useTheme } from '@/theme/ThemeProvider';
 import { useAuth } from '@/store/auth';
 import { useContracts } from '@/features/contracts/useContracts';
 import { updateContractField } from '@/data/writes';
 import { apiConfigured, postJson } from '@/lib/api';
-import { radius } from '@/theme/tokens';
+import { toast } from '@/store/toast';
 
 interface SpecRow { element: string; min: string; max: string; tolerance: string }
 interface ResultRow { element: string; spec: string; actual: number | null; pass: boolean; reason: string }
@@ -44,7 +43,7 @@ export default function CertChecker() {
   if (!contract) {
     return (
       <Screen contentContainerStyle={{ paddingTop: insets.top + 8 }} edges={false}>
-        <Back />
+        <StackHeader title="Cert checker" />
         <EmptyState title="Contract not found" message="Open it from the contracts list." />
       </Screen>
     );
@@ -63,7 +62,7 @@ export default function CertChecker() {
     try {
       const clean = spec.filter((s) => s.element && (s.min !== '' || s.max !== ''));
       await updateContractField(uidCollection, contract.id, (contract.date as string) || '', { certSpec: clean });
-      Alert.alert('Saved', 'Specification saved to this contract.');
+      toast.success('Specification saved to this contract.');
     } catch (e: any) {
       Alert.alert('Save failed', e?.message || 'Could not save spec.');
     } finally {
@@ -100,13 +99,10 @@ export default function CertChecker() {
 
   return (
     <Screen contentContainerStyle={{ paddingTop: insets.top + 8 }} edges={false}>
-      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 14 }}>
-        <Back />
-        <Text variant="h2" style={{ flex: 1 }}>Cert Checker</Text>
-      </View>
-      <Text variant="caption" tone="muted" style={{ marginBottom: 14 }}>
-        {contract.order || 'PO'}{materialContext ? ` · ${materialContext}` : ''}
-      </Text>
+      <StackHeader
+        title="Cert checker"
+        subtitle={`${contract.order || 'PO'}${materialContext ? ` · ${materialContext}` : ''}`}
+      />
 
       {/* Spec editor */}
       <Card style={{ marginBottom: 14 }}>
@@ -120,7 +116,7 @@ export default function CertChecker() {
               <Text variant="caption" tone="muted" style={{ flex: 1 }}>
                 {s.min !== '' ? `min ${s.min}` : ''}{s.min !== '' && s.max !== '' ? ' · ' : ''}{s.max !== '' ? `max ${s.max}` : ''}{s.tolerance ? ` · ±${s.tolerance}` : ''}
               </Text>
-              <Pressable onPress={() => removeElement(i)} hitSlop={8}><Ionicons name="trash-outline" size={18} color={colors.negative} /></Pressable>
+              <IconButton icon="trash-outline" tone="danger" size={36} accessibilityLabel="Remove element" onPress={() => removeElement(i)} />
             </View>
           ))
         )}
@@ -130,7 +126,7 @@ export default function CertChecker() {
           <View style={{ flex: 1 }}><TextField value={min} onChangeText={setMin} placeholder="Min" keyboardType="decimal-pad" /></View>
           <View style={{ flex: 1 }}><TextField value={max} onChangeText={setMax} placeholder="Max" keyboardType="decimal-pad" /></View>
           <View style={{ flex: 1 }}><TextField value={tol} onChangeText={setTol} placeholder="±Tol" keyboardType="decimal-pad" /></View>
-          <Pressable onPress={addElement} hitSlop={8} style={{ justifyContent: 'center' }}><Ionicons name="add-circle" size={28} color={colors.primary} /></Pressable>
+          <Pressable onPress={addElement} hitSlop={8} accessibilityRole="button" accessibilityLabel="Add element" style={{ justifyContent: 'center' }}><Ionicons name="add-circle" size={28} color={colors.primary} /></Pressable>
         </View>
         <Button title="Save spec to contract" variant="ghost" loading={savingSpec} style={{ marginTop: 12 }} onPress={saveSpec} />
       </Card>
@@ -178,6 +174,3 @@ export default function CertChecker() {
   );
 }
 
-function Back() {
-  return <BackButton />;
-}

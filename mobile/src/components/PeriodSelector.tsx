@@ -20,12 +20,12 @@ export function PeriodSelector() {
       style={{
         flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: colors.surface,
+        height: 40,
+        backgroundColor: colors.surfaceAlt,
         borderRadius: radius.pill,
         borderWidth: 1,
         borderColor: colors.border,
         paddingHorizontal: 4,
-        paddingVertical: 2,
         gap: 2,
       }}
     >

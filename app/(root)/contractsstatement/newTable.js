@@ -34,6 +34,7 @@ import dateBetweenFilterFn from '../../../components/table/filters/date-between-
 import { labelAwareGlobalFilter } from '../../../components/table/filters/labelAwareGlobalFilter';
 import { NameCell } from '../../../components/Avatar';
 import { useTablePrefs, useTablePagination } from '@components/table/useTablePrefs';
+import { keywordColumnFilter } from '@components/table/filters/keywordColumnFilter';
 
 
 // Expandable detail for a contract line: warehouse lots + shipments
@@ -201,6 +202,7 @@ const Customtable = ({
     getExpandedRowModel: getExpandedRowModel(),
     getSubRows: row => row.subRows,
     filterFns: { dateBetweenFilterFn },
+    defaultColumn: { filterFn: keywordColumnFilter },
     globalFilterFn: labelAwareGlobalFilter,
     state: {
       globalFilter,

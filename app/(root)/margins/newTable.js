@@ -45,6 +45,7 @@ import Tltip from "../../../components/tlTip";
 import EmptyState from "../../../components/EmptyState";
 import { getTtl } from "../../../utils/languages";
 import { useTablePrefs, useTablePagination } from '@components/table/useTablePrefs';
+import { labelAwareGlobalFilter } from '@components/table/filters/labelAwareGlobalFilter';
 
 // Fixed widths, sized to what each column HOLDS — not to a share of the screen.
 //
@@ -446,6 +447,7 @@ const Customtable = (props) => {
         getCoreRowModel: getCoreRowModel(),
         state: { globalFilter, pagination },
         getFilteredRowModel: getFilteredRowModel(),
+        globalFilterFn: labelAwareGlobalFilter,
         onGlobalFilterChange: setGlobalFilter,
         getSortedRowModel: getSortedRowModel(),
         getPaginationRowModel: getPaginationRowModel(),

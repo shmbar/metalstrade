@@ -13,6 +13,7 @@ import { BsFileText } from 'react-icons/bs';
 import { IoClose } from 'react-icons/io5';
 import dateFormat from 'dateformat';
 import { TONES, statusTone } from './statusUtils';
+import { matchesAllWords } from '@utils/search';
 
 /* Result-type styling.
    These four sections used to be told apart by hue — green Contracts, blue
@@ -90,20 +91,24 @@ const GlobalSearch = () => {
             const curName = getSettingDisplay('Currency', c.cur, 'cur');
             const originSupplierName = getSettingDisplay('Supplier', c.originSupplier, 'nname');
 
-            return String(c.order || '').toLowerCase().includes(query) ||
-                supplierName.toLowerCase().includes(query) ||
-                originName.toLowerCase().includes(query) ||
-                podName.toLowerCase().includes(query) ||
-                polName.toLowerCase().includes(query) ||
-                String(c.date || '').toLowerCase().includes(query) ||
-                delTermName.toLowerCase().includes(query) ||
-                packingName.toLowerCase().includes(query) ||
-                contTypeName.toLowerCase().includes(query) ||
-                sizeName.toLowerCase().includes(query) ||
-                deltimeName.toLowerCase().includes(query) ||
-                shpTypeName.toLowerCase().includes(query) ||
-                curName.toLowerCase().includes(query) ||
-                originSupplierName.toLowerCase().includes(query);
+            return matchesAllWords([
+                String(c.order,
+                ''),
+                supplierName,
+                originName,
+                podName,
+                polName,
+                String(c.date,
+                ''),
+                delTermName,
+                packingName,
+                contTypeName,
+                sizeName,
+                deltimeName,
+                shpTypeName,
+                curName,
+                originSupplierName,
+            ], query);
         }).slice(0, 5);
 
         const filteredInvoices = (invoicesData || []).filter(i => {
@@ -118,20 +123,27 @@ const GlobalSearch = () => {
             const invTypeName = i.final ? (i.invType || '') : getSettingDisplay('InvTypes', i.invType, 'invType');
             const curName = i.final ? (i.cur?.cur || '') : getSettingDisplay('Currency', i.cur, 'cur');
 
-            return String(i.invoice || '').toLowerCase().includes(query) ||
-                clientName.toLowerCase().includes(query) ||
-                originName.toLowerCase().includes(query) ||
-                String(i.totalAmount || '').toLowerCase().includes(query) ||
-                String(i.date || '').toLowerCase().includes(query) ||
-                polName.toLowerCase().includes(query) ||
-                podName.toLowerCase().includes(query) ||
-                packingName.toLowerCase().includes(query) ||
-                delTermName.toLowerCase().includes(query) ||
-                shpTypeName.toLowerCase().includes(query) ||
-                String(i.container || '').toLowerCase().includes(query) ||
-                invTypeName.toLowerCase().includes(query) ||
-                curName.toLowerCase().includes(query) ||
-                String(i.poSupplier?.order || '').toLowerCase().includes(query);
+            return matchesAllWords([
+                String(i.invoice,
+                ''),
+                clientName,
+                originName,
+                String(i.totalAmount,
+                ''),
+                String(i.date,
+                ''),
+                polName,
+                podName,
+                packingName,
+                delTermName,
+                shpTypeName,
+                String(i.container,
+                ''),
+                invTypeName,
+                curName,
+                String(i.poSupplier?.order,
+                ''),
+            ], query);
         }).slice(0, 5);
 
         const filteredExpenses = (expensesData || []).filter(e => {
@@ -140,17 +152,26 @@ const GlobalSearch = () => {
             const curName = getSettingDisplay('Currency', e.cur, 'cur');
             const paidName = getSettingDisplay('ExpPmnt', e.paid, 'paid');
 
-            return supplierName.toLowerCase().includes(query) ||
-                expTypeName.toLowerCase().includes(query) ||
-                String(e.amount || '').toLowerCase().includes(query) ||
-                String(e.salesInv || '').toLowerCase().includes(query) ||
-                String(e.date || '').toLowerCase().includes(query) ||
-                String(e.expense || '').toLowerCase().includes(query) ||
-                String(e.poSupplier?.order || '').toLowerCase().includes(query) ||
-                curName.toLowerCase().includes(query) ||
-                paidName.toLowerCase().includes(query) ||
-                String(e.paidUnpaid || '').toLowerCase().includes(query) ||
-                String(e.comments || '').toLowerCase().includes(query);
+            return matchesAllWords([
+                supplierName,
+                expTypeName,
+                String(e.amount,
+                ''),
+                String(e.salesInv,
+                ''),
+                String(e.date,
+                ''),
+                String(e.expense,
+                ''),
+                String(e.poSupplier?.order,
+                ''),
+                curName,
+                paidName,
+                String(e.paidUnpaid,
+                ''),
+                String(e.comments,
+                ''),
+            ], query);
         }).slice(0, 5);
 
         // Filter accounting entries (expenses linked to sales invoices)
@@ -160,12 +181,17 @@ const GlobalSearch = () => {
             const expTypeName = getSettingDisplay('Expenses', e.expType, 'expType');
             const curName = getSettingDisplay('Currency', e.cur, 'cur');
 
-            return supplierName.toLowerCase().includes(query) ||
-                expTypeName.toLowerCase().includes(query) ||
-                String(e.amount || '').toLowerCase().includes(query) ||
-                String(e.salesInv || '').toLowerCase().includes(query) ||
-                String(e.expense || '').toLowerCase().includes(query) ||
-                curName.toLowerCase().includes(query);
+            return matchesAllWords([
+                supplierName,
+                expTypeName,
+                String(e.amount,
+                ''),
+                String(e.salesInv,
+                ''),
+                String(e.expense,
+                ''),
+                curName,
+            ], query);
         }).slice(0, 5);
 
         setResults({

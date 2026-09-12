@@ -1,6 +1,5 @@
-import React, { createContext, useContext, useEffect, useMemo } from 'react';
+import React, { createContext, useContext, useMemo } from 'react';
 import { useColorScheme as useRNColorScheme } from 'react-native';
-import { colorScheme as nwColorScheme } from 'nativewind';
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -41,11 +40,6 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const { pref, setPref } = useThemeStore();
 
   const scheme: ColorSchemeName = pref === 'system' ? (system === 'dark' ? 'dark' : 'light') : pref;
-
-  // Keep NativeWind's className-driven dark: variants in sync with our resolved scheme.
-  useEffect(() => {
-    nwColorScheme.set(pref);
-  }, [pref]);
 
   const value = useMemo<ThemeContextValue>(
     () => ({ scheme, colors: getColors(scheme), spacing, radius, typography, pref, setPref }),

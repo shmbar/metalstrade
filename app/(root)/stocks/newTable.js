@@ -33,6 +33,7 @@ import EmptyState from '../../../components/EmptyState';
 import { TONES } from '../../../components/statusUtils';
 import { ChevronRight } from 'lucide-react';
 import { useTablePrefs, useTablePagination } from '@components/table/useTablePrefs';
+import { keywordColumnFilter } from '@components/table/filters/keywordColumnFilter';
 
 const Customtable = ({
   data,
@@ -126,6 +127,7 @@ const Customtable = ({
     paginateExpandedRows: false,
     getPaginationRowModel: getPaginationRowModel(),
     filterFns: { dateBetweenFilterFn },
+    defaultColumn: { filterFn: keywordColumnFilter },
     globalFilterFn: labelAwareGlobalFilter,
     state: { globalFilter, columnVisibility, pagination, columnFilters, rowSelection, sorting, expanded },
     onGlobalFilterChange: setGlobalFilter,

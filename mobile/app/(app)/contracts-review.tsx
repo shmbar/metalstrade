@@ -1,15 +1,16 @@
 import { useMemo, useState } from 'react';
 import { View, FlatList } from 'react-native';
 import { Pressable } from '@/components/ui/Pressable';
-import { BackButton } from '@/components/ui/BackButton';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Screen, Card, Text, Badge, TextField, SegmentedControl, ProgressBar, SkeletonList, ErrorState, EmptyState } from '@/components/ui';
+import { Screen, Card, Text, Badge, SegmentedControl, ProgressBar, SkeletonList, ErrorState, EmptyState, SearchField } from '@/components/ui';
 import { PeriodSelector } from '@/components/PeriodSelector';
 import { useTheme } from '@/theme/ThemeProvider';
 import { useContractsReview, statusTone } from '@/features/review/useContractsReview';
 import { fmtMoney, curSymbol } from '@/lib/format';
 import { sumReviewFinancials } from '@/features/review/reviewFinance';
+import { StackHeader } from '@/components/StackHeader';
+import { matchesAllWords, searchWords } from '@shared/search';
 
 const wt = (n: number) => `${fmtMoney(n, 3)}`; // web showWeight — fixed 3 dp
 // web fmtMT (page.js:38) — max 2 dp, no minimum. Used ONLY for the progress-bar
@@ -28,9 +29,9 @@ export default function ContractsReview() {
   const [search, setSearch] = useState('');
 
   const filtered = useMemo(() => {
-    const q = search.trim().toLowerCase();
-    if (!q) return rows;
-    return rows.filter((r) => r.order.toLowerCase().includes(q) || r.supplierName.toLowerCase().includes(q));
+    const words = searchWords(search);
+    if (!words.length) return rows;
+    return rows.filter((r) => matchesAllWords([r.order, r.supplierName], words));
   }, [rows, search]);
 
   // Totals recomputed from the FILTERED rows — a SINGLE row in the view currency,
@@ -40,11 +41,7 @@ export default function ContractsReview() {
 
   return (
     <Screen scroll={false} flush contentContainerStyle={{ paddingTop: insets.top + 8 }} edges={false}>
-      <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
-        <BackButton />
-        <Text variant="h2">Contracts Review</Text>
-        <PeriodSelector />
-      </View>
+      <StackHeader title="Contracts Review" right={<PeriodSelector />} />
 
       <View style={{ marginBottom: 14 }}>
         <SegmentedControl
@@ -61,7 +58,7 @@ export default function ContractsReview() {
         <>
           <View style={{ flexDirection: 'row', gap: 10, alignItems: 'center' }}>
             <View style={{ flex: 1 }}>
-              <TextField value={search} onChangeText={setSearch} placeholder="Search PO or supplier…" autoCapitalize="none" rightElement={<Ionicons name="search" size={18} color={colors.textFaint} />} />
+              <SearchField value={search} onChangeText={setSearch} placeholder="Search PO or supplier…" />
             </View>
             {/* Web's currency dropdown — one view currency for the whole table. */}
             <Pressable

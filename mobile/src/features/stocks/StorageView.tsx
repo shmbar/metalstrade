@@ -49,12 +49,24 @@ function MonthPicker({ value, onChange }: { value: string; onChange: (ym: string
         }}
       >
         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-          <Pressable onPress={() => setViewYear((y) => y - 1)} hitSlop={8}>
-            <Ionicons name="chevron-back" size={18} color={colors.primary} />
+          <Pressable
+            onPress={() => setViewYear((y) => y - 1)}
+            hitSlop={{ top: 12, bottom: 12, left: 12, right: 4 }}
+            accessibilityRole="button"
+            accessibilityLabel="Previous year"
+            style={{ padding: 8 }}
+          >
+            <Ionicons name="chevron-back" size={16} color={colors.textMuted} />
           </Pressable>
-          <Text variant="bodyMedium">{viewYear}</Text>
-          <Pressable onPress={() => setViewYear((y) => y + 1)} hitSlop={8}>
-            <Ionicons name="chevron-forward" size={18} color={colors.primary} />
+          <Text variant="label" style={{ minWidth: 38, textAlign: 'center' }}>{viewYear}</Text>
+          <Pressable
+            onPress={() => setViewYear((y) => y + 1)}
+            hitSlop={{ top: 12, bottom: 12, left: 4, right: 12 }}
+            accessibilityRole="button"
+            accessibilityLabel="Next year"
+            style={{ padding: 8 }}
+          >
+            <Ionicons name="chevron-forward" size={16} color={colors.textMuted} />
           </Pressable>
         </View>
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>
@@ -157,7 +169,8 @@ export function StorageView() {
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
-          contentContainerStyle={{ gap: 8, paddingBottom: 12 }}
+          style={{ marginHorizontal: -spacing.lg, flexGrow: 0 }}
+          contentContainerStyle={{ gap: 8, paddingHorizontal: spacing.lg, paddingBottom: 12 }}
         >
           {['all', ...years].map((y) => {
             const active = year === y;

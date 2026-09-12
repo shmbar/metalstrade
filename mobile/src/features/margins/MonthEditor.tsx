@@ -112,6 +112,9 @@ export function MonthEditor() {
                           <Pressable
                             onPress={() => toggleGis(m.month, it.id, !it.gis)}
                             hitSlop={6}
+                            accessibilityRole="checkbox"
+                            accessibilityState={{ checked: !!it.gis }}
+                            accessibilityLabel="Counts toward GIS"
                             style={{ width: 44, alignItems: 'center' }}
                           >
                             <Ionicons
@@ -120,7 +123,7 @@ export function MonthEditor() {
                               color={it.gis ? colors.primary : colors.textFaint}
                             />
                           </Pressable>
-                          <Pressable onPress={() => deleteItem(m.month, it.id)} hitSlop={6} style={{ width: 30, alignItems: 'center' }}>
+                          <Pressable onPress={() => deleteItem(m.month, it.id)} hitSlop={6} accessibilityRole="button" accessibilityLabel="Delete item" style={{ width: 30, alignItems: 'center' }}>
                             <Ionicons name="close-circle-outline" size={16} color={colors.negative} />
                           </Pressable>
                         </View>

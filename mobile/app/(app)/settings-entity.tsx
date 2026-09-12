@@ -1,16 +1,16 @@
 import { useMemo, useState } from 'react';
 import { View, Alert } from 'react-native';
 import { Pressable } from '@/components/ui/Pressable';
-import { BackButton } from '@/components/ui/BackButton';
 import { useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Screen, Card, Text, TextField, Button, EmptyState, Sheet } from '@/components/ui';
+import { Screen, Card, Text, TextField, Button, EmptyState, Sheet, IconButton } from '@/components/ui';
 import { useTheme } from '@/theme/ThemeProvider';
 import { useSettings } from '@/store/settings';
 import { useSettingsEdit } from '@/features/settings/useSettingsEdit';
 import { newId } from '@/data/writes';
 import { spacing } from '@/theme/tokens';
+import { StackHeader } from '@/components/StackHeader';
 
 // Per-type config: category key, display field, label, and the editable fields.
 function configFor(type: string) {
@@ -157,11 +157,7 @@ export default function SettingsEntity() {
 
   return (
     <Screen contentContainerStyle={{ paddingTop: insets.top + 8 }} edges={false}>
-      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 14 }}>
-        <BackButton />
-        <Text variant="h2" style={{ flex: 1 }}>{label}s</Text>
-        <Pressable onPress={openNew} hitSlop={8}><Ionicons name="add-circle" size={26} color={colors.primary} /></Pressable>
-      </View>
+      <StackHeader title={`${label}s`} right={<IconButton icon="add" variant="primary" accessibilityLabel={`New ${label.toLowerCase()}`} onPress={openNew} />} />
 
       {list.length === 0 ? (
         <EmptyState title={`No ${label.toLowerCase()}s`} message="Tap + to add one." />
@@ -174,7 +170,7 @@ export default function SettingsEntity() {
                   <Text variant="bodyMedium" numberOfLines={1}>{e[displayKey] || '—'}</Text>
                   {subLine(e) ? <Text variant="caption" tone="muted" numberOfLines={1}>{subLine(e)}</Text> : null}
                 </View>
-                <Pressable onPress={() => onDelete(e)} hitSlop={8}><Ionicons name="trash-outline" size={20} color={colors.negative} /></Pressable>
+                <IconButton icon="trash-outline" tone="danger" size={36} accessibilityLabel="Delete" onPress={() => onDelete(e)} />
                 <Ionicons name="chevron-forward" size={18} color={colors.textFaint} />
               </Pressable>
             </Card>

@@ -28,6 +28,7 @@ import { Selector } from '../../../components/selectors/selectShad';
 import { NameCell } from '../../../components/Avatar';
 import { SortTh, sortRows, useSortState } from '@components/table/sorting';
 import ExpenseModal from '../expenses/modals/dataModal.js';
+import { matchesAllWords } from '@utils/search';
 
 const fmtUsd = (v) => `$${new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(v || 0)}`;
 const fmtMt = (v) => new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 }).format(v || 0);
@@ -261,7 +262,7 @@ const StorageCosts = () => {
             if (triageSupplier && e.supplier !== triageSupplier) return false;
             if (!q) return true;
             const sup = settings.Supplier?.Supplier?.find(sp => sp.id === e.supplier)?.nname || '';
-            return `${e.expense || ''} ${sup}`.toLowerCase().includes(q);
+            return matchesAllWords([e.expense, sup], q);
         });
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [triageList, triageSupplier, triageQ, settings]);

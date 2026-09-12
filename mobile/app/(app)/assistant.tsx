@@ -1,11 +1,10 @@
 import { useRef, useState } from 'react';
 import { View, FlatList, TextInput, KeyboardAvoidingView, Platform, ActivityIndicator } from 'react-native';
 import { Pressable } from '@/components/ui/Pressable';
-import { BackButton } from '@/components/ui/BackButton';
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Card, Text, EmptyState } from '@/components/ui';
+import { Card, Text, EmptyState, StackHeader } from '@/components/ui';
 import { useTheme } from '@/theme/ThemeProvider';
 import { streamAssistant, isAssistantConfigured, ChatMessage, AssistantSource } from '@/features/assistant/api';
 import { useAssistantContext } from '@/features/assistant/useAssistantContext';
@@ -87,13 +86,16 @@ export default function Assistant() {
 
   return (
     <View style={{ flex: 1, backgroundColor: colors.bg, paddingTop: insets.top + 8 }}>
-      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: spacing.lg, marginBottom: 8 }}>
-        <BackButton />
-        <View style={{ flex: 1 }}>
-          <Text variant="h2">Assistant</Text>
-          <Text variant="caption" tone="faint">Ask about your contracts, invoices, receivables…</Text>
-        </View>
-        <Ionicons name="sparkles" size={20} color={colors.primary} />
+      <View style={{ paddingHorizontal: spacing.lg }}>
+        <StackHeader
+          title="Assistant"
+          subtitle="Ask about your contracts, invoices, receivables…"
+          right={
+            <View style={{ width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.primary + '18' }}>
+              <Ionicons name="sparkles" size={18} color={colors.primary} />
+            </View>
+          }
+        />
       </View>
 
       {!configured ? (
@@ -151,6 +153,8 @@ export default function Assistant() {
                             <Pressable
                               key={`${s.type}-${s.id}-${i}`}
                               onPress={() => router.push(sourceHref(s) as any)}
+                              accessibilityRole="button"
+                              accessibilityLabel={`Open ${s.type} ${s.label}`}
                               style={{
                                 flexDirection: 'row', alignItems: 'center', gap: 4,
                                 paddingHorizontal: 9, paddingVertical: 3, borderRadius: 999,
@@ -194,6 +198,8 @@ export default function Assistant() {
             <Pressable
               onPress={() => send(input)}
               disabled={busy || !input.trim()}
+              accessibilityRole="button"
+              accessibilityLabel="Send"
               style={{
                 width: 44,
                 height: 44,

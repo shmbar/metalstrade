@@ -11,6 +11,7 @@ import {
 import { useGlobalSearch } from '../contexts/useGlobalSearchContext';
 import { UserAuth } from '../contexts/useAuthContext';
 import { pageKeyFromPath } from '../utils/permissions';
+import { matchesAllWords } from '@utils/search';
 
 // Pages reachable via Cmd-K. Order = display order. Icons are decorative.
 const NAV_ITEMS = [
@@ -118,6 +119,7 @@ export default function CommandPalette() {
           colour that ignores the theme's own overlay token. */}
       <Command
         label="Command Palette"
+        filter={(value, search) => (matchesAllWords(value, search) ? 1 : 0)}
         className="relative w-full max-w-xl rounded-2xl bg-[var(--bg-card)] shadow-2xl border border-[var(--line-strong)] overflow-hidden"
         onClick={(e) => e.stopPropagation()}
         loop

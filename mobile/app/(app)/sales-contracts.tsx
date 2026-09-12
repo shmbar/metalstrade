@@ -1,15 +1,15 @@
 import { useMemo, useState } from 'react';
 import { View, FlatList } from 'react-native';
-import { Pressable } from '@/components/ui/Pressable';
-import { BackButton } from '@/components/ui/BackButton';
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Screen, Card, Text, Badge, TextField, ProgressBar, SkeletonList, ErrorState, EmptyState } from '@/components/ui';
+import { Screen, Card, Text, Badge, ProgressBar, SkeletonList, ErrorState, EmptyState, SearchField, Fab } from '@/components/ui';
 import { PeriodSelector } from '@/components/PeriodSelector';
 import { useTheme } from '@/theme/ThemeProvider';
 import { useSalesContracts } from '@/features/salescontracts/useSalesContracts';
 import { fmtMoney } from '@/lib/format';
+import { StackHeader } from '@/components/StackHeader';
+import { matchesAllWords, searchWords } from '@shared/search';
 
 // Web's Total Amount prefix (page.js:103) is '$' for 'us', '€' for 'eu' and NOTHING
 // for anything else. The shared curSymbol falls back to '$' on an empty currency and
@@ -24,31 +24,19 @@ export default function SalesContracts() {
   const [search, setSearch] = useState('');
 
   const filtered = useMemo(() => {
-    const q = search.trim().toLowerCase();
-    if (!q) return rows;
+    const words = searchWords(search);
+    if (!words.length) return rows;
     return rows.filter(
       (r: any) =>
-        String(r.contractNo).toLowerCase().includes(q) ||
-        r.clientName.toLowerCase().includes(q) ||
-        r.products.some((p: string) => p.toLowerCase().includes(q))
+        matchesAllWords([r.contractNo, r.clientName, r.products], words)
     );
   }, [rows, search]);
 
   return (
     <Screen scroll={false} flush contentContainerStyle={{ paddingTop: insets.top + 8 }} edges={false}>
-      <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
-        <BackButton />
-        <Text variant="h2">Sales Contracts</Text>
-        <PeriodSelector />
-      </View>
+      <StackHeader title="Sales Contracts" right={<PeriodSelector />} />
 
-      <TextField
-        value={search}
-        onChangeText={setSearch}
-        placeholder="Search contract #, consignee, material…"
-        autoCapitalize="none"
-        rightElement={<Ionicons name="search" size={18} color={colors.textFaint} />}
-      />
+      <SearchField value={search} onChangeText={setSearch} placeholder="Search contract #, consignee, material…" />
       <View style={{ height: 12 }} />
 
       {isLoading ? (
@@ -112,16 +100,7 @@ export default function SalesContracts() {
         />
       )}
       {/* Create — web's 'New Sales Contract' button. */}
-      <Pressable
-        onPress={() => router.push('/(app)/sales-contract-edit?id=new')}
-        style={{
-          position: 'absolute', right: 18, bottom: insets.bottom + 88, zIndex: 10,
-          width: 52, height: 52, borderRadius: 26, alignItems: 'center', justifyContent: 'center',
-          backgroundColor: colors.primary,
-        }}
-      >
-        <Ionicons name="add" size={26} color="#fff" />
-      </Pressable>
+      <Fab label="New sales contract" bottom={insets.bottom + 88} onPress={() => router.push('/(app)/sales-contract-edit?id=new')} />
     </Screen>
   );
 }

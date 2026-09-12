@@ -50,6 +50,9 @@ export default function useMetalPrices(refreshInterval = 60 * 1000) {
     const [error, setError] = useState(null);
     const [lastUpdated, setLastUpdated] = useState(null);
     const [apiDate, setApiDate] = useState(null);
+    // The day the % change is measured from — on a Saturday that is Friday, not
+    // yesterday, so the strip can say what it is comparing against.
+    const [changeSince, setChangeSince] = useState(null);
     const [rateTime, setRateTime] = useState(null);
     const [stale, setStale] = useState(false);
     const hasPricesRef = useRef(false);
@@ -93,6 +96,7 @@ export default function useMetalPrices(refreshInterval = 60 * 1000) {
 
             setPrices(incoming);
             setApiDate(json.date || null);
+            setChangeSince(json.changeSince || null);
             setRateTime(json.timestamp ? new Date(json.timestamp * 1000) : null);
             setStale(!!json.stale);
             setError(json.stale ? (json.error || 'Price provider unavailable') : null);
@@ -125,5 +129,5 @@ export default function useMetalPrices(refreshInterval = 60 * 1000) {
         }).format(price);
     }, []);
 
-    return { prices, loading, error, lastUpdated, apiDate, rateTime, stale, refresh, formatPrice };
+    return { prices, loading, error, lastUpdated, apiDate, changeSince, rateTime, stale, refresh, formatPrice };
 }

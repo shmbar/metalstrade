@@ -15,6 +15,7 @@ import { CSS } from '@dnd-kit/utilities'
 import { UNIT_LABELS, UNIT_TO_MT } from './constants'
 import SortIcon from "@components/table/SortIcon";
 import { useTablePrefs, useTablePagination } from '@components/table/useTablePrefs';
+import { labelAwareGlobalFilter } from '@components/table/filters/labelAwareGlobalFilter';
 
 // Standard elements — cannot be removed (only user-added custom elements have the × button)
 const STANDARD_KEYS = new Set(['ni', 'cr', 'mo', 'co', 'w', 'nb', 'fe'])
@@ -342,6 +343,7 @@ const Customtable = ({
         state: { globalFilter, pagination, columnFilters },
         onColumnFiltersChange: setColumnFilters,
         getFilteredRowModel: getFilteredRowModel(),
+        globalFilterFn: labelAwareGlobalFilter,
         onGlobalFilterChange: setGlobalFilter,
         getSortedRowModel: getSortedRowModel(),
         getPaginationRowModel: getPaginationRowModel(),

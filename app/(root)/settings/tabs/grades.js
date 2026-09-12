@@ -8,6 +8,7 @@ import Tltip from '../../../../components/tlTip';
 import { BtnIcon, SearchAdornment } from '../../../../components/buttonIcons';
 import useGrades from '../../../../hooks/useGrades';
 import { aliasKey, assignAliases, findGradeByName, formatAssay, hasAssay, makeGrade, parseAssay } from '../../../../utils/grades';
+import { matchesAllWords } from '@utils/search';
 
 /* The grade registry, for editing. Declaring happens mostly elsewhere — ticking rows
    on the Stocks page and merging, or picking a grade on a PO line — and this is where a
@@ -15,6 +16,7 @@ import { aliasKey, assignAliases, findGradeByName, formatAssay, hasAssay, makeGr
    pulled out. The list is shared by IMS and GIS (utils/gradesStore.js). */
 
 const blank = () => ({ id: '', name: '', spec: '', aliases: [], lineIds: [] });
+const sameList = (a = [], b = []) => a.length === b.length && a.every((x, i) => x === b[i]);
 
 const Grades = () => {
     const { setToast } = useContext(SettingsContext);
@@ -31,7 +33,7 @@ const Grades = () => {
     const list = useMemo(() => {
         const q = filter.trim().toLowerCase();
         return grades
-            .filter(g => !q || g.name.toLowerCase().includes(q) || (g.aliases || []).some(a => a.toLowerCase().includes(q)))
+            .filter(g => !q || matchesAllWords([g.name, g.aliases], q))
             .sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: 'base' }));
     }, [grades, filter]);
 
@@ -64,6 +66,8 @@ const Grades = () => {
         if (clash && clash.id !== form.id) { setError(`"${clash.name}" already exists.`); return; }
 
         const id = isNew ? uuidv4() : form.id;
+        // What this save is being given, to compare against once it comes back.
+        const submitted = { name, spec: form.spec.trim(), aliases: form.aliases, lineIds: form.lineIds };
         const orig = (!isNew && all.find(g => g.id === id)) || makeGrade(id, { name });
         const next = { ...orig, name, spec: form.spec.trim(), lineIds: form.lineIds, aliases: [], deleted: false };
         // Re-add this grade's spellings through assignAliases so any that belonged to
@@ -76,7 +80,19 @@ const Grades = () => {
         try {
             await save([...byId.values()], user?.email || '');
             const saved = byId.get(id);
-            setForm({ id, name: saved.name, spec: saved.spec, aliases: [...saved.aliases], lineIds: [...(saved.lineIds || [])] });
+            /* Show what was actually written — assignAliases may have normalised or moved a
+               spelling — but never over the top of an edit made WHILE the save was in
+               flight. A batch commit is a network round trip, and typing a second spelling
+               during it used to have the form replaced underneath, so the entry vanished
+               with a success toast on screen. Each field is only taken from the save if it
+               still holds what was submitted. */
+            setForm(f => ({
+                id,
+                name: f.name === submitted.name ? saved.name : f.name,
+                spec: f.spec === submitted.spec ? saved.spec : f.spec,
+                aliases: sameList(f.aliases, submitted.aliases) ? [...saved.aliases] : f.aliases,
+                lineIds: sameList(f.lineIds, submitted.lineIds) ? [...(saved.lineIds || [])] : f.lineIds,
+            }));
             setError('');
             setToast?.({ show: true, text: isNew ? `Grade "${name}" added` : `Grade "${name}" updated`, clr: 'success' });
         } catch (e) {

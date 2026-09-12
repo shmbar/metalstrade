@@ -106,7 +106,7 @@ function SupplierDocPreview({ inv, onClose, settings, gisAccount }) {
 
     return (
         <Dialog open={!!inv} onOpenChange={onClose}>
-            <DialogContent className="p-0 overflow-hidden flex flex-col" style={{
+            <DialogContent aria-describedby={undefined} className="p-0 overflow-hidden flex flex-col" style={{
                 maxWidth: 'min(95vw, 860px)',
                 maxHeight: '92vh',
                 borderRadius: 'var(--radius-card)',
@@ -353,7 +353,7 @@ function ClientDocPreview({ inv, onClose, settings, compData, gisAccount }) {
 
     return (
         <Dialog open={!!inv} onOpenChange={onClose}>
-            <DialogContent className="p-0 overflow-hidden flex flex-col" style={{
+            <DialogContent aria-describedby={undefined} className="p-0 overflow-hidden flex flex-col" style={{
                 maxWidth: 'min(95vw, 860px)',
                 maxHeight: '92vh',
                 borderRadius: 'var(--radius-card)',
@@ -640,7 +640,7 @@ function ExpenseDocPreview({ inv, onClose, settings, gisAccount }) {
 
     return (
         <Dialog open={!!inv} onOpenChange={onClose}>
-            <DialogContent className="p-0 overflow-hidden flex flex-col" style={{
+            <DialogContent aria-describedby={undefined} className="p-0 overflow-hidden flex flex-col" style={{
                 maxWidth: 'min(95vw, 860px)',
                 maxHeight: '92vh',
                 borderRadius: 'var(--radius-card)',

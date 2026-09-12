@@ -29,6 +29,7 @@ import { Fragment } from 'react';
 import { SHIPMENT_STATUSES, SHIPMENT_STATUS_STYLES, normalizeStatus } from '../contractsstatement/shipmentStatus';
 import SortIcon from "@components/table/SortIcon";
 import { useTablePrefs } from '@components/table/useTablePrefs';
+import { matchesAllWords } from '@utils/search';
 
 // Shipment lifecycle vocabulary/colors live in a shared module so the Contracts Statement
 // follows the exact same statuses (see ../contractsstatement/shipmentStatus).
@@ -1053,15 +1054,12 @@ const ShipmentPage = () => {
         if (!search.trim()) return true;
         const q = search.toLowerCase();
         const inv = getMainInvoice(c);
-        return (
-            (c.order || '').toLowerCase().includes(q) ||
-            getSupplierName(c).toLowerCase().includes(q) ||
-            getClientName(c.id).toLowerCase().includes(q) ||
-            (inv?.invoice?.toString() || '').includes(q) ||
-            // Every invoice under the contract, not just the first — searching for the
-            // second shipment's number used to return nothing.
-            getShipments(c).some(s => String(s.invoice ?? '').toLowerCase().includes(q))
-        );
+        // Every invoice under the contract, not just the first — searching for the
+        // second shipment's number used to return nothing.
+        return matchesAllWords([
+            c.order, getSupplierName(c), getClientName(c.id), inv?.invoice,
+            getShipments(c).map(s => s.invoice),
+        ], q);
     });
 
     const getSortValue = (c, col) => {

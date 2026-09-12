@@ -6,6 +6,7 @@ import { Command as CommandPrimitive } from "cmdk"
 import { Search } from "lucide-react"
 
 import { cn } from "@lib/utils"
+import { matchesAllWords } from "@utils/search"
 import { Dialog, DialogContent } from "@components/ui/dialog"
 
 const Command = React.forwardRef<
@@ -14,6 +15,10 @@ const Command = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <CommandPrimitive
     ref={ref}
+    /* Every keyword must be in the item, in any order — the rule every search box
+       in the app follows. cmdk's own scorer wants the characters in sequence, so
+       "708 triart" could not find "Triart 708". A caller may still pass its own. */
+    filter={(value, search) => (matchesAllWords(value, search) ? 1 : 0)}
     className={cn(
       "flex h-full w-full flex-col overflow-hidden rounded-lg bg-popover text-popover-foreground",
       className

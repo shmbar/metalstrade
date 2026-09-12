@@ -11,6 +11,7 @@ import { sortArr } from "@utils/utils"
 import { X } from "lucide-react"
 import { useEffect, useRef, useState } from "react"
 import { BtnIcon } from "@components/buttonIcons"
+import { matchesAllWords } from '@utils/search';
 
 
 /* sizeVar: the rung the trigger renders at, as a --fs-* variable. Undefined keeps
@@ -56,7 +57,7 @@ export function Selector({ arr, value, onChange, name, clear, disabled, secondar
        names every time. Five is the line: below that the box is more chrome than
        help. A creatable list always searches: typing is how a new entry is made. */
     const searchable = base.length > 4 || !!onCreate
-    const shown = query ? base.filter(k => labelOf(k).toLowerCase().includes(query.toLowerCase())) : base
+    const shown = query ? base.filter(k => matchesAllWords(labelOf(k), query)) : base
     /* The option currently SELECTED is never unmounted by the filter, only hidden.
        Radix keys its "focus the selected item" effect on that item's mount state: the
        moment a keystroke filtered it out, the effect re-ran and moved the caret from

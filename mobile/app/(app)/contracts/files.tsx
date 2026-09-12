@@ -1,13 +1,12 @@
 import { useState } from 'react';
 import { View, Alert, Linking, ActivityIndicator } from 'react-native';
 import { Pressable } from '@/components/ui/Pressable';
-import { BackButton } from '@/components/ui/BackButton';
 import { useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import * as DocumentPicker from 'expo-document-picker';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Screen, Card, Text, Button, LoadingState, ErrorState, EmptyState } from '@/components/ui';
+import { Screen, Card, Text, Button, LoadingState, ErrorState, EmptyState, StackHeader, IconButton } from '@/components/ui';
 import { useTheme } from '@/theme/ThemeProvider';
 import { listFiles, uploadFile, deleteFile } from '@/data/storage';
 import { radius } from '@/theme/tokens';
@@ -55,10 +54,7 @@ export default function ContractFiles() {
 
   return (
     <Screen contentContainerStyle={{ paddingTop: insets.top + 8 }} edges={false}>
-      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 14 }}>
-        <BackButton />
-        <Text variant="h2" style={{ flex: 1 }}>Attachments</Text>
-      </View>
+      <StackHeader title="Attachments" />
 
       <Button
         title="Upload file"
@@ -86,12 +82,13 @@ export default function ContractFiles() {
                 {del.isPending ? (
                   <ActivityIndicator color={colors.negative} />
                 ) : (
-                  <Pressable
+                  <IconButton
+                    icon="trash-outline"
+                    tone="danger"
+                    size={36}
+                    accessibilityLabel={`Delete ${f.name}`}
                     onPress={() => Alert.alert('Delete file?', f.name, [{ text: 'Cancel', style: 'cancel' }, { text: 'Delete', style: 'destructive', onPress: () => del.mutate(f.name) }])}
-                    hitSlop={8}
-                  >
-                    <Ionicons name="trash-outline" size={20} color={colors.negative} />
-                  </Pressable>
+                  />
                 )}
                 <Ionicons name="open-outline" size={18} color={colors.textFaint} />
               </Pressable>

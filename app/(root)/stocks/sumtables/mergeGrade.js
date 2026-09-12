@@ -16,7 +16,7 @@ import { aliasKey, assignAliases, findGradeByName, formatAssay, hasAssay, makeGr
    looking at the tonnage and value, not a list of strings. A spelling belongs to one
    grade, so any that already belonged to another move — and the dialog says which
    before anything is written. */
-export default function MergeGradeModal({ isOpen, setIsOpen, spellings = [], onDone }) {
+export default function MergeGradeModal({ isOpen, setIsOpen, spellings = [], suggestName = '', onDone }) {
     const { grades, all, index, save } = useGrades();
     const { user } = UserAuth();
     const { setToast } = useContext(SettingsContext);
@@ -26,12 +26,18 @@ export default function MergeGradeModal({ isOpen, setIsOpen, spellings = [], onD
     const [spec, setSpec] = useState('');
     const [busy, setBusy] = useState(false);
 
+    /* Opened from a row's own "make this a grade" button, the name the card already
+       shows arrives as suggestName — so the dialog opens filled in and the whole action
+       is one click. If a grade of that name exists it is selected rather than proposed
+       again. A ticked-rows merge passes nothing and opens empty, as before. */
     useEffect(() => {
         if (!isOpen) return;
-        setTarget({ gradeId: '' });
-        setNewName('');
+        const existing = suggestName ? findGradeByName(grades, suggestName) : null;
+        setTarget({ gradeId: existing?.id || '' });
+        setNewName(existing ? '' : (suggestName || ''));
         setSpec('');
-    }, [isOpen]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [isOpen, suggestName]);
 
     const creating = newName !== '';
     const chosen = creating ? null : grades.find(g => g.id === target.gradeId) || null;

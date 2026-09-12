@@ -1,11 +1,10 @@
 import { useMemo, useState } from 'react';
 import { View, Alert, KeyboardAvoidingView, Platform } from 'react-native';
 import { Pressable } from '@/components/ui/Pressable';
-import { BackButton } from '@/components/ui/BackButton';
 import { useLocalSearchParams, router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Screen, Card, Text, TextField, Select, DateField, Button, SectionHeader, EmptyState } from '@/components/ui';
+import { Screen, Card, Text, TextField, Select, DateField, Button, SectionHeader, EmptyState, StackHeader } from '@/components/ui';
 import { useTheme } from '@/theme/ThemeProvider';
 import { useSettings } from '@/store/settings';
 import { useContracts } from '@/features/contracts/useContracts';
@@ -46,7 +45,7 @@ export default function NewInvoice() {
   if (!contract || !inv) {
     return (
       <Screen>
-        <Back />
+        <StackHeader title="New invoice" backLabel="Cancel" />
         <EmptyState title="Contract not found" message="Open it from the contracts list." />
       </Screen>
     );
@@ -98,11 +97,11 @@ export default function NewInvoice() {
   return (
     <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <Screen contentContainerStyle={{ paddingTop: insets.top + 8 }} edges={false}>
-        <Back />
-        <View style={{ marginTop: 8, marginBottom: 14 }}>
-          <Text variant="h1">New Invoice</Text>
-          <Text variant="body" tone="muted" style={{ marginTop: 2 }}>From {contract.order} · # assigned on save</Text>
-        </View>
+        <StackHeader
+          title="New invoice"
+          subtitle={`From ${contract.order} · # assigned on save`}
+          backLabel="Cancel"
+        />
 
         <View style={{ gap: 14 }}>
           <Card style={{ gap: 14 }}>
@@ -129,7 +128,7 @@ export default function NewInvoice() {
                   <View style={{ flex: 1 }}>
                     <Select label="Material" value={l.descriptionId} options={productOptions} onChange={(v) => setLine(i, { descriptionId: v })} required />
                   </View>
-                  <Pressable onPress={() => removeLine(i)} hitSlop={8} style={{ padding: 4 }}>
+                  <Pressable onPress={() => removeLine(i)} hitSlop={8} accessibilityRole="button" accessibilityLabel="Remove line" style={{ padding: 4 }}>
                     <Ionicons name="trash-outline" size={20} color={colors.negative} />
                   </Pressable>
                 </View>
@@ -162,6 +161,3 @@ export default function NewInvoice() {
   );
 }
 
-function Back() {
-  return <BackButton />;
-}

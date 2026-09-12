@@ -11,6 +11,7 @@ import { BtnIcon } from '../../../../components/buttonIcons'
 import { resolveGrade } from '../../../../utils/grades'
 import { gradeKeyOf, gradeLabel, niRangeLabel } from './gradeKey'
 import MergeGradeModal from './mergeGrade'
+import SuggestGradesModal from './suggestGrades'
 
 /* The four figure columns are bounded — each is sized to the wider of its header and
    its values — and Description is the one free-text column, so under table-layout:fixed
@@ -109,6 +110,11 @@ const GradeTable = ({ dataTable, loading, settings, gradeIndex }) => {
   // Ticked spellings → their tonnage, for "Merge into grade".
   const [picked, setPicked] = useState({})
   const [mergeOpen, setMergeOpen] = useState(false)
+  const [suggestOpen, setSuggestOpen] = useState(false)
+  /* One row declared from its own line. The card has already folded its spellings, so
+     this needs no ticking: it opens the merge dialog carrying that fold's spellings and
+     the name the row is displaying. */
+  const [quick, setQuick] = useState(null)
 
   if (loading) return null
 
@@ -129,6 +135,20 @@ const GradeTable = ({ dataTable, loading, settings, gradeIndex }) => {
   })
   const pickedNames = Object.keys(picked)
   const pickedQty = pickedNames.reduce((s, n) => s + (picked[n] || 0), 0)
+
+  // The name a row would take as a grade: the fold's label, without the Ni span the
+  // card appends for reading ("NiCrMo Ingots · 16-31Ni" is named "NiCrMo Ingots").
+  const nameOf = (r) => gradeLabel(r.synthLabel, r.spellings)
+
+  /* Every fold that is not a declared grade yet, deduped by that name so the same
+     material held in two currencies is one suggestion rather than two. */
+  const suggestGroups = Object.values(rows.filter(r => !r.declared).reduce((acc, r) => {
+    const name = nameOf(r)
+    if (!acc[name]) acc[name] = { key: name, name, spellings: [], qnty: 0 }
+    r.spellings.forEach(s => { if (!acc[name].spellings.includes(s)) acc[name].spellings.push(s) })
+    acc[name].qnty += r.totalQnty
+    return acc
+  }, {})).sort((a, b) => b.qnty - a.qnty)
 
   const thStyle = {
     color: 'var(--ink-muted)',
@@ -195,9 +215,19 @@ const GradeTable = ({ dataTable, loading, settings, gradeIndex }) => {
             fontWeight: '400'
           }}
         >
-          <span className="w-28 shrink-0" />
+          <span className="w-32 shrink-0" />
           <span className="text-center truncate">Avg Cost Price per Grade</span>
-          <span className="w-28 shrink-0 text-right responsiveTextTable text-[var(--ink-muted)]">Tick rows to merge</span>
+          <span className="w-32 shrink-0 flex justify-end">
+            {suggestGroups.length > 0 ? (
+              <Tltip direction='left' tltpText='Name every group that is not a grade yet, in one pass - or tick rows to merge a few by hand'>
+                <button type="button" className="whiteButton blackButtonSm" onClick={() => setSuggestOpen(true)}>
+                  <BtnIcon action="merge" />Name groups
+                </button>
+              </Tltip>
+            ) : (
+              <span className="responsiveTextTable text-[var(--ink-muted)]">Tick rows to merge</span>
+            )}
+          </span>
         </div>
 
         {/* Merge bar — only while something is ticked. */}
@@ -253,7 +283,7 @@ const GradeTable = ({ dataTable, loading, settings, gradeIndex }) => {
                   : r.descriptionName
                 return (
                   <React.Fragment key={i}>
-                  <tr style={{ background: 'var(--bg-card)', cursor: canExpand ? 'pointer' : 'default' }}
+                  <tr className="group" style={{ background: 'var(--bg-card)', cursor: canExpand ? 'pointer' : 'default' }}
                     onClick={() => canExpand && toggle(key)}>
                     <td style={pickStyle} onClick={stop}>
                       <CheckBox size='size-3' checked={allPicked} onChange={() => pickSpellings(r.spellings, !allPicked)} />
@@ -270,6 +300,16 @@ const GradeTable = ({ dataTable, loading, settings, gradeIndex }) => {
                           </span>
                         </Tltip>
                         <ChemistryPopover lots={r.inLots} description={r.descriptionName} grade={r.grade} />
+                        {!r.declared && (
+                          <Tltip direction='top' tltpText={`Make "${nameOf(r)}" a grade - ${r.spellings.length} spelling${r.spellings.length === 1 ? '' : 's'}`}>
+                            <button type="button" aria-label="Make this a grade"
+                              onClick={(e) => { stop(e); setQuick({ name: nameOf(r), spellings: r.spellings }); setMergeOpen(true) }}
+                              className="shrink-0 inline-flex items-center text-[var(--ink-muted)] hover:text-[var(--brand)]
+                                opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity">
+                              <BtnIcon action="merge" />
+                            </button>
+                          </Tltip>
+                        )}
                         {canExpand && (
                           <span className='shrink-0 whitespace-nowrap' style={{ color: 'var(--regent-gray)' }}>
                             {children.length} lots
@@ -373,8 +413,17 @@ const GradeTable = ({ dataTable, loading, settings, gradeIndex }) => {
 
       <MergeGradeModal
         isOpen={mergeOpen}
-        setIsOpen={setMergeOpen}
-        spellings={pickedNames.map(name => ({ name, qnty: picked[name] }))}
+        setIsOpen={(v) => { setMergeOpen(v); if (!v) setQuick(null) }}
+        spellings={(quick ? quick.spellings.map(name => ({ name, qnty: spellingQty[name] || 0 }))
+          : pickedNames.map(name => ({ name, qnty: picked[name] })))}
+        suggestName={quick?.name || ''}
+        onDone={() => { setPicked({}); setQuick(null) }}
+      />
+
+      <SuggestGradesModal
+        isOpen={suggestOpen}
+        setIsOpen={setSuggestOpen}
+        groups={suggestGroups}
         onDone={() => setPicked({})}
       />
     </div>

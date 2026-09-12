@@ -1,16 +1,15 @@
 import { useState } from 'react';
 import { View, FlatList } from 'react-native';
-import { Pressable } from '@/components/ui/Pressable';
-import { BackButton } from '@/components/ui/BackButton';
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Screen, Card, Text, Badge, SegmentedControl, SectionHeader, SkeletonList, ErrorState, EmptyState } from '@/components/ui';
+import { Screen, Card, Text, Badge, SegmentedControl, SectionHeader, SkeletonList, ErrorState, EmptyState, Fab, Chip, Avatar } from '@/components/ui';
 import { PeriodSelector } from '@/components/PeriodSelector';
 import { useTheme } from '@/theme/ThemeProvider';
 import { useExpenses, useSaveExpenseSplit, ExpenseRow } from '@/features/expenses/useExpenses';
 import { SplitControl } from '@/components/SplitControl';
 import { curSymbol, fmtMoney, dateLabel } from '@/lib/format';
+import { StackHeader } from '@/components/StackHeader';
 
 // Web's footer hard-codes exactly two buckets and always renders both, showing
 // $0.00 / €0.00 for an empty one (sumtables footer, expenses/page.js). Mobile
@@ -57,11 +56,7 @@ export default function Expenses() {
 
   return (
     <Screen scroll={false} flush contentContainerStyle={{ paddingTop: insets.top + 8 }} edges={false}>
-      <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
-        <BackButton />
-        <Text variant="h2">Expenses</Text>
-        <PeriodSelector />
-      </View>
+      <StackHeader title="Expenses" right={<PeriodSelector />} />
 
       <View style={{ marginBottom: 12 }}>
         <SegmentedControl
@@ -75,35 +70,22 @@ export default function Expenses() {
       </View>
 
       {/* "Unsplit only" filter — web parity (companyexpenses onlyUnsplit toggle). */}
-      <Pressable
-        onPress={() => setOnlyUnsplit((v) => !v)}
-        style={{
-          alignSelf: 'flex-start',
-          flexDirection: 'row', alignItems: 'center', gap: 6,
-          paddingHorizontal: 12, paddingVertical: 6, borderRadius: 999, marginBottom: 12,
-          backgroundColor: onlyUnsplit ? colors.primary : colors.surfaceAlt,
-          borderWidth: 1, borderColor: onlyUnsplit ? colors.primary : colors.border,
-        }}
-      >
-        <Ionicons
-          name={onlyUnsplit ? 'checkbox' : 'square-outline'}
-          size={14}
-          color={onlyUnsplit ? '#fff' : colors.textFaint}
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+        <Chip
+          label="Needs split"
+          icon="git-branch-outline"
+          count={allRows.filter((r) => r.splitStatus === 'pending').length}
+          active={onlyUnsplit}
+          onPress={() => setOnlyUnsplit((v) => !v)}
         />
-        <Text variant="caption" color={onlyUnsplit ? '#fff' : colors.textMuted}>Needs split</Text>
-      </Pressable>
+      </View>
 
       {/* Create — web has an "Add expense" action on both expense pages. */}
-      <Pressable
+      <Fab
+        label="Add expense"
+        bottom={insets.bottom + 88}
         onPress={() => router.push(`/(app)/expense-edit?id=new&kind=${tab === 'supplier' ? 'supplier' : 'company'}`)}
-        style={{
-          position: 'absolute', right: 18, bottom: insets.bottom + 88, zIndex: 10,
-          width: 52, height: 52, borderRadius: 26, alignItems: 'center', justifyContent: 'center',
-          backgroundColor: colors.primary,
-        }}
-      >
-        <Ionicons name="add" size={26} color="#fff" />
-      </Pressable>
+      />
 
       {isLoading ? (
         <SkeletonList />
@@ -141,6 +123,7 @@ export default function Expenses() {
           renderItem={({ item }) => (
             <Card style={{ marginBottom: 10 }} onPress={() => router.push(`/(app)/expense-edit?id=${item.id}&kind=${tab === 'supplier' ? 'supplier' : 'company'}`)}>
               <View style={{ flexDirection: 'row', justifyContent: 'space-between', gap: 12 }}>
+                <Avatar name={item.supplierName} size={40} />
                 <View style={{ flex: 1, minWidth: 0 }}>
                   <Text variant="bodyMedium" numberOfLines={1}>{item.supplierName}</Text>
                   <Text variant="caption" tone="muted" numberOfLines={1}>

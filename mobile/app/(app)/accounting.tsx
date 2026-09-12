@@ -1,10 +1,9 @@
 import { useMemo, useState } from 'react';
 import { View, FlatList, Alert } from 'react-native';
 import { Pressable } from '@/components/ui/Pressable';
-import { BackButton } from '@/components/ui/BackButton';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Screen, Card, Text, Badge, TextField, Button, SkeletonList, ErrorState, EmptyState, Sheet } from '@/components/ui';
+import { Screen, Card, Text, Badge, TextField, Button, SkeletonList, ErrorState, EmptyState, Sheet, SearchField, StackHeader, IconButton } from '@/components/ui';
 import { PeriodSelector } from '@/components/PeriodSelector';
 import { useTheme } from '@/theme/ThemeProvider';
 import { useAccounting, AccountingGroup } from '@/features/accounting/useAccounting';
@@ -12,6 +11,7 @@ import { useAccountingEdit } from '@/features/accounting/useAccountingEdit';
 import { curSymbol, fmtMoney, dateLabel } from '@/lib/format';
 import { exportCsv } from '@/lib/export';
 import { useSettings } from '@/store/settings';
+import { matchesAllWords, searchWords } from '@shared/search';
 
 export default function Accounting() {
   const { colors } = useTheme();
@@ -24,12 +24,10 @@ export default function Accounting() {
   const [draft, setDraft] = useState<{ expInvoice: string; amountExp: string }>({ expInvoice: '', amountExp: '' });
 
   const groups: AccountingGroup[] = useMemo(() => {
-    const q = search.trim().toLowerCase();
+    const words = searchWords(search);
     const all = data || [];
-    if (!q) return all;
-    return all.filter(
-      (g) => g.saleInvoice.toLowerCase().includes(q) || g.clientInvName.toLowerCase().includes(q) || g.invoice.includes(q)
-    );
+    if (!words.length) return all;
+    return all.filter((g) => matchesAllWords([g.saleInvoice, g.clientInvName, g.invoice], words));
   }, [data, search]);
 
   // Excel export — web parity. One row per merged line (invoice row, then each of
@@ -64,24 +62,17 @@ export default function Accounting() {
   };
   return (
     <Screen scroll={false} flush contentContainerStyle={{ paddingTop: insets.top + 8 }} edges={false}>
-      <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
-        <BackButton />
-        <Text variant="h2">Accounting</Text>
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-          <Pressable onPress={onExport} hitSlop={8}>
-            <Ionicons name="download-outline" size={20} color={colors.primary} />
-          </Pressable>
-          <PeriodSelector />
-        </View>
-      </View>
-
-      <TextField
-        value={search}
-        onChangeText={setSearch}
-        placeholder="Search invoice # or client…"
-        autoCapitalize="none"
-        rightElement={<Ionicons name="search" size={18} color={colors.textFaint} />}
+      <StackHeader
+        title="Accounting"
+        right={
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+            <IconButton icon="download-outline" accessibilityLabel="Export" onPress={onExport} />
+            <PeriodSelector />
+          </View>
+        }
       />
+
+      <SearchField value={search} onChangeText={setSearch} placeholder="Search invoice # or client…" />
       <View style={{ height: 12 }} />
 
       {isLoading ? (

@@ -1,15 +1,12 @@
 import { useMemo, useState, useEffect } from 'react';
 import { View, Alert } from 'react-native';
-import { Pressable } from '@/components/ui/Pressable';
-import { BackButton } from '@/components/ui/BackButton';
 import { useLocalSearchParams, router } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Screen, Card, Text, TextField, Button, EmptyState } from '@/components/ui';
-import { useTheme } from '@/theme/ThemeProvider';
+import { Screen, Card, TextField, Button, EmptyState, IconButton } from '@/components/ui';
 import { useSettings } from '@/store/settings';
 import { useSettingsEdit } from '@/features/settings/useSettingsEdit';
 import { newId } from '@/data/writes';
+import { StackHeader } from '@/components/StackHeader';
 
 // Display-field fallback per category (port of web setup.js fieldByKey).
 const FIELD_BY_KEY: Record<string, string> = {
@@ -21,7 +18,6 @@ const FIELD_BY_KEY: Record<string, string> = {
 
 export default function ConfigEditor() {
   const { cat, title } = useLocalSearchParams<{ cat: string; title?: string }>();
-  const { colors } = useTheme();
   const insets = useSafeAreaInsets();
   const { settings } = useSettings();
   const { saveEntities } = useSettingsEdit();
@@ -63,11 +59,7 @@ export default function ConfigEditor() {
 
   return (
     <Screen contentContainerStyle={{ paddingTop: insets.top + 8 }} edges={false}>
-      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 14 }}>
-        <BackButton />
-        <Text variant="h2" style={{ flex: 1 }}>{title || cat}</Text>
-        <Pressable onPress={add} hitSlop={8}><Ionicons name="add-circle" size={26} color={colors.primary} /></Pressable>
-      </View>
+      <StackHeader title={title || cat} right={<IconButton icon="add" variant="primary" accessibilityLabel="Add item" onPress={add} />} />
 
       {visible.length === 0 ? (
         <EmptyState title="No items" message="Tap + to add one." />
@@ -78,7 +70,7 @@ export default function ConfigEditor() {
               <View style={{ flex: 1 }}>
                 <TextField value={String(it[field] ?? '')} onChangeText={(v) => setVal(i, v)} placeholder="Value" />
               </View>
-              <Pressable onPress={() => remove(i)} hitSlop={8}><Ionicons name="trash-outline" size={20} color={colors.negative} /></Pressable>
+              <IconButton icon="trash-outline" tone="danger" size={36} accessibilityLabel="Delete item" onPress={() => remove(i)} />
             </View>
           ))}
         </Card>

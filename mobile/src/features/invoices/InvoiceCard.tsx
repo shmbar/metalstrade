@@ -1,6 +1,6 @@
 import React from 'react';
 import { View } from 'react-native';
-import { Card, Text, Badge } from '@/components/ui';
+import { Card, Text, Badge, Avatar } from '@/components/ui';
 import { InvoiceView } from './useInvoices';
 
 const STATUS_TONE = { Paid: 'positive', Partial: 'warn', Unpaid: 'negative' } as const;
@@ -8,14 +8,19 @@ const STATUS_TONE = { Paid: 'positive', Partial: 'warn', Unpaid: 'negative' } as
 export function InvoiceCard({ inv, onPress }: { inv: InvoiceView; onPress: () => void }) {
   return (
     <Card onPress={onPress} style={{ marginBottom: 12 }}>
-      <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12 }}>
-        <View style={{ flex: 1, minWidth: 0 }}>
-          <Text variant="h3" numberOfLines={1}>
-            Invoice #{inv.number ?? '—'}
-          </Text>
-          <Text variant="caption" tone="muted" numberOfLines={1} style={{ marginTop: 2 }}>
-            {inv.clientName}
-          </Text>
+      <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 12 }}>
+        {/* Client avatar — the same entity chip web puts on every client name,
+            so a list of invoices scans by who owes, not only by number. */}
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 11, flex: 1, minWidth: 0 }}>
+          <Avatar name={inv.clientName} size={40} />
+          <View style={{ flex: 1, minWidth: 0 }}>
+            <Text variant="h3" numberOfLines={1}>
+              Invoice #{inv.number ?? '—'}
+            </Text>
+            <Text variant="caption" tone="muted" numberOfLines={1} style={{ marginTop: 2 }}>
+              {inv.clientName}
+            </Text>
+          </View>
         </View>
         <View style={{ alignItems: 'flex-end' }}>
           <Text variant="h3" style={{ fontVariant: ['tabular-nums'] }}>{inv.totalLabel}</Text>

@@ -81,10 +81,28 @@ export function QuickSumButton({
     return detectNumericCols({ table, sampleSize: 60, exclude: ['select'] });
   }, [table, currentRowCount]);
 
+  /* Two jobs, and they have to stay apart.
+
+     1. Drop ticked columns that are no longer on offer. One that stops qualifying
+        used to stay ticked and keep showing its total — Description was summable
+        until the parser was tightened, so a session that had already picked it
+        would otherwise go on displaying that 4,435.00.
+     2. Pick a default ONCE per switch-on, the first of the offered columns
+        (quantities rank first — see detectNumericCols).
+
+     The old version re-picked whenever the list was empty, which is also the state
+     "Clear columns" leaves behind — so that button cleared the ticks and the
+     default came straight back. A deliberate empty selection now stays empty. */
+  const pickedDefault = useRef(false);
   useEffect(() => {
-    if (!enabled) return;
-    if (selectedColumnIds?.length) return;
-    if (numericCols.length) {
+    if (!enabled) { pickedDefault.current = false; return; }
+    if (!numericCols.length) return;
+    const offered = new Set(numericCols.map((c) => c.id));
+    const cur = selectedColumnIds || [];
+    const kept = cur.filter((id) => offered.has(id));
+    if (kept.length !== cur.length) { setSelectedColumnIds(kept); return; }
+    if (!pickedDefault.current && kept.length === 0) {
+      pickedDefault.current = true;
       setSelectedColumnIds([numericCols[0].id]);
     }
   }, [enabled, numericCols, selectedColumnIds, setSelectedColumnIds]);

@@ -34,6 +34,7 @@ import KpiStrip from "../../../components/KpiStrip";
 import { BtnIcon, SearchAdornment } from "../../../components/buttonIcons";
 import Avatar from "../../../components/Avatar";
 import { Boxes, Users, Factory, Wallet, Banknote } from "lucide-react";
+import { matchesAllWords } from '@utils/search';
 
 function countDecimalDigits(inputString) {
     const match = inputString.match(/(?:\.(\d+))?(?:[eE]([+-]?\d+))?$/);
@@ -142,7 +143,7 @@ const Cashflow = () => {
     const byName = (arr) => {
         const t = nameQ.trim().toLowerCase();
         if (!t) return arr || [];
-        return (arr || []).filter(x => rowName(x).toLowerCase().includes(t));
+        return (arr || []).filter(x => matchesAllWords(rowName(x), t));
     };
 
     const [stocksSort, setStocksSort] = useState(true)

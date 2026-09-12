@@ -124,13 +124,13 @@ const Customtable = ({ data, item }) => {
 
 		return x === 'supplier' ? obj.client ?? tmp.arr.find(z => z.id === obj.supplier)['nname'] :
 			(x === 'type' && obj[x] === 'Purchase') ?
-				<div className='flex items-center gap-1'><HiArrowDownTray className='font-semibold scale-110' style={{ color: MOVEMENT.in }} /> <span >{obj[x]}</span> </div> :
+				<div className='flex items-center justify-center gap-1'><HiArrowDownTray className='font-semibold scale-110' style={{ color: MOVEMENT.in }} /> <span >{obj[x]}</span> </div> :
 				(x === 'type' && obj[x] === 'Final Settlement') ?
-					<div className='flex items-center gap-1'> <span >{obj[x]}</span> </div> :
+					<div className='flex items-center justify-center gap-1'> <span >{obj[x]}</span> </div> :
 					(x === 'type' && (obj[x] !== 'Movement' && parseFloat(obj.qnty) >= 0)) ?
-						<div className='flex items-center gap-1'><HiArrowUpTray className='font-semibold scale-110' style={{ color: MOVEMENT.out }} /> <span >{obj[x]}</span> </div> :
+						<div className='flex items-center justify-center gap-1'><HiArrowUpTray className='font-semibold scale-110' style={{ color: MOVEMENT.out }} /> <span >{obj[x]}</span> </div> :
 						(x === 'type' && obj.moveType === 'in') ?
-							<div className='flex items-center gap-1 group relative cursor-default'>
+							<div className='flex items-center justify-center gap-1 group relative cursor-default'>
 								<HiArrowDownTray className='font-semibold scale-110' style={{ color: MOVEMENT.in }} />
 								<span >{obj[x]}</span>
 								<span className="absolute hidden group-hover:flex -top-2 w-fit p-1
@@ -138,7 +138,7 @@ const Customtable = ({ data, item }) => {
 									<span>{`Moved from:`}&nbsp;</span> <span className='font-medium'>{`${settings.Stocks.Stocks.find(x => x.id === obj.oldStock)['stock']}`}</span></span>
 							</div> :
 							(x === 'type' && obj.moveType === 'out') ?
-								<div className='flex items-center gap-1 group relative cursor-default'>
+								<div className='flex items-center justify-center gap-1 group relative cursor-default'>
 									<HiArrowUpTray className='font-semibold scale-110' style={{ color: MOVEMENT.out }} />
 									<span >{obj[x]}</span>
 									<span className="absolute hidden group-hover:flex -top-2 w-fit p-1

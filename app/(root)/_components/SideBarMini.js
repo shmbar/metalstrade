@@ -13,6 +13,7 @@ import CompanySelect from './companySelect';
 import NotificationBell from '@components/NotificationBell';
 import { SettingsContext } from "../../../contexts/useSettingsContext";
 import { getTtl } from "../../../utils/languages";
+import { matchesAllWords } from '@utils/search';
 
 const SideBarMini = () => {
   const pathName = usePathname();
@@ -49,7 +50,7 @@ const SideBarMini = () => {
     normalizedQuery.length < 2
       ? []
       : items
-          .filter((x) => (x.searchText || '').toLowerCase().includes(normalizedQuery))
+          .filter((x) => matchesAllWords(x.searchText, normalizedQuery))
           .slice(0, 10);
 
   const onPickResult = (item) => {

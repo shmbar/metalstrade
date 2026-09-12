@@ -1,10 +1,9 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { View, Alert, KeyboardAvoidingView, Platform } from 'react-native';
 import { Pressable } from '@/components/ui/Pressable';
-import { BackButton } from '@/components/ui/BackButton';
 import { useLocalSearchParams, router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Screen, Card, Text, Select, TextField, DateField, Button, EmptyState , Sheet } from '@/components/ui';
+import { Screen, Card, Text, Select, TextField, DateField, Button, EmptyState , Sheet, StackHeader, SkeletonList } from '@/components/ui';
 import { useTheme } from '@/theme/ThemeProvider';
 import { useSettings } from '@/store/settings';
 import {
@@ -15,6 +14,7 @@ import { useAuth } from '@/store/auth';
 import { getInvoicesByNumbers } from '@/data/firestore';
 import { newId } from '@/data/writes';
 import { hapticSuccess } from '@/lib/haptics';
+import { toast } from '@/store/toast';
 
 // Existing-expense editor — the mobile twin of web's expenses modal
 // (app/(root)/expenses/modals/expenses.js). Web required all of
@@ -25,7 +25,7 @@ export default function ExpenseEdit() {
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
   const { settings } = useSettings();
-  const { data } = useExpenses();
+  const { data, isLoading } = useExpenses();
   const save = useSaveExpense();
   const del = useDeleteExpense();
   const copyMisc = useCopyExpenseToMisc();
@@ -49,6 +49,15 @@ export default function ExpenseEdit() {
       : { ...(row?.raw || {}) }
   );
   const [submitted, setSubmitted] = useState(false);
+
+  /* Seed once, when the expense arrives — see the note in invoices/edit.tsx. An
+     unseeded form here saved an expense with no supplier, type or amount. */
+  const seededId = useRef<string | null>(null);
+  useEffect(() => {
+    if (isNew || !row?.raw || seededId.current === row.id) return;
+    seededId.current = row.id;
+    setV({ ...row.raw });
+  }, [row, isNew]);
 
   const set = (k: string, val: any) => setV((p: any) => ({ ...p, [k]: val }));
   const setDate = (iso: string) => setV((p: any) => ({ ...p, dateRange: { startDate: iso, endDate: iso }, date: iso }));
@@ -79,10 +88,19 @@ export default function ExpenseEdit() {
   const missing = missingExpenseFields(v);
   const err = (k: string) => (submitted && missing.includes(k) ? 'Required' : undefined);
 
+  if (!isNew && !row && isLoading) {
+    return (
+      <Screen>
+        <StackHeader title="Expense" backLabel="Cancel" />
+        <SkeletonList count={4} />
+      </Screen>
+    );
+  }
+
   if (!isNew && !row) {
     return (
       <Screen>
-        <BackBar />
+        <StackHeader title="Expense" backLabel="Cancel" />
         <EmptyState title="Expense not found" message="Open it from the expenses list." />
       </Screen>
     );
@@ -128,11 +146,7 @@ export default function ExpenseEdit() {
   return (
     <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <Screen contentContainerStyle={{ paddingTop: insets.top + 8 }} edges={false}>
-        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
-          <BackBar />
-          <Text variant="h3">{isNew ? 'New expense' : 'Edit expense'}</Text>
-          <View style={{ width: 60 }} />
-        </View>
+        <StackHeader title={isNew ? 'New expense' : 'Edit expense'} backLabel="Cancel" />
 
         <Card style={{ gap: 12 }}>
           <TextField
@@ -171,7 +185,7 @@ export default function ExpenseEdit() {
             style={{ marginTop: 10 }}
             onPress={() =>
               copyMisc.mutate(v, {
-                onSuccess: () => Alert.alert('Copied', 'This expense now appears under Misc Invoices.'),
+                onSuccess: () => toast.success('This expense now appears under Misc Invoices.', 'Copied'),
                 onError: (e: any) => Alert.alert('Copy failed', e?.message || 'Could not copy.'),
               })
             }
@@ -251,6 +265,3 @@ export default function ExpenseEdit() {
   );
 }
 
-function BackBar() {
-  return <BackButton />;
-}

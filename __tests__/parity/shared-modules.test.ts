@@ -110,6 +110,11 @@ const IDENTICAL_PAIRS: Array<[mobile: string, web: string]> = [
   ['mobile/src/shared/languages.js', 'utils/languages.js'],
   ['mobile/src/shared/salesLink.js', 'utils/salesLink.js'],
   ['mobile/src/shared/permissions.js', 'utils/permissions.js'],
+  // Ported 2026-09-12 so every mobile search box uses web's keyword matcher.
+  ['mobile/src/shared/search.js', 'utils/search.js'],
+  // Ported 2026-09-12 with the grade-folded Avg Cost Price per Grade card.
+  ['mobile/src/shared/grades.js', 'utils/grades.js'],
+  ['mobile/src/shared/gradeKey.js', 'app/(root)/stocks/sumtables/gradeKey.js'],
 ];
 
 /** The deliberate exception — see the Tier 4 block at the bottom of this file. */

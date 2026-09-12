@@ -20,6 +20,7 @@ import {
   KpiStrip,
   SectionCard,
   EntityRow,
+  IconButton,
 } from '@/components/ui';
 import type { KpiItem } from '@/components/ui';
 import { ScreenHeader } from '@/components/ScreenHeader';
@@ -33,6 +34,7 @@ import { useSharedStock } from '@/features/stocks/useSharedStock';
 import { fmtAutoKM, fmtCurKM, curSymbol, fmtMoney, dateLabel } from '@/lib/format';
 import { hapticTap } from '@/lib/haptics';
 import { radius, spacing } from '@/theme/tokens';
+import { matchesAllWords, searchWords } from '@shared/search';
 
 /**
  * CASHFLOW — web's cashflow/page.js, in web's order, shaped for a phone.
@@ -113,10 +115,10 @@ export default function Cashflow() {
 
   // Web's find box filters ROWS by name; section totals keep covering the full
   // period (web says so next to the box, and so does this screen).
-  const q = query.trim().toLowerCase();
+  const words = searchWords(query);
   const arrange = <T,>(rows: T[], amountOf: (r: T) => number, nameOf: (r: T) => string): T[] =>
     rows
-      .filter((r) => !q || nameOf(r).toLowerCase().includes(q))
+      .filter((r) => matchesAllWords(nameOf(r), words))
       .sort((a, b) => (sort === 'name' ? nameOf(a).localeCompare(nameOf(b)) : amountOf(b) - amountOf(a)));
 
   const manualRowsOf = (field: ManualField) =>
@@ -277,7 +279,7 @@ export default function Cashflow() {
   const suppliersBal = data ? byCp(data.suppliersWithBalance) : [];
   const expenses = data ? byCp(data.expenseSuppliers) : [];
   const unsold = data ? arrange(data.unsoldBySupplier, (r) => r.total, (r) => r.name) : [];
-  const sharedMatches = !q || 'shared inventory ims gis'.includes(q);
+  const sharedMatches = matchesAllWords('Shared Stock inventory IMS GIS', words);
 
   const kpis: KpiItem[] = data
     ? [
@@ -301,7 +303,7 @@ export default function Cashflow() {
 
   const emptyRow = (none: string) => (
     <Text variant="body" tone="faint" style={{ paddingHorizontal: 14, paddingBottom: 14 }}>
-      {q ? 'No matches' : none}
+      {words.length ? 'No matches' : none}
     </Text>
   );
 
@@ -352,6 +354,7 @@ export default function Cashflow() {
         <Pressable
           onPress={() => openEntryEditor(field, null)}
           accessibilityRole="button"
+          accessibilityLabel={`Add entry to ${FIELD_LABEL[field]}`}
           style={{
             flexDirection: 'row',
             alignItems: 'center',
@@ -377,27 +380,14 @@ export default function Cashflow() {
         subtitle="Stocks, clients, suppliers & expenses"
         title="Cashflow"
         right={
-          <Pressable
+          <IconButton
+            icon={hideBalances ? 'eye-off-outline' : 'eye-outline'}
+            accessibilityLabel={hideBalances ? 'Show balances' : 'Hide balances'}
             onPress={() => {
               hapticTap();
               togglePrivacy();
             }}
-            hitSlop={8}
-            accessibilityRole="button"
-            accessibilityLabel={hideBalances ? 'Show balances' : 'Hide balances'}
-            style={{
-              width: 40,
-              height: 40,
-              borderRadius: 20,
-              backgroundColor: colors.surfaceAlt,
-              borderWidth: 1,
-              borderColor: colors.border,
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            <Ionicons name={hideBalances ? 'eye-off-outline' : 'eye-outline'} size={19} color={colors.textMuted} />
-          </Pressable>
+          />
         }
       />
 
@@ -442,7 +432,7 @@ export default function Cashflow() {
           </Text>
         </Pressable>
       </View>
-      {q ? (
+      {words.length ? (
         <Text variant="caption" tone="faint" style={{ marginTop: 6, marginLeft: 6 }}>
           Rows only — totals cover the full period
         </Text>

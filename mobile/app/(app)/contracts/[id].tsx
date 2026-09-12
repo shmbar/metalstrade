@@ -4,7 +4,7 @@ import { Pressable } from '@/components/ui/Pressable';
 import { BackButton } from '@/components/ui/BackButton';
 import { useLocalSearchParams, router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { Screen, Card, Text, Badge, Button, ProgressBar, SectionHeader, EmptyState, SkeletonList, Sheet } from '@/components/ui';
+import { Screen, Card, Text, Badge, Button, ProgressBar, SectionHeader, EmptyState, SkeletonList, Sheet, IconButton, Avatar, ActionGrid, ErrorState } from '@/components/ui';
 import { useTheme } from '@/theme/ThemeProvider';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useSettings } from '@/store/settings';
@@ -22,7 +22,7 @@ export default function ContractDetail() {
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
   const { settings, compData } = useSettings();
-  const { data: contracts, isLoading: contractsLoading } = useContracts();
+  const { data: contracts, isLoading: contractsLoading, isError, error, refetch } = useContracts();
 
   const contract = useMemo(() => contracts?.find((c) => c.id === id), [contracts, id]);
 
@@ -57,6 +57,16 @@ export default function ContractDetail() {
       <Screen>
         <BackBar />
         <SkeletonList count={4} />
+      </Screen>
+    );
+  }
+
+  // A failed load is not a missing contract: say which it is, and offer the retry.
+  if (!contract && isError) {
+    return (
+      <Screen>
+        <BackBar />
+        <ErrorState message={(error as Error)?.message || 'Could not load this contract.'} onRetry={refetch} />
       </Screen>
     );
   }
@@ -101,25 +111,25 @@ export default function ContractDetail() {
     <Screen contentContainerStyle={{ paddingTop: insets.top + 8 }} edges={false}>
       <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
         <BackBar />
-        <Pressable
+        <IconButton
+          icon="create-outline"
+          accessibilityLabel="Edit contract"
           onPress={() => router.push(`/(app)/contracts/edit?id=${contract.id}`)}
-          hitSlop={8}
-          style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}
-        >
-          <Ionicons name="create-outline" size={18} color={colors.primary} />
-          <Text variant="bodyMedium" tone="primary">
-            Edit
-          </Text>
-        </Pressable>
+        />
       </View>
 
       {/* Title block */}
-      <View style={{ marginTop: 8, marginBottom: 16 }}>
-        <Text variant="display">{contract.order || 'Untitled PO'}</Text>
-        <Text variant="body" tone="muted" style={{ marginTop: 2 }}>
-          {v.supplierName}
-        </Text>
-        <View style={{ flexDirection: 'row', gap: 8, marginTop: 10 }}>
+      <View style={{ marginTop: 12, marginBottom: 16 }}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+          <Avatar name={v.supplierName} size={48} />
+          <View style={{ flex: 1, minWidth: 0 }}>
+            <Text variant="display" numberOfLines={1}>{contract.order || 'Untitled PO'}</Text>
+            <Text variant="body" tone="muted" numberOfLines={1}>
+              {v.supplierName}
+            </Text>
+          </View>
+        </View>
+        <View style={{ flexDirection: 'row', gap: 8, marginTop: 12 }}>
           {v.status ? <Badge label={v.status} tone="info" /> : null}
           <Badge label={curSymbol(v.currency).trim() === '€' ? 'EUR' : 'USD'} tone="neutral" />
           {contract.date ? <Badge label={contract.date.substring(0, 10)} tone="neutral" /> : null}
@@ -278,65 +288,26 @@ export default function ContractDetail() {
       </Card>
 
       <Button
-        title="+ New Invoice"
+        title="New invoice"
         style={{ marginTop: 14 }}
         leftIcon={<Ionicons name="add" size={18} color={colors.primaryText} />}
         onPress={() => router.push(`/(app)/contracts/new-invoice?id=${contract.id}`)}
       />
-      <Button
-        title="Warehouse Stock"
-        variant="secondary"
-        style={{ marginTop: 10 }}
-        leftIcon={<Ionicons name="cube-outline" size={18} color={colors.primary} />}
-        onPress={() => router.push(`/(app)/contracts/stock-in?id=${contract.id}`)}
+
+      {/* Everything else the contract can do — web's tab strip, as tiles. */}
+      <SectionHeader title="Actions" style={{ marginTop: 18 }} />
+      <ActionGrid
+        actions={[
+          { key: 'stock', label: 'Warehouse stock', icon: 'cube-outline', emphasis: true, onPress: () => router.push(`/(app)/contracts/stock-in?id=${contract.id}`) },
+          { key: 'settle', label: 'Final settlement', icon: 'git-merge-outline', emphasis: true, hidden: !(contract.stock?.length || 0), onPress: () => router.push(`/(app)/contracts/final-settlement?id=${contract.id}`) },
+          { key: 'files', label: 'Attachments', icon: 'folder-outline', onPress: () => router.push(`/(app)/contracts/files?id=${contract.id}`) },
+          { key: 'cert', label: 'Cert checker', icon: 'shield-checkmark-outline', onPress: () => router.push(`/(app)/contracts/cert-checker?id=${contract.id}`) },
+          { key: 'po', label: 'Export PO (PDF)', icon: 'document-outline', onPress: () => exportPdf(contractPoHtml(contract, v, compData), `PO-${contract.order || contract.id}`) },
+          { key: 'dup', label: 'Duplicate', icon: 'copy-outline', loading: duplicating, onPress: onDuplicate },
+          { key: 'annex', label: 'Annex VII', icon: 'document-text-outline', onPress: () => onDocPress('annex') },
+          { key: 'isf', label: 'ISF', icon: 'document-text-outline', onPress: () => onDocPress('isf') },
+        ]}
       />
-      <Button
-        title="Duplicate contract"
-        variant="ghost"
-        loading={duplicating}
-        style={{ marginTop: 10 }}
-        leftIcon={<Ionicons name="copy-outline" size={18} color={colors.primary} />}
-        onPress={onDuplicate}
-      />
-      <Button
-        title="Export PO (PDF)"
-        variant="ghost"
-        style={{ marginTop: 10 }}
-        leftIcon={<Ionicons name="document-outline" size={18} color={colors.primary} />}
-        onPress={() => exportPdf(contractPoHtml(contract, v, compData), `PO-${contract.order || contract.id}`)}
-      />
-      <Button
-        title="Attachments"
-        variant="ghost"
-        style={{ marginTop: 10 }}
-        leftIcon={<Ionicons name="folder-outline" size={18} color={colors.primary} />}
-        onPress={() => router.push(`/(app)/contracts/files?id=${contract.id}`)}
-      />
-      <Button
-        title="Cert Checker"
-        variant="ghost"
-        style={{ marginTop: 10 }}
-        leftIcon={<Ionicons name="shield-checkmark-outline" size={18} color={colors.primary} />}
-        onPress={() => router.push(`/(app)/contracts/cert-checker?id=${contract.id}`)}
-      />
-      <View style={{ flexDirection: 'row', gap: 10, marginTop: 10 }}>
-        <View style={{ flex: 1 }}>
-          <Button
-            title="Annex VII"
-            variant="ghost"
-            leftIcon={<Ionicons name="document-text-outline" size={18} color={colors.primary} />}
-            onPress={() => onDocPress('annex')}
-          />
-        </View>
-        <View style={{ flex: 1 }}>
-          <Button
-            title="ISF"
-            variant="ghost"
-            leftIcon={<Ionicons name="document-text-outline" size={18} color={colors.primary} />}
-            onPress={() => onDocPress('isf')}
-          />
-        </View>
-      </View>
 
       {/* Template picker for customs doc export */}
       <Sheet
@@ -356,15 +327,6 @@ export default function ContractDetail() {
           </Pressable>
         ))}
       </Sheet>
-      {(contract.stock?.length || 0) > 0 && (
-        <Button
-          title="Final Settlement"
-          variant="secondary"
-          style={{ marginTop: 10 }}
-          leftIcon={<Ionicons name="git-merge-outline" size={18} color={colors.primary} />}
-          onPress={() => router.push(`/(app)/contracts/final-settlement?id=${contract.id}`)}
-        />
-      )}
     </Screen>
   );
 }

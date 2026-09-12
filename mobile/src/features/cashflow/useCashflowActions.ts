@@ -9,6 +9,7 @@ import {
   saveCashflowYearTotal,
 } from '@/data/writes';
 import { hapticSuccess, hapticWarning } from '@/lib/haptics';
+import { toast } from '@/store/toast';
 
 // Mark a supplier purchase invoice (poInvoice) fully paid, or an expense paid.
 // Both refresh the cashflow + dashboard so balances update.
@@ -31,7 +32,10 @@ export function useCashflowActions() {
       if (!uidCollection) throw new Error('Not authenticated');
       await markPoInvoicePaid(uidCollection, ref);
     },
-    onSuccess: refresh,
+    onSuccess: () => {
+      refresh();
+      toast.success('Supplier invoice marked paid');
+    },
     onError,
   });
 
@@ -40,7 +44,10 @@ export function useCashflowActions() {
       if (!uidCollection) throw new Error('Not authenticated');
       await markExpensesPaid(uidCollection, [expense]);
     },
-    onSuccess: refresh,
+    onSuccess: () => {
+      refresh();
+      toast.success('Expense marked paid');
+    },
     onError,
   });
 
@@ -51,7 +58,11 @@ export function useCashflowActions() {
       if (!uidCollection) throw new Error('Not authenticated');
       await clientPartialPayment(uidCollection, args.invoice, { pmnt: args.amount, dateIso: args.dateIso });
     },
-    onSuccess: () => { refresh(); qc.invalidateQueries({ queryKey: ['invoices'] }); },
+    onSuccess: () => {
+      refresh();
+      qc.invalidateQueries({ queryKey: ['invoices'] });
+      toast.success('Client payment recorded');
+    },
     onError,
   });
 
@@ -65,7 +76,10 @@ export function useCashflowActions() {
       if (!uidCollection) throw new Error('Not authenticated');
       await partialPayPoInvoice(uidCollection, args.ref, args.amount, args.perc, args.dateIso);
     },
-    onSuccess: refresh,
+    onSuccess: () => {
+      refresh();
+      toast.success('Partial payment recorded');
+    },
     onError,
   });
 
@@ -81,7 +95,10 @@ export function useCashflowActions() {
       if (!uidCollection) throw new Error('Not authenticated');
       await saveCashflowManualRows(uidCollection, args.field, args.rows);
     },
-    onSuccess: refresh,
+    onSuccess: () => {
+      refresh();
+      toast.success('Cashflow rows saved');
+    },
     onError,
   });
 
@@ -91,7 +108,10 @@ export function useCashflowActions() {
       if (!uidCollection) throw new Error('Not authenticated');
       await saveCashflowYearTotal(uidCollection, args.year, args.value);
     },
-    onSuccess: refresh,
+    onSuccess: () => {
+      refresh();
+      toast.success('Year total saved');
+    },
     onError,
   });
 

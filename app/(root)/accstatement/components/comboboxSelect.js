@@ -5,6 +5,7 @@ import {
 } from '@headlessui/react'
 import { HiChevronUpDown } from 'react-icons/hi2';
 import { cn } from '../../../../lib/utils';
+import { matchesAllWords } from '@utils/search';
 
 
 
@@ -17,10 +18,7 @@ const MyComboboxSelectStock = ({ data, setValue, value, idx, name, classes, disa
         query === ''
             ? data
             : data.filter((x) =>
-                x[name]
-                    .toLowerCase()
-                    .replace(/\s+/g, '')
-                    .includes(query.toLowerCase().replace(/\s+/g, ''))
+                matchesAllWords(x[name], query)
             )
 
     const setSelection = (e) => {

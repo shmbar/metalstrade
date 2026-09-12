@@ -16,6 +16,7 @@ import '../contracts/style.css';
 import { usePathname } from "next/navigation";
 import { getTtl } from "../../../utils/languages";
 import { useTablePrefs, useTablePagination } from '@components/table/useTablePrefs';
+import { labelAwareGlobalFilter } from '@components/table/filters/labelAwareGlobalFilter';
 
 const Customtable = ({
   data,
@@ -84,6 +85,7 @@ const Customtable = ({
     data,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
+    globalFilterFn: labelAwareGlobalFilter,
     getSortedRowModel: getSortedRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     state: {

@@ -36,6 +36,7 @@ import { labelAwareGlobalFilter } from "../../../components/table/filters/labelA
 import Tltip from "../../../components/tlTip";
 import SortIcon from "@components/table/SortIcon";
 import { useTablePrefs, useTablePagination } from '@components/table/useTablePrefs';
+import { keywordColumnFilter } from '@components/table/filters/keywordColumnFilter';
 
 const Customtable = ({
   data,
@@ -137,6 +138,7 @@ const Customtable = ({
     enableRowSelection: quickSumEnabled,
     getCoreRowModel: getCoreRowModel(),
     filterFns: { dateBetweenFilterFn },
+    defaultColumn: { filterFn: keywordColumnFilter },
     globalFilterFn,
     state: {
       globalFilter,

@@ -3,6 +3,7 @@
 import { useMemo, useRef, useState } from 'react';
 import { ChevronDown, X } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@components/ui/popover';
+import { matchesAllWords } from '@utils/search';
 
 /**
  * The checklist column filter — tick any number of suppliers, clients, stocks
@@ -75,7 +76,7 @@ export function MultiSelectFilter({ column, table, placeholder = 'All' }) {
 
   const searchable = options.length > 5;
   const shown = query
-    ? options.filter((o) => o.label.toLowerCase().includes(query.toLowerCase()))
+    ? options.filter((o) => matchesAllWords(o.label, query))
     : options;
 
   const commit = (next) => column.setFilterValue(next.length ? next : undefined);

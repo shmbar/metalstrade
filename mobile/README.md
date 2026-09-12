@@ -79,7 +79,8 @@ Migration progress (see `../tasks/mobile-migration-plan.md`):
 
 ## Stack
 - Expo SDK 56 · React Native 0.85 · React 19 · TypeScript
-- expo-router (file-based nav) · NativeWind 4 (Tailwind) · Reanimated 4
+- expo-router (file-based nav) · StyleSheet/inline styles (NativeWind removed —
+  its JSX runtime silently dropped function styles on Pressable) · Reanimated 4
 - Firebase JS SDK (Auth + Firestore + Storage) — same project/claims as web
 - Zustand (state) · TanStack Query (server cache, offline-friendly)
 - expo-secure-store + expo-local-authentication (biometric sign-in)

@@ -30,6 +30,7 @@ if (typeof window !== 'undefined') {
 }
 import Image from "next/image";
 import { useTablePrefs, useTablePagination } from '@components/table/useTablePrefs';
+import { keywordColumnFilter } from '@components/table/filters/keywordColumnFilter';
 
 const Customtable = ({ data, columns, invisible, SelectRow, excellReport, ln, setFilteredArray, highlightId, onCellUpdate }) => {
     const [globalFilter, setGlobalFilter] = useState('')
@@ -98,6 +99,7 @@ const Customtable = ({ data, columns, invisible, SelectRow, excellReport, ln, se
         enableRowSelection: quickSumEnabled,
         getCoreRowModel: getCoreRowModel(),
         filterFns: { dateBetweenFilterFn },
+        defaultColumn: { filterFn: keywordColumnFilter },
         globalFilterFn: labelAwareGlobalFilter,
         state: {
             globalFilter,

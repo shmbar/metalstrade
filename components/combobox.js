@@ -5,6 +5,7 @@ import { AiOutlineCheck } from 'react-icons/ai';
 import { HiChevronDown, HiChevronUp } from 'react-icons/hi2';
 import { MdClear } from 'react-icons/md';
 import { sortArr } from '../utils/utils';
+import { matchesAllWords } from '@utils/search';
 
 /* sizeClass: the ladder rung the control renders at. It has to live on the
    WRAPPER, not on the input — the input is style={{fontSize:'inherit'}}, and the
@@ -48,10 +49,7 @@ const MyCombobox = ({ data, setValue, value, name, classes, disabled, classes1, 
         query === ''
             ? newArr.slice(1)
             : newArr.slice(1).filter((x) =>
-                x[name]
-                    .toLowerCase()
-                    .replace(/\s+/g, '')
-                    .includes(query.toLowerCase().replace(/\s+/g, ''))
+                matchesAllWords(x[name], query)
             )
 
     const setSelection = (e) => {

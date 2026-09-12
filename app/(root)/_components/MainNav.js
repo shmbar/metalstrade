@@ -14,6 +14,7 @@ import Tltip from '../../../components/tlTip'
 import { Selector } from '@components/selectors/selectShad';
 import NotificationBell from '@components/NotificationBell';
 import { writeActiveAccount, accountName } from '../../../utils/activeAccount';
+import { matchesAllWords } from '@utils/search';
 
 // Self-contained clock: owns the 1-second interval so only this tiny component
 // re-renders each second — previously the state lived in MainNav and re-rendered
@@ -80,7 +81,7 @@ export const MainNav = () => {
     normalizedQuery.length < 2
       ? []
       : items
-        .filter((x) => (x.searchText || '').toLowerCase().includes(normalizedQuery))
+        .filter((x) => matchesAllWords(x.searchText, normalizedQuery))
         .slice(0, 10)
 
   const onPickResult = (item) => {

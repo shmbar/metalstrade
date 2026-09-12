@@ -1,11 +1,10 @@
 import { useMemo, useState } from 'react';
 import { View, Alert } from 'react-native';
 import { Pressable } from '@/components/ui/Pressable';
-import { BackButton } from '@/components/ui/BackButton';
 import { useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Screen, Card, Text, Select, TextField, DateField, Button, SectionHeader, SegmentedControl, EmptyState, SkeletonList } from '@/components/ui';
+import { Screen, Card, Text, Select, TextField, DateField, Button, SectionHeader, SegmentedControl, EmptyState, SkeletonList, StackHeader, ErrorState } from '@/components/ui';
 import { useTheme } from '@/theme/ThemeProvider';
 import { useContracts } from '@/features/contracts/useContracts';
 import { usePnl, useSetContractStatus, useSaveShipmentRow, CONTRACT_STATUSES, ShipmentRow } from '@/features/contracts/usePnl';
@@ -21,7 +20,7 @@ export default function ContractPnl() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
-  const { data: contracts, isLoading } = useContracts();
+  const { data: contracts, isLoading, isError, error, refetch } = useContracts();
   const setStatus = useSetContractStatus();
   const saveRow = useSaveShipmentRow();
 
@@ -37,15 +36,23 @@ export default function ContractPnl() {
   if (!contract && isLoading) {
     return (
       <Screen>
-        <Back />
+        <StackHeader title="P&amp;L · Shipments" />
         <SkeletonList count={4} />
+      </Screen>
+    );
+  }
+  if (!contract && isError) {
+    return (
+      <Screen>
+        <StackHeader title="P&amp;L · Shipments" />
+        <ErrorState message={(error as Error)?.message || 'Could not load this contract.'} onRetry={refetch} />
       </Screen>
     );
   }
   if (!contract || !pnl) {
     return (
       <Screen>
-        <Back />
+        <StackHeader title="P&amp;L · Shipments" />
         <EmptyState title="Contract not found" message="Open it from the contracts list." />
       </Screen>
     );
@@ -56,14 +63,7 @@ export default function ContractPnl() {
 
   return (
     <Screen contentContainerStyle={{ paddingTop: insets.top + 8 }} edges={false}>
-      <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
-        <Back />
-        <Text variant="h3">P&amp;L · Shipments</Text>
-        <View style={{ width: 60 }} />
-      </View>
-      <Text variant="caption" tone="muted" style={{ marginBottom: 12 }}>
-        {(contract as any).order || 'Contract'}
-      </Text>
+      <StackHeader title="P&amp;L · Shipments" subtitle={(contract as any).order || 'Contract'} />
 
       {/* Currency selector — web lets the whole tab be read in $ or €. */}
       <View style={{ marginBottom: 14 }}>
@@ -214,6 +214,3 @@ function Row({ label, v, strong, color }: { label: string; v: string; strong?: b
   );
 }
 
-function Back() {
-  return <BackButton />;
-}

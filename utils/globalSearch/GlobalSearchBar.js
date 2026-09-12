@@ -3,6 +3,7 @@
 import { useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useGlobalSearch } from '../../contexts/useGlobalSearchContext';
+import { matchesAllWords } from '@utils/search';
 
 function normalize(s) {
   return (s ?? '').toString().trim().toLowerCase();
@@ -18,7 +19,7 @@ export default function GlobalSearchBar() {
     const q = normalize(query);
     if (!q) return [];
     return items
-      .filter(x => normalize(x.searchText).includes(q))
+      .filter(x => matchesAllWords(normalize(x.searchText), q))
       .slice(0, 10);
   }, [query, items]);
 

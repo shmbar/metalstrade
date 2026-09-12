@@ -522,3 +522,12 @@ export async function endPresence(uidCollection: string, uid: string): Promise<b
     return false;
   }
 }
+
+// The material-grade registry (web utils/gradesStore.js): one list for BOTH trading
+// companies, in the SHARED_STOCK namespace beside the jointly-held stock, because the
+// same 40Ni named two ways is exactly the problem grades exist to remove. Read-only
+// here — declaring and merging grades stays on the web app.
+export async function loadGrades(): Promise<any[]> {
+  const snap = await getDocs(collection(db, SHARED_STOCK_UID, 'data', 'grades'));
+  return snap.docs.map((d) => ({ ...d.data(), id: d.id }));
+}

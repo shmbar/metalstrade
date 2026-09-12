@@ -5,6 +5,7 @@ import { Combobox, Transition, ComboboxInput, ComboboxButton,
 //import { CheckIcon, ChevronUpDownIcon } from '@heroicons/react/20/solid'
 import { AiOutlineCheck } from 'react-icons/ai';
 import { HiChevronUpDown } from 'react-icons/hi2';
+import { matchesAllWords } from '@utils/search';
 
 
 
@@ -28,10 +29,7 @@ const MyCombobox = ({ data, setValue, value, dt, indx, name, classes, disabled, 
         query === ''
             ? newArr.slice(1)
             : newArr.slice(1).filter((x) =>
-                x[name]
-                    .toLowerCase()
-                    .replace(/\s+/g, '')
-                    .includes(query.toLowerCase().replace(/\s+/g, ''))
+                matchesAllWords(x[name], query)
             )
 
     const setSelection = (e) => {

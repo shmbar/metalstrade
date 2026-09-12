@@ -31,6 +31,7 @@ import { Gauge, Receipt, Percent, Truck, Warehouse, TrendingUp, FileWarning, Shi
 
 import { HorizontalBar } from './charts';
 import useExchangeRates from '@hooks/useExchangeRates';
+import { matchesAllWords } from '@utils/search';
 
 // chart.js + react-chartjs-2 are loaded on demand (not in the first-load bundle).
 
@@ -992,7 +993,7 @@ function FilterSelect({ label, icon, value, onChange, options }) {
   // Type-to-filter for long lists (client request: every list gets a search box).
   const [q, setQ] = useState('');
   const shown = q
-    ? options.filter(o => String(o.label).toLowerCase().includes(q.toLowerCase()))
+    ? options.filter(o => matchesAllWords(o.label, q))
     : options;
   return (
     <Select value={value || 'all'} onValueChange={(v) => { onChange(v === 'all' ? '' : v); setQ(''); }}

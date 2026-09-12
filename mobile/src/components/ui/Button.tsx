@@ -87,7 +87,7 @@ export function Button({
       ) : (
         <>
           {leftIcon && <View>{leftIcon}</View>}
-          <Text variant="bodyMedium" color={fg[variant]} style={{ fontFamily: 'PlusJakartaSans_600SemiBold' }}>
+          <Text variant="bodyMedium" color={fg[variant]} numberOfLines={1} style={{ fontFamily: 'PlusJakartaSans_600SemiBold', flexShrink: 1 }}>
             {title}
           </Text>
         </>

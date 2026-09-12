@@ -38,6 +38,20 @@ describe('parseAssay — chemistry out of the way it is actually written', () =>
             .toEqual({ C: 1.88, S: 0.1, Co: 1, Nb: 0.22, Ni: 0.4, P: 2.81, Sn: 5.57, Ta: 0.1, W: 6.58 });
     });
 
+    it('reads a figure written without its leading zero', () => {
+        // real: a tungsten granule line. Read as whole numbers this said 76% nickel,
+        // and answered a "Ni 70-80" search with a bag of tungsten.
+        expect(parseAssay('W Granules (2.08C .12S 1.23Co .4Nb .76Ni 2.16P 3.86Sn .1Ta 5W)'))
+            .toEqual({ C: 2.08, S: 0.12, Co: 1.23, Nb: 0.4, Ni: 0.76, P: 2.16, Sn: 3.86, Ta: 0.1, W: 5 });
+        expect(parseAssay('Cu max .5%, P max .03%')).toEqual({ Cu: 0.5, P: 0.03 });
+    });
+
+    it('reads a capital O typed where a zero belongs', () => {
+        // real: "… 0.7Co O.37Cu 0.44S …" — as written this was 37% copper.
+        expect(parseAssay('14.5Ni 6.3Cr 0.85Mo 1.1W 0.7Co O.37Cu 0.44S 0.03P Ingots'))
+            .toEqual({ Ni: 14.5, Cr: 6.3, Mo: 0.85, W: 1.1, Co: 0.7, Cu: 0.37, S: 0.44, P: 0.03 });
+    });
+
     it('finds no chemistry where there is none — never a guess', () => {
         for (const s of ['Ti 6-4 Powder', '718 plus Ingots', '718 Turnings with ~10% R65', 'C 103 Turnings',
             '202 Turnings', 'Fines Mix', 'Hf (8064) (1.9815)', '', null, undefined]) {

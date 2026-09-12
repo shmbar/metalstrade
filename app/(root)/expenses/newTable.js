@@ -717,6 +717,7 @@ import { TONES } from '../../../components/statusUtils';
 import CurrencyChip from '../../../components/CurrencyChip';
 import EmptyState from '../../../components/EmptyState';
 import { useTablePrefs, useTablePagination } from '@components/table/useTablePrefs';
+import { keywordColumnFilter } from '@components/table/filters/keywordColumnFilter';
 
 const Customtable = ({
   data,
@@ -811,6 +812,7 @@ const Customtable = ({
     enableRowSelection: quickSumEnabled,
     getCoreRowModel: getCoreRowModel(),
     filterFns: { dateBetweenFilterFn },
+    defaultColumn: { filterFn: keywordColumnFilter },
     globalFilterFn: labelAwareGlobalFilter,
     state: { globalFilter, columnVisibility, pagination, columnFilters, rowSelection, sorting },
     onRowSelectionChange: setRowSelection,

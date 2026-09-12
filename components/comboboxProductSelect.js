@@ -4,6 +4,7 @@ import { Combobox, Transition, ComboboxOption, ComboboxButton, ComboboxOptions }
 import { AiOutlineCheck } from 'react-icons/ai';
 import { HiChevronUpDown } from 'react-icons/hi2';
 import { loadStockDataPerDescription, filteredArray } from '../utils/utils'
+import { matchesAllWords } from '@utils/search';
 
 const MyCombobox = ({ data, setValue, value, indx, name, classes, disabled, classes1, uidCollection }) => {
 
@@ -28,10 +29,7 @@ const MyCombobox = ({ data, setValue, value, indx, name, classes, disabled, clas
         query === ''
             ? newArr.slice(1)
             : newArr.slice(1).filter((x) =>
-                x['description']
-                    .toLowerCase()
-                    .replace(/\s+/g, '')
-                    .includes(query.toLowerCase().replace(/\s+/g, ''))
+                matchesAllWords(x['description'], query)
             )
 
     const setSelection = async (e) => {

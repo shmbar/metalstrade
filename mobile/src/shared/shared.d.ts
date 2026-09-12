@@ -218,3 +218,53 @@ declare module '@shared/activityStats' {
     opts?: { onlineMs?: number; now?: number }
   ): { online: any[]; away: any[] };
 }
+
+declare module '@shared/search' {
+  /** The query as keywords: lower-cased, accent-stripped, empty when blank. */
+  export function searchWords(query: string | null | undefined): string[];
+  /** Every keyword in `query` appears somewhere in `fields`. Blank query = match. */
+  export function matchesAllWords(fields: any, query: string | string[] | null | undefined): boolean;
+  const _default: typeof matchesAllWords;
+  export default _default;
+}
+
+declare module '@shared/gradeKey' {
+  /** Folds spelling variants of one grade onto a common key. */
+  export function gradeKeyOf(description: string): { key: string; label: string; ni: number | null };
+  export function niRangeLabel(values: (number | null)[]): string;
+  export function gradeLabel(synthesised: string | null, originals: string[]): string;
+}
+
+declare module '@shared/grades' {
+  export interface Grade {
+    id: string;
+    name: string;
+    spec?: string;
+    aliases?: string[];
+    lineIds?: string[];
+    deleted?: boolean;
+  }
+  export interface GradeIndex {
+    byAlias: Map<string, Grade>;
+    byLine: Map<string, Grade>;
+    byId: Map<string, Grade>;
+  }
+  export const ELEMENTS: string[];
+  export function deCyrillic(s: string): string;
+  export function parseAssay(text: string): Record<string, number>;
+  export function hasAssay(a: any): boolean;
+  export function formatAssay(a: any): string;
+  export function assayOf(lot: any, descriptionText?: string): Record<string, number>;
+  export function assayRange(assays?: any[]): Record<string, { min: number; max: number }>;
+  export function formatRange(range: any): string;
+  export function aliasKey(description: string): string;
+  export function buildGradeIndex(grades?: Grade[]): GradeIndex;
+  export function resolveGrade(
+    index: GradeIndex | null | undefined,
+    args?: { description?: string; lineId?: string }
+  ): Grade | null;
+  export function findGradeByName(grades: Grade[], name: string): Grade | null;
+  export function parseSpecQuery(query: string): Record<string, any> | null;
+  export function assayMatches(assay: any, spec: any): boolean;
+  export function describeSpec(spec: any): string;
+}

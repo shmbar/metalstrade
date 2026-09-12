@@ -41,6 +41,7 @@ import {
   FlaskConical,
   History,
   Import,
+  Info,
   LayoutGrid,
   Loader2,
   Merge,
@@ -136,6 +137,8 @@ export const ACTION_ICONS = {
   split: Split,
   ai: Sparkles,
   history: History,
+  // Small print that would otherwise take a paragraph of page height.
+  info: Info,
   comments: MessageSquare,
   newRecord: LayoutGrid,
   shared: Boxes,

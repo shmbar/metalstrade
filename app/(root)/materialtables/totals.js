@@ -2,6 +2,7 @@
 
 import { getCoreRowModel, getFilteredRowModel, getPaginationRowModel, getSortedRowModel, useReactTable } from "@tanstack/react-table"
 import { useMemo, useState } from "react"
+import { labelAwareGlobalFilter } from '@components/table/filters/labelAwareGlobalFilter';
 
 const Customtable = ({ data, columns }) => {
     const [globalFilter, setGlobalFilter] = useState('')
@@ -13,6 +14,7 @@ const Customtable = ({ data, columns }) => {
         getCoreRowModel: getCoreRowModel(),
         state: { globalFilter, pagination },
         getFilteredRowModel: getFilteredRowModel(),
+        globalFilterFn: labelAwareGlobalFilter,
         onGlobalFilterChange: setGlobalFilter,
         getSortedRowModel: getSortedRowModel(),
         getPaginationRowModel: getPaginationRowModel(),

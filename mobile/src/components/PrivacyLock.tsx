@@ -71,7 +71,7 @@ export function PrivacyLock() {
       }}
     >
       <View style={{ width: 64, height: 64, borderRadius: 20, backgroundColor: colors.primary, alignItems: 'center', justifyContent: 'center' }}>
-        <Ionicons name="cube" size={34} color="#fff" />
+        <Ionicons name="cube" size={34} color={colors.primaryText} />
       </View>
       <Text variant="h2">IMS</Text>
       {needsAuth && (

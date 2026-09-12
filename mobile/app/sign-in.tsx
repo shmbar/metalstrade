@@ -8,6 +8,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Text, TextField } from '@/components/ui';
 import { useTheme } from '@/theme/ThemeProvider';
 import { useAuth } from '@/store/auth';
+import { toast } from '@/store/toast';
 import { spacing, radius, getShadow } from '@/theme/tokens';
 import { getBiometricCredentials, setBiometricCredentials, isBiometricEnabled } from '@/lib/secureStore';
 import { isBiometricAvailable, authenticateBiometric, biometricLabel } from '@/lib/biometric';
@@ -60,7 +61,8 @@ export default function SignIn() {
 
   const onForgot = async () => {
     const res = await resetPassword(email);
-    Alert.alert(res.ok ? 'Email sent' : 'Reset password', res.message);
+    if (res.ok) toast.success(res.message, 'Email sent');
+    else Alert.alert('Reset password', res.message);
   };
 
   return (
@@ -138,7 +140,12 @@ export default function SignIn() {
               autoCapitalize="none"
               textContentType="password"
               rightElement={
-                <Pressable onPress={() => setShowPw((s) => !s)} hitSlop={8}>
+                <Pressable
+                  onPress={() => setShowPw((s) => !s)}
+                  hitSlop={8}
+                  accessibilityRole="button"
+                  accessibilityLabel={showPw ? 'Hide password' : 'Show password'}
+                >
                   <Ionicons name={showPw ? 'eye-off' : 'eye'} size={20} color={colors.textFaint} />
                 </Pressable>
               }

@@ -33,6 +33,7 @@ import { Filter } from "../../../components/table/filters/filterFunc";
 import { labelAwareGlobalFilter } from "../../../components/table/filters/labelAwareGlobalFilter";
 import { statusChipStyle } from "../../../components/statusUtils";
 import { useTablePrefs, useTablePagination } from '@components/table/useTablePrefs';
+import { keywordColumnFilter } from '@components/table/filters/keywordColumnFilter';
 
 
 const Customtable = ({
@@ -121,6 +122,7 @@ const Customtable = ({
     enableRowSelection: quickSumEnabled,
     getCoreRowModel: getCoreRowModel(),
     filterFns: { dateBetweenFilterFn },
+    defaultColumn: { filterFn: keywordColumnFilter },
     globalFilterFn: labelAwareGlobalFilter,
     state: {
       globalFilter,

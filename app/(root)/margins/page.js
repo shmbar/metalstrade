@@ -44,6 +44,7 @@ import {
 import { useSortable } from '@dnd-kit/sortable';
 import { v4 as uuidv4 } from 'uuid';
 import { countDecimalDigits, dataIds, removeNonNumeric } from "./funcs";
+import { matchesAllWords } from '@utils/search';
 
 // Cell Component
 const RowDragHandleCell = ({ rowId }) => {
@@ -794,9 +795,7 @@ const Margins = () => {
                                             const supName = (id) => settings?.Supplier?.Supplier?.find(x => x.id === id)?.nname || '';
                                             const cliName = (id) => settings?.Client?.Client?.find(x => x.id === id)?.nname || '';
                                             const shown = !q ? items : items.filter(x =>
-                                                String(x.description || '').toLowerCase().includes(q)
-                                                || supName(x.supplier).toLowerCase().includes(q)
-                                                || cliName(x.client).toLowerCase().includes(q));
+                                                matchesAllWords([x.description, supName(x.supplier), cliName(x.client)], q));
                                             if (q && shown.length === 0) return null;
                                             return (
                                                 <div key={month}>

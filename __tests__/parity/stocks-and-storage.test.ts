@@ -24,7 +24,7 @@ import {
   makeStockOutLot,
   makeExpense,
 } from './_helpers/fixtures';
-import { repoFileText, expectWebUnchanged } from './_helpers/webSource';
+import { repoFileText, expectWebUnchanged, webFnSource } from './_helpers/webSource';
 
 /* Mirror of utils/finance.js settledInQty. An `in` lot counts its SETTLED weight;
    a lot whose ORIGINAL quantity is zero counts nothing, because those are the
@@ -69,6 +69,10 @@ import {
   cashflowStockLots,
 } from '@/features/stocks/aggregate';
 import { computeGradeSummary as mobileGradeSummary } from '@/features/stocks/gradeSummary';
+// Web's own pure helpers — Tier 1 proves mobile's copies are byte-identical, so a
+// mirror transcribing them again would add rot, not coverage.
+import { gradeKeyOf as webGradeKeyOf, niRangeLabel as webNiRangeLabel, gradeLabel as webGradeLabel } from '../../app/(root)/stocks/sumtables/gradeKey.js';
+import { resolveGrade as webResolveGrade, buildGradeIndex } from '../../utils/grades.js';
 import {
   DAY as MOBILE_DAY,
   STALE_DAYS as MOBILE_STALE_DAYS,
@@ -128,10 +132,25 @@ const HASH = {
   // preferences (useTablePrefs) and a narrow-column meta. Mobile has no table-prefs
   // feature, and the mirrored contract — the effect pushing getFilteredRowModel().rows
   // into setFilteredArray1 — was verified unchanged before this was updated.
-  customtable: '87065a709c9b', // app/(root)/stocks/newTable.js:32 (contains the footer count)
+  // Re-recorded 2026-09-12, covering six web changes since (grade folding + its row
+  // tint and indent, the shared search-box shell, the aggregated-row price fix, and
+  // today's per-column keyword filter, defaultColumn.filterFn). Every one is table
+  // MARKUP or a web-only table feature: mobile has no column filters and no table
+  // prefs. The two lines mobile actually mirrors — the footer reading
+  // getFilteredRowModel().rows.length, and the effect pushing those rows into
+  // setFilteredArray1 — are asserted directly below, so this hash is no longer the
+  // only thing standing between a real change and mobile.
+  customtable: 'e6caeda9390a', // app/(root)/stocks/newTable.js:38 (contains the footer count)
   addComma: '9d2dc43091c5', // app/(root)/stocks/whModal.js:52
   sumShowAmount: '61cca0f1837f', // app/(root)/stocks/sumtables/sumTable.js:8
-  gradeSummary: '3c54892bacca', // app/(root)/stocks/sumtables/gradeTable.js:11
+  // Re-recorded 2026-09-12 after PORTING the three web changes behind it, not to
+  // silence it: b6fc5f19 folded spellings of one grade onto a shared key, a461cc18
+  // replaced the suppliers/spellings chevron with one list of lots, and a6dee214 let a
+  // declared grade from the shared registry win over the derived key. Mobile had none
+  // of the three — its card listed every spelling separately, alphabetically. The
+  // mirror above now matches web line for line, mobile's gradeSummary.ts was rewritten
+  // against it, and the Tier-3 block below asserts fold, declared-grade and ordering.
+  gradeSummary: '1121c3c00ecc', // app/(root)/stocks/sumtables/gradeTable.js:35
   buildAudit: '8475451a4c58', // app/(root)/stocks/stockAudit.js:35
   resolveDescName: '826bf84cceac', // app/(root)/stocks/stockAudit.js:21
   filteredArray: '2c0d632f5d81', // utils/utils.js:207
@@ -185,7 +204,14 @@ const HASH = {
   storageSuggestWh: 'd33cb7953f78', // app/(root)/storagecosts/page.js:193
   storageActuals: '71376076b800', // app/(root)/storagecosts/page.js:178
   storageWhName: '55be7e6bd8bc', // app/(root)/storagecosts/page.js:117
-  labelAwareGlobalFilter: '5e023254ef34', // components/table/filters/labelAwareGlobalFilter.js:5
+  /* Re-recorded 2026-09-12: web replaced the per-column substring test with the
+     keyword matcher (utils/search.js matchesAllWords) — a query is a list of words and
+     a row keeps if EVERY word is somewhere in it, which is why a second word used to
+     match nothing. Mobile's mirror, filterInventoryRows, was rewritten onto the SAME
+     module (copied byte-for-byte into @shared/search) and Tier 2 below compares the two
+     implementations over every column value of every row, so this is a ported change,
+     not a silenced alarm. */
+  labelAwareGlobalFilter: '7feed868d991', // components/table/filters/labelAwareGlobalFilter.js:51
 };
 
 // ═════════════════════════════════════════════════════════════════════════════
@@ -455,8 +481,16 @@ const webRunStocksRows = (rawStockData: any[], settings: any): any[] => {
   return newArr;
 };
 
-/** app/(root)/stocks/sumtables/gradeTable.js:11 computeGradeSummary — verbatim. */
-const webComputeGradeSummary = (dataTable: any[], settings: any): any[] => {
+/** app/(root)/stocks/sumtables/gradeTable.js:35 computeGradeSummary — verbatim.
+ *
+ * Rewritten 2026-09-12 to follow web through three changes the mobile port had not
+ * been given: spellings of one grade fold onto a common key (b6fc5f19), the chevron
+ * opens ONE list of lots instead of suppliers-or-spellings (a461cc18), and a declared
+ * grade from the shared registry wins over the derived key (a6dee214). The web helpers
+ * gradeKeyOf/gradeLabel/niRangeLabel and resolveGrade are IMPORTED here rather than
+ * transcribed — they are pure modules that mobile now copies byte-for-byte, so Tier 1
+ * already guards them and a second transcription could only rot. */
+const webComputeGradeSummary = (dataTable: any[], settings: any, gradeIndex: any = null): any[] => {
   if (!dataTable || dataTable.length === 0) return [];
   const gCur = (id: string) => settings?.Currency?.Currency?.find((q: any) => q.id === id)?.cur || id;
   const supName = (id: string) =>
@@ -466,35 +500,56 @@ const webComputeGradeSummary = (dataTable: any[], settings: any): any[] => {
   dataTable.forEach((row: any) => {
     const name = row.descriptionName || '-';
     const curId = row.cur || '';
-    const key = `${name}|${curId}`;
+    const inLots = (row.data || []).filter((l: any) => l && l.type === 'in');
+    const declared = webResolveGrade(gradeIndex, {
+      description: name,
+      lineId: inLots.find((l: any) => l.description)?.description,
+    });
+    const { key: gradeKey, label: synthLabel, ni } = webGradeKeyOf(name);
+    const key = declared ? `grade:${declared.id}|${curId}` : `${gradeKey || name}|${curId}`;
     if (!groups[key]) {
-      groups[key] = { descriptionName: name, curId, totalQnty: 0, totalValue: 0, bySupplier: {} };
+      groups[key] = {
+        curId, grade: declared || null, synthLabel: declared ? null : synthLabel,
+        totalQnty: 0, totalValue: 0, byLot: {}, spellings: new Set(), niValues: [], inLots: [],
+      };
     }
+    const g = groups[key];
     const qty = parseFloat(row.qnty) || 0;
     const val = row.total === '-' ? 0 : parseFloat(row.total) || 0;
-    groups[key].totalQnty += qty;
-    groups[key].totalValue += val;
-    const sup = supName(row.supplier);
-    if (!groups[key].bySupplier[sup]) groups[key].bySupplier[sup] = { supplier: sup, qnty: 0, value: 0 };
-    groups[key].bySupplier[sup].qnty += qty;
-    groups[key].bySupplier[sup].value += val;
+    g.totalQnty += qty;
+    g.totalValue += val;
+    g.spellings.add(name);
+    if (ni !== null) g.niValues.push(ni);
+    g.inLots.push(...inLots);
+
+    const supplier = supName(row.supplier);
+    const lotKey = `${name}|${supplier}`;
+    if (!g.byLot[lotKey]) g.byLot[lotKey] = { description: name, supplier, qnty: 0, value: 0, lots: [] };
+    g.byLot[lotKey].qnty += qty;
+    g.byLot[lotKey].value += val;
+    g.byLot[lotKey].lots.push(...inLots);
   });
 
   return Object.values(groups)
     .filter((r: any) => r.totalQnty > 0.1)
-    .sort((a: any, b: any) => a.descriptionName.localeCompare(b.descriptionName))
     .map((r: any) => {
       const curCode = gCur(r.curId);
       const isoCode = curCode?.toLowerCase() === 'eur' ? 'EUR' : 'USD';
+      const base = r.grade ? r.grade.name : webGradeLabel(r.synthLabel, [...r.spellings]);
+      const span = r.synthLabel ? webNiRangeLabel(r.niValues) : '';
       return {
         ...r,
+        spellings: [...r.spellings],
+        declared: !!r.grade,
+        descriptionName: span ? `${base} · ${span}` : base,
         avgPrice: r.totalQnty > 0 ? r.totalValue / r.totalQnty : 0,
         isoCode,
-        suppliers: Object.values(r.bySupplier)
-          .filter((s: any) => s.qnty > 0.0005)
+        lots: Object.values(r.byLot)
+          .filter((l: any) => l.qnty > 0.0005)
           .sort((a: any, b: any) => b.value - a.value),
       };
-    });
+    })
+    .sort((a: any, b: any) => b.totalValue - a.totalValue);
 };
 
 /** app/(root)/stocks/storageAging.js:11-12 thresholds, and :25-65 byTerminal/staleRows. */
@@ -708,11 +763,20 @@ const webPerYear = (allExpenses: any[], lots: any[], whName: (id: string) => str
 };
 
 /**
- * newTable.js:105-109 + :548-554 — TanStack ORs the global filter across every
- * filterable column, and the footer's "of N" is the FILTERED row count.
+ * newTable.js:105-109 + :548-554 — TanStack calls the global filter once per
+ * column and keeps the row if any call says yes; the footer's "of N" is the
+ * FILTERED row count.
+ *
+ * The fake cells carry an `accessorFn`, because labelAwareGlobalFilter only reads
+ * columns that have one (a column opts OUT with enableGlobalFilter: false). Without
+ * it the filter sees a row with no searchable columns and answers "no" to
+ * everything, which silently turned the web half of every comparison below into an
+ * empty list.
  */
 const webGlobalFilterKeeps = (formattedRow: any, term: string): boolean => {
-  const cells = WEB_STOCK_COLUMNS.map((id) => ({ column: { id, columnDef: { meta: undefined } } }));
+  const cells = WEB_STOCK_COLUMNS.map((id) => ({
+    column: { id, accessorFn: (r: any) => r[id], columnDef: { meta: undefined } },
+  }));
   const row = { getValue: (id: string) => formattedRow[id], getAllCells: () => cells };
   return WEB_STOCK_COLUMNS.some((id) => labelAwareGlobalFilter(row as any, id, term));
 };
@@ -1151,6 +1215,22 @@ describe('Tier 3 — id → label resolution (stocks page getFormatted)', () => 
 });
 
 // ═════════════════════════════════════════════════════════════════════════════
+describe('Tier 1b — the two lines mobile mirrors out of web\'s table shell', () => {
+  // Customtable is 250 lines of markup mobile does not have. What it DOES mirror is
+  // (a) the footer count being the FILTERED row total and (b) the filtered rows being
+  // published to the page. Asserting those directly means a markup change can move the
+  // hash without anyone having to re-derive what mobile depends on.
+  const src = () => webFnSource('app/(root)/stocks/newTable.js', 'Customtable');
+
+  it('the footer count is the FILTERED row total, which is what mobile prints', () => {
+    expect(src()).toContain('table.getFilteredRowModel().rows.length');
+  });
+
+  it('the filtered rows are still published to the page through setFilteredArray1', () => {
+    expect(src()).toContain('setFilteredArray1?.(table.getFilteredRowModel().rows.map(r => r.original))');
+  });
+});
+
 describe('Tier 2 — the search box matches every column web searches', () => {
   const formatted = () => computeInventory(ledger(), SETTINGS).rows.map((r) => formatInventoryRow(r, SETTINGS));
   const webRows = () => webGetFormatted(webLoadStocks(ledger(), SETTINGS), SETTINGS);
@@ -1209,25 +1289,25 @@ describe('Tier 2 — the search box matches every column web searches', () => {
     }
   });
 
-  it('the term must fit inside ONE column — it may not straddle two adjacent columns', () => {
-    // labelAwareGlobalFilter.js:17 tests `String(resolved).includes(search)` ONCE PER
-    // COLUMN and TanStack ORs the results, so no web row can ever match text that
-    // spans a column boundary. Mobile used to join the 11 column values into a single
-    // space-separated haystack and substring-match that, which made
-    // "rotterdam ni scrap" (warehouse + grade) hit a row web does not return.
+  it('a term may span two columns — each keyword is matched on its own (Zak, 2026-09-12)', () => {
+    // utils/search.js matchesAllWords: the row's columns are ONE haystack and every
+    // keyword must be in it, so "rotterdam ni scrap" (warehouse + grade) is a hit —
+    // the deliberate replacement for the old rule, where a second word matched
+    // nothing because no single cell holds a warehouse AND a grade.
     const rows = formatted();
     const spanning = 'rotterdam ni scrap'; // warehouseName then descriptionName
-    expect(webRows().filter((r) => webGlobalFilterKeeps(r, spanning))).toHaveLength(0);
-    expect(filterInventoryRows(rows, spanning)).toHaveLength(0);
-    // …while each half on its own still matches, so this is not just an empty result.
-    expect(filterInventoryRows(rows, 'rotterdam').length).toBeGreaterThan(0);
-    expect(filterInventoryRows(rows, 'ni scrap').length).toBeGreaterThan(0);
+    const webIds = webRows().filter((r) => webGlobalFilterKeeps(r, spanning)).map((r) => r.id).sort();
+    expect(webIds.length).toBeGreaterThan(0);
+    expect(filterInventoryRows(rows, spanning).map((r: any) => r.id).sort()).toEqual(webIds);
+    // Word order does not matter, and a keyword that is nowhere still excludes the row.
+    expect(filterInventoryRows(rows, 'scrap rotterdam ni').map((r: any) => r.id).sort()).toEqual(webIds);
+    expect(filterInventoryRows(rows, 'rotterdam nothing-matches-this')).toHaveLength(0);
   });
 
   it('every column value is matched independently, term by term, against web', () => {
     // Exhaustive: for each row, each of the 11 column values, take a substring of it
-    // and require mobile and web to agree on which rows survive. This is the general
-    // form of the hand-picked term list above — it cannot be satisfied by a haystack.
+    // and require mobile and web to agree on which rows survive — the general form of
+    // the hand-picked term list above, over every column including the hidden two.
     const rows = formatted();
     const web = webRows();
     const terms = new Set<string>();
@@ -1428,11 +1508,52 @@ describe('Tier 3 — avg cost per grade (sumtables/gradeTable.js computeGradeSum
     totalValue: r.totalValue,
     avgPrice: r.avgPrice,
     isoCode: r.isoCode,
-    suppliers: r.suppliers,
+    declared: r.declared,
+    spellings: r.spellings,
+    lots: r.lots,
   });
+  /** Both sides drop the fields the card never reads (the grade doc, the raw Set). */
+  const pick = (r: any) => webPick(r);
 
   it('matches web grade for grade on the same rows', () => {
-    expect(mobileGradeSummary(rows(), SETTINGS)).toEqual(webComputeGradeSummary(rows(), SETTINGS).map(webPick));
+    expect(mobileGradeSummary(rows(), SETTINGS).map(pick)).toEqual(webComputeGradeSummary(rows(), SETTINGS).map(webPick));
+  });
+
+  it('spellings of one grade fold into a single row, labelled with its Ni span', () => {
+    // gradeKey.js — "16.41Ni 9.05Cr Ingots" and "31.14Ni 16.5Cr Ingots" are the same
+    // grade written twice; web folds them and names the fold by its Ni range. Mobile
+    // used to list each spelling on its own line.
+    const rws = [
+      { descriptionName: '16.41Ni 9.05Cr 0.81Mo Ingots', cur: 'us', supplier: 'sup-1', qnty: 10, total: 10000 },
+      { descriptionName: '31.14Ni 16.5Cr 2.4Mo Ingots', cur: 'us', supplier: 'sup-2', qnty: 10, total: 20000 },
+    ];
+    const mob = mobileGradeSummary(rws as any, SETTINGS);
+    expect(mob).toHaveLength(1);
+    expect(mob[0].spellings).toHaveLength(2);
+    // Folded rows are named by the element sequence plus the Ni span they cover.
+    expect(mob[0].descriptionName).toBe('NiCrMo Ingots · 16–31Ni');
+    // …and the two suppliers stay visible as two lots behind the one row.
+    expect(mob[0].lots.map((l: any) => l.supplier).sort()).toEqual(['Acme Metals', 'Bravo Alloys']);
+    expect(mob.map(pick)).toEqual(webComputeGradeSummary(rws, SETTINGS).map(webPick));
+  });
+
+  it('a declared grade wins over the derived key, and names the row', () => {
+    // utils/grades.js resolveGrade — the registry is why grades exist: one name for
+    // the ~550 spellings behind a few dozen alloys.
+    const index = buildGradeIndex([
+      { id: 'gr-1', name: 'IN 718', aliases: ['Ni Scrap 304', 'Cr Scrap 430'], lineIds: [] },
+    ]);
+    const rws = computeInventory(ledger(), SETTINGS).rows;
+    const mob = mobileGradeSummary(rws, SETTINGS, index);
+    const declared = mob.find((g: any) => g.declared);
+    expect(declared?.descriptionName).toBe('IN 718');
+    expect(mob.map(pick)).toEqual(webComputeGradeSummary(rws, SETTINGS, index).map(webPick));
+  });
+
+  it('rows come back biggest position first, not alphabetically', () => {
+    // gradeTable.js:100 — this table is read to find where the money is.
+    const values = mobileGradeSummary(rows(), SETTINGS).map((g: any) => g.totalValue);
+    expect([...values].sort((a: number, b: number) => b - a)).toEqual(values);
   });
 
   it('the average cost is value ÷ quantity, weighted across every lot of the grade', () => {
@@ -1447,7 +1568,7 @@ describe('Tier 3 — avg cost per grade (sumtables/gradeTable.js computeGradeSum
     const g = mobileGradeSummary(rws, SETTINGS)[0];
     expect(g.totalQnty).toBe(40);
     expect(g.avgPrice).toBe(70000 / 40); // 1750, not (1000+2000)/2
-    expect(mobileGradeSummary(rws, SETTINGS)).toEqual(webComputeGradeSummary(rws, SETTINGS).map(webPick));
+    expect(mobileGradeSummary(rws, SETTINGS).map(pick)).toEqual(webComputeGradeSummary(rws, SETTINGS).map(webPick));
   });
 
   it('the same grade in two currencies is two grades, never one blended figure', () => {
@@ -1459,14 +1580,14 @@ describe('Tier 3 — avg cost per grade (sumtables/gradeTable.js computeGradeSum
     const rws = computeInventory(lots, SETTINGS).rows;
     const g = mobileGradeSummary(rws, SETTINGS);
     expect(g).toHaveLength(2);
-    expect(g.map((x) => x.isoCode).sort()).toEqual(['EUR', 'USD']);
-    expect(g).toEqual(webComputeGradeSummary(rws, SETTINGS).map(webPick));
+    expect(g.map((x: any) => x.isoCode).sort()).toEqual(['EUR', 'USD']);
+    expect(g.map(pick)).toEqual(webComputeGradeSummary(rws, SETTINGS).map(webPick));
   });
 
   it('a "-" valued lot adds tonnage but no value, dragging the grade average down', () => {
     // gradeTable.js:29 `row.total === '-' ? 0 : …` with :28 counting the quantity.
     const rws = rows();
-    const mo = mobileGradeSummary(rws, SETTINGS).find((g) => g.descriptionName === 'Mo Scrap')!;
+    const mo = mobileGradeSummary(rws, SETTINGS).find((g: any) => g.descriptionName === 'Mo Scrap')!;
     expect(mo.totalQnty).toBe(5);
     expect(mo.totalValue).toBe(0);
     expect(mo.avgPrice).toBe(0);
@@ -1479,16 +1600,16 @@ describe('Tier 3 — avg cost per grade (sumtables/gradeTable.js computeGradeSum
     expect(webComputeGradeSummary(rws, SETTINGS)).toEqual([]);
   });
 
-  it('the supplier split is ordered by value and drops dust-sized contributions', () => {
-    // gradeTable.js:48-50 — filter qnty > 0.0005, sort by value descending.
+  it('the lot split is ordered by value and drops dust-sized contributions', () => {
+    // gradeTable.js:95-97 — filter qnty > 0.0005, sort by value descending.
     const rws = [
       { descriptionName: 'Ni Scrap 304', cur: 'us', supplier: 'sup-1', qnty: 5, total: 5000 },
       { descriptionName: 'Ni Scrap 304', cur: 'us', supplier: 'sup-2', qnty: 20, total: 20000 },
       { descriptionName: 'Ni Scrap 304', cur: 'us', supplier: 'sup-1', qnty: 0.0001, total: 1 },
     ];
     const g = mobileGradeSummary(rws as any, SETTINGS)[0];
-    expect(g.suppliers.map((s) => s.supplier)).toEqual(['Bravo Alloys', 'Acme Metals']);
-    expect(mobileGradeSummary(rws as any, SETTINGS)).toEqual(webComputeGradeSummary(rws, SETTINGS).map(webPick));
+    expect(g.lots.map((l: any) => l.supplier)).toEqual(['Bravo Alloys', 'Acme Metals']);
+    expect(mobileGradeSummary(rws as any, SETTINGS).map(pick)).toEqual(webComputeGradeSummary(rws, SETTINGS).map(webPick));
   });
 
   it('an unknown supplier keeps its id while a "-" row is labelled "(no supplier)"', () => {
@@ -1498,8 +1619,8 @@ describe('Tier 3 — avg cost per grade (sumtables/gradeTable.js computeGradeSum
       { descriptionName: 'X', cur: 'us', supplier: '-', qnty: 5, total: 500 },
     ];
     const g = mobileGradeSummary(rws as any, SETTINGS)[0];
-    expect(g.suppliers.map((s) => s.supplier).sort()).toEqual(['(no supplier)', 'sup-ghost']);
-    expect(mobileGradeSummary(rws as any, SETTINGS)).toEqual(webComputeGradeSummary(rws, SETTINGS).map(webPick));
+    expect(g.lots.map((l: any) => l.supplier).sort()).toEqual(['(no supplier)', 'sup-ghost']);
+    expect(mobileGradeSummary(rws as any, SETTINGS).map(pick)).toEqual(webComputeGradeSummary(rws, SETTINGS).map(webPick));
   });
 });
 

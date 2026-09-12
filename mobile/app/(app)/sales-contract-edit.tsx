@@ -1,11 +1,10 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { View, Alert, KeyboardAvoidingView, Platform } from 'react-native';
 import { Pressable } from '@/components/ui/Pressable';
-import { BackButton } from '@/components/ui/BackButton';
 import { useLocalSearchParams, router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Screen, Card, Text, Select, TextField, DateField, Button, SectionHeader, EmptyState } from '@/components/ui';
+import { Screen, Card, Text, Select, TextField, DateField, Button, SectionHeader, EmptyState, StackHeader, IconButton } from '@/components/ui';
 import { useTheme } from '@/theme/ThemeProvider';
 import { useSettings } from '@/store/settings';
 import {
@@ -32,6 +31,14 @@ export default function SalesContractEdit() {
   const existing = useMemo(() => rows.find((r: any) => r.id === id), [rows, id]);
   const [v, setV] = useState<any>(() => (isNew ? blankSalesContract() : { ...((existing as any)?.raw || {}) }));
   const [submitted, setSubmitted] = useState(false);
+
+  /* Seed once, when the contract arrives — see the note in invoices/edit.tsx. */
+  const seededId = useRef<string | null>(null);
+  useEffect(() => {
+    if (isNew || !existing || seededId.current === existing.id) return;
+    seededId.current = existing.id;
+    setV({ ...existing });
+  }, [existing, isNew]);
 
   const set = (k: string, val: any) => setV((p: any) => ({ ...p, [k]: val }));
   const setDate = (iso: string) => setV((p: any) => ({ ...p, dateRange: { startDate: iso, endDate: iso }, date: iso }));
@@ -70,7 +77,7 @@ export default function SalesContractEdit() {
   if (!isNew && !existing) {
     return (
       <Screen>
-        <BackBar />
+        <StackHeader title="Sales contract" backLabel="Cancel" />
         <EmptyState title="Sales contract not found" message="Open it from the list." />
       </Screen>
     );
@@ -116,11 +123,7 @@ export default function SalesContractEdit() {
   return (
     <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <Screen contentContainerStyle={{ paddingTop: insets.top + 8 }} edges={false}>
-        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
-          <BackBar />
-          <Text variant="h3">{isNew ? 'New sales contract' : 'Sales contract'}</Text>
-          <View style={{ width: 60 }} />
-        </View>
+        <StackHeader title={isNew ? 'New sales contract' : 'Sales contract'} backLabel="Cancel" />
 
         <Card style={{ gap: 12, marginBottom: 14 }}>
           <TextField
@@ -141,9 +144,7 @@ export default function SalesContractEdit() {
             title="Materials"
             subtitle={`${lines.length} line(s)`}
             right={
-              <Pressable onPress={addLine} hitSlop={8}>
-                <Ionicons name="add-circle-outline" size={22} color={colors.primary} />
-              </Pressable>
+              <IconButton icon="add" size={36} accessibilityLabel="Add line" onPress={addLine} />
             }
           />
           {lines.length === 0 ? (
@@ -162,7 +163,7 @@ export default function SalesContractEdit() {
                       onChangeText={(t) => setLine(i, { description: t })}
                     />
                   </View>
-                  <Pressable onPress={() => removeLine(i)} hitSlop={8} style={{ paddingTop: 18 }}>
+                  <Pressable onPress={() => removeLine(i)} hitSlop={8} accessibilityRole="button" accessibilityLabel="Remove line" style={{ paddingTop: 18 }}>
                     <Ionicons name="trash-outline" size={18} color={colors.negative} />
                   </Pressable>
                 </View>
@@ -209,6 +210,3 @@ export default function SalesContractEdit() {
   );
 }
 
-function BackBar() {
-  return <BackButton />;
-}

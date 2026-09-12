@@ -6,6 +6,7 @@ import { loadData, loadActivity } from '@/data/firestore';
 import { updateContractField, logEvent } from '@/data/writes';
 import { Contract, Invoice } from '@/data/types';
 import { normalizeStatus } from '@shared/shipmentStatus';
+import { matchesAllWords, searchWords } from '@shared/search';
 
 // web page.js:476 — the ids are stored, the labels are not.
 const SHP_TYPE_MAP: Record<string, string> = {
@@ -51,6 +52,14 @@ export interface ShipmentRow {
   clientName: string;
   /** main invoice number — web's getMainInvoice */
   invoiceNo: string;
+  /** every shipment booked against the contract, oldest first (web's getShipments) */
+  shipments: ShipmentLine[];
+  /** contracted quantity in MT — web's getPoQty */
+  poQty: number;
+  /** shipped so far, summed over the contract's shipments — web's getShippedQty */
+  shippedQty: number;
+  /** PO − shipped, or null when the contract carries no quantity at all */
+  remainingQty: number | null;
   /** NORMALIZED — web normalizes at load, so this is the vocabulary everything uses */
   status: string;
   etd: string;
@@ -74,6 +83,86 @@ export interface ShipmentFilters {
 }
 
 /** What one contract's FIRST original ('1111') sales invoice contributes to its row. */
+/** One shipment under a contract — web page.js:598-628. */
+export interface ShipmentLine {
+  id: string;
+  invoice: string;
+  invType: string;
+  date: string;
+  /** MT shipped on this invoice; a cancelled invoice shipped nothing */
+  qnty: number;
+  canceled: boolean;
+}
+
+/**
+ * Quantity a unit label represents in MT — web page.js:50-62. A contract priced in
+ * KGS or LB states its quantity in that unit, and the PO figure is read in MT.
+ */
+const W_PER_MT: Record<string, number> = { mt: 1, kg: 1000, lb: 2204.6226218 };
+const unitFromLabel = (label: string): string => {
+  const l = String(label || '').toLowerCase();
+  if (l.includes('kg')) return 'kg';
+  if (l.includes('lb') || l.includes('pound')) return 'lb';
+  return 'mt';
+};
+
+/**
+ * Every shipment booked against each contract, keyed by contract id — web's shipMap
+ * (page.js:580-635). One document per invoice NUMBER: a credit/final note supersedes
+ * the original (invType compares as a string, exactly as web does), and a cancelled
+ * invoice contributes 0 MT the way the Inventory tab treats it.
+ */
+export function buildShipmentQtyMap(invoices: any[]): Record<string, { shipped: number; shipments: ShipmentLine[] }> {
+  const byContract: Record<string, Map<string, any>> = {};
+  (invoices || []).filter(Boolean).forEach((d: any) => {
+    const cid = d.poSupplier?.id;
+    if (!cid) return;
+    if (!byContract[cid]) byContract[cid] = new Map();
+    const key = String(d.invoice ?? d.id);
+    const prev = byContract[cid].get(key);
+    // web page.js:63 'supersedes' — a STRING comparison on invType, kept verbatim.
+    if (!prev || String(d.invType || '') > String(prev.invType || '')) byContract[cid].set(key, d);
+  });
+
+  const out: Record<string, { shipped: number; shipments: ShipmentLine[] }> = {};
+  Object.entries(byContract).forEach(([cid, groups]) => {
+    const shipments: ShipmentLine[] = [...groups.values()]
+      .map((d: any) => ({
+        id: d.id,
+        invoice: String(d.invoice ?? ''),
+        invType: d.invType || '',
+        date: String(d.date || '').substring(0, 10),
+        qnty: d.canceled
+          ? 0
+          : (d.productsDataInvoice || []).reduce((sum: number, l: any) => sum + (parseFloat(l?.qnty) || 0), 0),
+        canceled: !!d.canceled,
+      }))
+      .sort((a, b) => {
+        const da = new Date(a.date).getTime() || 0;
+        const db = new Date(b.date).getTime() || 0;
+        if (da !== db) return da - db;
+        return String(a.invoice).localeCompare(String(b.invoice), undefined, { numeric: true });
+      });
+    out[cid] = { shipped: shipments.reduce((sum, x) => sum + x.qnty, 0), shipments };
+  });
+  return out;
+}
+
+/**
+ * Contracted quantity in MT — web's getPoQty (page.js:842-852). 'import: true'
+ * products are the hidden entries the supplier-invoice reader creates for unmatched
+ * lines; the PO table, the PO PDF and its totals all exclude them, so this does too.
+ */
+export function poQtyOf(contract: any, settings: any): number {
+  const label =
+    settings?.Quantity?.Quantity?.find((q: any) => q.id === contract?.qTypeTable)?.qTypeTable || '';
+  const factor = W_PER_MT[unitFromLabel(label)] || 1;
+  const raw = (contract?.productsData || [])
+    .filter((p: any) => p && !p.import)
+    .reduce((sum: number, p: any) => sum + (parseFloat(p.qnty) || 0), 0);
+  return raw / factor;
+}
+
 export interface ShipmentInvoiceInfo {
   client: any;
   etd: string;
@@ -148,7 +237,8 @@ export function buildShipmentRows(
   contracts: any[],
   invMap: Record<string, ShipmentInvoiceInfo>,
   actMap: Record<string, number>,
-  settings: any
+  settings: any,
+  qtyMap: Record<string, { shipped: number; shipments: ShipmentLine[] }> = {}
 ): ShipmentRow[] {
   const sups = settings?.Supplier?.Supplier || [];
   const clts = settings?.Client?.Client || [];
@@ -161,6 +251,9 @@ export function buildShipmentRows(
     const shpTypeId = inv?.shpType || c.shpType;
     const polId = inv?.pol || c.pol;
     const podId = inv?.pod || c.pod;
+    const shipments = qtyMap[c.id]?.shipments || [];
+    const poQty = poQtyOf(c, settings);
+    const shippedQty = qtyMap[c.id]?.shipped || 0;
     return {
       id: c.id,
       date: c.dateRange?.startDate || c.date || '',
@@ -172,6 +265,12 @@ export function buildShipmentRows(
       invoiceNo: String(
         ((c.invoices || []).find((i: any) => i.invType === '1111') || (c.invoices || [])[0])?.invoice ?? ''
       ),
+      shipments,
+      poQty,
+      shippedQty,
+      /* What is still owed under the PO. Null when the contract carries no quantity
+         at all (nothing to measure against), so the cell reads '—' not a fake 0. */
+      remainingQty: poQty ? poQty - shippedQty : null,
       status,
       etd: c.shipmentEtd || inv?.etd || '',
       eta,
@@ -221,7 +320,7 @@ export function computeShipmentCounts(all: ShipmentRow[]) {
  */
 export function filterShipmentRows(all: ShipmentRow[], filters: ShipmentFilters = {}): ShipmentRow[] {
   const { status = '', supplier = '', client = '', shipType = '', urgency = '', search = '' } = filters;
-  const q = String(search).trim().toLowerCase();
+  const words = searchWords(search);
   return (all || [])
     .filter((r) => {
       if (status && r.status !== status) return false;
@@ -229,14 +328,12 @@ export function filterShipmentRows(all: ShipmentRow[], filters: ShipmentFilters 
       if (client && r.clientName !== client) return false;
       if (shipType && r.shpType !== shipType) return false;
       if (urgency && r.urgency !== urgency) return false;
-      if (!q) return true;
-      // Web searches all four fields (page.js:611-616); mobile once searched two, so
-      // a client name or an invoice number matched on web and found nothing here.
-      return (
-        r.order.toLowerCase().includes(q) ||
-        r.supplierName.toLowerCase().includes(q) ||
-        r.clientName.toLowerCase().includes(q) ||
-        r.invoiceNo.includes(q)
+      // Web's predicate, field for field (page.js:1054-1063): the PO, both party
+      // names, the main invoice, and EVERY shipment's invoice — searching for the
+      // second shipment's number used to return nothing.
+      return matchesAllWords(
+        [r.order, r.supplierName, r.clientName, r.invoiceNo, r.shipments.map((s) => s.invoice)],
+        words
       );
     })
     .sort(
@@ -305,14 +402,19 @@ export function useShipment(filters: ShipmentFilters = {}) {
 
       const invRange = shipmentInvoiceRange(contracts, dateSelect);
       const invoices = await loadData<Invoice>(uid, 'invoices', invRange);
-      return { contracts, invMap: buildShipmentInvoiceMap(invoices), actMap };
+      return {
+        contracts,
+        invMap: buildShipmentInvoiceMap(invoices),
+        qtyMap: buildShipmentQtyMap(invoices),
+        actMap,
+      };
     },
   });
 
   const all: ShipmentRow[] = useMemo(() => {
     if (!query.data) return [];
-    const { contracts, invMap, actMap } = query.data;
-    return buildShipmentRows(contracts, invMap, actMap, settings);
+    const { contracts, invMap, qtyMap, actMap } = query.data;
+    return buildShipmentRows(contracts, invMap, actMap, settings, qtyMap);
   }, [query.data, settings]);
 
   const counts = useMemo(() => computeShipmentCounts(all), [all]);

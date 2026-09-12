@@ -6,6 +6,7 @@
 // transfer point and the seller/buyer split for carriage, insurance and clearance.
 import { useMemo, useState } from 'react'
 import { Search, Ship, Globe2, ChevronRight } from 'lucide-react'
+import { matchesAllWords } from '@utils/search';
 
 // mode: 'any'  = any mode of transport (incl. multimodal / containers)
 //       'sea'  = sea & inland waterway only
@@ -166,7 +167,7 @@ const Incoterms = () => {
         const q = query.trim().toLowerCase()
         return INCOTERMS.filter(t =>
             (mode === 'all' || t.mode === mode) &&
-            (q === '' || t.code.toLowerCase().includes(q) || t.name.toLowerCase().includes(q) || t.desc.toLowerCase().includes(q))
+            (q === '' || matchesAllWords([t.code, t.name, t.desc], q))
         )
     }, [query, mode])
 

@@ -1,7 +1,5 @@
 import { useMemo, useState } from 'react';
 import { View, FlatList, Alert } from 'react-native';
-import { Pressable } from '@/components/ui/Pressable';
-import { BackButton } from '@/components/ui/BackButton';
 import { Ionicons } from '@expo/vector-icons';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -14,6 +12,7 @@ import { buildAudit, buildWriteOffRows, leftoverKey, LeftoverGroup } from '@/fea
 import { useAllStockLots, STOCK_LOTS_KEY } from '@/features/stocks/useAllStockLots';
 import { curSymbol, fmtMoney } from '@/lib/format';
 import { hapticSuccess } from '@/lib/haptics';
+import { StackHeader } from '@/components/StackHeader';
 
 const fmtQ = (v: number) => new Intl.NumberFormat('en-US', { minimumFractionDigits: 3, maximumFractionDigits: 3 }).format(v || 0);
 type Tab = 'left' | 'dupes' | 'over' | 'orphan' | 'zeroIn';
@@ -75,10 +74,7 @@ export default function StockAudit() {
 
   return (
     <Screen scroll={false} flush contentContainerStyle={{ paddingTop: insets.top + 8 }} edges={false}>
-      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-        <BackButton />
-        <Text variant="h2" style={{ flex: 1 }}>Stock Audit</Text>
-      </View>
+      <StackHeader title="Stock Audit" />
       <Text variant="caption" tone="muted" style={{ marginBottom: 12 }}>
         Scanned {audit.total} records. <Text variant="caption" tone="primary">Leftovers</Text> lists every remaining
         balance and lets you write off the ones that are not factual; the other tabs are read-only reports.

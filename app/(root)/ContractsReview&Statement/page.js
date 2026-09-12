@@ -36,6 +36,7 @@ import React from "react";
 import VideoLoader from '../../../components/videoLoader';
 import { TableSkeleton } from "../../../components/skeletons";
 import { NameCell } from '../../../components/Avatar';
+import { matchesAllWords } from '@utils/search';
 
 // ── Statement roll-up indicators ───────────────────────────────────────────
 const fmtMT = (n) => new Intl.NumberFormat('en-US', { maximumFractionDigits: 2 }).format(Number(n) || 0);
@@ -183,12 +184,8 @@ const arrayIncludesString = (row, columnId, filterValue) => {
     if (!Array.isArray(cellValue)) return false;
     if (!filterValue) return true;
 
-    const search = filterValue.toLowerCase();
-
-    return cellValue.some(item => {
-        if (item === null || item === undefined) return false;
-        return item.toString().toLowerCase().includes(search);
-    });
+    // Every keyword somewhere in the stack — the same rule as every other search box.
+    return matchesAllWords(cellValue, filterValue);
 };
 
 // What the Status column holds for filtering and sorting: one token per line, so the

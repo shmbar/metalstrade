@@ -4,6 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { Card } from './Card';
 import { Text } from './Text';
 import { useTheme } from '@/theme/ThemeProvider';
+import { spacing } from '@/theme/tokens';
 
 type IconName = React.ComponentProps<typeof Ionicons>['name'];
 
@@ -42,13 +43,17 @@ export function KpiStrip({ items }: { items: KpiItem[] }) {
               : colors.text;
 
   return (
+    // Bleeds to both screen edges so the strip scrolls the full width and the
+    // next tile is clipped by the SCREEN, not by the page gutter — the clipped
+    // edge is the affordance that says "swipe me".
     <ScrollView
       horizontal
       showsHorizontalScrollIndicator={false}
       decelerationRate="fast"
       snapToInterval={TILE_W + GAP}
       snapToAlignment="start"
-      contentContainerStyle={{ gap: GAP, paddingRight: 4 }}
+      style={{ marginHorizontal: -spacing.lg }}
+      contentContainerStyle={{ gap: GAP, paddingHorizontal: spacing.lg }}
     >
       {items.map((k) => {
         const value = toneColor(k.tone);

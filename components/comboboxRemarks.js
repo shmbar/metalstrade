@@ -4,6 +4,7 @@ import { Combobox, Transition } from '@headlessui/react'
 import { AiOutlineCheck } from 'react-icons/ai';
 import { HiChevronUpDown } from 'react-icons/hi2';
 import { sortArr } from '../utils/utils'
+import { matchesAllWords } from '@utils/search';
 
 const MyCombobox = ({ data, setValue, value, indx, name, classes, disabled, classes1 }) => {
 
@@ -24,10 +25,7 @@ const MyCombobox = ({ data, setValue, value, indx, name, classes, disabled, clas
         query === ''
             ? newArr.slice(1)
             : newArr.slice(1).filter((x) =>
-                x[name]
-                    .toLowerCase()
-                    .replace(/\s+/g, '')
-                    .includes(query.toLowerCase().replace(/\s+/g, ''))
+                matchesAllWords(x[name], query)
             )
 
     const setSelection = (e) => {

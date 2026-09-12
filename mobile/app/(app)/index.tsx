@@ -14,7 +14,7 @@ import { usePrivacyStore, maskIfHidden } from '@/store/privacy';
 import { useDashboard, DashboardFilters } from '@/features/dashboard/useDashboard';
 import { ReceivablesCard, AgingCard, RankingCard } from '@/features/dashboard/components';
 import { MarketsTicker } from '@/features/prices/MarketsTicker';
-import { fmtCurKM, fmtMT, fmtAutoKM } from '@/lib/format';
+import { fmtCurKM, fmtMT, fmtAutoKM, curSymbol } from '@/lib/format';
 import { hapticTap } from '@/lib/haptics';
 import { spacing, radius } from '@/theme/tokens';
 
@@ -137,9 +137,11 @@ export default function Dashboard() {
               <Pressable
                 onPress={() => { hapticTap(); togglePrivacy(); }}
                 hitSlop={12}
-                style={{ width: 32, height: 32, borderRadius: 16, backgroundColor: 'rgba(255,255,255,0.16)', alignItems: 'center', justifyContent: 'center' }}
+                accessibilityRole="button"
+                accessibilityLabel={hideBalances ? 'Show balances' : 'Hide balances'}
+                style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: 'rgba(255,255,255,0.16)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.22)', alignItems: 'center', justifyContent: 'center' }}
               >
-                <Ionicons name={hideBalances ? 'eye-off' : 'eye'} size={16} color="#ffffff" />
+                <Ionicons name={hideBalances ? 'eye-off' : 'eye'} size={17} color="#ffffff" />
               </Pressable>
               <PeriodSelector />
             </View>
@@ -152,7 +154,7 @@ export default function Dashboard() {
             <Text variant="display" color="#ffffff" style={{ fontSize: 36, lineHeight: 42, marginTop: 2, fontVariant: ['tabular-nums'] }} numberOfLines={1} adjustsFontSizeToFit>
               {data ? maskIfHidden(hideBalances, fmtAutoKM(data.revenueUsd)) : '—'}
             </Text>
-            {data && Object.keys(data.revenueByCur).length > 0 && (
+            {data && Object.keys(data.revenueByCur).some((c) => curSymbol(c) !== '$') && (
               <Text variant="caption" color="rgba(255,255,255,0.7)" style={{ marginTop: 2 }} numberOfLines={1}>
                 {maskIfHidden(hideBalances, curLine(data.revenueByCur))}
               </Text>
@@ -176,7 +178,7 @@ export default function Dashboard() {
             ].map((c) => (
               <Pressable key={c.k} onPress={() => router.push(c.href as any)} style={{ flex: 1, backgroundColor: 'rgba(255,255,255,0.14)', borderRadius: radius.lg, borderWidth: 1, borderColor: 'rgba(255,255,255,0.18)', padding: 10 }}>
                 <Text variant="caption" color="rgba(255,255,255,0.7)" numberOfLines={1}>{c.k}</Text>
-                <Text variant="bodyMedium" color="#ffffff" numberOfLines={1} adjustsFontSizeToFit style={{ marginTop: 2, fontFamily: 'PlusJakartaSans_600SemiBold', fontVariant: ['tabular-nums'] }}>{c.v}</Text>
+                <Text variant="bodyMedium" color="#ffffff" numberOfLines={1} adjustsFontSizeToFit={c.v.length > 9} style={{ marginTop: 2, fontFamily: 'PlusJakartaSans_600SemiBold', fontVariant: ['tabular-nums'] }}>{c.v}</Text>
               </Pressable>
             ))}
           </View>
@@ -208,13 +210,16 @@ export default function Dashboard() {
 
         {/* Quick actions — wraps to a second row once the admin-only 5th tile
             (Sharon/Gis Admin) joins the other four. */}
-        <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', rowGap: 14, paddingHorizontal: spacing.lg, marginTop: 18 }}>
+        <View style={{ flexDirection: 'row', gap: 8, paddingHorizontal: spacing.lg, marginTop: 18 }}>
           {QUICK.map((q) => (
-            <Pressable key={q.label} onPress={() => router.push(q.href as any)} style={{ alignItems: 'center', gap: 6, width: '23%' }}>
-              <View style={{ width: 54, height: 54, borderRadius: radius.lg, backgroundColor: colors.card, borderWidth: 1, borderColor: colors.border, alignItems: 'center', justifyContent: 'center', shadowColor: '#1E1B39', shadowOpacity: scheme === 'dark' ? 0.35 : 0.08, shadowRadius: 10, shadowOffset: { width: 0, height: 4 }, elevation: 2 }}>
+            /* Each tile takes an equal share of the row, so four actions or five
+               (the admin-only workspace tile) both come out evenly spaced instead
+               of wrapping one lonely tile onto a second line. */
+            <Pressable key={q.label} onPress={() => router.push(q.href as any)} accessibilityRole="button" style={{ flex: 1, alignItems: 'center', gap: 6 }}>
+              <View style={{ width: 52, height: 52, borderRadius: radius.lg, backgroundColor: colors.card, borderWidth: 1, borderColor: colors.border, alignItems: 'center', justifyContent: 'center', shadowColor: colors.text, shadowOpacity: scheme === 'dark' ? 0.35 : 0.08, shadowRadius: 10, shadowOffset: { width: 0, height: 4 }, elevation: 2 }}>
                 <Ionicons name={q.icon as any} size={22} color={colors.primary} />
               </View>
-              <Text variant="caption" tone="muted" numberOfLines={1}>{q.label}</Text>
+              <Text variant="caption" tone="muted" numberOfLines={2} style={{ textAlign: 'center' }}>{q.label}</Text>
             </Pressable>
           ))}
         </View>

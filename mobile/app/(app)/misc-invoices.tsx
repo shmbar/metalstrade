@@ -1,7 +1,6 @@
 import { useMemo, useState } from 'react';
 import { View, FlatList, ActivityIndicator, Alert } from 'react-native';
 import { Pressable } from '@/components/ui/Pressable';
-import { BackButton } from '@/components/ui/BackButton';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Screen, Card, Text, Badge, SectionHeader, SkeletonList, ErrorState, EmptyState, Sheet } from '@/components/ui';
@@ -11,6 +10,7 @@ import { useSettings } from '@/store/settings';
 import { useMiscInvoices, useSetMiscCategory, MISC_CATS, MiscRow, MiscCat } from '@/features/misc/useMiscInvoices';
 import { apiConfigured, postJson } from '@/lib/api';
 import { curSymbol, fmtMoney } from '@/lib/format';
+import { StackHeader } from '@/components/StackHeader';
 
 const CAT_TONE: Record<string, 'info' | 'warn' | 'positive' | 'neutral'> = {
   shipments: 'info',
@@ -78,11 +78,7 @@ export default function MiscInvoices() {
 
   return (
     <Screen scroll={false} flush contentContainerStyle={{ paddingTop: insets.top + 8 }} edges={false}>
-      <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
-        <BackButton />
-        <Text variant="h2">Misc Invoices</Text>
-        <PeriodSelector />
-      </View>
+      <StackHeader title="Misc Invoices" right={<PeriodSelector />} />
 
       {isLoading ? (
         <SkeletonList />

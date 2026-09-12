@@ -1,11 +1,10 @@
 import { useMemo, useState } from 'react';
 import { View, Alert } from 'react-native';
-import { Pressable } from '@/components/ui/Pressable';
 import { BackButton } from '@/components/ui/BackButton';
 import { useLocalSearchParams, router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Screen, Card, Text, Badge, Button, SectionHeader, TextField, DateField, EmptyState, SkeletonList, Sheet } from '@/components/ui';
+import { Screen, Card, Text, Badge, Button, SectionHeader, TextField, DateField, EmptyState, SkeletonList, Sheet, IconButton, Avatar, Chip, ErrorState } from '@/components/ui';
 import { useTheme } from '@/theme/ThemeProvider';
 import { useSettings } from '@/store/settings';
 import { useInvoices, deriveInvoice } from '@/features/invoices/useInvoices';
@@ -21,13 +20,14 @@ import { num } from '@shared/finance';
 import { curSymbol, fmtMoney, fmtCurKM, dateLabel } from '@/lib/format';
 import { hapticSuccess } from '@/lib/haptics';
 import { spacing } from '@/theme/tokens';
+import { toast } from '@/store/toast';
 
 export default function InvoiceDetail() {
   const { id, pay } = useLocalSearchParams<{ id: string; pay?: string }>();
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
   const { settings, compData } = useSettings();
-  const { data: invoices, isLoading: invoicesLoading } = useInvoices();
+  const { data: invoices, isLoading: invoicesLoading, isError, error, refetch } = useInvoices();
   const addPayment = useAddPayment();
   const saveSplit = useSaveInvoiceSplit();
   const genReminder = useGenerateReminder();
@@ -55,6 +55,15 @@ export default function InvoiceDetail() {
       <Screen>
         <Back />
         <SkeletonList count={4} />
+      </Screen>
+    );
+  }
+
+  if (!view && isError) {
+    return (
+      <Screen>
+        <Back />
+        <ErrorState message={(error as Error)?.message || 'Could not load this invoice.'} onRetry={refetch} />
       </Screen>
     );
   }
@@ -135,7 +144,7 @@ export default function InvoiceDetail() {
     try {
       await sendReminder.mutateAsync({ invoiceId: view.id, invoiceYear: view.year, to: to.trim(), subject, body, companyName });
       setShowReminder(false);
-      Alert.alert('Sent', `Reminder emailed to ${to.trim()}.`);
+      toast.success(`Reminder emailed to ${to.trim()}.`, 'Sent');
     } catch (e: any) {
       Alert.alert('Could not send', e?.message || 'Email failed (the server may not have email configured).');
     }
@@ -145,19 +154,21 @@ export default function InvoiceDetail() {
     <Screen contentContainerStyle={{ paddingTop: insets.top + 8 }} edges={false}>
       <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
         <Back />
-        <Pressable onPress={() => router.push(`/(app)/invoices/edit?id=${view.id}`)} hitSlop={8} style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
-          <Ionicons name="create-outline" size={18} color={colors.primary} />
-          <Text variant="bodyMedium" tone="primary">Edit</Text>
-        </Pressable>
+        <IconButton icon="create-outline" accessibilityLabel="Edit invoice" onPress={() => router.push(`/(app)/invoices/edit?id=${view.id}`)} />
       </View>
 
       {/* Title */}
-      <View style={{ marginTop: 8, marginBottom: 16 }}>
-        <Text variant="display">Invoice #{view.number ?? '—'}</Text>
-        <Text variant="body" tone="muted" style={{ marginTop: 2 }}>
-          {view.clientName}
-        </Text>
-        <View style={{ flexDirection: 'row', gap: 8, marginTop: 10 }}>
+      <View style={{ marginTop: 12, marginBottom: 16 }}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+          <Avatar name={view.clientName} size={48} />
+          <View style={{ flex: 1, minWidth: 0 }}>
+            <Text variant="display" numberOfLines={1}>Invoice #{view.number ?? '—'}</Text>
+            <Text variant="body" tone="muted" numberOfLines={1}>
+              {view.clientName}
+            </Text>
+          </View>
+        </View>
+        <View style={{ flexDirection: 'row', gap: 8, marginTop: 12 }}>
           <Badge label={view.status} tone={view.status === 'Paid' ? 'positive' : view.status === 'Partial' ? 'warn' : 'negative'} />
           <Badge label={view.finalized ? 'Finalized' : 'Provisional'} tone={view.finalized ? 'positive' : 'warn'} />
           {view.dateIso ? <Badge label={view.dateIso} tone="neutral" /> : null}
@@ -253,12 +264,7 @@ export default function InvoiceDetail() {
         <SectionHeader
           title="Payments"
           subtitle={`${payments.length} payment(s)`}
-          right={
-            <Pressable onPress={() => setShowAdd(true)} hitSlop={8} style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
-              <Ionicons name="add-circle" size={20} color={colors.primary} />
-              <Text variant="bodyMedium" tone="primary">Add</Text>
-            </Pressable>
-          }
+          right={<Chip label="Record" icon="add" active onPress={() => setShowAdd(true)} />}
         />
         {payments.length === 0 ? (
           <Text variant="body" tone="muted">No payments recorded yet.</Text>

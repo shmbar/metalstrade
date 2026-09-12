@@ -280,6 +280,9 @@ export function SharedStockView() {
                   <Pressable
                     key={o}
                     onPress={() => toggleOwner(o)}
+                    accessibilityRole="checkbox"
+                    accessibilityState={{ checked: on }}
+                    accessibilityLabel={`Owner ${o}`}
                     style={{
                       flexDirection: 'row', alignItems: 'center', gap: 6,
                       paddingHorizontal: 12, paddingVertical: 7, borderRadius: 999,

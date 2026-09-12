@@ -13,6 +13,7 @@ import { usePathname } from "next/navigation";
 import { SettingsContext } from "../../../contexts/useSettingsContext";
 import { UserAuth } from "../../../contexts/useAuthContext";
 import { getTtl } from "../../../utils/languages";
+import { matchesAllWords } from '@utils/search';
 
 // One thin-line icon set (lucide) for the whole nav — replaces the /logo/*.svg map.
 const NAV_ICONS = {
@@ -120,10 +121,7 @@ export default function Sidebar() {
   const searchResults = useMemo(() => {
     const q = searchQuery.trim().toLowerCase();
     if (!q) return [];
-    return allLinks.filter((link) =>
-      link.item.toLowerCase().includes(q) ||
-      link.section.toLowerCase().includes(q)
-    );
+    return allLinks.filter((link) => matchesAllWords([link.item, link.section], q));
   }, [searchQuery, allLinks]);
 
   const isSearching = searchQuery.trim().length > 0;

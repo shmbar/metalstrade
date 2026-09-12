@@ -15,6 +15,7 @@ import { Button } from '@components/ui/button';
 import { CirclePlus, CircleMinus, Trash, ArrowBigRight, FileText, Download, X } from "lucide-react";
 import { BtnIcon } from "@components/buttonIcons";
 import DocumentImportOverlay from '@components/DocumentImportOverlay';
+import { matchesAllWords } from '@utils/search';
 
 // Mutual-invoice mirroring (IMS ↔ GIS). Same account uids and counterpart supplier
 // ids that CopyIMSGIS in contractDetails.js uses when copying contracts across.
@@ -615,7 +616,7 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowStockModal }) => {
                                 <p className='p-3 responsiveTextTable text-[var(--regent-gray)]'>Loading {counterpartName} invoices…</p>
                             ) : (() => {
                                 const q = mirrorQuery.trim().toLowerCase();
-                                const rows = mirrorList.filter(z => !q || String(z.invoice).toLowerCase().includes(q));
+                                const rows = mirrorList.filter(z => !q || matchesAllWords(z.invoice, q));
                                 if (!rows.length) return <p className='p-3 responsiveTextTable text-[var(--regent-gray)]'>No invoices found.</p>;
                                 return rows.map(z => {
                                     const exact = round2(z.totalAmount);

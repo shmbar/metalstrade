@@ -13,8 +13,8 @@ import { NextResponse } from 'next/server'
  *    plan's monthly call allowance needs a longer gap);
  *  - metals and currencies come from ONE `latest` call, so live FX costs nothing
  *    extra against that allowance;
- *  - the change figure is today against yesterday, from one `historical` call per
- *    UTC day (see refreshReference);
+ *  - the change figure is today against the last day the market moved, one
+ *    `historical` call per day (see refreshReference);
  *  - `?fresh=1` (the Refresh button) skips the TTL, at most once per 15 s;
  *  - concurrent requests at expiry share one upstream call;
  *  - a failing provider still gets the last good answer served, but it now says
@@ -57,7 +57,7 @@ let _cacheAt    = 0      // when it was fetched
 let _attemptAt  = 0      // last upstream attempt, good or bad
 let _lastError  = null   // message from the last failed attempt, cleared on success
 let _inflight   = null   // shared promise while an upstream call is running
-let _ref        = { date: null, rates: {} }   // yesterday's metal rates (troy oz per USD)
+let _ref        = { for: null, day: null, rates: {} }  // the reference day's rates (troy oz per USD)
 let _refTriedAt = 0
 
 const NO_STORE = { 'Cache-Control': 'no-store, max-age=0' }
@@ -95,35 +95,47 @@ async function upstream(path, params) {
    and yesterday's rates never change, so one fetch serves every request that day.
    Computed from PRICES, not taken from the provider's change_pct: that is on its
    rate, troy oz per USD, the inverse of a price, so its sign is the opposite. */
-async function refreshReference(now) {
-    const day = dateStr(-1)
-    if (_ref.date === day || now - _refTriedAt < REF_RETRY_MS) return
+async function refreshReference(now, currentRates) {
+    const today = dateStr(0);
+    if (_ref.for === today || now - _refTriedAt < REF_RETRY_MS) return
     _refTriedAt = now
-    const rates = _ref.date === null ? { ..._ref.rates } : {}
-    try {
-        const body = await upstream(day, { symbols: METAL_SYMBOLS.join(',') })
-        Object.assign(rates, body.rates || {})
-    } catch (_) { /* fall through to one symbol per call */ }
-    const missing = METAL_SYMBOLS.filter((s) => !(Number(rates[s]) > 0))
-    if (missing.length) {
-        const one = await Promise.all(missing.map((s) =>
-            upstream(day, { symbols: s }).then((b) => b.rates?.[s]).catch(() => null)))
-        missing.forEach((s, i) => { if (Number(one[i]) > 0) rates[s] = Number(one[i]) })
-    }
-    const complete = METAL_SYMBOLS.every((s) => Number(rates[s]) > 0)
-    // A partial set is still used, but not marked done, so the gaps are retried.
-    _ref = { date: complete ? day : null, rates, day }
-}
 
+    // Walk back until a day whose prices actually DIFFER from the ones on screen.
+    // The LME publishes once per trading day, so on a Saturday "yesterday" holds
+    // exactly what "latest" holds and every metal reads 0.00% — a strip that says
+    // nothing moved when the market was simply shut. Four steps covers a weekend
+    // plus a holiday; each day is one call and the answer is kept for the day.
+    for (let back = 1; back <= 4; back++) {
+        const day = dateStr(-back)
+        let rates = {}
+        try {
+            rates = (await upstream(day, { symbols: METAL_SYMBOLS.join(',') })).rates || {}
+        } catch (_) { continue }
+        const usable = METAL_SYMBOLS.filter((sym) => Number(rates[sym]) > 0)
+        if (!usable.length) continue
+        const moved = usable.some((sym) => {
+            const then = Number(rates[sym])
+            const now_ = Number(currentRates?.[sym])
+            return now_ > 0 && Math.abs(then - now_) / now_ > 1e-9
+        })
+        if (moved || back === 4) { _ref = { for: today, day, rates }; return }
+    }
+}
 async function load() {
     const now = Date.now()
     _attemptAt = now
     try {
-        const [latest] = await Promise.all([
-            upstream('latest', { symbols: [...METAL_SYMBOLS, ...FX_SYMBOLS].join(',') }),
-            refreshReference(now).catch(() => {}),
-        ])
+        const latest = await upstream('latest', { symbols: [...METAL_SYMBOLS, ...FX_SYMBOLS].join(',') })
         const rates = latest.rates || {}
+        // Sequential, not parallel: the reference day is picked by comparing with
+        // these very rates. Both sides are troy oz per USD — the shape the historical
+        // endpoint returns — so the comparison is like for like.
+        const currentBySymbol = {}
+        METAL_SYMBOLS.forEach((sym) => {
+            const usdRate = rates[`USD${sym}`] ?? (rates[sym] ? 1 / rates[sym] : null)
+            if (usdRate) currentBySymbol[sym] = 1 / usdRate
+        })
+        await refreshReference(now, currentBySymbol).catch(() => {})
 
         const prices = {}
         Object.entries(METAL_META).forEach(([sym, meta]) => {

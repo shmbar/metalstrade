@@ -1,7 +1,5 @@
 import { useState } from 'react';
 import { View } from 'react-native';
-import { Pressable } from '@/components/ui/Pressable';
-import { BackButton } from '@/components/ui/BackButton';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Screen, Card, Text, SegmentedControl, ProgressBar, SectionHeader, SkeletonList, ErrorState, EmptyState } from '@/components/ui';
@@ -10,6 +8,7 @@ import { useTheme } from '@/theme/ThemeProvider';
 import { useAnalysis } from '@/features/analysis/useAnalysis';
 import { WeightAnalysisView } from '@/features/analysis/WeightAnalysisView';
 import { fmtMoney } from '@/lib/format';
+import { StackHeader } from '@/components/StackHeader';
 
 const mt = (n: number) => `${fmtMoney(n, 1)} MT`;
 
@@ -27,11 +26,7 @@ export default function Analysis() {
 
   return (
     <Screen contentContainerStyle={{ paddingTop: insets.top + 8 }} edges={false} refreshing={isLoading} onRefresh={refetch}>
-      <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
-        <BackButton />
-        <Text variant="h2">Analysis</Text>
-        <PeriodSelector />
-      </View>
+      <StackHeader title="Analysis" right={<PeriodSelector />} />
 
       <View style={{ marginBottom: 14 }}>
         <SegmentedControl

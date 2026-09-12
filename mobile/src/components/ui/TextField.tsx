@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { View, TextInput, TextInputProps } from 'react-native';
-import { Pressable } from './Pressable';
 import { Text } from './Text';
 import { useTheme } from '@/theme/ThemeProvider';
 import { radius, spacing } from '@/theme/tokens';
@@ -31,6 +30,7 @@ export function TextField({ label, error, rightElement, style, onFocus, onBlur, 
           borderWidth: 1,
           borderColor: error ? colors.negative : focused ? colors.primary : colors.borderStrong,
           paddingHorizontal: spacing.md,
+          minHeight: 48,
         }}
       >
         <TextInput

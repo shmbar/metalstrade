@@ -1,11 +1,10 @@
 import { useMemo, useState } from 'react';
 import { View, Alert, KeyboardAvoidingView, Platform } from 'react-native';
 import { Pressable } from '@/components/ui/Pressable';
-import { BackButton } from '@/components/ui/BackButton';
 import { useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Screen, Card, Text, TextField, DateField, Button, SectionHeader, EmptyState, SkeletonList } from '@/components/ui';
+import { Screen, Card, Text, TextField, DateField, Button, SectionHeader, EmptyState, SkeletonList, StackHeader, IconButton, ErrorState } from '@/components/ui';
 import { useTheme } from '@/theme/ThemeProvider';
 import { useContracts } from '@/features/contracts/useContracts';
 import {
@@ -27,7 +26,7 @@ export default function PoInvoices() {
   const insets = useSafeAreaInsets();
   const { uidCollection } = useAuth();
   const qc = useQueryClient();
-  const { data: contracts, isLoading } = useContracts();
+  const { data: contracts, isLoading, isError, error, refetch } = useContracts();
 
   const contract = useMemo(() => contracts?.find((c) => c.id === id), [contracts, id]);
   const [list, setList] = useState<PoInvoice[] | null>(null);
@@ -58,15 +57,23 @@ export default function PoInvoices() {
   if (!contract && isLoading) {
     return (
       <Screen>
-        <Back />
+        <StackHeader title="Purchase invoices" />
         <SkeletonList count={4} />
+      </Screen>
+    );
+  }
+  if (!contract && isError) {
+    return (
+      <Screen>
+        <StackHeader title="Purchase invoices" />
+        <ErrorState message={(error as Error)?.message || 'Could not load this contract.'} onRetry={refetch} />
       </Screen>
     );
   }
   if (!contract) {
     return (
       <Screen>
-        <Back />
+        <StackHeader title="Purchase invoices" />
         <EmptyState title="Contract not found" message="Open it from the contracts list." />
       </Screen>
     );
@@ -85,13 +92,17 @@ export default function PoInvoices() {
   return (
     <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <Screen contentContainerStyle={{ paddingTop: insets.top + 8 }} edges={false}>
-        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
-          <Back />
-          <Text variant="h3">Purchase Invoices</Text>
-          <Pressable onPress={() => apply(addInvoice(rows, newId(), newId()))} hitSlop={8}>
-            <Ionicons name="add-circle-outline" size={22} color={colors.primary} />
-          </Pressable>
-        </View>
+        <StackHeader
+          title="Purchase invoices"
+          right={
+            <IconButton
+              icon="add"
+              variant="primary"
+              accessibilityLabel="Add purchase invoice"
+              onPress={() => apply(addInvoice(rows, newId(), newId()))}
+            />
+          }
+        />
         <Text variant="caption" tone="muted" style={{ marginBottom: 12 }}>
           {(contract as any).order || 'Contract'} · {rows.length} invoice(s)
         </Text>
@@ -145,9 +156,12 @@ export default function PoInvoices() {
                   title="Payments"
                   subtitle={`${inv.payments?.length || 0} scheduled`}
                   right={
-                    <Pressable onPress={() => apply(addPayment(rows, inv.id, newId()))} hitSlop={8}>
-                      <Ionicons name="add-circle-outline" size={19} color={colors.primary} />
-                    </Pressable>
+                    <IconButton
+                      icon="add"
+                      size={34}
+                      accessibilityLabel="Add payment"
+                      onPress={() => apply(addPayment(rows, inv.id, newId()))}
+                    />
                   }
                 />
                 {(inv.payments || []).map((p) => (
@@ -160,7 +174,7 @@ export default function PoInvoices() {
                           onChange={(iso) => apply(setPaymentDate(rows, inv.id, p.pmntId, iso))}
                         />
                       </View>
-                      <Pressable onPress={() => apply(deletePayment(rows, inv.id, p.pmntId))} hitSlop={8} style={{ paddingTop: 18 }}>
+                      <Pressable onPress={() => apply(deletePayment(rows, inv.id, p.pmntId))} hitSlop={8} accessibilityRole="button" accessibilityLabel="Delete payment" style={{ paddingTop: 18 }}>
                         <Ionicons name="trash-outline" size={17} color={colors.negative} />
                       </Pressable>
                     </View>
@@ -245,6 +259,3 @@ function Row({ label, v, strong }: { label: string; v: string; strong?: boolean 
   );
 }
 
-function Back() {
-  return <BackButton />;
-}

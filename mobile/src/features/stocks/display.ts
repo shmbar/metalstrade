@@ -2,6 +2,7 @@
 // parity suite can compare them against web's table/formatting behaviour without
 // rendering anything (no React, no react-native imports here).
 import { curSymbol, fmtMoney } from '@/lib/format';
+import { matchesAllWords, searchWords } from '@shared/search';
 
 /**
  * Every column the web Stocks table feeds its GLOBAL filter, in web's own column
@@ -46,22 +47,20 @@ export const inventoryFilterValues = (r: any): string[] => [
 ];
 
 /**
- * Rows surviving the search box. Web's global filter keeps a row when ANY ONE
- * filterable column CONTAINS the (trimmed, lower-cased) term — TanStack ORs the
- * per-column predicate (components/table/filters/labelAwareGlobalFilter.js:5-17,
- * `String(resolved).toLowerCase().includes(search)` evaluated per column).
+ * Rows surviving the search box — web's labelAwareGlobalFilter, which now builds
+ * ONE searchable text per row from every filterable column and keeps the row when
+ * EVERY keyword appears somewhere in it (utils/search.js matchesAllWords; Zak,
+ * 2026-09-12: "all search boxes in the entire software need to use each keyword").
  *
- * The match MUST be per column, not against the columns joined into one string:
- * a joined haystack lets a term straddle a column boundary, so "rotterdam ni scrap"
- * matched a row whose warehouse is Rotterdam and whose grade is Ni Scrap 304 even
- * though no single web column contains that text and web returns nothing.
+ * The earlier rule — any single column CONTAINS the whole query — meant a second
+ * word matched nothing, because no one cell holds both a grade and a supplier.
+ * The matcher is the web file itself, copied verbatim into @shared, so the two
+ * apps cannot drift on folding, accents or the digits-without-separators rule.
  */
 export const filterInventoryRows = <T,>(rows: T[], search: string): T[] => {
-  const q = String(search ?? '').trim().toLowerCase();
-  if (!q) return rows;
-  return rows.filter((r) =>
-    inventoryFilterValues(r).some((v) => String(v ?? '').toLowerCase().includes(q))
-  );
+  const words = searchWords(search);
+  if (!words.length) return rows;
+  return rows.filter((r) => matchesAllWords(inventoryFilterValues(r), words));
 };
 
 /**

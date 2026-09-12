@@ -1,11 +1,11 @@
 import { useMemo, useState } from 'react';
 import { View } from 'react-native';
-import { BackButton } from '@/components/ui/BackButton';
-import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Screen, Card, Text, TextField, Badge, SegmentedControl, EmptyState } from '@/components/ui';
+import { Screen, Card, Text, Badge, SegmentedControl, EmptyState, SearchField } from '@/components/ui';
 import { useTheme } from '@/theme/ThemeProvider';
 import { INCOTERMS, MODE_FILTERS } from '@/features/incoterms/data';
+import { StackHeader } from '@/components/StackHeader';
+import { matchesAllWords, searchWords } from '@shared/search';
 
 function Responsibility({ label, value }: { label: string; value: string }) {
   const { colors } = useTheme();
@@ -28,31 +28,18 @@ export default function Incoterms() {
   const [mode, setMode] = useState<'all' | 'any' | 'sea'>('all');
 
   const list = useMemo(() => {
-    const q = search.trim().toLowerCase();
+    const words = searchWords(search);
     return INCOTERMS.filter((t) => {
       if (mode !== 'all' && t.mode !== mode) return false;
-      if (!q) return true;
-      return t.code.toLowerCase().includes(q) || t.name.toLowerCase().includes(q) || t.desc.toLowerCase().includes(q);
+      return matchesAllWords([t.code, t.name, t.desc], words);
     });
   }, [search, mode]);
 
   return (
     <Screen contentContainerStyle={{ paddingTop: insets.top + 8 }} edges={false}>
-      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 14 }}>
-        <BackButton />
-        <View style={{ flex: 1 }}>
-          <Text variant="h1">Incoterms 2020</Text>
-          <Text variant="caption" tone="faint">Who pays, who carries the risk, where it transfers</Text>
-        </View>
-      </View>
+      <StackHeader title="Incoterms 2020" subtitle="Who pays, who carries the risk, where it transfers" />
 
-      <TextField
-        value={search}
-        onChangeText={setSearch}
-        placeholder="Search term (FOB, CIF…)"
-        autoCapitalize="characters"
-        rightElement={<Ionicons name="search" size={18} color={colors.textFaint} />}
-      />
+      <SearchField value={search} onChangeText={setSearch} placeholder="Search term (FOB, CIF…)" autoCapitalize="characters" />
 
       <View style={{ marginTop: 12, marginBottom: 14 }}>
         <SegmentedControl value={mode} onChange={(v) => setMode(v as any)} options={MODE_FILTERS.map((m) => ({ value: m.key as any, label: m.label }))} />

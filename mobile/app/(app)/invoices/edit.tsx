@@ -1,10 +1,10 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { View, Alert, KeyboardAvoidingView, Platform } from 'react-native';
 import { Pressable } from '@/components/ui/Pressable';
 import { useLocalSearchParams, router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Screen, Card, Text, TextField, Select, DateField, Button, SectionHeader, EmptyState } from '@/components/ui';
+import { Screen, Card, Text, TextField, Select, DateField, Button, SectionHeader, EmptyState, StackHeader, IconButton, SkeletonList } from '@/components/ui';
 import { useTheme } from '@/theme/ThemeProvider';
 import { useSettings } from '@/store/settings';
 import { useInvoices, deriveInvoice } from '@/features/invoices/useInvoices';
@@ -19,7 +19,7 @@ export default function InvoiceEdit() {
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
   const { settings } = useSettings();
-  const { data: invoices } = useInvoices();
+  const { data: invoices, isLoading } = useInvoices();
   const edit = useEditInvoice();
 
   const view = useMemo(() => {
@@ -36,10 +36,33 @@ export default function InvoiceEdit() {
   const [lines, setLines] = useState<any[]>(() => (view?.raw.productsDataInvoice || []).map((p: any) => ({ ...p })));
   const [removedIds, setRemovedIds] = useState<string[]>([]);
 
+  /* Seed once, when the invoice arrives (see the note at the top of this file).
+     Before this, a deep link into an unloaded cache produced a form with no client
+     and NO LINES, and "Save changes" would have written that over the invoice. */
+  const seededId = useRef<string | null>(null);
+  useEffect(() => {
+    if (!view || seededId.current === view.id) return;
+    seededId.current = view.id;
+    const c = view.raw.client;
+    setClient((c && typeof c === 'object' ? (c as any).id : c) || '');
+    setShpType(view.raw.shpType || '');
+    setDelDate((view.raw.delDate as any)?.startDate || null);
+    setLines((view.raw.productsDataInvoice || []).map((p: any) => ({ ...p })));
+  }, [view]);
+
+  if (!view && isLoading) {
+    return (
+      <Screen>
+        <StackHeader title="Edit invoice" backLabel="Cancel" />
+        <SkeletonList count={4} />
+      </Screen>
+    );
+  }
+
   if (!view) {
     return (
       <Screen>
-        <Back />
+        <StackHeader title="Edit invoice" backLabel="Cancel" />
         <EmptyState title="Invoice not found" message="Open it from the invoices list." />
       </Screen>
     );
@@ -125,11 +148,7 @@ export default function InvoiceEdit() {
   return (
     <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <Screen contentContainerStyle={{ paddingTop: insets.top + 8 }} edges={false}>
-        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
-          <Back />
-          <Text variant="h3">Edit Invoice #{view.number}</Text>
-          <View style={{ width: 60 }} />
-        </View>
+        <StackHeader title={`Edit invoice #${view.number}`} subtitle={view.clientName} backLabel="Cancel" />
 
         <View style={{ gap: 14 }}>
           <Card style={{ gap: 14 }}>
@@ -146,7 +165,7 @@ export default function InvoiceEdit() {
                   <View style={{ flex: 1 }}>
                     <TextField value={String(l.description ?? '')} onChangeText={(t) => setLine(i, { description: t })} placeholder="Description" />
                   </View>
-                  <Pressable onPress={() => removeLine(i)} hitSlop={8}><Ionicons name="trash-outline" size={20} color={colors.negative} /></Pressable>
+                  <IconButton icon="trash-outline" tone="danger" size={36} accessibilityLabel="Remove line" onPress={() => removeLine(i)} />
                 </View>
                 <View style={{ flexDirection: 'row', gap: 8 }}>
                   <View style={{ flex: 1 }}><TextField value={String(l.qnty ?? '')} onChangeText={(t) => setLine(i, { qnty: t })} placeholder="Qty" keyboardType="decimal-pad" /></View>
@@ -179,15 +198,5 @@ export default function InvoiceEdit() {
         <Button title="Save changes" loading={edit.isPending} onPress={onSave} />
       </View>
     </KeyboardAvoidingView>
-  );
-}
-
-function Back() {
-  const { colors } = useTheme();
-  return (
-    <Pressable onPress={() => router.back()} hitSlop={8} style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
-      <Ionicons name="chevron-back" size={22} color={colors.primary} />
-      <Text variant="bodyMedium" tone="primary">Cancel</Text>
-    </Pressable>
   );
 }

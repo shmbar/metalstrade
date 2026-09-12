@@ -1,11 +1,9 @@
 import { useEffect, useMemo, useState } from 'react';
 import { View, Alert, KeyboardAvoidingView, Platform } from 'react-native';
-import { Pressable } from '@/components/ui/Pressable';
-import { BackButton } from '@/components/ui/BackButton';
 import { Ionicons } from '@expo/vector-icons';
 import { useQuery } from '@tanstack/react-query';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Screen, Card, Text, TextField, Button, SegmentedControl, Badge, SectionHeader, LoadingState, EmptyState } from '@/components/ui';
+import { Screen, Card, Text, TextField, Button, SegmentedControl, SectionHeader, LoadingState, EmptyState, StackHeader } from '@/components/ui';
 import { useTheme } from '@/theme/ThemeProvider';
 import { useAuth } from '@/store/auth';
 import { useMetalPrices } from '@/features/prices/useMetalPrices';
@@ -16,6 +14,7 @@ import {
   computeFenicr, computeStainless, computeSuperalloys,
   GENERAL_FIELDS, FENICR_FIELDS, STAINLESS_FIELDS, SUPERALLOYS_FIELDS, Field, FormulaTab,
 } from '@/features/formulas/calc';
+import { toast } from '@/store/toast';
 
 const money = (num: number, symbol = '$') => {
   if (!Number.isFinite(num)) return symbol + '0';
@@ -100,16 +99,12 @@ export default function Formulas() {
     return computeSuperalloys(value) as any;
   }, [tab, value]);
 
-  const back = (
-    <BackButton />
-  );
-
   // Web parity (utils/permissions.js isAdmin) — was an exact-string
   // `userTitle !== 'Admin'` check that a superadmin-role account could fail.
   if (!isAdmin) {
     return (
       <Screen contentContainerStyle={{ paddingTop: insets.top + 8 }} edges={false}>
-        {back}
+        <StackHeader title="Formulas" />
         <EmptyState title="Admin only" message="Formulas are restricted to Admin accounts." icon={<Ionicons name="lock-closed-outline" size={40} color={colors.textFaint} />} />
       </Screen>
     );
@@ -127,7 +122,7 @@ export default function Formulas() {
     setSaving(true);
     try {
       await saveDataSettings(uidCollection as string, 'formulasCalc', value);
-      Alert.alert('Saved', 'Formula inputs saved.');
+      toast.success('Formula inputs saved.');
     } catch (e: any) {
       Alert.alert('Save failed', e?.message || 'Could not save.');
     } finally {
@@ -138,13 +133,7 @@ export default function Formulas() {
   return (
     <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <Screen contentContainerStyle={{ paddingTop: insets.top + 8 }} edges={false}>
-        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-          {back}
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-            <Text variant="h2">Formulas</Text>
-          </View>
-          <View style={{ width: 50 }} />
-        </View>
+        <StackHeader title="Formulas" subtitle="FeNiCr / Stainless / SuperAlloys pricing" />
 
         <View style={{ marginBottom: 14 }}>
           <SegmentedControl

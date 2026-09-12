@@ -4,7 +4,7 @@ import { Pressable } from '@/components/ui/Pressable';
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Screen, Card, Text, Button, SkeletonList, ErrorState, EmptyState, FadeInItem } from '@/components/ui';
+import { Screen, Card, Text, Button, SkeletonList, ErrorState, EmptyState, FadeInItem, StackHeader, IconButton } from '@/components/ui';
 import { useTheme } from '@/theme/ThemeProvider';
 import { useNotificationFeed, NotificationRow, Priority } from '@/features/push/useNotificationFeed';
 import { PRIORITY_ORDER } from '@shared/notificationPriority';
@@ -108,27 +108,23 @@ export default function Notifications() {
 
   return (
     <Screen scroll={false} flush contentContainerStyle={{ paddingTop: insets.top + 8 }} edges={false}>
-      <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
-        <Pressable
-          onPress={() => (selectMode ? exitSelect() : router.back())}
-          hitSlop={8}
-          style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}
-        >
-          <Ionicons name={selectMode ? 'close' : 'chevron-back'} size={22} color={colors.primary} />
-          <Text variant="bodyMedium" tone="primary">{selectMode ? 'Cancel' : 'Back'}</Text>
-        </Pressable>
-        <Text variant="h2">{selectMode ? `${selectedIds.length} selected` : 'Notifications'}</Text>
-        <Pressable
-          onPress={() => (selectMode ? exitSelect() : setSelectMode(true))}
-          hitSlop={8}
-          disabled={!notifications.length}
-          style={{ width: 40, alignItems: 'flex-end' }}
-        >
-          {!selectMode && notifications.length > 0 && (
-            <Ionicons name="checkmark-circle-outline" size={22} color={colors.primary} />
-          )}
-        </Pressable>
-      </View>
+      {/* In select mode the back control cancels the selection instead of leaving
+          the screen — the same header, one role swapped, so the row never jumps. */}
+      <StackHeader
+        title={selectMode ? `${selectedIds.length} selected` : 'Notifications'}
+        subtitle={selectMode ? 'Tap rows to select' : unreadCount > 0 ? `${unreadCount} unread` : 'All caught up'}
+        backLabel={selectMode ? 'Cancel selection' : 'Back'}
+        onBack={selectMode ? exitSelect : undefined}
+        right={
+          notifications.length > 0 ? (
+            <IconButton
+              icon={selectMode ? 'close' : 'checkmark-circle-outline'}
+              accessibilityLabel={selectMode ? 'Cancel selection' : 'Select notifications'}
+              onPress={() => (selectMode ? exitSelect() : setSelectMode(true))}
+            />
+          ) : undefined
+        }
+      />
 
       {selectMode ? (
         <Button
@@ -224,6 +220,8 @@ export default function Notifications() {
                     <Pressable
                       onPress={() => setSnoozeFor(snoozeFor === n.id ? null : n.id)}
                       hitSlop={8}
+                      accessibilityRole="button"
+                      accessibilityLabel="Snooze notification"
                       style={{ paddingLeft: 4, justifyContent: 'center' }}
                     >
                       <Ionicons name="time-outline" size={18} color={colors.textFaint} />

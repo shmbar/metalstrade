@@ -22,6 +22,7 @@ import { SettingsContext } from "../../../../../contexts/useSettingsContext";
 import { usePathname } from "next/navigation";
 import { getTtl } from "../../../../../utils/languages";
 import SortIcon from "@components/table/SortIcon";
+import { labelAwareGlobalFilter } from '@components/table/filters/labelAwareGlobalFilter';
 
 
 const Customtable = ({
@@ -61,6 +62,7 @@ const Customtable = ({
     },
     onColumnFiltersChange: setColumnFilters, ////Column filter
     getFilteredRowModel: getFilteredRowModel(),
+    globalFilterFn: labelAwareGlobalFilter,
     onGlobalFilterChange: setGlobalFilter,
     onColumnVisibilityChange: setColumnVisibility,
     getSortedRowModel: getSortedRowModel(),

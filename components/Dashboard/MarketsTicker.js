@@ -56,6 +56,9 @@ function getCrossRate(rates, base, quote) {
 // minute; half an hour leaves room for a quiet market without crying wolf.
 const DELAYED_AFTER_MS = 30 * 60 * 1000;
 
+// Just the day for the change basis — "change vs 10 Sep".
+const SHORT_DAY = new Intl.DateTimeFormat('en-GB', { day: '2-digit', month: 'short' });
+
 const STAMP = new Intl.DateTimeFormat('en-GB', {
     day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit',
 });
@@ -98,6 +101,9 @@ function FeedStatus({ label, time, stale, loading, error, onRefresh, what, note 
                 <span className="responsiveTextTable font-medium whitespace-nowrap" style={{ color: 'var(--warn-text)' }}>
                     Delayed
                 </span>
+            )}
+            {note && !delayed && (
+                <span className="responsiveTextTable whitespace-nowrap text-[var(--ink-muted)]">{note}</span>
             )}
             <button
                 type="button"
@@ -185,6 +191,10 @@ export default function MarketsTicker({ className = '' }) {
                         error={metals.error}
                         onRefresh={metals.refresh}
                         what="metal prices"
+                        /* Why a move can show on a day the market never opened: the % is
+                           against the last day prices actually changed, which on a weekend
+                           is Friday. Without saying so, "-2.11%" on a Saturday looks made up. */
+                        note={metals.changeSince ? `change vs ${SHORT_DAY.format(new Date(metals.changeSince + "T00:00:00"))}` : null}
                     />
                 }
                 items={metalItems}

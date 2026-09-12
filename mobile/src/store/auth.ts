@@ -10,6 +10,7 @@ import {
   User,
 } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
+import { queryClient, asyncStoragePersister } from '@/query/client';
 // @ts-ignore — plain JS module shared verbatim with the web
 import { isSuperAdmin, normalizeRole } from '@shared/permissions';
 
@@ -185,6 +186,13 @@ export const useAuth = create<AuthState>((set, get) => ({
         bumpLastSeen();
       }
       if (!user) {
+        // The query cache is PERSISTED (≈10 MB of contracts, stocks and invoices in
+        // AsyncStorage). Signing out has to take it with it: otherwise a signed-out
+        // phone still holds the company's ledger on disk, and the next person to sign
+        // in on this device can be shown the previous account's figures for the frame
+        // before their own data arrives. Covers idle-expiry too, which lands here.
+        queryClient.clear();
+        Promise.resolve(asyncStoragePersister.removeClient()).catch(() => {});
         set({
           user: null,
           uidCollection: null,

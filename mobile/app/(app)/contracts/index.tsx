@@ -1,10 +1,9 @@
 import { useMemo, useState } from 'react';
 import { View, FlatList } from 'react-native';
-import { Pressable } from '@/components/ui/Pressable';
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Screen, Text, TextField, SkeletonList, FadeInItem, ErrorState, EmptyState } from '@/components/ui';
+import { Screen, Text, SkeletonList, FadeInItem, ErrorState, EmptyState, SearchField, Chip, Fab, IconButton } from '@/components/ui';
 import { ScreenHeader } from '@/components/ScreenHeader';
 import { PeriodSelector } from '@/components/PeriodSelector';
 import { useTheme } from '@/theme/ThemeProvider';
@@ -14,7 +13,7 @@ import { ContractCard } from '@/features/contracts/ContractCard';
 import { useDuplicateContract } from '@/features/contracts/useDuplicateContract';
 import { SwipeRow } from '@/components/SwipeRow';
 import { exportCsv } from '@/lib/export';
-import { radius } from '@/theme/tokens';
+import { matchesAllWords, searchWords } from '@shared/search';
 
 type SortKey = 'date' | 'value' | 'mt';
 const SORTS: { key: SortKey; label: string }[] = [
@@ -34,16 +33,12 @@ export default function ContractsList() {
 
   const filtered = useMemo(() => {
     if (!contracts) return [];
-    const q = search.trim().toLowerCase();
-    const list = !q
+    const words = searchWords(search);
+    const list = !words.length
       ? [...contracts]
       : contracts.filter((c) => {
           const v = deriveContract(c, settings);
-          return (
-            (c.order || '').toLowerCase().includes(q) ||
-            v.supplierName.toLowerCase().includes(q) ||
-            v.productNames.some((p) => p.toLowerCase().includes(q))
-          );
+          return matchesAllWords([c.order, v.supplierName, v.productNames, v.status, (c.date || '').substring(0, 10)], words);
         });
     if (sort === 'date') return list.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
     return list.sort((a, b) => {
@@ -61,74 +56,42 @@ export default function ContractsList() {
         title="Contracts"
         right={
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-            <Pressable
+            <IconButton
+              icon="download-outline"
+              accessibilityLabel="Export CSV"
               onPress={() =>
                 exportCsv(
-                  'contracts',
-                  ['PO', 'Supplier', 'Currency', 'Value', 'MT', 'Status', 'Date'],
-                  filtered.map((c) => {
-                    const v = deriveContract(c, settings);
-                    return [c.order || '', v.supplierName, v.currency, v.totalValue, v.totalMT, v.status, (c.date || '').substring(0, 10)];
-                  })
-                )
+                    'contracts',
+                    ['PO', 'Supplier', 'Currency', 'Value', 'MT', 'Status', 'Date'],
+                    filtered.map((c) => {
+                      const v = deriveContract(c, settings);
+                      return [c.order || '', v.supplierName, v.currency, v.totalValue, v.totalMT, v.status, (c.date || '').substring(0, 10)];
+                    })
+                  )
               }
-              hitSlop={8}
-            >
-              <Ionicons name="download-outline" size={20} color={colors.primary} />
-            </Pressable>
+            />
             <PeriodSelector />
           </View>
         }
       />
 
-      <TextField
-        value={search}
-        onChangeText={setSearch}
-        placeholder="Search PO, supplier, material…"
-        autoCapitalize="none"
-        rightElement={
-          search ? (
-            <Pressable onPress={() => setSearch('')} hitSlop={8}>
-              <Ionicons name="close-circle" size={18} color={colors.textFaint} />
-            </Pressable>
-          ) : (
-            <Ionicons name="search" size={18} color={colors.textFaint} />
-          )
-        }
-      />
+      <SearchField value={search} onChangeText={setSearch} placeholder="Search PO, supplier, material…" />
 
-      <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 12, marginBottom: 8 }}>
-        <Text variant="caption" tone="muted">
+      <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 12, marginTop: 12, marginBottom: 8 }}>
+        <Text variant="caption" tone="muted" style={{ flexShrink: 1 }} numberOfLines={1}>
           {filtered.length} contract{filtered.length === 1 ? '' : 's'}
         </Text>
         {/* Sort chips */}
         <View style={{ flexDirection: 'row', gap: 6 }}>
-          {SORTS.map((s) => {
-            const active = sort === s.key;
-            return (
-              <Pressable
-                key={s.key}
-                onPress={() => setSort(s.key)}
-                hitSlop={4}
-                style={{
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  gap: 3,
-                  paddingHorizontal: 10,
-                  paddingVertical: 4,
-                  borderRadius: radius.pill,
-                  borderWidth: 1.5,
-                  borderColor: active ? colors.primary : colors.border,
-                  backgroundColor: active ? colors.primary + '14' : 'transparent',
-                }}
-              >
-                {active && <Ionicons name="arrow-down" size={11} color={colors.primary} />}
-                <Text variant="caption" tone={active ? 'primary' : 'muted'} style={{ fontFamily: 'PlusJakartaSans_600SemiBold' }}>
-                  {s.label}
-                </Text>
-              </Pressable>
-            );
-          })}
+          {SORTS.map((s) => (
+            <Chip
+              key={s.key}
+              label={s.label}
+              active={sort === s.key}
+              trailingIcon={sort === s.key ? 'arrow-down' : undefined}
+              onPress={() => setSort(s.key)}
+            />
+          ))}
         </View>
       </View>
 
@@ -168,27 +131,7 @@ export default function ContractsList() {
     </Screen>
 
       {/* Create FAB */}
-      <Pressable
-        onPress={() => router.push('/(app)/contracts/edit')}
-        style={{
-          position: 'absolute',
-          right: 20,
-          bottom: 20,
-          width: 56,
-          height: 56,
-          borderRadius: 28,
-          backgroundColor: colors.primary,
-          alignItems: 'center',
-          justifyContent: 'center',
-          shadowColor: colors.text,
-          shadowOpacity: 0.3,
-          shadowRadius: 12,
-          shadowOffset: { width: 0, height: 6 },
-          elevation: 6,
-        }}
-      >
-        <Ionicons name="add" size={28} color={colors.primaryText} />
-      </Pressable>
+      <Fab label="New contract" onPress={() => router.push('/(app)/contracts/edit')} />
     </View>
   );
 }

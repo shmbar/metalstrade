@@ -33,6 +33,7 @@ import dateBetweenFilterFn from '../../../components/table/filters/date-between-
 import { Filter } from "../../../components/table/filters/filterFunc";
 import { labelAwareGlobalFilter } from "../../../components/table/filters/labelAwareGlobalFilter";
 import { useTablePrefs, useTablePagination } from '@components/table/useTablePrefs';
+import { keywordColumnFilter } from '@components/table/filters/keywordColumnFilter';
 
 
 const Customtable = ({ data, columns, invisible, excellReport, onCellUpdate, undoCount, onUndo, undoBusy, undoLabel, setFilteredData }) => {
@@ -108,6 +109,7 @@ const Customtable = ({ data, columns, invisible, excellReport, onCellUpdate, und
     enableRowSelection: quickSumEnabled,
     getCoreRowModel: getCoreRowModel(),
     filterFns: { dateBetweenFilterFn },
+    defaultColumn: { filterFn: keywordColumnFilter },
     globalFilterFn: labelAwareGlobalFilter,
     state: { globalFilter, columnVisibility, pagination, columnFilters, rowSelection, sorting },
     onRowSelectionChange: setRowSelection,

@@ -1,20 +1,20 @@
 import { useMemo, useState } from 'react';
-import { View, FlatList } from 'react-native';
-import { Pressable } from '@/components/ui/Pressable';
+import { View, FlatList, ScrollView } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { Screen, Text, TextField, SkeletonList, FadeInItem, ErrorState, EmptyState } from '@/components/ui';
+import { Screen, Text, SkeletonList, FadeInItem, ErrorState, EmptyState, SearchField, Chip, IconButton } from '@/components/ui';
 import { ScreenHeader } from '@/components/ScreenHeader';
 import { PeriodSelector } from '@/components/PeriodSelector';
 import { useTheme } from '@/theme/ThemeProvider';
 import { useSettings } from '@/store/settings';
 import { useInvoices, deriveInvoice, InvoiceView } from '@/features/invoices/useInvoices';
 import { InvoiceCard } from '@/features/invoices/InvoiceCard';
-import { radius } from '@/theme/tokens';
 import { fmtCurKM } from '@/lib/format';
+import { spacing } from '@/theme/tokens';
 import { exportCsv } from '@/lib/export';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { SwipeRow } from '@/components/SwipeRow';
+import { matchesAllWords, searchWords } from '@shared/search';
 
 type Filter = 'All' | 'Unpaid' | 'Partial' | 'Paid';
 const FILTERS: Filter[] = ['All', 'Unpaid', 'Partial', 'Paid'];
@@ -47,14 +47,13 @@ export default function InvoicesList() {
   );
 
   const filtered = useMemo(() => {
-    const q = search.trim().toLowerCase();
+    const words = searchWords(search);
     const list = views.filter((v) => {
       if (clientParam && v.clientName !== clientParam) return false;
       if (filter === 'Unpaid' && v.status !== 'Unpaid') return false;
       if (filter === 'Partial' && v.status !== 'Partial') return false;
       if (filter === 'Paid' && v.status !== 'Paid') return false;
-      if (!q) return true;
-      return String(v.number ?? '').includes(q) || v.clientName.toLowerCase().includes(q);
+      return matchesAllWords([v.number, v.clientName, v.status, v.dateIso, v.totalLabel], words);
     });
     if (sort === 'total') return [...list].sort((a, b) => b.total - a.total);
     if (sort === 'balance') return [...list].sort((a, b) => b.balance - a.balance);
@@ -77,102 +76,54 @@ export default function InvoicesList() {
         title="Invoices"
         right={
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-            <Pressable
+            <IconButton
+              icon="download-outline"
+              accessibilityLabel="Export CSV"
               onPress={() =>
                 exportCsv(
-                  'invoices',
-                  ['Invoice', 'Client', 'Currency', 'Total', 'Paid', 'Balance', 'Status', 'Date'],
-                  filtered.map((v) => [v.number ?? '', v.clientName, v.cur, v.total, v.paid, v.balance, v.status, v.dateIso || ''])
-                )
+                    'invoices',
+                    ['Invoice', 'Client', 'Currency', 'Total', 'Paid', 'Balance', 'Status', 'Date'],
+                    filtered.map((v) => [v.number ?? '', v.clientName, v.cur, v.total, v.paid, v.balance, v.status, v.dateIso || ''])
+                  )
               }
-              hitSlop={8}
-            >
-              <Ionicons name="download-outline" size={20} color={colors.primary} />
-            </Pressable>
+            />
             <PeriodSelector />
           </View>
         }
       />
 
-      <TextField
-        value={search}
-        onChangeText={setSearch}
-        placeholder="Search invoice # or client…"
-        autoCapitalize="none"
-        keyboardType="numbers-and-punctuation"
-        rightElement={
-          search ? (
-            <Pressable onPress={() => setSearch('')} hitSlop={8}>
-              <Ionicons name="close-circle" size={18} color={colors.textFaint} />
-            </Pressable>
-          ) : (
-            <Ionicons name="search" size={18} color={colors.textFaint} />
-          )
-        }
-      />
+      <SearchField value={search} onChangeText={setSearch} placeholder="Search invoice # or client…" keyboardType="numbers-and-punctuation" />
 
-      {/* Status filter pills */}
-      <View style={{ flexDirection: 'row', gap: 8, marginTop: 12 }}>
-        {FILTERS.map((f) => {
-          const active = filter === f;
-          return (
-            <Pressable
-              key={f}
-              onPress={() => setFilter(f)}
-              style={{
-                paddingHorizontal: 14,
-                paddingVertical: 7,
-                borderRadius: radius.pill,
-                borderWidth: 1.5,
-                borderColor: active ? colors.primary : colors.border,
-                backgroundColor: active ? colors.primary + '14' : 'transparent',
-              }}
-            >
-              <Text variant="caption" tone={active ? 'primary' : 'muted'} style={{ fontFamily: 'PlusJakartaSans_600SemiBold' }}>
-                {f}
-              </Text>
-            </Pressable>
-          );
-        })}
-      </View>
+      {/* Status filters and sort share one swipeable row — a divider keeps the
+          two groups apart. Stacking them as two rows pushed the list below the
+          fold on small phones; cramming both beside the count squeezed the chips. */}
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        style={{ marginTop: 12, marginHorizontal: -spacing.lg }}
+        contentContainerStyle={{ gap: 8, paddingHorizontal: spacing.lg, alignItems: 'center' }}
+      >
+        {FILTERS.map((f) => (
+          <Chip key={f} label={f} active={filter === f} onPress={() => setFilter(f)} />
+        ))}
+        <View style={{ width: 1, height: 22, backgroundColor: colors.borderStrong, marginHorizontal: 4 }} />
+        {SORTS.map((s) => (
+          <Chip
+            key={s.key}
+            label={s.label}
+            active={sort === s.key}
+            trailingIcon={sort === s.key ? 'arrow-down' : undefined}
+            onPress={() => setSort(s.key)}
+          />
+        ))}
+      </ScrollView>
 
-      <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 12, marginBottom: 8 }}>
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, flexShrink: 1 }}>
-          <Text variant="caption" tone="muted">
-            {filtered.length} invoice{filtered.length === 1 ? '' : 's'}
-          </Text>
-          {/* Sort chips */}
-          <View style={{ flexDirection: 'row', gap: 6 }}>
-            {SORTS.map((s) => {
-              const active = sort === s.key;
-              return (
-                <Pressable
-                  key={s.key}
-                  onPress={() => setSort(s.key)}
-                  hitSlop={4}
-                  style={{
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    gap: 3,
-                    paddingHorizontal: 9,
-                    paddingVertical: 3,
-                    borderRadius: radius.pill,
-                    borderWidth: 1.5,
-                    borderColor: active ? colors.primary : colors.border,
-                    backgroundColor: active ? colors.primary + '14' : 'transparent',
-                  }}
-                >
-                  {active && <Ionicons name="arrow-down" size={11} color={colors.primary} />}
-                  <Text variant="caption" tone={active ? 'primary' : 'muted'} style={{ fontFamily: 'PlusJakartaSans_600SemiBold' }}>
-                    {s.label}
-                  </Text>
-                </Pressable>
-              );
-            })}
-          </View>
-        </View>
+      <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 12, marginTop: 12, marginBottom: 8 }}>
+        <Text variant="caption" tone="muted">
+          {filtered.length} invoice{filtered.length === 1 ? '' : 's'}
+        </Text>
         {Object.keys(outstanding).length > 0 && (
-          <Text variant="caption" tone="negative" style={{ fontFamily: 'PlusJakartaSans_600SemiBold' }} numberOfLines={1}>
+          <Text variant="caption" tone="negative" style={{ fontFamily: 'PlusJakartaSans_600SemiBold', flexShrink: 1 }} numberOfLines={1}>
             {Object.entries(outstanding)
               .map(([c, v]) => fmtCurKM(c, v))
               .join('  ')}{' '}
@@ -203,7 +154,7 @@ export default function InvoicesList() {
                 <SwipeRow
                   actionLabel="Payment"
                   actionIcon="cash-outline"
-                  actionColor="#178a4c"
+                  actionColor={colors.positive}
                   onAction={() => router.push(`/(app)/invoices/${item.id}?pay=1`)}
                 >
                   <InvoiceCard inv={item} onPress={() => router.push(`/(app)/invoices/${item.id}`)} />

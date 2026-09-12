@@ -1,14 +1,15 @@
 import { useState } from 'react';
 import { View, FlatList, ScrollView } from 'react-native';
 import { Pressable } from '@/components/ui/Pressable';
-import { BackButton } from '@/components/ui/BackButton';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Screen, Card, Text, Badge, TextField, SkeletonList, ErrorState, EmptyState, Sheet } from '@/components/ui';
+import { Screen, Card, Text, Badge, SkeletonList, ErrorState, EmptyState, Sheet, SearchField, Chip } from '@/components/ui';
 import { PeriodSelector } from '@/components/PeriodSelector';
 import { useTheme } from '@/theme/ThemeProvider';
 import { useShipment, useSetShipmentStatus, ShipmentRow, fmtShipDate } from '@/features/shipment/useShipment';
 import { SHIPMENT_STATUSES } from '@shared/shipmentStatus';
+import { StackHeader } from '@/components/StackHeader';
+import { spacing } from '@/theme/tokens';
 
 const tone = (s: string): 'neutral' | 'info' | 'positive' | 'negative' | 'warn' => {
   if (s === 'Completed') return 'positive';
@@ -20,6 +21,10 @@ const tone = (s: string): 'neutral' | 'info' | 'positive' | 'negative' | 'warn' 
 
 // The statuses web builds its chip row from (page.js:589), in web's order.
 const CHIP_STATUSES = ['Pending', 'Shipped', 'In Transit', 'Arrived', 'Completed', 'On Hold'];
+
+// Web prints shipment quantities with 3 decimals (frmQty).
+const fmtQty = (n: number) =>
+  new Intl.NumberFormat('en-US', { minimumFractionDigits: 3, maximumFractionDigits: 3 }).format(Number(n) || 0);
 
 export default function Shipment() {
   const { colors } = useTheme();
@@ -42,48 +47,33 @@ export default function Shipment() {
   });
   const setStatus = useSetShipmentStatus();
 
-  const Chip = ({ label, active, onPress, count }: { label: string; active: boolean; onPress: () => void; count?: number }) => (
-    <Pressable
-      onPress={onPress}
-      style={{
-        paddingHorizontal: 12, paddingVertical: 6, borderRadius: 999,
-        backgroundColor: active ? colors.primary : colors.surfaceAlt,
-        borderWidth: 1, borderColor: active ? colors.primary : colors.border,
-      }}
-    >
-      <Text variant="caption" color={active ? '#fff' : colors.textMuted}>
-        {label}{count == null ? '' : ` (${count})`}
-      </Text>
-    </Pressable>
-  );
-
   return (
     <Screen scroll={false} flush contentContainerStyle={{ paddingTop: insets.top + 8 }} edges={false}>
-      <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
-        <BackButton />
-        <Text variant="h2">Shipments</Text>
-        <PeriodSelector />
-      </View>
+      <StackHeader title="Shipments" right={<PeriodSelector />} />
 
-      <TextField
-        value={search}
-        onChangeText={setSearch}
-        placeholder="Search PO, supplier, client or invoice…"
-        autoCapitalize="none"
-        rightElement={<Ionicons name="search" size={18} color={colors.textFaint} />}
-      />
+      <SearchField value={search} onChangeText={setSearch} placeholder="Search PO, supplier, client or invoice…" />
       <View style={{ height: 10 }} />
 
       {/* Attention strip — web's overdue / arriving-soon / in-transit triage counts,
           computed over ALL loaded contracts regardless of the other filters. */}
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8, paddingBottom: 10 }}>
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        style={{ marginHorizontal: -spacing.lg, flexGrow: 0 }}
+        contentContainerStyle={{ gap: 8, paddingHorizontal: spacing.lg, paddingBottom: 10 }}
+      >
         <Chip label="Overdue" count={counts.overdue} active={urgency === 'overdue'} onPress={() => setUrgency((u) => (u === 'overdue' ? '' : 'overdue'))} />
         <Chip label="Arriving ≤7d" count={counts.soon} active={urgency === 'soon'} onPress={() => setUrgency((u) => (u === 'soon' ? '' : 'soon'))} />
         <Chip label="In transit" count={counts.inTransit} active={status === 'In Transit'} onPress={() => setStatusFilter((s) => (s === 'In Transit' ? '' : 'In Transit'))} />
       </ScrollView>
 
       {/* Status chips — counts ignore the other active filters, like web's. */}
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8, paddingBottom: 10 }}>
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        style={{ marginHorizontal: -spacing.lg, flexGrow: 0 }}
+        contentContainerStyle={{ gap: 8, paddingHorizontal: spacing.lg, paddingBottom: 10 }}
+      >
         <Chip label="All" count={counts.all} active={status === ''} onPress={() => setStatusFilter('')} />
         {CHIP_STATUSES.map((s) => (
           <Chip key={s} label={s} count={counts.byStatus[s] || 0} active={status === s} onPress={() => setStatusFilter(s)} />
@@ -92,7 +82,12 @@ export default function Shipment() {
 
       {/* Supplier / client / ship-type filters — web's three dropdowns. */}
       {(options.suppliers.length > 1 || options.clients.length > 1 || options.shipTypes.length > 1) && (
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8, paddingBottom: 12 }}>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          style={{ marginHorizontal: -spacing.lg, flexGrow: 0 }}
+          contentContainerStyle={{ gap: 8, paddingHorizontal: spacing.lg, paddingBottom: 12 }}
+        >
           {supplier ? <Chip label={`Supplier: ${supplier}`} active onPress={() => setSupplier('')} /> : null}
           {client ? <Chip label={`Client: ${client}`} active onPress={() => setClient('')} /> : null}
           {shipType ? <Chip label={`Type: ${shipType}`} active onPress={() => setShipType('')} /> : null}
@@ -128,6 +123,9 @@ export default function Shipment() {
                   <Text variant="h3" numberOfLines={1}>
                     {item.order || 'PO'}
                     {item.invoiceNo ? <Text variant="caption" tone="faint">{`  #${item.invoiceNo}`}</Text> : null}
+                    {item.shipments.length > 1 ? (
+                      <Text variant="caption" tone="faint">{`  +${item.shipments.length - 1}`}</Text>
+                    ) : null}
                   </Text>
                   <Text variant="caption" tone="muted" numberOfLines={1}>
                     {item.supplierName}
@@ -143,6 +141,48 @@ export default function Shipment() {
                   )}
                 </View>
               </View>
+
+              {/* PO quantity, shipped and what is still owed — web's three quantity
+                  columns (page.js, 2026-09-02). Without them the phone could not answer
+                  "how much of this PO is still coming?", which is why the page exists.
+                  Remaining is amber while the PO is open, red when over-shipped, and a
+                  contract with no stated quantity shows no figures at all. */}
+              {item.poQty > 0 && (
+                <View style={{ flexDirection: 'row', gap: 10, marginTop: 10 }}>
+                  {[
+                    { k: 'PO', v: fmtQty(item.poQty), tone: colors.textMuted },
+                    { k: 'Shipped', v: item.shippedQty ? fmtQty(item.shippedQty) : '—', tone: colors.text },
+                    {
+                      k: 'Remaining',
+                      v: item.remainingQty === null ? '—' : Math.abs(item.remainingQty) < 0.0005 ? '0' : fmtQty(item.remainingQty),
+                      tone:
+                        item.remainingQty === null || Math.abs(item.remainingQty) < 0.0005
+                          ? colors.textMuted
+                          : item.remainingQty > 0
+                            ? colors.warn
+                            : colors.negative,
+                    },
+                  ].map((q) => (
+                    <View
+                      key={q.k}
+                      style={{
+                        flex: 1,
+                        paddingVertical: 7,
+                        paddingHorizontal: 10,
+                        borderRadius: 10,
+                        backgroundColor: colors.surfaceAlt,
+                        borderWidth: 1,
+                        borderColor: colors.border,
+                      }}
+                    >
+                      <Text variant="caption" tone="faint">{q.k}</Text>
+                      <Text variant="bodyMedium" numberOfLines={1} style={{ color: q.tone, fontVariant: ['tabular-nums'] }}>
+                        {q.v}
+                      </Text>
+                    </View>
+                  ))}
+                </View>
+              )}
 
               <View style={{ flexDirection: 'row', gap: 16, marginTop: 10, flexWrap: 'wrap' }}>
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>

@@ -1,7 +1,6 @@
 import { useMemo, useState } from 'react';
 import { View, ScrollView } from 'react-native';
 import { Pressable } from '@/components/ui/Pressable';
-import { BackButton } from '@/components/ui/BackButton';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Screen, Card, Text, Select, SkeletonList, ErrorState, EmptyState } from '@/components/ui';
@@ -20,6 +19,7 @@ import { exportCsv, exportPdf } from '@/lib/export';
 import { accountStatementHtml } from '@/lib/pdfTemplates';
 import { useAuth } from '@/store/auth';
 import { num } from '@shared/finance';
+import { StackHeader } from '@/components/StackHeader';
 
 const COLS = [
   { key: 'invoice', label: 'Invoice', w: 90, money: false },
@@ -93,11 +93,7 @@ export default function AccStatement() {
 
   return (
     <Screen contentContainerStyle={{ paddingTop: insets.top + 8 }} edges={false}>
-      <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
-        <BackButton />
-        <Text variant="h2">Statement</Text>
-        <PeriodSelector />
-      </View>
+      <StackHeader title="Statement" right={<PeriodSelector />} />
 
       <Card style={{ gap: 12, marginBottom: 14 }}>
         <Select label="Client" value={client} options={clientOptions} onChange={setClient} required />

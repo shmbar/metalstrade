@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { View, Platform, Modal } from 'react-native';
+import { View, Platform } from 'react-native';
 import { Pressable } from './Pressable';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Ionicons } from '@expo/vector-icons';
 import { Text } from './Text';
 import { Button } from './Button';
+import { Sheet } from './Sheet';
 import { useTheme } from '@/theme/ThemeProvider';
 import { radius, spacing } from '@/theme/tokens';
 
@@ -63,12 +64,13 @@ export function DateField({ label, value, onChange, required, error }: DateField
         style={{
           flexDirection: 'row',
           alignItems: 'center',
-          backgroundColor: colors.surfaceAlt,
+          backgroundColor: colors.surface,
           borderRadius: radius.md,
-          borderWidth: 1.5,
+          borderWidth: 1,
           borderColor: error ? colors.negative : colors.borderStrong,
           paddingHorizontal: spacing.md,
           paddingVertical: 12,
+          minHeight: 48,
           gap: 8,
         }}
       >
@@ -96,28 +98,24 @@ export function DateField({ label, value, onChange, required, error }: DateField
         />
       )}
 
-      {Platform.OS === 'ios' && open && (
-        <Modal visible transparent animationType="slide" onRequestClose={() => setOpen(false)}>
-          <Pressable style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.4)' }} onPress={() => setOpen(false)} />
-          <View
-            style={{
-              backgroundColor: colors.bgElevated,
-              borderTopLeftRadius: radius['2xl'],
-              borderTopRightRadius: radius['2xl'],
-              padding: spacing.lg,
-            }}
-          >
-            <DateTimePicker
-              value={temp}
-              mode="date"
-              display="spinner"
-              themeVariant={scheme === 'dark' ? 'dark' : 'light'}
-              onChange={(_, selected) => selected && setTemp(selected)}
-              style={{ alignSelf: 'center' }}
-            />
-            <Button title="Done" onPress={() => { onChange(toIso(temp)); setOpen(false); }} />
-          </View>
-        </Modal>
+      {Platform.OS === 'ios' && (
+        <Sheet
+          visible={open}
+          onClose={() => setOpen(false)}
+          title={label || 'Select date'}
+          subtitle={display(toIso(temp))}
+          scroll={false}
+          footer={<Button title="Done" onPress={() => { onChange(toIso(temp)); setOpen(false); }} />}
+        >
+          <DateTimePicker
+            value={temp}
+            mode="date"
+            display="spinner"
+            themeVariant={scheme === 'dark' ? 'dark' : 'light'}
+            onChange={(_, selected) => selected && setTemp(selected)}
+            style={{ alignSelf: 'center' }}
+          />
+        </Sheet>
       )}
     </View>
   );

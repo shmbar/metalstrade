@@ -2,35 +2,44 @@
 
 import { useMemo } from 'react';
 import { toNumber } from './numberUtils';
+import { isMoneyColumn } from './columnKind';
 
-const getCurrency = (row) => {
+/* Which currency a row trades in.
+ *
+ * Read from the row DATA, not from a `cur` column: Stocks carries a currency on
+ * every row but never shows it as a column, so getValue('cur') came back empty and a
+ * money column was totalled with no currency at all — the panel read
+ * "Total 211,211.00". It also made TanStack log "Column with id 'cur' does not
+ * exist" on every render. A visible column is still preferred where there is one,
+ * since that is the value the user can see. */
+const getCurrency = (row, table) => {
+  let curRaw;
   try {
-    const curRaw = row.getValue('cur');
-    if (!curRaw) return 'plain';
-    const c = String(curRaw).toLowerCase().trim();
-    if (c === 'us' || c === 'usd') return 'USD';
-    if (c === 'eu' || c === 'eur') return 'EUR';
+    // getAllColumns, not getColumn('cur'): getColumn itself logs
+    // "Column with id 'cur' does not exist" when it misses, which is the very
+    // noise this lookup is here to avoid.
+    const hasCurColumn = table?.getAllColumns?.().some((c) => c.id === 'cur');
+    curRaw = hasCurColumn ? row.getValue('cur') : undefined;
   } catch {}
+  if (curRaw == null || curRaw === '') curRaw = row.original?.cur;
+  if (!curRaw) return 'plain';
+  const c = String(typeof curRaw === 'object' ? (curRaw.cur ?? curRaw.id ?? '') : curRaw).toLowerCase().trim();
+  if (c === 'us' || c === 'usd' || c === '$') return 'USD';
+  if (c === 'eu' || c === 'eur' || c === '€') return 'EUR';
   return 'plain';
 };
 
-/**
- * Is this column money?
+/* Is this column money? Names decide it — see ./columnKind. A page can always
+ * overrule with `meta: { money: false }` (a count or weight) or `money: true`.
  *
- * The row's `cur` column says what currency the ROW trades in — it says nothing
- * about whether a given COLUMN holds money. Applied to every summed column, it
- * stamped a "$" on tonnages: six selected sales contracts summed to 285.864 MT
- * and the bar read "Quantity: $285.86".
- *
- * A quantity and an amount are both just numbers in the data, so nothing can tell
- * them apart by inspection — the column has to say. `meta: { money: false }` marks
- * a count/weight; `meta: { money: true }` forces currency on. Left unsaid, the
- * old behaviour stands, so no existing money column changes.
+ * It used to be "money unless the page says otherwise", and exactly one page said
+ * otherwise: every tonnage everywhere else — Stocks Quantity, the statement's PO
+ * Weight / Shipped / Remaining, Analysis Weight MT — was totalled with a "$" in
+ * front of it. The row's `cur` column says what currency the ROW trades in; it
+ * says nothing about what a given COLUMN holds.
  */
-const isMoneyColumn = (table, colId) => {
-  const meta = table.getAllColumns().find(c => c.id === colId)?.columnDef?.meta;
-  return meta?.money !== false;
-};
+const columnIsMoney = (table, colId) =>
+  isMoneyColumn(table.getAllColumns().find(c => c.id === colId));
 
 export const useQuickSum = ({
   table,
@@ -45,14 +54,14 @@ export const useQuickSum = ({
 
     return (selectedColumnIds || []).map((colId) => {
       const byCurrency = {};
-      const money = isMoneyColumn(table, colId);
+      const money = columnIsMoney(table, colId);
 
       for (const r of selectedRows) {
         const n = toNumber(r.getValue(colId));
         if (!Number.isFinite(n)) continue;
         // A non-money column is one pool regardless of what currency the row
         // trades in — tonnes are tonnes whether the contract is priced in $ or €.
-        const currency = money ? getCurrency(r) : 'plain';
+        const currency = money ? getCurrency(r, table) : 'plain';
         byCurrency[currency] = (byCurrency[currency] || 0) + n;
       }
 

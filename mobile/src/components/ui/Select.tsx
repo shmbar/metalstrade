@@ -8,6 +8,7 @@ import { SearchField } from './SearchField';
 import { useTheme } from '@/theme/ThemeProvider';
 import { radius, spacing } from '@/theme/tokens';
 import { hapticTap } from '@/lib/haptics';
+import { matchesAllWords, searchWords } from '@shared/search';
 
 export interface SelectOption {
   value: string;
@@ -53,10 +54,10 @@ export function Select({
   const selected = options.find((o) => o.value === value);
 
   const filtered = useMemo(() => {
-    const needle = q.trim().toLowerCase();
+    const words = searchWords(q);
     const sorted = [...options].sort((a, b) => a.label.localeCompare(b.label));
-    if (!needle) return sorted;
-    return sorted.filter((o) => o.label.toLowerCase().includes(needle));
+    if (!words.length) return sorted;
+    return sorted.filter((o) => matchesAllWords(o.label, words));
   }, [options, q]);
 
   const openSheet = () => {
@@ -101,12 +102,13 @@ export function Select({
         style={{
           flexDirection: 'row',
           alignItems: 'center',
-          backgroundColor: colors.surfaceAlt,
+          backgroundColor: colors.surface,
           borderRadius: radius.md,
-          borderWidth: 1.5,
+          borderWidth: 1,
           borderColor: error ? colors.negative : colors.borderStrong,
           paddingHorizontal: spacing.md,
           paddingVertical: 12,
+          minHeight: 48,
           gap: 8,
         }}
       >

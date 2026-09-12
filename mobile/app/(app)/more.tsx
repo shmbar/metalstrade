@@ -2,13 +2,15 @@ import { useMemo, useState } from 'react';
 import { View, Alert } from 'react-native';
 import { Pressable } from '@/components/ui/Pressable';
 import { router } from 'expo-router';
+import Constants from 'expo-constants';
 import { Ionicons } from '@expo/vector-icons';
-import { Screen, Card, Text, Badge, Button, TextField, SectionHeader, EmptyState } from '@/components/ui';
+import { Screen, Card, Text, Badge, Button, SectionHeader, EmptyState, SearchField, Chip } from '@/components/ui';
 import { ScreenHeader } from '@/components/ScreenHeader';
 import { useTheme } from '@/theme/ThemeProvider';
 import { useAuth } from '@/store/auth';
 import { clearBiometricCredentials } from '@/lib/secureStore';
 import { radius } from '@/theme/tokens';
+import { matchesAllWords, searchWords } from '@shared/search';
 
 interface NavItem {
   label: string;
@@ -108,18 +110,14 @@ export default function More() {
 
   // Visible groups: admin items only for admins; search filters across every group.
   const groups = useMemo(() => {
-    const q = query.trim().toLowerCase();
+    const words = searchWords(query);
     const label = (it: NavItem) =>
       it.href === '/(app)/margins' ? (gisAccount ? 'Gis Admin' : 'Sharon Admin') : it.label;
     return GROUPS.map((g) => ({
       group: g.group,
       items: g.items
         .map((it) => ({ ...it, label: label(it) }))
-        .filter(
-          (it) =>
-            (!it.admin || isAdmin) &&
-            (!q || it.label.toLowerCase().includes(q) || it.sub.toLowerCase().includes(q))
-        ),
+        .filter((it) => (!it.admin || isAdmin) && matchesAllWords([it.label, it.sub, g.group], words)),
     })).filter((g) => g.items.length > 0);
   }, [query, isAdmin, gisAccount]);
 
@@ -141,51 +139,64 @@ export default function More() {
     <Screen>
       <ScreenHeader title="More" subtitle="Account & tools" />
 
-      {/* Account card */}
-      <Card style={{ marginBottom: 14 }}>
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+      {/* Account card — who is signed in, on which workspace, and the way out.
+          Sign out lives here (where every phone app keeps it: under the
+          profile) as well as at the foot of the page. */}
+      <Card style={{ marginBottom: 14 }} padded={false}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, padding: 14 }}>
           <View style={{ width: 48, height: 48, borderRadius: 24, backgroundColor: colors.primary, alignItems: 'center', justifyContent: 'center' }}>
-            <Text variant="h2" color="#fff">{currentUser.name.charAt(0).toUpperCase()}</Text>
+            <Text variant="h2" color={colors.primaryText}>{currentUser.name.charAt(0).toUpperCase()}</Text>
           </View>
           <View style={{ flex: 1, minWidth: 0 }}>
             <Text variant="h3" numberOfLines={1}>{currentUser.name}</Text>
             <Text variant="caption" tone="muted" numberOfLines={1}>{currentUser.email}</Text>
+            <View style={{ flexDirection: 'row', gap: 6, marginTop: 6 }}>
+              <Badge label={gisAccount ? 'GIS workspace' : 'IMS workspace'} tone="neutral" />
+              {isAdmin && <Badge label="Admin" tone="info" />}
+            </View>
           </View>
-          {isAdmin && <Badge label="Admin" tone="info" />}
-          {gisAccount && <Badge label="GIS" tone="neutral" />}
+        </View>
+        <View style={{ flexDirection: 'row', borderTopWidth: 1, borderTopColor: colors.border }}>
+          <Pressable
+            onPress={() => router.push('/(app)/settings')}
+            accessibilityRole="button"
+            style={{ flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, paddingVertical: 12 }}
+          >
+            <Ionicons name="settings-outline" size={16} color={colors.primary} />
+            <Text variant="label" tone="primary">Settings</Text>
+          </Pressable>
+          <View style={{ width: 1, backgroundColor: colors.border }} />
+          <Pressable
+            onPress={onSignOut}
+            accessibilityRole="button"
+            style={{ flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, paddingVertical: 12 }}
+          >
+            <Ionicons name="log-out-outline" size={16} color={colors.negative} />
+            <Text variant="label" style={{ color: colors.negative }}>Sign out</Text>
+          </Pressable>
         </View>
       </Card>
 
       {/* Search across all tools */}
-      <TextField
-        value={query}
-        onChangeText={setQuery}
-        placeholder="Search tools… (e.g. balances, audit)"
-        autoCapitalize="none"
-        rightElement={
-          query ? (
-            <Pressable onPress={() => setQuery('')} hitSlop={8}>
-              <Ionicons name="close-circle" size={18} color={colors.textFaint} />
-            </Pressable>
-          ) : (
-            <Ionicons name="search" size={18} color={colors.textFaint} />
-          )
-        }
-      />
+      <SearchField value={query} onChangeText={setQuery} placeholder="Search tools… (e.g. balances, audit)" />
       <View style={{ height: 14 }} />
 
-      {/* AI Assistant — featured */}
+      {/* AI Assistant — the page's one feature row, so it reads as an invitation
+          rather than the first item of the Money list. */}
       {!query && (
-        <Card style={{ marginBottom: 14 }} padded={false}>
-          <Pressable onPress={() => router.push('/(app)/assistant')} style={{ flexDirection: 'row', alignItems: 'center', gap: 12, padding: 15 }}>
-            <View style={{ width: 36, height: 36, borderRadius: radius.md, backgroundColor: colors.primary + '22', alignItems: 'center', justifyContent: 'center' }}>
-              <Ionicons name="sparkles" size={18} color={colors.primary} />
+        <Card
+          padded={false}
+          style={{ marginBottom: 14, backgroundColor: colors.primary + '0F', borderColor: colors.primary + '33' }}
+        >
+          <Pressable onPress={() => router.push('/(app)/assistant')} accessibilityRole="button" style={{ flexDirection: 'row', alignItems: 'center', gap: 12, padding: 15 }}>
+            <View style={{ width: 38, height: 38, borderRadius: radius.md, backgroundColor: colors.primary, alignItems: 'center', justifyContent: 'center' }}>
+              <Ionicons name="sparkles" size={19} color={colors.primaryText} />
             </View>
-            <View style={{ flex: 1 }}>
+            <View style={{ flex: 1, minWidth: 0 }}>
               <Text variant="bodyMedium">AI Assistant</Text>
-              <Text variant="caption" tone="muted">Ask about your data in plain language</Text>
+              <Text variant="caption" tone="muted" numberOfLines={1}>Ask about your data in plain language</Text>
             </View>
-            <Ionicons name="chevron-forward" size={18} color={colors.textFaint} />
+            <Ionicons name="chevron-forward" size={18} color={colors.primary} />
           </Pressable>
         </Card>
       )}
@@ -213,30 +224,15 @@ export default function More() {
         <Card style={{ marginBottom: 14 }}>
           <SectionHeader title="Appearance" />
           <View style={{ flexDirection: 'row', gap: 8 }}>
-            {themeOptions.map((o) => {
-              const active = pref === o.key;
-              return (
-                <Pressable
-                  key={o.key}
-                  onPress={() => setPref(o.key)}
-                  style={{
-                    flex: 1,
-                    alignItems: 'center',
-                    gap: 6,
-                    paddingVertical: 12,
-                    borderRadius: radius.md,
-                    borderWidth: 1.5,
-                    borderColor: active ? colors.primary : colors.border,
-                    backgroundColor: active ? colors.primary + '14' : 'transparent',
-                  }}
-                >
-                  <Ionicons name={o.icon} size={20} color={active ? colors.primary : colors.textMuted} />
-                  <Text variant="caption" color={active ? colors.primary : colors.textMuted} style={{ textTransform: 'capitalize' }}>
-                    {o.key}
-                  </Text>
-                </Pressable>
-              );
-            })}
+            {themeOptions.map((o) => (
+              <Chip
+                key={o.key}
+                icon={o.icon}
+                label={o.key === 'light' ? 'Light' : o.key === 'dark' ? 'Dark' : 'System'}
+                active={pref === o.key}
+                onPress={() => setPref(o.key)}
+              />
+            ))}
           </View>
         </Card>
       )}
@@ -245,12 +241,13 @@ export default function More() {
         <>
           <Button
             title="Sign out"
-            variant="danger"
-            leftIcon={<Ionicons name="log-out-outline" size={18} color="#fff" />}
+            variant="ghost"
+            style={{ borderColor: colors.negative + '55' }}
+            leftIcon={<Ionicons name="log-out-outline" size={18} color={colors.negative} />}
             onPress={onSignOut}
           />
           <Text variant="caption" tone="faint" style={{ textAlign: 'center', marginTop: 16 }}>
-            IMS Mobile · v1.0.3 · same account as the web CRM
+            IMS Tech · v{Constants.expoConfig?.version || '1.0'} · same account as the web CRM
           </Text>
         </>
       )}
