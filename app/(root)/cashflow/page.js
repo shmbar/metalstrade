@@ -9,7 +9,7 @@ import AutosavePill from "../../../components/AutosavePill";
 import Spin from '../../../components/spinTable';
 import VideoLoader from '../../../components/videoLoader';
 import { CardsSkeleton } from "../../../components/skeletons";
-import { loadData, loadDataSettings, loadInvoice, loadMargins, loadSharedStock, loadStockData, loadAllStockData, saveCashflow, saveCashflowFinanced, saveDataSettings, saveMultipleData, saveStockIn, syncSpecialInvoicesPaidStatus, updateClientPayment, updateExpPayments } from "../../../utils/utils";
+import { loadData, loadDataSettings, loadInvoice, loadMargins, loadSharedStock, loadStockData, loadAllStockData, saveCashflow, saveCashflowFinanced, saveDataSettings, saveMultipleData, saveStockIn, syncSpecialInvoicesPaidStatus, updateClientPayment, updateExpPayments, updateContractField } from "../../../utils/utils";
 import { UserAuth } from "../../../contexts/useAuthContext";
 import { NumericFormat } from "react-number-format";
 import { addComma, ClientDetails, clientToolTip, entityName, ExpensesToolTip, FinalSummaryBadge, getTotals, getTotalsSupPayments, runExpenses, runInvoices, runStocks, runSupPayments, SharedStockDetails, StocksUnSold, StoclToolTip, SupplierDetails, supplierToolTip } from "./funcs";
@@ -88,6 +88,27 @@ const Cashflow = () => {
             supplierName: supplierName || z.supplierName || null,
             clientName: clientName || z.clientName || null,
         });
+    };
+
+    // Cargo status (RDY / TRN) is a property of the supplier CONTRACT: every invoice
+    // row of that PO shows it, in both the Payment and the Balances tables, so all of
+    // them change together — on screen first, then on the contract. A failed write
+    // puts the previous value back and says so.
+    const saveCargoStatus = async (row, code) => {
+        const contractId = row.orderData?.id;
+        const contractDate = row.orderData?.date;
+        if (!contractId || !contractDate) return;
+        const before = row.cargoStatus || '';
+        const setAll = (value) => setsupPaymentsData((cur) =>
+            cur.map((x) => (x.orderData?.id === contractId ? { ...x, cargoStatus: value } : x)));
+        setAll(code);
+        try {
+            await updateContractField(uidCollection, contractId, contractDate, { cargoStatus: code });
+        } catch (e) {
+            console.error('cargo status save failed', e);
+            setAll(before);
+            setToast({ show: true, text: 'Could not save the cargo status — please try again', clr: 'fail' });
+        }
     };
     const currentYear = new Date().getFullYear()
     const settingsLoaded = Object.keys(settings).length > 0;
@@ -1864,7 +1885,7 @@ const Cashflow = () => {
                                                                         </div>
                                                                     </div>
                                                                 }>
-                                                                    <SupplierDetails supplier={x.supplier} data={supPaymentsData.filter(z => z.pmnt * 1 === 0)} uidCollection={uidCollection} setDateSelect={setDateSelect} setValueCon={setValueCon} setIsOpenCon={setIsOpenCon} blankInvoice={blankInvoice} router={router} toggleCheckSupplier={toggleCheckSupplier} toggleCheckSupplierAll={toggleCheckSupplierAll} toggleSupplier={toggleSupplier} savePmntSupplier={savePmntSupplier} supplierPartialPayment={supplierPartialPayment} supplierCloseBalance={supplierCloseBalance} openInvModal={openInvModal} sumSel={sumSel} toggleSum={toggleSum} />
+                                                                    <SupplierDetails supplier={x.supplier} data={supPaymentsData.filter(z => z.pmnt * 1 === 0)} uidCollection={uidCollection} setDateSelect={setDateSelect} setValueCon={setValueCon} setIsOpenCon={setIsOpenCon} blankInvoice={blankInvoice} router={router} toggleCheckSupplier={toggleCheckSupplier} toggleCheckSupplierAll={toggleCheckSupplierAll} toggleSupplier={toggleSupplier} savePmntSupplier={savePmntSupplier} supplierPartialPayment={supplierPartialPayment} supplierCloseBalance={supplierCloseBalance} openInvModal={openInvModal} onCargoStatus={saveCargoStatus} sumSel={sumSel} toggleSum={toggleSum} />
                                                                 </MyAccordion>
                                                             </div>
 
@@ -1924,7 +1945,7 @@ const Cashflow = () => {
                                                                         </div>
                                                                     </div>
                                                                 }>
-                                                                    <SupplierDetails supplier={x.supplier} data={supPaymentsData.filter(z => z.pmnt * 1 > 0)} uidCollection={uidCollection} setDateSelect={setDateSelect} setValueCon={setValueCon} setIsOpenCon={setIsOpenCon} blankInvoice={blankInvoice} router={router} toggleCheckSupplier={toggleCheckSupplier} toggleCheckSupplierAll={toggleCheckSupplierAll} toggleSupplier={toggleSupplier} savePmntSupplier={savePmntSupplier} supplierPartialPayment={supplierPartialPayment} supplierCloseBalance={supplierCloseBalance} openInvModal={openInvModal} sumSel={sumSel} toggleSum={toggleSum} />
+                                                                    <SupplierDetails supplier={x.supplier} data={supPaymentsData.filter(z => z.pmnt * 1 > 0)} uidCollection={uidCollection} setDateSelect={setDateSelect} setValueCon={setValueCon} setIsOpenCon={setIsOpenCon} blankInvoice={blankInvoice} router={router} toggleCheckSupplier={toggleCheckSupplier} toggleCheckSupplierAll={toggleCheckSupplierAll} toggleSupplier={toggleSupplier} savePmntSupplier={savePmntSupplier} supplierPartialPayment={supplierPartialPayment} supplierCloseBalance={supplierCloseBalance} openInvModal={openInvModal} onCargoStatus={saveCargoStatus} sumSel={sumSel} toggleSum={toggleSum} />
                                                                 </MyAccordion>
                                                             </div>
                                                         )

@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import {
     parseAssay, formatAssay, assayOf, assayRange, formatRange, aliasKey, buildGradeIndex,
     resolveGrade, assignAliases, assignGradeToLine, parseSpecQuery, assayMatches, describeSpec,
-    findGradeByName, makeGrade,
+    findGradeByName, makeGrade, buildGradeProfiles, suggestGrade,
 } from '../utils/grades.js';
 
 // Every string here is a real description or analysis from the IMS/GIS stock.
@@ -146,6 +146,45 @@ describe('the registry — spellings, exceptions, and what resolves', () => {
     it('finds a grade by name case-insensitively, skipping deleted ones', () => {
         expect(findGradeByName(grades(), ' 40ni ')?.id).toBe('g40');
         expect(findGradeByName(grades(), 'old')).toBeNull();
+    });
+});
+
+describe('suggestGrade — next month\'s spelling of a grade already declared', () => {
+    const g718 = { ...makeGrade('718', { name: '718' }), aliases: ['IN 718 Chips'] };
+    const g40 = makeGrade('40', { name: '40Ni', spec: '42Ni 12Cr 3Mo 3Nb 6Co 2Ti' });
+    const ingots = { ...makeGrade('ncm', { name: 'NiCrMo Ingots' }),
+        aliases: ['16.52Ni 11.31Cr 1.26Mo Ingots', '29.43Ni 11.42Cr 2.71Mo Ingots', '28.94Ni 12.16Cr 2.16Mo Ingots'] };
+    const profiles = buildGradeProfiles([g718, g40, ingots]);
+
+    it('knows the same material under a different bracket note', () => {
+        expect(suggestGrade(profiles, 'IN 718 Chips (51Ni 21Cr 3Mo)')).toEqual({ grade: g718, reason: 'name' });
+    });
+
+    it('matches a nominal spec by chemistry', () => {
+        expect(suggestGrade(profiles, '41.6Ni 12.2Cr 3.1Mo 2.8Nb 5.9Co 2.1Ti Turnings'))
+            .toEqual({ grade: g40, reason: 'chemistry' });
+    });
+
+    it('matches the envelope of the spellings a grade was merged from, spec or no spec', () => {
+        expect(suggestGrade(profiles, '22.1Ni 11.9Cr 2Mo Ingots')).toEqual({ grade: ingots, reason: 'chemistry' });
+    });
+
+    it('offers nothing rather than something wrong', () => {
+        // real: 17% copper is a different alloy, however close the nickel
+        expect(suggestGrade(profiles, '40Ni 13Cr 17Cu Ingots')).toBeNull();
+        // real: chromium far outside the ingot family
+        expect(suggestGrade(profiles, '14.5Ni 6.3Cr 0.85Mo 1.1W 0.7Co O.37Cu 0.44S 0.03P Ingots')).toBeNull();
+        // one figure is not enough to call a grade
+        expect(suggestGrade(profiles, '30Ni Refinery Turnings')).toBeNull();
+        // real: a tungsten granule line against nickel grades
+        expect(suggestGrade(profiles, 'W Granules (2.08C .12S 1.23Co .4Nb .76Ni 2.16P 3.86Sn .1Ta 5W)')).toBeNull();
+        expect(suggestGrade(profiles, '')).toBeNull();
+        expect(suggestGrade([], 'IN 718 Chips')).toBeNull();
+    });
+
+    it('never suggests a deleted grade', () => {
+        const gone = buildGradeProfiles([{ ...g718, deleted: true }]);
+        expect(suggestGrade(gone, 'IN 718 Chips (51Ni 21Cr 3Mo)')).toBeNull();
     });
 });
 

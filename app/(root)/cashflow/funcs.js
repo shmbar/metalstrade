@@ -1792,6 +1792,9 @@ export const runSupPayments = async (uidCollection, settings, yr, contractsData 
                 id: inv.id,
                 shipmentEtd: contract.shipmentEtd || invShip[contract.id]?.etd || '',
                 shipmentEta: contract.shipmentEta || invShip[contract.id]?.eta || '',
+                // Where the goods physically are between supplier and our warehouse —
+                // see CargoStatus. Set on the contract, so every invoice of the PO agrees.
+                cargoStatus: contract.cargoStatus || '',
                 contractData: {
                     productsData: contract.productsData || [],
                     shpType: contract.shpType, origin: contract.origin,
@@ -1858,17 +1861,58 @@ export const getTotalsSupPayments = (arr) => {
 }
 
 
+/* Cargo status for a supplier PO: RDY (ready to be shipped) or TRN (in transit).
+
+   Replaces the ETD / ETA columns in the supplier payment tables (client request,
+   2026-09-14). Those were planned sailing dates, borrowed from the contract or from
+   the client invoice, so they never said where the cargo actually was — and on this
+   side of the business that is the question: have we paid for goods that are still
+   sitting at the supplier, or are they on the way to our warehouse?
+
+   Two toggles rather than a dropdown: one click sets a status, clicking the lit one
+   clears it, and the current state is readable at a glance down the column.
+   Lifecycle order (ready, then moving). Amber for waiting, the brand family for
+   on-the-move — both are statuses, so status tokens are the right family. */
+const CARGO_STATUSES = [
+    { code: 'RDY', label: 'Ready to be shipped', tone: TONES.amber },
+    { code: 'TRN', label: 'In transit', tone: TONES.blue },
+];
+
+const CargoStatus = ({ value, onChange }) => (
+    <div className="inline-flex items-center gap-0.5" role="group" aria-label="Cargo status">
+        {CARGO_STATUSES.map((c) => {
+            const on = value === c.code;
+            return (
+                <Tltip key={c.code} direction='top' tltpText={on ? `${c.label} — click to clear` : `Mark as ${c.label.toLowerCase()}`}>
+                    <button
+                        type="button"
+                        aria-pressed={on}
+                        disabled={!onChange}
+                        onClick={() => onChange && onChange(on ? '' : c.code)}
+                        className="h-5 px-1.5 rounded-lg responsiveTextTable font-semibold leading-none transition-colors disabled:cursor-default"
+                        style={on
+                            ? toneChipStyle(c.tone)
+                            : { color: 'var(--ink-muted)', border: '1px solid var(--line)', background: 'transparent' }}
+                    >
+                        {c.code}
+                    </button>
+                </Tltip>
+            );
+        })}
+    </div>
+);
+
 export const SupplierDetails = ({ supplier, data, uidCollection, setDateSelect,
     setValueCon, setIsOpenCon, blankInvoice, router, toggleCheckSupplier, toggleCheckSupplierAll,
     toggleSupplier, savePmntSupplier, supplierPartialPayment, supplierCloseBalance, openInvModal,
-    sumSel = {}, toggleSum }) => {
+    onCargoStatus, sumSel = {}, toggleSum }) => {
     const { sortKey, sortDir, handleSort } = useSortState();
     const { setToast } = useContext(SettingsContext);
 
-    // Newest shipment first by default (ETD, the same date the ETD column shows) —
-    // matching the Stocks tables. Column-header sort still takes over once clicked.
+    // Newest contract first by default — it was newest ETD, but that column is gone.
+    // Column-header sort still takes over once clicked.
     const base = data.filter(z => z.supplier === supplier && z.blnc * 1 !== 0)
-        .sort((a, b) => (new Date(b.shipmentEtd).getTime() || 0) - (new Date(a.shipmentEtd).getTime() || 0));
+        .sort((a, b) => (new Date(b.orderData?.date).getTime() || 0) - (new Date(a.orderData?.date).getTime() || 0));
     const filteredArr = sortKey ? sortRows(base, sortKey, sortDir) : base;
     const type = filteredArr[0]?.pmnt !== '0' ? 'PartPaid' : 'fullDebt';
 
@@ -1897,8 +1941,7 @@ export const SupplierDetails = ({ supplier, data, uidCollection, setDateSelect,
                         <SortTh colKey="invValue" label="Value" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-right" />
                         <SortTh colKey="pmnt" label="Payment" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-right" />
                         <SortTh colKey="blnc" label="Balance" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-right" />
-                        <th className="text-center">ETD</th>
-                        <th className="text-center">ETA</th>
+                        <SortTh colKey="cargoStatus" label="Status" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-center" />
                         <FinalTh />
                         <th className="text-center">Pmn</th>
                         <th className="text-center py-0">
@@ -1966,8 +2009,9 @@ export const SupplierDetails = ({ supplier, data, uidCollection, setDateSelect,
                                         )}
                                     </span>
                                 </td>
-                                <td className="text-center">{z.shipmentEtd ? dateFormat(z.shipmentEtd, 'dd.mm.yy') : ''}</td>
-                                <td className="text-center">{z.shipmentEta ? dateFormat(z.shipmentEta, 'dd.mm.yy') : ''}</td>
+                                <td className="text-center !py-1">
+                                    <CargoStatus value={z.cargoStatus} onChange={onCargoStatus ? (code) => onCargoStatus(z, code) : null} />
+                                </td>
                                 <td className="text-center"><FinalBadge fnlzing={z.fnlzing} invoiceNo={z.invoice} /></td>
                                 <td className="text-center !py-1">
                                     <Tltip direction='right' tltpText='Partial Payment'>

@@ -1,7 +1,7 @@
 'use client';
 import { useCallback, useEffect, useState } from 'react';
 import { saveGrades, subscribeGrades } from '@utils/gradesStore';
-import { buildGradeIndex } from '@utils/grades';
+import { buildGradeIndex, buildGradeProfiles } from '@utils/grades';
 
 /* One live subscription for the whole app, however many components ask for grades.
    The grade card, the chemistry cell on every Stocks row, each PO-line dropdown and the
@@ -12,13 +12,17 @@ import { buildGradeIndex } from '@utils/grades';
    The index is built HERE, once per snapshot, not in each consumer: the Stocks table
    mounts a consumer per row, and hundreds of identical index builds on every grade edit
    would be the cost of that. */
-const EMPTY = { all: [], grades: [], index: buildGradeIndex([]), ready: false };
+const EMPTY = { all: [], grades: [], index: buildGradeIndex([]), profiles: [], ready: false };
 let snapshot = EMPTY;
 let unsubscribe = null;
 const listeners = new Set();
 
 const publish = (list) => {
-    snapshot = { all: list, grades: list.filter(g => !g.deleted), index: buildGradeIndex(list), ready: true };
+    snapshot = {
+        all: list, grades: list.filter(g => !g.deleted), index: buildGradeIndex(list),
+        // Parsed chemistry of every grade and spelling, for suggestions — also once here.
+        profiles: buildGradeProfiles(list), ready: true,
+    };
     listeners.forEach(fn => fn(snapshot));
 };
 
@@ -54,5 +58,5 @@ export default function useGrades() {
     }, []);
 
     const save = useCallback((changed, by) => saveGrades(changed, by), []);
-    return { grades: snap.grades, all: snap.all, index: snap.index, ready: snap.ready, save };
+    return { grades: snap.grades, all: snap.all, index: snap.index, profiles: snap.profiles, ready: snap.ready, save };
 }

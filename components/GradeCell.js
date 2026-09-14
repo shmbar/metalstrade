@@ -1,11 +1,12 @@
 'use client';
-import { useContext } from 'react';
+import { useContext, useMemo } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { Selector } from '@components/selectors/selectShad';
 import { SettingsContext } from '@contexts/useSettingsContext';
 import { UserAuth } from '@contexts/useAuthContext';
 import useGrades from '../hooks/useGrades';
-import { assignGradeToLine, findGradeByName, makeGrade, resolveGrade } from '@utils/grades';
+import { BtnIcon } from '@components/buttonIcons';
+import { assignGradeToLine, findGradeByName, makeGrade, resolveGrade, suggestGrade } from '@utils/grades';
 
 /* The Grade of one PO line.
 
@@ -18,13 +19,20 @@ import { assignGradeToLine, findGradeByName, makeGrade, resolveGrade } from '@ut
    Nothing is written onto the contract. Grades resolve live, so a later re-map in
    Settings moves this line and every lot received under it. */
 export default function GradeCell({ lineId, description, disabled = false }) {
-    const { grades, all, index, save } = useGrades();
+    const { grades, all, index, profiles, save } = useGrades();
     const { user } = UserAuth();
     const { setToast } = useContext(SettingsContext);
 
     const resolved = resolveGrade(index, { lineId, description });
     const explicit = lineId ? index.byLine.get(lineId) : null;
     const hasText = String(description ?? '').trim() !== '';
+    /* A spelling the registry has never seen still usually IS a known grade — the same
+       name with a different note, or chemistry inside a grade's range. Offered under the
+       empty box, one click to take; taking it records the spelling, so next time this
+       line fills itself. */
+    const suggestion = useMemo(
+        () => (!resolved && hasText && !disabled ? suggestGrade(profiles, description) : null),
+        [resolved, hasText, disabled, profiles, description]);
 
     const commit = async (changed) => {
         if (!changed.length) return;
@@ -51,7 +59,9 @@ export default function GradeCell({ lineId, description, disabled = false }) {
 
     return (
         <div onClick={(e) => e.stopPropagation()}
-            title={explicit ? 'Set for this line only' : resolved ? 'From how this material is spelled' : 'No grade — pick one or type a new name'}>
+            title={!hasText ? 'Type the material first'
+                : explicit ? 'Set for this line only'
+                    : resolved ? 'From how this material is spelled' : 'No grade — pick one or type a new name'}>
             <Selector
                 arr={grades.map(g => ({ id: g.id, label: g.name }))}
                 value={{ gradeId: resolved?.id || '' }}
@@ -65,6 +75,16 @@ export default function GradeCell({ lineId, description, disabled = false }) {
                 createLabel='New grade'
                 clear={explicit ? clearExplicit : undefined}
             />
+            {suggestion && (
+                <button type="button" onClick={() => pick(suggestion.grade.id)}
+                    title={suggestion.reason === 'name'
+                        ? `Same material as one already in ${suggestion.grade.name} — click to use it`
+                        : `The chemistry fits ${suggestion.grade.name} — click to use it`}
+                    className="mt-0.5 flex items-center gap-1 max-w-full responsiveTextTable font-medium text-[var(--brand-strong)] hover:underline">
+                    <BtnIcon action="confirm" />
+                    <span className="truncate">Use {suggestion.grade.name}</span>
+                </button>
+            )}
         </div>
     );
 }

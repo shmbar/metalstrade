@@ -106,6 +106,11 @@ export default function SuggestGradesModal({ isOpen, setIsOpen, groups = [], onD
                             <input className="input h-8 w-60 shrink-0" value={names[g.key] ?? ''}
                                 onChange={e => setNames(n => ({ ...n, [g.key]: e.target.value }))}
                                 placeholder="Grade name" />
+                            {/* The same name as a grade that exists adds these spellings to it
+                                rather than making a second one — worth seeing before Declare. */}
+                            <span className={`responsiveTextTable shrink-0 w-20 ${findGradeByName(all, names[g.key]) ? 'text-[var(--brand-strong)] font-medium' : 'text-[var(--ink-muted)]'}`}>
+                                {findGradeByName(all, names[g.key]) ? 'adds to grade' : 'new grade'}
+                            </span>
                             <span className="responsiveTextTable text-[var(--ink-muted)] flex-1 min-w-0 truncate cursor-default"
                                 title={g.spellings.join('\n')}>
                                 {g.spellings.length} spelling{g.spellings.length === 1 ? '' : 's'} · {g.spellings.join(' · ')}

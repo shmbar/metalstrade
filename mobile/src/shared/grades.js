@@ -240,6 +240,81 @@ export const assignGradeToLine = (grades, targetId, { lineId, description } = {}
     return [...changed.values()];
 };
 
+// ── Suggesting a grade for a spelling nobody has declared yet ────────────────
+//
+// resolveGrade only knows a spelling it has seen EXACTLY. Next month's PO arrives as
+// "IN 718 Chips (51Ni 21Cr 3Mo)" when the registry holds "IN 718 Chips", or as
+// "41.6Ni 12.2Cr 3.1Mo 2.8Nb 5.9Co 2.1Ti" for a grade declared as 42Ni 12Cr 3Mo 3Nb 6Co
+// 2Ti — and the Grade box sits empty. A suggestion closes that gap. It is only ever
+// offered, never applied: one click takes it, and taking it teaches the registry the new
+// spelling, so the same text resolves by itself from then on.
+
+// A name with its bracket note set aside: "(51Ni 21Cr 3Mo)", "(300824-1)".
+const nameFold = (s) => aliasKey(String(s ?? '').replace(/\([^)]*\)/g, ' '));
+const MAJOR = 1;      // below 1% an element is a trace and does not decide a grade
+const DEFINING = 5;   // at 5% or more, an element the other side lacks means another alloy
+const tolFor = (v) => Math.max(1.5, v * 0.1);
+
+/**
+ * What each grade looks like, built once per registry snapshot rather than once per
+ * line: its name and spellings folded, and the chemistry envelope of its nominal spec
+ * together with every spelling that carries an assay. A grade declared by merging
+ * twenty ingot spellings has no spec, but its twenty assays ARE its spec.
+ */
+export const buildGradeProfiles = (grades) => (grades || []).filter(g => !g.deleted).map(g => {
+    const assays = [parseAssay(g.spec), ...(g.aliases || []).map(parseAssay)].filter(hasAssay);
+    const range = assayRange(assays);
+    return {
+        grade: g,
+        names: new Set([g.name, ...(g.aliases || [])].map(nameFold).filter(Boolean)),
+        range,
+        majors: Object.keys(range).filter(e => range[e].max >= MAJOR),
+        // Present at 5%+ in EVERY assay of the grade: what the grade is made of.
+        defining: Object.keys(range).filter(e => range[e].min >= DEFINING
+            && assays.every(x => Number.isFinite(x[e]))),
+    };
+});
+
+/**
+ * The grade a new spelling most likely is → { grade, reason: 'name' | 'chemistry' }, or
+ * null when nothing fits well enough to offer. Name first (the same material with a
+ * different note), then chemistry: at least two major elements in common, every one of
+ * them within tolerance of the grade's envelope, nothing major on either side that the
+ * other lacks. Of the grades that fit, the closest.
+ */
+export const suggestGrade = (profiles, description) => {
+    if (!profiles?.length || !String(description ?? '').trim()) return null;
+
+    const fold = nameFold(description);
+    const byName = fold ? profiles.find(p => p.names.has(fold)) : null;
+    if (byName) return { grade: byName.grade, reason: 'name' };
+
+    const a = parseAssay(description);
+    const aMajors = Object.keys(a).filter(e => a[e] >= MAJOR);
+    if (aMajors.length < 2) return null;
+
+    let best = null;
+    for (const p of profiles) {
+        if (!p.majors.length) continue;
+        if (aMajors.some(e => a[e] >= DEFINING && !p.range[e])) continue;
+        if (p.defining.some(e => !Number.isFinite(a[e]))) continue;
+        const shared = p.majors.filter(e => Number.isFinite(a[e]));
+        if (shared.length < 2) continue;
+        let score = 0;
+        const fits = shared.every(e => {
+            const { min, max } = p.range[e];
+            const t = tolFor(max);
+            if (a[e] < min - t || a[e] > max + t) return false;
+            score += Math.abs(a[e] - (min + max) / 2) / t;
+            return true;
+        });
+        if (!fits) continue;
+        score /= shared.length;
+        if (!best || score < best.score) best = { grade: p.grade, score };
+    }
+    return best ? { grade: best.grade, reason: 'chemistry' } : null;
+};
+
 // ── Find by spec ─────────────────────────────────────────────────────────────
 
 /**

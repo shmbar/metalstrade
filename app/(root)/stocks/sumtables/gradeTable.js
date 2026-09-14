@@ -8,7 +8,8 @@ import Tltip from '../../../../components/tlTip'
 import CheckBox from '../../../../components/checkbox'
 import ChemistryPopover from '../../../../components/ChemistryPopover'
 import { BtnIcon } from '../../../../components/buttonIcons'
-import { resolveGrade } from '../../../../utils/grades'
+import { resolveGrade, suggestGrade } from '../../../../utils/grades'
+import useGrades from '../../../../hooks/useGrades'
 import { gradeKeyOf, gradeLabel, niRangeLabel } from './gradeKey'
 import MergeGradeModal from './mergeGrade'
 import SuggestGradesModal from './suggestGrades'
@@ -115,6 +116,7 @@ const GradeTable = ({ dataTable, loading, settings, gradeIndex }) => {
      this needs no ticking: it opens the merge dialog carrying that fold's spellings and
      the name the row is displaying. */
   const [quick, setQuick] = useState(null)
+  const { profiles } = useGrades()
 
   if (loading) return null
 
@@ -136,9 +138,17 @@ const GradeTable = ({ dataTable, loading, settings, gradeIndex }) => {
   const pickedNames = Object.keys(picked)
   const pickedQty = pickedNames.reduce((s, n) => s + (picked[n] || 0), 0)
 
-  // The name a row would take as a grade: the fold's label, without the Ni span the
-  // card appends for reading ("NiCrMo Ingots · 16-31Ni" is named "NiCrMo Ingots").
-  const nameOf = (r) => gradeLabel(r.synthLabel, r.spellings)
+  /* The name a row would take as a grade. An existing grade its spellings fit comes
+     first — naming it "NiCrMo Ingots" again beside the one already declared would be a
+     second grade for one material — else the fold's label, without the Ni span the card
+     appends for reading ("NiCrMo Ingots · 16-31Ni" is named "NiCrMo Ingots"). */
+  const nameOf = (r) => {
+    for (const s of r.spellings) {
+      const hit = suggestGrade(profiles, s)
+      if (hit) return hit.grade.name
+    }
+    return gradeLabel(r.synthLabel, r.spellings)
+  }
 
   /* Every fold that is not a declared grade yet, deduped by that name so the same
      material held in two currencies is one suggestion rather than two. */
