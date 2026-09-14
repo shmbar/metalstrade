@@ -991,6 +991,14 @@ describe('pureHelpers.computeStockNetSummary — what is actually IN the warehou
     expect(rows[0].qnty).toBe(9);
   });
 
+  it('books nothing for a zero-weight settlement lot, however much it settled at', () => {
+    // utils/pureHelpers.js — `q === 0 ? 0 : …`, the same guard as finance.settledInQty. These lots
+    // exist only so the final settlement can pay the supplier; the material shipped straight out.
+    // Counting finalqnty here listed stock lines the Stocks page does not have (186 vs 183).
+    const rows = both(webPure.computeStockNetSummary, mobPure.computeStockNetSummary, [makeStockLot({ qnty: 0, finalqnty: '0.254' })], settings);
+    expect(rows).toEqual([]);
+  });
+
   it('applies no correction when finalqnty is blank or equal to qnty', () => {
     // Same line: the guard is `l.finalqnty &&` plus a numeric (not string) inequality, so the
     // string '10' against the number 10 must NOT trigger a correction.
@@ -1823,7 +1831,7 @@ describe('meta — Tier 3 drift alarms on the rules the goldens above encode', (
     ['utils/finance.js', 'unitOf', '602b0962d6e5'],
     ['utils/finance.js', 'toMT', '8b7f8afd3ba5'],
     ['utils/finance.js', 'fx', '6496df0764f1'],
-    ['utils/pureHelpers.js', 'computeStockNetSummary', 'e9a25fb6868d'],
+    ['utils/pureHelpers.js', 'computeStockNetSummary', 'f440cad82286'],
     ['utils/pureHelpers.js', 'groupInvoicesByNumber', '64cc691e2959'],
     ['utils/pureHelpers.js', 'toIsoDate', 'a4c34e57e905'],
     ['utils/splitUtils.js', 'computeShares', '890c9e7a8b34'],

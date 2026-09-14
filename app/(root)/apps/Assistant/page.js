@@ -1,5 +1,5 @@
 'use client';
-import { Fragment, useContext, useEffect, useState, useRef, useCallback } from 'react';
+import { useContext, useEffect, useMemo, useState, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { SettingsContext } from "../../../../contexts/useSettingsContext";
 import { UserAuth } from "../../../../contexts/useAuthContext";
@@ -32,18 +32,23 @@ const RankingBlock = ({ ranking }) => {
     return (
         <div className="border-t border-[var(--line)] pt-3 flex flex-col gap-2">
             <span className="text-micro font-semibold uppercase tracking-wide text-[var(--ink-muted)]">{ranking.title}</span>
-            <div className="grid grid-cols-[minmax(72px,140px)_1fr_auto] gap-x-3 gap-y-1.5 items-center responsiveTextTable">
+            {/* sm and up: one shared grid, name | bar | figure, so every bar starts and
+                ends at the same x and their lengths compare. On a phone a two-currency
+                figure left the bar 0px wide, so each row stacks: name + figure, then the
+                bar full width underneath. `sm:contents` hands the row's children back to
+                the shared grid. */}
+            <div className="flex flex-col gap-2 sm:grid sm:grid-cols-[minmax(72px,140px)_1fr_auto] sm:gap-x-3 sm:gap-y-1.5 sm:items-center responsiveTextTable">
                 {ranking.rows.map((r, i) => {
                     const pct = max > 0 ? Math.max(2, Math.round(((Number(r.value) || 0) / max) * 100)) : 0;
                     const top = i === 0;
                     return (
-                        <Fragment key={`${r.label}-${i}`}>
+                        <div key={`${r.label}-${i}`} className="grid grid-cols-[minmax(0,1fr)_auto] gap-x-3 gap-y-1 items-center sm:contents">
                             <span className={`truncate ${top ? 'font-semibold text-[var(--ink)]' : 'text-[var(--ink-secondary)]'}`} title={r.label}>{r.label}</span>
-                            <span className="block h-2 rounded-full bg-[var(--bg-subtle)] overflow-hidden">
+                            <span className="block h-2 rounded-full bg-[var(--bg-subtle)] overflow-hidden row-start-2 col-span-2 sm:row-start-auto sm:col-span-1">
                                 <span className="block h-full rounded-full" style={{ width: `${pct}%`, background: top ? 'var(--brand)' : 'var(--brand-border)' }} />
                             </span>
-                            <span className={`numeric text-right whitespace-nowrap ${top ? 'text-[var(--ink)]' : 'text-[var(--ink-secondary)]'}`}>{r.display}</span>
-                        </Fragment>
+                            <span className={`numeric text-right whitespace-nowrap row-start-1 col-start-2 sm:row-start-auto sm:col-start-auto ${top ? 'text-[var(--ink)]' : 'text-[var(--ink-secondary)]'}`}>{r.display}</span>
+                        </div>
                     );
                 })}
             </div>
@@ -70,6 +75,16 @@ const AssistantChat = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [dataLoading, setDataLoading] = useState(true);
     const [syncedAt, setSyncedAt] = useState(null);
+    // The full placeholder is cut mid-word under ~480px ("…stock or c"), so a phone
+    // gets the short form. A placeholder cannot be swapped by CSS alone.
+    const [narrow, setNarrow] = useState(false);
+    useEffect(() => {
+        const mq = window.matchMedia('(max-width: 479px)');
+        const sync = () => setNarrow(mq.matches);
+        sync();
+        mq.addEventListener('change', sync);
+        return () => mq.removeEventListener('change', sync);
+    }, []);
     const messagesEndRef = useRef(null);
     const inputRef = useRef(null);
     const abortRef = useRef(null);
@@ -138,6 +153,20 @@ const AssistantChat = () => {
     }, [uidCollection, dateSelect, contractsData.length]);
 
     useEffect(() => { loadAllData(); }, [uidCollection, dateSelect]);
+
+    // Net stock lines on hand — what the Stocks page lists and what the assistant is
+    // given. stocksData itself is every movement ever booked (in AND out, all years):
+    // 3,325 of them against 183 lines actually in stock.
+    const stockLines = useMemo(() => computeStockNetSummary(stocksData, settings), [stocksData, settings]);
+
+    // The period contracts, invoices and expenses were loaded for (stock is today's).
+    const periodLabel = useMemo(() => {
+        const { start, end } = dateSelect || {};
+        if (!start || !end) return '';
+        if (start.slice(0, 4) === end.slice(0, 4) && start.slice(5) === '01-01' && end.slice(5) === '12-31') return start.slice(0, 4);
+        const d = (s) => dateFormat(s + 'T00:00:00', 'd mmm yyyy');
+        return `${d(start)} – ${d(end)}`;
+    }, [dateSelect]);
 
     const scrollToBottom = useCallback(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -252,7 +281,7 @@ const AssistantChat = () => {
             // original-vs-final dedup) with resolved MT/unit labels — the same numbers
             // the Stocks page shows. Raw lot rows made the AI count sold material as
             // still in stock and guess at units.
-            stocks: computeStockNetSummary(stocksData, settings),
+            stocks: stockLines,
             margins: marginsData.map(m => ({
                 month: m.month,
                 totalMargin: parseFloat(m.totalMargin) || 0,
@@ -274,7 +303,7 @@ const AssistantChat = () => {
         };
         // defaultTermDays decides which invoices count as overdue, so a change to it in
         // Settings → General has to rebuild this payload, not wait for a reload.
-    }, [contractsData, invoicesData, expensesData, stocksData, marginsData, settings, compData?.defaultTermDays]);
+    }, [contractsData, invoicesData, expensesData, stockLines, marginsData, settings, compData?.defaultTermDays]);
 
     const handleSendMessage = async (messageText = null) => {
         const textToSend = messageText || newMessage.trim();
@@ -499,16 +528,18 @@ const AssistantChat = () => {
                             <div className="flex-1 overflow-y-auto" style={{ minHeight: 0 }}>
                                 {!hasMessages ? (
                                     /* Empty state: what this is, what it can see, and six ways in. */
-                                    <div className="min-h-full flex flex-col items-center justify-center gap-4 sm:gap-6 px-3 sm:px-4 py-5 sm:py-10">
+                                    <div className="min-h-full flex flex-col items-center justify-center gap-4 sm:gap-6 px-3 sm:px-4 py-5 sm:py-10 [@media(max-height:480px)]:gap-2 [@media(max-height:480px)]:py-2">
                                         <div className="flex flex-col items-center gap-2 text-center">
-                                            <span className="w-11 h-11 rounded-2xl bg-[var(--brand-soft)] text-[var(--brand)] grid place-items-center">
+                                            {/* A phone held sideways has ~160px between header and input;
+                                                the tile would push every suggestion below the fold. */}
+                                            <span className="w-11 h-11 rounded-2xl bg-[var(--brand-soft)] text-[var(--brand)] grid place-items-center [@media(max-height:480px)]:hidden">
                                                 <BtnIcon action="ai" />
                                             </span>
                                             <h1 className="text-display text-[var(--ink)]">Ask about your trading data</h1>
                                             <p className="responsiveTextInput text-[var(--ink-muted)]">
                                                 {dataLoading
                                                     ? 'Loading your contracts, invoices, expenses and stock…'
-                                                    : `Searching ${count(contractsData.length)} contracts · ${count(invoicesData.length)} invoices · ${count(expensesData.length)} expenses · ${count(stocksData.length)} stock records`}
+                                                    : `Searching ${count(contractsData.length)} contracts · ${count(invoicesData.length)} invoices · ${count(expensesData.length)} expenses${periodLabel ? ` in ${periodLabel}` : ''} · ${count(stockLines.length)} stock lines on hand`}
                                             </p>
                                         </div>
                                         <div className="w-full max-w-[760px] grid grid-cols-2 md:grid-cols-3 gap-2 sm:gap-2.5">
@@ -569,7 +600,7 @@ const AssistantChat = () => {
                                                                     type="button"
                                                                     onClick={() => router.push(`${src.route}?focus=${encodeURIComponent(src.id)}`)}
                                                                     title={`Open ${src.label} in ${String(src.route || '').replace('/', '')}`}
-                                                                    className="inline-flex items-center px-2 py-0.5 rounded-lg border border-[var(--line-strong)] bg-[var(--bg-card)] responsiveTextTable font-semibold text-[var(--brand-strong)] hover:border-[var(--brand)] transition-colors"
+                                                                    className="inline-flex items-center h-7 px-2 rounded-lg border border-[var(--line-strong)] bg-[var(--bg-card)] responsiveTextTable font-semibold text-[var(--brand-strong)] hover:border-[var(--brand)] transition-colors"
                                                                 >
                                                                     <span className="truncate max-w-[160px]">{src.label}</span>
                                                                 </button>
@@ -624,7 +655,7 @@ const AssistantChat = () => {
                                     <input
                                         ref={inputRef}
                                         type="text"
-                                        placeholder="Ask about your contracts, invoices, stock or cashflow…"
+                                        placeholder={narrow ? 'Ask about your trading data…' : 'Ask about your contracts, invoices, stock or cashflow…'}
                                         aria-label="Ask the assistant"
                                         value={newMessage}
                                         onChange={(e) => setNewMessage(e.target.value)}

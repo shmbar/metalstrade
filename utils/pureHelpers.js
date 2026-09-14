@@ -134,8 +134,12 @@ export const computeStockNetSummary = (stockDocs, settings) => {
       const q = parseFloat(l.qnty) || 0;
       if (l.type === 'in') {
         // |qnty| in, corrected when a final settlement changed the quantity —
-        // identical arithmetic to the Stocks page accumulation.
-        qty += Math.abs(q) +
+        // identical arithmetic to the Stocks page (finance.settledInQty, restated
+        // here because this module imports nothing). A ZERO-weight lot adds nothing:
+        // those are settlement lines for material that shipped straight out, and
+        // booking their settled weight invented stock the Stocks page does not list
+        // (see settledInQty's note on Nicrometal PO 181024).
+        qty += q === 0 ? 0 : Math.abs(q) +
           ((l.finalqnty && l.finalqnty * 1 !== l.qnty * 1) ? (l.qnty * 1 - l.finalqnty * 1) * -1 : 0);
       } else {
         qty -= q;

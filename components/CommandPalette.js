@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { Command } from 'cmdk';
 import {
   LayoutDashboard, FileText, Receipt, Wallet, TrendingUp,
@@ -34,6 +34,7 @@ const NAV_ITEMS = [
 
 export default function CommandPalette() {
   const router = useRouter();
+  const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState('');
   const { items } = useGlobalSearch();
@@ -91,6 +92,10 @@ export default function CommandPalette() {
   const filteredItems = query.trim() ? items.slice(0, 30) : [];
 
   if (!open) {
+    // The Assistant page is one full-height card whose input runs along the bottom
+    // edge; between 768px and ~1100px this hint sat on top of it. Ctrl+K still opens
+    // the palette there — only the floating button steps aside.
+    if (pathname?.startsWith('/apps/Assistant')) return null;
     return (
       <button
         type="button"
