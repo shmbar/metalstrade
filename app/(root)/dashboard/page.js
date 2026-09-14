@@ -22,7 +22,7 @@ import Tltip from '@components/tlTip';
 const MarketsTicker = dynamic(() => import('@components/Dashboard/MarketsTicker'), { ssr: false });
 import AIAlertsBar from '@components/Dashboard/AIAlertsBar';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@components/ui/select';
-import { TONES } from '@components/statusUtils';
+import { TONES, amountToneClass } from '@components/statusUtils';
 import ProgressBar from '@components/ProgressBar';
 import Avatar from '@components/Avatar';
 import Modal from '@components/modal';
@@ -374,12 +374,25 @@ function DetailModal({ title, subtitle, rows = [], cols = [], formula = null, is
                   ))}
                 </tbody>
                 <tfoot>
-                  <tr>
-                    <td colSpan={cols.length - 1} style={{ textAlign: 'left' }}>
-                      {rows.length} record{rows.length === 1 ? '' : 's'}
-                    </td>
-                    <td className="numeric" style={{ textAlign: 'right' }}>{fmtAutoKM(total)}</td>
-                  </tr>
+                  {/* A table with several money columns (invoiced / paid / balance) totals
+                      each one under itself: a column opts in with `footer(rows)`. Tables
+                      without any keep the single total in the last cell. */}
+                  {cols.some(c => c.footer) ? (
+                    <tr>
+                      {cols.map((c, i) => (
+                        <td key={c.key} className={c.footer ? 'numeric' : ''} style={{ textAlign: i === 0 ? 'left' : (c.right ? 'right' : 'left') }}>
+                          {i === 0 ? `${rows.length} record${rows.length === 1 ? '' : 's'}` : (c.footer ? c.footer(rows) : '')}
+                        </td>
+                      ))}
+                    </tr>
+                  ) : (
+                    <tr>
+                      <td colSpan={cols.length - 1} style={{ textAlign: 'left' }}>
+                        {rows.length} record{rows.length === 1 ? '' : 's'}
+                      </td>
+                      <td className="numeric" style={{ textAlign: 'right' }}>{fmtAutoKM(total)}</td>
+                    </tr>
+                  )}
                 </tfoot>
               </table>
             </div>
@@ -1983,6 +1996,36 @@ const Dash = () => {
   }).sort((a, b) => b.usd - a.usd), [rawCompanyExpenses, companyRate, liveEurUsd]);
   const money = (c, v) => `${c === 'us' ? '$' : '€'}${new Intl.NumberFormat('en-US', { maximumFractionDigits: 2 }).format(v || 0)}`;
 
+  /* The contracts behind one supplier NAME. Matched by resolved name, exactly as funcs.js
+     re-keys the card — two settings ids sharing an nname are one tile, so they have to be
+     one list too; looking up the first matching id alone dropped the other's contracts. */
+  const supplierContracts = (name) => Object.entries(conAgg.supplierDetails || {})
+    .filter(([id]) => (settings?.Supplier?.Supplier?.find(s => s.id === id)?.nname || 'Unknown supplier') === name)
+    .flatMap(([, rs]) => rs);
+  const sumBy = (rows, f) => rows.reduce((a, r) => a + (Number(f(r)) || 0), 0);
+  const muted = (text) => <span className="font-normal" style={{ color: 'var(--ink-muted)' }}>{text}</span>;
+  /* Supplier contract rows. Invoiced is what the card totals; Paid and Balance are the same
+     split Cashflow's Suppliers section shows. A bare $0.00 read as a broken figure, so an
+     empty row now says WHY it is empty (Sharoon, 2026-09-14). */
+  const SUPPLIER_COLS = [
+    { key: 'order', label: 'PO', render: (r) => r.order || '—' },
+    { key: 'date', label: 'Date' },
+    { key: 'mt', label: 'Tonnage', right: true,
+      render: (r) => `${new Intl.NumberFormat('en-US', { maximumFractionDigits: 1 }).format(r.mt || 0)} MT`,
+      footer: (rs) => `${new Intl.NumberFormat('en-US', { maximumFractionDigits: 1 }).format(sumBy(rs, r => r.mt))} MT` },
+    { key: 'lineValue', label: 'Contract value', right: true,
+      render: (r) => r.lineValue > 0 ? fmtAutoKM(r.lineValue) : muted('No price entered') },
+    { key: 'value', label: 'Invoiced', right: true,
+      render: (r) => r.invoices === 0 ? muted('Not invoiced yet') : (r.value ? fmtAutoKM(r.value) : muted('No amount entered')),
+      footer: (rs) => fmtAutoKM(sumBy(rs, r => r.value)) },
+    { key: 'paid', label: 'Paid', right: true,
+      render: (r) => r.invoices === 0 ? muted('—') : fmtAutoKM(r.paid),
+      footer: (rs) => fmtAutoKM(sumBy(rs, r => r.paid)) },
+    { key: 'balance', label: 'Balance', right: true,
+      render: (r) => r.invoices === 0 ? muted('—') : <span className={amountToneClass(r.value - r.paid)}>{fmtAutoKM(r.value - r.paid)}</span>,
+      footer: (rs) => fmtAutoKM(sumBy(rs, r => r.value - r.paid)) },
+  ];
+
   /* Misc invoice rows, shared by the card-level popup and the per-category ones. */
   const miscRows = useMemo(() => (rawMiscInvoices || []).map(r => ({
     date: r?.date || '', category: r?.category || 'uncategorized',
@@ -2048,7 +2091,7 @@ const Dash = () => {
     averageRate: {
       title: 'Average Rate', subtitle: 'Purchase cost per tonne',
       formula: [
-        { label: 'Total contract value', value: fmtAutoKM(totalContracts), note: 'contracts dated in the period' },
+        { label: 'Total contract value', value: fmtAutoKM(totalContracts), note: 'supplier invoices on contracts dated in the period' },
         { label: 'divided by tonnage purchased', value: mtFmt(totalMT), note: 'from the Margins page' },
         { label: 'Average Rate', value: fmtAutoKM(avgCostPerMT), result: true },
       ],
@@ -2080,11 +2123,24 @@ const Dash = () => {
        away behind "N more" — which is exactly what a total is: everything, added up. */
     contractsTotal: {
       title: 'Suppliers — Total Value', subtitle: `Every supplier in the period · ${(hbSupps.obj.labels || []).length} in total`,
-      rows: (hbSupps.obj.labels || []).map((name, i) => ({ name, value: Number(hbSupps.obj.datasets?.[0]?.data?.[i]) || 0 }))
-        .sort((a, b) => b.value - a.value),
+      rows: (hbSupps.obj.labels || []).map((name, i) => {
+        const cs = supplierContracts(name);
+        return {
+          name, value: Number(hbSupps.obj.datasets?.[0]?.data?.[i]) || 0,
+          paid: sumBy(cs, r => r.paid), contracts: cs.length,
+          waiting: cs.filter(r => r.invoices === 0).length,
+        };
+      }).sort((a, b) => b.value - a.value),
       cols: [
         { key: 'name', label: 'Supplier' },
-        { key: 'value', label: 'Purchase value', right: true, render: (r) => fmtAutoKM(r.value) },
+        { key: 'contracts', label: 'Contracts', right: true, footer: (rs) => String(sumBy(rs, r => r.contracts)) },
+        { key: 'waiting', label: 'Not invoiced yet', right: true,
+          render: (r) => r.waiting ? String(r.waiting) : muted('—'), footer: (rs) => String(sumBy(rs, r => r.waiting)) },
+        { key: 'value', label: 'Invoiced', right: true, render: (r) => fmtAutoKM(r.value), footer: (rs) => fmtAutoKM(sumBy(rs, r => r.value)) },
+        { key: 'paid', label: 'Paid', right: true, render: (r) => fmtAutoKM(r.paid), footer: (rs) => fmtAutoKM(sumBy(rs, r => r.paid)) },
+        { key: 'balance', label: 'Balance', right: true,
+          render: (r) => <span className={amountToneClass(r.value - r.paid)}>{fmtAutoKM(r.value - r.paid)}</span>,
+          footer: (rs) => fmtAutoKM(sumBy(rs, r => r.value - r.paid)) },
       ],
     },
     consigneesTotal: {
@@ -2520,7 +2576,7 @@ const Dash = () => {
                 "Invoices dated …" — the basis mix this page was untangled to remove. */}
             <RankingList
               title="Suppliers — $"
-              subtitle="Purchase value by supplier — contracts dated in the period"
+              subtitle="Invoiced value by supplier — contracts dated in the period"
               labels={hbSupps.obj.labels || []}
               data={hbSupps.obj.datasets?.[0]?.data || []}
               totalValue={totalContracts}
@@ -2600,22 +2656,20 @@ const Dash = () => {
         setIsOpen={(v) => { if (!v) setDrill(null); }}
         title={drill?.label || ''}
         subtitle={drill?.kind === 'supplier'
-          ? 'Contracts bought from this supplier in the period'
+          ? (() => {
+            const waiting = supplierContracts(drill.label).filter(r => r.invoices === 0).length;
+            return `Contracts bought from this supplier in the period${waiting ? ` · ${waiting} not invoiced yet` : ''}`;
+          })()
           : drill?.kind === 'gis'
             ? 'Commission billed by GIS — held out of Contract Expenses'
             : 'Invoices issued to this client in the period'}
         rows={!drill ? [] : drill.kind === 'supplier'
-          ? (conAgg.supplierDetails?.[settings.Supplier?.Supplier?.find(s => s.nname === drill.label)?.id] || [])
+          ? supplierContracts(drill.label)
           : drill.kind === 'gis'
             ? (gisCommission.rows || [])
             : (invoiceRevAgg.byClientDetails?.[drill.label] || [])}
         cols={drill?.kind === 'supplier'
-          ? [
-            { key: 'order', label: 'PO' },
-            { key: 'date', label: 'Date' },
-            { key: 'mt', label: 'Tonnage', right: true, render: (r) => `${new Intl.NumberFormat('en-US', { maximumFractionDigits: 1 }).format(r.mt || 0)} MT` },
-            { key: 'value', label: 'Value', right: true, render: (r) => fmtAutoKM(r.value) },
-          ]
+          ? SUPPLIER_COLS
           : drill?.kind === 'gis'
             ? [
               { key: 'supplier', label: 'Billed by', render: (r) => settings?.Supplier?.Supplier?.find(s => s.id === r.supplier)?.nname || 'GIS' },

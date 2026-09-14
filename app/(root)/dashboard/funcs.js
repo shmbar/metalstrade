@@ -328,8 +328,16 @@ export const calContracts = (data, settings, companyRate = 0, expenseRows = null
         if (x.cur !== 'us' && !(companyRate > 0) && !(contractRate > 0)) missingRate++
         const mltTmp = x.cur === 'us' ? 1 : mult
         const month = dateFormat(x.dateRange.startDate, 'm') * 1
-        //contracts — total purchase value (this is NOT the profit cost; see cogs below)
-        const contractPurchase = ContractsValue(x, 'pmnt', mltTmp)
+        /* contracts — total purchase value (this is NOT the profit cost; see cogs below).
+           invValue, the supplier invoice amount — NOT pmnt. On a poInvoice `pmnt` is the sum
+           of the payments made against it (poInvModal recomputes it from `payments` on every
+           edit, and `blnc` = invValue − pmnt), so summing it made this "paid so far": any
+           unpaid invoice counted as $0 of purchase. For 2026 that under-read the card by
+           $4.68M ($52.94M paid of $57.63M invoiced) and printed $0.00 against contracts like
+           190826-CZY, invoiced $138,963 and not yet paid (Sharoon, 2026-09-14). Cashflow's
+           Suppliers section already reads invValue as "Value"; this is now the same figure. */
+        const contractPurchase = ContractsValue(x, 'invValue', mltTmp)
+        const contractPaid = ContractsValue(x, 'pmnt', mltTmp)
         accumulatedPmnt[month] += contractPurchase
         //top 5 suppliers
         accumulatedTop5Sup[x.supplier] += contractPurchase
@@ -365,7 +373,7 @@ export const calContracts = (data, settings, companyRate = 0, expenseRows = null
                 if (!isNaN(q) && !isNaN(pr)) { lineVal += q * pr; pricedMT += q * mtFactor }
             })
             const poVal = (x.poInvoices || []).reduce((s, z) => {
-                const v = parseFloat(z?.pmnt); return isNaN(v) ? s : s + v
+                const v = parseFloat(z?.invValue); return isNaN(v) ? s : s + v
             }, 0)
             const avgPrice = pricedMT > 0 ? lineVal / pricedMT : 0
             if (poVal > 0 && avgPrice > 0 && lineVal > poVal * VALUE_TOLERANCE) {
@@ -374,10 +382,6 @@ export const calContracts = (data, settings, companyRate = 0, expenseRows = null
             }
         }
         totalMT += contractTotalMT
-        ;(supplierDetails[x.supplier] ||= []).push({
-            order: x.order || '', date: x.dateRange?.startDate || x.date || '',
-            value: contractPurchase, mt: contractTotalMT, cur: x.cur || 'us',
-        })
 
         /* ── Data-quality cross-check ─────────────────────────────────────────────
            A contract's own money audits its tonnage. Every product line carries a unit
@@ -396,8 +400,21 @@ export const calContracts = (data, settings, companyRate = 0, expenseRows = null
             if (!isNaN(q) && !isNaN(pr)) lineValue += q * pr
         })
         const poValue = (x.poInvoices || []).reduce((s, z) => {
-            const v = parseFloat(z?.pmnt); return isNaN(v) ? s : s + v
+            const v = parseFloat(z?.invValue); return isNaN(v) ? s : s + v
         }, 0)
+        /* `value` is what the card totals (invoiced); `paid` and the balance between them are
+           what Cashflow's Suppliers section shows beside it. A contract with no supplier
+           invoice yet still reads $0 invoiced — six Shalex contracts in 2026 — so the
+           contract's own worth, quantity × unit price, rides along to say what the row is
+           for, and `invoices` separates "not invoiced yet" from "invoice added without an
+           amount". Lines priced as free text ("See below*") add nothing to lineValue, so it
+           can read low or zero. */
+        ;(supplierDetails[x.supplier] ||= []).push({
+            order: x.order || '', date: x.dateRange?.startDate || x.date || '',
+            value: contractPurchase, paid: contractPaid, mt: contractTotalMT, cur: x.cur || 'us',
+            lineValue: lineValue * mltTmp,
+            invoices: (x.poInvoices || []).length,
+        })
         const issue = { id: x.id, order: x.order || '', supplier: x.supplier, date: x.dateRange?.startDate || '', mt: contractTotalMT }
         if (poValue > 0 && lineValue > poValue * VALUE_TOLERANCE) {
             dataIssues.push({ ...issue, kind: 'value', lineValue, poValue, ratio: lineValue / poValue, correctedTo: contractTotalMT, enteredMT })

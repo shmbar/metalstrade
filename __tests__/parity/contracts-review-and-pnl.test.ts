@@ -437,8 +437,12 @@ describe('web drift alarms for every mirrored formula', () => {
        richer expDetails fields (ref/paid/comments) — mobile has no tap-to-drill
        modal system yet, so there is nothing on the mobile side for them to feed.
        Every figure calContracts PRODUCES that mobile also produces was verified
-       against this exact web source before the hash was updated. */
-    [DASH_FUNCS, 'calContracts', '3b47558a122a'],
+       against this exact web source before the hash was updated.
+       Re-recorded 2026-09-14. Purchase value moved from poInvoice.pmnt (paid so far) to
+       invValue (the invoice) — ported to pnlChain.ts in the same change, with its own
+       test below. supplierDetails rows gained paid/lineValue/invoices: still web-only,
+       for the same no-drill-modal reason as above. */
+    [DASH_FUNCS, 'calContracts', 'd22f8e0bb312'],
     [DASH_FUNCS, 'setMonthsInvoices', '14a676c70ca8'],
     [CONTRACTS_PAGE, 'showQTY', 'ce8934870ea0'],
     [CONTRACTS_PAGE, 'gQ', '7d3d74cf3746'],
@@ -469,7 +473,7 @@ function reviewContracts() {
     order: 'PO-A',
     cur: 'us',
     euroToUSD: 1.1,
-    poInvoices: [makePoInvoice({ pmnt: '10000' }), makePoInvoice({ id: 'po-a2', pmnt: '2500' })],
+    poInvoices: [makePoInvoice({ invValue: '10000', pmnt: '10000' }), makePoInvoice({ id: 'po-a2', invValue: '2500', pmnt: '2500' })],
     expenses: [
       makeContractExpense({ amount: '500', cur: 'us' }),
       makeContractExpense({ id: 'cex-a2', expType: 'exp-storage', amount: '300', cur: 'eu' }),
@@ -489,7 +493,7 @@ function reviewContracts() {
     order: 'PO-B',
     cur: 'eu',
     euroToUSD: 1.08,
-    poInvoices: [makePoInvoice({ id: 'po-b1', pmnt: '8000' })],
+    poInvoices: [makePoInvoice({ id: 'po-b1', invValue: '8000', pmnt: '8000' })],
     expenses: [makeContractExpense({ id: 'cex-b1', amount: '400', cur: 'eu' })],
     invoicesData: [
       [
@@ -509,7 +513,7 @@ function reviewContracts() {
     order: 'PO-C',
     cur: 'us',
     euroToUSD: 1.2,
-    poInvoices: [makePoInvoice({ id: 'po-c1', pmnt: '15000' })],
+    poInvoices: [makePoInvoice({ id: 'po-c1', invValue: '15000', pmnt: '15000' })],
     expenses: [],
     invoicesData: [
       [makeInvoice({ id: 'c-orig', totalAmount: 20000, totalPrepayment: 6000, payments: [makePayment({ pmnt: '2000' })] })],
@@ -522,7 +526,7 @@ function reviewContracts() {
     order: 'PO-D',
     cur: 'us',
     euroToUSD: 1.05,
-    poInvoices: [makePoInvoice({ id: 'po-d1', pmnt: '3000' })],
+    poInvoices: [makePoInvoice({ id: 'po-d1', invValue: '3000', pmnt: '3000' })],
     expenses: [],
     invoicesData: [
       [makeInvoice({ id: 'd-orig', totalAmount: 5000, totalPrepayment: -1000, payments: [] })],
@@ -535,7 +539,7 @@ function reviewContracts() {
     order: 'PO-E',
     cur: 'us',
     euroToUSD: 1.0,
-    poInvoices: [makePoInvoice({ id: 'po-e1', pmnt: '1000' })],
+    poInvoices: [makePoInvoice({ id: 'po-e1', invValue: '1000', pmnt: '1000' })],
     expenses: [],
     invoicesData: [
       [makeInvoice({ id: 'e-cancel', invoice: 1099, canceled: true, totalAmount: 7000, totalPrepayment: 4000, payments: [] })],
@@ -561,7 +565,7 @@ describe('Tier 2 — purchase value converts at the CONTRACT currency, into the 
 
   it('sums EVERY poInvoice, skipping rows whose field is not a number (web funcs.js:10)', () => {
     const c = makeContract({
-      poInvoices: [makePoInvoice({ pmnt: '1000' }), makePoInvoice({ id: 'po-2', pmnt: '' }), makePoInvoice({ id: 'po-3', pmnt: 'n/a' })],
+      poInvoices: [makePoInvoice({ invValue: '1000', pmnt: '1000' }), makePoInvoice({ id: 'po-2', invValue: '', pmnt: '' }), makePoInvoice({ id: 'po-3', invValue: 'n/a', pmnt: 'n/a' })],
     });
     close(contractsValue(c, 'pmnt', USD, 1.1), webContractsValue(c, 'pmnt', USD, 1.1));
     close(contractsValue(c, 'pmnt', USD, 1.1), 1000);
@@ -799,7 +803,7 @@ function pnlContract() {
     cur: 'us',
     euroToUSD: 1.25,
     productsData: [makeProduct({ qnty: '20' }), makeImportProduct({ qnty: '8' })],
-    poInvoices: [makePoInvoice({ pmnt: '18000' })],
+    poInvoices: [makePoInvoice({ invValue: '18000', pmnt: '18000' })],
     // contract-level expenses: what the REVIEW page sums, and what freight/MT uses
     expenses: [
       makeContractExpense({ id: 'cex-f', expType: 'exp-freight', amount: '1200', cur: 'us' }),
@@ -1321,7 +1325,7 @@ function expenseWorld() {
     euroToUSD: 1.3,
     date: '2026-07-04',
     dateRange: { startDate: '2026-07-04', endDate: '2026-07-04' },
-    poInvoices: [makePoInvoice({ id: 'x2-po', pmnt: '7000' })],
+    poInvoices: [makePoInvoice({ id: 'x2-po', invValue: '7000', pmnt: '7000' })],
     productsData: [makeProduct({ id: 'x2-p', qnty: '25', description: 'Cr Scrap 430' })],
     invoicesData: [[makeFinalizedInvoice({ id: 'x2-inv', totalAmount: 9000 })]],
     expenses: [
@@ -1428,7 +1432,7 @@ describe('dashboard expenses — the block every SCENARIO left empty', () => {
         cur: 'eu',
         euroToUSD: '',
         supplier: 'sup-1',
-        poInvoices: [makePoInvoice({ id: 'nr-po', pmnt: '5000' })],
+        poInvoices: [makePoInvoice({ id: 'nr-po', invValue: '5000', pmnt: '5000' })],
         expenses: [makeContractExpense({ id: 'nr-e', expType: 'exp-other', amount: '100', cur: 'eu' })],
       }),
     ];
@@ -1452,7 +1456,7 @@ describe('dashboard expenses — the block every SCENARIO left empty', () => {
       makeContract({
         id: 'con-nosup',
         supplier: 'sup-deleted',
-        poInvoices: [makePoInvoice({ id: 'ns-po', pmnt: '4000' })],
+        poInvoices: [makePoInvoice({ id: 'ns-po', invValue: '4000', pmnt: '4000' })],
         expenses: [],
       }),
     ];
@@ -1463,6 +1467,31 @@ describe('dashboard expenses — the block every SCENARIO left empty', () => {
     // same label, same money
     close(mob.supplierTotals['Unknown supplier'], (web.pieArrSupps as any)['Unknown supplier']);
     close(mob.supplierTotals['Unknown supplier'], 4000);
+  });
+
+  it('purchase value is the supplier INVOICE value, not what has been paid on it', () => {
+    // poInvoice.pmnt is the sum of payments made (poInvModal recomputes it from
+    // `payments`); invValue is the invoice. Both apps summed pmnt, so an unpaid invoice
+    // counted as $0 of purchase — 190826-CZY, invoiced $138,963 and unpaid, showed $0.00
+    // on the dashboard (2026-09-14). Cashflow's Suppliers section reads invValue.
+    const settings = expenseSettings();
+    const world = [
+      makeContract({
+        id: 'con-unpaid',
+        supplier: 'sup-1',
+        poInvoices: [
+          makePoInvoice({ id: 'up-1', invValue: '9000', pmnt: '0', blnc: '9000' }),
+          makePoInvoice({ id: 'up-2', invValue: '6000', pmnt: '2500', blnc: '3500' }),
+        ],
+        expenses: [],
+      }),
+    ];
+    const { mob, web } = expectPnlMatchesWeb(world, settings, 0);
+    close(mob.purchaseByMonth[2], 15000);
+    expect(mob.purchaseByMonth[2]).not.toBeCloseTo(2500, 6);
+    const rows = Object.values(web.supplierDetails as Record<string, any[]>).flat();
+    close(rows[0].value, 15000);
+    close(rows[0].paid, 2500);
   });
 });
 

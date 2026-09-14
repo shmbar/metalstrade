@@ -304,7 +304,10 @@ export function computePnl(
     const m = parseInt(String(startDate).substring(5, 7), 10) - 1;
     if (m < 0 || m > 11) return;
 
-    const contractPurchase = (x.poInvoices || []).reduce((s: number, z: any) => s + num(z?.pmnt), 0) * mltTmp;
+    // invValue (the supplier invoice amount), not pmnt (paid so far) — web funcs.js
+    // calContracts made the same switch 2026-09-14. Summing pmnt counted every unpaid
+    // supplier invoice as $0 of purchase: $52.94M paid against $57.63M invoiced for 2026.
+    const contractPurchase = (x.poInvoices || []).reduce((s: number, z: any) => s + num(z?.invValue), 0) * mltTmp;
     purchaseByMonth[m] += contractPurchase;
 
     // web funcs.js:477 now says 'Unknown supplier' and ADDS on collision, rather
@@ -351,7 +354,7 @@ export function computePnl(
       }
     });
     const poValue = (x.poInvoices || []).reduce((s2: number, z: any) => {
-      const v = parseFloat(z?.pmnt);
+      const v = parseFloat(z?.invValue);
       return isNaN(v) ? s2 : s2 + v;
     }, 0);
     if (contractTotalMT > 0 && poValue > 0 && lineValue > poValue * VALUE_TOLERANCE) {
