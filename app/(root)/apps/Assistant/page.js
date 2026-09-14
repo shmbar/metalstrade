@@ -1,5 +1,5 @@
 'use client';
-import { useContext, useEffect, useState, useRef, useCallback } from 'react';
+import { Fragment, useContext, useEffect, useState, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { SettingsContext } from "../../../../contexts/useSettingsContext";
 import { UserAuth } from "../../../../contexts/useAuthContext";
@@ -8,35 +8,68 @@ import Toast from '../../../../components/toast.js';
 import { loadData, loadMarginsRange, loadAllStockData, loadCompanyExpenses, resolveInvoiceDate, groupInvoicesByNumber, computeStockNetSummary } from '../../../../utils/utils';
 import { effectiveDueDate } from '../../../../utils/finance';
 import { authedFetch, trimHistory, chatStorageKey } from '../../../../utils/aiClient';
-import { IoSend } from "react-icons/io5";
-import { BsRobot, BsPerson } from "react-icons/bs";
-import { FiTrendingUp, FiRefreshCw } from "react-icons/fi";
-import { HiOutlineDocumentText, HiOutlineCurrencyDollar } from "react-icons/hi";
-import { BsFileText, BsQuestionCircle, BsBoxSeam } from "react-icons/bs";
-import { MdRestartAlt } from "react-icons/md";
-import { GrAttachment } from "react-icons/gr";
+import { BtnIcon } from '../../../../components/buttonIcons';
 import dateFormat from "dateformat";
 
-const quickActions = [
-    { icon: <HiOutlineDocumentText className="w-3.5 h-3.5" />, text: "Show overdue invoices" },
-    { icon: <BsFileText className="w-3.5 h-3.5" />, text: "Which client owes the most?" },
-    { icon: <HiOutlineCurrencyDollar className="w-3.5 h-3.5" />, text: "Show unpaid expenses" },
-    { icon: <FiTrendingUp className="w-3.5 h-3.5" />, text: "What is my profit this month?" },
-    { icon: <BsBoxSeam className="w-3.5 h-3.5" />, text: "Contract status breakdown" },
-    { icon: <BsQuestionCircle className="w-3.5 h-3.5" />, text: "How do I create an invoice?" },
+/* What the Assistant can be asked, grouped the way the business thinks about it.
+   They open the empty page as cards; once a conversation is going, each answer
+   offers its own follow-ups instead (see FOLLOW_UPS in app/api/assistant). */
+const SUGGESTIONS = [
+    { category: 'Receivables', text: 'Show overdue invoices' },
+    { category: 'Receivables', text: 'Which client owes the most?' },
+    { category: 'Costs', text: 'Show unpaid expenses' },
+    { category: 'Performance', text: 'What is my profit this month?' },
+    { category: 'Contracts', text: 'Contract status breakdown' },
+    { category: 'Help', text: 'How do I create an invoice?' },
 ];
+
+/* A ranking under an answer ("which client owes the most?"), drawn as bars so the
+   gap between first and second is visible at a glance. The top row is the answer,
+   so it alone gets the full brand colour; the rest are context. Brand, not status
+   colours — nothing here is good or bad. */
+const RankingBlock = ({ ranking }) => {
+    const max = Math.max(...ranking.rows.map((r) => Number(r.value) || 0), 0);
+    return (
+        <div className="border-t border-[var(--line)] pt-3 flex flex-col gap-2">
+            <span className="text-micro font-semibold uppercase tracking-wide text-[var(--ink-muted)]">{ranking.title}</span>
+            <div className="grid grid-cols-[minmax(72px,140px)_1fr_auto] gap-x-3 gap-y-1.5 items-center responsiveTextTable">
+                {ranking.rows.map((r, i) => {
+                    const pct = max > 0 ? Math.max(2, Math.round(((Number(r.value) || 0) / max) * 100)) : 0;
+                    const top = i === 0;
+                    return (
+                        <Fragment key={`${r.label}-${i}`}>
+                            <span className={`truncate ${top ? 'font-semibold text-[var(--ink)]' : 'text-[var(--ink-secondary)]'}`} title={r.label}>{r.label}</span>
+                            <span className="block h-2 rounded-full bg-[var(--bg-subtle)] overflow-hidden">
+                                <span className="block h-full rounded-full" style={{ width: `${pct}%`, background: top ? 'var(--brand)' : 'var(--brand-border)' }} />
+                            </span>
+                            <span className={`numeric text-right whitespace-nowrap ${top ? 'text-[var(--ink)]' : 'text-[var(--ink-secondary)]'}`}>{r.display}</span>
+                        </Fragment>
+                    );
+                })}
+            </div>
+        </div>
+    );
+};
+// The final stream event can carry sources, a ranking and follow-up questions.
+const hasStructure = (p) => (Array.isArray(p.sources) && p.sources.length > 0)
+    || (p.ranking && Array.isArray(p.ranking.rows) && p.ranking.rows.length > 0)
+    || (Array.isArray(p.followUps) && p.followUps.length > 0);
+const structureOf = (p) => ({
+    ...(Array.isArray(p.sources) && p.sources.length ? { sources: p.sources } : {}),
+    ...(p.ranking?.rows?.length ? { ranking: p.ranking } : {}),
+    ...(Array.isArray(p.followUps) && p.followUps.length ? { followUps: p.followUps } : {}),
+});
 
 const AssistantChat = () => {
     const { settings, dateSelect, compData } = useContext(SettingsContext);
-    const { uidCollection, user, userTitle } = UserAuth();
+    const { uidCollection } = UserAuth();
     const router = useRouter();
-
-    const userName = user?.displayName || userTitle || 'User';
 
     const [messages, setMessages] = useState([]);
     const [newMessage, setNewMessage] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [dataLoading, setDataLoading] = useState(true);
+    const [syncedAt, setSyncedAt] = useState(null);
     const messagesEndRef = useRef(null);
     const inputRef = useRef(null);
     const abortRef = useRef(null);
@@ -96,6 +129,7 @@ const AssistantChat = () => {
             setExpensesData([...taggedSupplier, ...taggedCompany]);
             setStocksData(stocks || []);
             setMarginsData(margins || []);
+            setSyncedAt(new Date());
         } catch (err) {
             console.error('Error loading data:', err);
         } finally {
@@ -322,9 +356,9 @@ const AssistantChat = () => {
                         // the actual records each figure came from. The floating chat has
                         // shown these all along; this page was dropping them, so the
                         // fuller surface was the one you could not check.
-                        if (Array.isArray(parsed.sources) && parsed.sources.length) {
+                        if (hasStructure(parsed)) {
                             setMessages(prev => prev.map(m =>
-                                m.id === msgId ? { ...m, sources: parsed.sources } : m
+                                m.id === msgId ? { ...m, ...structureOf(parsed) } : m
                             ));
                         }
                     } catch (e) {
@@ -347,9 +381,9 @@ const AssistantChat = () => {
                                 m.id === msgId ? { ...m, content: m.content + text } : m
                             ));
                             // sources usually arrive in this last chunk
-                            if (Array.isArray(parsed.sources) && parsed.sources.length) {
+                            if (hasStructure(parsed)) {
                                 setMessages(prev => prev.map(m =>
-                                    m.id === msgId ? { ...m, sources: parsed.sources } : m
+                                    m.id === msgId ? { ...m, ...structureOf(parsed) } : m
                                 ));
                             }
                         } catch (e) { /* ignore malformed trailing chunk */ }
@@ -402,7 +436,11 @@ const AssistantChat = () => {
 
     const formatMessageContent = (content) => {
         if (!content) return '';
-        let f = content.replace(/\*\*(.+?)\*\*/g, '<strong class="font-semibold">$1</strong>');
+        // Escape FIRST. This string is set as HTML, and it is built from live data —
+        // client names, supplier names, comments — so a name containing markup would
+        // otherwise run in the page. Only the formatting added below becomes HTML.
+        const escaped = content.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        let f = escaped.replace(/\*\*(.+?)\*\*/g, '<strong class="font-semibold">$1</strong>');
         f = f.replace(/^• /gm, '<span class="text-[var(--endeavour)]">•</span> ');
         f = f.replace(/^(\d+)\. /gm, '<span class="text-[var(--endeavour)] font-medium">$1.</span> ');
         f = f.replace(/\n/g, '<br/>');
@@ -410,170 +448,166 @@ const AssistantChat = () => {
     };
 
     const hasMessages = messages.length > 0;
+    const lastAssistantId = [...messages].reverse().find((m) => m.role === 'assistant')?.id;
+    const busy = isLoading || dataLoading;
+    const count = (n) => Number(n || 0).toLocaleString('en-US');
 
     return (
-        <div className="w-full min-h-screen flex flex-col bg-[var(--bg-card)]">
+        <div className="w-full flex flex-col bg-[var(--bg-page)]">
             <div
-                className="mx-auto w-full max-w-full px-1 md:px-2 pb-4 flex-1 flex flex-col"
-                style={{ marginTop: 'clamp(56px, 7vh, 80px)', minHeight: 'calc(100vh - clamp(56px, 7vh, 80px))' }}
+                // A fixed height, not a minimum: with min-height a long thread (or six
+                // stacked cards on a phone) grew the page and pushed the input off screen.
+                // dvh so a phone's browser bar is not counted as room. On a phone the
+                // layout's pt-14 already clears the top bar, so no second offset there.
+                className="mx-auto w-full max-w-full px-1 md:px-2 pb-4 flex flex-col h-[calc(100dvh_-_3.5rem)] md:h-[calc(100dvh_-_var(--chat-top))] md:mt-[var(--chat-top)]"
+                style={{ '--chat-top': 'clamp(56px, 7vh, 80px)' }}
             >
                 {Object.keys(settings).length === 0 ? <Spinner /> :
                     <>
                         <Toast />
-                        <div className="border border-[var(--line)] rounded-2xl shadow-sm bg-[var(--bg-card)] mt-4 flex flex-col flex-1 overflow-hidden">
+                        <div className="border border-[var(--line)] rounded-2xl shadow-card bg-[var(--bg-card)] mt-4 flex flex-col flex-1 overflow-hidden">
 
-                            {/* Top Bar — flex-wrap + nowrap pills: on narrow screens the chip
-                                row drops WHOLE onto its own line under the title instead of
-                                breaking words mid-pill ("Contract / s") and colliding with it. */}
-                            <div className="px-3 md:px-4 py-2.5 border-b border-[var(--line)] flex flex-wrap items-center justify-between gap-y-2 gap-x-3 bg-[var(--bg-subtle)]">
-                                <div className="flex items-center gap-2 shrink-0">
-                                    <div className="w-1 h-5 bg-[var(--endeavour)] rounded-full" />
-                                    <span className="responsiveTextTitle font-medium text-[var(--port-gore)]">Assistant</span>
-                                </div>
-                                <div className="flex flex-wrap items-center justify-end gap-1.5 md:gap-2">
-                                    {dataLoading ? (
-                                        <span className="responsiveTextTable text-[var(--regent-gray)] whitespace-nowrap">Loading data...</span>
-                                    ) : (
-                                        <>
-                                            <span className="px-2 py-0.5 md:px-3 md:py-1 rounded-lg responsiveTextTable font-medium whitespace-nowrap" style={{ backgroundColor: 'var(--ok-bg)', color: 'var(--ok-strong)', border: '1px solid var(--ok-border)' }}>
-                                                {contractsData.length} Contracts
-                                            </span>
-                                            <span className="px-2 py-0.5 md:px-3 md:py-1 rounded-lg responsiveTextTable font-medium whitespace-nowrap" style={{ backgroundColor: 'var(--bg-subtle)', color: 'var(--chathams-blue)', border: '1px solid var(--line)' }}>
-                                                {invoicesData.length} Invoices
-                                            </span>
-                                            <span className="px-2 py-0.5 md:px-3 md:py-1 rounded-lg responsiveTextTable font-medium whitespace-nowrap" style={{ backgroundColor: 'var(--brand-soft)', color: 'var(--brand-strong)', border: '1px solid var(--brand-border)' }}>
-                                                {expensesData.length} Expenses
-                                            </span>
-                                            <span className="px-2 py-0.5 md:px-3 md:py-1 rounded-lg responsiveTextTable font-medium whitespace-nowrap" style={{ backgroundColor: 'var(--warn-bg)', color: 'var(--warn-text)', border: '1px solid var(--warn-border)' }}>
-                                                {stocksData.length} Stocks
-                                            </span>
-                                        </>
-                                    )}
+                            {/* Header. The record counts moved to the empty state, where they
+                                explain what is being searched; up here, four status-coloured
+                                pills read as four alerts. Clearing a chat is not destructive,
+                                so it is a neutral button — and only there when there is a chat. */}
+                            <div className="px-4 h-12 border-b border-[var(--line)] flex items-center gap-3 shrink-0">
+                                <span className="w-1 h-5 rounded-full bg-[var(--brand)] shrink-0" />
+                                <span className="responsiveTextTitle font-semibold text-[var(--ink)]">Assistant</span>
+                                <div className="ml-auto flex items-center gap-2 min-w-0">
+                                    <span className="hidden sm:inline responsiveTextTable text-[var(--ink-muted)] truncate">
+                                        {dataLoading ? 'Loading your data…' : `Answers from your live data${syncedAt ? ` · synced ${dateFormat(syncedAt, 'h:MM TT')}` : ''}`}
+                                    </span>
                                     <button
+                                        type="button"
                                         onClick={() => loadAllData(true)}
                                         disabled={dataLoading}
-                                        className="p-1.5 rounded-lg transition-colors hover:bg-[var(--line)]/50 disabled:opacity-40 shrink-0"
-                                        title="Refresh data"
+                                        title="Reload data"
+                                        aria-label="Reload data"
+                                        className="p-1.5 rounded-lg text-[var(--ink-muted)] hover:text-[var(--ink)] hover:bg-[var(--bg-subtle)] transition-colors disabled:opacity-40 shrink-0"
                                     >
-                                        <FiRefreshCw className={`w-3.5 h-3.5 text-[var(--endeavour)] ${dataLoading ? 'animate-spin' : ''}`} />
+                                        <BtnIcon action="refresh" spin={dataLoading} />
                                     </button>
-                                    <button
-                                        onClick={handleClearChat}
-                                        className="flex items-center gap-1.5 px-2 py-0.5 md:px-3 md:py-1 rounded-lg font-medium transition-colors whitespace-nowrap shrink-0"
-                                        style={{ backgroundColor: 'var(--bad-bg)', color: 'var(--bad-text)', border: '1px solid var(--bad-border)', fontSize: 'var(--fs-table)' }}
-                                        title="Reset conversation"
-                                    >
-                                        <MdRestartAlt className="w-4 h-4" />
-                                        Reset
-                                    </button>
+                                    {hasMessages && (
+                                        <button type="button" onClick={handleClearChat} className="whiteButton shrink-0">
+                                            Clear chat
+                                        </button>
+                                    )}
                                 </div>
                             </div>
 
-                            {/* Chat Area */}
-                            <div className="flex-1 overflow-y-auto bg-[var(--bg-card)]" style={{ minHeight: 0 }}>
+                            <div className="flex-1 overflow-y-auto" style={{ minHeight: 0 }}>
                                 {!hasMessages ? (
-                                    <div className="flex flex-col items-center justify-center py-10 px-4" style={{ minHeight: '260px' }}>
-                                        <div className="mb-3">
-                                            <video
-                                                src="/logo/asistan-3d.mp4"
-                                                autoPlay loop muted playsInline
-                                                style={{ width: '96px', height: '96px', objectFit: 'contain' }}
-                                            />
+                                    /* Empty state: what this is, what it can see, and six ways in. */
+                                    <div className="min-h-full flex flex-col items-center justify-center gap-4 sm:gap-6 px-3 sm:px-4 py-5 sm:py-10">
+                                        <div className="flex flex-col items-center gap-2 text-center">
+                                            <span className="w-11 h-11 rounded-2xl bg-[var(--brand-soft)] text-[var(--brand)] grid place-items-center">
+                                                <BtnIcon action="ai" />
+                                            </span>
+                                            <h1 className="text-display text-[var(--ink)]">Ask about your trading data</h1>
+                                            <p className="responsiveTextInput text-[var(--ink-muted)]">
+                                                {dataLoading
+                                                    ? 'Loading your contracts, invoices, expenses and stock…'
+                                                    : `Searching ${count(contractsData.length)} contracts · ${count(invoicesData.length)} invoices · ${count(expensesData.length)} expenses · ${count(stocksData.length)} stock records`}
+                                            </p>
                                         </div>
-                                        <h2 className="responsiveTextTitle font-normal text-[var(--regent-gray)] mb-1">
-                                            Hi {userName},
-                                        </h2>
-                                        <p className="responsiveText text-[var(--regent-gray)]">
-                                            How can I help you today?
-                                        </p>
+                                        <div className="w-full max-w-[760px] grid grid-cols-2 md:grid-cols-3 gap-2 sm:gap-2.5">
+                                            {SUGGESTIONS.map((sug) => (
+                                                <button
+                                                    key={sug.text}
+                                                    type="button"
+                                                    onClick={() => handleSendMessage(sug.text)}
+                                                    disabled={busy}
+                                                    className="text-left rounded-2xl border border-[var(--line)] bg-[var(--bg-card)] px-3 sm:px-4 py-2.5 sm:py-3 flex flex-col gap-1.5 shadow-card hover:border-[var(--brand)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                                >
+                                                    <span className="text-micro font-semibold uppercase tracking-wide text-[var(--ink-muted)]">{sug.category}</span>
+                                                    <span className="responsiveText font-semibold text-[var(--ink)]">{sug.text}</span>
+                                                </button>
+                                            ))}
+                                        </div>
                                     </div>
                                 ) : (
-                                    // Density: these answers are mostly lists of invoices, and a
-                                    // 17-line list set in relaxed leading with 75% bubbles pushed
-                                    // the totals off the screen. Tighter leading, tighter padding
-                                    // and wider bubbles keep a whole answer in one view.
-                                    <div className="p-3 flex flex-col gap-2.5">
-                                        {messages.map((message) => (
-                                            <div
-                                                key={message.id}
-                                                className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
-                                            >
-                                                {message.role === 'assistant' && (
-                                                    <div className="w-6 h-6 rounded-full bg-[var(--endeavour)]/10 flex items-center justify-center mr-1.5 flex-shrink-0 mt-0.5">
-                                                        <BsRobot className="w-3.5 h-3.5 text-[var(--endeavour)]" />
-                                                    </div>
-                                                )}
+                                    /* One reading column. Full-width answers ran ~1,300px a line. */
+                                    <div className="mx-auto w-full max-w-[760px] px-3 py-5 flex flex-col gap-4">
+                                        {messages.map((message) => message.role === 'user' ? (
+                                            <div key={message.id} className="flex justify-end">
                                                 <div
-                                                    className={`max-w-[85%] rounded-2xl px-3 py-2 responsiveText leading-snug ${
-                                                        message.role === 'user'
-                                                            ? 'rounded-br-sm'
-                                                            : message.isError
-                                                                ? 'bg-red-50 text-red-700 border border-red-200 rounded-bl-sm'
-                                                                : 'bg-[var(--selago)]/40 text-[var(--port-gore)] border border-[var(--selago)] rounded-bl-sm'
-                                                    }`}
-                                                    style={message.role === 'user' ? { backgroundColor: 'var(--bg-subtle)', color: 'var(--port-gore)' } : {}}
+                                                    className="max-w-[80%] rounded-2xl rounded-br-md px-4 py-2.5 responsiveText bg-[var(--brand-soft)] text-[var(--ink)] break-words"
+                                                    title={message.time}
                                                 >
-                                                    <div
-                                                        className="break-words"
-                                                        dangerouslySetInnerHTML={{ __html: formatMessageContent(message.content) }}
-                                                    />
-                                                    {message.isStreaming && (
-                                                        <span className="inline-block w-1.5 h-4 bg-[var(--endeavour)] ml-0.5 animate-pulse rounded-lg" />
+                                                    {message.content}
+                                                </div>
+                                            </div>
+                                        ) : (
+                                            <div key={message.id} className="flex flex-col items-start gap-2">
+                                                <div
+                                                    className={`w-full max-w-[640px] rounded-2xl rounded-tl-md border px-4 py-3.5 flex flex-col gap-3 ${message.isError
+                                                        ? 'border-[var(--bad-border)] bg-[var(--bad-bg)] text-[var(--bad-text)]'
+                                                        : 'border-[var(--line)] bg-[var(--bg-card)] text-[var(--ink)]'}`}
+                                                    title={message.time}
+                                                >
+                                                    <div className="responsiveText leading-relaxed break-words">
+                                                        <span dangerouslySetInnerHTML={{ __html: formatMessageContent(message.content) }} />
+                                                        {message.isStreaming && (
+                                                            <span className="inline-block w-1.5 h-4 bg-[var(--brand)] ml-0.5 align-text-bottom animate-pulse rounded-sm" />
+                                                        )}
+                                                    </div>
+
+                                                    {!message.isStreaming && message.ranking?.rows?.length > 1 && (
+                                                        <RankingBlock ranking={message.ranking} />
                                                     )}
 
-                                                    {/* The records behind the figures. An answer you cannot
-                                                        check is one you have to take on trust, and these are
-                                                        the rows the tool actually read — click through to the
-                                                        invoice or contract itself. */}
+                                                    {/* The records behind the figures — click through to check them. */}
                                                     {Array.isArray(message.sources) && message.sources.length > 0 && (
-                                                        <div className="mt-1.5 pt-1.5 border-t border-[var(--line)]">
-                                                            <div className="responsiveTextTable mb-1 text-[var(--ink-muted)]">
+                                                        <div className="border-t border-[var(--line)] pt-3 flex flex-wrap items-center gap-1.5">
+                                                            <span className="responsiveTextTable text-[var(--ink-muted)] mr-0.5">
                                                                 Based on {message.sources.length} record{message.sources.length === 1 ? '' : 's'}
-                                                            </div>
-                                                            <div className="flex flex-wrap gap-1">
-                                                                {message.sources.slice(0, 12).map((src) => (
-                                                                    <button
-                                                                        key={`${src.type}:${src.id}`}
-                                                                        onClick={() => router.push(`${src.route}?focus=${encodeURIComponent(src.id)}`)}
-                                                                        title={`Open ${src.label} in ${String(src.route || '').replace('/', '')}`}
-                                                                        className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-lg bg-[var(--bg-card)] border border-[var(--line)] hover:border-[var(--brand)] transition-colors"
-                                                                        style={{ fontSize: 'var(--fs-table)', color: 'var(--brand-strong)' }}
-                                                                    >
-                                                                        <span className="truncate max-w-[140px]">{src.label}</span>
-                                                                    </button>
-                                                                ))}
-                                                                {message.sources.length > 12 && (
-                                                                    <span className="self-center responsiveTextTable text-[var(--ink-muted)]">
-                                                                        +{message.sources.length - 12} more
-                                                                    </span>
-                                                                )}
-                                                            </div>
+                                                            </span>
+                                                            {message.sources.slice(0, 8).map((src) => (
+                                                                <button
+                                                                    key={`${src.type}:${src.id}`}
+                                                                    type="button"
+                                                                    onClick={() => router.push(`${src.route}?focus=${encodeURIComponent(src.id)}`)}
+                                                                    title={`Open ${src.label} in ${String(src.route || '').replace('/', '')}`}
+                                                                    className="inline-flex items-center px-2 py-0.5 rounded-lg border border-[var(--line-strong)] bg-[var(--bg-card)] responsiveTextTable font-semibold text-[var(--brand-strong)] hover:border-[var(--brand)] transition-colors"
+                                                                >
+                                                                    <span className="truncate max-w-[160px]">{src.label}</span>
+                                                                </button>
+                                                            ))}
+                                                            {message.sources.length > 8 && (
+                                                                <span className="responsiveTextTable text-[var(--ink-muted)]">+{message.sources.length - 8} more</span>
+                                                            )}
                                                         </div>
                                                     )}
-
-                                                    <div className="responsiveTextTable mt-1 text-right text-[var(--regent-gray)]">
-                                                        {message.time}
-                                                    </div>
                                                 </div>
-                                                {message.role === 'user' && (
-                                                    <div className="w-8 h-8 rounded-full bg-[var(--brand-deep)]/10 flex items-center justify-center ml-2 flex-shrink-0 mt-1">
-                                                        <BsPerson className="w-4 h-4 text-[var(--port-gore)]" />
+
+                                                {/* Next questions, only under the latest answer. */}
+                                                {message.id === lastAssistantId && !message.isStreaming && Array.isArray(message.followUps) && message.followUps.length > 0 && (
+                                                    <div className="flex flex-wrap gap-2 pl-1">
+                                                        {message.followUps.map((q) => (
+                                                            <button
+                                                                key={q}
+                                                                type="button"
+                                                                onClick={() => handleSendMessage(q)}
+                                                                disabled={busy}
+                                                                className="px-3 py-1.5 rounded-lg border border-[var(--brand-border)] bg-[var(--bg-card)] responsiveTextTable font-semibold text-[var(--brand-strong)] hover:border-[var(--brand)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                                            >
+                                                                {q}
+                                                            </button>
+                                                        ))}
                                                     </div>
                                                 )}
                                             </div>
                                         ))}
 
-                                        {/* Typing dots — only before first streaming token arrives */}
-                                        {isLoading && !messages.find(m => m.isStreaming) && (
+                                        {/* Thinking — only until the first token arrives. */}
+                                        {isLoading && !messages.find((m) => m.isStreaming) && (
                                             <div className="flex justify-start">
-                                                <div className="w-8 h-8 rounded-full bg-[var(--endeavour)]/10 flex items-center justify-center mr-2 flex-shrink-0 mt-1">
-                                                    <BsRobot className="w-4 h-4 text-[var(--endeavour)]" />
-                                                </div>
-                                                <div className="bg-[var(--selago)]/40 border border-[var(--selago)] rounded-2xl rounded-bl-sm px-4 py-3">
+                                                <div className="rounded-2xl rounded-tl-md border border-[var(--line)] bg-[var(--bg-card)] px-4 py-3" aria-label="Thinking">
                                                     <div className="flex items-center gap-1.5">
-                                                        <span className="w-2 h-2 bg-[var(--endeavour)] rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-                                                        <span className="w-2 h-2 bg-[var(--endeavour)] rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-                                                        <span className="w-2 h-2 bg-[var(--endeavour)] rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                                                        <span className="w-1.5 h-1.5 bg-[var(--brand)] rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                                                        <span className="w-1.5 h-1.5 bg-[var(--brand)] rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                                                        <span className="w-1.5 h-1.5 bg-[var(--brand)] rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
                                                     </div>
                                                 </div>
                                             </div>
@@ -584,66 +618,45 @@ const AssistantChat = () => {
                                 )}
                             </div>
 
-                            {/* Input Area */}
-                            <div className="p-4 border-t border-[var(--selago)]" style={{ backgroundColor: "var(--bg-card)" }}>
-                                <div className="responsiveText flex items-center gap-2 border-2 border-[var(--endeavour)]/30 rounded-lg px-4 py-2.5 focus-within:border-[var(--endeavour)] transition-colors" style={{ backgroundColor: 'var(--bg-subtle)' }}>
-                                    <GrAttachment className="w-4 h-4 text-[var(--regent-gray)] flex-shrink-0" />
+                            {/* Input. The paperclip is gone: it was never wired to anything. */}
+                            <div className="px-3 pt-3 pb-4 border-t border-[var(--line)] bg-[var(--bg-card)] shrink-0">
+                                <div className="mx-auto w-full max-w-[760px] flex items-center gap-2 rounded-2xl border border-[var(--line-strong)] bg-[var(--bg-card)] pl-4 pr-1.5 py-1.5 focus-within:border-[var(--brand)] focus-within:ring-[3px] focus-within:ring-[var(--brand-soft)] transition-colors">
                                     <input
                                         ref={inputRef}
                                         type="text"
-                                        placeholder="Ask me anything"
+                                        placeholder="Ask about your contracts, invoices, stock or cashflow…"
+                                        aria-label="Ask the assistant"
                                         value={newMessage}
                                         onChange={(e) => setNewMessage(e.target.value)}
                                         onKeyDown={handleKeyDown}
-                                        disabled={isLoading || dataLoading}
-                                        /* focus-visible:outline-none — the WRAPPER already
-                                           signals focus with focus-within:border, so the
-                                           global input:focus-visible outline drew a second
-                                           ring inside it and read as an internal border.
-                                           Focus is still visible; it is just not drawn twice. */
-                                        className="flex-1 outline-none focus-visible:outline-none text-[var(--port-gore)] disabled:opacity-50 disabled:cursor-not-allowed"
-                                        style={{ backgroundColor: 'transparent', fontSize: 'inherit' }}
+                                        disabled={busy}
+                                        className="flex-1 min-w-0 h-8 bg-transparent responsiveText text-[var(--ink)] focus-visible:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
                                     />
-                                    {/* While an answer is streaming the send button has nothing
-                                        to do — it is disabled anyway — so it becomes Stop. A long
-                                        reply was previously unstoppable short of leaving the page. */}
+                                    {/* While an answer streams, Send becomes Stop. */}
                                     {isLoading ? (
                                         <button
+                                            type="button"
                                             onClick={stopStreaming}
                                             aria-label="Stop generating"
                                             title="Stop generating"
-                                            className="p-2 bg-[var(--bg-subtle)] text-[var(--ink-secondary)] rounded-lg border border-[var(--line-strong)] hover:text-[var(--ink)] hover:border-[var(--brand)] transition-colors"
+                                            className="w-8 h-8 grid place-items-center rounded-lg border border-[var(--line-strong)] bg-[var(--bg-subtle)] text-[var(--ink-secondary)] hover:text-[var(--ink)] hover:border-[var(--brand)] transition-colors shrink-0"
                                         >
-                                            <span className="block w-4 h-4 flex items-center justify-center">
-                                                <span className="block w-2.5 h-2.5 rounded-[2px] bg-current" />
-                                            </span>
+                                            <span className="block w-2.5 h-2.5 rounded-sm bg-current" />
                                         </button>
                                     ) : (
-                                    <button
-                                        onClick={() => handleSendMessage()}
-                                        disabled={!newMessage.trim() || isLoading || dataLoading}
-                                        className="p-2 bg-[var(--endeavour)] text-[var(--on-brand)] rounded-lg hover:bg-[var(--brand-deep)] transition-colors disabled:opacity-40 disabled:cursor-not-allowed flex-shrink-0"
-                                    >
-                                        <IoSend className="w-4 h-4" />
-                                    </button>
+                                        <button
+                                            type="button"
+                                            onClick={() => handleSendMessage()}
+                                            disabled={!newMessage.trim() || busy}
+                                            aria-label="Send"
+                                            title="Send"
+                                            className="w-8 h-8 grid place-items-center rounded-lg bg-[var(--brand)] text-[var(--on-brand)] hover:bg-[var(--brand-strong)] transition-colors disabled:opacity-40 disabled:cursor-not-allowed shrink-0"
+                                        >
+                                            <BtnIcon action="send" />
+                                        </button>
                                     )}
                                 </div>
-                                <div className="flex flex-wrap gap-2 mt-3">
-                                    {quickActions.map((action, index) => (
-                                        <button
-                                            key={index}
-                                            onClick={() => handleSendMessage(action.text)}
-                                            disabled={isLoading || dataLoading}
-                                            className="flex items-center gap-1 px-2.5 py-1 bg-[var(--bg-card)] border border-[var(--line)] rounded-lg text-[var(--port-gore)] hover:border-[var(--endeavour)] hover:text-[var(--endeavour)] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-                                            style={{ fontSize: 'var(--fs-body)' }}
-                                        >
-                                            {action.icon}
-                                            {action.text}
-                                        </button>
-                                    ))}
-                                </div>
                             </div>
-
                         </div>
                     </>
                 }

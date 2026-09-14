@@ -421,7 +421,18 @@ export function executeTool(name, args, data) {
                     .slice(0, CITATIONS_MAX)
                     .map(srcInvoice)
                 : [];
-            return { text, sources };
+            // The same order, drawn as bars under the answer. Bar length follows the
+            // figure the list was SORTED by, so the longest bar is always the top name.
+            const ranking = {
+                title: 'Clients by outstanding balance',
+                rows: sorted.slice(0, 5).map(c => ({
+                    label: c.client,
+                    value: Object.values(c.amounts).reduce((s, v) => s + v, 0),
+                    display: Object.entries(c.amounts)
+                        .map(([cur, amt]) => `${cur} ${Math.round(amt).toLocaleString('en-US')}`).join(' + '),
+                })),
+            };
+            return { text, sources, ranking, focus: topClient };
         }
 
         case 'get_revenue_summary': {
@@ -638,12 +649,19 @@ export function executeTool(name, args, data) {
                 }
             });
             const sorted = Object.entries(bySupplier).sort((a, b) => b[1].count - a[1].count);
-            return `Suppliers by contract count (${contracts.length} total):\n${sorted.slice(0, 10).map(([sup, d]) => {
+            const text = `Suppliers by contract count (${contracts.length} total):\n${sorted.slice(0, 10).map(([sup, d]) => {
                 const valStr = Object.keys(d.byCur).length
                     ? ' — ' + Object.entries(d.byCur).map(([cur, amt]) => `${cur} ${amt.toFixed(2)}`).join(' + ')
                     : '';
                 return `• ${sup}: ${d.count} contract(s)${valStr}`;
             }).join('\n')}`;
+            const ranking = {
+                title: 'Suppliers by number of contracts',
+                rows: sorted.slice(0, 5).map(([sup, d]) => ({
+                    label: sup, value: d.count, display: `${d.count} contract${d.count === 1 ? '' : 's'}`,
+                })),
+            };
+            return { text, ranking, focus: sorted[0]?.[0] };
         }
 
         case 'get_client_invoices': {

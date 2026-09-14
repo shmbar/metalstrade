@@ -24,6 +24,30 @@ function sseDone() {
     return 'data: [DONE]\n\n';
 }
 
+/* Follow-up questions offered under an answer, by the tool that produced it.
+   Only questions another tool can actually answer: offering "Draft a payment
+   reminder" when the chat cannot draft one is a button that fails on click.
+   `focus` is the top name a ranking tool found (the client who owes the most). */
+const FOLLOW_UPS = {
+    get_client_debt_ranking: (f) => [f && `Show ${f}'s invoices`, 'Show overdue invoices', 'Show pending invoices'],
+    get_overdue_invoices: () => ['Which client owes the most?', 'Show pending invoices'],
+    get_pending_invoices: () => ['Show overdue invoices', 'Which client owes the most?'],
+    get_client_invoices: () => ['Which client owes the most?', 'Show overdue invoices'],
+    get_revenue_summary: () => ['Monthly sales this year', 'What is my profit this month?'],
+    get_monthly_sales: () => ['Revenue summary', 'What is my profit this month?'],
+    get_profit_info: () => ['Monthly sales this year', 'Show margin alerts'],
+    get_expense_summary: () => ['Show unpaid expenses', 'Supplier summary'],
+    get_unpaid_expenses: () => ['Expense totals', 'Supplier summary'],
+    get_contract_status_breakdown: () => ['Show recent contracts', 'Shipment status'],
+    get_recent_contracts: () => ['Contract status breakdown', 'Shipment status'],
+    get_shipment_status: () => ['Contract status breakdown', 'Show recent contracts'],
+    get_stock_summary: () => ['Supplier summary', 'Contract status breakdown'],
+    get_supplier_summary: (f) => [f && `Show contracts from ${f}`, 'Show recent contracts', 'Stock summary'],
+    get_cash_forecast: () => ['Show overdue invoices', 'Show unpaid expenses'],
+    get_margin_alerts: () => ['What is my profit this month?', 'Monthly sales this year'],
+    get_recent_reminders: () => ['Show overdue invoices', 'Which client owes the most?'],
+};
+
 export async function POST(request) {
     const guard = await guardAiRequest(request);
     if (guard.error) return sseErrorResponse(guard.error, guard.status);
@@ -80,16 +104,20 @@ export async function POST(request) {
                 : '';
 
             const allSources = [];
+            let ranking = null;
+            const followUps = [];
             const toolResults = toolMessage.tool_calls.map(tc => {
                 const raw = executeTool(
                     tc.function.name,
                     JSON.parse(tc.function.arguments || '{}'),
                     currentData || {}
                 );
-                const { text, sources = [] } = typeof raw === 'string'
+                const { text, sources = [], ranking: r = null, focus = null } = typeof raw === 'string'
                     ? { text: raw, sources: [] }
                     : raw;
                 if (Array.isArray(sources)) allSources.push(...sources);
+                if (!ranking && r?.rows?.length > 1) ranking = r;
+                followUps.push(...(FOLLOW_UPS[tc.function.name]?.(focus) || []));
                 const content = NO_RANGE_NOTE.has(tc.function.name) || !rangeNote
                     ? text
                     : text + rangeNote;
@@ -123,11 +151,13 @@ export async function POST(request) {
                         if (text) controller.enqueue(encoder.encode(sseText(text)));
                         if (chunk.usage?.total_tokens) guard.recordUsage(chunk.usage.total_tokens);
                     }
-                    // Emit citation chips just before [DONE]. The client merges
-                    // these into the final assistant message state.
-                    if (uniqueSources.length) {
+                    // Emit the answer's structure just before [DONE]: citation chips,
+                    // a ranking to draw as bars, and follow-up questions. The client
+                    // merges these into the final assistant message.
+                    const nextQuestions = [...new Set(followUps.filter(Boolean))].slice(0, 3);
+                    if (uniqueSources.length || ranking || nextQuestions.length) {
                         controller.enqueue(encoder.encode(
-                            `data: ${JSON.stringify({ sources: uniqueSources })}\n\n`
+                            `data: ${JSON.stringify({ sources: uniqueSources, ranking, followUps: nextQuestions })}\n\n`
                         ));
                     }
                     controller.enqueue(encoder.encode(sseDone()));

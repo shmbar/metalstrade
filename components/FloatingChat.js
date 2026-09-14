@@ -606,7 +606,11 @@ const FloatingChat = () => {
 
     const formatMessageContent = (content) => {
         if (!content) return '';
-        let f = content;
+        // Escape FIRST — this string is set as HTML (dangerouslySetInnerHTML below) and
+        // is built from live data (client names, supplier names, comments), so a record
+        // containing markup would otherwise run in the page. Only the formatting added
+        // below becomes HTML. Same fix as app/(root)/apps/Assistant/page.js.
+        let f = content.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
         f = f.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
         f = f.replace(/^[•\-]\s*/gm, '<span class="text-blue-600 mr-1">•</span>');
         f = f.replace(/^(\d+)\.\s+/gm, '<span class="text-blue-600 font-medium mr-1">$1.</span>');

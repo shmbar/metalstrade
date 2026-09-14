@@ -54,6 +54,7 @@ import {
   RotateCcw,
   Save,
   ScrollText,
+  SendHorizontal,
   SendToBack,
   Search,
   ShieldCheck,
@@ -136,6 +137,8 @@ export const ACTION_ICONS = {
   // "put under control" button, so the glyph has to carry the meaning alone.
   split: Split,
   ai: Sparkles,
+  // Submit a message (the Assistant input).
+  send: SendHorizontal,
   history: History,
   // Small print that would otherwise take a paragraph of page height.
   info: Info,
