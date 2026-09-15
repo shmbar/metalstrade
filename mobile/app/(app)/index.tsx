@@ -16,12 +16,13 @@ import { ReceivablesCard, AgingCard, RankingCard } from '@/features/dashboard/co
 import { MarketsTicker } from '@/features/prices/MarketsTicker';
 import { fmtCurKM, fmtMT, fmtAutoKM, curSymbol } from '@/lib/format';
 import { hapticTap } from '@/lib/haptics';
-import { spacing, radius } from '@/theme/tokens';
+import { spacing, radius, LIST_END_PADDING } from '@/theme/tokens';
+import { routeKeyOf } from '@/lib/access';
 
 export default function Dashboard() {
   const { colors, scheme } = useTheme();
   const insets = useSafeAreaInsets();
-  const { currentUser, userTitle, isAdmin, gisAccount } = useAuth();
+  const { currentUser, gisAccount, canRoute } = useAuth();
   const hideBalances = usePrivacyStore((s) => s.hidden);
   const togglePrivacy = usePrivacyStore((s) => s.toggle);
   // Scroll position drives the status-bar backdrop (fades in once the hero has
@@ -34,7 +35,7 @@ export default function Dashboard() {
     { label: 'New Contract', icon: 'add-circle', href: '/(app)/contracts/edit' },
     { label: 'Invoices', icon: 'receipt', href: '/(app)/invoices' },
     { label: 'Cashflow', icon: 'cash', href: '/(app)/cashflow' },
-    ...(isAdmin
+    ...(canRoute('margins')
       ? [{ label: gisAccount ? 'Gis Admin' : 'Sharon Admin', icon: 'stats-chart', href: '/(app)/margins' } as const]
       : []),
     { label: 'Assistant', icon: 'sparkles', href: '/(app)/assistant' },
@@ -90,7 +91,8 @@ export default function Dashboard() {
 
   // Web parity: 'accounting' users are restricted to the accounting view.
   // NOTE: every hook must run BEFORE this early return.
-  if (userTitle === 'accounting') return <Redirect href="/(app)/accounting" />;
+  // Access to this screen (and the redirect to a user's landing page) is enforced
+  // by the (app) layout's per-page permission guard.
 
   const curLine = (byCur: Record<string, number>) => {
     const ents = Object.entries(byCur).filter(([, v]) => Math.abs(v) > 0.005);
@@ -112,7 +114,7 @@ export default function Dashboard() {
         keyboardShouldPersistTaps="handled"
         scrollEventThrottle={16}
         onScroll={Animated.event([{ nativeEvent: { contentOffset: { y: scrollY } } }], { useNativeDriver: true })}
-        contentContainerStyle={{ paddingBottom: insets.bottom + 96 }}
+        contentContainerStyle={{ paddingBottom: LIST_END_PADDING }}
         refreshControl={<RefreshControl refreshing={isLoading} onRefresh={refetch} tintColor={colors.primary} progressViewOffset={insets.top + 60} />}
       >
         {/* Gradient executive hero */}
@@ -175,7 +177,7 @@ export default function Dashboard() {
               { k: 'Contracts', v: data ? String(data.contractCount) : '—', href: '/(app)/contracts' },
               { k: 'Outstanding', v: data ? curLine(outstanding) : '—', href: '/(app)/invoices?filter=Unpaid' },
               { k: 'Tonnage', v: data ? fmtMT(data.totalMT) : '—', href: '/(app)/stocks' },
-            ].map((c) => (
+            ].filter((c) => canRoute(routeKeyOf(c.href))).map((c) => (
               <Pressable key={c.k} onPress={() => router.push(c.href as any)} style={{ flex: 1, backgroundColor: 'rgba(255,255,255,0.14)', borderRadius: radius.lg, borderWidth: 1, borderColor: 'rgba(255,255,255,0.18)', padding: 10 }}>
                 <Text variant="caption" color="rgba(255,255,255,0.7)" numberOfLines={1}>{c.k}</Text>
                 <Text variant="bodyMedium" color="#ffffff" numberOfLines={1} adjustsFontSizeToFit={c.v.length > 9} style={{ marginTop: 2, fontFamily: 'PlusJakartaSans_600SemiBold', fontVariant: ['tabular-nums'] }}>{c.v}</Text>
@@ -211,7 +213,7 @@ export default function Dashboard() {
         {/* Quick actions — wraps to a second row once the admin-only 5th tile
             (Sharon/Gis Admin) joins the other four. */}
         <View style={{ flexDirection: 'row', gap: 8, paddingHorizontal: spacing.lg, marginTop: 18 }}>
-          {QUICK.map((q) => (
+          {QUICK.filter((q) => canRoute(routeKeyOf(q.href))).map((q) => (
             /* Each tile takes an equal share of the row, so four actions or five
                (the admin-only workspace tile) both come out evenly spaced instead
                of wrapping one lonely tile onto a second line. */

@@ -1,22 +1,30 @@
-import { useEffect, useState } from 'react';
-import { View, KeyboardAvoidingView, Platform, ScrollView, Alert, ActivityIndicator } from 'react-native';
+import { useEffect, useRef, useState } from 'react';
+import { View, Platform, ScrollView, Alert, ActivityIndicator, useWindowDimensions } from 'react-native';
 import { Pressable } from '@/components/ui/Pressable';
 import { Redirect } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Text, TextField } from '@/components/ui';
+import { ImsTechLogo } from '@/components/brand/ImsTechLogo';
 import { useTheme } from '@/theme/ThemeProvider';
 import { useAuth } from '@/store/auth';
 import { toast } from '@/store/toast';
 import { spacing, radius, getShadow } from '@/theme/tokens';
+import { useKeyboardHeight } from '@/lib/keyboard';
 import { getBiometricCredentials, setBiometricCredentials, isBiometricEnabled } from '@/lib/secureStore';
 import { isBiometricAvailable, authenticateBiometric, biometricLabel } from '@/lib/biometric';
+
+/** How far the form card reaches down into the brand ground behind it. */
+const CARD_OVERLAP = 28;
 
 export default function SignIn() {
   const { colors, scheme } = useTheme();
   const insets = useSafeAreaInsets();
+  const { height } = useWindowDimensions();
   const { user, signIn, error, resetPassword } = useAuth();
+  const keyboard = useKeyboardHeight();
+  const scrollRef = useRef<ScrollView>(null);
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -24,6 +32,24 @@ export default function SignIn() {
   const [busy, setBusy] = useState(false);
   const [bioReady, setBioReady] = useState(false);
   const [bioName, setBioName] = useState('Biometrics');
+
+  /* Layout, measured once with the keyboard down:
+     - groupH: brand block + card + footer, so the group can be centred on the screen.
+       The old layout pinned everything to the top and pushed the footer to the bottom,
+       leaving a ~260pt empty band between them on a modern phone.
+     - brandBottom: where the brand block ends inside the group, so the gradient stops
+       just under the card's top edge on every screen height.
+     Positions are kept relative to the group; the centring offset is added where they
+     are used, because it changes after the first measure and a child's onLayout does
+     not fire again when only its parent's padding moves.
+     Centring with a measured offset (not justifyContent) keeps the group still when the
+     keyboard adds its padding. */
+  const [groupH, setGroupH] = useState(0);
+  const [brandBottom, setBrandBottom] = useState(0);
+  const card = useRef({ y: 0, h: 0 });
+  const frameTop = insets.top + spacing.xl;
+  const frameBottom = insets.bottom + spacing.xl;
+  const centreOffset = groupH ? Math.max(0, (height - frameTop - frameBottom - groupH) / 2) : 0;
 
   useEffect(() => {
     (async () => {
@@ -33,6 +59,21 @@ export default function SignIn() {
       if (available) setBioName(await biometricLabel());
     })();
   }, []);
+
+  // Keyboard up: scroll just enough that the whole card — both fields and Sign in —
+  // sits above it. Measured against the card, not the focused field, so the button
+  // never hides under the keyboard while the password is being typed.
+  useEffect(() => {
+    if (keyboard <= 0) return;
+    const id = setTimeout(
+      () => {
+        const overflow = frameTop + centreOffset + card.current.y + card.current.h + spacing.lg - (height - keyboard);
+        if (overflow > 0) scrollRef.current?.scrollTo({ y: overflow, animated: true });
+      },
+      Platform.OS === 'ios' ? 40 : 90
+    );
+    return () => clearTimeout(id);
+  }, [keyboard, height, frameTop, centreOffset]);
 
   if (user) return <Redirect href="/(app)" />;
 
@@ -67,55 +108,81 @@ export default function SignIn() {
 
   return (
     <View style={{ flex: 1, backgroundColor: colors.bg }}>
-      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
-        <ScrollView
-          contentContainerStyle={{ flexGrow: 1, paddingBottom: insets.bottom + 24 }}
-          keyboardShouldPersistTaps="handled"
-          showsVerticalScrollIndicator={false}
-          bounces={false}
+      <ScrollView
+        ref={scrollRef}
+        contentContainerStyle={{
+          flexGrow: 1,
+          paddingTop: frameTop + centreOffset,
+          paddingBottom: frameBottom + keyboard,
+          paddingHorizontal: spacing.xl,
+        }}
+        keyboardShouldPersistTaps="handled"
+        keyboardDismissMode={Platform.OS === 'ios' ? 'interactive' : 'on-drag'}
+        showsVerticalScrollIndicator={false}
+        bounces={false}
+      >
+        {/* Brand ground — ends CARD_OVERLAP + 24 below the brand block, so the card
+            always sits across its lower edge. */}
+        <LinearGradient
+          colors={scheme === 'dark' ? ['#4A3BB0', '#131120'] : ['#8B7CF7', '#6D5CE0', '#4A3BB0']}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            height: brandBottom ? frameTop + centreOffset + brandBottom + spacing.xl + CARD_OVERLAP : Math.round(height * 0.42),
+            borderBottomLeftRadius: 36,
+            borderBottomRightRadius: 36,
+          }}
+        />
+
+        <View
+          // Hidden for the one frame before it has been measured and centred.
+          style={{ opacity: groupH ? 1 : 0 }}
+          onLayout={(e) => {
+            if (keyboard === 0) setGroupH(e.nativeEvent.layout.height);
+          }}
         >
-          {/* Brand hero with gradient — extra bottom padding leaves room for the
-              card to overlap into empty space (not over the fields). */}
-          <LinearGradient
-            colors={scheme === 'dark' ? ['#4A3BB0', '#131120'] : ['#8B7CF7', '#6D5CE0', '#4A3BB0']}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={{
-              paddingTop: insets.top + 36,
-              paddingHorizontal: spacing.xl,
-              paddingBottom: 84,
-              borderBottomLeftRadius: 36,
-              borderBottomRightRadius: 36,
+          <View
+            onLayout={(e) => {
+              if (keyboard === 0) setBrandBottom(e.nativeEvent.layout.y + e.nativeEvent.layout.height);
             }}
           >
+            {/* The IMS Tech wordmark on a white tile — its navy gradient is the brand,
+                and would sink into the purple ground without one. */}
             <View
               style={{
-                width: 64, height: 64, borderRadius: 20,
-                backgroundColor: 'rgba(255,255,255,0.16)',
-                borderWidth: 1, borderColor: 'rgba(255,255,255,0.25)',
-                alignItems: 'center', justifyContent: 'center', marginBottom: spacing.lg,
+                alignSelf: 'flex-start',
+                backgroundColor: '#ffffff',
+                borderRadius: 18,
+                paddingVertical: 10,
+                paddingHorizontal: 14,
+                ...getShadow(scheme, 'md'),
               }}
             >
-              <Ionicons name="cube" size={34} color="#fff" />
+              <ImsTechLogo width={112} />
             </View>
-            <Text variant="display" color="#ffffff" style={{ fontSize: 34, lineHeight: 40 }}>IMS</Text>
-            <Text variant="body" color="rgba(255,255,255,0.82)" style={{ marginTop: 4 }}>
+            <Text variant="h1" color="#ffffff" style={{ marginTop: spacing.lg }}>
               Inventory & Trading Management
             </Text>
-            <Text variant="caption" color="rgba(255,255,255,0.6)" style={{ marginTop: 14 }}>
+            <Text variant="body" color="rgba(255,255,255,0.8)" style={{ marginTop: 6 }}>
               Welcome back — sign in to continue
             </Text>
-          </LinearGradient>
+          </View>
 
-          {/* Floating form card overlapping the hero's bottom padding */}
           <View
+            onLayout={(e) => {
+              card.current = { y: e.nativeEvent.layout.y, h: e.nativeEvent.layout.height };
+            }}
             style={{
               backgroundColor: colors.card,
               borderRadius: radius['2xl'],
-              borderWidth: 1, borderColor: colors.border,
+              borderWidth: 1,
+              borderColor: colors.border,
               padding: spacing.xl,
-              marginHorizontal: spacing.xl,
-              marginTop: -48,
+              marginTop: spacing.xl,
               gap: spacing.lg,
               ...getShadow(scheme, 'lg'),
             }}
@@ -130,6 +197,7 @@ export default function SignIn() {
               keyboardType="default"
               autoComplete="username"
               textContentType="username"
+              returnKeyType="next"
             />
             <TextField
               label="Password"
@@ -139,6 +207,10 @@ export default function SignIn() {
               secureTextEntry={!showPw}
               autoCapitalize="none"
               textContentType="password"
+              returnKeyType="go"
+              onSubmitEditing={() => {
+                if (email && password && !busy) doSignIn(email.trim(), password);
+              }}
               rightElement={
                 <Pressable
                   onPress={() => setShowPw((s) => !s)}
@@ -167,6 +239,7 @@ export default function SignIn() {
             <Pressable
               onPress={() => { if (email && password && !busy) doSignIn(email.trim(), password); }}
               disabled={busy}
+              accessibilityRole="button"
               style={{
                 backgroundColor: colors.primary,
                 borderRadius: radius.md,
@@ -191,6 +264,7 @@ export default function SignIn() {
             {bioReady && (
               <Pressable
                 onPress={onBiometric}
+                accessibilityRole="button"
                 style={{
                   backgroundColor: colors.surfaceAlt,
                   borderRadius: radius.md,
@@ -209,14 +283,11 @@ export default function SignIn() {
             )}
           </View>
 
-          {/* Spacer pushes the footer to the bottom so the screen fills fully */}
-          <View style={{ flex: 1, minHeight: spacing.xl }} />
-
-          <Text variant="caption" tone="faint" style={{ textAlign: 'center', marginTop: spacing.lg, paddingHorizontal: spacing.xl }}>
+          <Text variant="caption" tone="faint" style={{ textAlign: 'center', marginTop: spacing.lg }}>
             🔒 Secure access · same account as the web CRM
           </Text>
-        </ScrollView>
-      </KeyboardAvoidingView>
+        </View>
+      </ScrollView>
     </View>
   );
 }

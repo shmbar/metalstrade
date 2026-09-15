@@ -3,7 +3,8 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/store/auth';
 import { useSettings } from '@/store/settings';
 import { loadData, loadActivity } from '@/data/firestore';
-import { updateContractField, logEvent } from '@/data/writes';
+import { updateContractField, updateInvoiceField, logEvent } from '@/data/writes';
+import { toIsoDate } from '@shared/pureHelpers';
 import { Contract, Invoice } from '@/data/types';
 import { normalizeStatus } from '@shared/shipmentStatus';
 import { matchesAllWords, searchWords } from '@shared/search';
@@ -92,6 +93,10 @@ export interface ShipmentLine {
   /** MT shipped on this invoice; a cancelled invoice shipped nothing */
   qnty: number;
   canceled: boolean;
+  /** this shipment's OWN lifecycle status (normalized) — not shipData.status, the release status */
+  shipmentStatus: string;
+  shipmentNotes: string;
+  updatedAt: number;
 }
 
 /**
@@ -131,11 +136,16 @@ export function buildShipmentQtyMap(invoices: any[]): Record<string, { shipped: 
         id: d.id,
         invoice: String(d.invoice ?? ''),
         invType: d.invType || '',
-        date: String(d.date || '').substring(0, 10),
+        // ISO, whatever form the invoice stores (a finalized one keeps 'dd-mmm-yyyy'):
+        // the date both sorts the rows and names the year bucket a write goes to.
+        date: toIsoDate(d.date) || String(d.date || '').substring(0, 10),
         qnty: d.canceled
           ? 0
           : (d.productsDataInvoice || []).reduce((sum: number, l: any) => sum + (parseFloat(l?.qnty) || 0), 0),
         canceled: !!d.canceled,
+        shipmentStatus: normalizeStatus(d.shipmentStatus),
+        shipmentNotes: d.shipmentNotes || '',
+        updatedAt: d.shipmentUpdatedAt || 0,
       }))
       .sort((a, b) => {
         const da = new Date(a.date).getTime() || 0;
@@ -477,5 +487,64 @@ export function useSetShipmentStatus() {
       qc.invalidateQueries({ queryKey: ['notifications'] });
       qc.invalidateQueries({ queryKey: ['activity'] });
     },
+  });
+}
+
+/**
+ * Save one SHIPMENT (an invoice under the contract) — web page.js saveShipment. A PO
+ * that ships three times has three sets of status and notes and the contract has room
+ * for one, so a shipment row writes to the INVOICE it stands for. An invoice with no
+ * date cannot be addressed (the collection is year-bucketed), so that is reported.
+ */
+export function useSaveShipmentLine() {
+  const { uidCollection, currentUser } = useAuth();
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({
+      line,
+      contract,
+      patch,
+    }: {
+      line: ShipmentLine;
+      contract: Contract;
+      patch: { shipmentStatus?: string; shipmentNotes?: string };
+    }) => {
+      if (!uidCollection) throw new Error('Not authenticated');
+      if (!line.date) throw new Error('That invoice has no date, so it cannot be updated here — set it on the invoice first.');
+      const ts = Date.now();
+      await updateInvoiceField(uidCollection, line.id, line.date, { ...patch, shipmentUpdatedAt: ts });
+      if (patch.shipmentStatus) {
+        // Same feed entry web writes (handleShipmentStatusChange).
+        await logEvent(uidCollection, {
+          type: 'shipment.status',
+          entityType: 'contract',
+          entityId: contract.id || '',
+          entityLabel: `PO ${contract.order ?? ''}`,
+          action: 'status',
+          message: `Shipment ${line.invoice} (PO ${contract.order ?? ''}) marked "${patch.shipmentStatus}"`,
+          notify: true,
+          severity: patch.shipmentStatus === 'Completed' ? 'success' : patch.shipmentStatus === 'On Hold' ? 'warning' : 'info',
+          actorUid: currentUser?.uid,
+          actorName: currentUser?.name,
+        });
+      }
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['shipment'] }),
+  });
+}
+
+/** Contract-level shipment notes — web NotesCell onSave on the contract row. */
+export function useSaveContractShipmentNotes() {
+  const { uidCollection } = useAuth();
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ contract, notes }: { contract: Contract; notes: string }) => {
+      if (!uidCollection) throw new Error('Not authenticated');
+      await updateContractField(uidCollection, contract.id, shipmentWriteDate(contract), {
+        shipmentNotes: notes,
+        shipmentUpdatedAt: Date.now(),
+      });
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['shipment'] }),
   });
 }

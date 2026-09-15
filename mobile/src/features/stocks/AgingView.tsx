@@ -1,19 +1,18 @@
 import { useMemo } from 'react';
 import { View, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Card, Text, Badge, SkeletonList, ErrorState, EmptyState } from '@/components/ui';
 import { useTheme } from '@/theme/ThemeProvider';
 import { useSettings } from '@/store/settings';
 import { useStocks } from './useStocks';
 import { computeAging, BUCKET_TONE, STALE_DAYS, LONG_STAY_DAYS, formatDuration } from './aging';
+import { LIST_END_PADDING } from '@/theme/tokens';
 
 const fmtQty = (n: number) => new Intl.NumberFormat('en-US', { minimumFractionDigits: 3 }).format(Number(n) || 0);
 const BUCKETS = ['0-30', '31-60', '61-90', '90+'] as const;
 
 export function AgingView() {
   const { colors } = useTheme();
-  const insets = useSafeAreaInsets();
   const { settings } = useSettings();
   const { data, isLoading, isError, error, refetch } = useStocks();
 
@@ -31,7 +30,7 @@ export function AgingView() {
   }
 
   return (
-    <ScrollView keyboardShouldPersistTaps="handled" style={{ flex: 1 }} contentContainerStyle={{ paddingBottom: insets.bottom + 96 }} showsVerticalScrollIndicator={false}>
+    <ScrollView keyboardShouldPersistTaps="handled" style={{ flex: 1 }} contentContainerStyle={{ paddingBottom: LIST_END_PADDING }} showsVerticalScrollIndicator={false}>
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 10 }}>
         <Ionicons name="business-outline" size={16} color={colors.primary} />
         <Text variant="h3" style={{ flex: 1 }}>Storage Aging by Terminal</Text>

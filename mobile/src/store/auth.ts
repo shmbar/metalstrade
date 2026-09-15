@@ -12,7 +12,8 @@ import {
 import { auth } from '@/lib/firebase';
 import { queryClient, asyncStoragePersister } from '@/query/client';
 // @ts-ignore — plain JS module shared verbatim with the web
-import { isSuperAdmin, normalizeRole } from '@shared/permissions';
+import { isSuperAdmin, normalizeRole, resolvePages } from '@shared/permissions';
+import { canOpenRoute, landingHrefFor } from '@/lib/access';
 
 // Idle-expiry parity with the web app's AuthContext. A phone is inherently a
 // "Remember me" device (users expect to stay signed in), so mobile uses the web's
@@ -63,6 +64,14 @@ interface AuthState {
   // Total Left-Right-Balance strip, the Airwallex-style manual incoming rows).
   isAdmin: boolean;
   superAdmin: boolean;
+  /** the custom claims the permissions resolve from (null when signed out) */
+  claims: Record<string, any> | null;
+  /** web page keys this user may open — utils/permissions.js resolvePages */
+  allowedPages: string[];
+  /** where web's landingPage() sends this user, as a mobile route */
+  landingHref: string;
+  /** may this user open the mobile route ('contracts', 'cashflow', 'index', …)? */
+  canRoute: (route: string) => boolean;
   currentUser: CurrentUser;
   error: string | null;
   signIn: (email: string, password: string) => Promise<boolean>;
@@ -97,6 +106,9 @@ export const useAuth = create<AuthState>((set, get) => ({
   gisAccount: false,
   isAdmin: false,
   superAdmin: false,
+  claims: null,
+  allowedPages: [],
+  landingHref: '/(app)',
   currentUser: buildCurrentUser(null),
   error: null,
 
@@ -128,6 +140,11 @@ export const useAuth = create<AuthState>((set, get) => ({
     if (uc && cu?.uid) await endPresence(uc, cu.uid).catch(() => {});
     await AsyncStorage.removeItem(LAST_SEEN_KEY).catch(() => {});
     await fbSignOut(auth).catch(() => {});
+  },
+
+  canRoute: (route: string) => {
+    const { claims, user } = get();
+    return canOpenRoute(claims, user?.uid || '', route);
   },
 
   // Send a Firebase password-reset email — parity with the web "Forgot password".
@@ -200,6 +217,9 @@ export const useAuth = create<AuthState>((set, get) => ({
           gisAccount: false,
           isAdmin: false,
           superAdmin: false,
+          claims: null,
+          allowedPages: [],
+          landingHref: '/(app)',
           currentUser: buildCurrentUser(null),
           initializing: false,
         });
@@ -219,6 +239,13 @@ export const useAuth = create<AuthState>((set, get) => ({
           gisAccount: uidCollection === GIS_UID_COLLECTION,
           superAdmin,
           isAdmin: superAdmin || normalizeRole(claims.role || claims.title) === 'admin',
+          // Per-page permissions (web b783925b): an explicit `pages` claim picked in
+          // Settings → Users, else the role's default set. Mobile only knew "admin"
+          // and "accounting-only", so a user an admin had limited to three pages on
+          // the web could open every screen on the phone.
+          claims,
+          allowedPages: resolvePages(claims, user.uid),
+          landingHref: landingHrefFor(claims, user.uid),
           currentUser: cu,
           initializing: false,
         });
@@ -236,6 +263,9 @@ export const useAuth = create<AuthState>((set, get) => ({
           gisAccount: false,
           isAdmin: false,
           superAdmin: false,
+          claims: null,
+          allowedPages: [],
+          landingHref: '/(app)',
           currentUser: buildCurrentUser(user),
           initializing: false,
         });

@@ -4,7 +4,7 @@ import { Pressable } from '@/components/ui/Pressable';
 import { BackButton } from '@/components/ui/BackButton';
 import { useLocalSearchParams, router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { Screen, Card, Text, Badge, Button, ProgressBar, SectionHeader, EmptyState, SkeletonList, Sheet, IconButton, Avatar, ActionGrid, ErrorState } from '@/components/ui';
+import { Screen, Card, Text, Badge, Button, ProgressBar, SectionHeader, EmptyState, SkeletonList, Sheet, IconButton, Avatar, ActionGrid, ErrorState, Chip } from '@/components/ui';
 import { useTheme } from '@/theme/ThemeProvider';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useSettings } from '@/store/settings';
@@ -16,6 +16,8 @@ import { curSymbol, fmtMoney, fmtCurKM } from '@/lib/format';
 import { exportPdf } from '@/lib/export';
 import { contractPoHtml } from '@/lib/pdfTemplates';
 import { annexViiHtml, isfHtml } from '@/lib/customsDocs';
+import { CommentsSheet } from '@/components/CommentsSheet';
+import { HistorySheet } from '@/components/HistorySheet';
 
 export default function ContractDetail() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -28,6 +30,9 @@ export default function ContractDetail() {
 
   // Customs document export with optional saved-template merge (web Documents tab).
   const [docPicker, setDocPicker] = useState<'annex' | 'isf' | null>(null);
+  // Web's contract modal has a comment thread and a per-record history; mobile had neither.
+  const [sheet, setSheet] = useState<'comments' | 'history' | 'note' | null>(null);
+  const [noteType, setNoteType] = useState<'2222' | '3333'>('2222');
   const annexTemplates = (settings as any)?.['Annex VII']?.['Annex VII']?.filter((t: any) => !t.deleted) || [];
   const isfTemplates = (settings as any)?.ISF?.ISF?.filter((t: any) => !t.deleted) || [];
 
@@ -106,6 +111,8 @@ export default function ContractDetail() {
       balance: invoiceBalance(inv),
       finalized: isFinalized(inv),
     }));
+  // Invoices a Credit/Final note can be issued against — web locks every non-1111 row.
+  const noteOriginals = ((contract.invoices || []) as any[]).filter((x) => x?.id && x?.invType === '1111');
 
   return (
     <Screen contentContainerStyle={{ paddingTop: insets.top + 8 }} edges={false}>
@@ -293,6 +300,15 @@ export default function ContractDetail() {
         leftIcon={<Ionicons name="add" size={18} color={colors.primaryText} />}
         onPress={() => router.push(`/(app)/contracts/new-invoice?id=${contract.id}`)}
       />
+      {noteOriginals.length > 0 && (
+        <Button
+          title="Credit or final note"
+          variant="secondary"
+          style={{ marginTop: 10 }}
+          leftIcon={<Ionicons name="return-down-back-outline" size={18} color={colors.primary} />}
+          onPress={() => setSheet('note')}
+        />
+      )}
 
       {/* Everything else the contract can do — web's tab strip, as tiles. */}
       <SectionHeader title="Actions" style={{ marginTop: 18 }} />
@@ -302,11 +318,67 @@ export default function ContractDetail() {
           { key: 'settle', label: 'Final settlement', icon: 'git-merge-outline', emphasis: true, hidden: !(contract.stock?.length || 0), onPress: () => router.push(`/(app)/contracts/final-settlement?id=${contract.id}`) },
           { key: 'files', label: 'Attachments', icon: 'folder-outline', onPress: () => router.push(`/(app)/contracts/files?id=${contract.id}`) },
           { key: 'cert', label: 'Cert checker', icon: 'shield-checkmark-outline', onPress: () => router.push(`/(app)/contracts/cert-checker?id=${contract.id}`) },
-          { key: 'po', label: 'Export PO (PDF)', icon: 'document-outline', onPress: () => exportPdf(contractPoHtml(contract, v, compData), `PO-${contract.order || contract.id}`) },
+          { key: 'po', label: 'Export PO (PDF)', icon: 'document-outline', onPress: () => exportPdf(contractPoHtml(contract, v, compData, settings), `PO-${contract.order || contract.id}`) },
           { key: 'dup', label: 'Duplicate', icon: 'copy-outline', loading: duplicating, onPress: onDuplicate },
+          { key: 'comments', label: 'Comments', icon: 'chatbubbles-outline', onPress: () => setSheet('comments') },
+          { key: 'history', label: 'History', icon: 'time-outline', onPress: () => setSheet('history') },
           { key: 'annex', label: 'Annex VII', icon: 'document-text-outline', onPress: () => onDocPress('annex') },
           { key: 'isf', label: 'ISF', icon: 'document-text-outline', onPress: () => onDocPress('isf') },
         ]}
+      />
+
+      {/* Web contract invoice tab: choose Credit Note / Final Note, then the original. */}
+      <Sheet
+        visible={sheet === 'note'}
+        onClose={() => setSheet(null)}
+        title="Credit or final note"
+        subtitle="Issued under the original invoice's number"
+      >
+        <View style={{ flexDirection: 'row', gap: 8, marginBottom: 6 }}>
+          <Chip label="Credit note" active={noteType === '2222'} onPress={() => setNoteType('2222')} />
+          <Chip label="Final note" active={noteType === '3333'} onPress={() => setNoteType('3333')} />
+        </View>
+        {noteOriginals.map((x, i) => (
+          <Pressable
+            key={x.id}
+            onPress={() => {
+              setSheet(null);
+              router.push(
+                `/(app)/contracts/new-invoice?id=${contract.id}&type=${noteType}&from=${x.id}&fromDate=${encodeURIComponent(String(x.date || ''))}`
+              );
+            }}
+            accessibilityRole="button"
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              paddingVertical: 13,
+              borderTopWidth: i ? 1 : 0,
+              borderTopColor: colors.border,
+            }}
+          >
+            <Text variant="bodyMedium">Invoice #{x.invoice}</Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+              <Text variant="caption" tone="muted">{String(x.date || '').substring(0, 10)}</Text>
+              <Ionicons name="chevron-forward" size={16} color={colors.textFaint} />
+            </View>
+          </Pressable>
+        ))}
+      </Sheet>
+
+      <CommentsSheet
+        visible={sheet === 'comments'}
+        onClose={() => setSheet(null)}
+        entityType="contract"
+        entityId={contract.id}
+        entityLabel={`PO ${contract.order || ''}`}
+      />
+      <HistorySheet
+        visible={sheet === 'history'}
+        onClose={() => setSheet(null)}
+        entityType="contract"
+        entityId={contract.id}
+        title={`PO ${contract.order || ''}`}
       />
 
       {/* Template picker for customs doc export */}

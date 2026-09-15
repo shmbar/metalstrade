@@ -1,8 +1,8 @@
 import { useMemo, useState } from 'react';
-import { View, FlatList, ScrollView } from 'react-native';
+import { View, FlatList } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { Screen, Text, SkeletonList, FadeInItem, ErrorState, EmptyState, SearchField, Chip, IconButton } from '@/components/ui';
+import { Screen, Text, SkeletonList, FadeInItem, ErrorState, EmptyState, SearchField, Chip, IconButton, ChipRow, ChipDivider } from '@/components/ui';
 import { ScreenHeader } from '@/components/ScreenHeader';
 import { PeriodSelector } from '@/components/PeriodSelector';
 import { useTheme } from '@/theme/ThemeProvider';
@@ -10,9 +10,8 @@ import { useSettings } from '@/store/settings';
 import { useInvoices, deriveInvoice, InvoiceView } from '@/features/invoices/useInvoices';
 import { InvoiceCard } from '@/features/invoices/InvoiceCard';
 import { fmtCurKM } from '@/lib/format';
-import { spacing } from '@/theme/tokens';
+import { LIST_END_PADDING } from '@/theme/tokens';
 import { exportCsv } from '@/lib/export';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { SwipeRow } from '@/components/SwipeRow';
 import { matchesAllWords, searchWords } from '@shared/search';
 
@@ -28,7 +27,6 @@ const SORTS: { key: SortKey; label: string }[] = [
 
 export default function InvoicesList() {
   const { colors } = useTheme();
-  const insets = useSafeAreaInsets();
   const { settings } = useSettings();
   const { data: invoices, isLoading, isError, error, refetch } = useInvoices();
   // Dashboard tiles deep-link here with ?filter=Unpaid (drill-through).
@@ -97,16 +95,11 @@ export default function InvoicesList() {
       {/* Status filters and sort share one swipeable row — a divider keeps the
           two groups apart. Stacking them as two rows pushed the list below the
           fold on small phones; cramming both beside the count squeezed the chips. */}
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        style={{ marginTop: 12, marginHorizontal: -spacing.lg }}
-        contentContainerStyle={{ gap: 8, paddingHorizontal: spacing.lg, alignItems: 'center' }}
-      >
+      <ChipRow style={{ marginTop: 12 }}>
         {FILTERS.map((f) => (
           <Chip key={f} label={f} active={filter === f} onPress={() => setFilter(f)} />
         ))}
-        <View style={{ width: 1, height: 22, backgroundColor: colors.borderStrong, marginHorizontal: 4 }} />
+        <ChipDivider />
         {SORTS.map((s) => (
           <Chip
             key={s.key}
@@ -116,7 +109,7 @@ export default function InvoicesList() {
             onPress={() => setSort(s.key)}
           />
         ))}
-      </ScrollView>
+      </ChipRow>
 
       <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 12, marginTop: 12, marginBottom: 8 }}>
         <Text variant="caption" tone="muted">
@@ -165,7 +158,7 @@ export default function InvoicesList() {
             </FadeInItem>
           )}
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={{ paddingBottom: insets.bottom + 96 }}
+          contentContainerStyle={{ paddingBottom: LIST_END_PADDING }}
           onRefresh={refetch}
           refreshing={isLoading}
         />

@@ -8,6 +8,7 @@ import { Screen, Card, Text, Button, SkeletonList, ErrorState, EmptyState, FadeI
 import { useTheme } from '@/theme/ThemeProvider';
 import { useNotificationFeed, NotificationRow, Priority } from '@/features/push/useNotificationFeed';
 import { PRIORITY_ORDER } from '@shared/notificationPriority';
+import { LIST_END_PADDING } from '@/theme/tokens';
 
 const relativeTime = (ms?: number) => {
   if (!ms) return '';
@@ -160,7 +161,7 @@ export default function Notifications() {
           data={items}
           keyExtractor={(it, i) => (it.kind === 'header' ? `h:${it.priority}` : it.row.id || String(i))}
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={{ paddingBottom: insets.bottom + 96 }}
+          contentContainerStyle={{ paddingBottom: LIST_END_PADDING }}
           onRefresh={refetch}
           refreshing={isLoading}
           renderItem={({ item, index }) => {

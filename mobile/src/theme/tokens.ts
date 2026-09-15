@@ -175,3 +175,10 @@ export type ColorSchemeName = 'light' | 'dark';
 
 export const getColors = (scheme: ColorSchemeName): ThemeColors =>
   scheme === 'dark' ? darkColors : lightColors;
+
+/**
+ * Space after the last row of a list. Lists sit above the tab bar, which already
+ * reserves the device's bottom inset — so this is breathing room only, not inset.
+ * A list with a floating create button uses FAB_CLEARANCE instead.
+ */
+export const LIST_END_PADDING = spacing['2xl'];

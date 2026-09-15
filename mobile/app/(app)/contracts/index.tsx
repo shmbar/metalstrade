@@ -1,9 +1,9 @@
 import { useMemo, useState } from 'react';
 import { View, FlatList } from 'react-native';
 import { router } from 'expo-router';
+import { Pressable } from '@/components/ui/Pressable';
 import { Ionicons } from '@expo/vector-icons';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Screen, Text, SkeletonList, FadeInItem, ErrorState, EmptyState, SearchField, Chip, Fab, IconButton } from '@/components/ui';
+import { Screen, Text, SkeletonList, FadeInItem, ErrorState, EmptyState, SearchField, Chip, Fab, IconButton, Sheet, useFabScroll, FAB_CLEARANCE } from '@/components/ui';
 import { ScreenHeader } from '@/components/ScreenHeader';
 import { PeriodSelector } from '@/components/PeriodSelector';
 import { useTheme } from '@/theme/ThemeProvider';
@@ -14,6 +14,10 @@ import { useDuplicateContract } from '@/features/contracts/useDuplicateContract'
 import { SwipeRow } from '@/components/SwipeRow';
 import { exportCsv } from '@/lib/export';
 import { matchesAllWords, searchWords } from '@shared/search';
+import { useQueryClient } from '@tanstack/react-query';
+import { useAuth } from '@/store/auth';
+import { updateContractField } from '@/data/writes';
+import { toast } from '@/store/toast';
 
 type SortKey = 'date' | 'value' | 'mt';
 const SORTS: { key: SortKey; label: string }[] = [
@@ -23,13 +27,51 @@ const SORTS: { key: SortKey; label: string }[] = [
 ];
 
 export default function ContractsList() {
+  // The create button folds to a circle while the list scrolls down.
+  const fab = useFabScroll();
   const { colors } = useTheme();
-  const insets = useSafeAreaInsets();
   const { settings } = useSettings();
   const { data: contracts, isLoading, isError, error, refetch } = useContracts();
   const { duplicate } = useDuplicateContract();
   const [search, setSearch] = useState('');
   const [sort, setSort] = useState<SortKey>('date');
+
+  /* Delayed-response alerts — web contracts/page.js: a contract with no purchase
+     invoice yet, 14 days past its end date, stays flagged until dismissed. "Dismissed"
+     is contract.alert === false; a contract that never had the field counts as
+     flagged, exactly like web's alert === undefined branch. */
+  const { uidCollection } = useAuth();
+  const qc = useQueryClient();
+  const [alertsOpen, setAlertsOpen] = useState(false);
+  const [dismissed, setDismissed] = useState<Record<string, true>>({});
+  const delayed = useMemo(() => {
+    const today = new Date();
+    return (contracts || []).filter((z: any) => {
+      if (dismissed[z.id]) return false;
+      if (Array.isArray(z.poInvoices) && z.poInvoices.length > 0) return false;
+      const end = z.dateRange?.endDate;
+      if (!end) return false;
+      const due = new Date(end);
+      due.setDate(due.getDate() + 14);
+      return due < today && (z.alert === undefined || !!z.alert);
+    });
+  }, [contracts, dismissed]);
+  const dismissAlert = async (c: any) => {
+    if (!uidCollection) return;
+    setDismissed((p) => ({ ...p, [c.id]: true }));
+    try {
+      await updateContractField(uidCollection, c.id, c.dateRange?.startDate || c.date || '', { alert: false });
+      qc.invalidateQueries({ queryKey: ['contracts'] });
+      toast.success('Alert removed');
+    } catch (e: any) {
+      setDismissed((p) => {
+        const next = { ...p };
+        delete next[c.id];
+        return next;
+      });
+      toast.error(e?.message || 'Could not remove the alert.');
+    }
+  };
 
   const filtered = useMemo(() => {
     if (!contracts) return [];
@@ -74,6 +116,35 @@ export default function ContractsList() {
           </View>
         }
       />
+
+      {delayed.length > 0 && (
+        <Pressable
+          onPress={() => setAlertsOpen(true)}
+          accessibilityRole="button"
+          accessibilityLabel={`${delayed.length} contracts waiting on a supplier invoice`}
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: 10,
+            marginBottom: 10,
+            paddingHorizontal: 14,
+            paddingVertical: 11,
+            borderRadius: 14,
+            borderWidth: 1,
+            borderColor: colors.warn + '55',
+            backgroundColor: colors.warn + '14',
+          }}
+        >
+          <Ionicons name="alarm-outline" size={18} color={colors.warn} />
+          <View style={{ flex: 1, minWidth: 0 }}>
+            <Text variant="bodyMedium" numberOfLines={1}>
+              {delayed.length} contract{delayed.length === 1 ? '' : 's'} with no supplier invoice
+            </Text>
+            <Text variant="caption" tone="muted" numberOfLines={1}>Two weeks past the contract date — tap to review</Text>
+          </View>
+          <Ionicons name="chevron-forward" size={16} color={colors.textFaint} />
+        </Pressable>
+      )}
 
       <SearchField value={search} onChangeText={setSearch} placeholder="Search PO, supplier, material…" />
 
@@ -123,15 +194,52 @@ export default function ContractsList() {
             </FadeInItem>
           )}
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={{ paddingBottom: insets.bottom + 96 }}
+          contentContainerStyle={{ paddingBottom: FAB_CLEARANCE }}
+          onScroll={fab.onScroll}
+          scrollEventThrottle={16}
           onRefresh={refetch}
           refreshing={isLoading}
         />
       )}
+      <Sheet
+        visible={alertsOpen}
+        onClose={() => setAlertsOpen(false)}
+        title="Delayed responses"
+        subtitle="No purchase invoice 14 days after the contract date"
+      >
+        {delayed.length === 0 ? (
+          <Text variant="body" tone="muted" style={{ paddingVertical: 16, textAlign: 'center' }}>All clear.</Text>
+        ) : (
+          delayed.map((c: any, i: number) => {
+            const v = deriveContract(c, settings);
+            return (
+              <View
+                key={c.id}
+                style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 12, borderTopWidth: i ? 1 : 0, borderTopColor: colors.border }}
+              >
+                <Pressable
+                  onPress={() => {
+                    setAlertsOpen(false);
+                    router.push(`/(app)/contracts/${c.id}`);
+                  }}
+                  accessibilityRole="button"
+                  style={{ flex: 1, minWidth: 0 }}
+                >
+                  <Text variant="bodyMedium" numberOfLines={1}>{c.order || 'Untitled PO'}</Text>
+                  <Text variant="caption" tone="muted" numberOfLines={1}>
+                    {v.supplierName} · ends {String(c.dateRange?.endDate || '').substring(0, 10)}
+                  </Text>
+                </Pressable>
+                <Chip label="Dismiss" icon="checkmark" onPress={() => dismissAlert(c)} />
+              </View>
+            );
+          })
+        )}
+      </Sheet>
     </Screen>
 
       {/* Create FAB */}
-      <Fab label="New contract" onPress={() => router.push('/(app)/contracts/edit')} />
+      <Fab label="New contract" extended={fab.extended} onPress={() => router.push('/(app)/contracts/edit')} />
     </View>
   );
 }

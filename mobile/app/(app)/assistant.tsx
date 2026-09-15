@@ -6,7 +6,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Card, Text, EmptyState, StackHeader } from '@/components/ui';
 import { useTheme } from '@/theme/ThemeProvider';
-import { streamAssistant, isAssistantConfigured, ChatMessage, AssistantSource } from '@/features/assistant/api';
+import { streamAssistant, isAssistantConfigured, ChatMessage, AssistantSource, AssistantRanking } from '@/features/assistant/api';
 import { useAssistantContext } from '@/features/assistant/useAssistantContext';
 import { radius, spacing } from '@/theme/tokens';
 
@@ -15,6 +15,46 @@ interface UiMessage extends ChatMessage {
   streaming?: boolean;
   /** citation chips from the final sources event */
   sources?: AssistantSource[];
+  /** a ranking drawn as bars under the answer */
+  ranking?: AssistantRanking | null;
+  /** questions offered after the answer — tapping one sends it */
+  followUps?: string[];
+}
+
+/* A ranking under an answer ("which client owes the most?"), drawn as bars so the gap
+   between first and second is visible at a glance — web's RankingBlock. The top row
+   is the answer, so it alone gets the full brand colour; brand, not status colours,
+   because nothing here is good or bad. Stacked name + figure over a full-width bar,
+   the layout web itself uses on a phone-width screen. */
+function RankingBlock({ ranking }: { ranking: AssistantRanking }) {
+  const { colors } = useTheme();
+  const max = Math.max(...ranking.rows.map((r) => Number(r.value) || 0), 0);
+  return (
+    <View style={{ marginTop: 12, paddingTop: 10, borderTopWidth: 1, borderTopColor: colors.border, gap: 8 }}>
+      <Text variant="caption" tone="muted" style={{ textTransform: 'uppercase', letterSpacing: 0.5, fontFamily: 'PlusJakartaSans_600SemiBold' }}>
+        {ranking.title}
+      </Text>
+      {ranking.rows.map((r, i) => {
+        const pct = max > 0 ? Math.max(2, Math.round(((Number(r.value) || 0) / max) * 100)) : 0;
+        const top = i === 0;
+        return (
+          <View key={`${r.label}-${i}`} style={{ gap: 4 }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+              <Text variant="caption" numberOfLines={1} style={{ flex: 1, fontFamily: top ? 'PlusJakartaSans_600SemiBold' : undefined }} tone={top ? 'default' : 'muted'}>
+                {r.label}
+              </Text>
+              <Text variant="caption" tone={top ? 'default' : 'muted'} style={{ fontVariant: ['tabular-nums'] }}>
+                {r.display}
+              </Text>
+            </View>
+            <View style={{ height: 6, borderRadius: 3, backgroundColor: colors.surfaceAlt, overflow: 'hidden' }}>
+              <View style={{ width: `${pct}%`, height: '100%', borderRadius: 3, backgroundColor: top ? colors.primary : colors.primary + '55' }} />
+            </View>
+          </View>
+        );
+      })}
+    </View>
+  );
 }
 
 // The server's citation routes are WEB paths; map them to the mobile equivalents.
@@ -72,6 +112,11 @@ export default function Assistant() {
           setMessages((prev) => prev.map((m) => (m.id === botId ? { ...m, sources } : m)));
           scrollEnd();
         },
+        // …and the ranking + follow-up questions that ride on the same final event.
+        onStructure: ({ ranking, followUps }) => {
+          setMessages((prev) => prev.map((m) => (m.id === botId ? { ...m, ranking, followUps } : m)));
+          scrollEnd();
+        },
       });
       setMessages((prev) => prev.map((m) => (m.id === botId ? { ...m, streaming: false } : m)));
     } catch (e: any) {
@@ -83,6 +128,9 @@ export default function Assistant() {
       scrollEnd();
     }
   };
+
+  // Follow-up questions belong to the conversation's latest answer only.
+  const lastAssistantId = [...messages].reverse().find((m) => m.role === 'assistant')?.id;
 
   return (
     <View style={{ flex: 1, backgroundColor: colors.bg, paddingTop: insets.top + 8 }}>
@@ -145,6 +193,10 @@ export default function Assistant() {
                         <ActivityIndicator color={colors.primary} />
                       )}
 
+                      {!mine && !item.streaming && item.ranking && item.ranking.rows.length > 1 && (
+                        <RankingBlock ranking={item.ranking} />
+                      )}
+
                       {/* Citation chips — tap through to the record the answer came
                           from. Web shows these; mobile was dropping the event. */}
                       {!!item.sources?.length && (
@@ -177,6 +229,30 @@ export default function Assistant() {
                         </View>
                       )}
                     </Card>
+                    {!mine && !item.streaming && item.id === lastAssistantId && !!item.followUps?.length && (
+                      <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 8, maxWidth: '88%' }}>
+                        {item.followUps.map((q: string) => (
+                          <Pressable
+                            key={q}
+                            onPress={() => send(q)}
+                            disabled={busy}
+                            accessibilityRole="button"
+                            accessibilityLabel={`Ask: ${q}`}
+                            style={{
+                              paddingHorizontal: 12,
+                              paddingVertical: 8,
+                              borderRadius: radius.pill,
+                              borderWidth: 1,
+                              borderColor: colors.primary + '55',
+                              backgroundColor: colors.card,
+                              opacity: busy ? 0.5 : 1,
+                            }}
+                          >
+                            <Text variant="caption" tone="primary" style={{ fontFamily: 'PlusJakartaSans_600SemiBold' }}>{q}</Text>
+                          </Pressable>
+                        ))}
+                      </View>
+                    )}
                   </View>
                 );
               }}

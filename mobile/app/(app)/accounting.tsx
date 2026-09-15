@@ -12,6 +12,7 @@ import { curSymbol, fmtMoney, dateLabel } from '@/lib/format';
 import { exportCsv } from '@/lib/export';
 import { useSettings } from '@/store/settings';
 import { matchesAllWords, searchWords } from '@shared/search';
+import { LIST_END_PADDING } from '@/theme/tokens';
 
 export default function Accounting() {
   const { colors } = useTheme();
@@ -86,7 +87,7 @@ export default function Accounting() {
           data={groups}
           keyExtractor={(g) => g.invoice}
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={{ paddingBottom: insets.bottom + 96 }}
+          contentContainerStyle={{ paddingBottom: LIST_END_PADDING }}
           onRefresh={refetch}
           refreshing={isLoading}
           renderItem={({ item }) => {

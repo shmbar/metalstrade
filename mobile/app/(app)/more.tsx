@@ -11,6 +11,7 @@ import { useAuth } from '@/store/auth';
 import { clearBiometricCredentials } from '@/lib/secureStore';
 import { radius } from '@/theme/tokens';
 import { matchesAllWords, searchWords } from '@shared/search';
+import { routeKeyOf } from '@/lib/access';
 
 interface NavItem {
   label: string;
@@ -99,7 +100,7 @@ export default function More() {
   // capitalisation, say), used to fall through this page's OWN ad-hoc
   // `userTitle === 'Admin'` check and lose the Margins/Formulas group and its
   // badge — the auth store's isAdmin is the one place this is now derived.
-  const { currentUser, gisAccount, isAdmin, signOut } = useAuth();
+  const { currentUser, gisAccount, isAdmin, signOut, canRoute } = useAuth();
   const [query, setQuery] = useState('');
 
   const themeOptions: { key: 'light' | 'dark' | 'system'; icon: keyof typeof Ionicons.glyphMap }[] = [
@@ -117,9 +118,11 @@ export default function More() {
       group: g.group,
       items: g.items
         .map((it) => ({ ...it, label: label(it) }))
-        .filter((it) => (!it.admin || isAdmin) && matchesAllWords([it.label, it.sub, g.group], words)),
+        // Per-page permissions decide what a user sees here, exactly as web's sidebar
+        // hides a page the user cannot open (was: admin-flag only).
+        .filter((it) => canRoute(routeKeyOf(it.href)) && matchesAllWords([it.label, it.sub, g.group], words)),
     })).filter((g) => g.items.length > 0);
-  }, [query, isAdmin, gisAccount]);
+  }, [query, gisAccount, canRoute]);
 
   const onSignOut = () => {
     Alert.alert('Sign out?', 'You can sign back in with your password or biometrics.', [
@@ -157,15 +160,19 @@ export default function More() {
           </View>
         </View>
         <View style={{ flexDirection: 'row', borderTopWidth: 1, borderTopColor: colors.border }}>
-          <Pressable
-            onPress={() => router.push('/(app)/settings')}
-            accessibilityRole="button"
-            style={{ flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, paddingVertical: 12 }}
-          >
-            <Ionicons name="settings-outline" size={16} color={colors.primary} />
-            <Text variant="label" tone="primary">Settings</Text>
-          </Pressable>
-          <View style={{ width: 1, backgroundColor: colors.border }} />
+          {canRoute('settings') && (
+            <>
+              <Pressable
+                onPress={() => router.push('/(app)/settings')}
+                accessibilityRole="button"
+                style={{ flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, paddingVertical: 12 }}
+              >
+                <Ionicons name="settings-outline" size={16} color={colors.primary} />
+                <Text variant="label" tone="primary">Settings</Text>
+              </Pressable>
+              <View style={{ width: 1, backgroundColor: colors.border }} />
+            </>
+          )}
           <Pressable
             onPress={onSignOut}
             accessibilityRole="button"
@@ -183,7 +190,7 @@ export default function More() {
 
       {/* AI Assistant — the page's one feature row, so it reads as an invitation
           rather than the first item of the Money list. */}
-      {!query && (
+      {!query && canRoute('assistant') && (
         <Card
           padded={false}
           style={{ marginBottom: 14, backgroundColor: colors.primary + '0F', borderColor: colors.primary + '33' }}

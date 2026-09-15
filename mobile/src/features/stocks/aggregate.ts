@@ -119,6 +119,9 @@ export interface InventoryRow {
   sType: string;
   date: string;
   arrivalIso: string | null; // earliest arrival (for storage aging)
+  /** The representative in-lot's material keys — Cashflow's draft-invoice lookup. */
+  descriptionId?: string;
+  description?: string;
   /** DISTINCT suppliers behind the row — more than one means the row is mixed */
   supplierIds: string[];
 }
@@ -293,6 +296,11 @@ export function computeInventory(
           : f(totalObj.qnty) * f(totalObj.unitPrc);
     }
     totalObj.data = group; // web parity: kept for supplier-less description fallback
+    // web runStocks rows carry the lot's own descriptionId/description (the last in-lot
+    // copied above wins); Cashflow keys draft-invoice use on them (funcs.js:727).
+    const keyLot: any = [...group].reverse().find((z: any) => z.type === 'in' && z.description) || group[0];
+    totalObj.descriptionId = keyLot?.descriptionId;
+    totalObj.description = keyLot?.description;
     /* The DISTINCT suppliers behind this row (web funcs.js:365). Grouping is
        warehouse x description, so a row can legitimately hold lots from more than one
        supplier — and naming just one of them is wrong. PO 240726 read "GIS OU" while

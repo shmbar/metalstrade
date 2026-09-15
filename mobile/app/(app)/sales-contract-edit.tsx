@@ -4,7 +4,7 @@ import { Pressable } from '@/components/ui/Pressable';
 import { useLocalSearchParams, router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Screen, Card, Text, Select, TextField, DateField, Button, SectionHeader, EmptyState, StackHeader, IconButton } from '@/components/ui';
+import { Screen, Card, Text, Select, TextField, DateField, Button, SectionHeader, EmptyState, StackHeader, IconButton, Chip } from '@/components/ui';
 import { useTheme } from '@/theme/ThemeProvider';
 import { useSettings } from '@/store/settings';
 import {
@@ -14,6 +14,9 @@ import { blankSalesContract, newId } from '@/data/writes';
 import { curSymbol, fmtMoney } from '@/lib/format';
 import { num } from '@shared/finance';
 import { hapticSuccess } from '@/lib/haptics';
+import { useQuery } from '@tanstack/react-query';
+import { useAuth } from '@/store/auth';
+import { loadData } from '@/data/firestore';
 
 // Sales-contract detail / editor — the mobile twin of web's SalesContractDetails
 // modal. Web requires client / cur / contractNo / date, derives `total` from the
@@ -37,7 +40,10 @@ export default function SalesContractEdit() {
   useEffect(() => {
     if (isNew || !existing || seededId.current === existing.id) return;
     seededId.current = existing.id;
-    setV({ ...existing });
+    // The list row is a derived VIEW (clientName, products, shipped %); the form edits
+    // the stored document, which the row carries as .raw — the same thing the
+    // useState initialiser reads. Seeding from the row itself would save view fields.
+    setV({ ...((existing as any).raw || existing) });
   }, [existing, isNew]);
 
   const set = (k: string, val: any) => setV((p: any) => ({ ...p, [k]: val }));
@@ -55,6 +61,50 @@ export default function SalesContractEdit() {
     () => (settings?.Quantity?.Quantity || []).map((q: any) => ({ value: q.id, label: q.qTypeTable || q.id })),
     [settings]
   );
+
+  /* The purchase contract the cargo came from (web 925f0c15 / 0bf24580). Offered for the
+     sales contract's year ±1 — cargo is often bought a season before it is sold on —
+     with finished business hidden by default, since a PO whose cargo is long sold is
+     never the one being linked. Hidden, never unreachable: the chip says how many. */
+  const { uidCollection } = useAuth();
+  const scYear = parseInt(String(v.dateRange?.startDate || v.date || '').substring(0, 4), 10) || new Date().getFullYear();
+  const { data: purchaseContracts = [] } = useQuery({
+    enabled: !!uidCollection,
+    queryKey: ['sc-purchase-contracts', uidCollection, scYear],
+    queryFn: () =>
+      loadData<any>(uidCollection as string, 'contracts', { start: `${scYear - 1}-01-01`, end: `${scYear + 1}-12-31` } as any),
+  });
+  const [showCompletedPos, setShowCompletedPos] = useState(false);
+  const poId: string = v.poSupplier?.id || '';
+  const supName = (sid: string) => {
+    const sup = (settings?.Supplier?.Supplier || []).find((z: any) => z.id === sid);
+    return sup ? sup.nname || sup.supplier || '' : '';
+  };
+  const completedCount = purchaseContracts.filter((c: any) => c?.id && c.completed === true && c.id !== poId).length;
+  const poOptions = useMemo(() => {
+    const list = purchaseContracts
+      .filter((c: any) => c?.id && (showCompletedPos || c.completed !== true || c.id === poId))
+      .map((c: any) => ({ value: c.id, label: [c.order || '(no number)', supName(c.supplier)].filter(Boolean).join('  ·  ') }));
+    // A PO linked outside the loaded window must stay visible, or the picker would show
+    // "not linked" over a link that is actually set.
+    if (poId && !list.some((x: any) => x.value === poId)) {
+      list.unshift({
+        value: poId,
+        label: [v.poSupplier?.order || '(linked PO)', supName(v.poSupplier?.supplier)].filter(Boolean).join('  ·  '),
+      });
+    }
+    return list;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [purchaseContracts, poId, showCompletedPos, v.poSupplier, settings]);
+  const linkPo = (pid: string) => {
+    if (!pid) {
+      set('poSupplier', { id: '', order: '', date: '', supplier: '' });
+      return;
+    }
+    const c: any = purchaseContracts.find((x: any) => x.id === pid);
+    if (!c) return;
+    set('poSupplier', { id: c.id, order: c.order || '', date: c.dateRange?.startDate || c.date || '', supplier: c.supplier || '' });
+  };
 
   const lines: any[] = v.productsData || [];
   const setLine = (i: number, patch: any) =>
@@ -136,6 +186,23 @@ export default function SalesContractEdit() {
           <Select label="Client" value={v.client} options={clientOptions} onChange={(x) => set('client', x)} error={err('client')} required />
           <Select label="Currency" value={v.cur} options={curOptions} onChange={(x) => set('cur', x)} error={err('cur')} required />
           <Select label="Quantity unit" value={v.qTypeTable} options={qtyOptions} onChange={(x) => set('qTypeTable', x)} />
+          <Select
+            label="Purchase contract (PO)"
+            value={poId}
+            options={poOptions}
+            onChange={linkPo}
+            placeholder="Not linked"
+          />
+          {completedCount > 0 && (
+            <View style={{ flexDirection: 'row' }}>
+              <Chip
+                label={showCompletedPos ? 'Hide completed POs' : `Show ${completedCount} completed PO${completedCount === 1 ? '' : 's'}`}
+                icon={showCompletedPos ? 'eye-off-outline' : 'eye-outline'}
+                active={showCompletedPos}
+                onPress={() => setShowCompletedPos((x) => !x)}
+              />
+            </View>
+          )}
           <TextField label="Comments" value={String(v.comments ?? '')} onChangeText={(t) => set('comments', t)} multiline />
         </Card>
 

@@ -14,13 +14,19 @@ interface ProductsEditorProps {
   products: Product[];
   currency: string;
   onChange: (products: Product[]) => void;
+  /** Web productsTable priceMode. 'content' swaps the price cell for the typed basis. */
+  priceMode?: 'unit' | 'content';
 }
 
 // Editable product lines (description / qty / unit price). Mirrors the web
 // ProductsTable's core columns; line total is derived (qty × unitPrc).
-export function ProductsEditor({ products, currency, onChange }: ProductsEditorProps) {
+export function ProductsEditor({ products, currency, onChange, priceMode = 'unit' }: ProductsEditorProps) {
   const { colors } = useTheme();
   const sym = curSymbol(currency);
+  // Priced on element content, the price cell edits contentPrc (web editKey) and the
+  // stored unitPrc is left alone. Totals are hidden: they would be built from a price
+  // the PO no longer prints.
+  const perContent = priceMode === 'content';
 
   const update = (id: string, patch: Partial<Product>) =>
     onChange(products.map((p) => (p.id === id ? { ...p, ...patch } : p)));
@@ -36,10 +42,16 @@ export function ProductsEditor({ products, currency, onChange }: ProductsEditorP
         title="Products"
         subtitle={`${products.length} line item${products.length === 1 ? '' : 's'}`}
         right={
-          <Text variant="h3" tone="primary">
-            {sym}
-            {fmtMoney(grandTotal)}
-          </Text>
+          perContent ? (
+            <Text variant="caption" tone="muted">
+              Priced per content
+            </Text>
+          ) : (
+            <Text variant="h3" tone="primary">
+              {sym}
+              {fmtMoney(grandTotal)}
+            </Text>
+          )
         }
       />
 
@@ -78,27 +90,40 @@ export function ProductsEditor({ products, currency, onChange }: ProductsEditorP
                 keyboardType="decimal-pad"
               />
             </View>
-            <View style={{ flex: 1 }}>
-              <TextField
-                value={String(p.unitPrc ?? '')}
-                onChangeText={(t) => update(p.id, { unitPrc: t })}
-                placeholder="Unit price"
-                keyboardType="decimal-pad"
-              />
-            </View>
-            <View
-              style={{
-                flex: 1,
-                justifyContent: 'center',
-                alignItems: 'flex-end',
-                paddingRight: 4,
-              }}
-            >
-              <Text variant="bodyMedium" tone="muted">
-                {sym}
-                {fmtMoney(num(p.qnty) * num(p.unitPrc))}
-              </Text>
-            </View>
+            {perContent ? (
+              <View style={{ flex: 2 }}>
+                <TextField
+                  value={String((p as any).contentPrc ?? '')}
+                  onChangeText={(t) => update(p.id, { contentPrc: t } as Partial<Product>)}
+                  placeholder="See below*"
+                  accessibilityLabel="Price per content"
+                />
+              </View>
+            ) : (
+              <>
+                <View style={{ flex: 1 }}>
+                  <TextField
+                    value={String(p.unitPrc ?? '')}
+                    onChangeText={(t) => update(p.id, { unitPrc: t })}
+                    placeholder="Unit price"
+                    keyboardType="decimal-pad"
+                  />
+                </View>
+                <View
+                  style={{
+                    flex: 1,
+                    justifyContent: 'center',
+                    alignItems: 'flex-end',
+                    paddingRight: 4,
+                  }}
+                >
+                  <Text variant="bodyMedium" tone="muted">
+                    {sym}
+                    {fmtMoney(num(p.qnty) * num(p.unitPrc))}
+                  </Text>
+                </View>
+              </>
+            )}
           </View>
         </View>
       ))}

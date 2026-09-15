@@ -2,14 +2,13 @@ import React, { useMemo, useState } from 'react';
 import { View, ScrollView, Alert, RefreshControl } from 'react-native';
 import { Pressable } from '@/components/ui/Pressable';
 import { Ionicons } from '@expo/vector-icons';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Card, Text, Select, Button, SegmentedControl, LoadingState, ErrorState, Sheet } from '@/components/ui';
 import { useTheme } from '@/theme/ThemeProvider';
 import { useSettings } from '@/store/settings';
 import { useStorage, useTagStorage, suggestWh, defaultMonth } from './useStorage';
 import { UNIT } from '@shared/storageUtils';
 import { fmtMoney, dateLabel } from '@/lib/format';
-import { radius, spacing } from '@/theme/tokens';
+import { radius, spacing, LIST_END_PADDING } from '@/theme/tokens';
 
 const fmtUsd = (v: number) => `$${fmtMoney(v || 0)}`;
 // For raw, unconverted document amounts. Web renders these in the DOCUMENT's own
@@ -104,7 +103,6 @@ function MonthPicker({ value, onChange }: { value: string; onChange: (ym: string
 
 export function StorageView() {
   const { colors } = useTheme();
-  const insets = useSafeAreaInsets();
   const { settings } = useSettings();
   const { derived, year, setYear, isLoading, isError, error, refetch } = useStorage();
   const tag = useTagStorage();
@@ -150,7 +148,7 @@ export function StorageView() {
   return (
     <ScrollView keyboardShouldPersistTaps="handled"
       style={{ flex: 1 }}
-      contentContainerStyle={{ paddingBottom: insets.bottom + 96 }}
+      contentContainerStyle={{ paddingBottom: LIST_END_PADDING }}
       showsVerticalScrollIndicator={false}
       refreshControl={<RefreshControl refreshing={isLoading} onRefresh={refetch} tintColor={colors.primary} />}
     >

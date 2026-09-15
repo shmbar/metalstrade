@@ -14,6 +14,8 @@ import {
   SectionHeader,
   StackHeader,
   SkeletonList,
+  SegmentedControl,
+  IconButton,
 } from '@/components/ui';
 import { useTheme } from '@/theme/ThemeProvider';
 import { useSettings } from '@/store/settings';
@@ -33,6 +35,7 @@ import { hapticSuccess } from '@/lib/haptics';
 import { apiConfigured } from '@/lib/api';
 import { Contract, Product } from '@/data/types';
 import { spacing } from '@/theme/tokens';
+import { newId } from '@/data/writes';
 
 const fieldByKey = Object.fromEntries(SELECT_FIELDS.map((f) => [f.key, f]));
 const autoOrderPattern = /^\d{6}-\d+-\w*$/;
@@ -188,6 +191,18 @@ export default function ContractEdit() {
     );
   };
 
+  /* Remarks, price remarks and price basis — web contractDetails' Remarks /
+     PriceRemarks blocks and productsTable's price-mode toggle (33d6a820, 5001d703).
+     A remark is a settings Remarks id, or free text once isRmrkText is set; price
+     remarks are free text. Content pricing is display-only: unitPrc keeps its number
+     so margins, invoices and stock are untouched, and switching back reveals it. */
+  const remarks: any[] = Array.isArray((value as any).remarks) ? (value as any).remarks : [];
+  const priceRemarks: any[] = Array.isArray((value as any).priceRemarks) ? (value as any).priceRemarks : [];
+  const priceMode: 'unit' | 'content' = (value as any).priceMode === 'content' ? 'content' : 'unit';
+  const remarkOptions = [...optionsFor(settings, 'Remarks', 'rmrk'), { value: 'EditTextRmrks', label: 'Type custom text…' }];
+  const setRemarks = (next: any[]) => set({ remarks: next } as any);
+  const setPriceRemarks = (next: any[]) => set({ priceRemarks: next } as any);
+
   // Waiting for the record this screen was opened on.
   if (id && !existing && contractsLoading) {
     return (
@@ -235,6 +250,14 @@ export default function ContractEdit() {
           <Card style={{ gap: 14 }}>
             <SectionHeader title="Contract" style={{ marginBottom: 0 }} />
             {renderSelect('supplier', onSupplierChange)}
+            {/* The mill behind a trader — web contractDetails originSupplier. */}
+            <Select
+              label="Original supplier"
+              value={String((value as any).originSupplier || '')}
+              options={optionsFor(settings, 'Supplier', 'nname')}
+              onChange={(v) => set({ originSupplier: v } as any)}
+              placeholder="Same as supplier"
+            />
             <TextField
               label="PO Number *"
               value={value.order}
@@ -320,6 +343,7 @@ export default function ContractEdit() {
           <ProductsEditor
             products={((value.productsData as Product[]) || []).filter((p: any) => !p.import)}
             currency={value.cur || ''}
+            priceMode={priceMode}
             onChange={(productsData) =>
               set({
                 productsData: [
@@ -329,6 +353,110 @@ export default function ContractEdit() {
               })
             }
           />
+
+          {/* Price basis */}
+          <Card style={{ gap: 10 }}>
+            <SectionHeader title="Price basis" style={{ marginBottom: 0 }} />
+            <SegmentedControl
+              value={priceMode}
+              onChange={(m) => set({ priceMode: m } as any)}
+              options={[
+                { value: 'unit', label: 'Unit price' },
+                { value: 'content', label: 'Price per content' },
+              ]}
+            />
+            {priceMode === 'content' && (
+              <Text variant="caption" tone="muted">
+                The PO prints “See below*” in the price column — spell the basis out in Price remarks. Your prices are kept.
+              </Text>
+            )}
+          </Card>
+
+          {/* Remarks */}
+          <Card style={{ gap: 10 }}>
+            <SectionHeader
+              title="Remarks"
+              subtitle={`${remarks.length} on the PO`}
+              style={{ marginBottom: 0 }}
+              right={
+                <IconButton
+                  icon="add"
+                  size={36}
+                  accessibilityLabel="Add remark"
+                  onPress={() => setRemarks([...remarks, { id: newId(), rmrk: '' }])}
+                />
+              }
+            />
+            {remarks.map((r, i) => (
+              <View key={r.id || i} style={{ flexDirection: 'row', alignItems: 'flex-end', gap: 8 }}>
+                <View style={{ flex: 1 }}>
+                  {r.isRmrkText ? (
+                    <TextField
+                      value={String(r.rmrk || '')}
+                      onChangeText={(t) => setRemarks(remarks.map((x, k) => (k === i ? { ...x, rmrk: t } : x)))}
+                      placeholder="Remark text"
+                    />
+                  ) : (
+                    <Select
+                      value={String(r.rmrk || '')}
+                      options={remarkOptions}
+                      placeholder="Choose a remark"
+                      onChange={(v) =>
+                        setRemarks(
+                          remarks.map((x, k) =>
+                            k === i ? (v === 'EditTextRmrks' ? { ...x, isRmrkText: true, rmrk: '' } : { ...x, rmrk: v }) : x
+                          )
+                        )
+                      }
+                    />
+                  )}
+                </View>
+                <IconButton
+                  icon="trash-outline"
+                  tone="danger"
+                  size={36}
+                  accessibilityLabel="Remove remark"
+                  onPress={() => setRemarks(remarks.filter((_, k) => k !== i))}
+                />
+              </View>
+            ))}
+          </Card>
+
+          {/* Price remarks */}
+          <Card style={{ gap: 10 }}>
+            <SectionHeader
+              title="Price remarks"
+              subtitle="Printed under the price table"
+              style={{ marginBottom: 0 }}
+              right={
+                <IconButton
+                  icon="add"
+                  size={36}
+                  accessibilityLabel="Add price remark"
+                  onPress={() => setPriceRemarks([...priceRemarks, { id: newId(), rmrk: '' }])}
+                />
+              }
+            />
+            {priceRemarks.map((r, i) => (
+              <View key={r.id || i} style={{ flexDirection: 'row', alignItems: 'flex-end', gap: 8 }}>
+                <View style={{ flex: 1 }}>
+                  <TextField
+                    value={String(r.rmrk || '')}
+                    onChangeText={(t) => setPriceRemarks(priceRemarks.map((x) => (x.id === r.id ? { ...x, rmrk: t } : x)))}
+                    placeholder="e.g. Ni content paid at LME cash settlement"
+                    multiline
+                  />
+                </View>
+                <IconButton
+                  icon="trash-outline"
+                  tone="danger"
+                  size={36}
+                  accessibilityLabel="Remove price remark"
+                  onPress={() => setPriceRemarks(priceRemarks.filter((x) => x.id !== r.id))}
+                />
+              </View>
+            ))}
+          </Card>
 
           {/* Comments + completed */}
           <Card style={{ gap: 12 }}>

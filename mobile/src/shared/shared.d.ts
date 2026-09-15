@@ -268,3 +268,37 @@ declare module '@shared/grades' {
   export function assayMatches(assay: any, spec: any): boolean;
   export function describeSpec(spec: any): string;
 }
+
+// Additional exports of modules declared above (ambient module declarations merge).
+declare module '@shared/pureHelpers' {
+  /** lstSaved ('dd-mmm-yyyy, HH:MM') as UTC ms; -1 when absent or unparseable. */
+  export function savedAtMs(rec: any): number;
+  /** One document id is one record across year buckets; the copy saved last wins. */
+  export function dedupeById<T = any>(rows: { id: string; data: T }[]): T[];
+}
+
+declare module '@shared/permissions' {
+  export interface PageDef {
+    key: string;
+    label: string;
+    group?: string;
+  }
+  export const PAGE_GROUPS: { ttl: string; pages: PageDef[] }[];
+  export const PAGES: PageDef[];
+  export const PAGE_KEYS: string[];
+  export function pageLabel(key: string): string;
+  export function defaultPagesForRole(role: unknown): string[];
+  export function resolvePages(claims?: Record<string, any>, uid?: string): string[];
+  export function canAccess(claims?: Record<string, any>, pageKey?: string, uid?: string): boolean;
+  export function pageKeyFromPath(pathname?: string): string;
+  export function landingPage(claims?: Record<string, any>, uid?: string): string;
+}
+
+declare module '@shared/stockGuards' {
+  /** The duplicate-line trap: null when the save is fine, else the message to show. */
+  export function duplicateLineTrap(
+    invoice: any,
+    contractProducts: { id: string; description?: string }[],
+    loadOnHand: (lineIds: string[], warehouseId: string) => Promise<Record<string, number>>
+  ): Promise<string | null>;
+}

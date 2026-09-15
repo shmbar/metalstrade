@@ -3,13 +3,17 @@ import { View, FlatList, ScrollView } from 'react-native';
 import { Pressable } from '@/components/ui/Pressable';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Screen, Card, Text, Badge, SkeletonList, ErrorState, EmptyState, Sheet, SearchField, Chip } from '@/components/ui';
+import { Screen, Card, Text, Badge, SkeletonList, ErrorState, EmptyState, Sheet, SearchField, Chip, TextField, Select, ChipRow, ChipDivider } from '@/components/ui';
 import { PeriodSelector } from '@/components/PeriodSelector';
 import { useTheme } from '@/theme/ThemeProvider';
-import { useShipment, useSetShipmentStatus, ShipmentRow, fmtShipDate } from '@/features/shipment/useShipment';
+import {
+  useShipment, useSetShipmentStatus, useSaveShipmentLine, useSaveContractShipmentNotes, ShipmentRow, ShipmentLine, fmtShipDate,
+} from '@/features/shipment/useShipment';
+import { router } from 'expo-router';
+import { toast } from '@/store/toast';
 import { SHIPMENT_STATUSES } from '@shared/shipmentStatus';
 import { StackHeader } from '@/components/StackHeader';
-import { spacing } from '@/theme/tokens';
+import { LIST_END_PADDING } from '@/theme/tokens';
 
 const tone = (s: string): 'neutral' | 'info' | 'positive' | 'negative' | 'warn' => {
   if (s === 'Completed') return 'positive';
@@ -46,56 +50,51 @@ export default function Shipment() {
     urgency,
   });
   const setStatus = useSetShipmentStatus();
+  const saveLine = useSaveShipmentLine();
+  const saveNotes = useSaveContractShipmentNotes();
+  // Notes are typed freely and saved when the field loses focus, like web's NotesCell.
+  const [notes, setNotes] = useState<Record<string, string>>({});
+
+  // Optimistic: the sheet reflects a change at once; the refetch replaces it.
+  const patchEditing = (patch: Partial<ShipmentRow>) => setEditing((e) => (e ? { ...e, ...patch } : e));
+  const patchLine = (lineId: string, patch: Partial<ShipmentLine>) =>
+    setEditing((e) => (e ? { ...e, shipments: e.shipments.map((x) => (x.id === lineId ? { ...x, ...patch } : x)) } : e));
+  const fail = (e: any) => toast.error(e?.message || 'Could not save — please try again.');
 
   return (
     <Screen scroll={false} flush contentContainerStyle={{ paddingTop: insets.top + 8 }} edges={false}>
       <StackHeader title="Shipments" right={<PeriodSelector />} />
 
       <SearchField value={search} onChangeText={setSearch} placeholder="Search PO, supplier, client or invoice…" />
-      <View style={{ height: 10 }} />
-
-      {/* Attention strip — web's overdue / arriving-soon / in-transit triage counts,
-          computed over ALL loaded contracts regardless of the other filters. */}
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        style={{ marginHorizontal: -spacing.lg, flexGrow: 0 }}
-        contentContainerStyle={{ gap: 8, paddingHorizontal: spacing.lg, paddingBottom: 10 }}
-      >
+      {/* Triage and status share one swipeable row. The separate "In transit" triage chip
+          applied exactly the same filter as the In Transit status chip beside it, so the
+          screen showed it twice across three stacked rows of chips. */}
+      <ChipRow style={{ marginTop: 10 }}>
         <Chip label="Overdue" count={counts.overdue} active={urgency === 'overdue'} onPress={() => setUrgency((u) => (u === 'overdue' ? '' : 'overdue'))} />
         <Chip label="Arriving ≤7d" count={counts.soon} active={urgency === 'soon'} onPress={() => setUrgency((u) => (u === 'soon' ? '' : 'soon'))} />
-        <Chip label="In transit" count={counts.inTransit} active={status === 'In Transit'} onPress={() => setStatusFilter((s) => (s === 'In Transit' ? '' : 'In Transit'))} />
-      </ScrollView>
-
-      {/* Status chips — counts ignore the other active filters, like web's. */}
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        style={{ marginHorizontal: -spacing.lg, flexGrow: 0 }}
-        contentContainerStyle={{ gap: 8, paddingHorizontal: spacing.lg, paddingBottom: 10 }}
-      >
+        <ChipDivider />
         <Chip label="All" count={counts.all} active={status === ''} onPress={() => setStatusFilter('')} />
         {CHIP_STATUSES.map((s) => (
           <Chip key={s} label={s} count={counts.byStatus[s] || 0} active={status === s} onPress={() => setStatusFilter(s)} />
         ))}
-      </ScrollView>
+      </ChipRow>
 
-      {/* Supplier / client / ship-type filters — web's three dropdowns. */}
+      {/* Supplier / client / ship type — web's three dropdowns, as picker chips. The row
+          used to list every supplier, client and type as its own chip. */}
       {(options.suppliers.length > 1 || options.clients.length > 1 || options.shipTypes.length > 1) && (
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          style={{ marginHorizontal: -spacing.lg, flexGrow: 0 }}
-          contentContainerStyle={{ gap: 8, paddingHorizontal: spacing.lg, paddingBottom: 12 }}
-        >
-          {supplier ? <Chip label={`Supplier: ${supplier}`} active onPress={() => setSupplier('')} /> : null}
-          {client ? <Chip label={`Client: ${client}`} active onPress={() => setClient('')} /> : null}
-          {shipType ? <Chip label={`Type: ${shipType}`} active onPress={() => setShipType('')} /> : null}
-          {!supplier && options.suppliers.map((s) => <Chip key={`s-${s}`} label={s} active={false} onPress={() => setSupplier(s)} />)}
-          {!client && options.clients.map((c) => <Chip key={`c-${c}`} label={c} active={false} onPress={() => setClient(c)} />)}
-          {!shipType && options.shipTypes.map((t) => <Chip key={`t-${t}`} label={t} active={false} onPress={() => setShipType(t)} />)}
-        </ScrollView>
+        <ChipRow style={{ marginTop: 8 }}>
+          {options.suppliers.length > 1 && (
+            <Select variant="chip" label="Supplier" placeholder="All suppliers" value={supplier} options={options.suppliers.map((s) => ({ value: s, label: s }))} onChange={setSupplier} />
+          )}
+          {options.clients.length > 1 && (
+            <Select variant="chip" label="Client" placeholder="All clients" value={client} options={options.clients.map((c) => ({ value: c, label: c }))} onChange={setClient} />
+          )}
+          {options.shipTypes.length > 1 && (
+            <Select variant="chip" label="Ship type" placeholder="All types" value={shipType} options={options.shipTypes.map((t) => ({ value: t, label: t }))} onChange={setShipType} />
+          )}
+        </ChipRow>
       )}
+      <View style={{ height: 12 }} />
 
       {isLoading ? (
         <SkeletonList />
@@ -108,7 +107,7 @@ export default function Shipment() {
           data={rows}
           keyExtractor={(r) => r.id}
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={{ paddingBottom: insets.bottom + 96 }}
+          contentContainerStyle={{ paddingBottom: LIST_END_PADDING }}
           onRefresh={refetch}
           refreshing={isLoading}
           ListHeaderComponent={
@@ -213,33 +212,114 @@ export default function Shipment() {
                   {item.updatedAt ? `Updated ${fmtShipDate(new Date(item.updatedAt).toISOString().slice(0, 10))}` : 'Never updated'}
                 </Text>
                 <View style={{ flex: 1 }} />
-                <Text variant="caption" tone="primary">Set status</Text>
+                <Text variant="caption" tone="primary">{item.shipments.length > 1 ? `Manage ${item.shipments.length} shipments` : 'Manage'}</Text>
               </View>
             </Card>
           )}
         />
       )}
 
-      {/* Status picker */}
-      <Sheet visible={!!editing} onClose={() => setEditing(null)} title="Shipment status">
-        {SHIPMENT_STATUSES.map((s: string) => {
-          const active = (editing?.status || '') === s;
-          return (
-            <Pressable
-              key={s || 'none'}
-              onPress={async () => {
-                if (editing) await setStatus.mutateAsync({ contract: editing.raw, status: s });
-                setEditing(null);
-              }}
-              accessibilityRole="button"
-              accessibilityState={{ selected: active }}
-              style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 14 }}
-            >
-              <Text variant="body" tone={active ? 'primary' : 'default'}>{s || 'No status'}</Text>
-              {active && <Ionicons name="checkmark-circle" size={20} color={colors.primary} />}
-            </Pressable>
-          );
-        })}
+      {/* Shipment sheet — web's contract row + its expandable shipment rows: the
+          contract's status and notes, then one row per invoice with that shipment's
+          own status and notes (saved to the invoice), each opening its invoice. */}
+      <Sheet
+        visible={!!editing}
+        onClose={() => setEditing(null)}
+        title={editing ? `PO ${editing.order || ''}` : 'Shipment'}
+        subtitle={editing ? [editing.supplierName, editing.clientName !== '—' ? editing.clientName : ''].filter(Boolean).join(' → ') : undefined}
+      >
+        {editing && (
+          <View style={{ gap: 14, paddingBottom: 8 }}>
+            <View style={{ gap: 8 }}>
+              <Text variant="label" tone="muted">Contract status</Text>
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8 }}>
+                {SHIPMENT_STATUSES.map((st: string) => (
+                  <Chip
+                    key={st || 'none'}
+                    label={st || 'No status'}
+                    active={(editing.status || '') === st}
+                    onPress={() => {
+                      patchEditing({ status: st });
+                      setStatus.mutate({ contract: editing.raw, status: st }, { onError: fail });
+                    }}
+                  />
+                ))}
+              </ScrollView>
+              <TextField
+                label="Notes"
+                value={notes[editing.id] ?? String((editing.raw as any)?.shipmentNotes || '')}
+                onChangeText={(t) => setNotes((p) => ({ ...p, [editing.id]: t }))}
+                onEndEditing={() => {
+                  const next = notes[editing.id];
+                  if (next === undefined || next === String((editing.raw as any)?.shipmentNotes || '')) return;
+                  saveNotes.mutate({ contract: editing.raw, notes: next }, { onError: fail });
+                }}
+                placeholder="Where the cargo is, what is holding it"
+                multiline
+              />
+            </View>
+
+            {editing.shipments.length > 0 && (
+              <View style={{ gap: 4 }}>
+                <Text variant="label" tone="muted">
+                  {editing.shipments.length} shipment{editing.shipments.length === 1 ? '' : 's'}
+                </Text>
+                {editing.shipments.map((sh, i) => (
+                  <View key={sh.id} style={{ paddingVertical: 12, borderTopWidth: i ? 1 : 0, borderTopColor: colors.border, gap: 8 }}>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10 }}>
+                      <Pressable
+                        onPress={() => {
+                          setEditing(null);
+                          router.push(`/(app)/invoices/${sh.id}`);
+                        }}
+                        accessibilityRole="link"
+                        hitSlop={8}
+                        style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}
+                      >
+                        <Text variant="bodyMedium" tone="primary">Invoice #{sh.invoice}</Text>
+                        <Ionicons name="chevron-forward" size={14} color={colors.primary} />
+                      </Pressable>
+                      <Text variant="caption" tone="faint" style={{ fontVariant: ['tabular-nums'] }}>
+                        {fmtShipDate(sh.date)} · {fmtQty(sh.qnty)} MT
+                      </Text>
+                    </View>
+                    {sh.canceled ? (
+                      <Badge label="Cancelled — shipped nothing" tone="neutral" />
+                    ) : (
+                      <>
+                        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8 }}>
+                          {SHIPMENT_STATUSES.map((st: string) => (
+                            <Chip
+                              key={st || 'none'}
+                              label={st || 'No status'}
+                              active={(sh.shipmentStatus || '') === st}
+                              onPress={() => {
+                                patchLine(sh.id, { shipmentStatus: st });
+                                saveLine.mutate({ line: sh, contract: editing.raw, patch: { shipmentStatus: st } }, { onError: fail });
+                              }}
+                            />
+                          ))}
+                        </ScrollView>
+                        <TextField
+                          value={notes[sh.id] ?? sh.shipmentNotes}
+                          onChangeText={(t) => setNotes((p) => ({ ...p, [sh.id]: t }))}
+                          onEndEditing={() => {
+                            const next = notes[sh.id];
+                            if (next === undefined || next === sh.shipmentNotes) return;
+                            patchLine(sh.id, { shipmentNotes: next });
+                            saveLine.mutate({ line: sh, contract: editing.raw, patch: { shipmentNotes: next } }, { onError: fail });
+                          }}
+                          placeholder="Shipment notes"
+                          multiline
+                        />
+                      </>
+                    )}
+                  </View>
+                ))}
+              </View>
+            )}
+          </View>
+        )}
       </Sheet>
     </Screen>
   );

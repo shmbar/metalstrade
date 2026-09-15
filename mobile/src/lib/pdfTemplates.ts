@@ -35,9 +35,22 @@ const shell = (title: string, company: string, inner: string) => `
   <div class="foot">Generated from IMS Mobile · ${new Date().toLocaleDateString()}</div>
 </body></html>`;
 
-export function contractPoHtml(contract: any, v: any, compData: any): string {
+/** Free text going into HTML — remarks are typed by people, so never trust them. */
+const esc = (t: unknown) =>
+  String(t ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c] as string);
+
+/** A settings id → its label (web getD); falls back to the stored value itself. */
+const settingName = (settings: any, cat: string, field: string, id: unknown) => {
+  const hit = settings?.[cat]?.[cat]?.find((x: any) => x.id === id);
+  return hit ? String(hit[field] ?? hit.nname ?? '') : String(id ?? '');
+};
+
+export function contractPoHtml(contract: any, v: any, compData: any, settings?: any): string {
   const company = compData?.companyName || compData?.cmpnyName || 'IMS';
   const sym = v.currency === 'eu' ? '€' : '$';
+  // Web pdfContract: priced on element content, the price column reads the typed
+  // basis (or "See below*") and the PO carries no money totals.
+  const perContent = contract.priceMode === 'content';
   // import-flagged rows are breakdown/merge helpers, not PO lines (web excludes
   // them everywhere) — printing them would double the PO on paper.
   const lines = (contract.productsData || []).filter((p: any) => !p?.import);
@@ -46,21 +59,41 @@ export function contractPoHtml(contract: any, v: any, compData: any): string {
     .map((p: any) => {
       const total = (Number(p.qnty) || 0) * (Number(p.unitPrc) || 0);
       lineTotal += total;
-      return `<tr><td>${p.description || '—'}</td><td class="r">${qty(p.qnty)}</td><td class="r">${money(p.unitPrc, sym)}</td><td class="r">${money(total, sym)}</td></tr>`;
+      if (perContent) {
+        return `<tr><td>${esc(p.description) || '—'}</td><td class="r">${qty(p.qnty)}</td><td class="r">${esc(String(p.contentPrc ?? '').trim() || 'See below*')}</td></tr>`;
+      }
+      return `<tr><td>${esc(p.description) || '—'}</td><td class="r">${qty(p.qnty)}</td><td class="r">${money(p.unitPrc, sym)}</td><td class="r">${money(total, sym)}</td></tr>`;
     })
     .join('');
-  const title = `<h1>Purchase Order</h1><div class="muted">${contract.order || ''}</div><div class="muted">${(contract.date || '').substring(0, 10)}</div>`;
+  const cols = perContent ? 3 : 4;
+  const head = perContent
+    ? '<th>Description</th><th class="r">Qty</th><th class="r">Price per content</th>'
+    : '<th>Description</th><th class="r">Qty</th><th class="r">Unit Price</th><th class="r">Total</th>';
+  const list = (label: string, items: string[]) =>
+    items.length
+      ? `<div style="margin-top:18px"><div class="label" style="font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#97a3b8">${label}</div>${items
+          .map((t) => `<div style="font-size:12px;margin-top:4px">${esc(t)}</div>`)
+          .join('')}</div>`
+      : '';
+  const priceRemarks = (contract.priceRemarks || []).map((r: any) => String(r?.rmrk ?? '')).filter(Boolean);
+  const remarks = (contract.remarks || [])
+    .map((r: any) => (r?.isRmrkText ? String(r.rmrk ?? '') : settingName(settings, 'Remarks', 'rmrk', r?.rmrk)))
+    .filter(Boolean);
+  const terms = contract.termPmnt ? settingName(settings, 'Payment Terms', 'termPmnt', contract.termPmnt) : '';
+  const title = `<h1>Purchase Order</h1><div class="muted">${esc(contract.order)}</div><div class="muted">${(contract.date || '').substring(0, 10)}</div>`;
   const inner = `
     <div class="row">
-      <div class="box"><div class="label">Supplier</div><div class="val">${v.supplierName}</div></div>
+      <div class="box"><div class="label">Supplier</div><div class="val">${esc(v.supplierName)}</div></div>
       <div class="box"><div class="label">Currency</div><div class="val">${sym === '€' ? 'EUR' : 'USD'}</div></div>
       <!-- the PDF ships an outbound document, so it uses the ACCURATE unit-converted
            tonnage, not the truncated web-parity screen label. -->
       <div class="box"><div class="label">Quantity</div><div class="val">${qty(v.totalMT)} MT</div></div>
     </div>
-    <table><thead><tr><th>Description</th><th class="r">Qty</th><th class="r">Unit Price</th><th class="r">Total</th></tr></thead><tbody>${rows || '<tr><td colspan="4">No products</td></tr>'}</tbody></table>
-    <div class="totals"><div class="t"><div class="line grand"><span>Total</span><span>${money(lineTotal, sym)}</span></div></div></div>
-    ${contract.termPmnt ? `<div class="box" style="margin-top:20px"><div class="label">Payment terms</div><div class="val">${contract.termPmnt}</div></div>` : ''}`;
+    <table><thead><tr>${head}</tr></thead><tbody>${rows || `<tr><td colspan="${cols}">No products</td></tr>`}</tbody></table>
+    ${list('Price remarks', priceRemarks)}
+    ${perContent ? '' : `<div class="totals"><div class="t"><div class="line grand"><span>Total</span><span>${money(lineTotal, sym)}</span></div></div></div>`}
+    ${list('Remarks', remarks)}
+    ${terms ? `<div class="box" style="margin-top:20px"><div class="label">Payment terms</div><div class="val">${esc(terms)}</div></div>` : ''}`;
   return shell(title, company, inner);
 }
 

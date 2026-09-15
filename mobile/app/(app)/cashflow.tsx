@@ -77,6 +77,13 @@ const sumCur = (rows: Counterparty[]): Record<string, number> => {
 const qty = (n: number) => fmtMoney(n, 3);
 const full = (cur: string, n: number) => `${curSymbol(cur)}${fmtMoney(n)}`;
 
+/* Cargo status for a supplier PO, in lifecycle order — web cashflow funcs.js
+   CARGO_STATUSES. Amber for waiting at the supplier, brand for on the move. */
+const CARGO_STATUSES = [
+  { code: 'RDY' as const, label: 'Ready to ship' },
+  { code: 'TRN' as const, label: 'In transit' },
+];
+
 const FIELD_LABEL: Record<ManualField, string> = {
   initial: 'Opening balances',
   financedLeft: 'Financing (left)',
@@ -92,7 +99,7 @@ export default function Cashflow() {
   const hideBalances = usePrivacyStore((s) => s.hidden);
   const togglePrivacy = usePrivacyStore((s) => s.toggle);
   const money = (s: string) => maskIfHidden(hideBalances, s);
-  const { paySupplier, payExpense, partialPay, payClient, saveManualRows, saveYearTotal } = useCashflowActions();
+  const { paySupplier, payExpense, partialPay, payClient, saveManualRows, saveYearTotal, saveCargoStatus, closeBalance } = useCashflowActions();
   const shared = useSharedStock();
 
   const [tab, setTab] = useState<Tab>('general');
@@ -100,6 +107,37 @@ export default function Cashflow() {
   const [sort, setSort] = useState<SortKey>('amount');
   const [showBreakdown, setShowBreakdown] = useState(false);
   const [detail, setDetail] = useState<{ kind: Kind; cp: Counterparty } | null>(null);
+  // Cargo status taps show at once, keyed by contract (every purchase invoice of a PO
+  // shares it); the refetch after the write replaces this, a failure reverts it.
+  const [cargo, setCargo] = useState<Record<string, string>>({});
+  // Web supplierCloseBalance: book the residual as a settlement adjustment instead of
+  // a payment. It moves money on the ledger, so it asks first — web's button does not,
+  // but a mis-tap on a phone is far easier than a mis-click on a table.
+  const confirmClose = (item: any) =>
+    Alert.alert(
+      'Close this balance?',
+      `The remaining ${full(item.cur, item.balance)} on purchase invoice ${item.inv ?? ''} is recorded as a settlement adjustment. No payment is made.`,
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Close balance',
+          style: 'destructive',
+          onPress: () =>
+            closeBalance.mutate(
+              { contractId: item.contractId, contractDate: item.contractDate, poInvoiceId: item.poInvoiceId },
+              { onSuccess: () => setDetail(null) }
+            ),
+        },
+      ]
+    );
+  const setCargoStatus = (item: any, code: '' | 'RDY' | 'TRN') => {
+    const before = cargo[item.contractId] ?? item.cargoStatus ?? '';
+    setCargo((p) => ({ ...p, [item.contractId]: code }));
+    saveCargoStatus.mutate(
+      { contractId: item.contractId, contractDate: item.contractDate, code },
+      { onError: () => setCargo((p) => ({ ...p, [item.contractId]: before })) }
+    );
+  };
   const [stockSheet, setStockSheet] = useState<{ name: string; row: StockWarehouseRow } | null>(null);
   const [unsoldSheet, setUnsoldSheet] = useState<UnsoldSupplierRow | null>(null);
   const [payItem, setPayItem] = useState<any | null>(null);
@@ -672,11 +710,15 @@ export default function Cashflow() {
           const prepay = item.kind === 'invoice' && !item.paid && item.percentage > 0
             ? `Prepayment ${item.percentage}% · ${full(item.cur, (item.amount * item.percentage) / 100)}`
             : '';
+          // Supplier purchase invoices show WHERE THE CARGO IS (RDY / TRN) instead of
+          // planned ETD/ETA — web 3eb1cdae, client request. Client invoices keep theirs.
+          const isPo = item.kind === 'poInvoice';
           const dates = [
-            item.etd ? `ETD ${dateLabel(item.etd)}` : '',
-            item.eta ? `ETA ${dateLabel(item.eta)}` : '',
+            !isPo && item.etd ? `ETD ${dateLabel(item.etd)}` : '',
+            !isPo && item.eta ? `ETA ${dateLabel(item.eta)}` : '',
             isExp && item.date ? dateLabel(item.date) : '',
           ].filter(Boolean).join(' · ');
+          const cargoNow = isPo ? (cargo[item.contractId] ?? item.cargoStatus ?? '') : '';
           return (
             <View
               key={`${item.id || item.poInvoiceId || i}`}
@@ -697,6 +739,42 @@ export default function Cashflow() {
                     <Text variant="caption" tone="faint" numberOfLines={1}>
                       {`${item.kind === 'poInvoice' ? 'Value' : 'Amount'} ${money(full(item.cur, item.invValue ?? item.amount ?? 0))} · Paid ${money(full(item.cur, item.paid ?? 0))}`}
                     </Text>
+                  )}
+                  {isPo && (
+                    <View style={{ flexDirection: 'row', gap: 6, marginTop: 6 }} accessibilityRole="radiogroup" accessibilityLabel="Cargo status">
+                      {CARGO_STATUSES.map((c) => {
+                        const on = cargoNow === c.code;
+                        const tint = c.code === 'RDY' ? colors.warn : colors.primary;
+                        return (
+                          <Pressable
+                            key={c.code}
+                            onPress={() => setCargoStatus(item, on ? '' : c.code)}
+                            hitSlop={6}
+                            accessibilityRole="radio"
+                            accessibilityState={{ checked: on }}
+                            accessibilityLabel={on ? `${c.label} — tap to clear` : `Mark as ${c.label.toLowerCase()}`}
+                            style={{
+                              flexDirection: 'row',
+                              alignItems: 'center',
+                              gap: 5,
+                              height: 30,
+                              paddingHorizontal: 10,
+                              borderRadius: 999,
+                              borderWidth: 1,
+                              borderColor: on ? tint : colors.border,
+                              backgroundColor: on ? tint + '1F' : 'transparent',
+                            }}
+                          >
+                            <Text variant="caption" style={{ color: on ? tint : colors.textMuted, fontFamily: 'PlusJakartaSans_600SemiBold' }}>
+                              {c.code}
+                            </Text>
+                            <Text variant="caption" style={{ color: on ? tint : colors.textFaint }}>
+                              {c.label}
+                            </Text>
+                          </Pressable>
+                        );
+                      })}
+                    </View>
                   )}
                   {prepay ? (
                     <Text variant="caption" tone="primary" numberOfLines={1}>
@@ -727,6 +805,19 @@ export default function Cashflow() {
                       {isExp ? 'Mark paid' : 'Pay'}
                     </Text>
                   </Pressable>
+                  {isPo && Math.abs(Number(item.balance) || 0) > 0.011 && (
+                    <Pressable
+                      onPress={() => confirmClose(item)}
+                      disabled={closeBalance.isPending}
+                      hitSlop={6}
+                      accessibilityRole="button"
+                      accessibilityLabel="Close balance"
+                    >
+                      <Text variant="caption" tone="muted" style={{ textDecorationLine: 'underline' }}>
+                        Close balance
+                      </Text>
+                    </Pressable>
+                  )}
                 </View>
               </View>
             </View>
@@ -748,6 +839,7 @@ export default function Cashflow() {
             first={i === 0}
             title={`PO ${l.order || '—'}`}
             lines={[l.description, l.supplierName, `${qty(l.qnty)} × ${full(l.cur, l.unitPrc)}`]}
+            draft={draftChipFor(data?.draftMaterials, l.draftKeys)}
             value={money(full(l.cur, l.total))}
           />
         ))}
@@ -767,6 +859,7 @@ export default function Cashflow() {
             first={i === 0}
             title={`PO ${l.order || '—'}`}
             lines={[l.description, l.stockName, `${qty(l.qnty)} × ${full(l.cur, l.unitPrc)}`]}
+            draft={draftChipFor(data?.draftMaterials, l.draftKeys)}
             value={money(full(l.cur, l.total))}
           />
         ))}
@@ -890,7 +983,28 @@ function SheetTotal({ label, v, strong }: { label: string; v: string; strong?: b
 }
 
 /** A read-only row inside a drill-down sheet: bold title, stacked detail lines, figure on the right. */
-function DetailLine({ title, lines, value, first }: { title: string; lines: string[]; value: string; first?: boolean }) {
+/** web DraftUseBadge: "Draft 5.202" — the weight already on draft invoices. */
+function draftChipFor(map: Record<string, { invoices: (string | number)[]; qnty: number }> | undefined, keys: string[]) {
+  const use = keys.map((k) => map?.[k]).find((u) => u && u.invoices.length);
+  if (!use) return undefined;
+  const q = Number(use.qnty) || 0;
+  const label = q > 0 ? `Draft ${q.toFixed(3)}` : 'Draft';
+  return { label, note: `on draft invoice${use.invoices.length > 1 ? 's' : ''} ${use.invoices.join(', ')}` };
+}
+
+function DetailLine({
+  title,
+  lines,
+  value,
+  first,
+  draft,
+}: {
+  title: string;
+  lines: string[];
+  value: string;
+  first?: boolean;
+  draft?: { label: string; note: string };
+}) {
   const { colors } = useTheme();
   return (
     <View
@@ -904,9 +1018,17 @@ function DetailLine({ title, lines, value, first }: { title: string; lines: stri
       }}
     >
       <View style={{ flex: 1, minWidth: 0, gap: 2 }}>
-        <Text variant="bodyMedium" numberOfLines={1}>
-          {title}
-        </Text>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+          <Text variant="bodyMedium" numberOfLines={1} style={{ flexShrink: 1 }}>
+            {title}
+          </Text>
+          {draft && <Badge label={draft.label} tone="warn" />}
+        </View>
+        {draft && (
+          <Text variant="caption" tone="muted" numberOfLines={1}>
+            {draft.note} — not shipped, still counts as stock
+          </Text>
+        )}
         {lines.filter(Boolean).map((l, i) => (
           <Text key={i} variant="caption" tone={i === 0 ? 'muted' : 'faint'} numberOfLines={2}>
             {l}

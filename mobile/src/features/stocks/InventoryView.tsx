@@ -2,7 +2,6 @@ import React, { useMemo, useState } from 'react';
 import { View, FlatList } from 'react-native';
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Card, Text, Badge, SkeletonList, FadeInItem, ErrorState, EmptyState, SearchField, Chip } from '@/components/ui';
 import { useTheme } from '@/theme/ThemeProvider';
 import { useStocks } from './useStocks';
@@ -10,12 +9,12 @@ import { GradeSummaryCard } from './GradeSummaryCard';
 import { LotSheet } from './LotSheet';
 import { curSymbol, fmtMoney } from '@/lib/format';
 import { filterInventoryRows, warehouseTotalCell } from './display';
+import { LIST_END_PADDING } from '@/theme/tokens';
 
 const fmtQty = (n: number) => new Intl.NumberFormat('en-US', { minimumFractionDigits: 3 }).format(n || 0);
 
 export function InventoryView() {
   const { colors } = useTheme();
-  const insets = useSafeAreaInsets();
   const { data, labelTotals, setTotals, isLoading, isError, error, refetch } = useStocks();
   const [search, setSearch] = useState('');
   // Tapping a row opens the Materials Breakdown sheet (web whModal).
@@ -142,7 +141,7 @@ export function InventoryView() {
             renderItem={null}
             keyExtractor={() => 'x'}
             showsVerticalScrollIndicator={false}
-            contentContainerStyle={{ paddingBottom: insets.bottom + 96 }}
+            contentContainerStyle={{ paddingBottom: LIST_END_PADDING }}
             ListHeaderComponent={header}
             ListEmptyComponent={
               <EmptyState
@@ -159,7 +158,7 @@ export function InventoryView() {
           data={rows}
           keyExtractor={(r) => r.id}
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={{ paddingBottom: insets.bottom + 96 }}
+          contentContainerStyle={{ paddingBottom: LIST_END_PADDING }}
           ListHeaderComponent={header}
           onRefresh={refetch}
           refreshing={isLoading}

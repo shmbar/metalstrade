@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Modal, View, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, useWindowDimensions } from 'react-native';
+import { Modal, View, ScrollView, StyleSheet, useWindowDimensions } from 'react-native';
 import Animated, { SlideInDown, useAnimatedStyle, useSharedValue, withSpring, withTiming } from 'react-native-reanimated';
 import { Gesture, GestureDetector, GestureHandlerRootView } from 'react-native-gesture-handler';
 import { scheduleOnRN } from 'react-native-worklets';
@@ -9,6 +9,7 @@ import { Text } from './Text';
 import { Pressable } from './Pressable';
 import { useTheme } from '@/theme/ThemeProvider';
 import { getShadow, spacing } from '@/theme/tokens';
+import { KeyboardRevealContext, useKeyboardAwareScroll } from '@/lib/keyboard';
 
 interface SheetProps {
   visible: boolean;
@@ -26,6 +27,9 @@ interface SheetProps {
   maxHeightPct?: number;
 }
 
+/** Time the panel takes to ride up with the keyboard; fields are revealed after it lands. */
+const LIFT_MS = 240;
+
 /**
  * Bottom sheet — the one sheet every screen uses.
  *
@@ -35,6 +39,12 @@ interface SheetProps {
  * fades, the panel springs up, and the header follows the finger: drag it down
  * far enough (or flick) and the sheet closes — the gesture iOS and every banking
  * app have trained people to expect.
+ *
+ * Keyboard: the panel rides up by the keyboard's height and gives up the same amount
+ * of its maximum height, so its header, the focused field and the footer's Save all
+ * stay on screen. The KeyboardAvoidingView this replaces did neither on Android, and on
+ * iOS left an 88%-tall panel pushed off the top — the "Add entry" sheet on Cashflow
+ * showed nothing but the keyboard and the dimmed page.
  */
 export function Sheet({
   visible,
@@ -51,10 +61,16 @@ export function Sheet({
   const insets = useSafeAreaInsets();
   const { height } = useWindowDimensions();
   const y = useSharedValue(0);
+  const lift = useSharedValue(0);
+  const { keyboard, scrollRef, onScroll, revealer } = useKeyboardAwareScroll({ settleMs: LIFT_MS + 60 });
 
   useEffect(() => {
     if (visible) y.set(0);
   }, [visible, y]);
+
+  useEffect(() => {
+    lift.set(withTiming(keyboard, { duration: LIFT_MS }));
+  }, [keyboard, lift]);
 
   // The drag lives on the header only, so a scrolling body keeps its own gesture.
   const pan = Gesture.Pan()
@@ -71,111 +87,122 @@ export function Sheet({
       }
     });
 
-  const panelStyle = useAnimatedStyle(() => ({ transform: [{ translateY: y.get() }] }));
+  const topGap = insets.top + 12;
+  const panelStyle = useAnimatedStyle(() => ({
+    transform: [{ translateY: y.get() }],
+    marginBottom: lift.get(),
+    maxHeight: Math.min(height * maxHeightPct, height - topGap - lift.get()),
+  }));
 
   if (!visible) return null;
 
+  // With the keyboard up it covers the home indicator, so the safe-area padding goes.
+  const bottomPad = (keyboard > 0 ? 0 : insets.bottom) + spacing.md;
+
   return (
     <Modal visible transparent animationType="fade" statusBarTranslucent onRequestClose={onClose}>
-      <GestureHandlerRootView style={{ flex: 1 }}>
-        <KeyboardAvoidingView
-          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-          style={{ flex: 1, justifyContent: 'flex-end' }}
+      <GestureHandlerRootView style={{ flex: 1, justifyContent: 'flex-end' }}>
+        <Pressable
+          style={[StyleSheet.absoluteFill, { backgroundColor: 'rgba(10,8,24,0.45)' }]}
+          onPress={onClose}
+          accessibilityLabel="Close"
+        />
+        <Animated.View
+          entering={SlideInDown.springify().damping(20).stiffness(220)}
+          style={[
+            {
+              backgroundColor: colors.bgElevated,
+              borderTopLeftRadius: 28,
+              borderTopRightRadius: 28,
+              paddingBottom: footer ? 0 : bottomPad,
+              ...getShadow(scheme, 'lg'),
+            },
+            panelStyle,
+          ]}
         >
-          <Pressable
-            style={[StyleSheet.absoluteFill, { backgroundColor: 'rgba(10,8,24,0.45)' }]}
-            onPress={onClose}
-            accessibilityLabel="Close"
-          />
-          <Animated.View
-            entering={SlideInDown.springify().damping(20).stiffness(220)}
-            style={[
-              {
-                maxHeight: height * maxHeightPct,
-                backgroundColor: colors.bgElevated,
-                borderTopLeftRadius: 28,
-                borderTopRightRadius: 28,
-                paddingBottom: footer ? 0 : insets.bottom + spacing.md,
-                ...getShadow(scheme, 'lg'),
-              },
-              panelStyle,
-            ]}
-          >
-            <GestureDetector gesture={pan}>
-              <View style={{ paddingTop: 8, paddingHorizontal: spacing.lg, paddingBottom: title ? spacing.md : spacing.sm }}>
-                <View
-                  style={{
-                    alignSelf: 'center',
-                    width: 40,
-                    height: 5,
-                    borderRadius: 3,
-                    backgroundColor: colors.borderStrong,
-                    marginBottom: title ? 12 : 4,
-                  }}
-                />
-                {title ? (
-                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-                    <View style={{ flex: 1, minWidth: 0 }}>
-                      <Text variant="h2" numberOfLines={1}>
-                        {title}
+          <GestureDetector gesture={pan}>
+            <View style={{ paddingTop: 8, paddingHorizontal: spacing.lg, paddingBottom: title ? spacing.md : spacing.sm }}>
+              <View
+                style={{
+                  alignSelf: 'center',
+                  width: 40,
+                  height: 5,
+                  borderRadius: 3,
+                  backgroundColor: colors.borderStrong,
+                  marginBottom: title ? 12 : 4,
+                }}
+              />
+              {title ? (
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+                  <View style={{ flex: 1, minWidth: 0 }}>
+                    <Text variant="h2" numberOfLines={1}>
+                      {title}
+                    </Text>
+                    {subtitle ? (
+                      <Text variant="caption" tone="muted" numberOfLines={2} style={{ marginTop: 2 }}>
+                        {subtitle}
                       </Text>
-                      {subtitle ? (
-                        <Text variant="caption" tone="muted" numberOfLines={2} style={{ marginTop: 2 }}>
-                          {subtitle}
-                        </Text>
-                      ) : null}
-                    </View>
-                    {headerRight}
-                    <Pressable
-                      onPress={onClose}
-                      hitSlop={12}
-                      accessibilityRole="button"
-                      accessibilityLabel="Close"
-                      style={{
-                        width: 32,
-                        height: 32,
-                        borderRadius: 16,
-                        backgroundColor: colors.surfaceAlt,
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                      }}
-                    >
-                      <Ionicons name="close" size={18} color={colors.textMuted} />
-                    </Pressable>
+                    ) : null}
                   </View>
-                ) : null}
-              </View>
-            </GestureDetector>
+                  {headerRight}
+                  <Pressable
+                    onPress={onClose}
+                    hitSlop={12}
+                    accessibilityRole="button"
+                    accessibilityLabel="Close"
+                    style={{
+                      width: 32,
+                      height: 32,
+                      borderRadius: 16,
+                      backgroundColor: colors.surfaceAlt,
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}
+                  >
+                    <Ionicons name="close" size={18} color={colors.textMuted} />
+                  </Pressable>
+                </View>
+              ) : null}
+            </View>
+          </GestureDetector>
 
-            {scroll ? (
+          {scroll ? (
+            <KeyboardRevealContext.Provider value={revealer}>
               <ScrollView
+                ref={scrollRef}
+                onScroll={onScroll}
+                scrollEventThrottle={16}
                 style={{ flexGrow: 0 }}
                 keyboardShouldPersistTaps="handled"
+                keyboardDismissMode="interactive"
                 showsVerticalScrollIndicator={false}
                 contentContainerStyle={{ paddingHorizontal: spacing.lg, paddingBottom: spacing.md }}
               >
                 {children}
               </ScrollView>
-            ) : (
+            </KeyboardRevealContext.Provider>
+          ) : (
+            // A body with its own list: fields in it must not reach for the screen behind.
+            <KeyboardRevealContext.Provider value={null}>
               <View style={{ flexShrink: 1 }}>{children}</View>
-            )}
+            </KeyboardRevealContext.Provider>
+          )}
 
-            {footer ? (
-              <View
-                style={{
-                  paddingHorizontal: spacing.lg,
-                  paddingTop: spacing.md,
-                  paddingBottom: insets.bottom + spacing.md,
-                  borderTopWidth: StyleSheet.hairlineWidth,
-                  borderTopColor: colors.borderStrong,
-                  backgroundColor: colors.bgElevated,
-                }}
-              >
-                {footer}
-              </View>
-            ) : null}
-          </Animated.View>
-        </KeyboardAvoidingView>
+          {footer ? (
+            <View
+              style={{
+                paddingHorizontal: spacing.lg,
+                paddingTop: spacing.md,
+                paddingBottom: bottomPad,
+                borderTopWidth: StyleSheet.hairlineWidth,
+                borderTopColor: colors.borderStrong,
+                backgroundColor: colors.bgElevated,
+              }}
+            >
+              {footer}
+            </View>
+          ) : null}
+        </Animated.View>
       </GestureHandlerRootView>
     </Modal>
   );

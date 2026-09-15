@@ -3,7 +3,7 @@ import { View, FlatList } from 'react-native';
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Screen, Card, Text, Badge, ProgressBar, SkeletonList, ErrorState, EmptyState, SearchField, Fab } from '@/components/ui';
+import { Screen, Card, Text, Badge, ProgressBar, SkeletonList, ErrorState, EmptyState, SearchField, Fab, useFabScroll, FAB_CLEARANCE } from '@/components/ui';
 import { PeriodSelector } from '@/components/PeriodSelector';
 import { useTheme } from '@/theme/ThemeProvider';
 import { useSalesContracts } from '@/features/salescontracts/useSalesContracts';
@@ -18,6 +18,8 @@ import { matchesAllWords, searchWords } from '@shared/search';
 const salesCur = (cur?: string) => (cur === 'us' ? '$' : cur === 'eu' ? '€' : '');
 
 export default function SalesContracts() {
+  // The create button folds to a circle while the list scrolls down.
+  const fab = useFabScroll();
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
   const { rows, isLoading, isError, error, refetch } = useSalesContracts();
@@ -50,7 +52,9 @@ export default function SalesContracts() {
           data={filtered}
           keyExtractor={(r: any) => r.id}
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={{ paddingBottom: insets.bottom + 96 }}
+          contentContainerStyle={{ paddingBottom: FAB_CLEARANCE }}
+          onScroll={fab.onScroll}
+          scrollEventThrottle={16}
           onRefresh={refetch}
           refreshing={isLoading}
           renderItem={({ item }: any) => (
@@ -100,7 +104,7 @@ export default function SalesContracts() {
         />
       )}
       {/* Create — web's 'New Sales Contract' button. */}
-      <Fab label="New sales contract" bottom={insets.bottom + 88} onPress={() => router.push('/(app)/sales-contract-edit?id=new')} />
+      <Fab label="New sales contract" extended={fab.extended} onPress={() => router.push('/(app)/sales-contract-edit?id=new')} />
     </Screen>
   );
 }

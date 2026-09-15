@@ -52,7 +52,7 @@ export function KpiStrip({ items }: { items: KpiItem[] }) {
       decelerationRate="fast"
       snapToInterval={TILE_W + GAP}
       snapToAlignment="start"
-      style={{ marginHorizontal: -spacing.lg }}
+      style={{ marginHorizontal: -spacing.lg, flexGrow: 0, flexShrink: 0 }}
       contentContainerStyle={{ gap: GAP, paddingHorizontal: spacing.lg }}
     >
       {items.map((k) => {

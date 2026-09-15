@@ -11,6 +11,7 @@ import { useMiscInvoices, useSetMiscCategory, MISC_CATS, MiscRow, MiscCat } from
 import { apiConfigured, postJson } from '@/lib/api';
 import { curSymbol, fmtMoney } from '@/lib/format';
 import { StackHeader } from '@/components/StackHeader';
+import { LIST_END_PADDING } from '@/theme/tokens';
 
 const CAT_TONE: Record<string, 'info' | 'warn' | 'positive' | 'neutral'> = {
   shipments: 'info',
@@ -91,7 +92,7 @@ export default function MiscInvoices() {
           data={rows}
           keyExtractor={(r) => r.id}
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={{ paddingBottom: insets.bottom + 96 }}
+          contentContainerStyle={{ paddingBottom: LIST_END_PADDING }}
           onRefresh={refetch}
           refreshing={isLoading}
           ListHeaderComponent={

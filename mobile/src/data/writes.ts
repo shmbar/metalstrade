@@ -5,7 +5,7 @@
 
 import {
   doc, getDoc, getDocs, setDoc, deleteDoc, updateDoc, writeBatch,
-  arrayUnion, increment, collection, query, where,
+  arrayUnion, increment, collection, query, where, deleteField,
 } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { loadStockDataByIds } from './firestore';
@@ -175,7 +175,13 @@ export async function createInvoiceForContract(
   invoice: Invoice,
   clientName: string
 ): Promise<Invoice> {
-  const invNum = await nextInvoiceNumber(uidCollection);
+  // A Credit Note (2222) / Final Note (3333) is issued under the ORIGINAL invoice's
+  // number and consumes no new one (web saveData_InvoiceInContracts, isInvCreationCNFL).
+  // A plain invoice is always 1111.
+  const isNote = invoice.invType === '2222' || invoice.invType === '3333';
+  const invType = isNote ? String(invoice.invType) : '1111';
+  const invNum = isNote ? Number(invoice.invoice) : await nextInvoiceNumber(uidCollection);
+  if (isNote && !(invNum > 0)) throw new Error('The original invoice number is missing.');
   const startDate = invoice.dateRange?.startDate || invoice.date || '';
 
   const saved: Invoice = {
@@ -183,7 +189,7 @@ export async function createInvoiceForContract(
     id: newId(),
     invoice: invNum,
     date: startDate,
-    invType: '1111',
+    invType,
     poSupplier: { id: contract.id, order: contract.order, date: contract.dateRange?.startDate || undefined },
     lstSaved: nowStamp(),
     totalAmount: (invoice.productsDataInvoice || []).reduce((s, p: any) => s + num(p.total), 0),
@@ -192,13 +198,27 @@ export async function createInvoiceForContract(
   // Link onto the parent contract's invoices[] and re-save (patch only that field).
   const newInvoices = [
     ...(contract.invoices || []),
-    { id: saved.id, invoice: invNum, date: startDate, invType: '1111' },
+    { id: saved.id, invoice: invNum, date: startDate, invType },
   ];
   const conYear = (contract.dateRange?.startDate || contract.date || '').substring(0, 4);
   await updateDoc(doc(db, uidCollection, 'data', `contracts_${conYear}`, contract.id), { invoices: newInvoices });
 
+  // The original learns it has a note (web updateDocument 'cnORfl'), addressed by
+  // its own entry in the contract's invoices[].
+  if (isNote) {
+    const original = ((contract.invoices || []) as any[]).find(
+      (x) => Number(x?.invoice) === invNum && x?.invType === '1111'
+    );
+    if (original?.id && original?.date) {
+      await updateDoc(
+        doc(db, uidCollection, 'data', `invoices_${String(original.date).substring(0, 4)}`, original.id),
+        { cnORfl: { id: saved.id, date: startDate } }
+      );
+    }
+  }
+
   await writeInvoiceDoc(uidCollection, saved);
-  await bumpInvoiceNumber(uidCollection);
+  if (!isNote) await bumpInvoiceNumber(uidCollection);
 
   // Stock `out` movements — one per non-service line (qnty !== 's'). Mirrors the
   // web save: each becomes a stock doc keyed by the line id.
@@ -207,14 +227,18 @@ export async function createInvoiceForContract(
     .map((p: any) => ({
       ...p,
       invoice: invNum,
-      invType: '1111',
+      invType,
       date: startDate,
       type: 'out',
       productsData: contract.productsData,
       client: clientName,
       cur: contract.cur,
     }));
-  if (outs.length) await saveStockIn(uidCollection, outs);
+  // A DRAFT invoice has shipped nothing, so it must not move stock (web
+  // useInvoiceState writeInvoiceStockMovements, 0f5dbb89). The money side already
+  // skips drafts; the ledger did not, so the weight left the warehouse while the
+  // money stayed away — invoice 1472 was a draft with three 'out' movements.
+  if (outs.length && !saved.draft) await saveStockIn(uidCollection, outs);
 
   return saved;
 }
@@ -223,6 +247,54 @@ const num = (v: any) => {
   const n = parseFloat(v);
   return Number.isFinite(n) ? n : 0;
 };
+
+/**
+ * Web useInvoiceState.delInvoice, guard for guard: only an EMPTY invoice can go — one
+ * carrying materials or expenses, or named by a purchase invoice's invRef, is refused,
+ * so no stock movement or expense is ever orphaned. Removes it from the parent
+ * contract's invoices[], clears the original's cnORfl when a note is deleted, then
+ * deletes the doc. Reads the doc fresh: a list entry can be a merged invoice+note group.
+ */
+export async function deleteInvoiceForContract(uidCollection: string, invoiceId: string, year: string): Promise<void> {
+  if (!invoiceId || !year) throw new Error('Invoice is missing id/year.');
+  const invRef = doc(db, uidCollection, 'data', `invoices_${year}`, invoiceId);
+  const snap = await getDoc(invRef);
+  if (!snap.exists()) throw new Error('This invoice no longer exists.');
+  const inv: any = snap.data();
+  if (inv.final) throw new Error('A finalized invoice cannot be deleted.');
+
+  const conId = inv.poSupplier?.id;
+  const conYear = String(inv.poSupplier?.date || '').substring(0, 4);
+  if (!conId || !conYear) throw new Error('This invoice is not linked to a contract, so it cannot be deleted here.');
+  const conRef = doc(db, uidCollection, 'data', `contracts_${conYear}`, conId);
+  const conSnap = await getDoc(conRef);
+  if (!conSnap.exists()) throw new Error('Its contract could not be found — nothing was deleted.');
+  const contract: any = conSnap.data();
+
+  const refs = ((contract.poInvoices || []) as any[]).map((z) => z?.invRef).flat().map((x: any) => parseFloat(x));
+  if (refs.includes(Number(inv.invoice))) {
+    throw new Error("This invoice is referenced by one of the contract's purchase invoices.");
+  }
+  if ((inv.expenses || []).length > 0) throw new Error('This invoice contains expenses, so it cannot be deleted.');
+  if ((inv.productsDataInvoice || []).length > 0) {
+    throw new Error('This invoice contains materials, so it cannot be deleted. Remove its lines first.');
+  }
+
+  const invoices = (contract.invoices || []) as any[];
+  await updateDoc(conRef, { invoices: invoices.filter((k) => k?.id !== invoiceId) });
+
+  if (inv.invType && inv.invType !== '1111') {
+    const original = invoices.find((x) => Number(x?.invoice) === Number(inv.invoice) && x?.invType === '1111');
+    if (original?.id && original?.date) {
+      await updateDoc(
+        doc(db, uidCollection, 'data', `invoices_${String(original.date).substring(0, 4)}`, original.id),
+        { cnORfl: deleteField() }
+      );
+    }
+  }
+
+  await deleteDoc(invRef);
+}
 
 // ── invoice payments ─────────────────────────────────────────────────────────
 // Record client payments against an invoice — writes only the `payments` array
@@ -547,6 +619,50 @@ export async function partialPayPoInvoice(
       pmnt: num(x.pmnt) + amount,
       blnc: num(x.blnc) - amount,
       payments: [...prior, { pmntId: newId(), pmntDate: { startDate: dateIso, endDate: dateIso }, pmntPerc: perc, pmnt: amount }],
+    };
+  });
+  await updateDoc(cRef, { poInvoices });
+  const updated = { ...con, poInvoices } as any;
+  await syncStockPoInvoices(uidCollection, [updated]);
+  await syncSpecialInvoicesPaidStatus(uidCollection, updated);
+}
+
+// Close a supplier purchase invoice's residual balance WITHOUT a real payment —
+// port of cashflow/page.js supplierCloseBalance. The residual (the stored blnc, read
+// fresh from the contract doc, not the screen) is booked as a payment tagged
+// adjustment: 'closeBalance', so the ledger shows the settlement rather than a gap.
+// Same fan-out as any supplier payment: stock lots and Misc Invoices resync.
+export async function closePoInvoiceBalance(
+  uidCollection: string,
+  ref: { contractId: string; contractDate: string; poInvoiceId: string }
+): Promise<void> {
+  const y = ref.contractDate.substring(0, 4);
+  const cRef = doc(db, uidCollection, 'data', `contracts_${y}`, ref.contractId);
+  const snap = await getDoc(cRef);
+  // A deleted contract whose row is still on screen from a stale load — say so.
+  if (!snap.exists()) throw new Error('The contract for this purchase invoice could not be read — pull to refresh.');
+  const con = snap.data() as Contract;
+  const today = new Date().toISOString().slice(0, 10);
+  const poInvoices = (con.poInvoices || []).map((x: any) => {
+    if (x.id !== ref.poInvoiceId) return x;
+    const prior = x.payments ? x.payments : num(x.pmnt) > 0
+      ? [{ pmntId: newId(), pmntDate: null, pmntPerc: ((num(x.pmnt) / num(x.invValue)) * 100).toFixed(1), pmnt: x.pmnt }]
+      : [];
+    const adj = num(x.blnc); // the live residual on the stored doc
+    return {
+      ...x,
+      pmnt: num(x.pmnt) + adj,
+      blnc: 0,
+      payments: [
+        ...prior,
+        {
+          pmntId: newId(),
+          pmntDate: { endDate: today, startDate: today },
+          pmntPerc: parseFloat(((adj * 100) / num(x.invValue)).toFixed(1)),
+          pmnt: adj,
+          adjustment: 'closeBalance',
+        },
+      ],
     };
   });
   await updateDoc(cRef, { poInvoices });

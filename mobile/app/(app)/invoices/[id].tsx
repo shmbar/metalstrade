@@ -7,6 +7,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Screen, Card, Text, Badge, Button, SectionHeader, TextField, DateField, EmptyState, SkeletonList, Sheet, IconButton, Avatar, Chip, ErrorState } from '@/components/ui';
 import { useTheme } from '@/theme/ThemeProvider';
 import { useSettings } from '@/store/settings';
+import { useDeleteInvoice } from '@/features/invoices/useDeleteInvoice';
 import { useInvoices, deriveInvoice } from '@/features/invoices/useInvoices';
 import { useAddPayment } from '@/features/invoices/usePayments';
 import { useSaveInvoiceSplit } from '@/features/invoices/useEditInvoice';
@@ -21,6 +22,8 @@ import { curSymbol, fmtMoney, fmtCurKM, dateLabel } from '@/lib/format';
 import { hapticSuccess } from '@/lib/haptics';
 import { spacing } from '@/theme/tokens';
 import { toast } from '@/store/toast';
+import { CommentsSheet } from '@/components/CommentsSheet';
+import { HistorySheet } from '@/components/HistorySheet';
 
 export default function InvoiceDetail() {
   const { id, pay } = useLocalSearchParams<{ id: string; pay?: string }>();
@@ -32,8 +35,10 @@ export default function InvoiceDetail() {
   const saveSplit = useSaveInvoiceSplit();
   const genReminder = useGenerateReminder();
   const sendReminder = useSendReminder();
+  const del = useDeleteInvoice();
 
   const [showReminder, setShowReminder] = useState(false);
+  const [sheet, setSheet] = useState<'comments' | 'history' | null>(null);
   const [to, setTo] = useState('');
   const [subject, setSubject] = useState('');
   const [body, setBody] = useState('');
@@ -149,6 +154,26 @@ export default function InvoiceDetail() {
       Alert.alert('Could not send', e?.message || 'Email failed (the server may not have email configured).');
     }
   };
+
+  const confirmDelete = () =>
+    Alert.alert('Delete this invoice?', `Invoice #${view.number} is removed from its contract. This cannot be undone.`, [
+      { text: 'Cancel', style: 'cancel' },
+      {
+        text: 'Delete',
+        style: 'destructive',
+        onPress: () =>
+          del.mutate(
+            { id: view.id, year: view.year },
+            {
+              onSuccess: () => {
+                toast.success('Invoice deleted');
+                router.back();
+              },
+              onError: (e: any) => Alert.alert('Not deleted', e?.message || 'Could not delete the invoice.'),
+            }
+          ),
+      },
+    ]);
 
   return (
     <Screen contentContainerStyle={{ paddingTop: insets.top + 8 }} edges={false}>
@@ -288,6 +313,25 @@ export default function InvoiceDetail() {
         )}
       </Card>
 
+      <View style={{ flexDirection: 'row', gap: 10, marginTop: 14 }}>
+        <View style={{ flex: 1 }}>
+          <Button
+            title="Comments"
+            variant="secondary"
+            leftIcon={<Ionicons name="chatbubbles-outline" size={18} color={colors.primary} />}
+            onPress={() => setSheet('comments')}
+          />
+        </View>
+        <View style={{ flex: 1 }}>
+          <Button
+            title="History"
+            variant="secondary"
+            leftIcon={<Ionicons name="time-outline" size={18} color={colors.primary} />}
+            onPress={() => setSheet('history')}
+          />
+        </View>
+      </View>
+
       <Button
         title="Export invoice (PDF)"
         variant="secondary"
@@ -295,6 +339,19 @@ export default function InvoiceDetail() {
         leftIcon={<Ionicons name="document-outline" size={18} color={colors.primary} />}
         onPress={() => exportPdf(invoiceHtml(view, compData), `Invoice-${view.number}`)}
       />
+
+      {/* Web invoiceDetails Delete (useInvoiceState.delInvoice): never on a finalized
+          invoice; the write refuses one still carrying materials or expenses. */}
+      {!(view.raw as any).final && (
+        <Button
+          title="Delete invoice"
+          variant="ghost"
+          style={{ marginTop: 10 }}
+          loading={del.isPending}
+          leftIcon={<Ionicons name="trash-outline" size={18} color={colors.negative} />}
+          onPress={confirmDelete}
+        />
+      )}
 
       {/* AI payment reminder — same gate web applies: issued (not draft, not
           canceled) AND still owing, with the 24h cooldown and follow-up cadence. */}
@@ -323,6 +380,21 @@ export default function InvoiceDetail() {
           )}
         </>
       )}
+
+      <CommentsSheet
+        visible={sheet === 'comments'}
+        onClose={() => setSheet(null)}
+        entityType="invoice"
+        entityId={view.id}
+        entityLabel={`Invoice #${view.number ?? ''}`}
+      />
+      <HistorySheet
+        visible={sheet === 'history'}
+        onClose={() => setSheet(null)}
+        entityType="invoice"
+        entityId={view.id}
+        title={`Invoice #${view.number ?? ''}`}
+      />
 
       {/* Reminder sheet */}
       <Sheet

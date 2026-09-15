@@ -3,6 +3,9 @@ import { useAuth } from '@/store/auth';
 import { useSettings } from '@/store/settings';
 import { updateInvoiceDoc, saveStockIn, delStock, saveSplit } from '@/data/writes';
 import { STOCK_LOTS_KEY } from '@/features/stocks/useAllStockLots';
+import { duplicateLineTrap } from '@shared/stockGuards';
+import { loadStockOnHandByLine } from '@/features/stocks/onHand';
+import { loadDocByIdDate } from '@/data/firestore';
 
 // Persist an IMS/GIS split on an invoice — the third page web renders SplitControl on.
 export function useSaveInvoiceSplit() {
@@ -50,6 +53,23 @@ export function useEditInvoice() {
       removedLineIds?: string[];
     }) => {
       if (!uidCollection) throw new Error('Not authenticated');
+
+      // Duplicate-line trap — web runs it on both invoice-save paths. It needs the
+      // parent contract's material lines; the invoice names its contract by
+      // poSupplier { id, date }, and a web draft is let through inside the guard.
+      if (raw?.poSupplier?.id) {
+        const con: any = await loadDocByIdDate(uidCollection, 'contracts', {
+          id: raw.poSupplier.id,
+          date: raw.poSupplier.date,
+        });
+        const trap = await duplicateLineTrap(
+          { ...raw, ...patch },
+          (con?.productsData || []) as any,
+          (ids, wh) => loadStockOnHandByLine(uidCollection, ids, wh)
+        );
+        if (trap) throw new Error(trap);
+      }
+
       await updateInvoiceDoc(uidCollection, id, year, patch);
 
       if (!raw) return;
@@ -71,7 +91,21 @@ export function useEditInvoice() {
           cur: raw.cur,
         }));
 
-      if (movements.length) await saveStockIn(uidCollection, movements);
+      /* Web writeInvoiceStockMovements (0f5dbb89): a DRAFT is not in the stock
+         ledger. Symmetric on purpose — saving a draft REMOVES any movements its lines
+         already wrote (the weight goes back to the warehouse), and saving it once the
+         draft tick is cleared writes them again. saveStockIn keys a movement by its
+         line id, so the line ids are exactly the docs to remove. Mobile used to write
+         the movements for every save, so editing a web draft on the phone booked
+         phantom stock out of the warehouse. */
+      const isDraft = (patch.draft ?? raw.draft) === true;
+      if (movements.length) {
+        if (isDraft) {
+          await delStock(uidCollection, movements.map((m: any) => m.id).filter((x: any) => typeof x === 'string' && x));
+        } else {
+          await saveStockIn(uidCollection, movements);
+        }
+      }
       if (removedLineIds?.length) await delStock(uidCollection, removedLineIds);
     },
     onSuccess: () => {

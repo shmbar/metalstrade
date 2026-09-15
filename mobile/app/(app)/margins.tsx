@@ -19,7 +19,8 @@ const mt = (n: number) => `${fmtMoney(n, 0)} MT`;
 export default function Margins() {
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
-  const { isAdmin, gisAccount } = useAuth();
+  const { gisAccount, canRoute } = useAuth();
+  const allowed = canRoute('margins');
   const hideBalances = usePrivacyStore((s) => s.hidden);
   const togglePrivacy = usePrivacyStore((s) => s.toggle);
   const { totals, alertedItems, threshold, isLoading, isError, error, refetch } = useMargins();
@@ -42,7 +43,7 @@ export default function Margins() {
   // an exact-string match on the legacy claim that a superadmin-role account
   // (role claim, title something else) could fail and get locked out of their
   // own admin page.
-  if (!isAdmin) {
+  if (!allowed) {
     return (
       <Screen contentContainerStyle={{ paddingTop: insets.top + 8 }} edges={false}>
         <StackHeader title="Margins" />

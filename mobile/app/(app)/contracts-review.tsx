@@ -11,6 +11,7 @@ import { fmtMoney, curSymbol } from '@/lib/format';
 import { sumReviewFinancials } from '@/features/review/reviewFinance';
 import { StackHeader } from '@/components/StackHeader';
 import { matchesAllWords, searchWords } from '@shared/search';
+import { LIST_END_PADDING } from '@/theme/tokens';
 
 const wt = (n: number) => `${fmtMoney(n, 3)}`; // web showWeight — fixed 3 dp
 // web fmtMT (page.js:38) — max 2 dp, no minimum. Used ONLY for the progress-bar
@@ -85,7 +86,7 @@ export default function ContractsReview() {
             data={filtered}
             keyExtractor={(r) => r.id}
             showsVerticalScrollIndicator={false}
-            contentContainerStyle={{ paddingBottom: insets.bottom + 96 }}
+            contentContainerStyle={{ paddingBottom: LIST_END_PADDING }}
             onRefresh={refetch}
             refreshing={isLoading}
             renderItem={({ item }) => {
@@ -161,7 +162,7 @@ export default function ContractsReview() {
           data={statementLines}
           keyExtractor={(s) => s.key}
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={{ paddingBottom: insets.bottom + 96 }}
+          contentContainerStyle={{ paddingBottom: LIST_END_PADDING }}
           onRefresh={refetch}
           refreshing={isLoading}
           ListHeaderComponent={

@@ -2,10 +2,9 @@ import React, { useMemo, useState } from 'react';
 import { View, ScrollView, Alert, RefreshControl } from 'react-native';
 import { Pressable } from '@/components/ui/Pressable';
 import { Ionicons } from '@expo/vector-icons';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Card, Text, Select, TextField, Button, LoadingState, ErrorState , Sheet } from '@/components/ui';
 import { useTheme } from '@/theme/ThemeProvider';
-import { radius, spacing } from '@/theme/tokens';
+import { radius, spacing, LIST_END_PADDING } from '@/theme/tokens';
 import { GradeSummaryCard } from './GradeSummaryCard';
 import {
   useSharedStock, blankLot, financedOf, OWNERS, FINANCING, Financing, SharedLot,
@@ -18,7 +17,6 @@ const fmtQ = (v: number) => new Intl.NumberFormat('en-US', { maximumFractionDigi
 // accounts read. Port of the web tab (app/(root)/stocks/SharedStock.js).
 export function SharedStockView() {
   const { colors } = useTheme();
-  const insets = useSafeAreaInsets();
   const {
     rows, netRows, totalMt, money, accountName,
     warehouses, suppliers, currencies, whName, curSym,
@@ -131,7 +129,7 @@ export function SharedStockView() {
     <>
       <ScrollView keyboardShouldPersistTaps="handled"
         style={{ flex: 1 }}
-        contentContainerStyle={{ paddingBottom: insets.bottom + 96 }}
+        contentContainerStyle={{ paddingBottom: LIST_END_PADDING }}
         showsVerticalScrollIndicator={false}
         refreshControl={<RefreshControl refreshing={isLoading} onRefresh={refetch} tintColor={colors.primary} />}
       >

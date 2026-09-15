@@ -115,6 +115,8 @@ const IDENTICAL_PAIRS: Array<[mobile: string, web: string]> = [
   // Ported 2026-09-12 with the grade-folded Avg Cost Price per Grade card.
   ['mobile/src/shared/grades.js', 'utils/grades.js'],
   ['mobile/src/shared/gradeKey.js', 'app/(root)/stocks/sumtables/gradeKey.js'],
+  // Ported 2026-09-14 so mobile's invoice saves run web's duplicate-line trap.
+  ['mobile/src/shared/stockGuards.js', 'utils/stockGuards.js'],
 ];
 
 /** The deliberate exception — see the Tier 4 block at the bottom of this file. */

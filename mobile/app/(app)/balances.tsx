@@ -10,6 +10,7 @@ import { useInvoicesReview, PartyStatement } from '@/features/review/useInvoices
 import { curSymbol, fmtMoney } from '@/lib/format';
 import { StackHeader } from '@/components/StackHeader';
 import { matchesAllWords, searchWords } from '@shared/search';
+import { LIST_END_PADDING } from '@/theme/tokens';
 
 /**
  * BALANCES — who owes what, on its own screen.
@@ -97,7 +98,7 @@ export default function Balances() {
           data={rows}
           keyExtractor={(r) => r.name}
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={{ paddingBottom: insets.bottom + 96 }}
+          contentContainerStyle={{ paddingBottom: LIST_END_PADDING }}
           onRefresh={refetch}
           refreshing={isLoading}
           ListHeaderComponent={

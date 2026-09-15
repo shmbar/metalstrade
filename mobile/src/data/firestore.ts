@@ -15,6 +15,7 @@ import {
 } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { Contract, Invoice, Settings, CompanyData, DateSelect } from './types';
+import { dedupeById } from '@shared/pureHelpers';
 
 // ── settings / singletons ────────────────────────────────────────────────────
 export async function loadDataSettings<T = any>(uidCollection: string, doc1: string): Promise<T | {}> {
@@ -51,7 +52,12 @@ export async function loadData<T = any>(
     )
   );
 
-  return snapshots.flatMap((snap) => snap.docs.map((d) => d.data() as T));
+  // A record re-dated across a year boundary can survive in TWO buckets under the
+  // same document id, so a multi-year window hands it back twice and every consumer
+  // counts two real rows — Cashflow's Supplier - Balances listed one purchase invoice
+  // on two lines and doubled it in the total. Web fixed this in utils.js loadData
+  // (1d51dce1); dedupeById is the shared helper both apps use, byte-identical.
+  return dedupeById<T>(snapshots.flatMap((snap) => snap.docs.map((d) => ({ id: d.id, data: d.data() as T }))));
 }
 
 // Year-tagged invoice range read. Identical query to loadData('invoices'), but
@@ -77,8 +83,12 @@ export async function loadInvoicesTagged(
       ).then((snap) => ({ yr, snap }))
     )
   );
-  return snapshots.flatMap(({ yr, snap }) =>
-    snap.docs.map((d) => ({ ...(d.data() as Invoice), __yr: String(yr) }))
+  // Same year-bucket dedupe as loadData. The surviving copy keeps ITS bucket tag, so
+  // a payment written back lands on the record that won, not on the stale twin.
+  return dedupeById<Invoice & { __yr: string }>(
+    snapshots.flatMap(({ yr, snap }) =>
+      snap.docs.map((d) => ({ id: d.id, data: { ...(d.data() as Invoice), __yr: String(yr) } }))
+    )
   );
 }
 

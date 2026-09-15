@@ -33,6 +33,8 @@ export interface StockLotRow {
   unitPrc: number;
   total: number;
   cur: string;
+  /** Keys into CashflowData.draftMaterials, in web's lookup order. */
+  draftKeys: string[];
 }
 
 export interface StockWarehouseRow {
@@ -51,6 +53,7 @@ export interface UnsoldLineRow {
   unitPrc: number;
   total: number;
   cur: string;
+  draftKeys: string[];
 }
 
 export interface UnsoldSupplierRow {
@@ -92,6 +95,12 @@ export interface CashflowData {
    */
   suppliersNoPayment: Counterparty[];
   suppliersWithBalance: Counterparty[];
+  /**
+   * web cashflow/page.js draftMaterials: per contract line (descriptionId), the draft
+   * sales invoices that name it and the weight they take. A draft moves no stock, so
+   * the material still counts — this says how much of it is already spoken for.
+   */
+  draftMaterials: Record<string, { invoices: (string | number)[]; qnty: number }>;
   // Outgoing — unpaid expenses (paid==='222'), USD basis (EUR×1.08).
   expensesUsd: number;
   expenseSuppliers: Counterparty[];
@@ -243,6 +252,7 @@ function splitStocksPaidUnpaid(inventoryRows: any[], contractsData: any[], setti
         unitPrc: Number(r.unitPrc) || 0,
         total,
         cur: r.cur === 'eu' ? 'eu' : 'us',
+        draftKeys: [r.descriptionId, r.description].filter(Boolean).map(String),
       });
     });
     Object.values(m).forEach((w) => w.items.sort((a, b) => b.total - a.total));
@@ -370,6 +380,7 @@ function computeUnsoldWeb(contractsData: any[], stockData: any[], settings: any)
         order: con.order,
         supplier: con.supplier,
         description: prod.description || '',
+        descriptionId: prod.id,
         stockName,
         qnty,
         unitPrc,
@@ -398,6 +409,7 @@ function computeUnsoldWeb(contractsData: any[], stockData: any[], settings: any)
       unitPrc: item.unitPrc,
       total: item.total,
       cur: item.cur === 'eu' ? 'eu' : 'us',
+      draftKeys: item.descriptionId ? [String(item.descriptionId)] : [],
     });
   });
   return Object.values(bySupplier);
@@ -545,6 +557,10 @@ export function computeCashflow(input: CashflowInputs): CashflowData {
         paid: num(inv.pmnt),
         etd: (con as any).shipmentEtd || '',
         eta: (con as any).shipmentEta || '',
+        // Where the goods physically are between supplier and our warehouse —
+        // RDY (ready to be shipped) or TRN (in transit). Set on the CONTRACT, so every
+        // purchase invoice of the PO agrees (web cashflow funcs.js, 3eb1cdae).
+        cargoStatus: (con as any).cargoStatus || '',
         // Purchase invoices have no invType — an 'FN' suffix marks a final note.
         isFinal: inv.fnlzing === '4568' || /fns*$/i.test(String(inv.inv || '').trim()),
         balance: blnc,
@@ -661,6 +677,19 @@ export function computeCashflow(input: CashflowInputs): CashflowData {
   // disagree with the header total sitting above them.
   const sortByUsd = (m: Map<string, Counterparty>) => [...m.values()].sort((a, b) => b.usd - a.usd);
 
+  // web page.js draftMaterials, verbatim: service lines ('s') carry no weight.
+  const draftMaterials: CashflowData['draftMaterials'] = {};
+  for (const inv of (invoices || []) as any[]) {
+    if (inv?.draft !== true) continue;
+    for (const line of inv.productsDataInvoice || []) {
+      const key = line?.descriptionId;
+      if (!key || line.qnty === 's') continue;
+      const entry = (draftMaterials[key] ||= { invoices: [], qnty: 0 });
+      if (!entry.invoices.includes(inv.invoice)) entry.invoices.push(inv.invoice);
+      entry.qnty += Number(line.qnty) || 0;
+    }
+  }
+
   return {
     receivablesByCur,
     receivableClients: sortByUsd(clientMap),
@@ -689,6 +718,7 @@ export function computeCashflow(input: CashflowInputs): CashflowData {
     totalRight,
     balance: totalLeft - totalRight,
     manual,
+    draftMaterials,
   };
 }
 

@@ -13,6 +13,7 @@ import { useAllStockLots, STOCK_LOTS_KEY } from '@/features/stocks/useAllStockLo
 import { curSymbol, fmtMoney } from '@/lib/format';
 import { hapticSuccess } from '@/lib/haptics';
 import { StackHeader } from '@/components/StackHeader';
+import { LIST_END_PADDING } from '@/theme/tokens';
 
 const fmtQ = (v: number) => new Intl.NumberFormat('en-US', { minimumFractionDigits: 3, maximumFractionDigits: 3 }).format(v || 0);
 type Tab = 'left' | 'dupes' | 'over' | 'orphan' | 'zeroIn';
@@ -119,7 +120,7 @@ export default function StockAudit() {
           data={list}
           keyExtractor={(r, i) => r.id || `${r.stockId}|${r.descId}` || String(i)}
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={{ paddingBottom: insets.bottom + 96 }}
+          contentContainerStyle={{ paddingBottom: LIST_END_PADDING }}
           onRefresh={refetch}
           refreshing={isLoading}
           renderItem={({ item: r }) => {

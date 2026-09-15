@@ -11,6 +11,7 @@ import { useInvoicesReview, PartyStatement } from '@/features/review/useInvoices
 import { fmtCurKM } from '@/lib/format';
 import { StackHeader } from '@/components/StackHeader';
 import { matchesAllWords, searchWords } from '@shared/search';
+import { LIST_END_PADDING } from '@/theme/tokens';
 
 const curLine = (byCur: Record<string, number>) => {
   const ents = Object.entries(byCur).filter(([, v]) => Math.abs(v) > 0.005);
@@ -79,7 +80,7 @@ export default function InvoicesReview() {
             data={filtered}
             keyExtractor={(r) => r.id}
             showsVerticalScrollIndicator={false}
-            contentContainerStyle={{ paddingBottom: insets.bottom + 96 }}
+            contentContainerStyle={{ paddingBottom: LIST_END_PADDING }}
             onRefresh={refetch}
             refreshing={isLoading}
             renderItem={({ item }) => <InvoiceCard inv={item} onPress={() => router.push(`/(app)/invoices/${item.id}`)} />}
@@ -90,7 +91,7 @@ export default function InvoicesReview() {
           data={[0]}
           keyExtractor={() => 'statement'}
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={{ paddingBottom: insets.bottom + 96 }}
+          contentContainerStyle={{ paddingBottom: LIST_END_PADDING }}
           onRefresh={refetch}
           refreshing={isLoading}
           renderItem={() => (

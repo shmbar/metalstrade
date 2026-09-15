@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { View } from 'react-native';
-import { Tabs, Redirect } from 'expo-router';
+import { Tabs, Redirect, useSegments } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth } from '@/store/auth';
@@ -29,12 +29,16 @@ function tabIcon(base: string, activeColor: string) {
 }
 
 export default function AppLayout() {
-  const { user, initializing, uidCollection, userTitle, currentUser } = useAuth();
+  const { user, initializing, uidCollection, currentUser, canRoute, landingHref, allowedPages } = useAuth();
   const loadSettings = useSettings((s) => s.load);
   const { colors, scheme } = useTheme();
   const insets = useSafeAreaInsets();
-  // Web parity: 'accounting' users are restricted to the accounting view only.
-  const accountingOnly = userTitle === 'accounting';
+  // Per-page permissions (web utils/permissions.js): the tab bar and every route are
+  // gated by the pages this user may open. An Accounting member's default set is
+  // just ['accounting'], so the old accounting-only special case falls out of this.
+  const segments = useSegments() as string[];
+  const route = segments[1] || 'index';
+  const homeIsAccounting = !canRoute('index') && canRoute('accounting');
 
   // Load account settings (suppliers/clients/quantity + company data) once we
   // know the tenant namespace — every screen derives names/rates from these.
@@ -56,6 +60,10 @@ export default function AppLayout() {
 
   if (initializing) return null;
   if (!user) return <Redirect href="/sign-in" />;
+  // Route guard: a screen this user may not open sends them to web's landing page
+  // for them. Never redirect a route to itself, so a misconfigured claim cannot loop.
+  const here = route === 'index' ? '/(app)' : `/(app)/${route}`;
+  if (!canRoute(route) && landingHref !== here) return <Redirect href={landingHref as any} />;
 
   return (
     <View style={{ flex: 1 }}>
@@ -86,26 +94,26 @@ export default function AppLayout() {
     >
       <Tabs.Screen
         name="index"
-        options={{ title: 'Dashboard', tabBarIcon: tabIcon('grid', colors.tabActive), href: accountingOnly ? null : undefined }}
+        options={{ title: 'Dashboard', tabBarIcon: tabIcon('grid', colors.tabActive), href: canRoute('index') ? undefined : null }}
       />
       <Tabs.Screen
         name="contracts"
-        options={{ title: 'Contracts', tabBarIcon: tabIcon('document-text', colors.tabActive), href: accountingOnly ? null : undefined }}
+        options={{ title: 'Contracts', tabBarIcon: tabIcon('document-text', colors.tabActive), href: canRoute('contracts') ? undefined : null }}
       />
       <Tabs.Screen
         name="invoices"
-        options={{ title: 'Invoices', tabBarIcon: tabIcon('receipt', colors.tabActive), href: accountingOnly ? null : undefined }}
+        options={{ title: 'Invoices', tabBarIcon: tabIcon('receipt', colors.tabActive), href: canRoute('invoices') ? undefined : null }}
       />
       <Tabs.Screen
         name="stocks"
-        options={{ title: 'Stocks', tabBarIcon: tabIcon('cube', colors.tabActive), href: accountingOnly ? null : undefined }}
+        options={{ title: 'Stocks', tabBarIcon: tabIcon('cube', colors.tabActive), href: canRoute('stocks') ? undefined : null }}
       />
       {/* Client feedback (2026-09-03, Sharon): the Cashflow page belongs on the
           bottom bar, not Balances — Balances moves to More instead, same slot
           Cashflow used to sit in. */}
       <Tabs.Screen
         name="cashflow"
-        options={{ title: 'Cashflow', tabBarIcon: tabIcon('cash', colors.tabActive), href: accountingOnly ? null : undefined }}
+        options={{ title: 'Cashflow', tabBarIcon: tabIcon('cash', colors.tabActive), href: canRoute('cashflow') ? undefined : null }}
       />
       {/* Routable but not shown in the tab bar (opened from More). */}
       <Tabs.Screen name="balances" options={{ href: null }} />
@@ -125,7 +133,7 @@ export default function AppLayout() {
       <Tabs.Screen
         name="accounting"
         options={
-          accountingOnly
+          homeIsAccounting
             ? { title: 'Accounting', tabBarIcon: tabIcon('reader', colors.tabActive) }
             : { href: null }
         }
@@ -141,7 +149,8 @@ export default function AppLayout() {
       <Tabs.Screen
         name="more"
         options={{
-          href: accountingOnly ? null : undefined,
+          // The hub stays unless Accounting is literally the only page this user has.
+          href: homeIsAccounting && allowedPages.length <= 1 ? null : undefined,
           title: 'More',
           tabBarIcon: ({ focused, color, size }) => (
             <View style={{ alignItems: 'center', justifyContent: 'center', width: 44 }}>

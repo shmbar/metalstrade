@@ -3,7 +3,7 @@ import { View, FlatList } from 'react-native';
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Screen, Card, Text, Badge, SegmentedControl, SectionHeader, SkeletonList, ErrorState, EmptyState, Fab, Chip, Avatar } from '@/components/ui';
+import { Screen, Card, Text, Badge, SegmentedControl, SectionHeader, SkeletonList, ErrorState, EmptyState, Fab, Chip, Avatar, useFabScroll, FAB_CLEARANCE } from '@/components/ui';
 import { PeriodSelector } from '@/components/PeriodSelector';
 import { useTheme } from '@/theme/ThemeProvider';
 import { useExpenses, useSaveExpenseSplit, ExpenseRow } from '@/features/expenses/useExpenses';
@@ -38,6 +38,8 @@ const vendorLine = (byCur: Record<string, number>) => {
 };
 
 export default function Expenses() {
+  // The create button folds to a circle while the list scrolls down.
+  const fab = useFabScroll();
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
   const { data, isLoading, isError, error, refetch } = useExpenses();
@@ -83,7 +85,7 @@ export default function Expenses() {
       {/* Create — web has an "Add expense" action on both expense pages. */}
       <Fab
         label="Add expense"
-        bottom={insets.bottom + 88}
+        extended={fab.extended}
         onPress={() => router.push(`/(app)/expense-edit?id=new&kind=${tab === 'supplier' ? 'supplier' : 'company'}`)}
       />
 
@@ -98,7 +100,9 @@ export default function Expenses() {
           data={rows}
           keyExtractor={(r) => r.id}
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={{ paddingBottom: insets.bottom + 96 }}
+          contentContainerStyle={{ paddingBottom: FAB_CLEARANCE }}
+          onScroll={fab.onScroll}
+          scrollEventThrottle={16}
           onRefresh={refetch}
           refreshing={isLoading}
           ListHeaderComponent={

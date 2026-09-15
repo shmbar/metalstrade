@@ -9,6 +9,8 @@ import { useTheme } from '@/theme/ThemeProvider';
 import { useSettings } from '@/store/settings';
 import { useInvoices, deriveInvoice } from '@/features/invoices/useInvoices';
 import { useEditInvoice } from '@/features/invoices/useEditInvoice';
+import { InvoiceHeaderFields, InvoiceHeaderValue, pickInvoiceHeader } from '@/features/invoices/InvoiceHeaderFields';
+import { useInvoiceSalesContracts } from '@/features/invoices/useInvoiceSalesContracts';
 import { newId } from '@/data/writes';
 import { num } from '@shared/finance';
 import { curSymbol, fmtMoney } from '@/lib/format';
@@ -35,6 +37,8 @@ export default function InvoiceEdit() {
   const [delDate, setDelDate] = useState<string | null>((view?.raw.delDate as any)?.startDate || null);
   const [lines, setLines] = useState<any[]>(() => (view?.raw.productsDataInvoice || []).map((p: any) => ({ ...p })));
   const [removedIds, setRemovedIds] = useState<string[]>([]);
+  const [header, setHeader] = useState<InvoiceHeaderValue>(() => pickInvoiceHeader(view?.raw));
+  const sc = useInvoiceSalesContracts(view ? { ...view.raw, ...header, client, productsDataInvoice: lines } : null);
 
   /* Seed once, when the invoice arrives (see the note at the top of this file).
      Before this, a deep link into an unloaded cache produced a form with no client
@@ -48,6 +52,7 @@ export default function InvoiceEdit() {
     setShpType(view.raw.shpType || '');
     setDelDate((view.raw.delDate as any)?.startDate || null);
     setLines((view.raw.productsDataInvoice || []).map((p: any) => ({ ...p })));
+    setHeader(pickInvoiceHeader(view.raw));
   }, [view]);
 
   if (!view && isLoading) {
@@ -69,6 +74,8 @@ export default function InvoiceEdit() {
   }
 
   const sym = curSymbol(view.cur);
+  // An untagged line counts against the invoice's own link — say so instead of "none".
+  const inheritedSc = sc.lineOptions.find((o) => o.value === header.salesContractId)?.label;
   const clientOptions = (settings?.Client?.Client || []).filter((c: any) => !c.deleted).map((c: any) => ({ value: c.id, label: c.nname || '—' }));
   const shipOptions = (settings?.Shipment?.Shipment || []).filter((s: any) => !s.deleted).map((s: any) => ({ value: s.id, label: s.shpType || '' }));
 
@@ -134,6 +141,7 @@ export default function InvoiceEdit() {
           totalAmount: round2(total),
           totalPrepayment,
           balanceDue,
+          ...header,
         },
         raw,
         removedLineIds: removedIds,
@@ -157,6 +165,21 @@ export default function InvoiceEdit() {
             <DateField label="Delivery date" value={delDate} onChange={setDelDate} />
           </Card>
 
+          <InvoiceHeaderFields
+            value={header}
+            settings={settings}
+            onChange={(p) =>
+              setHeader((h) => ({
+                ...h,
+                ...('clientContractNo' in p ? { ...p, salesContractId: sc.autoMatch(String(p.clientContractNo || '')) } : p),
+              }))
+            }
+            salesContract={{
+              options: sc.headerOptions,
+              onPick: (scId) => setHeader((h) => ({ ...h, salesContractId: scId, clientContractNo: sc.contractNoOf(scId) ?? h.clientContractNo })),
+            }}
+          />
+
           <Card>
             <SectionHeader title="Materials" subtitle={`${lines.length} line(s)`} right={<Text variant="h3" tone="primary">{sym}{fmtMoney(total)}</Text>} />
             {lines.map((l, i) => (
@@ -172,6 +195,13 @@ export default function InvoiceEdit() {
                   <View style={{ flex: 1 }}><TextField value={String(l.unitPrc ?? '')} onChangeText={(t) => setLine(i, { unitPrc: t })} placeholder="Unit price" keyboardType="decimal-pad" /></View>
                   <View style={{ flex: 1, justifyContent: 'center', alignItems: 'flex-end' }}><Text variant="bodyMedium" tone="muted">{sym}{fmtMoney(num(l.total))}</Text></View>
                 </View>
+                <Select
+                  label="Sales contract"
+                  value={String(l.salesContractId || '')}
+                  options={sc.lineOptions}
+                  placeholder={inheritedSc ? `Invoice link: ${inheritedSc}` : 'Uses the invoice link'}
+                  onChange={(v) => setLine(i, { salesContractId: v || '' })}
+                />
               </View>
             ))}
             <Pressable onPress={addLine} style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, marginTop: 12, paddingVertical: 11, borderRadius: 12, borderWidth: 1.5, borderStyle: 'dashed', borderColor: colors.borderStrong }}>

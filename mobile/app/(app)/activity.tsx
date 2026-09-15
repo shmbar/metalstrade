@@ -28,7 +28,7 @@ import {
   LOGIN_TYPE,
   WEEK_MS,
 } from '@shared/activityStats';
-import { radius } from '@/theme/tokens';
+import { radius, LIST_END_PADDING } from '@/theme/tokens';
 import { matchesAllWords, searchWords } from '@shared/search';
 
 /* Web's three tabs, same ids, same blurbs (activity/page.js:9-13). Each panel
@@ -108,7 +108,6 @@ export default function Activity() {
 // ── Activity ─────────────────────────────────────────────────────────────────
 function FeedTab({ query }: { query: any }) {
   const { colors } = useTheme();
-  const insets = useSafeAreaInsets();
   const [q, setQ] = useState('');
   const [type, setType] = useState('all');
   const [actor, setActor] = useState('all');
@@ -148,7 +147,7 @@ function FeedTab({ query }: { query: any }) {
           data={rows}
           keyExtractor={(r, i) => r.id || String(i)}
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={{ paddingBottom: insets.bottom + 96, paddingTop: 8 }}
+          contentContainerStyle={{ paddingBottom: LIST_END_PADDING, paddingTop: 8 }}
           onRefresh={query.refetch}
           refreshing={query.isLoading}
           renderItem={({ item }) => (
@@ -180,7 +179,6 @@ function FeedTab({ query }: { query: any }) {
 // ── Who's online ─────────────────────────────────────────────────────────────
 function OnlineTab({ query }: { query: any }) {
   const { colors } = useTheme();
-  const insets = useSafeAreaInsets();
   const { online, away } = useMemo(
     () => splitPresence(query.data || [], { onlineMs: PRESENCE_ONLINE_MS }),
     [query.data]
@@ -214,7 +212,7 @@ function OnlineTab({ query }: { query: any }) {
       data={[{ k: 'online' }, { k: 'away' }]}
       keyExtractor={(s) => s.k}
       showsVerticalScrollIndicator={false}
-      contentContainerStyle={{ paddingBottom: insets.bottom + 96 }}
+      contentContainerStyle={{ paddingBottom: LIST_END_PADDING }}
       onRefresh={query.refetch}
       refreshing={query.isLoading}
       renderItem={({ item }) =>
@@ -245,7 +243,6 @@ function OnlineTab({ query }: { query: any }) {
 // ── Summary ──────────────────────────────────────────────────────────────────
 function SummaryTab({ query }: { query: any }) {
   const { colors } = useTheme();
-  const insets = useSafeAreaInsets();
   const rows: any[] = query.data || [];
 
   const now = Date.now();
@@ -267,7 +264,7 @@ function SummaryTab({ query }: { query: any }) {
       data={[{ k: 'board' }, { k: 'logins' }, { k: 'weeks' }]}
       keyExtractor={(s) => s.k}
       showsVerticalScrollIndicator={false}
-      contentContainerStyle={{ paddingBottom: insets.bottom + 96 }}
+      contentContainerStyle={{ paddingBottom: LIST_END_PADDING }}
       onRefresh={query.refetch}
       refreshing={query.isLoading}
       ItemSeparatorComponent={() => <View style={{ height: 12 }} />}

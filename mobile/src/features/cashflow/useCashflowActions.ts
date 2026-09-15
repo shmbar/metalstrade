@@ -4,9 +4,11 @@ import {
   markPoInvoicePaid,
   markExpensesPaid,
   partialPayPoInvoice,
+  closePoInvoiceBalance,
   clientPartialPayment,
   saveCashflowManualRows,
   saveCashflowYearTotal,
+  updateContractField,
 } from '@/data/writes';
 import { hapticSuccess, hapticWarning } from '@/lib/haptics';
 import { toast } from '@/store/toast';
@@ -115,5 +117,41 @@ export function useCashflowActions() {
     onError,
   });
 
-  return { paySupplier, payExpense, partialPay, payClient, saveManualRows, saveYearTotal };
+  // Cargo status on a supplier PO: RDY (ready to be shipped) or TRN (in transit), ''
+  // to clear. Replaces the planned ETD/ETA in the supplier tables (client request,
+  // web 3eb1cdae) — the question on this side is whether goods already paid for are
+  // still at the supplier or on the way. A property of the CONTRACT, so every
+  // purchase invoice of the PO changes together. No success toast: the chip itself
+  // is the confirmation; a failure says so and the screen puts the old value back.
+  const saveCargoStatus = useMutation({
+    mutationFn: async (args: { contractId: string; contractDate: string; code: '' | 'RDY' | 'TRN' }) => {
+      if (!uidCollection) throw new Error('Not authenticated');
+      if (!args.contractId || !args.contractDate) throw new Error('This purchase invoice has no contract date.');
+      await updateContractField(uidCollection, args.contractId, args.contractDate, { cargoStatus: args.code });
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['cashflow'] });
+      qc.invalidateQueries({ queryKey: ['contracts'] });
+    },
+    onError: () => {
+      hapticWarning();
+      toast.error('Could not save the cargo status — please try again.');
+    },
+  });
+
+  // Settle a purchase invoice's residual as an adjustment, not a payment — web's
+  // supplierCloseBalance, for the few cents or the rounding a supplier writes off.
+  const closeBalance = useMutation({
+    mutationFn: async (ref: { contractId: string; contractDate: string; poInvoiceId: string }) => {
+      if (!uidCollection) throw new Error('Not authenticated');
+      await closePoInvoiceBalance(uidCollection, ref);
+    },
+    onSuccess: () => {
+      refresh();
+      toast.success('Balance closed — settlement adjustment recorded');
+    },
+    onError,
+  });
+
+  return { paySupplier, payExpense, partialPay, payClient, saveManualRows, saveYearTotal, saveCargoStatus, closeBalance };
 }
