@@ -17,13 +17,14 @@ export function InvoiceCard({ inv, onPress }: { inv: InvoiceView; onPress: () =>
             <Text variant="h3" numberOfLines={1}>
               Invoice #{inv.number ?? '—'}
             </Text>
+            {/* Client, date and provisional/final on one line instead of a second row. */}
             <Text variant="caption" tone="muted" numberOfLines={1} style={{ marginTop: 2 }}>
-              {inv.clientName}
+              {[inv.clientName, inv.dateIso, inv.finalized ? 'Finalized' : 'Provisional'].filter(Boolean).join(' · ')}
             </Text>
           </View>
         </View>
-        <View style={{ alignItems: 'flex-end' }}>
-          <Text variant="h3" style={{ fontVariant: ['tabular-nums'] }}>{inv.totalLabel}</Text>
+        <View style={{ alignItems: 'flex-end', gap: 3 }}>
+          <Text variant="figure">{inv.totalLabel}</Text>
           {inv.balance > 0.01 ? (
             <Text variant="caption" tone="negative" style={{ fontVariant: ['tabular-nums'] }}>
               {inv.balanceLabel} due
@@ -33,18 +34,8 @@ export function InvoiceCard({ inv, onPress }: { inv: InvoiceView; onPress: () =>
               Paid
             </Text>
           )}
+          <Badge label={inv.status} tone={STATUS_TONE[inv.status]} />
         </View>
-      </View>
-
-      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 10 }}>
-        <Badge label={inv.status} tone={STATUS_TONE[inv.status]} />
-        <Badge label={inv.finalized ? 'Finalized' : 'Provisional'} tone={inv.finalized ? 'positive' : 'warn'} />
-        <View style={{ flex: 1 }} />
-        {inv.dateIso ? (
-          <Text variant="caption" tone="faint">
-            {inv.dateIso}
-          </Text>
-        ) : null}
       </View>
     </Card>
   );

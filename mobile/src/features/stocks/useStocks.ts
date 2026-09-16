@@ -7,7 +7,7 @@ import { useAllStockLots } from './useAllStockLots';
 // finance-faithful parity to the web Stocks page. Reads the SHARED stock-ledger
 // query so Inventory/Shared/Storage/Aging/Audit don't each re-download it.
 export function useStocks() {
-  const { settings } = useSettings();
+  const settings = useSettings((s) => s.settings);
   const query = useAllStockLots();
 
   // Web recomputes its Summary-Stocks table from the FILTERED row model on every

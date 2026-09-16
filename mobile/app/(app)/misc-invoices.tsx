@@ -12,6 +12,8 @@ import { apiConfigured, postJson } from '@/lib/api';
 import { curSymbol, fmtMoney } from '@/lib/format';
 import { StackHeader } from '@/components/StackHeader';
 import { LIST_END_PADDING } from '@/theme/tokens';
+import { haptics } from '@/lib/haptics';
+import { keyboardScrollProps } from '@/lib/keyboard';
 
 const CAT_TONE: Record<string, 'info' | 'warn' | 'positive' | 'neutral'> = {
   shipments: 'info',
@@ -24,7 +26,7 @@ const catLabel = (c: MiscCat) => MISC_CATS.find((x) => x.id === c)?.label || 'Un
 export default function MiscInvoices() {
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
-  const { settings } = useSettings();
+  const settings = useSettings((s) => s.settings);
   const { rows, totals, isLoading, isError, error, refetch } = useMiscInvoices();
   const setCat = useSetMiscCategory();
   const [editing, setEditing] = useState<MiscRow | null>(null);
@@ -88,7 +90,8 @@ export default function MiscInvoices() {
       ) : rows.length === 0 ? (
         <EmptyState title="No misc invoices" message="None in the selected period." icon={<Ionicons name="receipt-outline" size={40} color={colors.textFaint} />} />
       ) : (
-        <FlatList keyboardShouldPersistTaps="handled"
+        <FlatList
+        {...keyboardScrollProps} keyboardShouldPersistTaps="handled"
           data={rows}
           keyExtractor={(r) => r.id}
           showsVerticalScrollIndicator={false}
@@ -122,16 +125,16 @@ export default function MiscInvoices() {
             </View>
           }
           renderItem={({ item }) => (
-            <Card style={{ marginBottom: 10 }} onPress={() => setEditing(item)}>
+            <Card style={{ marginBottom: 12 }} onPress={() => setEditing(item)}>
               <View style={{ flexDirection: 'row', justifyContent: 'space-between', gap: 12 }}>
                 <View style={{ flex: 1, minWidth: 0 }}>
-                  <Text variant="bodyMedium" numberOfLines={1}>{item.description || item.invoice || 'Invoice'}</Text>
+                  <Text variant="h3" numberOfLines={1}>{item.description || item.invoice || 'Invoice'}</Text>
                   <Text variant="caption" tone="muted" numberOfLines={1}>{item.supplierName}{item.order ? ` · ${item.order}` : ''}</Text>
                 </View>
                 <View style={{ alignItems: 'flex-end' }}>
                   {/* Row amounts resolve the symbol through the tenant Currency
                       list, like web (getD), rather than a hardcoded map. */}
-                  <Text variant="bodyMedium" tone="primary">{symFor(item.cur)}{fmtMoney(item.total)}</Text>
+                  <Text variant="figure" tone="primary">{symFor(item.cur)}{fmtMoney(item.total)}</Text>
                   {item.paidNotPaid ? (
                     <Text variant="caption" tone={item.paidNotPaid === 'Paid' ? 'positive' : 'negative'}>{item.paidNotPaid}</Text>
                   ) : null}
@@ -172,6 +175,7 @@ export default function MiscInvoices() {
             <Pressable
               key={c.id || 'none'}
               onPress={async () => {
+                haptics.selection();
                 if (editing) await setCat.mutateAsync({ id: editing.id, category: c.id });
                 setEditing(null);
               }}

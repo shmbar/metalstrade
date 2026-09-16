@@ -152,6 +152,33 @@ export function dealRevenue(invoicesData: any[], mult: number, settings: any): n
   return acc;
 }
 
+export interface SupplierContractRow {
+  order: string;
+  date: string;
+  /** supplier invoice value, USD — what the card totals */
+  value: number;
+  /** paid so far, USD */
+  paid: number;
+  mt: number;
+  cur: string;
+  /** quantity × unit price, USD — what the contract is worth before it is invoiced */
+  lineValue: number;
+  /** number of supplier invoices on the contract */
+  invoices: number;
+}
+
+export interface ExpenseDetailRow {
+  supplier: string;
+  order: string;
+  usd: number;
+  amount: number;
+  cur: string;
+  date: string;
+  ref: string;
+  paid: string;
+  comments: string;
+}
+
 export interface PnlResult {
   /** deal-basis SALES revenue by contract month — the series Net Profit uses */
   dealRevenueByMonth: number[];
@@ -172,6 +199,12 @@ export interface PnlResult {
   expByType: Record<string, number>;
   materialSold: Record<string, number>;
   supplierTotals: Record<string, number>;
+  /** web calContracts suppSeries — supplier NAME → 12 monthly purchase buckets (ranking sparklines) */
+  suppSeries: Record<string, number[]>;
+  /** web supplierDetails — supplier ID → the contracts behind its ranking tile */
+  supplierDetails: Record<string, SupplierContractRow[]>;
+  /** web expDetails — expense type label → the records behind its breakdown tile */
+  expDetails: Record<string, ExpenseDetailRow[]>;
   /** consignee (client) ranking — web accumulatedTop5Cus */
   clientTotals: Record<string, number>;
   /** contracts whose own records contradict each other — over-valued lines, duplicate POs */
@@ -235,6 +268,10 @@ export function computePnl(
   const clientTotals: Record<string, number> = {};
   const expByType: Record<string, number> = {};
   const materialSold: Record<string, number> = {};
+  const suppByMonth: Record<string, number[]> = {};
+  const supplierDetails: Record<string, SupplierContractRow[]> = {};
+  const expDetails: Record<string, ExpenseDetailRow[]> = {};
+  const paidLabel = (p: any) => (p === '111' ? 'Paid' : p ? 'Unpaid' : '');
 
   let totalMT = 0;
   let shippedMT = 0;
@@ -318,6 +355,7 @@ export function computePnl(
     const supName =
       settings?.Supplier?.Supplier?.find((s: any) => s.id === x.supplier)?.nname || 'Unknown supplier';
     supplierTotals[supName] = (supplierTotals[supName] || 0) + contractPurchase;
+    (suppByMonth[x.supplier] ||= z12())[m] += contractPurchase;
 
     // Contract tonnage, unit-converted. Web's DASHBOARD counts every productsData
     // row, including import-flagged breakdown helpers that its contracts page
@@ -378,6 +416,23 @@ export function computePnl(
       });
     }
     totalMT += contractTotalMT;
+
+    /* web funcs.js supplierDetails — the contracts behind a supplier tile. value is what
+       the card totals (invoiced); paid and the balance between them are what Cashflow's
+       Suppliers section shows; lineValue says what a not-yet-invoiced contract is worth. */
+    (supplierDetails[x.supplier] ||= []).push({
+      order: x.order || '',
+      date: x.dateRange?.startDate || x.date || '',
+      value: contractPurchase,
+      paid: (x.poInvoices || []).reduce((s2: number, z: any) => {
+        const v = parseFloat(z?.pmnt);
+        return isNaN(v) ? s2 : s2 + v * mltTmp;
+      }, 0),
+      mt: contractTotalMT,
+      cur: x.cur || 'us',
+      lineValue: lineValue * mltTmp,
+      invoices: (x.poInvoices || []).length,
+    });
 
     dealRevenueByMonth[m] += dealRevenue(x.invoicesData, mult, settings);
 
@@ -442,6 +497,9 @@ export function computePnl(
           amount: parseFloat(obj.amount),
           cur: obj.cur || 'us',
           date: obj.date || obj.dateRange?.startDate || '',
+          ref: obj.expense || '',
+          comments: obj.comments || '',
+          paid: paidLabel(obj.paid),
         });
         return;
       }
@@ -451,6 +509,17 @@ export function computePnl(
       if (freightIds.has(obj.expType)) freightTotal += amt;
       const lbl = expLabel(obj.expType);
       expByType[lbl] = (expByType[lbl] || 0) + amt;
+      (expDetails[lbl] ||= []).push({
+        supplier: obj.supplier || x.supplier, // the vendor billed it; the mill only when none is recorded
+        order: x.order || '',
+        usd: amt,
+        amount: parseFloat(obj.amount),
+        cur: obj.cur || 'us',
+        date: obj.date || obj.dateRange?.startDate || '',
+        ref: obj.expense || '',
+        paid: paidLabel(obj.paid),
+        comments: obj.comments || '',
+      });
       if (x.gis) gisExpenses += amt;
       // web funcs.js:441 uses includes(), so "Storage Costs" and "Warehouse Rent"
       // both bucket. An exact match missed every label with a qualifier on it.
@@ -483,6 +552,9 @@ export function computePnl(
         amount: amt,
         cur: obj.cur || 'us',
         date: d,
+        ref: obj.expense || '',
+        comments: obj.comments || '',
+        paid: paidLabel(obj.paid),
       });
       return;
     }
@@ -493,6 +565,17 @@ export function computePnl(
     if (freightIds.has(obj.expType)) freightTotal += val;
     const lbl = expLabel(obj.expType);
     expByType[lbl] = (expByType[lbl] || 0) + val;
+    (expDetails[lbl] ||= []).push({
+      supplier: obj.supplier || '',
+      order: '',
+      usd: val,
+      amount: amt,
+      cur: obj.cur || 'us',
+      date: d,
+      ref: obj.expense || '',
+      paid: paidLabel(obj.paid),
+      comments: obj.comments || '',
+    });
     const l = String(lbl).toLowerCase();
     if (l.includes('storage') || l.includes('warehouse')) {
       storageByMonth[expMonth] += val;
@@ -546,6 +629,18 @@ export function computePnl(
     materialSold,
     supplierTotals,
     clientTotals,
+    // Re-keyed by NAME and added on collision, exactly as the card's own totals are:
+    // two ids sharing an nname are one tile, so they are one sparkline too.
+    suppSeries: Object.entries(suppByMonth).reduce((acc: Record<string, number[]>, [id, months]) => {
+      const name = settings?.Supplier?.Supplier?.find((s: any) => s.id === id)?.nname || 'Unknown supplier';
+      const dst = (acc[name] ||= z12());
+      months.forEach((v, i) => {
+        dst[i] += v;
+      });
+      return acc;
+    }, {}),
+    supplierDetails,
+    expDetails,
     dataIssues,
     gisCogs,
     gisExpenses,

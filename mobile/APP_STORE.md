@@ -136,6 +136,25 @@ npx eas-cli submit --platform ios --latest
 Attach **build 30**, not 29. With an iPhone-only binary the iPad screenshot slot
 disappears from the listing.
 
+### Rejection 2026-09-14 (build 30) — Guideline 5.1.1(ii), purpose strings
+
+The camera prompt showed Expo's default "Allow IMS to access your camera". Apple wants
+each permission prompt to say what the app does with it **and give an example**. The
+strings now live as plugin options in `app.json` (never hand-edit Info.plist — there is
+no ios/ folder, EAS generates it):
+
+- `expo-image-picker.cameraPermission` — Scan with camera on a new purchase contract.
+- `expo-local-authentication.faceIDPermission` — the Face ID message was the generic
+  default too and would have been the next rejection.
+- `photosPermission` / `microphonePermission` are `false`: the app never opens the photo
+  library (files come through the Files picker) and never records audio or video, so
+  those prompts can't appear. If the upload email reports **ITMS-90683 Missing purpose
+  string** for either, replace `false` with a specific string instead.
+
+Check before building: `npx expo config --type introspect --json` and read the
+`*UsageDescription` keys. A new build is required (build 31+); reply to the rejection in
+ASC saying the camera and Face ID purpose strings were rewritten with examples.
+
 ## 3. Screenshots
 
 Required: iPhone 6.5" — 1284 × 2778 (or 1242 × 2688). Only the **first three**

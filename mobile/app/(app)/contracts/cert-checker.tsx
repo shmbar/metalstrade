@@ -21,7 +21,7 @@ export default function CertChecker() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
-  const { uidCollection } = useAuth();
+  const uidCollection = useAuth((s) => s.uidCollection);
   const { data: contracts } = useContracts();
 
   const contract = useMemo(() => contracts?.find((c) => c.id === id), [contracts, id]);
@@ -105,7 +105,7 @@ export default function CertChecker() {
       />
 
       {/* Spec editor */}
-      <Card style={{ marginBottom: 14 }}>
+      <Card style={{ marginBottom: 12 }}>
         <SectionHeader title="Required composition" subtitle="Element min / max / tolerance (%)" />
         {spec.length === 0 ? (
           <Text variant="body" tone="muted" style={{ marginBottom: 8 }}>No elements yet — add the contract spec below.</Text>

@@ -5,6 +5,7 @@ import { useSettings } from '@/store/settings';
 import { loadFlatByDate } from '@/data/firestore';
 import { updateSpecialInvoiceField } from '@/data/writes';
 import { num } from '@shared/finance';
+import { useShallow } from 'zustand/react/shallow';
 
 export const MISC_CATS = [
   { id: 'personal', label: 'Personal' },
@@ -111,8 +112,8 @@ export function miscTotals(rows: MiscRow[]) {
 }
 
 export function useMiscInvoices() {
-  const { uidCollection } = useAuth();
-  const { settings, dateSelect, loaded } = useSettings();
+  const uidCollection = useAuth((s) => s.uidCollection);
+  const { settings, dateSelect, loaded } = useSettings(useShallow((s) => ({ settings: s.settings, dateSelect: s.dateSelect, loaded: s.loaded })));
 
   const query = useQuery({
     enabled: !!uidCollection && loaded,
@@ -127,9 +128,10 @@ export function useMiscInvoices() {
 }
 
 export function useSetMiscCategory() {
-  const { uidCollection } = useAuth();
+  const uidCollection = useAuth((s) => s.uidCollection);
   const qc = useQueryClient();
   return useMutation({
+    meta: { success: 'Saved successfully' },
     mutationFn: async ({ id, category }: { id: string; category: MiscCat }) => {
       if (!uidCollection) throw new Error('Not authenticated');
       await updateSpecialInvoiceField(uidCollection, id, { category });

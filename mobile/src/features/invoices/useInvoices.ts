@@ -14,6 +14,7 @@ import {
   num,
 } from '@shared/finance';
 import { curSymbol, fmtMoney } from '@/lib/format';
+import { useShallow } from 'zustand/react/shallow';
 
 // Resolve a client display name from either an id (draft invoices) or an object
 // (finalized invoices store { nname }). Mirrors the dashboard's resolveClientName.
@@ -80,8 +81,8 @@ export function deriveInvoice(inv: Invoice, settings: any): InvoiceView {
 // its credit/final note count once, payments combined — finance.groupInvoices),
 // newest first.
 export function useInvoices() {
-  const { uidCollection } = useAuth();
-  const { dateSelect, loaded } = useSettings();
+  const uidCollection = useAuth((s) => s.uidCollection);
+  const { dateSelect, loaded } = useSettings(useShallow((s) => ({ dateSelect: s.dateSelect, loaded: s.loaded })));
 
   return useQuery({
     enabled: !!uidCollection && loaded,

@@ -5,7 +5,6 @@ import { Ionicons } from '@expo/vector-icons';
 import { Text } from './Text';
 import { useTheme } from '@/theme/ThemeProvider';
 import { getShadow } from '@/theme/tokens';
-import { hapticTap } from '@/lib/haptics';
 
 const AnimatedPressable = Animated.createAnimatedComponent(RNPressable);
 
@@ -61,10 +60,7 @@ export function Fab({ onPress, icon = 'add', label, extended = true, accessibili
   return (
     <AnimatedPressable
       layout={LinearTransition.springify().damping(20).stiffness(260)}
-      onPress={() => {
-        hapticTap();
-        onPress();
-      }}
+      onPress={onPress}
       onPressIn={() => {
         scale.set(withSpring(0.92, { damping: 18, stiffness: 420, mass: 0.6 }));
       }}
@@ -97,7 +93,7 @@ export function Fab({ onPress, icon = 'add', label, extended = true, accessibili
       <Ionicons name={icon} size={showLabel ? 22 : 28} color={colors.primaryText} />
       {showLabel ? (
         <Animated.View entering={FadeIn.duration(160)} exiting={FadeOut.duration(80)}>
-          <Text variant="bodyMedium" color={colors.primaryText} numberOfLines={1}>
+          <Text variant="bodyStrong" color={colors.primaryText} numberOfLines={1}>
             {label}
           </Text>
         </Animated.View>

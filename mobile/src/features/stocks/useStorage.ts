@@ -6,6 +6,7 @@ import { loadData } from '@/data/firestore';
 import { useAllStockLots, STOCK_LOTS_KEY } from './useAllStockLots';
 import { updateExpenseField } from '@/data/writes';
 import { isStorageType, toUsd, mtInWh, computeStorageMetric, ym } from '@shared/storageUtils';
+import { useShallow } from 'zustand/react/shallow';
 
 /**
  * The year a storage invoice belongs to — its COVERED month when tagged, else its
@@ -99,8 +100,8 @@ export function computeActuals(
 //     outside the selected period.
 //   • an invoice's year is its COVERED month when tagged, else its own date.
 export function useStorage() {
-  const { uidCollection } = useAuth();
-  const { settings, loaded } = useSettings();
+  const uidCollection = useAuth((s) => s.uidCollection);
+  const { settings, loaded } = useSettings(useShallow((s) => ({ settings: s.settings, loaded: s.loaded })));
 
   const expTypes = settings?.Expenses?.Expenses || [];
   const warehouses = settings?.Stocks?.Stocks || [];
@@ -189,9 +190,10 @@ export const defaultMonth = (e: any): string => e.storageMonth || ym(e.date);
 
 // Tag a storage expense to warehouse + month.
 export function useTagStorage() {
-  const { uidCollection } = useAuth();
+  const uidCollection = useAuth((s) => s.uidCollection);
   const qc = useQueryClient();
   return useMutation({
+    meta: { success: 'Saved successfully' },
     mutationFn: async ({ expense, storageWh, storageMonth }: { expense: any; storageWh: string; storageMonth: string }) => {
       if (!uidCollection) throw new Error('Not authenticated');
       await updateExpenseField(uidCollection, expense.id, expense.date, { storageWh, storageMonth });

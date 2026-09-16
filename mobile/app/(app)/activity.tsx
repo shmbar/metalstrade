@@ -30,6 +30,7 @@ import {
 } from '@shared/activityStats';
 import { radius, LIST_END_PADDING } from '@/theme/tokens';
 import { matchesAllWords, searchWords } from '@shared/search';
+import { keyboardScrollProps } from '@/lib/keyboard';
 
 /* Web's three tabs, same ids, same blurbs (activity/page.js:9-13). Each panel
    loads its own data, so a tab nobody opened never pulls the collection. */
@@ -64,7 +65,7 @@ const relativeTime = (ms?: number) => {
 
 export default function Activity() {
   const insets = useSafeAreaInsets();
-  const { uidCollection } = useAuth();
+  const uidCollection = useAuth((s) => s.uidCollection);
   const [tab, setTab] = useState<TabId>('feed');
   const active = TABS.find((t) => t.id === tab) || TABS[0];
 
@@ -143,7 +144,8 @@ function FeedTab({ query }: { query: any }) {
           icon={<Ionicons name="pulse-outline" size={40} color={colors.textFaint} />}
         />
       ) : (
-        <FlatList keyboardShouldPersistTaps="handled"
+        <FlatList
+        {...keyboardScrollProps} keyboardShouldPersistTaps="handled"
           data={rows}
           keyExtractor={(r, i) => r.id || String(i)}
           showsVerticalScrollIndicator={false}
@@ -208,7 +210,8 @@ function OnlineTab({ query }: { query: any }) {
   );
 
   return (
-    <FlatList keyboardShouldPersistTaps="handled"
+    <FlatList
+        {...keyboardScrollProps} keyboardShouldPersistTaps="handled"
       data={[{ k: 'online' }, { k: 'away' }]}
       keyExtractor={(s) => s.k}
       showsVerticalScrollIndicator={false}
@@ -260,7 +263,8 @@ function SummaryTab({ query }: { query: any }) {
   const maxWeek = weeks.reduce((m: number, w: any) => Math.max(m, w.total), 0) || 1;
 
   return (
-    <FlatList keyboardShouldPersistTaps="handled"
+    <FlatList
+        {...keyboardScrollProps} keyboardShouldPersistTaps="handled"
       data={[{ k: 'board' }, { k: 'logins' }, { k: 'weeks' }]}
       keyExtractor={(s) => s.k}
       showsVerticalScrollIndicator={false}
@@ -349,7 +353,7 @@ function Chips({
   const { colors } = useTheme();
   return (
     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 8 }}>
-      <Text variant="caption" tone="faint" style={{ width: 34 }}>{label}</Text>
+      <Text variant="caption" tone="faint" style={{ width: 36 }} numberOfLines={1}>{label}</Text>
       <FlatList
         horizontal
         data={options}

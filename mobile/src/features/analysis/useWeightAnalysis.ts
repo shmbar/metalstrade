@@ -3,13 +3,14 @@ import { useAuth } from '@/store/auth';
 import { useSettings } from '@/store/settings';
 import { loadDataWeightAnalysis, getInvoicesByNumbers } from '@/data/firestore';
 import { createWeightRows, WeightRow } from './weightAnalysis';
+import { useShallow } from 'zustand/react/shallow';
 
 // Weight Analysis — supplier-scoped contracted-vs-returned assay report.
 // The supplier is a REQUIRED filter: web loads nothing until one is chosen, and
 // this mirrors that (the query stays disabled).
 export function useWeightAnalysis(supplierId: string) {
-  const { uidCollection } = useAuth();
-  const { dateSelect, loaded } = useSettings();
+  const uidCollection = useAuth((s) => s.uidCollection);
+  const { dateSelect, loaded } = useSettings(useShallow((s) => ({ dateSelect: s.dateSelect, loaded: s.loaded })));
 
   const query = useQuery({
     enabled: !!uidCollection && loaded && !!supplierId && !!dateSelect.start && !!dateSelect.end,

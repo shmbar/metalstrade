@@ -9,7 +9,7 @@ import { useTheme } from '@/theme/ThemeProvider';
 import { useContracts } from '@/features/contracts/useContracts';
 import { usePnl, useSetContractStatus, useSaveShipmentRow, CONTRACT_STATUSES, ShipmentRow } from '@/features/contracts/usePnl';
 import { curSymbol, fmtMoney, dateLabel } from '@/lib/format';
-import { hapticSuccess } from '@/lib/haptics';
+import { haptics } from '@/lib/haptics';
 
 const FINALIZED_FLAG = '4568';
 
@@ -66,7 +66,7 @@ export default function ContractPnl() {
       <StackHeader title="P&amp;L · Shipments" subtitle={(contract as any).order || 'Contract'} />
 
       {/* Currency selector — web lets the whole tab be read in $ or €. */}
-      <View style={{ marginBottom: 14 }}>
+      <View style={{ marginBottom: 12 }}>
         <SegmentedControl
           value={viewCur}
           onChange={(v) => { setViewCur(v as any); setRows(null); }}
@@ -77,7 +77,7 @@ export default function ContractPnl() {
         />
       </View>
 
-      <Card style={{ marginBottom: 14 }}>
+      <Card style={{ marginBottom: 12 }}>
         <SectionHeader title="Profit" subtitle="Sale − Purchase − Expenses" />
         <Row label="Invoice value (sale)" v={m(pnl.saleValue)} />
         <Row label="Purchase value" v={m(pnl.purchaseValue)} />
@@ -92,14 +92,14 @@ export default function ContractPnl() {
         </View>
       </Card>
 
-      <Card style={{ marginBottom: 14 }}>
+      <Card style={{ marginBottom: 12 }}>
         <SectionHeader title="Freight" subtitle="freight-type expenses ÷ contracted MT" />
         <Row label="Freight total" v={m(pnl.freightTotal)} />
         <Row label="Contracted" v={`${fmtMoney(pnl.contractMT, 3)} MT`} />
         <Row label="Freight / MT" v={m(pnl.freightPerMT)} strong />
       </Card>
 
-      <Card style={{ marginBottom: 14 }}>
+      <Card style={{ marginBottom: 12 }}>
         <SectionHeader title="Contract status" />
         <Select
           label=""
@@ -170,7 +170,7 @@ export default function ContractPnl() {
 
               {/* Finalizing — '4568' means the final invoice has been issued. */}
               <Pressable
-                onPress={() => setRow(i, { fnlzing: r.fnlzing === FINALIZED_FLAG ? '' : FINALIZED_FLAG })}
+                onPress={() => { haptics.selection(); setRow(i, { fnlzing: r.fnlzing === FINALIZED_FLAG ? '' : FINALIZED_FLAG }); }}
                 style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}
               >
                 <Ionicons
@@ -189,7 +189,7 @@ export default function ContractPnl() {
                   saveRow.mutate(
                     { row: r, contract },
                     {
-                      onSuccess: () => { hapticSuccess(); setRows(null); },
+                      onSuccess: () => setRows(null),
                       onError: (e: any) => Alert.alert('Failed', e?.message || 'Could not save.'),
                     }
                   )

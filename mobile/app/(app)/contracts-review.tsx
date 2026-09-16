@@ -12,6 +12,7 @@ import { sumReviewFinancials } from '@/features/review/reviewFinance';
 import { StackHeader } from '@/components/StackHeader';
 import { matchesAllWords, searchWords } from '@shared/search';
 import { LIST_END_PADDING } from '@/theme/tokens';
+import { keyboardScrollProps } from '@/lib/keyboard';
 
 const wt = (n: number) => `${fmtMoney(n, 3)}`; // web showWeight — fixed 3 dp
 // web fmtMT (page.js:38) — max 2 dp, no minimum. Used ONLY for the progress-bar
@@ -44,7 +45,7 @@ export default function ContractsReview() {
     <Screen scroll={false} flush contentContainerStyle={{ paddingTop: insets.top + 8 }} edges={false}>
       <StackHeader title="Contracts Review" right={<PeriodSelector />} />
 
-      <View style={{ marginBottom: 14 }}>
+      <View style={{ marginBottom: 12 }}>
         <SegmentedControl
           value={tab}
           onChange={(v) => setTab(v as any)}
@@ -65,9 +66,11 @@ export default function ContractsReview() {
             <Pressable
               onPress={() => setViewCur((c) => (c === 'us' ? 'eu' : 'us'))}
               hitSlop={8}
-              style={{ paddingHorizontal: 14, paddingVertical: 10, borderRadius: 10, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surfaceAlt }}
+              accessibilityRole="button"
+              accessibilityLabel="Switch view currency"
+              style={{ height: 44, justifyContent: 'center', paddingHorizontal: 14, borderRadius: 999, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surfaceAlt }}
             >
-              <Text variant="bodyMedium" tone="primary">{viewCur === 'eu' ? 'EUR €' : 'USD $'}</Text>
+              <Text variant="captionStrong" tone="primary">{viewCur === 'eu' ? 'EUR €' : 'USD $'}</Text>
             </Pressable>
           </View>
           <View style={{ height: 12 }} />
@@ -82,7 +85,8 @@ export default function ContractsReview() {
         filtered.length === 0 ? (
           <EmptyState title="No contracts" message="None in the selected period." icon={<Ionicons name="albums-outline" size={40} color={colors.textFaint} />} />
         ) : (
-          <FlatList keyboardShouldPersistTaps="handled"
+          <FlatList
+        {...keyboardScrollProps} keyboardShouldPersistTaps="handled"
             data={filtered}
             keyExtractor={(r) => r.id}
             showsVerticalScrollIndicator={false}
@@ -156,7 +160,8 @@ export default function ContractsReview() {
       ) : statementLines.length === 0 ? (
         <EmptyState title="No statement data" message="None in the selected period." />
       ) : (
-        <FlatList keyboardShouldPersistTaps="handled"
+        <FlatList
+        {...keyboardScrollProps} keyboardShouldPersistTaps="handled"
           /* Web's statement is ONE ROW PER MATERIAL LINE, not per supplier — the
              per-supplier totals stay as a header summary above it. */
           data={statementLines}
@@ -185,7 +190,7 @@ export default function ContractsReview() {
             </Card>
           }
           renderItem={({ item }) => (
-            <Card style={{ marginBottom: 10 }}>
+            <Card style={{ marginBottom: 12 }}>
               <View style={{ flexDirection: 'row', justifyContent: 'space-between', gap: 10 }}>
                 <View style={{ flex: 1, minWidth: 0 }}>
                   <Text variant="bodyMedium" numberOfLines={2}>{item.description}</Text>

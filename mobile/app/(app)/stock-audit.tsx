@@ -11,9 +11,10 @@ import { saveStockIn, newId } from '@/data/writes';
 import { buildAudit, buildWriteOffRows, leftoverKey, LeftoverGroup } from '@/features/stocks/audit';
 import { useAllStockLots, STOCK_LOTS_KEY } from '@/features/stocks/useAllStockLots';
 import { curSymbol, fmtMoney } from '@/lib/format';
-import { hapticSuccess } from '@/lib/haptics';
+import { haptics } from '@/lib/haptics';
 import { StackHeader } from '@/components/StackHeader';
 import { LIST_END_PADDING } from '@/theme/tokens';
+import { keyboardScrollProps } from '@/lib/keyboard';
 
 const fmtQ = (v: number) => new Intl.NumberFormat('en-US', { minimumFractionDigits: 3, maximumFractionDigits: 3 }).format(v || 0);
 type Tab = 'left' | 'dupes' | 'over' | 'orphan' | 'zeroIn';
@@ -21,8 +22,8 @@ type Tab = 'left' | 'dupes' | 'over' | 'orphan' | 'zeroIn';
 export default function StockAudit() {
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
-  const { uidCollection } = useAuth();
-  const { settings } = useSettings();
+  const uidCollection = useAuth((s) => s.uidCollection);
+  const settings = useSettings((s) => s.settings);
   const qc = useQueryClient();
   // Web opens on Leftovers — it's the only actionable tab.
   const [tab, setTab] = useState<Tab>('left');
@@ -42,12 +43,12 @@ export default function StockAudit() {
   );
 
   const writeOff = useMutation({
+    meta: { success: (_d: any, groups: any[]) => `${groups.length} leftover${groups.length > 1 ? 's' : ''} written off — stock balances updated` },
     mutationFn: async (groups: LeftoverGroup[]) => {
       if (!uidCollection) throw new Error('Not authenticated');
       await saveStockIn(uidCollection, buildWriteOffRows(groups, newId));
     },
     onSuccess: () => {
-      hapticSuccess();
       setSel([]);
       qc.invalidateQueries({ queryKey: [STOCK_LOTS_KEY] });
     },
@@ -116,7 +117,8 @@ export default function StockAudit() {
           icon={<Ionicons name="checkmark-done-outline" size={40} color={colors.positive} />}
         />
       ) : (
-        <FlatList keyboardShouldPersistTaps="handled"
+        <FlatList
+        {...keyboardScrollProps} keyboardShouldPersistTaps="handled"
           data={list}
           keyExtractor={(r, i) => r.id || `${r.stockId}|${r.descId}` || String(i)}
           showsVerticalScrollIndicator={false}
@@ -133,7 +135,7 @@ export default function StockAudit() {
                   borderColor: isSel ? colors.primary : undefined,
                   borderWidth: isSel ? 1.5 : undefined,
                 }}
-                onPress={tab === 'left' ? () => toggleSel(k) : undefined}
+                onPress={tab === 'left' ? () => { haptics.selection(); toggleSel(k); } : undefined}
               >
                 <View style={{ flexDirection: 'row', gap: 10 }}>
                   {tab === 'left' && (

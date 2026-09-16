@@ -7,12 +7,13 @@ import { saveSalesContract, deleteSalesContract, SALES_CONTRACT_REQUIRED } from 
 import { num } from '@shared/finance';
 import { invoiceQtyBySalesContract } from '@shared/salesLink';
 import { arr } from '@/lib/guard';
+import { useShallow } from 'zustand/react/shallow';
 
 // Sales contracts (sell-side) from the `salescontracts` collection, with shipped
 // quantity derived from linked invoices (inv.salesContractId). Mirrors the web page.
 export function useSalesContracts() {
-  const { uidCollection } = useAuth();
-  const { settings, dateSelect, loaded } = useSettings();
+  const uidCollection = useAuth((s) => s.uidCollection);
+  const { settings, dateSelect, loaded } = useSettings(useShallow((s) => ({ settings: s.settings, dateSelect: s.dateSelect, loaded: s.loaded })));
 
   const query = useQuery({
     enabled: !!uidCollection && loaded,
@@ -94,9 +95,10 @@ export function useSalesContracts() {
 // Create / update a sales contract — web parity (useSalesContractsState.saveData):
 // manual contract number, derived total, euroToUSD stamp, cross-year cleanup.
 export function useSaveSalesContract() {
-  const { uidCollection } = useAuth();
+  const uidCollection = useAuth((s) => s.uidCollection);
   const qc = useQueryClient();
   return useMutation({
+    meta: { success: 'Sales contract successfully saved!' },
     mutationFn: async ({ value, previousDate }: { value: any; previousDate?: string }) => {
       if (!uidCollection) throw new Error('Not authenticated');
       return saveSalesContract(uidCollection, value, previousDate);
@@ -106,9 +108,10 @@ export function useSaveSalesContract() {
 }
 
 export function useDeleteSalesContract() {
-  const { uidCollection } = useAuth();
+  const uidCollection = useAuth((s) => s.uidCollection);
   const qc = useQueryClient();
   return useMutation({
+    meta: { success: 'Sales contract successfully deleted!' },
     mutationFn: async (value: any) => {
       if (!uidCollection) throw new Error('Not authenticated');
       await deleteSalesContract(uidCollection, value);

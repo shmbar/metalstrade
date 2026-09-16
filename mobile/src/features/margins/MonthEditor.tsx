@@ -8,6 +8,9 @@ import { useSettings } from '@/store/settings';
 import { useMarginsEditor } from './useMargins';
 import { monthPurchase, monthMargin } from './derive';
 import { fmtMoney } from '@/lib/format';
+import { useRevealOnFocus } from '@/lib/keyboard';
+import { haptics } from '@/lib/haptics';
+import { typography } from '@/theme/tokens';
 
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 const monthName = (m: any) => {
@@ -33,7 +36,7 @@ const n3 = (v: any) => fmtMoney(Number(v) || 0, 3);
 // full amount beneath — exactly like the web tooltip.
 export function MonthEditor() {
   const { colors } = useTheme();
-  const { compData } = useSettings();
+  const compData = useSettings((s) => s.compData);
   const {
     months, year, dirty, setField, toggleGis, addItem, deleteItem, addMonth, deleteMonth, save,
   } = useMarginsEditor();
@@ -110,7 +113,7 @@ export function MonthEditor() {
                           <Calc w={W.openShip} value={it.openShip} />
                           <Calc w={W.remaining} value={it.remaining} gis={!!it.gis} />
                           <Pressable
-                            onPress={() => toggleGis(m.month, it.id, !it.gis)}
+                            onPress={() => { haptics.selection(); toggleGis(m.month, it.id, !it.gis); }}
                             hitSlop={6}
                             accessibilityRole="checkbox"
                             accessibilityState={{ checked: !!it.gis }}
@@ -174,7 +177,7 @@ export function MonthEditor() {
 
 function Head({ w, children }: { w: number; children: React.ReactNode }) {
   return (
-    <Text variant="caption" tone="muted" style={{ width: w, fontFamily: 'PlusJakartaSans_600SemiBold' }} numberOfLines={1}>
+    <Text variant="tableStrong" tone="muted" style={{ width: w }} numberOfLines={1}>
       {children}
     </Text>
   );
@@ -190,13 +193,18 @@ function Inp({
   align?: 'left' | 'right';
 }) {
   const { colors } = useTheme();
+  // A cell in a wide table sits in the page's ScrollView: ask it to bring the cell
+  // above the keyboard, the way TextField does on its own.
+  const reveal = useRevealOnFocus();
   return (
     <TextInput
+      ref={reveal.ref}
+      onFocus={reveal.onFocus}
       value={value == null ? '' : String(value)}
       onChangeText={onChange}
       keyboardType={numeric ? 'decimal-pad' : 'default'}
       style={{
-        width: w, textAlign: align, fontSize: 12, fontFamily: 'PlusJakartaSans_400Regular',
+        width: w, textAlign: align, fontSize: typography.caption.fontSize, fontFamily: typography.caption.fontFamily,
         color: colors.text, paddingVertical: 3, paddingHorizontal: 5,
         borderWidth: 1, borderColor: colors.border, borderRadius: 6, backgroundColor: colors.surfaceAlt,
       }}
@@ -215,7 +223,7 @@ function Calc({ w, value, gis }: { w: number; value: any; gis?: boolean }) {
         {n2(gis ? v / 2 : v)}
       </Text>
       {gis ? (
-        <Text variant="caption" tone="faint" style={{ textAlign: 'right', fontSize: 9 }}>
+        <Text variant="table" tone="faint" style={{ textAlign: 'right' }}>
           of {n2(v)}
         </Text>
       ) : null}

@@ -5,6 +5,7 @@ import { useSettings } from '@/store/settings';
 import { updateContractField, updateInvoiceDoc, logEvent } from '@/data/writes';
 import { contractPnl, ShipmentRow } from './pnlModel';
 import { num } from '@shared/finance';
+import { useShallow } from 'zustand/react/shallow';
 
 // Contract P&L / Shipments Tracking — the tab mobile had no counterpart for.
 // All of the arithmetic lives in ./pnlModel.ts so it can be tested without a React
@@ -21,15 +22,16 @@ export const CONTRACT_STATUSES = [
 export type { ShipmentRow } from './pnlModel';
 
 export function usePnl(contract: any, viewCur: 'us' | 'eu') {
-  const { settings } = useSettings();
+  const settings = useSettings((s) => s.settings);
   return useMemo(() => contractPnl(contract, viewCur, settings), [contract, viewCur, settings]);
 }
 
 // Save the contract status (web has this editor on the same tab).
 export function useSetContractStatus() {
-  const { uidCollection, currentUser } = useAuth();
+  const { uidCollection, currentUser } = useAuth(useShallow((s) => ({ uidCollection: s.uidCollection, currentUser: s.currentUser })));
   const qc = useQueryClient();
   return useMutation({
+    meta: { success: 'Contract successfully saved!' },
     mutationFn: async ({ contract, conStatus }: { contract: any; conStatus: string }) => {
       if (!uidCollection) throw new Error('Not authenticated');
       const date = contract.dateRange?.startDate || contract.date || '';
@@ -58,9 +60,10 @@ export function useSetContractStatus() {
 
 // Save one invoice's shipment details — the per-invoice row of the web grid.
 export function useSaveShipmentRow() {
-  const { uidCollection, currentUser } = useAuth();
+  const { uidCollection, currentUser } = useAuth(useShallow((s) => ({ uidCollection: s.uidCollection, currentUser: s.currentUser })));
   const qc = useQueryClient();
   return useMutation({
+    meta: { success: 'Data successfully saved!' },
     mutationFn: async ({ row, contract }: { row: ShipmentRow; contract: any }) => {
       if (!uidCollection) throw new Error('Not authenticated');
       await updateInvoiceDoc(uidCollection, row.id, row.year, {

@@ -1,12 +1,42 @@
-import { QueryClient, onlineManager } from '@tanstack/react-query';
+import { QueryClient, MutationCache, onlineManager } from '@tanstack/react-query';
 import { createAsyncStoragePersister } from '@tanstack/query-async-storage-persister';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Network from 'expo-network';
+import { toast } from '@/store/toast';
+import { haptics } from '@/lib/haptics';
+
+declare module '@tanstack/react-query' {
+  interface Register {
+    mutationMeta: {
+      /**
+       * The confirmation the web app shows for this action ("Invoice successfully saved!",
+       * "Expense successfully deleted!" …). A string, or built from the result and the
+       * call's variables; return null for no toast (e.g. a delete the server refused).
+       */
+      success?: string | ((data: any, variables: any) => string | null | undefined);
+    };
+  }
+}
+
+/* Every save, edit, update and delete confirms itself the way web does — a toast with
+   web's own wording — from ONE place. Each mutation names its message beside its
+   mutationFn; nothing on a screen has to remember to say it, so no action can silently
+   succeed. Failures stay with the screens, which already explain them — but every one is
+   felt the same way, with one error pulse, whether the screen shows a toast or an Alert. */
+const mutationCache = new MutationCache({
+  onSuccess: (data, variables, _context, mutation) => {
+    const s = mutation.options.meta?.success;
+    const msg = typeof s === 'function' ? s(data, variables) : s;
+    if (msg) toast.success(msg);
+  },
+  onError: () => haptics.error(),
+});
 
 // Server cache for Firestore reads. Generous staleTime keeps navigation snappy;
 // gcTime is a week so the persisted cache survives restarts and the app can
 // render real data with no connection (offline mode).
 export const queryClient = new QueryClient({
+  mutationCache,
   defaultOptions: {
     queries: {
       staleTime: 1000 * 60 * 2,

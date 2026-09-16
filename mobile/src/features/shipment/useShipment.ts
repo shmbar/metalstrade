@@ -8,6 +8,7 @@ import { toIsoDate } from '@shared/pureHelpers';
 import { Contract, Invoice } from '@/data/types';
 import { normalizeStatus } from '@shared/shipmentStatus';
 import { matchesAllWords, searchWords } from '@shared/search';
+import { useShallow } from 'zustand/react/shallow';
 
 // web page.js:476 — the ids are stored, the labels are not.
 const SHP_TYPE_MAP: Record<string, string> = {
@@ -381,8 +382,8 @@ export function shipmentWriteDate(contract: any): string {
 // ── hook ─────────────────────────────────────────────────────────────────────
 
 export function useShipment(filters: ShipmentFilters = {}) {
-  const { uidCollection } = useAuth();
-  const { settings, dateSelect, loaded } = useSettings();
+  const uidCollection = useAuth((s) => s.uidCollection);
+  const { settings, dateSelect, loaded } = useSettings(useShallow((s) => ({ settings: s.settings, dateSelect: s.dateSelect, loaded: s.loaded })));
 
   const query = useQuery({
     enabled: !!uidCollection && loaded,
@@ -451,9 +452,10 @@ export function useShipment(filters: ShipmentFilters = {}) {
 }
 
 export function useSetShipmentStatus() {
-  const { uidCollection, currentUser } = useAuth();
+  const { uidCollection, currentUser } = useAuth(useShallow((s) => ({ uidCollection: s.uidCollection, currentUser: s.currentUser })));
   const qc = useQueryClient();
   return useMutation({
+    meta: { success: 'Data successfully saved!' },
     mutationFn: async ({ contract, status }: { contract: Contract; status: string }) => {
       if (!uidCollection) throw new Error('Not authenticated');
       const date = shipmentWriteDate(contract);
@@ -497,9 +499,10 @@ export function useSetShipmentStatus() {
  * date cannot be addressed (the collection is year-bucketed), so that is reported.
  */
 export function useSaveShipmentLine() {
-  const { uidCollection, currentUser } = useAuth();
+  const { uidCollection, currentUser } = useAuth(useShallow((s) => ({ uidCollection: s.uidCollection, currentUser: s.currentUser })));
   const qc = useQueryClient();
   return useMutation({
+    meta: { success: 'Data successfully saved!' },
     mutationFn: async ({
       line,
       contract,
@@ -535,9 +538,10 @@ export function useSaveShipmentLine() {
 
 /** Contract-level shipment notes — web NotesCell onSave on the contract row. */
 export function useSaveContractShipmentNotes() {
-  const { uidCollection } = useAuth();
+  const uidCollection = useAuth((s) => s.uidCollection);
   const qc = useQueryClient();
   return useMutation({
+    meta: { success: 'Data successfully saved!' },
     mutationFn: async ({ contract, notes }: { contract: Contract; notes: string }) => {
       if (!uidCollection) throw new Error('Not authenticated');
       await updateContractField(uidCollection, contract.id, shipmentWriteDate(contract), {

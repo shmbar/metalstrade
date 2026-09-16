@@ -10,6 +10,7 @@ import { resolveClientName } from '@/features/invoices/useInvoices';
 import { num } from '@shared/finance';
 // @ts-ignore — plain JS module shared verbatim with the web
 import { lotIsSold } from '@shared/soldStatus';
+import { useShallow } from 'zustand/react/shallow';
 
 // EUR→USD constant the cashflow expenses use (web parity: runExpenses mult 1.08).
 const EXP_EUR_USD = 1.08;
@@ -723,8 +724,8 @@ export function computeCashflow(input: CashflowInputs): CashflowData {
 }
 
 export function useCashflow() {
-  const { uidCollection } = useAuth();
-  const { settings, loaded } = useSettings();
+  const uidCollection = useAuth((s) => s.uidCollection);
+  const { settings, loaded } = useSettings(useShallow((s) => ({ settings: s.settings, loaded: s.loaded })));
 
   const curYr = new Date().getFullYear();
   const { range4y, range2y } = cashflowYearRanges(curYr);
@@ -756,7 +757,7 @@ export function useCashflow() {
   const lotsQuery = useAllStockLots();
 
   const data = useMemo<CashflowData | null>(() => {
-    if (!query.data || !lotsQuery.data) return null;
+    if (!query.data || !lotsQuery.data || !loaded) return null;
     const { invoices, contracts4y, contracts2y, expenses, companyExpenses, margins, cashflowDoc } = query.data;
     return computeCashflow({
       invoices,
@@ -769,11 +770,12 @@ export function useCashflow() {
       stocks: lotsQuery.data,
       settings,
     });
-  }, [query.data, lotsQuery.data, settings]);
+  }, [query.data, lotsQuery.data, settings, loaded]);
 
   return {
     data,
-    isLoading: query.isLoading || lotsQuery.isLoading,
+    // Waiting for the name lists counts as loading, so the screen shows its skeleton.
+    isLoading: query.isLoading || lotsQuery.isLoading || !loaded,
     isError: query.isError || lotsQuery.isError,
     error: query.error || lotsQuery.error,
     refetch: () => {

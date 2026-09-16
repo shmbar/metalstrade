@@ -1,5 +1,5 @@
 import { useMemo, useState, useEffect } from 'react';
-import { View, Alert } from 'react-native';
+import { View } from 'react-native';
 import { useLocalSearchParams, router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Screen, Card, TextField, Button, EmptyState, IconButton } from '@/components/ui';
@@ -7,6 +7,7 @@ import { useSettings } from '@/store/settings';
 import { useSettingsEdit } from '@/features/settings/useSettingsEdit';
 import { newId } from '@/data/writes';
 import { StackHeader } from '@/components/StackHeader';
+import { toast } from '@/store/toast';
 
 // Display-field fallback per category (port of web setup.js fieldByKey).
 const FIELD_BY_KEY: Record<string, string> = {
@@ -19,7 +20,7 @@ const FIELD_BY_KEY: Record<string, string> = {
 export default function ConfigEditor() {
   const { cat, title } = useLocalSearchParams<{ cat: string; title?: string }>();
   const insets = useSafeAreaInsets();
-  const { settings } = useSettings();
+  const settings = useSettings((s) => s.settings);
   const { saveEntities } = useSettingsEdit();
 
   const original: any[] = (settings as any)?.[cat]?.[cat] || [];
@@ -49,9 +50,10 @@ export default function ConfigEditor() {
     try {
       const clean = items.filter((x) => x.deleted || String(x[field] ?? '').trim() !== '');
       await saveEntities(cat as string, clean);
+      toast.success('Data successfully saved');
       router.back();
-    } catch (e: any) {
-      Alert.alert('Save failed', e?.message || 'Could not save.');
+    } catch {
+      toast.error('Failed to save');
     } finally {
       setBusy(false);
     }

@@ -18,12 +18,13 @@ import {
   selectCnFnRefs,
   sortBy,
 } from '@/features/accounting/accountingCore';
+import { useShallow } from 'zustand/react/shallow';
 
 export type { AccountingGroup, AccountingLine } from '@/features/accounting/accountingCore';
 
 export function useAccounting() {
-  const { uidCollection } = useAuth();
-  const { settings, dateSelect, loaded } = useSettings();
+  const uidCollection = useAuth((s) => s.uidCollection);
+  const { settings, dateSelect, loaded } = useSettings(useShallow((s) => ({ settings: s.settings, dateSelect: s.dateSelect, loaded: s.loaded })));
   const gQ = makeGQ(settings);
 
   const query = useQuery({

@@ -15,7 +15,7 @@ const RELOCK_AFTER_MS = 45_000; // background longer than this → require unloc
 // has biometric sign-in enabled.
 export function PrivacyLock() {
   const { colors } = useTheme();
-  const { user } = useAuth();
+  const user = useAuth((s) => s.user);
   const [covered, setCovered] = useState(false);
   const [needsAuth, setNeedsAuth] = useState(false);
   const leftAt = useRef<number | null>(null);

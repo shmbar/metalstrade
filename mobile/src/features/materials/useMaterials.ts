@@ -90,8 +90,8 @@ export const cleanElement = (v: string) => (countDecimalDigits(v) > 2 ? null : v
 export const cleanKgs = (v: string) => String(v ?? '').replace(/[^0-9.\-]/g, '');
 
 export function useMaterials() {
-  const { uidCollection } = useAuth();
-  const { settings } = useSettings();
+  const uidCollection = useAuth((s) => s.uidCollection);
+  const settings = useSettings((s) => s.settings);
   const qc = useQueryClient();
 
   const query = useQuery({
@@ -155,6 +155,7 @@ export function useMaterials() {
     mutate((prev) => prev.map((t) => (t.id === tableId ? { ...t, [key]: value } : t)));
 
   const save = useMutation({
+    meta: { success: 'Saved successfully!' },
     mutationFn: async () => {
       if (!uidCollection) throw new Error('Not authenticated');
       await saveMaterials(uidCollection, tables);
@@ -166,6 +167,7 @@ export function useMaterials() {
   });
 
   const removeTable = useMutation({
+    meta: { success: 'Table deleted!' },
     mutationFn: async (id: string) => {
       if (!uidCollection) throw new Error('Not authenticated');
       await deleteMaterialTable(uidCollection, id);

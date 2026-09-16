@@ -9,7 +9,7 @@ import { Text } from './Text';
 import { Pressable } from './Pressable';
 import { useTheme } from '@/theme/ThemeProvider';
 import { getShadow, spacing } from '@/theme/tokens';
-import { KeyboardRevealContext, useKeyboardAwareScroll } from '@/lib/keyboard';
+import { KeyboardRevealContext, keyboardScrollProps, useKeyboardAwareScroll, useKeyboardOverlap } from '@/lib/keyboard';
 
 interface SheetProps {
   visible: boolean;
@@ -40,11 +40,12 @@ const LIFT_MS = 240;
  * far enough (or flick) and the sheet closes — the gesture iOS and every banking
  * app have trained people to expect.
  *
- * Keyboard: the panel rides up by the keyboard's height and gives up the same amount
- * of its maximum height, so its header, the focused field and the footer's Save all
- * stay on screen. The KeyboardAvoidingView this replaces did neither on Android, and on
- * iOS left an 88%-tall panel pushed off the top — the "Add entry" sheet on Cashflow
- * showed nothing but the keyboard and the dimmed page.
+ * Keyboard: the panel rides up by exactly the part of the screen the keyboard covers
+ * and gives up the same amount of its maximum height, so the header, the focused field
+ * (scrolled into view) and the footer's Save all stay visible above the keyboard. The
+ * overlap comes from the app-wide keyboard store (lib/keyboard), so a sheet whose first
+ * field autofocuses — Cashflow's "Add entry" — lifts too; that one used to open entirely
+ * behind the keyboard.
  */
 export function Sheet({
   visible,
@@ -62,15 +63,17 @@ export function Sheet({
   const { height } = useWindowDimensions();
   const y = useSharedValue(0);
   const lift = useSharedValue(0);
-  const { keyboard, scrollRef, onScroll, revealer } = useKeyboardAwareScroll({ settleMs: LIFT_MS + 60 });
+  // Measured on a full-screen probe: how much of the sheet's canvas the keyboard covers.
+  const canvas = useKeyboardOverlap();
+  const body = useKeyboardAwareScroll({ settleMs: LIFT_MS + 60, padForKeyboard: false });
 
   useEffect(() => {
     if (visible) y.set(0);
   }, [visible, y]);
 
   useEffect(() => {
-    lift.set(withTiming(keyboard, { duration: LIFT_MS }));
-  }, [keyboard, lift]);
+    lift.set(withTiming(canvas.overlap, { duration: LIFT_MS }));
+  }, [canvas.overlap, lift]);
 
   // The drag lives on the header only, so a scrolling body keeps its own gesture.
   const pan = Gesture.Pan()
@@ -97,11 +100,18 @@ export function Sheet({
   if (!visible) return null;
 
   // With the keyboard up it covers the home indicator, so the safe-area padding goes.
-  const bottomPad = (keyboard > 0 ? 0 : insets.bottom) + spacing.md;
+  const bottomPad = (canvas.overlap > 0 ? 0 : insets.bottom) + spacing.md;
 
   return (
     <Modal visible transparent animationType="fade" statusBarTranslucent onRequestClose={onClose}>
       <GestureHandlerRootView style={{ flex: 1, justifyContent: 'flex-end' }}>
+        <View
+          ref={canvas.ref}
+          onLayout={canvas.onLayout}
+          collapsable={false}
+          pointerEvents="none"
+          style={StyleSheet.absoluteFill}
+        />
         <Pressable
           style={[StyleSheet.absoluteFill, { backgroundColor: 'rgba(10,8,24,0.45)' }]}
           onPress={onClose}
@@ -167,14 +177,13 @@ export function Sheet({
           </GestureDetector>
 
           {scroll ? (
-            <KeyboardRevealContext.Provider value={revealer}>
+            <KeyboardRevealContext.Provider value={body.revealer}>
               <ScrollView
-                ref={scrollRef}
-                onScroll={onScroll}
+                ref={body.scrollRef}
+                onScroll={body.onScroll}
                 scrollEventThrottle={16}
-                style={{ flexGrow: 0 }}
-                keyboardShouldPersistTaps="handled"
-                keyboardDismissMode="interactive"
+                style={{ flexGrow: 0, flexShrink: 1 }}
+                {...keyboardScrollProps}
                 showsVerticalScrollIndicator={false}
                 contentContainerStyle={{ paddingHorizontal: spacing.lg, paddingBottom: spacing.md }}
               >

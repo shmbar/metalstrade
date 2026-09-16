@@ -49,7 +49,20 @@
     "plugins": [
       "expo-router",
       "expo-secure-store",
-      "expo-local-authentication",
+      [
+        "expo-local-authentication",
+        {
+          "faceIDPermission": "IMS Tech uses Face ID so you can sign in and unlock the app without typing your password. For example, after you turn on Face ID sign-in, looking at your iPhone opens your company's contracts and invoices."
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "cameraPermission": "IMS Tech uses the camera to photograph paper trade documents so you don't have to type them in. For example, when you add a purchase contract, tap \"Scan with camera\" to photograph a supplier's proforma, and the app reads the supplier, PO number, date, currency and products from the photo into the new contract.",
+          "photosPermission": false,
+          "microphonePermission": false
+        }
+      ],
       "expo-font",
       [
         "expo-splash-screen",

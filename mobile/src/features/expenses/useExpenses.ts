@@ -9,6 +9,7 @@ import {
 } from '@/data/writes';
 import { num } from '@shared/finance';
 import { splitStatusOf } from '@shared/splitUtils';
+import { useShallow } from 'zustand/react/shallow';
 
 export interface ExpenseRow {
   unpaid: boolean;
@@ -60,8 +61,8 @@ const totalsByCur = (rows: ExpenseRow[], onlyUnpaid = false) => {
 
 // Supplier-linked expenses (year-bucketed) + company expenses (flat), with totals.
 export function useExpenses() {
-  const { uidCollection } = useAuth();
-  const { settings, dateSelect, loaded } = useSettings();
+  const uidCollection = useAuth((s) => s.uidCollection);
+  const { settings, dateSelect, loaded } = useSettings(useShallow((s) => ({ settings: s.settings, dateSelect: s.dateSelect, loaded: s.loaded })));
 
   const query = useQuery({
     enabled: !!uidCollection && loaded,
@@ -117,8 +118,8 @@ export function useExpenses() {
 // Save / delete an expense. Supplier expenses fan out to their linked invoice and
 // contract (web parity); company expenses are self-contained.
 export function useSaveExpense() {
-  const { uidCollection } = useAuth();
-  const { settings } = useSettings();
+  const uidCollection = useAuth((s) => s.uidCollection);
+  const settings = useSettings((s) => s.settings);
   const qc = useQueryClient();
   const invalidate = () => {
     qc.invalidateQueries({ queryKey: ['expenses-screen'] });
@@ -128,6 +129,7 @@ export function useSaveExpense() {
     qc.invalidateQueries({ queryKey: ['storage-expenses'] });
   };
   return useMutation({
+    meta: { success: 'Expense successfully saved!' },
     mutationFn: async ({
       expense,
       kind,
@@ -147,10 +149,11 @@ export function useSaveExpense() {
 
 // "Copy to misc invoices" — web action on the company-expense modal.
 export function useCopyExpenseToMisc() {
-  const { uidCollection } = useAuth();
-  const { settings } = useSettings();
+  const uidCollection = useAuth((s) => s.uidCollection);
+  const settings = useSettings((s) => s.settings);
   const qc = useQueryClient();
   return useMutation({
+    meta: { success: 'Expense is successfully copied!' },
     mutationFn: async (expense: any) => {
       if (!uidCollection) throw new Error('Not authenticated');
       await copyExpenseToMisc(uidCollection, expense, settings);
@@ -162,9 +165,10 @@ export function useCopyExpenseToMisc() {
 // "Move to shipment" — migrates a company expense onto a sales invoice + its
 // contract, then removes the companyExpenses original.
 export function useMoveExpenseToShipment() {
-  const { uidCollection } = useAuth();
+  const uidCollection = useAuth((s) => s.uidCollection);
   const qc = useQueryClient();
   return useMutation({
+    meta: { success: 'Expense is successfully moved!' },
     mutationFn: async ({ expense, invoice }: { expense: any; invoice: any }) => {
       if (!uidCollection) throw new Error('Not authenticated');
       await moveCompanyExpenseToShipment(uidCollection, expense, invoice);
@@ -179,9 +183,10 @@ export function useMoveExpenseToShipment() {
 }
 
 export function useDeleteExpense() {
-  const { uidCollection } = useAuth();
+  const uidCollection = useAuth((s) => s.uidCollection);
   const qc = useQueryClient();
   return useMutation({
+    meta: { success: 'Expense successfully deleted!' },
     mutationFn: async ({ expense, kind }: { expense: any; kind: 'expense' | 'companyexpense' }) => {
       if (!uidCollection) throw new Error('Not authenticated');
       if (kind === 'companyexpense') await deleteCompanyExpense(uidCollection, expense.id);
@@ -212,9 +217,10 @@ export function missingExpenseFields(v: any): string[] {
 // year-bucketed expenses_{year}; company expenses in the flat companyExpenses —
 // the same two write paths the web pages use.
 export function useSaveExpenseSplit() {
-  const { uidCollection } = useAuth();
+  const uidCollection = useAuth((s) => s.uidCollection);
   const qc = useQueryClient();
   return useMutation({
+    meta: { success: 'Data successfully saved!' },
     mutationFn: async ({
       row,
       kind,

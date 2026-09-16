@@ -37,7 +37,7 @@ export function OfflineBanner() {
       }}
     >
       <Ionicons name="cloud-offline-outline" size={14} color={palette.warnBorder} />
-      <Text variant="caption" color="#ffffff" style={{ fontFamily: 'PlusJakartaSans_500Medium' }}>
+      <Text variant="captionMedium" color="#ffffff">
         Offline — showing saved data
       </Text>
     </View>

@@ -8,6 +8,7 @@ import {
   snoozeNotification,
 } from '@/data/writes';
 import { sortByPriority, priorityOf } from '@shared/notificationPriority';
+import { useShallow } from 'zustand/react/shallow';
 
 export type Priority = 'high' | 'medium' | 'low';
 
@@ -35,7 +36,7 @@ export interface NotificationRow {
 // including other people's notifications and ones the user had snoozed, ordered
 // only by date. That made the mobile bell disagree with the web bell.
 export function useNotificationFeed() {
-  const { uidCollection, currentUser } = useAuth();
+  const { uidCollection, currentUser } = useAuth(useShallow((s) => ({ uidCollection: s.uidCollection, currentUser: s.currentUser })));
   const uid = currentUser.uid;
   const qc = useQueryClient();
 

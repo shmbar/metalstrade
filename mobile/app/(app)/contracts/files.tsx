@@ -9,6 +9,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Screen, Card, Text, Button, LoadingState, ErrorState, EmptyState, StackHeader, IconButton } from '@/components/ui';
 import { useTheme } from '@/theme/ThemeProvider';
 import { listFiles, uploadFile, deleteFile } from '@/data/storage';
+import { toast } from '@/store/toast';
 import { radius } from '@/theme/tokens';
 
 const iconFor = (name: string): keyof typeof Ionicons.glyphMap => {
@@ -33,6 +34,7 @@ export default function ContractFiles() {
   });
 
   const del = useMutation({
+    meta: { success: 'Attachment successfully deleted!' },
     mutationFn: (name: string) => deleteFile(id as string, name),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['files', id] }),
   });
@@ -44,6 +46,7 @@ export default function ContractFiles() {
     setBusy(true);
     try {
       await uploadFile(id as string, asset.uri, asset.name);
+      toast.success('Attachment successfully uploaded!');
       qc.invalidateQueries({ queryKey: ['files', id] });
     } catch (e: any) {
       Alert.alert('Upload failed', e?.message || 'Could not upload the file.');
@@ -59,7 +62,7 @@ export default function ContractFiles() {
       <Button
         title="Upload file"
         loading={busy}
-        style={{ marginBottom: 14 }}
+        style={{ marginBottom: 12 }}
         leftIcon={<Ionicons name="cloud-upload-outline" size={18} color={colors.primaryText} />}
         onPress={pickAndUpload}
       />
@@ -75,7 +78,7 @@ export default function ContractFiles() {
           {data.map((f) => (
             <Card key={f.name} padded={false}>
               <Pressable onPress={() => Linking.openURL(f.url)} style={{ flexDirection: 'row', alignItems: 'center', gap: 12, padding: 14 }}>
-                <View style={{ width: 38, height: 38, borderRadius: radius.md, backgroundColor: colors.primary + '18', alignItems: 'center', justifyContent: 'center' }}>
+                <View style={{ width: 36, height: 36, borderRadius: radius.md, backgroundColor: colors.primary + '18', alignItems: 'center', justifyContent: 'center' }}>
                   <Ionicons name={iconFor(f.name)} size={18} color={colors.primary} />
                 </View>
                 <Text variant="bodyMedium" style={{ flex: 1 }} numberOfLines={1}>{f.name}</Text>

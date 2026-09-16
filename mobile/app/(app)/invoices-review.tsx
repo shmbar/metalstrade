@@ -12,6 +12,7 @@ import { fmtCurKM } from '@/lib/format';
 import { StackHeader } from '@/components/StackHeader';
 import { matchesAllWords, searchWords } from '@shared/search';
 import { LIST_END_PADDING } from '@/theme/tokens';
+import { keyboardScrollProps } from '@/lib/keyboard';
 
 const curLine = (byCur: Record<string, number>) => {
   const ents = Object.entries(byCur).filter(([, v]) => Math.abs(v) > 0.005);
@@ -50,7 +51,7 @@ export default function InvoicesReview() {
     <Screen scroll={false} flush contentContainerStyle={{ paddingTop: insets.top + 8 }} edges={false}>
       <StackHeader title="Invoices Review" right={<PeriodSelector />} />
 
-      <View style={{ marginBottom: 14 }}>
+      <View style={{ marginBottom: 12 }}>
         <SegmentedControl
           value={tab}
           onChange={(v) => setTab(v as any)}
@@ -76,7 +77,8 @@ export default function InvoicesReview() {
         filtered.length === 0 ? (
           <EmptyState title="No invoices" message="None in the selected period." icon={<Ionicons name="receipt-outline" size={40} color={colors.textFaint} />} />
         ) : (
-          <FlatList keyboardShouldPersistTaps="handled"
+          <FlatList
+        {...keyboardScrollProps} keyboardShouldPersistTaps="handled"
             data={filtered}
             keyExtractor={(r) => r.id}
             showsVerticalScrollIndicator={false}
@@ -87,7 +89,8 @@ export default function InvoicesReview() {
           />
         )
       ) : (
-        <FlatList keyboardShouldPersistTaps="handled"
+        <FlatList
+        {...keyboardScrollProps} keyboardShouldPersistTaps="handled"
           data={[0]}
           keyExtractor={() => 'statement'}
           showsVerticalScrollIndicator={false}

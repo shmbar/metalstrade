@@ -31,6 +31,8 @@ import {
   grandTotals,
 } from '@/features/materials/tableMath';
 import { StackHeader } from '@/components/StackHeader';
+import { useRevealOnFocus } from '@/lib/keyboard';
+import { typography } from '@/theme/tokens';
 
 const COL = 56; // element column width
 const COST_COL = 76;
@@ -53,7 +55,7 @@ export default function Materials() {
       />
 
       {editing && (
-        <View style={{ flexDirection: 'row', gap: 10, marginBottom: 14 }}>
+        <View style={{ flexDirection: 'row', gap: 10, marginBottom: 12 }}>
           <Button title="Add table" variant="secondary" onPress={addTable} style={{ flex: 1 }} />
           <Button title={dirty ? 'Save changes' : 'Saved'} disabled={!dirty} loading={save.isPending} onPress={() => save.mutate()} style={{ flex: 1 }} />
         </View>
@@ -118,15 +120,15 @@ export default function Materials() {
                   <View>
                     {/* Header */}
                     <View style={{ flexDirection: 'row', borderBottomWidth: 1, borderBottomColor: colors.borderStrong, paddingBottom: 6 }}>
-                      <Text variant="caption" tone="muted" style={{ width: 130, fontFamily: 'PlusJakartaSans_600SemiBold' }}>Material</Text>
-                      <Text variant="caption" tone="muted" style={{ width: COL, textAlign: 'right', fontFamily: 'PlusJakartaSans_600SemiBold' }}>{unit}</Text>
+                      <Text variant="tableStrong" tone="muted" style={{ width: 130 }}>Material</Text>
+                      <Text variant="tableStrong" tone="muted" style={{ width: COL, textAlign: 'right' }}>{unit}</Text>
                       {elements.map((el) => (
-                        <Text key={el.key} variant="caption" tone="muted" style={{ width: COL, textAlign: 'right', fontFamily: 'PlusJakartaSans_600SemiBold' }}>{el.label}</Text>
+                        <Text key={el.key} variant="tableStrong" tone="muted" style={{ width: COL, textAlign: 'right' }}>{el.label}</Text>
                       ))}
                       {showCosts && (
                         <>
-                          <Text variant="caption" tone="muted" style={{ width: COST_COL, textAlign: 'right', fontFamily: 'PlusJakartaSans_600SemiBold' }}>Cost PMT</Text>
-                          <Text variant="caption" tone="muted" style={{ width: COST_COL, textAlign: 'right', fontFamily: 'PlusJakartaSans_600SemiBold' }}>Cost Total</Text>
+                          <Text variant="tableStrong" tone="muted" style={{ width: COST_COL, textAlign: 'right' }}>Cost PMT</Text>
+                          <Text variant="tableStrong" tone="muted" style={{ width: COST_COL, textAlign: 'right' }}>Cost Total</Text>
                         </>
                       )}
                     </View>
@@ -138,35 +140,35 @@ export default function Materials() {
                         {editing ? (
                           <Cell w={130} value={r.material} onChange={(t) => setCell(table.id, r.id, 'material', t)} align="left" />
                         ) : (
-                          <Text variant="caption" style={{ width: 130 }} numberOfLines={1}>{r.material || '—'}</Text>
+                          <Text variant="table" style={{ width: 130 }} numberOfLines={1}>{r.material || '—'}</Text>
                         )}
                         {editing ? (
                           <Cell w={COL} value={r.kgs} onChange={(t) => setCell(table.id, r.id, 'kgs', cleanKgs(t))} numeric />
                         ) : (
-                          <Text variant="caption" style={{ width: COL, textAlign: 'right' }}>{fmtWeight(r.kgs, unitKey)}</Text>
+                          <Text variant="table" style={{ width: COL, textAlign: 'right' }}>{fmtWeight(r.kgs, unitKey)}</Text>
                         )}
                         {elements.map((el) => editing ? (
                           <Cell key={el.key} w={COL} value={r[el.key]} numeric onChange={(t) => { const v = cleanElement(t); if (v !== null) setCell(table.id, r.id, el.key, v); }} />
                         ) : (
-                          <Text key={el.key} variant="caption" style={{ width: COL, textAlign: 'right' }}>{fmt(r[el.key])}</Text>
+                          <Text key={el.key} variant="table" style={{ width: COL, textAlign: 'right' }}>{fmt(r[el.key])}</Text>
                         ))}
                         {showCosts && (
                           <>
                             {/* Web renders an empty cell for a zero cost, not '$0.00'. */}
-                            <Text variant="caption" tone="primary" style={{ width: COST_COL, textAlign: 'right' }}>
+                            <Text variant="table" tone="primary" style={{ width: COST_COL, textAlign: 'right' }}>
                               {costPmt(r) ? money(costPmt(r)) : ''}
                             </Text>
-                            <Text variant="caption" tone="primary" style={{ width: COST_COL, textAlign: 'right', fontFamily: 'PlusJakartaSans_600SemiBold' }}>
+                            <Text variant="tableStrong" tone="primary" style={{ width: COST_COL, textAlign: 'right' }}>
                               {costTotal(r) ? money(costTotal(r)) : ''}
                             </Text>
                           </>
                         )}
                         {showSales && (
                           <>
-                            <Text variant="caption" tone="primary" style={{ width: COST_COL, textAlign: 'right' }}>
+                            <Text variant="table" tone="primary" style={{ width: COST_COL, textAlign: 'right' }}>
                               {salesMt(r) ? money(salesMt(r)) : ''}
                             </Text>
-                            <Text variant="caption" tone="primary" style={{ width: COST_COL, textAlign: 'right', fontFamily: 'PlusJakartaSans_600SemiBold' }}>
+                            <Text variant="tableStrong" tone="primary" style={{ width: COST_COL, textAlign: 'right' }}>
                               {salesTot(r) ? money(salesTot(r)) : ''}
                             </Text>
                           </>
@@ -181,10 +183,10 @@ export default function Materials() {
                     {/* Weighted-average totals */}
                     {allRows.length > 0 && (
                       <View style={{ flexDirection: 'row', paddingVertical: 6 }}>
-                        <Text variant="caption" tone="primary" style={{ width: 130, fontFamily: 'PlusJakartaSans_600SemiBold' }}>{rows.length} items</Text>
-                        <Text variant="caption" tone="primary" style={{ width: COL, textAlign: 'right', fontFamily: 'PlusJakartaSans_600SemiBold' }}>{fmtWeight(totalKgs, unitKey)}</Text>
+                        <Text variant="tableStrong" tone="primary" style={{ width: 130 }}>{rows.length} items</Text>
+                        <Text variant="tableStrong" tone="primary" style={{ width: COL, textAlign: 'right' }}>{fmtWeight(totalKgs, unitKey)}</Text>
                         {elements.map((el) => (
-                          <Text key={el.key} variant="caption" tone="primary" style={{ width: COL, textAlign: 'right', fontFamily: 'PlusJakartaSans_600SemiBold' }}>
+                          <Text key={el.key} variant="tableStrong" tone="primary" style={{ width: COL, textAlign: 'right' }}>
                             {/* Web leaves the cell EMPTY when the average is zero, so
                                 an element with no data doesn't read as a measured 0. */}
                             {fmtAvg(weighted(el.key))}
@@ -192,10 +194,10 @@ export default function Materials() {
                         ))}
                         {showCosts && (
                           <>
-                            <Text variant="caption" tone="primary" style={{ width: COST_COL, textAlign: 'right', fontFamily: 'PlusJakartaSans_600SemiBold' }}>
+                            <Text variant="tableStrong" tone="primary" style={{ width: COST_COL, textAlign: 'right' }}>
                               {totalKgs === 0 ? '' : money(footCostPmt)}
                             </Text>
-                            <Text variant="caption" tone="primary" style={{ width: COST_COL, textAlign: 'right', fontFamily: 'PlusJakartaSans_600SemiBold' }}>
+                            <Text variant="tableStrong" tone="primary" style={{ width: COST_COL, textAlign: 'right' }}>
                               {money(footCostTotal)}
                             </Text>
                           </>
@@ -204,10 +206,10 @@ export default function Materials() {
                           <>
                             {/* No '$' and blank at zero — these fall through web's
                                 GENERIC footer branch, not the cost one. */}
-                            <Text variant="caption" tone="primary" style={{ width: COST_COL, textAlign: 'right', fontFamily: 'PlusJakartaSans_600SemiBold' }}>
+                            <Text variant="tableStrong" tone="primary" style={{ width: COST_COL, textAlign: 'right' }}>
                               {fmtAvg(footSalesMt)}
                             </Text>
-                            <Text variant="caption" tone="primary" style={{ width: COST_COL, textAlign: 'right', fontFamily: 'PlusJakartaSans_600SemiBold' }}>
+                            <Text variant="tableStrong" tone="primary" style={{ width: COST_COL, textAlign: 'right' }}>
                               {fmtAvg(footSalesTotal)}
                             </Text>
                           </>
@@ -261,15 +263,15 @@ function GrandTotals({ tables }: { tables: any[] }) {
       <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 14, paddingBottom: 14 }}>
         <View>
           <View style={{ flexDirection: 'row', borderBottomWidth: 1, borderBottomColor: colors.borderStrong, paddingBottom: 6 }}>
-            <Text variant="caption" tone="muted" style={{ width: COL, textAlign: 'right', fontFamily: 'PlusJakartaSans_600SemiBold' }}>Kgs</Text>
+            <Text variant="tableStrong" tone="muted" style={{ width: COL, textAlign: 'right' }}>Kgs</Text>
             {DEFAULT_ELEMENTS.map((el) => (
-              <Text key={el.key} variant="caption" tone="muted" style={{ width: COL, textAlign: 'right', fontFamily: 'PlusJakartaSans_600SemiBold' }}>{el.label}</Text>
+              <Text key={el.key} variant="tableStrong" tone="muted" style={{ width: COL, textAlign: 'right' }}>{el.label}</Text>
             ))}
           </View>
           <View style={{ flexDirection: 'row', paddingVertical: 6 }}>
-            <Text variant="caption" tone="primary" style={{ width: COL, textAlign: 'right', fontFamily: 'PlusJakartaSans_600SemiBold' }}>{fmt(result.kgs)}</Text>
+            <Text variant="tableStrong" tone="primary" style={{ width: COL, textAlign: 'right' }}>{fmt(result.kgs)}</Text>
             {DEFAULT_ELEMENTS.map((el) => (
-              <Text key={el.key} variant="caption" tone="primary" style={{ width: COL, textAlign: 'right', fontFamily: 'PlusJakartaSans_600SemiBold' }}>{fmt(result[el.key])}</Text>
+              <Text key={el.key} variant="tableStrong" tone="primary" style={{ width: COL, textAlign: 'right' }}>{fmt(result[el.key])}</Text>
             ))}
           </View>
         </View>
@@ -289,16 +291,21 @@ function Cell({
   align?: 'left' | 'right';
 }) {
   const { colors } = useTheme();
+  // A cell in a wide table sits in the page's ScrollView: ask it to bring the cell
+  // above the keyboard, the way TextField does on its own.
+  const reveal = useRevealOnFocus();
   return (
     <TextInput
+      ref={reveal.ref}
+      onFocus={reveal.onFocus}
       value={value == null ? '' : String(value)}
       onChangeText={onChange}
       keyboardType={numeric ? 'decimal-pad' : 'default'}
       style={{
         width: w,
         textAlign: align,
-        fontSize: 12,
-        fontFamily: 'PlusJakartaSans_400Regular',
+        fontSize: typography.caption.fontSize,
+        fontFamily: typography.caption.fontFamily,
         color: colors.text,
         paddingVertical: 2,
         paddingHorizontal: 4,

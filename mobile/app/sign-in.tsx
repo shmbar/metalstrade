@@ -10,10 +10,11 @@ import { ImsTechLogo } from '@/components/brand/ImsTechLogo';
 import { useTheme } from '@/theme/ThemeProvider';
 import { useAuth } from '@/store/auth';
 import { toast } from '@/store/toast';
-import { spacing, radius, getShadow } from '@/theme/tokens';
-import { useKeyboardHeight } from '@/lib/keyboard';
+import { spacing, radius, getShadow, layout } from '@/theme/tokens';
+import { useKeyboardHeight, keyboardScrollProps } from '@/lib/keyboard';
 import { getBiometricCredentials, setBiometricCredentials, isBiometricEnabled } from '@/lib/secureStore';
 import { isBiometricAvailable, authenticateBiometric, biometricLabel } from '@/lib/biometric';
+import { useShallow } from 'zustand/react/shallow';
 
 /** How far the form card reaches down into the brand ground behind it. */
 const CARD_OVERLAP = 28;
@@ -22,7 +23,7 @@ export default function SignIn() {
   const { colors, scheme } = useTheme();
   const insets = useSafeAreaInsets();
   const { height } = useWindowDimensions();
-  const { user, signIn, error, resetPassword } = useAuth();
+  const { user, signIn, error, resetPassword } = useAuth(useShallow((s) => ({ user: s.user, signIn: s.signIn, error: s.error, resetPassword: s.resetPassword })));
   const keyboard = useKeyboardHeight();
   const scrollRef = useRef<ScrollView>(null);
 
@@ -109,6 +110,7 @@ export default function SignIn() {
   return (
     <View style={{ flex: 1, backgroundColor: colors.bg }}>
       <ScrollView
+        {...keyboardScrollProps}
         ref={scrollRef}
         contentContainerStyle={{
           flexGrow: 1,
@@ -224,7 +226,7 @@ export default function SignIn() {
             />
 
             <Pressable onPress={onForgot} hitSlop={6} style={{ alignSelf: 'flex-end', marginTop: -6 }}>
-              <Text variant="caption" tone="primary" style={{ fontFamily: 'PlusJakartaSans_500Medium' }}>Forgot password?</Text>
+              <Text variant="captionMedium" tone="primary">Forgot password?</Text>
             </Pressable>
 
             {error ? (
@@ -243,7 +245,7 @@ export default function SignIn() {
               style={{
                 backgroundColor: colors.primary,
                 borderRadius: radius.md,
-                minHeight: 52,
+                minHeight: layout.controlHeight,
                 alignItems: 'center',
                 justifyContent: 'center',
                 flexDirection: 'row',
@@ -255,7 +257,7 @@ export default function SignIn() {
               {busy ? (
                 <ActivityIndicator color="#ffffff" />
               ) : (
-                <Text variant="bodyMedium" color="#ffffff" style={{ fontFamily: 'PlusJakartaSans_600SemiBold', fontSize: 16 }}>
+                <Text variant="bodyStrong" color="#ffffff">
                   Sign in
                 </Text>
               )}
@@ -268,7 +270,7 @@ export default function SignIn() {
                 style={{
                   backgroundColor: colors.surfaceAlt,
                   borderRadius: radius.md,
-                  minHeight: 50,
+                  minHeight: layout.controlHeight,
                   alignItems: 'center',
                   justifyContent: 'center',
                   flexDirection: 'row',
@@ -276,7 +278,7 @@ export default function SignIn() {
                 }}
               >
                 <Ionicons name="finger-print" size={18} color={colors.primary} />
-                <Text variant="bodyMedium" tone="primary" style={{ fontFamily: 'PlusJakartaSans_600SemiBold' }}>
+                <Text variant="bodyStrong" tone="primary">
                   Sign in with {bioName}
                 </Text>
               </Pressable>

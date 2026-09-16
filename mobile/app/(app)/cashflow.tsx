@@ -18,7 +18,7 @@ import {
   Sheet,
   SearchField,
   KpiStrip,
-  SectionCard,
+  FoldSection,
   EntityRow,
   IconButton,
 } from '@/components/ui';
@@ -32,9 +32,11 @@ import { useCashflow, Counterparty, StockWarehouseRow, UnsoldSupplierRow } from 
 import { useCashflowActions } from '@/features/cashflow/useCashflowActions';
 import { useSharedStock } from '@/features/stocks/useSharedStock';
 import { fmtAutoKM, fmtCurKM, curSymbol, fmtMoney, dateLabel } from '@/lib/format';
-import { hapticTap } from '@/lib/haptics';
+import { haptics } from '@/lib/haptics';
 import { radius, spacing } from '@/theme/tokens';
 import { matchesAllWords, searchWords } from '@shared/search';
+import { entityName } from '@/lib/entityName';
+import { useShallow } from 'zustand/react/shallow';
 
 /**
  * CASHFLOW — web's cashflow/page.js, in web's order, shaped for a phone.
@@ -59,7 +61,6 @@ type SortKey = 'amount' | 'name';
 type Kind = 'client' | 'supplier' | 'expense';
 type ManualField = 'initial' | 'financedLeft' | 'financedRight';
 
-const SEMIBOLD = { fontFamily: 'PlusJakartaSans_600SemiBold' };
 
 const curLine = (byCur: Record<string, number>) => {
   const ents = Object.entries(byCur).filter(([, v]) => Math.abs(v) > 0.005);
@@ -94,8 +95,8 @@ export default function Cashflow() {
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
   const { data, isLoading, isError, error, refetch } = useCashflow();
-  const { isAdmin } = useAuth();
-  const { settings } = useSettings();
+  const isAdmin = useAuth((s) => s.isAdmin);
+  const { settings, settingsLoaded } = useSettings(useShallow((s) => ({ settings: s.settings, settingsLoaded: s.loaded })));
   const hideBalances = usePrivacyStore((s) => s.hidden);
   const togglePrivacy = usePrivacyStore((s) => s.toggle);
   const money = (s: string) => maskIfHidden(hideBalances, s);
@@ -124,7 +125,7 @@ export default function Cashflow() {
           style: 'destructive',
           onPress: () =>
             closeBalance.mutate(
-              { contractId: item.contractId, contractDate: item.contractDate, poInvoiceId: item.poInvoiceId },
+              { contractId: item.contractId, contractDate: item.contractDate, poInvoiceId: item.poInvoiceId, inv: item.inv },
               { onSuccess: () => setDetail(null) }
             ),
         },
@@ -146,10 +147,7 @@ export default function Cashflow() {
   const [entryEditor, setEntryEditor] = useState<{ field: ManualField; index: number | null; title: string; num: string } | null>(null);
   const [yearDraft, setYearDraft] = useState<Record<number, string>>({});
 
-  const whName = (id: string) => {
-    const w = settings?.Stocks?.Stocks?.find((x: any) => x.id === id);
-    return w?.nname || w?.stock || id || '—';
-  };
+  const whName = (id: string) => entityName(settings?.Stocks?.Stocks, id, 'warehouse', settingsLoaded);
 
   // Web's find box filters ROWS by name; section totals keep covering the full
   // period (web says so next to the box, and so does this screen).
@@ -377,7 +375,7 @@ export default function Cashflow() {
     const rows = manualRowsOf(field) || [];
     const total = rows.reduce((s, r) => s + r.num, 0) + (fixed?.value || 0);
     return (
-      <SectionCard icon={icon} title={FIELD_LABEL[field]} subtitle="Admin only" total={money(fmtAutoKM(total))}>
+      <FoldSection id={`cashflow.manual.${field}`} defaultOpen icon={icon} title={FIELD_LABEL[field]} subtitle="Admin only" total={money(fmtAutoKM(total))}>
         {fixed ? <EntityRow first avatar={false} name={fixed.label} subtitle={fixed.hint} value={money(fmtAutoKM(fixed.value))} /> : null}
         {rows.map((r, i) => (
           <EntityRow
@@ -408,7 +406,7 @@ export default function Cashflow() {
             Add entry
           </Text>
         </Pressable>
-      </SectionCard>
+      </FoldSection>
     );
   };
 
@@ -422,7 +420,7 @@ export default function Cashflow() {
             icon={hideBalances ? 'eye-off-outline' : 'eye-outline'}
             accessibilityLabel={hideBalances ? 'Show balances' : 'Hide balances'}
             onPress={() => {
-              hapticTap();
+              haptics.selection();
               togglePrivacy();
             }}
           />
@@ -447,7 +445,7 @@ export default function Cashflow() {
         />
         <Pressable
           onPress={() => {
-            hapticTap();
+            haptics.selection();
             setSort((s) => (s === 'amount' ? 'name' : 'amount'));
           }}
           accessibilityRole="button"
@@ -484,7 +482,9 @@ export default function Cashflow() {
         <ErrorState message={(error as Error)?.message || 'Failed to load cashflow.'} onRetry={refetch} />
       ) : !data ? null : tab === 'unsold' ? (
         /* ══ UNSOLD STOCKS tab — web page.js:1370 ══════════════════════════════ */
-        <SectionCard
+        <FoldSection
+          id="cashflow.unsold"
+          defaultOpen
           icon="cube-outline"
           title="Unsold Stocks"
           subtitle={`${data.unsoldBySupplier.length} supplier${data.unsoldBySupplier.length === 1 ? '' : 's'}`}
@@ -503,7 +503,7 @@ export default function Cashflow() {
                 />
               ))
             : emptyRow('No unsold stocks')}
-        </SectionCard>
+        </FoldSection>
       ) : (
         /* ══ GENERAL CASHFLOW tab ═════════════════════════════════════════════ */
         <View style={{ gap: 14 }}>
@@ -516,20 +516,20 @@ export default function Cashflow() {
               value: data.incoming,
             })}
 
-          <SectionCard icon="cube-outline" title="Stocks - Paid" total={money(fmtAutoKM(data.stocksPaidTotal))}>
+          <FoldSection id="cashflow.stocksPaid" icon="cube-outline" title="Stocks - Paid" subtitle={`${stocksPaid.length} warehouse${stocksPaid.length === 1 ? '' : 's'}`} total={money(fmtAutoKM(data.stocksPaidTotal))}>
             {warehouseRows(stocksPaid)}
-          </SectionCard>
+          </FoldSection>
 
           {data.stocksUnpaid.length > 0 && (
-            <SectionCard icon="cube-outline" title="Stocks - UnPaid" total={money(fmtAutoKM(data.stocksUnpaidTotal))} totalTone="warn">
+            <FoldSection id="cashflow.stocksUnpaid" icon="cube-outline" title="Stocks - UnPaid" subtitle={`${stocksUnpaid.length} warehouse${stocksUnpaid.length === 1 ? '' : 's'}`} total={money(fmtAutoKM(data.stocksUnpaidTotal))} totalTone="warn">
               {warehouseRows(stocksUnpaid)}
-            </SectionCard>
+            </FoldSection>
           )}
 
           {/* Web page.js:1604 — informational: the joint pool has no purchase
               invoices, so it joins none of the totals. Opens the Shared tab. */}
           {shared.rows.length > 0 && sharedMatches && (
-            <SectionCard icon="layers-outline" title="Shared Stock (IMS + GIS)" total={money(curLine(shared.money.totals))}>
+            <FoldSection id="cashflow.shared" defaultOpen icon="layers-outline" title="Shared Stock (IMS + GIS)" total={money(curLine(shared.money.totals))}>
               <EntityRow
                 first
                 avatar={false}
@@ -537,10 +537,11 @@ export default function Cashflow() {
                 subtitle={`IMS ${money(curLine(shared.money.fin.IMS))}  ·  GIS ${money(curLine(shared.money.fin.GIS))}`}
                 onPress={() => router.push('/(app)/stocks?tab=shared')}
               />
-            </SectionCard>
+            </FoldSection>
           )}
 
-          <SectionCard
+          <FoldSection
+            id="cashflow.clientsNoPayment"
             icon="people-outline"
             title="Clients - Payment"
             subtitle="No payment recorded yet"
@@ -548,9 +549,10 @@ export default function Cashflow() {
             totalTone="positive"
           >
             {counterpartyRows(clientsNoPay, 'client', (r) => curLine(r.byCur), 'invoice')}
-          </SectionCard>
+          </FoldSection>
 
-          <SectionCard
+          <FoldSection
+            id="cashflow.clientsBalances"
             icon="people-outline"
             title="Clients - Balances"
             subtitle="Partly paid — balance remaining"
@@ -558,11 +560,12 @@ export default function Cashflow() {
             totalTone="positive"
           >
             {counterpartyRows(clientsBal, 'client', (r) => curLine(r.byCur), 'invoice')}
-          </SectionCard>
+          </FoldSection>
 
           {isAdmin && manualSection('financedLeft', 'cash-outline')}
 
-          <SectionCard
+          <FoldSection
+            id="cashflow.suppliersNoPayment"
             icon="business-outline"
             title="Supplier - Payment"
             subtitle="Nothing paid yet"
@@ -570,9 +573,10 @@ export default function Cashflow() {
             totalTone="negative"
           >
             {counterpartyRows(suppliersNoPay, 'supplier', (r) => fmtAutoKM(r.usd), 'invoice')}
-          </SectionCard>
+          </FoldSection>
 
-          <SectionCard
+          <FoldSection
+            id="cashflow.suppliersBalances"
             icon="business-outline"
             title="Supplier - Balances"
             subtitle="Partly paid — balance remaining"
@@ -580,11 +584,11 @@ export default function Cashflow() {
             totalTone="negative"
           >
             {counterpartyRows(suppliersBal, 'supplier', (r) => fmtAutoKM(r.usd), 'invoice')}
-          </SectionCard>
+          </FoldSection>
 
-          <SectionCard icon="receipt-outline" title="Expenses" subtitle="Unpaid" total={money(fmtAutoKM(data.expensesUsd))} totalTone="negative">
+          <FoldSection id="cashflow.expenses" icon="receipt-outline" title="Expenses" subtitle="Unpaid" total={money(fmtAutoKM(data.expensesUsd))} totalTone="negative">
             {counterpartyRows(expenses, 'expense', (r) => fmtAutoKM(r.usd), 'expense')}
-          </SectionCard>
+          </FoldSection>
 
           {isAdmin && manualSection('financedRight', 'cash-outline')}
 
@@ -611,11 +615,11 @@ export default function Cashflow() {
                       {t.label}
                     </Text>
                     <Text
-                      variant="bodyMedium"
+                      variant="bodyStrong"
                       numberOfLines={1}
                       adjustsFontSizeToFit
                       color={t.filled ? colors.primaryText : colors.text}
-                      style={{ ...SEMIBOLD, marginTop: 3, fontVariant: ['tabular-nums'] }}
+                      style={{ marginTop: 3 }}
                     >
                       {money(fmtAutoKM(t.value))}
                     </Text>
@@ -748,7 +752,7 @@ export default function Cashflow() {
                         return (
                           <Pressable
                             key={c.code}
-                            onPress={() => setCargoStatus(item, on ? '' : c.code)}
+                            onPress={() => { haptics.selection(); setCargoStatus(item, on ? '' : c.code); }}
                             hitSlop={6}
                             accessibilityRole="radio"
                             accessibilityState={{ checked: on }}
@@ -765,7 +769,7 @@ export default function Cashflow() {
                               backgroundColor: on ? tint + '1F' : 'transparent',
                             }}
                           >
-                            <Text variant="caption" style={{ color: on ? tint : colors.textMuted, fontFamily: 'PlusJakartaSans_600SemiBold' }}>
+                            <Text variant="captionStrong" style={{ color: on ? tint : colors.textMuted }}>
                               {c.code}
                             </Text>
                             <Text variant="caption" style={{ color: on ? tint : colors.textFaint }}>
@@ -788,7 +792,7 @@ export default function Cashflow() {
                   ) : null}
                 </View>
                 <View style={{ alignItems: 'flex-end', gap: 8 }}>
-                  <Text variant="bodyMedium" style={{ ...SEMIBOLD, fontVariant: ['tabular-nums'] }}>
+                  <Text variant="bodyStrong">
                     {money(full(item.cur, isExp ? item.amount ?? 0 : item.balance ?? 0))}
                   </Text>
                   <Pressable
@@ -958,10 +962,10 @@ export default function Cashflow() {
 function Line({ label, v, strong }: { label: string; v: string; strong?: boolean }) {
   return (
     <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 4 }}>
-      <Text variant="body" tone={strong ? 'default' : 'muted'} style={strong ? SEMIBOLD : undefined}>
+      <Text variant={strong ? 'bodyStrong' : 'body'} tone={strong ? 'default' : 'muted'}>
         {label}
       </Text>
-      <Text variant="bodyMedium" style={{ fontVariant: ['tabular-nums'], ...(strong ? SEMIBOLD : {}) }}>
+      <Text variant={strong ? 'bodyStrong' : 'bodyMedium'}>
         {v}
       </Text>
     </View>
@@ -972,10 +976,10 @@ function Line({ label, v, strong }: { label: string; v: string; strong?: boolean
 function SheetTotal({ label, v, strong }: { label: string; v: string; strong?: boolean }) {
   return (
     <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-      <Text variant="body" tone={strong ? 'default' : 'muted'} style={strong ? SEMIBOLD : undefined}>
+      <Text variant={strong ? 'bodyStrong' : 'body'} tone={strong ? 'default' : 'muted'}>
         {label}
       </Text>
-      <Text variant="bodyMedium" style={{ fontVariant: ['tabular-nums'], ...(strong ? SEMIBOLD : {}) }}>
+      <Text variant={strong ? 'bodyStrong' : 'bodyMedium'}>
         {v}
       </Text>
     </View>
@@ -1035,7 +1039,7 @@ function DetailLine({
           </Text>
         ))}
       </View>
-      <Text variant="bodyMedium" style={{ ...SEMIBOLD, fontVariant: ['tabular-nums'] }}>
+      <Text variant="bodyStrong">
         {value}
       </Text>
     </View>

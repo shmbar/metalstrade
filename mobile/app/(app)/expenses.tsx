@@ -10,6 +10,7 @@ import { useExpenses, useSaveExpenseSplit, ExpenseRow } from '@/features/expense
 import { SplitControl } from '@/components/SplitControl';
 import { curSymbol, fmtMoney, dateLabel } from '@/lib/format';
 import { StackHeader } from '@/components/StackHeader';
+import { keyboardScrollProps } from '@/lib/keyboard';
 
 // Web's footer hard-codes exactly two buckets and always renders both, showing
 // $0.00 / €0.00 for an empty one (sumtables footer, expenses/page.js). Mobile
@@ -96,7 +97,8 @@ export default function Expenses() {
       ) : rows.length === 0 ? (
         <EmptyState title="No expenses" message="None in the selected period." icon={<Ionicons name="card-outline" size={40} color={colors.textFaint} />} />
       ) : (
-        <FlatList keyboardShouldPersistTaps="handled"
+        <FlatList
+        {...keyboardScrollProps} keyboardShouldPersistTaps="handled"
           data={rows}
           keyExtractor={(r) => r.id}
           showsVerticalScrollIndicator={false}
@@ -125,11 +127,11 @@ export default function Expenses() {
             </View>
           }
           renderItem={({ item }) => (
-            <Card style={{ marginBottom: 10 }} onPress={() => router.push(`/(app)/expense-edit?id=${item.id}&kind=${tab === 'supplier' ? 'supplier' : 'company'}`)}>
+            <Card style={{ marginBottom: 12 }} onPress={() => router.push(`/(app)/expense-edit?id=${item.id}&kind=${tab === 'supplier' ? 'supplier' : 'company'}`)}>
               <View style={{ flexDirection: 'row', justifyContent: 'space-between', gap: 12 }}>
                 <Avatar name={item.supplierName} size={40} />
                 <View style={{ flex: 1, minWidth: 0 }}>
-                  <Text variant="bodyMedium" numberOfLines={1}>{item.supplierName}</Text>
+                  <Text variant="h3" numberOfLines={1}>{item.supplierName}</Text>
                   <Text variant="caption" tone="muted" numberOfLines={1}>
                     {[item.expTypeLabel, item.invoice, item.order, dateLabel(item.date)].filter(Boolean).join(' · ') || '—'}
                   </Text>
@@ -140,7 +142,7 @@ export default function Expenses() {
                   )}
                 </View>
                 <View style={{ alignItems: 'flex-end' }}>
-                  <Text variant="bodyMedium" tone="primary">{signedCur(item.cur, item.amount)}</Text>
+                  <Text variant="figure" tone="primary">{signedCur(item.cur, item.amount)}</Text>
                   {/* Only '111' is Paid and only '222' is Unpaid — a blank status is
                       neither, and labelling it "Unpaid" overstated what is owed. */}
                   <Badge

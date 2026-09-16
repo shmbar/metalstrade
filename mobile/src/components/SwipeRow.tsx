@@ -3,7 +3,7 @@ import { Pressable } from '@/components/ui/Pressable';
 import ReanimatedSwipeable, { SwipeableMethods } from 'react-native-gesture-handler/ReanimatedSwipeable';
 import { Ionicons } from '@expo/vector-icons';
 import { Text } from '@/components/ui';
-import { hapticTap } from '@/lib/haptics';
+import { haptics } from '@/lib/haptics';
 import { radius } from '@/theme/tokens';
 
 interface SwipeRowProps {
@@ -22,7 +22,6 @@ export function SwipeRow({ children, actionLabel, actionIcon, actionColor, onAct
   const renderRight = () => (
     <Pressable
       onPress={() => {
-        hapticTap();
         ref.current?.close();
         onAction();
       }}
@@ -38,7 +37,7 @@ export function SwipeRow({ children, actionLabel, actionIcon, actionColor, onAct
       }}
     >
       <Ionicons name={actionIcon} size={20} color="#ffffff" />
-      <Text variant="caption" color="#ffffff" style={{ fontFamily: 'PlusJakartaSans_600SemiBold' }}>
+      <Text variant="captionStrong" color="#ffffff">
         {actionLabel}
       </Text>
     </Pressable>
@@ -51,6 +50,7 @@ export function SwipeRow({ children, actionLabel, actionIcon, actionColor, onAct
       friction={2}
       rightThreshold={36}
       overshootRight={false}
+      onSwipeableWillOpen={() => haptics.impact()}
     >
       {children}
     </ReanimatedSwipeable>

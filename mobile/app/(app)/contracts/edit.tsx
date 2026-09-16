@@ -1,22 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { View, Switch, Alert, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, Switch, Alert } from 'react-native';
 import { useLocalSearchParams, router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import {
-  Screen,
-  Card,
-  Text,
-  TextField,
-  Select,
-  DateField,
-  Button,
-  SectionHeader,
-  StackHeader,
-  SkeletonList,
-  SegmentedControl,
-  IconButton,
-} from '@/components/ui';
+import { Screen, Card, Text, TextField, Select, DateField, Button, SectionHeader, StackHeader, SkeletonList, SegmentedControl, IconButton, KeyboardFooter } from '@/components/ui';
 import { useTheme } from '@/theme/ThemeProvider';
 import { useSettings } from '@/store/settings';
 import { useContracts } from '@/features/contracts/useContracts';
@@ -31,7 +18,7 @@ import {
   hasErrors,
 } from '@/features/contracts/form';
 import { pickAndExtractContract, scanAndExtractContract, extractFromUri } from '@/features/contracts/docImport';
-import { hapticSuccess } from '@/lib/haptics';
+import { haptics } from '@/lib/haptics';
 import { apiConfigured } from '@/lib/api';
 import { Contract, Product } from '@/data/types';
 import { spacing } from '@/theme/tokens';
@@ -44,7 +31,7 @@ export default function ContractEdit() {
   const { id, importUri } = useLocalSearchParams<{ id?: string; importUri?: string }>();
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
-  const { settings } = useSettings();
+  const settings = useSettings((s) => s.settings);
   const { data: contracts, isLoading: contractsLoading } = useContracts();
   const save = useSaveContract();
   const del = useDeleteContract();
@@ -152,7 +139,6 @@ export default function ContractEdit() {
 
     try {
       const res = await save.mutateAsync({ value, existing });
-      hapticSuccess();
       router.replace(`/(app)/contracts/${res.contract.id}`);
     } catch (e: any) {
       Alert.alert('Save failed', e?.message || 'Could not save the contract.');
@@ -214,7 +200,7 @@ export default function ContractEdit() {
   }
 
   return (
-    <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+    <View style={{ flex: 1 }}>
       <Screen contentContainerStyle={{ paddingTop: insets.top + 8 }} edges={false}>
         <StackHeader
           title={isNew ? 'New contract' : 'Edit contract'}
@@ -309,6 +295,7 @@ export default function ContractEdit() {
                 <Switch
                   value={customTerms}
                   onValueChange={(on) => {
+                    haptics.selection();
                     setCustomTerms(on);
                     set({ isTermPmntText: on, termPmnt: '' });
                   }}
@@ -473,7 +460,7 @@ export default function ContractEdit() {
               <Text variant="body">Contract completed</Text>
               <Switch
                 value={!!value.completed}
-                onValueChange={(on) => set({ completed: on })}
+                onValueChange={(on) => { haptics.selection(); set({ completed: on }); }}
                 trackColor={{ true: colors.primary }}
               />
             </View>
@@ -497,14 +484,14 @@ export default function ContractEdit() {
       </Screen>
 
       {/* Sticky save bar — always reachable, shows what's missing after a save attempt */}
-      <View
+      <KeyboardFooter
         style={{
           borderTopWidth: 1,
           borderTopColor: colors.border,
           backgroundColor: colors.bgElevated,
           paddingHorizontal: spacing.lg,
           paddingTop: 10,
-          paddingBottom: insets.bottom + 10,
+          paddingBottom: 10,
           gap: 8,
         }}
       >
@@ -518,7 +505,7 @@ export default function ContractEdit() {
           </View>
         )}
         <Button title={isNew ? 'Create contract' : 'Save changes'} loading={save.isPending} onPress={onSave} />
-      </View>
-    </KeyboardAvoidingView>
+      </KeyboardFooter>
+    </View>
   );
 }

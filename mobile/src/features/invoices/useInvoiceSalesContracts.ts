@@ -21,8 +21,8 @@ const normalizeNo = (s: unknown) => String(s || '').toLowerCase().replace(/[^a-z
  *    closed PO), same-client first, plus anything a line already points at.
  */
 export function useInvoiceSalesContracts(invoice: any) {
-  const { uidCollection } = useAuth();
-  const { settings } = useSettings();
+  const uidCollection = useAuth((s) => s.uidCollection);
+  const settings = useSettings((s) => s.settings);
   const yr = parseInt(String(invoice?.dateRange?.startDate || invoice?.date || '').substring(0, 4), 10);
   const y = Number.isNaN(yr) ? new Date().getFullYear() : yr;
   const invoiceId = String(invoice?.id || '');

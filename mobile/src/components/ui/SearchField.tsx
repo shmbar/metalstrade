@@ -3,7 +3,7 @@ import { View, TextInput, TextInputProps, StyleProp, ViewStyle } from 'react-nat
 import { Ionicons } from '@expo/vector-icons';
 import { Pressable } from './Pressable';
 import { useTheme } from '@/theme/ThemeProvider';
-import { radius } from '@/theme/tokens';
+import { MAX_FONT_SCALE, radius, typography } from '@/theme/tokens';
 
 /**
  * Pill search input — glyph, text, clear — the one find-box shell for every list
@@ -49,10 +49,11 @@ export function SearchField({
         autoCorrect={false}
         returnKeyType="search"
         accessibilityLabel={placeholder}
+        maxFontSizeMultiplier={MAX_FONT_SCALE}
         style={{
           flex: 1,
-          fontFamily: 'PlusJakartaSans_400Regular',
-          fontSize: 15,
+          fontFamily: typography.input.fontFamily,
+          fontSize: typography.input.fontSize,
           color: colors.text,
           paddingVertical: 0,
         }}

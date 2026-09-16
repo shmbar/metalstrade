@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { View, Alert, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, Alert } from 'react-native';
 import { Pressable } from '@/components/ui/Pressable';
 import { useLocalSearchParams, router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -13,7 +13,6 @@ import {
 import { useAuth } from '@/store/auth';
 import { getInvoicesByNumbers } from '@/data/firestore';
 import { newId } from '@/data/writes';
-import { hapticSuccess } from '@/lib/haptics';
 import { toast } from '@/store/toast';
 
 // Existing-expense editor — the mobile twin of web's expenses modal
@@ -24,13 +23,13 @@ export default function ExpenseEdit() {
   const { id, kind } = useLocalSearchParams<{ id: string; kind?: string }>();
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
-  const { settings } = useSettings();
+  const settings = useSettings((s) => s.settings);
   const { data, isLoading } = useExpenses();
   const save = useSaveExpense();
   const del = useDeleteExpense();
   const copyMisc = useCopyExpenseToMisc();
   const moveShip = useMoveExpenseToShipment();
-  const { uidCollection } = useAuth();
+  const uidCollection = useAuth((s) => s.uidCollection);
   const [findOpen, setFindOpen] = useState(false);
   const [findInv, setFindInv] = useState('');
   const [findYr, setFindYr] = useState(String(new Date().getFullYear()));
@@ -118,7 +117,6 @@ export default function ExpenseEdit() {
         kind: isCompany ? 'companyexpense' : 'expense',
         previousDate: row?.raw?.dateRange?.startDate || row?.raw?.date,
       });
-      hapticSuccess();
       router.back();
     } catch (e: any) {
       Alert.alert('Save failed', e?.message || 'Could not save the expense.');
@@ -144,124 +142,120 @@ export default function ExpenseEdit() {
   };
 
   return (
-    <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-      <Screen contentContainerStyle={{ paddingTop: insets.top + 8 }} edges={false}>
-        <StackHeader title={isNew ? 'New expense' : 'Edit expense'} backLabel="Cancel" />
+    <Screen contentContainerStyle={{ paddingTop: insets.top + 8 }} edges={false}>
+      <StackHeader title={isNew ? 'New expense' : 'Edit expense'} backLabel="Cancel" />
 
-        <Card style={{ gap: 12 }}>
-          <TextField
-            label="Expense invoice # *"
-            value={String(v.expense ?? '')}
-            onChangeText={(t) => set('expense', t)}
-            error={err('expense')}
-          />
-          <DateField
-            label="Date"
-            value={v.dateRange?.startDate || v.date || null}
-            onChange={setDate}
-            error={err('date')}
-            required
-          />
-          <TextField
-            label="Amount *"
-            value={String(v.amount ?? '')}
-            onChangeText={(t) => set('amount', t.replace(/[^0-9.\-]/g, ''))}
-            keyboardType="decimal-pad"
-            error={err('amount')}
-          />
-          <Select label="Currency" value={v.cur} options={curOptions} onChange={(x) => set('cur', x)} error={err('cur')} required />
-          <Select label="Vendor" value={v.supplier} options={supplierOptions} onChange={(x) => set('supplier', x)} error={err('supplier')} required />
-          <Select label="Expense type" value={v.expType} options={typeOptions} onChange={(x) => set('expType', x)} error={err('expType')} required />
-          <Select label="Payment" value={v.paid} options={paidOptions} onChange={(x) => set('paid', x)} />
-          <TextField label="Comments" value={String(v.comments ?? '')} onChangeText={(t) => set('comments', t)} multiline />
-        </Card>
+      <Card style={{ gap: 12 }}>
+        <TextField
+          label="Expense invoice # *"
+          value={String(v.expense ?? '')}
+          onChangeText={(t) => set('expense', t)}
+          error={err('expense')}
+        />
+        <DateField
+          label="Date"
+          value={v.dateRange?.startDate || v.date || null}
+          onChange={setDate}
+          error={err('date')}
+          required
+        />
+        <TextField
+          label="Amount *"
+          value={String(v.amount ?? '')}
+          onChangeText={(t) => set('amount', t.replace(/[^0-9.\-]/g, ''))}
+          keyboardType="decimal-pad"
+          error={err('amount')}
+        />
+        <Select label="Currency" value={v.cur} options={curOptions} onChange={(x) => set('cur', x)} error={err('cur')} required />
+        <Select label="Vendor" value={v.supplier} options={supplierOptions} onChange={(x) => set('supplier', x)} error={err('supplier')} required />
+        <Select label="Expense type" value={v.expType} options={typeOptions} onChange={(x) => set('expType', x)} error={err('expType')} required />
+        <Select label="Payment" value={v.paid} options={paidOptions} onChange={(x) => set('paid', x)} />
+        <TextField label="Comments" value={String(v.comments ?? '')} onChangeText={(t) => set('comments', t)} multiline />
+      </Card>
 
-        <Button title="Save" loading={save.isPending} onPress={onSave} style={{ marginTop: 14 }} />
-        {isCompany && !isNew && (
-          <Button
-            title="Copy to misc invoices"
-            variant="secondary"
-            loading={copyMisc.isPending}
-            style={{ marginTop: 10 }}
-            onPress={() =>
-              copyMisc.mutate(v, {
-                onSuccess: () => toast.success('This expense now appears under Misc Invoices.', 'Copied'),
-                onError: (e: any) => Alert.alert('Copy failed', e?.message || 'Could not copy.'),
-              })
-            }
-          />
-        )}
-        {isCompany && !isNew && (
-          <Button
-            title="Move to shipment"
-            variant="secondary"
-            style={{ marginTop: 10 }}
-            onPress={() => setFindOpen(true)}
-          />
-        )}
-        {!isNew && (
-          <Pressable onPress={onDelete} style={{ alignSelf: 'center', paddingVertical: 14 }}>
-            <Text variant="bodyMedium" style={{ color: colors.negative }}>Delete expense</Text>
-          </Pressable>
-        )}
-
-        {/* Invoice finder — web's findInvoiceModal. Look the sales invoice up by
-            number + year, then migrate this expense onto it and its contract. */}
-        <Sheet
-          visible={findOpen}
-          onClose={() => setFindOpen(false)}
-          title="Move to shipment"
-          subtitle="Appends this expense to the sales invoice and its contract, then removes the company-expense copy."
-          footer={
-            <Button
-              title="Find and move"
-              loading={finding || moveShip.isPending}
-              disabled={!findInv || findYr.length !== 4}
-              onPress={async () => {
-                setFinding(true);
-                try {
-                  const found = await getInvoicesByNumbers<any>(uidCollection as string, 'invoices', [
-                    { yr: findYr, arrInv: [Number(findInv)] },
-                  ]);
-                  // Prefer the ORIGINAL when a credit/final note shares the number.
-                  const inv = found.find((x: any) => x.invType === '1111') || found[0];
-                  if (!inv) {
-                    Alert.alert('Not found', `No invoice #${findInv} in ${findYr}.`);
-                    return;
-                  }
-                  await moveShip.mutateAsync({ expense: v, invoice: { ...inv, __yr: findYr } });
-                  hapticSuccess();
-                  setFindOpen(false);
-                  router.back();
-                } catch (e: any) {
-                  Alert.alert('Move failed', e?.message || 'Could not move the expense.');
-                } finally {
-                  setFinding(false);
-                }
-              }}
-            />
+      <Button title="Save" loading={save.isPending} onPress={onSave} style={{ marginTop: 14 }} />
+      {isCompany && !isNew && (
+        <Button
+          title="Copy to misc invoices"
+          variant="secondary"
+          loading={copyMisc.isPending}
+          style={{ marginTop: 10 }}
+          onPress={() =>
+            copyMisc.mutate(v, {
+              onError: (e: any) => Alert.alert('Copy failed', e?.message || 'Could not copy.'),
+            })
           }
-        >
-          <View style={{ gap: 12 }}>
-            <TextField
-              label="Invoice #"
-              value={findInv}
-              keyboardType="number-pad"
-              onChangeText={(t) => setFindInv(t.replace(/[^0-9]/g, ''))}
-            />
-            <TextField
-              label="Year"
-              value={findYr}
-              keyboardType="number-pad"
-              onChangeText={(t) => setFindYr(t.replace(/[^0-9]/g, ''))}
-            />
-            <Text variant="caption" tone="faint">
-              The company copy is deleted last, so a failure part-way leaves it intact.
-            </Text>
-          </View>
-        </Sheet>
-      </Screen>
-    </KeyboardAvoidingView>
+        />
+      )}
+      {isCompany && !isNew && (
+        <Button
+          title="Move to shipment"
+          variant="secondary"
+          style={{ marginTop: 10 }}
+          onPress={() => setFindOpen(true)}
+        />
+      )}
+      {!isNew && (
+        <Pressable onPress={onDelete} style={{ alignSelf: 'center', paddingVertical: 14 }}>
+          <Text variant="bodyMedium" style={{ color: colors.negative }}>Delete expense</Text>
+        </Pressable>
+      )}
+
+      {/* Invoice finder — web's findInvoiceModal. Look the sales invoice up by
+          number + year, then migrate this expense onto it and its contract. */}
+      <Sheet
+        visible={findOpen}
+        onClose={() => setFindOpen(false)}
+        title="Move to shipment"
+        subtitle="Appends this expense to the sales invoice and its contract, then removes the company-expense copy."
+        footer={
+          <Button
+            title="Find and move"
+            loading={finding || moveShip.isPending}
+            disabled={!findInv || findYr.length !== 4}
+            onPress={async () => {
+              setFinding(true);
+              try {
+                const found = await getInvoicesByNumbers<any>(uidCollection as string, 'invoices', [
+                  { yr: findYr, arrInv: [Number(findInv)] },
+                ]);
+                // Prefer the ORIGINAL when a credit/final note shares the number.
+                const inv = found.find((x: any) => x.invType === '1111') || found[0];
+                if (!inv) {
+                  Alert.alert('Not found', `No invoice #${findInv} in ${findYr}.`);
+                  return;
+                }
+                await moveShip.mutateAsync({ expense: v, invoice: { ...inv, __yr: findYr } });
+                setFindOpen(false);
+                router.back();
+              } catch (e: any) {
+                Alert.alert('Move failed', e?.message || 'Could not move the expense.');
+              } finally {
+                setFinding(false);
+              }
+            }}
+          />
+        }
+      >
+        <View style={{ gap: 12 }}>
+          <TextField
+            label="Invoice #"
+            value={findInv}
+            keyboardType="number-pad"
+            onChangeText={(t) => setFindInv(t.replace(/[^0-9]/g, ''))}
+          />
+          <TextField
+            label="Year"
+            value={findYr}
+            keyboardType="number-pad"
+            onChangeText={(t) => setFindYr(t.replace(/[^0-9]/g, ''))}
+          />
+          <Text variant="caption" tone="faint">
+            The company copy is deleted last, so a failure part-way leaves it intact.
+          </Text>
+        </View>
+      </Sheet>
+    </Screen>
   );
 }
 

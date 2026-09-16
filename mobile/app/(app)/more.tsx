@@ -12,6 +12,7 @@ import { clearBiometricCredentials } from '@/lib/secureStore';
 import { radius } from '@/theme/tokens';
 import { matchesAllWords, searchWords } from '@shared/search';
 import { routeKeyOf } from '@/lib/access';
+import { useShallow } from 'zustand/react/shallow';
 
 interface NavItem {
   label: string;
@@ -78,7 +79,7 @@ function NavRow({ item, first, isAdmin }: { item: NavItem; first: boolean; isAdm
   return (
     <Pressable
       onPress={() => router.push(item.href as any)}
-      style={{ flexDirection: 'row', alignItems: 'center', gap: 12, padding: 15, borderTopWidth: first ? 0 : 1, borderTopColor: colors.border }}
+      style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingHorizontal: 14, paddingVertical: 12, borderTopWidth: first ? 0 : 1, borderTopColor: colors.border }}
     >
       <View style={{ width: 36, height: 36, borderRadius: radius.md, backgroundColor: colors.primary + '22', alignItems: 'center', justifyContent: 'center' }}>
         <Ionicons name={item.icon} size={18} color={colors.primary} />
@@ -88,7 +89,7 @@ function NavRow({ item, first, isAdmin }: { item: NavItem; first: boolean; isAdm
         <Text variant="caption" tone="muted" numberOfLines={1}>{item.sub}</Text>
       </View>
       {item.admin && isAdmin && <Badge label="Admin" tone="info" />}
-      <Ionicons name="chevron-forward" size={18} color={colors.textFaint} style={item.admin ? { marginLeft: 8 } : undefined} />
+      <Ionicons name="chevron-forward" size={16} color={colors.textFaint} style={item.admin ? { marginLeft: 8 } : undefined} />
     </Pressable>
   );
 }
@@ -100,7 +101,7 @@ export default function More() {
   // capitalisation, say), used to fall through this page's OWN ad-hoc
   // `userTitle === 'Admin'` check and lose the Margins/Formulas group and its
   // badge — the auth store's isAdmin is the one place this is now derived.
-  const { currentUser, gisAccount, isAdmin, signOut, canRoute } = useAuth();
+  const { currentUser, gisAccount, isAdmin, signOut, canRoute } = useAuth(useShallow((s) => ({ currentUser: s.currentUser, gisAccount: s.gisAccount, isAdmin: s.isAdmin, signOut: s.signOut, canRoute: s.canRoute })));
   const [query, setQuery] = useState('');
 
   const themeOptions: { key: 'light' | 'dark' | 'system'; icon: keyof typeof Ionicons.glyphMap }[] = [
@@ -145,7 +146,7 @@ export default function More() {
       {/* Account card — who is signed in, on which workspace, and the way out.
           Sign out lives here (where every phone app keeps it: under the
           profile) as well as at the foot of the page. */}
-      <Card style={{ marginBottom: 14 }} padded={false}>
+      <Card style={{ marginBottom: 12 }} padded={false}>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, padding: 14 }}>
           <View style={{ width: 48, height: 48, borderRadius: 24, backgroundColor: colors.primary, alignItems: 'center', justifyContent: 'center' }}>
             <Text variant="h2" color={colors.primaryText}>{currentUser.name.charAt(0).toUpperCase()}</Text>
@@ -193,17 +194,17 @@ export default function More() {
       {!query && canRoute('assistant') && (
         <Card
           padded={false}
-          style={{ marginBottom: 14, backgroundColor: colors.primary + '0F', borderColor: colors.primary + '33' }}
+          style={{ marginBottom: 12, backgroundColor: colors.primary + '0F', borderColor: colors.primary + '33' }}
         >
           <Pressable onPress={() => router.push('/(app)/assistant')} accessibilityRole="button" style={{ flexDirection: 'row', alignItems: 'center', gap: 12, padding: 15 }}>
-            <View style={{ width: 38, height: 38, borderRadius: radius.md, backgroundColor: colors.primary, alignItems: 'center', justifyContent: 'center' }}>
+            <View style={{ width: 36, height: 36, borderRadius: radius.md, backgroundColor: colors.primary, alignItems: 'center', justifyContent: 'center' }}>
               <Ionicons name="sparkles" size={19} color={colors.primaryText} />
             </View>
             <View style={{ flex: 1, minWidth: 0 }}>
               <Text variant="bodyMedium">AI Assistant</Text>
               <Text variant="caption" tone="muted" numberOfLines={1}>Ask about your data in plain language</Text>
             </View>
-            <Ionicons name="chevron-forward" size={18} color={colors.primary} />
+            <Ionicons name="chevron-forward" size={16} color={colors.primary} />
           </Pressable>
         </Card>
       )}
@@ -213,8 +214,8 @@ export default function More() {
         <EmptyState title="No matches" message="Try a different search." icon={<Ionicons name="search-outline" size={40} color={colors.textFaint} />} />
       ) : (
         groups.map((g) => (
-          <View key={g.group} style={{ marginBottom: 14 }}>
-            <Text variant="label" tone="muted" style={{ marginBottom: 6, marginLeft: 4, textTransform: 'uppercase', letterSpacing: 0.6 }}>
+          <View key={g.group} style={{ marginBottom: 12 }}>
+            <Text variant="overline" tone="muted" style={{ marginBottom: 6, marginLeft: 4 }}>
               {g.group}
             </Text>
             <Card padded={false}>
@@ -228,7 +229,7 @@ export default function More() {
 
       {/* Appearance */}
       {!query && (
-        <Card style={{ marginBottom: 14 }}>
+        <Card style={{ marginBottom: 12 }}>
           <SectionHeader title="Appearance" />
           <View style={{ flexDirection: 'row', gap: 8 }}>
             {themeOptions.map((o) => (

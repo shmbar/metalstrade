@@ -11,6 +11,7 @@ import { curSymbol, fmtMoney } from '@/lib/format';
 import { StackHeader } from '@/components/StackHeader';
 import { matchesAllWords, searchWords } from '@shared/search';
 import { LIST_END_PADDING } from '@/theme/tokens';
+import { keyboardScrollProps } from '@/lib/keyboard';
 
 /**
  * BALANCES — who owes what, on its own screen.
@@ -94,7 +95,8 @@ export default function Balances() {
           icon={<Ionicons name="checkmark-circle-outline" size={40} color={colors.textFaint} />}
         />
       ) : (
-        <FlatList keyboardShouldPersistTaps="handled"
+        <FlatList
+        {...keyboardScrollProps} keyboardShouldPersistTaps="handled"
           data={rows}
           keyExtractor={(r) => r.name}
           showsVerticalScrollIndicator={false}
@@ -121,7 +123,7 @@ export default function Balances() {
                     <Text variant="caption" tone="faint">
                       {cur === 'eu' ? 'EUR' : 'USD'}
                     </Text>
-                    <Text variant="h3" style={{ color: accent, fontVariant: ['tabular-nums'] }}>
+                    <Text variant="figure" style={{ color: accent }}>
                       {curSymbol(cur)}
                       {fmtMoney(v)}
                     </Text>

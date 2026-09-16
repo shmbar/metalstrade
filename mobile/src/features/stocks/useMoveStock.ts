@@ -28,10 +28,11 @@ export interface MoveStockArgs {
 }
 
 export function useMoveStock() {
-  const { uidCollection } = useAuth();
+  const uidCollection = useAuth((s) => s.uidCollection);
   const qc = useQueryClient();
 
   return useMutation({
+    meta: { success: 'New stock data saved!' },
     mutationFn: async ({ item, qnty, toStock }: MoveStockArgs) => {
       if (!uidCollection) throw new Error('Not authenticated');
       if (!qnty || !toStock) throw new Error('Pick a quantity and a target warehouse.');

@@ -12,9 +12,14 @@ async function authHeaders(): Promise<Record<string, string>> {
 }
 
 export async function postJson<T = any>(path: string, body: any, signal?: AbortSignal): Promise<T> {
+  return sendJson<T>('POST', path, body, signal);
+}
+
+/** A JSON write with any verb (PATCH, DELETE…); throws the server's `error` text on failure. */
+export async function sendJson<T = any>(method: 'POST' | 'PATCH' | 'PUT' | 'DELETE', path: string, body: any, signal?: AbortSignal): Promise<T> {
   const base = apiBase();
   if (!base) throw new Error('Backend not configured (set EXPO_PUBLIC_API_BASE_URL).');
-  const res = await fetch(`${base}${path}`, { method: 'POST', headers: await authHeaders(), body: JSON.stringify(body), signal });
+  const res = await fetch(`${base}${path}`, { method, headers: await authHeaders(), body: JSON.stringify(body), signal });
   const text = await res.text();
   let data: any;
   try {

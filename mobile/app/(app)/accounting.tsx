@@ -13,13 +13,14 @@ import { exportCsv } from '@/lib/export';
 import { useSettings } from '@/store/settings';
 import { matchesAllWords, searchWords } from '@shared/search';
 import { LIST_END_PADDING } from '@/theme/tokens';
+import { keyboardScrollProps } from '@/lib/keyboard';
 
 export default function Accounting() {
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
   const { data, isLoading, isError, error, refetch } = useAccounting();
   const [search, setSearch] = useState('');
-  const { dateSelect } = useSettings();
+  const dateSelect = useSettings((s) => s.dateSelect);
   const { editExpense } = useAccountingEdit();
   const [editLine, setEditLine] = useState<any | null>(null);
   const [draft, setDraft] = useState<{ expInvoice: string; amountExp: string }>({ expInvoice: '', amountExp: '' });
@@ -83,7 +84,8 @@ export default function Accounting() {
       ) : groups.length === 0 ? (
         <EmptyState title="No entries" message="No invoices in the selected period." icon={<Ionicons name="reader-outline" size={40} color={colors.textFaint} />} />
       ) : (
-        <FlatList keyboardShouldPersistTaps="handled"
+        <FlatList
+        {...keyboardScrollProps} keyboardShouldPersistTaps="handled"
           data={groups}
           keyExtractor={(g) => g.invoice}
           showsVerticalScrollIndicator={false}
@@ -101,7 +103,7 @@ export default function Accounting() {
                     <Text variant="caption" tone="muted" numberOfLines={1}>{item.clientInvName}{item.dateInv ? ` · ${item.dateInv}` : ''}</Text>
                   </View>
                   <View style={{ alignItems: 'flex-end' }}>
-                    <Text variant="h3" tone="primary">{symS}{fmtMoney(item.amountInv)}</Text>
+                    <Text variant="figure" tone="primary">{symS}{fmtMoney(item.amountInv)}</Text>
                     {item.invType ? <Badge label={item.invType} tone="info" /> : null}
                   </View>
                 </View>

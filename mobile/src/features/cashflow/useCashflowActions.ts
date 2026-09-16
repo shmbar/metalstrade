@@ -10,24 +10,21 @@ import {
   saveCashflowYearTotal,
   updateContractField,
 } from '@/data/writes';
-import { hapticSuccess, hapticWarning } from '@/lib/haptics';
 import { toast } from '@/store/toast';
 
 // Mark a supplier purchase invoice (poInvoice) fully paid, or an expense paid.
 // Both refresh the cashflow + dashboard so balances update.
 export function useCashflowActions() {
-  const { uidCollection } = useAuth();
+  const uidCollection = useAuth((s) => s.uidCollection);
   const qc = useQueryClient();
   const refresh = () => {
-    hapticSuccess();
     qc.invalidateQueries({ queryKey: ['cashflow'] });
     qc.invalidateQueries({ queryKey: ['dashboard'] });
     qc.invalidateQueries({ queryKey: ['contracts'] });
   };
-  // Every money-moving action here gets the same success/failure feel a
-  // banking app gives a payment — a confirming tap on success, a firmer one
-  // on failure — instead of only the toast/Alert telling you which happened.
-  const onError = () => hapticWarning();
+  // Success and failure are felt through the toast and the app-wide mutation error
+  // pulse (query/client.ts), the same as every other save.
+  const onError = () => {};
 
   const paySupplier = useMutation({
     mutationFn: async (ref: { contractId: string; contractDate: string; poInvoiceId: string }) => {
@@ -36,7 +33,7 @@ export function useCashflowActions() {
     },
     onSuccess: () => {
       refresh();
-      toast.success('Supplier invoice marked paid');
+      toast.success('Payments successfully saved!');
     },
     onError,
   });
@@ -48,7 +45,7 @@ export function useCashflowActions() {
     },
     onSuccess: () => {
       refresh();
-      toast.success('Expense marked paid');
+      toast.success('Payments successfully saved!');
     },
     onError,
   });
@@ -63,7 +60,7 @@ export function useCashflowActions() {
     onSuccess: () => {
       refresh();
       qc.invalidateQueries({ queryKey: ['invoices'] });
-      toast.success('Client payment recorded');
+      toast.success('Payments successfully saved!');
     },
     onError,
   });
@@ -80,7 +77,7 @@ export function useCashflowActions() {
     },
     onSuccess: () => {
       refresh();
-      toast.success('Partial payment recorded');
+      toast.success('Payments successfully saved!');
     },
     onError,
   });
@@ -99,7 +96,7 @@ export function useCashflowActions() {
     },
     onSuccess: () => {
       refresh();
-      toast.success('Cashflow rows saved');
+      toast.success('Data successfully saved!');
     },
     onError,
   });
@@ -112,7 +109,7 @@ export function useCashflowActions() {
     },
     onSuccess: () => {
       refresh();
-      toast.success('Year total saved');
+      toast.success('Data successfully saved!');
     },
     onError,
   });
@@ -121,8 +118,8 @@ export function useCashflowActions() {
   // to clear. Replaces the planned ETD/ETA in the supplier tables (client request,
   // web 3eb1cdae) — the question on this side is whether goods already paid for are
   // still at the supplier or on the way. A property of the CONTRACT, so every
-  // purchase invoice of the PO changes together. No success toast: the chip itself
-  // is the confirmation; a failure says so and the screen puts the old value back.
+  // purchase invoice of the PO changes together. Confirms like every other save; a
+  // failure says so and the screen puts the old value back.
   const saveCargoStatus = useMutation({
     mutationFn: async (args: { contractId: string; contractDate: string; code: '' | 'RDY' | 'TRN' }) => {
       if (!uidCollection) throw new Error('Not authenticated');
@@ -132,9 +129,9 @@ export function useCashflowActions() {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['cashflow'] });
       qc.invalidateQueries({ queryKey: ['contracts'] });
+      toast.success('Data successfully saved!');
     },
     onError: () => {
-      hapticWarning();
       toast.error('Could not save the cargo status — please try again.');
     },
   });
@@ -142,13 +139,13 @@ export function useCashflowActions() {
   // Settle a purchase invoice's residual as an adjustment, not a payment — web's
   // supplierCloseBalance, for the few cents or the rounding a supplier writes off.
   const closeBalance = useMutation({
-    mutationFn: async (ref: { contractId: string; contractDate: string; poInvoiceId: string }) => {
+    mutationFn: async (ref: { contractId: string; contractDate: string; poInvoiceId: string; inv?: string | number }) => {
       if (!uidCollection) throw new Error('Not authenticated');
       await closePoInvoiceBalance(uidCollection, ref);
     },
-    onSuccess: () => {
+    onSuccess: (_d, ref) => {
       refresh();
-      toast.success('Balance closed — settlement adjustment recorded');
+      toast.success(`Balance of invoice ${ref.inv ?? ''} closed (settlement adjustment recorded)`);
     },
     onError,
   });

@@ -3,6 +3,7 @@ import { View, ViewProps, Pressable as RNPressable } from 'react-native';
 import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
 import { useTheme } from '@/theme/ThemeProvider';
 import { radius, getShadow, Elevation } from '@/theme/tokens';
+import { haptics } from '@/lib/haptics';
 
 export interface CardProps extends ViewProps {
   padded?: boolean;
@@ -43,7 +44,7 @@ export function Card({ padded = true, style, children, onPress, onLongPress, ele
     return (
       <AnimatedPressable
         onPress={onPress}
-        onLongPress={onLongPress}
+        onLongPress={onLongPress ? () => { haptics.impact(); onLongPress(); } : undefined}
         onPressIn={() => {
           scale.set(withSpring(0.975, PRESS_IN));
         }}

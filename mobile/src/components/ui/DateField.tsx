@@ -7,7 +7,7 @@ import { Text } from './Text';
 import { Button } from './Button';
 import { Sheet } from './Sheet';
 import { useTheme } from '@/theme/ThemeProvider';
-import { radius, spacing } from '@/theme/tokens';
+import { layout, radius, spacing } from '@/theme/tokens';
 
 interface DateFieldProps {
   label?: string;
@@ -70,12 +70,12 @@ export function DateField({ label, value, onChange, required, error }: DateField
           borderColor: error ? colors.negative : colors.borderStrong,
           paddingHorizontal: spacing.md,
           paddingVertical: 12,
-          minHeight: 48,
+          minHeight: layout.controlHeight,
           gap: 8,
         }}
       >
         <Ionicons name="calendar-outline" size={18} color={colors.textFaint} />
-        <Text variant="body" tone={value ? 'default' : 'faint'} style={{ flex: 1 }}>
+        <Text variant="input" tone={value ? 'default' : 'faint'} style={{ flex: 1 }}>
           {value ? display(value) : 'Select date'}
         </Text>
       </Pressable>

@@ -7,11 +7,12 @@ import { qk } from '@/query/client';
 import { contractPurchaseValue, toMT, num } from '@shared/finance';
 import { curSymbol, fmtMoney } from '@/lib/format';
 import { arr } from '@/lib/guard';
+import { useShallow } from 'zustand/react/shallow';
 
 // All contracts in the active period, enriched with their linked invoices.
 export function useContracts() {
-  const { uidCollection } = useAuth();
-  const { dateSelect, loaded } = useSettings();
+  const uidCollection = useAuth((s) => s.uidCollection);
+  const { dateSelect, loaded } = useSettings(useShallow((s) => ({ dateSelect: s.dateSelect, loaded: s.loaded })));
 
   return useQuery({
     enabled: !!uidCollection && loaded,

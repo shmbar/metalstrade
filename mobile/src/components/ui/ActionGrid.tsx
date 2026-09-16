@@ -67,10 +67,10 @@ export function ActionGrid({ actions, columns = 2 }: { actions: GridAction[]; co
               {a.loading ? <ActivityIndicator size="small" color={tint} /> : <Ionicons name={a.icon} size={17} color={tint} />}
             </View>
             <Text
-              variant="caption"
+              variant="captionStrong"
               color={a.emphasis ? colors.primary : colors.text}
               numberOfLines={2}
-              style={{ flexShrink: 1, fontFamily: 'PlusJakartaSans_600SemiBold', textAlign: columns === 2 ? 'left' : 'center' }}
+              style={{ flexShrink: 1, textAlign: columns === 2 ? 'left' : 'center' }}
             >
               {a.label}
             </Text>

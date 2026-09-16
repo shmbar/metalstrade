@@ -10,6 +10,7 @@ import { useSalesContracts } from '@/features/salescontracts/useSalesContracts';
 import { fmtMoney } from '@/lib/format';
 import { StackHeader } from '@/components/StackHeader';
 import { matchesAllWords, searchWords } from '@shared/search';
+import { keyboardScrollProps } from '@/lib/keyboard';
 
 // Web's Total Amount prefix (page.js:103) is '$' for 'us', '€' for 'eu' and NOTHING
 // for anything else. The shared curSymbol falls back to '$' on an empty currency and
@@ -48,7 +49,8 @@ export default function SalesContracts() {
       ) : filtered.length === 0 ? (
         <EmptyState title="No sales contracts" message="None in the selected period." icon={<Ionicons name="document-attach-outline" size={40} color={colors.textFaint} />} />
       ) : (
-        <FlatList keyboardShouldPersistTaps="handled"
+        <FlatList
+        {...keyboardScrollProps} keyboardShouldPersistTaps="handled"
           data={filtered}
           keyExtractor={(r: any) => r.id}
           showsVerticalScrollIndicator={false}
@@ -65,7 +67,7 @@ export default function SalesContracts() {
                   <Text variant="caption" tone="muted" numberOfLines={1}>{item.clientName}</Text>
                 </View>
                 <View style={{ alignItems: 'flex-end' }}>
-                  <Text variant="bodyMedium" style={{ fontVariant: ['tabular-nums'] }}>
+                  <Text variant="figure">
                     {salesCur(item.cur)}{fmtMoney(item.totalAmount)}
                   </Text>
                   {/* Web renders every quantity on this page at 3 fixed decimals

@@ -44,7 +44,7 @@ export function StatCard({ label, value, icon, accent, sub, delta, onPress }: St
       </View>
 
       <View style={{ marginTop: 10 }}>
-        <Text variant="h1" numberOfLines={1} adjustsFontSizeToFit>
+        <Text variant="stat" numberOfLines={1} adjustsFontSizeToFit>
           {value}
         </Text>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 4, minHeight: 16 }}>
@@ -58,9 +58,8 @@ export function StatCard({ label, value, icon, accent, sub, delta, onPress }: St
               }}
             >
               <Text
-                variant="caption"
+                variant="captionStrong"
                 color={delta.good ? colors.positive : colors.negative}
-                style={{ fontFamily: 'PlusJakartaSans_600SemiBold' }}
               >
                 {delta.up ? '▲' : '▼'} {Math.abs(delta.pct).toFixed(1)}%
               </Text>

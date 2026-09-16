@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { View, Alert, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useQuery } from '@tanstack/react-query';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -15,6 +15,7 @@ import {
   GENERAL_FIELDS, FENICR_FIELDS, STAINLESS_FIELDS, SUPERALLOYS_FIELDS, Field, FormulaTab,
 } from '@/features/formulas/calc';
 import { toast } from '@/store/toast';
+import { useShallow } from 'zustand/react/shallow';
 
 const money = (num: number, symbol = '$') => {
   if (!Number.isFinite(num)) return symbol + '0';
@@ -46,7 +47,7 @@ function OutRow({ label, value }: { label: string; value: string }) {
 export default function Formulas() {
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
-  const { uidCollection, canRoute } = useAuth();
+  const { uidCollection, canRoute } = useAuth(useShallow((s) => ({ uidCollection: s.uidCollection, canRoute: s.canRoute })));
   const allowed = canRoute('formulas');
   const [tab, setTab] = useState<FormulaTab>('fenicr');
   const [value, setValue] = useState<any>({ general: {} });
@@ -123,7 +124,7 @@ export default function Formulas() {
     setSaving(true);
     try {
       await saveDataSettings(uidCollection as string, 'formulasCalc', value);
-      toast.success('Formula inputs saved.');
+      toast.success('Data is saved');
     } catch (e: any) {
       Alert.alert('Save failed', e?.message || 'Could not save.');
     } finally {
@@ -132,75 +133,73 @@ export default function Formulas() {
   };
 
   return (
-    <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-      <Screen contentContainerStyle={{ paddingTop: insets.top + 8 }} edges={false}>
-        <StackHeader title="Formulas" subtitle="FeNiCr / Stainless / SuperAlloys pricing" />
+    <Screen contentContainerStyle={{ paddingTop: insets.top + 8 }} edges={false}>
+      <StackHeader title="Formulas" subtitle="FeNiCr / Stainless / SuperAlloys pricing" />
 
-        <View style={{ marginBottom: 14 }}>
-          <SegmentedControl
-            value={tab}
-            onChange={(v) => setTab(v as FormulaTab)}
-            options={[
-              { value: 'fenicr', label: 'FeNiCr' },
-              { value: 'stainless', label: 'Stainless' },
-              { value: 'supperalloys', label: 'SuperAlloys' },
-            ]}
-          />
+      <View style={{ marginBottom: 12 }}>
+        <SegmentedControl
+          value={tab}
+          onChange={(v) => setTab(v as FormulaTab)}
+          options={[
+            { value: 'fenicr', label: 'FeNiCr' },
+            { value: 'stainless', label: 'Stainless' },
+            { value: 'supperalloys', label: 'SuperAlloys' },
+          ]}
+        />
+      </View>
+
+      {isLoading && !seeded ? (
+        <LoadingState />
+      ) : (
+        <View style={{ gap: 14 }}>
+          {/* Outputs */}
+          <Card style={{ backgroundColor: colors.primary }}>
+            <Text variant="label" color="#ffffffcc">{tab === 'supperalloys' ? 'Cost' : 'Cost / Sales'} · Fe {out.fe?.toFixed(2)}%</Text>
+            <Text variant="display" color="#fff" style={{ marginTop: 4 }}>{money(out.cost)}</Text>
+            {tab !== 'supperalloys' ? (
+              <>
+                <Text variant="caption" color="#ffffffcc" style={{ marginTop: 8 }}>Sales solids {money((out as any).sales)} · Turnings {money((out as any).salesTurnings)}</Text>
+                <Text variant="caption" color="#ffffffaa">Cost turnings {money((out as any).costTurnings)} · €{money((out as any).costEuro, '€').slice(1)}</Text>
+              </>
+            ) : (
+              <>
+                <Text variant="caption" color="#ffffffcc" style={{ marginTop: 8 }}>
+                  Cost/MT {money((out as any).costPerMT)} · €{money((out as any).costEuro, '€').slice(1)}
+                </Text>
+                <Text variant="caption" color="#ffffffaa">
+                  Sales {money((out as any).price)} · /MT {money((out as any).pricePerMT)} · €{money((out as any).priceEuro, '€').slice(1)}
+                </Text>
+              </>
+            )}
+          </Card>
+
+          {/* General inputs */}
+          <Card>
+            <SectionHeader title="General" />
+            {GENERAL_FOR[tab].map((f) => (
+              <View key={f.key} style={{ marginBottom: 10 }}>
+                <TextField label={f.label} value={get(f)} onChangeText={(t) => setField(f, t)} keyboardType="decimal-pad" />
+              </View>
+            ))}
+          </Card>
+
+          {/* Tab inputs */}
+          <Card>
+            <SectionHeader title={tab === 'fenicr' ? 'FeNiCr' : tab === 'stainless' ? 'Stainless' : 'SuperAlloys'} subtitle="Composition % and prices" />
+            {TAB_FIELDS[tab].map((f) => (
+              <View key={f.key} style={{ marginBottom: 10 }}>
+                <TextField label={f.label} value={get(f)} onChangeText={(t) => setField(f, t)} keyboardType="decimal-pad" />
+              </View>
+            ))}
+            <OutRow label="Fe (derived)" value={`${out.fe?.toFixed(2)}%`} />
+          </Card>
+
+          <Button title="Save" loading={saving} onPress={onSave} />
+          <Text variant="caption" tone="faint" style={{ textAlign: 'center' }}>
+            Same formulas as the web app — results match to the cent.
+          </Text>
         </View>
-
-        {isLoading && !seeded ? (
-          <LoadingState />
-        ) : (
-          <View style={{ gap: 14 }}>
-            {/* Outputs */}
-            <Card style={{ backgroundColor: colors.primary }}>
-              <Text variant="label" color="#ffffffcc">{tab === 'supperalloys' ? 'Cost' : 'Cost / Sales'} · Fe {out.fe?.toFixed(2)}%</Text>
-              <Text variant="display" color="#fff" style={{ marginTop: 4 }}>{money(out.cost)}</Text>
-              {tab !== 'supperalloys' ? (
-                <>
-                  <Text variant="caption" color="#ffffffcc" style={{ marginTop: 8 }}>Sales solids {money((out as any).sales)} · Turnings {money((out as any).salesTurnings)}</Text>
-                  <Text variant="caption" color="#ffffffaa">Cost turnings {money((out as any).costTurnings)} · €{money((out as any).costEuro, '€').slice(1)}</Text>
-                </>
-              ) : (
-                <>
-                  <Text variant="caption" color="#ffffffcc" style={{ marginTop: 8 }}>
-                    Cost/MT {money((out as any).costPerMT)} · €{money((out as any).costEuro, '€').slice(1)}
-                  </Text>
-                  <Text variant="caption" color="#ffffffaa">
-                    Sales {money((out as any).price)} · /MT {money((out as any).pricePerMT)} · €{money((out as any).priceEuro, '€').slice(1)}
-                  </Text>
-                </>
-              )}
-            </Card>
-
-            {/* General inputs */}
-            <Card>
-              <SectionHeader title="General" />
-              {GENERAL_FOR[tab].map((f) => (
-                <View key={f.key} style={{ marginBottom: 10 }}>
-                  <TextField label={f.label} value={get(f)} onChangeText={(t) => setField(f, t)} keyboardType="decimal-pad" />
-                </View>
-              ))}
-            </Card>
-
-            {/* Tab inputs */}
-            <Card>
-              <SectionHeader title={tab === 'fenicr' ? 'FeNiCr' : tab === 'stainless' ? 'Stainless' : 'SuperAlloys'} subtitle="Composition % and prices" />
-              {TAB_FIELDS[tab].map((f) => (
-                <View key={f.key} style={{ marginBottom: 10 }}>
-                  <TextField label={f.label} value={get(f)} onChangeText={(t) => setField(f, t)} keyboardType="decimal-pad" />
-                </View>
-              ))}
-              <OutRow label="Fe (derived)" value={`${out.fe?.toFixed(2)}%`} />
-            </Card>
-
-            <Button title="Save" loading={saving} onPress={onSave} />
-            <Text variant="caption" tone="faint" style={{ textAlign: 'center' }}>
-              Same formulas as the web app — results match to the cent.
-            </Text>
-          </View>
-        )}
-      </Screen>
-    </KeyboardAvoidingView>
+      )}
+    </Screen>
   );
 }

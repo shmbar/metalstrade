@@ -23,7 +23,7 @@ const fmtQ = (n: any) => new Intl.NumberFormat('en-US', { minimumFractionDigits:
 // target at all, so moving stock between warehouses was impossible on the phone.
 export function LotSheet({ item, onClose }: { item: any | null; onClose: () => void }) {
   const { colors } = useTheme();
-  const { settings } = useSettings();
+  const settings = useSettings((s) => s.settings);
   const move = useMoveStock();
 
   const [qnty, setQnty] = useState('');

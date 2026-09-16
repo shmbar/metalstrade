@@ -18,12 +18,13 @@ import { contractPoHtml } from '@/lib/pdfTemplates';
 import { annexViiHtml, isfHtml } from '@/lib/customsDocs';
 import { CommentsSheet } from '@/components/CommentsSheet';
 import { HistorySheet } from '@/components/HistorySheet';
+import { useShallow } from 'zustand/react/shallow';
 
 export default function ContractDetail() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
-  const { settings, compData } = useSettings();
+  const { settings, compData } = useSettings(useShallow((s) => ({ settings: s.settings, compData: s.compData })));
   const { data: contracts, isLoading: contractsLoading, isError, error, refetch } = useContracts();
 
   const contract = useMemo(() => contracts?.find((c) => c.id === id), [contracts, id]);
@@ -144,12 +145,12 @@ export default function ContractDetail() {
       </View>
 
       {/* Headline figures */}
-      <View style={{ flexDirection: 'row', gap: 12, marginBottom: 14 }}>
+      <View style={{ flexDirection: 'row', gap: 12, marginBottom: 12 }}>
         <Card style={{ flex: 1 }}>
           <Text variant="label" tone="muted">
             Purchase Value
           </Text>
-          <Text variant="h1" tone="primary" style={{ marginTop: 6, fontVariant: ['tabular-nums'] }} numberOfLines={1}>
+          <Text variant="stat" tone="primary" style={{ marginTop: 6 }} numberOfLines={1} adjustsFontSizeToFit>
             {fmtCurKM(v.currency, v.totalValue)}
           </Text>
           <Text variant="caption" tone="faint" numberOfLines={1} style={{ fontVariant: ['tabular-nums'] }}>
@@ -160,14 +161,14 @@ export default function ContractDetail() {
           <Text variant="label" tone="muted">
             Tonnage
           </Text>
-          <Text variant="h1" style={{ marginTop: 6, fontVariant: ['tabular-nums'] }} numberOfLines={1}>
+          <Text variant="stat" style={{ marginTop: 6 }} numberOfLines={1} adjustsFontSizeToFit>
             {v.mtLabel}
           </Text>
         </Card>
       </View>
 
       {/* Products */}
-      <Card style={{ marginBottom: 14 }}>
+      <Card style={{ marginBottom: 12 }}>
         <SectionHeader title="Products" subtitle={`${productsData.length} line item(s)`} />
         {productsData.length === 0 ? (
           <Text variant="body" tone="muted">
@@ -205,7 +206,7 @@ export default function ContractDetail() {
       </Card>
 
       {/* P&L / Shipments tab entry (web tab 3) */}
-      <Card style={{ marginBottom: 14 }} onPress={() => router.push(`/(app)/contracts/pnl?id=${contract.id}`)}>
+      <Card style={{ marginBottom: 12 }} onPress={() => router.push(`/(app)/contracts/pnl?id=${contract.id}`)}>
         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
             <Ionicons name="analytics-outline" size={17} color={colors.primary} />
@@ -216,7 +217,7 @@ export default function ContractDetail() {
       </Card>
 
       {/* Purchase payments + health bar */}
-      <Card style={{ marginBottom: 14 }}>
+      <Card style={{ marginBottom: 12 }}>
         <SectionHeader
           title="Purchase Payments"
           subtitle={`${poCount} payment record(s)`}
@@ -228,7 +229,7 @@ export default function ContractDetail() {
         />
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 10 }}>
           <Text variant="body" tone="muted">Total paid to supplier</Text>
-          <Text variant="h3" tone="positive">
+          <Text variant="figure" tone="positive">
             {curSymbol(v.currency)}{fmtMoney(poPaid)}
           </Text>
         </View>

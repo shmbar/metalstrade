@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { View, Switch, Alert, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, Switch, Alert } from 'react-native';
 import { Pressable } from '@/components/ui/Pressable';
 import { useLocalSearchParams, router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -12,12 +12,13 @@ import { useStockInLots, useSaveStockIn, blankLot } from '@/features/stockin/use
 import { newId } from '@/data/writes';
 import { num } from '@shared/finance';
 import { curSymbol, fmtMoney } from '@/lib/format';
+import { haptics } from '@/lib/haptics';
 
 export default function StockIn() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
-  const { settings } = useSettings();
+  const settings = useSettings((s) => s.settings);
   const { data: contracts } = useContracts();
   const contract = useMemo(() => contracts?.find((c) => c.id === id), [contracts, id]);
 
@@ -118,74 +119,72 @@ export default function StockIn() {
   }
 
   return (
-    <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-      <Screen contentContainerStyle={{ paddingTop: insets.top + 8 }} edges={false}>
-        <StackHeader title="Warehouse stock" subtitle={contract.order} />
+    <Screen contentContainerStyle={{ paddingTop: insets.top + 8 }} edges={false}>
+      <StackHeader title="Warehouse stock" subtitle={contract.order} />
 
-        {isLoading && !seeded ? (
-          <LoadingState label="Loading lots…" />
-        ) : (
-          <View style={{ gap: 14 }}>
-            {lots.map((l, i) => (
-              <Card key={l.id} style={{ gap: 12 }}>
-                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <Text variant="label" tone="muted">Lot {i + 1}</Text>
-                  <IconButton icon="trash-outline" tone="danger" size={36} accessibilityLabel="Remove line" onPress={() => remove(i)} />
+      {isLoading && !seeded ? (
+        <LoadingState label="Loading lots…" />
+      ) : (
+        <View style={{ gap: 14 }}>
+          {lots.map((l, i) => (
+            <Card key={l.id} style={{ gap: 12 }}>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                <Text variant="label" tone="muted">Lot {i + 1}</Text>
+                <IconButton icon="trash-outline" tone="danger" size={36} accessibilityLabel="Remove line" onPress={() => remove(i)} />
+              </View>
+
+              <Select label="Material" value={l.description} options={productOptions} onChange={(v) => update(i, { description: v })} required />
+
+              <View style={{ flexDirection: 'row', gap: 10 }}>
+                <View style={{ flex: 1 }}>
+                  <TextField label="Quantity" value={String(l.qnty ?? '')} onChangeText={(t) => update(i, { qnty: t })} keyboardType="decimal-pad" />
                 </View>
-
-                <Select label="Material" value={l.description} options={productOptions} onChange={(v) => update(i, { description: v })} required />
-
-                <View style={{ flexDirection: 'row', gap: 10 }}>
-                  <View style={{ flex: 1 }}>
-                    <TextField label="Quantity" value={String(l.qnty ?? '')} onChangeText={(t) => update(i, { qnty: t })} keyboardType="decimal-pad" />
-                  </View>
-                  <View style={{ flex: 1 }}>
-                    <TextField label="Unit price" value={String(l.unitPrc ?? '')} onChangeText={(t) => update(i, { unitPrc: t })} keyboardType="decimal-pad" />
-                  </View>
+                <View style={{ flex: 1 }}>
+                  <TextField label="Unit price" value={String(l.unitPrc ?? '')} onChangeText={(t) => update(i, { unitPrc: t })} keyboardType="decimal-pad" />
                 </View>
+              </View>
 
-                <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                  <Text variant="body" tone="muted">Total</Text>
-                  <Text variant="bodyMedium" tone="primary">{sym}{fmtMoney(num(l.total))}</Text>
-                </View>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                <Text variant="body" tone="muted">Total</Text>
+                <Text variant="bodyMedium" tone="primary">{sym}{fmtMoney(num(l.total))}</Text>
+              </View>
 
-                <Select label="PO Invoice" value={l.poInvoice} options={poOptions} onChange={(v) => update(i, { poInvoice: v })} required />
-                <Select label="Warehouse" value={l.stock} options={whOptions} onChange={(v) => update(i, { stock: v })} required />
-                <DateField
-                  label="Arrival date"
-                  required
-                  value={l.indDate?.startDate}
-                  onChange={(iso) => update(i, { indDate: { startDate: iso, endDate: iso } })}
-                />
-                <Select label="Status" value={l.status} options={statusOptions} onChange={(v) => update(i, { status: v })} />
-                <Select label="Consignee (optional)" value={l.client} options={clientOptions} onChange={(v) => update(i, { client: v })} />
+              <Select label="PO Invoice" value={l.poInvoice} options={poOptions} onChange={(v) => update(i, { poInvoice: v })} required />
+              <Select label="Warehouse" value={l.stock} options={whOptions} onChange={(v) => update(i, { stock: v })} required />
+              <DateField
+                label="Arrival date"
+                required
+                value={l.indDate?.startDate}
+                onChange={(iso) => update(i, { indDate: { startDate: iso, endDate: iso } })}
+              />
+              <Select label="Status" value={l.status} options={statusOptions} onChange={(v) => update(i, { status: v })} />
+              <Select label="Consignee (optional)" value={l.client} options={clientOptions} onChange={(v) => update(i, { client: v })} />
 
-                <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-                  <Text variant="body">Special invoice</Text>
-                  <Switch value={!!l.spInv} onValueChange={(on) => update(i, { spInv: on })} trackColor={{ true: colors.primary }} />
-                </View>
-                {l.spInv && (
-                  <TextField label="Company name" value={String(l.compName ?? '')} onChangeText={(t) => update(i, { compName: t })} />
-                )}
-              </Card>
-            ))}
+              <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+                <Text variant="body">Special invoice</Text>
+                <Switch value={!!l.spInv} onValueChange={(on) => { haptics.selection(); update(i, { spInv: on }); }} trackColor={{ true: colors.primary }} />
+              </View>
+              {l.spInv && (
+                <TextField label="Company name" value={String(l.compName ?? '')} onChangeText={(t) => update(i, { compName: t })} />
+              )}
+            </Card>
+          ))}
 
-            <Pressable
-              onPress={add}
-              style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, paddingVertical: 12, borderRadius: 12, borderWidth: 1.5, borderStyle: 'dashed', borderColor: colors.borderStrong }}
-            >
-              <Ionicons name="add" size={18} color={colors.primary} />
-              <Text variant="bodyMedium" tone="primary">Add lot</Text>
-            </Pressable>
+          <Pressable
+            onPress={add}
+            style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, paddingVertical: 12, borderRadius: 12, borderWidth: 1.5, borderStyle: 'dashed', borderColor: colors.borderStrong }}
+          >
+            <Ionicons name="add" size={18} color={colors.primary} />
+            <Text variant="bodyMedium" tone="primary">Add lot</Text>
+          </Pressable>
 
-            <Button title="Save stock" loading={save.isPending} onPress={onSave} />
-            <Text variant="caption" tone="faint" style={{ textAlign: 'center' }}>
-              Writes warehouse lots, updates the contract, and regenerates Misc-invoice rows for special-invoice lots.
-            </Text>
-          </View>
-        )}
-      </Screen>
-    </KeyboardAvoidingView>
+          <Button title="Save stock" loading={save.isPending} onPress={onSave} />
+          <Text variant="caption" tone="faint" style={{ textAlign: 'center' }}>
+            Writes warehouse lots, updates the contract, and regenerates Misc-invoice rows for special-invoice lots.
+          </Text>
+        </View>
+      )}
+    </Screen>
   );
 }
 

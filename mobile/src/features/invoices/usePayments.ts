@@ -9,10 +9,11 @@ import { Payment } from '@/data/types';
 // combined, we re-read the target doc fresh and append to ITS OWN payments before
 // writing. Then refresh invoices + dashboard (receivables) which read balances.
 export function useAddPayment() {
-  const { uidCollection } = useAuth();
+  const uidCollection = useAuth((s) => s.uidCollection);
   const qc = useQueryClient();
 
   return useMutation({
+    meta: { success: 'Payments successfully saved!' },
     mutationFn: async ({
       invoiceId,
       year,

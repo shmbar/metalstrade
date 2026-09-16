@@ -14,6 +14,7 @@ import { toast } from '@/store/toast';
 import { SHIPMENT_STATUSES } from '@shared/shipmentStatus';
 import { StackHeader } from '@/components/StackHeader';
 import { LIST_END_PADDING } from '@/theme/tokens';
+import { keyboardScrollProps } from '@/lib/keyboard';
 
 const tone = (s: string): 'neutral' | 'info' | 'positive' | 'negative' | 'warn' => {
   if (s === 'Completed') return 'positive';
@@ -103,7 +104,8 @@ export default function Shipment() {
       ) : rows.length === 0 ? (
         <EmptyState title="No shipments" message="No contracts match the current filters." icon={<Ionicons name="boat-outline" size={40} color={colors.textFaint} />} />
       ) : (
-        <FlatList keyboardShouldPersistTaps="handled"
+        <FlatList
+        {...keyboardScrollProps} keyboardShouldPersistTaps="handled"
           data={rows}
           keyExtractor={(r) => r.id}
           showsVerticalScrollIndicator={false}
@@ -116,7 +118,7 @@ export default function Shipment() {
             </Text>
           }
           renderItem={({ item }) => (
-            <Card style={{ marginBottom: 10 }} onPress={() => setEditing(item)}>
+            <Card style={{ marginBottom: 12 }} onPress={() => setEditing(item)}>
               <View style={{ flexDirection: 'row', justifyContent: 'space-between', gap: 12 }}>
                 <View style={{ flex: 1, minWidth: 0 }}>
                   <Text variant="h3" numberOfLines={1}>
@@ -277,7 +279,7 @@ export default function Shipment() {
                         style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}
                       >
                         <Text variant="bodyMedium" tone="primary">Invoice #{sh.invoice}</Text>
-                        <Ionicons name="chevron-forward" size={14} color={colors.primary} />
+                        <Ionicons name="chevron-forward" size={16} color={colors.primary} />
                       </Pressable>
                       <Text variant="caption" tone="faint" style={{ fontVariant: ['tabular-nums'] }}>
                         {fmtShipDate(sh.date)} · {fmtQty(sh.qnty)} MT

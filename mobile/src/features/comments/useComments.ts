@@ -23,7 +23,7 @@ export interface CommentRow {
 
 /** Live thread for one record, oldest first. Subscribes only while `enabled`. */
 export function useComments(entityType: string, entityId: string | undefined, enabled = true) {
-  const { uidCollection } = useAuth();
+  const uidCollection = useAuth((s) => s.uidCollection);
   const [comments, setComments] = useState<CommentRow[]>([]);
   const [loading, setLoading] = useState(true);
 

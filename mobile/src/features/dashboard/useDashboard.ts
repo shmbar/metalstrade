@@ -9,17 +9,14 @@ import {
   agingBuckets,
   invoiceRevenue,
   contractPurchaseValue,
-  num,
-  groupInvoices,
-  isIssued,
-  resolveInvoiceDate,
-  resolveCur,
   ReceivablesSlot,
   AgingBucket,
 } from '@shared/finance';
 import { getCur } from '@/data/writes';
-import { computePnl, computeMarginsSummary } from './pnlChain';
+import { computePnl, computeMarginsSummary, SupplierContractRow } from './pnlChain';
 import { resolveClientName } from '@/features/invoices/useInvoices';
+import { entityName } from '@/lib/entityName';
+import { useShallow } from 'zustand/react/shallow';
 
 export interface DashboardFilters {
   supplier: string;
@@ -80,14 +77,73 @@ export interface DashboardData {
   totalContracts: number;
   /** commission billed by GIS, held out of expensesTotal — web's GIS Commission card */
   gisCommission: { total: number; rows: any[]; byEntity: { name: string; value: number }[] };
+
+  // ── the records behind each card and tile (web TILE_DETAILS) ──────────────────
+  /** web invoiceRevAgg.byClientMonth — client → 12 monthly USD buckets (sparklines) */
+  consigneeSeries: Record<string, number[]>;
+  /** web invoiceRevAgg.byClientDetails — the invoices behind each client tile */
+  consigneeDetails: Record<string, { invoice: string | number; date: string; usd: number; amount: number; cur: string }[]>;
+  /** web conAgg.suppSeries — supplier → 12 monthly purchase buckets */
+  supplierSeries: Record<string, number[]>;
+  /** web supplierContracts(name) — the contracts behind each supplier tile */
+  supplierContracts: Record<string, SupplierContractRow[]>;
+  /** every contract expense in the period, largest first — GIS commission excluded */
+  expenseRows: ExpenseRow[];
+  /** the same rows per expense type — web expDetails */
+  expDetails: Record<string, ExpenseRow[]>;
+  /** web coExpRows */
+  companyExpenseRows: CompanyExpenseRow[];
+  companyExpenseCount: number;
+  /** Margins worksheet rows — web marginsSummary.items */
+  marginsItems: number;
+  /** web miscRows */
+  miscRows: MiscRow[];
+  /** web miscInvoices.byCat */
+  miscCategories: Record<string, { byCur: Record<string, number>; count: number }>;
+}
+
+export interface ExpenseRow {
+  type: string;
+  supplierName: string;
+  order: string;
+  usd: number;
+  amount: number;
+  cur: string;
+  date: string;
+  ref: string;
+  paid: string;
+  comments: string;
+}
+
+export interface CompanyExpenseRow {
+  supplierName: string;
+  ref: string;
+  date: string;
+  paid: string;
+  comments: string;
+  amount: number;
+  cur: string;
+  usd: number;
+}
+
+export interface MiscRow {
+  date: string;
+  category: string;
+  cur: string;
+  amount: number;
+  invoice: string;
+  company: string;
+  description: string;
+  order: string;
+  paid: string;
 }
 
 // Loads everything the dashboard needs in parallel, then derives KPIs. The
 // financial aggregates come straight from the shared finance.js so they match
 // the web CRM to the cent.
 export function useDashboard(filters: DashboardFilters = { supplier: '', client: '', material: '' }) {
-  const { uidCollection } = useAuth();
-  const { settings, dateSelect, loaded } = useSettings();
+  const uidCollection = useAuth((s) => s.uidCollection);
+  const { settings, dateSelect, loaded } = useSettings(useShallow((s) => ({ settings: s.settings, dateSelect: s.dateSelect, loaded: s.loaded })));
   const termDays = useSettings(selectTermDays);
   const companyRate = useSettings(selectCompanyRate);
 
@@ -188,62 +244,98 @@ export function useDashboard(filters: DashboardFilters = { supplier: '', client:
     // worksheet"). soldFrac and the tonnage-cap inside calContracts still need their
     // OWN contract-quantity loop, so that one stays in pnlChain.ts unchanged.
     const purchaseByCur: Record<string, number> = {};
-    const supplierTotals: Record<string, number> = {};
     enriched.forEach((c) => {
       const pv = contractPurchaseValue(c, { base: 'us' });
       Object.entries(pv.byCur).forEach(([cur, v]) => (purchaseByCur[cur] = (purchaseByCur[cur] || 0) + v));
-      const supName =
-        settings.Supplier?.Supplier?.find((s) => s.id === c.supplier)?.nname || c.supplier || '—';
-      // Supplier ranking value — web's rule (dashboard/funcs.js): a EUR contract
-      // converts at the COMPANY standard rate when one is set, else its own
-      // euroToUSD, else 1:1. contractPurchaseValue().base routes through fx(), which
-      // never consults the company rate — so on a EUR-heavy book both the values and
-      // the ranking ORDER drifted from web.
-      const cCur = c.cur === 'eu' ? 'eu' : 'us';
-      const cRate = num((c as any).euroToUSD);
-      const cMult =
-      cCur === 'us' ? 1 : companyRate > 0 ? companyRate : cRate > 0 ? cRate : liveRate > 0 ? liveRate : 1;
-      supplierTotals[supName] = (supplierTotals[supName] || 0) + (pv.byCur[cCur] || 0) * cMult;
     });
 
     const revenue = invoiceRevenue(periodInvoices, { base: 'us' });
 
-    // Monthly revenue series (issued invoices, by invoice month) for the trend chart.
-    // Converted to a single USD basis with web's exact rule (dashboard/page.js:986):
-    // the company's standard rate when set, else the invoice's own euroToUSD, else
-    // 1:1. Summing raw totalAmount added EUR invoices at face value into a
-    // USD-labelled series, so the chart and its total read low for EUR-heavy months.
+    /* SALES REVENUE, invoice-dated — web page.js invoiceRevAgg, line for line. Every sales
+       invoice DATED in the period (whatever year its PO was bought), from the 4-year invoice
+       window, grouped by number so an original superseded by its Credit/Final note counts
+       once. The Consignees card splits THIS total per client, so card and headline cannot
+       disagree — mobile used to rank clients by pnl.clientTotals, the contract-dated basis,
+       under an invoice-dated Total Value. */
     const revenueByMonth = Array(12).fill(0);
-    groupInvoices(periodInvoices)
-      .filter(isIssued)
-      .forEach((inv) => {
-        const iso = resolveInvoiceDate(inv);
-        const m = iso ? parseInt(iso.substring(5, 7), 10) - 1 : -1;
-        if (m < 0 || m > 11) return;
-        const amt = num(inv.totalAmount);
-        const rate = num((inv as any).euroToUSD);
-        const mult = companyRate > 0 ? companyRate : rate > 0 ? rate : liveRate > 0 ? liveRate : 1;
-        revenueByMonth[m] += resolveCur(inv) === 'us' ? amt : amt * mult;
+    const byClient: Record<string, number> = {};
+    const consigneeSeries: Record<string, number[]> = {};
+    const consigneeDetails: DashboardData['consigneeDetails'] = {};
+    let revenueUsd = 0;
+    {
+      const start = dateSelect.start;
+      const end = dateSelect.end;
+      const groups: Record<string, any[]> = {};
+      (allRecv || []).forEach((inv: any) => {
+        const d = !inv?.final ? inv?.dateRange?.startDate : inv?.date;
+        if (typeof d !== 'string' || d < start || d > end) return;
+        if (inv.invoice != null) (groups[String(inv.invoice)] ||= []).push(inv);
       });
-
-    // Web's Sales Revenue KPI is ONE USD figure, accumulated in the same pass as
-    // its monthly series — so the total is exactly the sum of the months. Mobile
-    // showed per-currency raw sums instead, and threw away the USD figure the
-    // shared module computes (invoiceRevenue().base is unusable here anyway: its
-    // fx() ignores the company standard rate).
-    const revenueUsd = revenueByMonth.reduce((s, v) => s + v, 0);
+      Object.values(groups).forEach((g) =>
+        g.forEach((inv: any) => {
+          if (inv.canceled || inv.draft === true) return;
+          const isOriginal = ['1111', 'Invoice'].includes(inv.invType);
+          if (!(g.length === 1 || !isOriginal)) return; // original superseded by its note
+          const clientName = resolveClientName(inv.client, settings) || 'Unassigned';
+          if (fClient && clientName !== fClient) return;
+          if (allowedPO && !allowedPO.has(inv.poSupplier?.id)) return;
+          const amt = parseFloat(inv.totalAmount);
+          if (isNaN(amt)) return;
+          const curId = !inv.final ? inv.cur : settings?.Currency?.Currency?.find((x: any) => x.cur === inv.cur?.cur)?.id;
+          const rate = parseFloat(inv.euroToUSD);
+          const mult = companyRate > 0 ? companyRate : rate > 0 ? rate : liveRate > 0 ? liveRate : 1;
+          const usd = curId === 'us' ? amt : amt * mult;
+          const d = !inv.final ? inv.dateRange.startDate : inv.date;
+          const m = Number(String(d).substring(5, 7));
+          if (m >= 1 && m <= 12) {
+            revenueByMonth[m - 1] += usd;
+            revenueUsd += usd;
+            byClient[clientName] = (byClient[clientName] || 0) + usd;
+            (consigneeSeries[clientName] ||= Array(12).fill(0))[m - 1] += usd;
+            (consigneeDetails[clientName] ||= []).push({ invoice: inv.invoice ?? '', date: d, usd, amount: amt, cur: curId === 'us' ? 'us' : 'eu' });
+          }
+        })
+      );
+    }
 
     const recv = financeReceivables(recvInvoices, { asOf: new Date(), termDays });
     const aging = agingBuckets(recvInvoices, { asOf: new Date() });
 
     // Misc invoices by CATEGORY — web shows shipments/personal/random/uncategorized
     // amounts, counts and share.
-    const miscByCat: Record<string, { amount: number; count: number }> = {};
+    // web page.js miscInvoices — per currency, and per category with its own count.
     const miscByCur: Record<string, number> = {};
+    const miscCategories: DashboardData['miscCategories'] = {
+      personal: { byCur: {}, count: 0 },
+      random: { byCur: {}, count: 0 },
+      shipments: { byCur: {}, count: 0 },
+      uncategorized: { byCur: {}, count: 0 },
+    };
     misc.forEach((r: any) => {
       const cur = r.cur || 'us';
-      miscByCur[cur] = (miscByCur[cur] || 0) + (parseFloat(r.total) || 0);
+      const amt = parseFloat(r.total) || 0;
+      miscByCur[cur] = (miscByCur[cur] || 0) + amt;
+      const cat = ['personal', 'random', 'shipments'].includes(r.category) ? r.category : 'uncategorized';
+      miscCategories[cat].byCur[cur] = (miscCategories[cat].byCur[cur] || 0) + amt;
+      miscCategories[cat].count += 1;
     });
+    const miscByCat: Record<string, { amount: number; count: number }> = {};
+    Object.entries(miscCategories).forEach(([name, c]) => {
+      if (c.count) miscByCat[name] = { amount: Object.values(c.byCur).reduce((a, v) => a + v, 0), count: c.count };
+    });
+    const miscRows: MiscRow[] = misc
+      .map((r: any) => ({
+        date: r?.date || '',
+        category: r?.category || 'uncategorized',
+        cur: r?.cur || 'us',
+        amount: parseFloat(r?.total) || 0,
+        invoice: r?.invoice || '',
+        company: r?.compName || '',
+        description: r?.description || '',
+        order: r?.order || '',
+        paid: r?.paidNotPaid || '',
+      }))
+      .sort((a: MiscRow, b: MiscRow) => b.amount - a.amount);
 
     // Sold-basis P&L chain (web calContracts). Deal basis: revenue, COGS and
     // expenses are all attributed to the CONTRACT month using the CONTRACT rate —
@@ -289,15 +381,52 @@ export function useDashboard(filters: DashboardFilters = { supplier: '', client:
        using invoice-dated revenue rather than the Margins profit. */
     const netProfit = grossProfit - overheads;
 
+    // web coExpRows — the whole overhead record, not three fields of it.
+    const supName = (id: string) => settings?.Supplier?.Supplier?.find((s: any) => s.id === id)?.nname || '—';
+    const companyExpenseRows: CompanyExpenseRow[] = (companyExpenses || [])
+      .map((r: any) => {
+        const amt = parseFloat(r?.amount) || 0;
+        const rate = parseFloat(r?.euroToUSD);
+        const mult = companyRate > 0 ? companyRate : rate > 0 ? rate : liveRate > 0 ? liveRate : 1;
+        return {
+          supplierName: supName(r?.supplier || ''),
+          ref: r?.expense || '',
+          date: r?.date || '',
+          paid: r?.paid === '111' ? 'Paid' : r?.paid ? 'Unpaid' : '',
+          comments: r?.comments || '',
+          amount: amt,
+          cur: r?.cur || 'us',
+          usd: r?.cur === 'us' ? amt : amt * mult,
+        };
+      })
+      .sort((a: CompanyExpenseRow, b: CompanyExpenseRow) => b.usd - a.usd);
+
     // Purchase value behind the "Contracts — $" ranking's own headline — web's
     // TotalCell now leads that card instead of a separate standalone figure
     // (page.js "Total Value is the headline"). Same accumulatedPmnt sum either way.
     const totalContracts = pnl.purchaseByMonth.reduce((a, b) => a + b, 0);
 
-    const topSuppliers = Object.entries(supplierTotals)
+    // web setPieArrs(arrTmp): every supplier with a non-zero value, largest first. The card
+    // folds its own tail ("N more"), so nothing is cut here.
+    const topSuppliers = Object.entries(pnl.supplierTotals)
+      .filter(([, value]) => value !== 0)
       .map(([name, value]) => ({ name, value }))
-      .sort((a, b) => b.value - a.value)
-      .slice(0, 6);
+      .sort((a, b) => b.value - a.value);
+    // web supplierContracts(name): matched by RESOLVED name, as the card is keyed.
+    const supplierContracts: Record<string, SupplierContractRow[]> = {};
+    Object.entries(pnl.supplierDetails).forEach(([id, rows]) => {
+      const name = settings?.Supplier?.Supplier?.find((s: any) => s.id === id)?.nname || 'Unknown supplier';
+      (supplierContracts[name] ||= []).push(...rows);
+    });
+    const expDetails: Record<string, ExpenseRow[]> = {};
+    Object.entries(pnl.expDetails).forEach(([type, rows]) => {
+      expDetails[type] = rows
+        .map((r) => ({ ...r, type, supplierName: supName(r.supplier) }))
+        .sort((a, b) => (b.usd || 0) - (a.usd || 0));
+    });
+    const expenseDetailRows = Object.values(expDetails)
+      .flat()
+      .sort((a, b) => (b.usd || 0) - (a.usd || 0));
 
     return {
       contractCount: enriched.length,
@@ -339,27 +468,41 @@ export function useDashboard(filters: DashboardFilters = { supplier: '', client:
       avgExpensePerMT: marginsSummary.quantity > 0 ? pnl.expensesTotal / marginsSummary.quantity : 0,
       avgFreightPerMT: marginsSummary.quantity > 0 ? pnl.freightTotal / marginsSummary.quantity : 0,
       gisCommission: pnl.gisCommission,
+      consigneeSeries,
+      consigneeDetails,
+      supplierSeries: pnl.suppSeries,
+      supplierContracts,
+      expenseRows: expenseDetailRows,
+      expDetails,
+      companyExpenseRows,
+      companyExpenseCount: (companyExpenses || []).length,
+      // web marginsSummary.items — every worksheet row across the loaded months
+      marginsItems: (margins || []).reduce((n: number, mo: any) => n + ((mo?.items || []).length || 0), 0),
+      miscRows,
+      miscCategories,
       miscByCat: Object.entries(miscByCat)
         .map(([name, v]) => ({ name, ...v }))
         .sort((a, b) => b.amount - a.amount),
       // Live alerts — web pills. Counts come straight off the receivables slots.
       dueCount: Object.values(recv.byCur).reduce((s2, x) => s2 + (x.dueCount || 0), 0),
       balanceCount: Object.values(recv.byCur).reduce((s2, x) => s2 + (x.balanceCount || 0), 0),
-      consignees: Object.entries(pnl.clientTotals)
+      // web clientRank: invoice-dated, every client above $0.50, largest first.
+      consignees: Object.entries(byClient)
+        .filter(([, value]) => Math.abs(value) > 0.5)
         .map(([name, value]) => ({ name, value }))
-        .sort((a, b) => b.value - a.value)
-        .slice(0, 8),
+        .sort((a, b) => b.value - a.value),
       materialSold: Object.entries(pnl.materialSold)
         .map(([name, value]) => ({ name, value }))
         .filter((r) => r.value > 0.0005)
         .sort((a, b) => b.value - a.value)
         .slice(0, 8),
+      // web: entries above $0.50, largest first; the card folds the tail.
       expByType: Object.entries(pnl.expByType)
+        .filter(([, value]) => Math.abs(value) > 0.5)
         .map(([name, value]) => ({ name, value }))
-        .sort((a, b) => b.value - a.value)
-        .slice(0, 6),
+        .sort((a, b) => b.value - a.value),
     };
-  }, [query.data, settings, termDays, companyRate, filters.supplier, filters.client, filters.material]);
+  }, [query.data, settings, termDays, companyRate, filters.supplier, filters.client, filters.material, dateSelect.start, dateSelect.end]);
 
   // Option lists come from the UNFILTERED set so a chosen filter never removes
   // the other options.
@@ -372,7 +515,7 @@ export function useDashboard(filters: DashboardFilters = { supplier: '', client:
       if (c.supplier) {
         suppliers.set(
           c.supplier,
-          settings?.Supplier?.Supplier?.find((s: any) => s.id === c.supplier)?.nname || c.supplier
+          entityName(settings?.Supplier?.Supplier, c.supplier, 'supplier')
         );
       }
       (c.productsData || []).forEach((p: any) => p.description && materials.add(p.description));

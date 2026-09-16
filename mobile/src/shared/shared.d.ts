@@ -190,6 +190,8 @@ declare module '@shared/permissions' {
   export function isSuperAdmin(claims?: Record<string, any>, uid?: string): boolean;
   export function canManageUsers(claims?: Record<string, any>, uid?: string): boolean;
   export function isProtectedAccount(targetUid?: string, targetClaims?: Record<string, any>): boolean;
+  export function canManageRole(actorClaims: Record<string, any>, targetRole: unknown, actorUid?: string): boolean;
+  export function assignableRoles(actorClaims: Record<string, any>, actorUid?: string): RoleMeta[];
 }
 
 declare module '@shared/activityStats' {
@@ -264,6 +266,9 @@ declare module '@shared/grades' {
     args?: { description?: string; lineId?: string }
   ): Grade | null;
   export function findGradeByName(grades: Grade[], name: string): Grade | null;
+  export function makeGrade(id: string, args: { name: string; spec?: string }): Grade;
+  /** Put spellings on one grade, taking each off any other grade that held it; returns the grades that changed. */
+  export function assignAliases(grades: Grade[], targetId: string, spellings?: string[]): Grade[];
   export function parseSpecQuery(query: string): Record<string, any> | null;
   export function assayMatches(assay: any, spec: any): boolean;
   export function describeSpec(spec: any): string;

@@ -10,6 +10,7 @@ import { useSettings } from '@/store/settings';
 import { loadSharedStock } from '@/data/firestore';
 import { useAllStockLots, STOCK_LOTS_KEY } from './useAllStockLots';
 import { saveSharedStock, deleteSharedStock, newId } from '@/data/writes';
+import { useShallow } from 'zustand/react/shallow';
 
 export const OWNERS = ['IMS', 'GIS'] as const;
 // financedBy = who PAID for the lot ('IMS' | 'GIS' | 'BOTH') — distinct from owners
@@ -93,8 +94,8 @@ const filteredArray = <T extends { invoice?: any; invType?: any }>(arr: T[]): T[
 };
 
 export function useSharedStock() {
-  const { uidCollection, gisAccount } = useAuth();
-  const { settings, loaded } = useSettings();
+  const { uidCollection, gisAccount } = useAuth(useShallow((s) => ({ uidCollection: s.uidCollection, gisAccount: s.gisAccount })));
+  const { settings, loaded } = useSettings(useShallow((s) => ({ settings: s.settings, loaded: s.loaded })));
   const qc = useQueryClient();
   const accountName = gisAccount ? 'GIS' : 'IMS';
 
@@ -201,6 +202,7 @@ export function useSharedStock() {
   };
 
   const save = useMutation({
+    meta: { success: 'Shared stock saved' },
     mutationFn: async (lot: ReturnType<typeof blankLot> & Record<string, any>) => {
       const now = new Date();
       const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
@@ -234,6 +236,7 @@ export function useSharedStock() {
   });
 
   const remove = useMutation({
+    meta: { success: 'Shared stock removed' },
     mutationFn: (id: string) => deleteSharedStock(id),
     onSuccess: invalidate,
   });

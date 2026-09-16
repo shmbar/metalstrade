@@ -19,17 +19,17 @@ import { exportPdf } from '@/lib/export';
 import { invoiceHtml } from '@/lib/pdfTemplates';
 import { num } from '@shared/finance';
 import { curSymbol, fmtMoney, fmtCurKM, dateLabel } from '@/lib/format';
-import { hapticSuccess } from '@/lib/haptics';
 import { spacing } from '@/theme/tokens';
 import { toast } from '@/store/toast';
 import { CommentsSheet } from '@/components/CommentsSheet';
 import { HistorySheet } from '@/components/HistorySheet';
+import { useShallow } from 'zustand/react/shallow';
 
 export default function InvoiceDetail() {
   const { id, pay } = useLocalSearchParams<{ id: string; pay?: string }>();
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
-  const { settings, compData } = useSettings();
+  const { settings, compData } = useSettings(useShallow((s) => ({ settings: s.settings, compData: s.compData })));
   const { data: invoices, isLoading: invoicesLoading, isError, error, refetch } = useInvoices();
   const addPayment = useAddPayment();
   const saveSplit = useSaveInvoiceSplit();
@@ -103,7 +103,6 @@ export default function InvoiceDetail() {
         year: view.year,
         payment: { pmnt: amt, date: payDate },
       });
-      hapticSuccess();
       setShowAdd(false);
       setAmount('');
     } catch (e: any) {
@@ -166,7 +165,6 @@ export default function InvoiceDetail() {
             { id: view.id, year: view.year },
             {
               onSuccess: () => {
-                toast.success('Invoice deleted');
                 router.back();
               },
               onError: (e: any) => Alert.alert('Not deleted', e?.message || 'Could not delete the invoice.'),
@@ -201,10 +199,10 @@ export default function InvoiceDetail() {
       </View>
 
       {/* Money summary — compact figure large, exact amount beneath */}
-      <View style={{ flexDirection: 'row', gap: 12, marginBottom: 14 }}>
+      <View style={{ flexDirection: 'row', gap: 12, marginBottom: 12 }}>
         <Card style={{ flex: 1 }}>
           <Text variant="label" tone="muted">Total</Text>
-          <Text variant="h2" style={{ marginTop: 6, fontVariant: ['tabular-nums'] }} numberOfLines={1}>
+          <Text variant="stat" style={{ marginTop: 6 }} numberOfLines={1} adjustsFontSizeToFit>
             {fmtCurKM(view.cur, view.total)}
           </Text>
           <Text variant="caption" tone="faint" numberOfLines={1} style={{ fontVariant: ['tabular-nums'] }}>
@@ -213,7 +211,7 @@ export default function InvoiceDetail() {
         </Card>
         <Card style={{ flex: 1 }}>
           <Text variant="label" tone="muted">Paid</Text>
-          <Text variant="h2" tone="positive" style={{ marginTop: 6, fontVariant: ['tabular-nums'] }} numberOfLines={1}>
+          <Text variant="stat" tone="positive" style={{ marginTop: 6 }} numberOfLines={1} adjustsFontSizeToFit>
             {fmtCurKM(view.cur, view.paid)}
           </Text>
           <Text variant="caption" tone="faint" numberOfLines={1} style={{ fontVariant: ['tabular-nums'] }}>
@@ -225,7 +223,7 @@ export default function InvoiceDetail() {
               Web's Balance COLUMN is the stored balanceDue (total − prepayment),
               shown separately below so the two are never confused. */}
           <Text variant="label" tone="muted">Outstanding</Text>
-          <Text variant="h2" tone={view.balance > 0.01 ? 'negative' : 'positive'} style={{ marginTop: 6, fontVariant: ['tabular-nums'] }} numberOfLines={1}>
+          <Text variant="stat" tone={view.balance > 0.01 ? 'negative' : 'positive'} style={{ marginTop: 6 }} adjustsFontSizeToFit numberOfLines={1}>
             {fmtCurKM(view.cur, view.balance)}
           </Text>
           <Text variant="caption" tone="faint" numberOfLines={1} style={{ fontVariant: ['tabular-nums'] }}>
@@ -235,7 +233,7 @@ export default function InvoiceDetail() {
       </View>
 
       {/* Prepayment balance (web's "Balance" column) + IMS/GIS split */}
-      <Card style={{ marginBottom: 14 }}>
+      <Card style={{ marginBottom: 12 }}>
         {view.prepayBalanceLabel != null && (
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 10 }}>
             <Text variant="body" tone="muted">Balance (after prepayment)</Text>
@@ -253,7 +251,7 @@ export default function InvoiceDetail() {
       </Card>
 
       {/* Products */}
-      <Card style={{ marginBottom: 14 }}>
+      <Card style={{ marginBottom: 12 }}>
         <SectionHeader title="Materials" subtitle={`${products.length} line item(s)`} />
         {products.length === 0 ? (
           <Text variant="body" tone="muted">No materials on this invoice.</Text>

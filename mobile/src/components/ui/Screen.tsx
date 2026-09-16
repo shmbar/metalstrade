@@ -1,10 +1,10 @@
 import React from 'react';
-import { View, ScrollView, RefreshControl, ScrollViewProps, Platform, StyleSheet } from 'react-native';
+import { View, ScrollView, RefreshControl, ScrollViewProps, StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '@/theme/ThemeProvider';
 import { spacing } from '@/theme/tokens';
-import { hapticTap } from '@/lib/haptics';
-import { KeyboardRevealContext, useKeyboardAwareScroll } from '@/lib/keyboard';
+import { haptics } from '@/lib/haptics';
+import { KeyboardRevealContext, keyboardScrollProps, NATIVE_KEYBOARD_INSETS, useKeyboardAwareScroll } from '@/lib/keyboard';
 
 interface ScreenProps extends ScrollViewProps {
   scroll?: boolean;
@@ -32,7 +32,10 @@ export function Screen({
 }: ScreenProps) {
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
-  const { keyboard, scrollRef, onScroll, revealer } = useKeyboardAwareScroll();
+  // On iOS the scroll view is inset by the keyboard natively (keyboardScrollProps), so
+  // adding our own bottom padding as well would leave a keyboard-sized hole under the
+  // last field. Android has no such thing, so there we still pad by the measured overlap.
+  const kb = useKeyboardAwareScroll({ padForKeyboard: !NATIVE_KEYBOARD_INSETS });
 
   // Every (app) screen lives inside the tab navigator, whose bar already reserves the
   // device's bottom safe area — the screen ends at the bar's top edge. The old
@@ -52,27 +55,25 @@ export function Screen({
     );
   }
 
-  // While the keyboard is up the content gets that much more room at the end, so the
-  // last field on the page can still scroll above it.
+  // While the keyboard covers part of this screen the content gets exactly that much
+  // more room at the end, so the last field on the page can still scroll above it.
   const basePad = Number(StyleSheet.flatten([pad, contentContainerStyle])?.paddingBottom) || 0;
 
   return (
-    <View style={{ flex: 1, backgroundColor: colors.bg }}>
-      <KeyboardRevealContext.Provider value={revealer}>
+    <View ref={kb.frameRef} onLayout={kb.onFrameLayout} collapsable={false} style={{ flex: 1, backgroundColor: colors.bg }}>
+      <KeyboardRevealContext.Provider value={kb.revealer}>
         <ScrollView
-          ref={scrollRef}
+          ref={kb.scrollRef}
           style={{ flex: 1 }}
-          contentContainerStyle={[pad, contentContainerStyle, keyboard > 0 ? { paddingBottom: basePad + keyboard } : null]}
+          contentContainerStyle={[pad, contentContainerStyle, kb.bottomInset > 0 ? { paddingBottom: basePad + kb.bottomInset } : null]}
           showsVerticalScrollIndicator={false}
-          // With a search box focused, a tap on a row used to do nothing but dismiss
-          // the keyboard, so the row needed a second tap — one source of "some need
-          // to press a few times". "handled" lets the tap land on the control and
-          // still dismisses the keyboard when the tap is on empty space.
-          keyboardShouldPersistTaps="handled"
-          keyboardDismissMode={Platform.OS === 'ios' ? 'interactive' : 'on-drag'}
+          // Keyboard behaviour is the same on every scrollable in the app: iOS insets the
+          // view itself and scrolls the focused field up, taps still land on controls while
+          // the keyboard is open, and a drag dismisses it.
+          {...keyboardScrollProps}
           scrollEventThrottle={16}
           onScroll={(e) => {
-            onScroll(e);
+            kb.onScroll(e);
             onScrollProp?.(e);
           }}
           refreshControl={
@@ -80,7 +81,7 @@ export function Screen({
               // Fires the instant the pull-to-refresh triggers, every screen that
               // uses <Screen onRefresh>, the way pulling to refresh feels on a
               // banking app's transaction list.
-              <RefreshControl refreshing={!!refreshing} onRefresh={() => { hapticTap(); onRefresh(); }} tintColor={colors.primary} />
+              <RefreshControl refreshing={!!refreshing} onRefresh={() => { haptics.impact(); onRefresh(); }} tintColor={colors.primary} />
             ) : undefined
           }
           {...rest}

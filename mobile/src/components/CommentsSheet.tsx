@@ -6,7 +6,8 @@ import { useTheme } from '@/theme/ThemeProvider';
 import { useAuth } from '@/store/auth';
 import { useComments, addComment } from '@/features/comments/useComments';
 import { toast } from '@/store/toast';
-import { radius, spacing } from '@/theme/tokens';
+import { MAX_FONT_SCALE, radius, spacing, typography } from '@/theme/tokens';
+import { useShallow } from 'zustand/react/shallow';
 
 const relativeTime = (ms?: number) => {
   if (!ms) return '';
@@ -39,7 +40,7 @@ export function CommentsSheet({
   entityLabel: string;
 }) {
   const { colors } = useTheme();
-  const { uidCollection, currentUser } = useAuth();
+  const { uidCollection, currentUser } = useAuth(useShallow((s) => ({ uidCollection: s.uidCollection, currentUser: s.currentUser })));
   const { comments, loading } = useComments(entityType, entityId, visible);
   const [text, setText] = useState('');
   const [sending, setSending] = useState(false);
@@ -90,7 +91,8 @@ export function CommentsSheet({
               placeholderTextColor={colors.textFaint}
               multiline
               accessibilityLabel="Comment"
-              style={{ paddingVertical: 10, color: colors.text, fontFamily: 'PlusJakartaSans_400Regular', fontSize: 15 }}
+              maxFontSizeMultiplier={MAX_FONT_SCALE}
+              style={{ paddingVertical: 10, color: colors.text, fontFamily: typography.input.fontFamily, fontSize: typography.input.fontSize }}
             />
           </View>
           <IconButton

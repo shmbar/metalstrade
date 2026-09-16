@@ -6,13 +6,15 @@ import { Text } from '@/components/ui';
 import { useTheme } from '@/theme/ThemeProvider';
 import { radius } from '@/theme/tokens';
 import { useSettings } from '@/store/settings';
+import { haptics } from '@/lib/haptics';
+import { useShallow } from 'zustand/react/shallow';
 
 // Compact year stepper bound to the settings date window. The web app uses a
 // full date-range picker; on mobile the year stepper covers the common case and
 // the richer picker arrives with the statements screens.
 export function PeriodSelector() {
   const { colors } = useTheme();
-  const { dateSelect, setYear } = useSettings();
+  const { dateSelect, setYear } = useSettings(useShallow((s) => ({ dateSelect: s.dateSelect, setYear: s.setYear })));
   const year = parseInt(dateSelect.start.substring(0, 4)) || new Date().getFullYear();
 
   return (
@@ -33,7 +35,7 @@ export function PeriodSelector() {
           minimum, so a thumb often missed it. The slop grows outward (not toward
           the year label) so the two arrows still can't be confused. */}
       <Pressable
-        onPress={() => setYear(year - 1)}
+        onPress={() => { haptics.selection(); setYear(year - 1); }}
         hitSlop={{ top: 12, bottom: 12, left: 12, right: 4 }}
         style={{ padding: 8 }}
         accessibilityRole="button"
@@ -45,7 +47,7 @@ export function PeriodSelector() {
         {year}
       </Text>
       <Pressable
-        onPress={() => setYear(year + 1)}
+        onPress={() => { haptics.selection(); setYear(year + 1); }}
         hitSlop={{ top: 12, bottom: 12, left: 4, right: 12 }}
         style={{ padding: 8 }}
         accessibilityRole="button"

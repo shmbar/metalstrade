@@ -6,11 +6,12 @@ import { Contract } from '@/data/types';
 // Save (create or update) a contract, then refresh the lists/dashboard that
 // depend on it. `existing` is the pre-edit doc (for year-change + update logic).
 export function useSaveContract() {
-  const { uidCollection } = useAuth();
+  const uidCollection = useAuth((s) => s.uidCollection);
   const qc = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ value, existing }: { value: Contract; existing?: Contract }) => {
+    meta: { success: (_d: any, v: any) => v?.successMessage ?? 'Contract successfully saved!' },
+    mutationFn: async ({ value, existing }: { value: Contract; existing?: Contract; successMessage?: string }) => {
       if (!uidCollection) throw new Error('Not authenticated');
       return saveContract(uidCollection, value, existing);
     },
@@ -23,10 +24,11 @@ export function useSaveContract() {
 }
 
 export function useDeleteContract() {
-  const { uidCollection } = useAuth();
+  const uidCollection = useAuth((s) => s.uidCollection);
   const qc = useQueryClient();
 
   return useMutation({
+    meta: { success: (res: any) => (res?.ok ? 'Contract successfully deleted!' : null) },
     mutationFn: async (value: Contract) => {
       if (!uidCollection) throw new Error('Not authenticated');
       return deleteContract(uidCollection, value);

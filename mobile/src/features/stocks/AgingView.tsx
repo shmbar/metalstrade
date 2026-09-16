@@ -7,20 +7,24 @@ import { useSettings } from '@/store/settings';
 import { useStocks } from './useStocks';
 import { computeAging, BUCKET_TONE, STALE_DAYS, LONG_STAY_DAYS, formatDuration } from './aging';
 import { LIST_END_PADDING } from '@/theme/tokens';
+import { entityName } from '@/lib/entityName';
+import { useShallow } from 'zustand/react/shallow';
+import { keyboardScrollProps } from '@/lib/keyboard';
 
 const fmtQty = (n: number) => new Intl.NumberFormat('en-US', { minimumFractionDigits: 3 }).format(Number(n) || 0);
 const BUCKETS = ['0-30', '31-60', '61-90', '90+'] as const;
 
 export function AgingView() {
   const { colors } = useTheme();
-  const { settings } = useSettings();
+  const { settings, settingsLoaded } = useSettings(useShallow((s) => ({ settings: s.settings, settingsLoaded: s.loaded })));
   const { data, isLoading, isError, error, refetch } = useStocks();
 
-  const stockName = (id: string) => settings?.Stocks?.Stocks?.find((s: any) => s.id === id)?.nname || id || '—';
+  const stockName = (id: string) => entityName(settings?.Stocks?.Stocks, id, 'warehouse', settingsLoaded);
 
   const { byTerminal, staleRows } = useMemo(
     () => computeAging(data?.rows || [], stockName),
-    [data, settings]
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- stockName is rebuilt from exactly these
+    [data, settings, settingsLoaded]
   );
 
   if (isLoading) return <View style={{ flex: 1 }}><SkeletonList /></View>;
@@ -30,7 +34,8 @@ export function AgingView() {
   }
 
   return (
-    <ScrollView keyboardShouldPersistTaps="handled" style={{ flex: 1 }} contentContainerStyle={{ paddingBottom: LIST_END_PADDING }} showsVerticalScrollIndicator={false}>
+    <ScrollView
+        {...keyboardScrollProps} keyboardShouldPersistTaps="handled" style={{ flex: 1 }} contentContainerStyle={{ paddingBottom: LIST_END_PADDING }} showsVerticalScrollIndicator={false}>
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 10 }}>
         <Ionicons name="business-outline" size={16} color={colors.primary} />
         <Text variant="h3" style={{ flex: 1 }}>Storage Aging by Terminal</Text>

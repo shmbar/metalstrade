@@ -9,6 +9,7 @@ import { useStorage, useTagStorage, suggestWh, defaultMonth } from './useStorage
 import { UNIT } from '@shared/storageUtils';
 import { fmtMoney, dateLabel } from '@/lib/format';
 import { radius, spacing, LIST_END_PADDING } from '@/theme/tokens';
+import { keyboardScrollProps } from '@/lib/keyboard';
 
 const fmtUsd = (v: number) => `$${fmtMoney(v || 0)}`;
 // For raw, unconverted document amounts. Web renders these in the DOCUMENT's own
@@ -103,7 +104,7 @@ function MonthPicker({ value, onChange }: { value: string; onChange: (ym: string
 
 export function StorageView() {
   const { colors } = useTheme();
-  const { settings } = useSettings();
+  const settings = useSettings((s) => s.settings);
   const { derived, year, setYear, isLoading, isError, error, refetch } = useStorage();
   const tag = useTagStorage();
   const [unit, setUnit] = useState<'week' | 'month' | 'year'>('month');
@@ -146,7 +147,8 @@ export function StorageView() {
   };
 
   return (
-    <ScrollView keyboardShouldPersistTaps="handled"
+    <ScrollView
+        {...keyboardScrollProps} keyboardShouldPersistTaps="handled"
       style={{ flex: 1 }}
       contentContainerStyle={{ paddingBottom: LIST_END_PADDING }}
       showsVerticalScrollIndicator={false}
@@ -211,7 +213,7 @@ export function StorageView() {
       <View style={{ flexDirection: 'row', gap: 12, marginBottom: 12 }}>
         <Card style={{ flex: 1 }}>
           <Text variant="label" tone="muted">Storage spend</Text>
-          <Text variant="h2" style={{ marginTop: 6 }} adjustsFontSizeToFit numberOfLines={1}>
+          <Text variant="stat" style={{ marginTop: 6 }} adjustsFontSizeToFit numberOfLines={1}>
             {fmtUsd(actuals.totalSpend)}
           </Text>
           <Text variant="caption" tone="faint" style={{ marginTop: 2 }}>
@@ -220,7 +222,7 @@ export function StorageView() {
         </Card>
         <Card style={{ flex: 1 }}>
           <Text variant="label" tone="muted">In storage now</Text>
-          <Text variant="h2" style={{ marginTop: 6 }} adjustsFontSizeToFit numberOfLines={1}>
+          <Text variant="stat" style={{ marginTop: 6 }} adjustsFontSizeToFit numberOfLines={1}>
             {fmtMt(actuals.totalMt)} MT
           </Text>
           <Text variant="caption" tone="faint" style={{ marginTop: 2 }}>

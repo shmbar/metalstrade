@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { View, Alert, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, Alert } from 'react-native';
 import { Pressable } from '@/components/ui/Pressable';
 import { useLocalSearchParams, router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -28,8 +28,8 @@ export default function NewInvoice() {
   const noteLabel = isNote ? NOTE_LABEL[type as string] : '';
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
-  const { settings } = useSettings();
-  const { uidCollection } = useAuth();
+  const settings = useSettings((s) => s.settings);
+  const uidCollection = useAuth((s) => s.uidCollection);
   const { data: contracts, isLoading: contractsLoading } = useContracts();
   const contract = useMemo(() => contracts?.find((c) => c.id === id), [contracts, id]);
   const create = useCreateInvoice();
@@ -169,88 +169,86 @@ export default function NewInvoice() {
   };
 
   return (
-    <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-      <Screen contentContainerStyle={{ paddingTop: insets.top + 8 }} edges={false}>
-        <StackHeader
-          title={title}
-          subtitle={isNote ? `${noteLabel} for invoice #${inv.invoice} · ${contract.order}` : `From ${contract.order} · # assigned on save`}
-          backLabel="Cancel"
+    <Screen contentContainerStyle={{ paddingTop: insets.top + 8 }} edges={false}>
+      <StackHeader
+        title={title}
+        subtitle={isNote ? `${noteLabel} for invoice #${inv.invoice} · ${contract.order}` : `From ${contract.order} · # assigned on save`}
+        backLabel="Cancel"
+      />
+
+      <View style={{ gap: 14 }}>
+        <Card style={{ gap: 14 }}>
+          <Select label="Client" value={String(inv.client || '')} options={clientOptions} onChange={(v) => set({ client: v })} required />
+          <Select label="Shipment" value={String(inv.shpType || '')} options={shipOptions} onChange={(v) => set({ shpType: v })} required />
+          <DateField label={isNote ? `${noteLabel} date` : 'Invoice date'} required value={inv.dateRange?.startDate} onChange={(iso) => set({ dateRange: { startDate: iso, endDate: iso } })} />
+          <DateField label="Delivery date" value={(inv.delDate as any)?.startDate} onChange={(iso) => set({ delDate: { startDate: iso, endDate: iso } })} />
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+            <Text variant="body" tone="muted">Currency</Text>
+            <Text variant="bodyMedium">{sym.trim() === '€' ? 'EUR' : 'USD'} (from contract)</Text>
+          </View>
+        </Card>
+
+        <InvoiceHeaderFields
+          value={inv}
+          settings={settings}
+          onChange={onHeader}
+          salesContract={{
+            options: sc.headerOptions,
+            onPick: (scId) => set({ salesContractId: scId, clientContractNo: sc.contractNoOf(scId) ?? inv.clientContractNo }),
+          }}
         />
 
-        <View style={{ gap: 14 }}>
-          <Card style={{ gap: 14 }}>
-            <Select label="Client" value={String(inv.client || '')} options={clientOptions} onChange={(v) => set({ client: v })} required />
-            <Select label="Shipment" value={String(inv.shpType || '')} options={shipOptions} onChange={(v) => set({ shpType: v })} required />
-            <DateField label={isNote ? `${noteLabel} date` : 'Invoice date'} required value={inv.dateRange?.startDate} onChange={(iso) => set({ dateRange: { startDate: iso, endDate: iso } })} />
-            <DateField label="Delivery date" value={(inv.delDate as any)?.startDate} onChange={(iso) => set({ delDate: { startDate: iso, endDate: iso } })} />
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-              <Text variant="body" tone="muted">Currency</Text>
-              <Text variant="bodyMedium">{sym.trim() === '€' ? 'EUR' : 'USD'} (from contract)</Text>
-            </View>
-          </Card>
-
-          <InvoiceHeaderFields
-            value={inv}
-            settings={settings}
-            onChange={onHeader}
-            salesContract={{
-              options: sc.headerOptions,
-              onPick: (scId) => set({ salesContractId: scId, clientContractNo: sc.contractNoOf(scId) ?? inv.clientContractNo }),
-            }}
+        <Card>
+          <SectionHeader
+            title="Materials"
+            subtitle={`${lines.length} line(s)`}
+            right={<Text variant="h3" tone="primary">{sym}{fmtMoney(total)}</Text>}
           />
-
-          <Card>
-            <SectionHeader
-              title="Materials"
-              subtitle={`${lines.length} line(s)`}
-              right={<Text variant="h3" tone="primary">{sym}{fmtMoney(total)}</Text>}
-            />
-            {lines.map((l: any, i: number) => (
-              <View key={l.id} style={{ gap: 10, paddingVertical: 12, borderTopWidth: i === 0 ? 0 : 1, borderTopColor: colors.border }}>
-                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-                  <Text variant="label" tone="faint" style={{ width: 18 }}>{i + 1}</Text>
-                  <View style={{ flex: 1 }}>
-                    <Select label="Material" value={l.descriptionId} options={productOptions} onChange={(v) => setLine(i, { descriptionId: v })} required />
-                  </View>
-                  <Pressable onPress={() => removeLine(i)} hitSlop={8} accessibilityRole="button" accessibilityLabel="Remove line" style={{ padding: 4 }}>
-                    <Ionicons name="trash-outline" size={20} color={colors.negative} />
-                  </Pressable>
+          {lines.map((l: any, i: number) => (
+            <View key={l.id} style={{ gap: 10, paddingVertical: 12, borderTopWidth: i === 0 ? 0 : 1, borderTopColor: colors.border }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                <Text variant="label" tone="faint" style={{ width: 18 }}>{i + 1}</Text>
+                <View style={{ flex: 1 }}>
+                  <Select label="Material" value={l.descriptionId} options={productOptions} onChange={(v) => setLine(i, { descriptionId: v })} required />
                 </View>
-                <Select label="Warehouse" value={l.stock} options={whOptions} onChange={(v) => setLine(i, { stock: v })} required />
-                <View style={{ flexDirection: 'row', gap: 8 }}>
-                  <View style={{ flex: 1 }}><TextField label="Qty" value={String(l.qnty ?? '')} onChangeText={(t) => setLine(i, { qnty: t })} keyboardType="decimal-pad" /></View>
-                  <View style={{ flex: 1 }}><TextField label="Unit price" value={String(l.unitPrc ?? '')} onChangeText={(t) => setLine(i, { unitPrc: t })} keyboardType="decimal-pad" /></View>
-                  <View style={{ flex: 1, justifyContent: 'flex-end', paddingBottom: 12, alignItems: 'flex-end' }}>
-                    <Text variant="bodyMedium" tone="muted">{sym}{fmtMoney(num(l.total))}</Text>
-                  </View>
-                </View>
-                {/* Web per-line Sales PO (5ebacdb7): an invoice can cover several client POs. */}
-                <Select
-                  label="Sales contract"
-                  value={String(l.salesContractId || '')}
-                  options={sc.lineOptions}
-                  placeholder={inheritedSc ? `Invoice link: ${inheritedSc}` : 'Uses the invoice link'}
-                  onChange={(v) => setLine(i, { salesContractId: v || '' })}
-                />
+                <Pressable onPress={() => removeLine(i)} hitSlop={8} accessibilityRole="button" accessibilityLabel="Remove line" style={{ padding: 4 }}>
+                  <Ionicons name="trash-outline" size={18} color={colors.negative} />
+                </Pressable>
               </View>
-            ))}
-            <Pressable
-              onPress={addLine}
-              style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, marginTop: 12, paddingVertical: 11, borderRadius: 12, borderWidth: 1.5, borderStyle: 'dashed', borderColor: colors.borderStrong }}
-            >
-              <Ionicons name="add" size={18} color={colors.primary} />
-              <Text variant="bodyMedium" tone="primary">Add material</Text>
-            </Pressable>
-          </Card>
+              <Select label="Warehouse" value={l.stock} options={whOptions} onChange={(v) => setLine(i, { stock: v })} required />
+              <View style={{ flexDirection: 'row', gap: 8 }}>
+                <View style={{ flex: 1 }}><TextField label="Qty" value={String(l.qnty ?? '')} onChangeText={(t) => setLine(i, { qnty: t })} keyboardType="decimal-pad" /></View>
+                <View style={{ flex: 1 }}><TextField label="Unit price" value={String(l.unitPrc ?? '')} onChangeText={(t) => setLine(i, { unitPrc: t })} keyboardType="decimal-pad" /></View>
+                <View style={{ flex: 1, justifyContent: 'flex-end', paddingBottom: 12, alignItems: 'flex-end' }}>
+                  <Text variant="bodyMedium" tone="muted">{sym}{fmtMoney(num(l.total))}</Text>
+                </View>
+              </View>
+              {/* Web per-line Sales PO (5ebacdb7): an invoice can cover several client POs. */}
+              <Select
+                label="Sales contract"
+                value={String(l.salesContractId || '')}
+                options={sc.lineOptions}
+                placeholder={inheritedSc ? `Invoice link: ${inheritedSc}` : 'Uses the invoice link'}
+                onChange={(v) => setLine(i, { salesContractId: v || '' })}
+              />
+            </View>
+          ))}
+          <Pressable
+            onPress={addLine}
+            style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, marginTop: 12, paddingVertical: 11, borderRadius: 12, borderWidth: 1.5, borderStyle: 'dashed', borderColor: colors.borderStrong }}
+          >
+            <Ionicons name="add" size={18} color={colors.primary} />
+            <Text variant="bodyMedium" tone="primary">Add material</Text>
+          </Pressable>
+        </Card>
 
-          <Button title={isNote ? `Create ${noteLabel.toLowerCase()}` : 'Create invoice'} loading={create.isPending} onPress={onSave} />
-          <Text variant="caption" tone="faint" style={{ textAlign: 'center' }}>
-            {isNote
-              ? `Issued under invoice #${inv.invoice} and linked to ${contract.order}; the original is marked as having a ${noteLabel.toLowerCase()}.`
-              : `Assigns the next invoice #, links it to ${contract.order}, and ${inv.draft ? 'saves it as a draft — no stock moves until it is issued.' : 'records a stock-out per line.'}`}
-          </Text>
-        </View>
-      </Screen>
-    </KeyboardAvoidingView>
+        <Button title={isNote ? `Create ${noteLabel.toLowerCase()}` : 'Create invoice'} loading={create.isPending} onPress={onSave} />
+        <Text variant="caption" tone="faint" style={{ textAlign: 'center' }}>
+          {isNote
+            ? `Issued under invoice #${inv.invoice} and linked to ${contract.order}; the original is marked as having a ${noteLabel.toLowerCase()}.`
+            : `Assigns the next invoice #, links it to ${contract.order}, and ${inv.draft ? 'saves it as a draft — no stock moves until it is issued.' : 'records a stock-out per line.'}`}
+        </Text>
+      </View>
+    </Screen>
   );
 }

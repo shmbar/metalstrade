@@ -2,7 +2,7 @@ import React, { useRef, useState } from 'react';
 import { View, TextInput, TextInputProps } from 'react-native';
 import { Text } from './Text';
 import { useTheme } from '@/theme/ThemeProvider';
-import { radius, spacing } from '@/theme/tokens';
+import { layout, MAX_FONT_SCALE, radius, spacing, typography } from '@/theme/tokens';
 import { useKeyboardRevealer } from '@/lib/keyboard';
 
 interface TextFieldProps extends TextInputProps {
@@ -35,17 +35,18 @@ export function TextField({ label, error, rightElement, style, onFocus, onBlur, 
           borderWidth: 1,
           borderColor: error ? colors.negative : focused ? colors.primary : colors.borderStrong,
           paddingHorizontal: spacing.md,
-          minHeight: 48,
+          minHeight: layout.controlHeight,
         }}
       >
         <TextInput
           placeholderTextColor={colors.textFaint}
+          maxFontSizeMultiplier={MAX_FONT_SCALE}
           style={[
             {
               flex: 1,
               paddingVertical: 12,
-              fontFamily: 'PlusJakartaSans_400Regular',
-              fontSize: 15,
+              fontFamily: typography.input.fontFamily,
+              fontSize: typography.input.fontSize,
               color: colors.text,
             },
             style,

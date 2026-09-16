@@ -77,7 +77,7 @@ export function ProductsEditor({ products, currency, onChange, priceMode = 'unit
               />
             </View>
             <Pressable onPress={() => remove(p.id)} hitSlop={8} accessibilityRole="button" accessibilityLabel="Remove product" style={{ padding: 4 }}>
-              <Ionicons name="trash-outline" size={20} color={colors.negative} />
+              <Ionicons name="trash-outline" size={18} color={colors.negative} />
             </Pressable>
           </View>
 

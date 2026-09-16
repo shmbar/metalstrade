@@ -18,6 +18,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/store/auth';
 import { updateContractField } from '@/data/writes';
 import { toast } from '@/store/toast';
+import { keyboardScrollProps } from '@/lib/keyboard';
 
 type SortKey = 'date' | 'value' | 'mt';
 const SORTS: { key: SortKey; label: string }[] = [
@@ -30,7 +31,7 @@ export default function ContractsList() {
   // The create button folds to a circle while the list scrolls down.
   const fab = useFabScroll();
   const { colors } = useTheme();
-  const { settings } = useSettings();
+  const settings = useSettings((s) => s.settings);
   const { data: contracts, isLoading, isError, error, refetch } = useContracts();
   const { duplicate } = useDuplicateContract();
   const [search, setSearch] = useState('');
@@ -40,7 +41,7 @@ export default function ContractsList() {
      invoice yet, 14 days past its end date, stays flagged until dismissed. "Dismissed"
      is contract.alert === false; a contract that never had the field counts as
      flagged, exactly like web's alert === undefined branch. */
-  const { uidCollection } = useAuth();
+  const uidCollection = useAuth((s) => s.uidCollection);
   const qc = useQueryClient();
   const [alertsOpen, setAlertsOpen] = useState(false);
   const [dismissed, setDismissed] = useState<Record<string, true>>({});
@@ -62,7 +63,7 @@ export default function ContractsList() {
     try {
       await updateContractField(uidCollection, c.id, c.dateRange?.startDate || c.date || '', { alert: false });
       qc.invalidateQueries({ queryKey: ['contracts'] });
-      toast.success('Alert removed');
+      toast.success('Alert successfully removed!');
     } catch (e: any) {
       setDismissed((p) => {
         const next = { ...p };
@@ -179,7 +180,8 @@ export default function ContractsList() {
           onAction={search ? undefined : () => router.push('/(app)/contracts/edit')}
         />
       ) : (
-        <FlatList keyboardShouldPersistTaps="handled"
+        <FlatList
+        {...keyboardScrollProps} keyboardShouldPersistTaps="handled"
           data={filtered}
           keyExtractor={(c) => c.id}
           renderItem={({ item, index }) => (

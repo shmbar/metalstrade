@@ -1793,8 +1793,13 @@ export const runSupPayments = async (uidCollection, settings, yr, contractsData 
                 shipmentEtd: contract.shipmentEtd || invShip[contract.id]?.etd || '',
                 shipmentEta: contract.shipmentEta || invShip[contract.id]?.eta || '',
                 // Where the goods physically are between supplier and our warehouse —
-                // see CargoStatus. Set on the contract, so every invoice of the PO agrees.
-                cargoStatus: contract.cargoStatus || '',
+                // see CargoStatus. Per purchase INVOICE: a PO ships in several lots, so
+                // one invoice is genuinely in transit while the next still waits at the
+                // supplier. It was first written on the contract, which moved every row
+                // of the PO at once (reported 2026-09-16). The contract-level value is
+                // that older spelling, still read as a fallback so rows set under it keep
+                // showing what they showed until each is next set.
+                cargoStatus: inv.cargoStatus || contract.cargoStatus || '',
                 contractData: {
                     productsData: contract.productsData || [],
                     shpType: contract.shpType, origin: contract.origin,

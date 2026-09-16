@@ -7,6 +7,7 @@ import { Invoice } from '@/data/types';
 import { groupInvoices, isIssued, num } from '@shared/finance';
 import { resolveClientName } from '@/features/invoices/useInvoices';
 import { arr } from '@/lib/guard';
+import { useShallow } from 'zustand/react/shallow';
 
 export interface AnalysisRow {
   name: string;
@@ -20,8 +21,8 @@ const invoiceWeight = (inv: any) =>
 // Weight analysis (parity with the web Analysis page): shipped weight grouped by
 // material and by client across the period's issued invoices.
 export function useAnalysis() {
-  const { uidCollection } = useAuth();
-  const { settings, dateSelect, loaded } = useSettings();
+  const uidCollection = useAuth((s) => s.uidCollection);
+  const { settings, dateSelect, loaded } = useSettings(useShallow((s) => ({ settings: s.settings, dateSelect: s.dateSelect, loaded: s.loaded })));
 
   const query = useQuery({
     enabled: !!uidCollection && loaded,

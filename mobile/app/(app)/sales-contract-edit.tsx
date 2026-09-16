@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { View, Alert, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, Alert } from 'react-native';
 import { Pressable } from '@/components/ui/Pressable';
 import { useLocalSearchParams, router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -13,7 +13,6 @@ import {
 import { blankSalesContract, newId } from '@/data/writes';
 import { curSymbol, fmtMoney } from '@/lib/format';
 import { num } from '@shared/finance';
-import { hapticSuccess } from '@/lib/haptics';
 import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '@/store/auth';
 import { loadData } from '@/data/firestore';
@@ -25,7 +24,7 @@ export default function SalesContractEdit() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
-  const { settings } = useSettings();
+  const settings = useSettings((s) => s.settings);
   const { rows } = useSalesContracts();
   const save = useSaveSalesContract();
   const del = useDeleteSalesContract();
@@ -66,7 +65,7 @@ export default function SalesContractEdit() {
      sales contract's year ±1 — cargo is often bought a season before it is sold on —
      with finished business hidden by default, since a PO whose cargo is long sold is
      never the one being linked. Hidden, never unreachable: the chip says how many. */
-  const { uidCollection } = useAuth();
+  const uidCollection = useAuth((s) => s.uidCollection);
   const scYear = parseInt(String(v.dateRange?.startDate || v.date || '').substring(0, 4), 10) || new Date().getFullYear();
   const { data: purchaseContracts = [] } = useQuery({
     enabled: !!uidCollection,
@@ -144,7 +143,6 @@ export default function SalesContractEdit() {
         value: v,
         previousDate: (existing as any)?.raw?.dateRange?.startDate || (existing as any)?.raw?.date,
       });
-      hapticSuccess();
       router.back();
     } catch (e: any) {
       Alert.alert('Save failed', e?.message || 'Could not save the sales contract.');
@@ -171,109 +169,107 @@ export default function SalesContractEdit() {
   const sym = curSymbol(v.cur);
 
   return (
-    <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-      <Screen contentContainerStyle={{ paddingTop: insets.top + 8 }} edges={false}>
-        <StackHeader title={isNew ? 'New sales contract' : 'Sales contract'} backLabel="Cancel" />
+    <Screen contentContainerStyle={{ paddingTop: insets.top + 8 }} edges={false}>
+      <StackHeader title={isNew ? 'New sales contract' : 'Sales contract'} backLabel="Cancel" />
 
-        <Card style={{ gap: 12, marginBottom: 14 }}>
-          <TextField
-            label="Sales contract # *"
-            value={String(v.contractNo ?? '')}
-            onChangeText={(t) => set('contractNo', t)}
-            error={err('contractNo')}
-          />
-          <DateField label="Date" value={v.dateRange?.startDate || v.date || null} onChange={setDate} error={err('date')} required />
-          <Select label="Client" value={v.client} options={clientOptions} onChange={(x) => set('client', x)} error={err('client')} required />
-          <Select label="Currency" value={v.cur} options={curOptions} onChange={(x) => set('cur', x)} error={err('cur')} required />
-          <Select label="Quantity unit" value={v.qTypeTable} options={qtyOptions} onChange={(x) => set('qTypeTable', x)} />
-          <Select
-            label="Purchase contract (PO)"
-            value={poId}
-            options={poOptions}
-            onChange={linkPo}
-            placeholder="Not linked"
-          />
-          {completedCount > 0 && (
-            <View style={{ flexDirection: 'row' }}>
-              <Chip
-                label={showCompletedPos ? 'Hide completed POs' : `Show ${completedCount} completed PO${completedCount === 1 ? '' : 's'}`}
-                icon={showCompletedPos ? 'eye-off-outline' : 'eye-outline'}
-                active={showCompletedPos}
-                onPress={() => setShowCompletedPos((x) => !x)}
-              />
-            </View>
-          )}
-          <TextField label="Comments" value={String(v.comments ?? '')} onChangeText={(t) => set('comments', t)} multiline />
-        </Card>
-
-        <Card style={{ marginBottom: 14 }}>
-          <SectionHeader
-            title="Materials"
-            subtitle={`${lines.length} line(s)`}
-            right={
-              <IconButton icon="add" size={36} accessibilityLabel="Add line" onPress={addLine} />
-            }
-          />
-          {lines.length === 0 ? (
-            <Text variant="body" tone="muted">No material lines yet.</Text>
-          ) : (
-            lines.map((p, i) => (
-              <View
-                key={p.id || i}
-                style={{ paddingVertical: 10, borderTopWidth: i === 0 ? 0 : 1, borderTopColor: colors.border, gap: 8 }}
-              >
-                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-                  <View style={{ flex: 1 }}>
-                    <TextField
-                      label="Description"
-                      value={String(p.description ?? '')}
-                      onChangeText={(t) => setLine(i, { description: t })}
-                    />
-                  </View>
-                  <Pressable onPress={() => removeLine(i)} hitSlop={8} accessibilityRole="button" accessibilityLabel="Remove line" style={{ paddingTop: 18 }}>
-                    <Ionicons name="trash-outline" size={18} color={colors.negative} />
-                  </Pressable>
-                </View>
-                <View style={{ flexDirection: 'row', gap: 10 }}>
-                  <View style={{ flex: 1 }}>
-                    <TextField
-                      label="Quantity"
-                      value={String(p.qnty ?? '')}
-                      onChangeText={(t) => setLine(i, { qnty: t.replace(/[^0-9.]/g, '') })}
-                      keyboardType="decimal-pad"
-                    />
-                  </View>
-                  <View style={{ flex: 1 }}>
-                    <TextField
-                      label="Unit price"
-                      value={String(p.unitPrc ?? '')}
-                      onChangeText={(t) => setLine(i, { unitPrc: t.replace(/[^0-9.]/g, '') })}
-                      keyboardType="decimal-pad"
-                    />
-                  </View>
-                </View>
-                <Text variant="caption" tone="faint" style={{ textAlign: 'right' }}>
-                  Line total {sym}{fmtMoney(num(p.qnty) * num(p.unitPrc))}
-                </Text>
-              </View>
-            ))
-          )}
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingTop: 10, marginTop: 6, borderTopWidth: 1, borderTopColor: colors.border }}>
-            <Text variant="bodyMedium">Total</Text>
-            <Text variant="bodyMedium" tone="primary" style={{ fontVariant: ['tabular-nums'] }}>
-              {sym}{fmtMoney(total)}
-            </Text>
+      <Card style={{ gap: 12, marginBottom: 12 }}>
+        <TextField
+          label="Sales contract # *"
+          value={String(v.contractNo ?? '')}
+          onChangeText={(t) => set('contractNo', t)}
+          error={err('contractNo')}
+        />
+        <DateField label="Date" value={v.dateRange?.startDate || v.date || null} onChange={setDate} error={err('date')} required />
+        <Select label="Client" value={v.client} options={clientOptions} onChange={(x) => set('client', x)} error={err('client')} required />
+        <Select label="Currency" value={v.cur} options={curOptions} onChange={(x) => set('cur', x)} error={err('cur')} required />
+        <Select label="Quantity unit" value={v.qTypeTable} options={qtyOptions} onChange={(x) => set('qTypeTable', x)} />
+        <Select
+          label="Purchase contract (PO)"
+          value={poId}
+          options={poOptions}
+          onChange={linkPo}
+          placeholder="Not linked"
+        />
+        {completedCount > 0 && (
+          <View style={{ flexDirection: 'row' }}>
+            <Chip
+              label={showCompletedPos ? 'Hide completed POs' : `Show ${completedCount} completed PO${completedCount === 1 ? '' : 's'}`}
+              icon={showCompletedPos ? 'eye-off-outline' : 'eye-outline'}
+              active={showCompletedPos}
+              onPress={() => setShowCompletedPos((x) => !x)}
+            />
           </View>
-        </Card>
-
-        <Button title="Save" loading={save.isPending} onPress={onSave} />
-        {!isNew && (
-          <Pressable onPress={onDelete} style={{ alignSelf: 'center', paddingVertical: 14 }}>
-            <Text variant="bodyMedium" style={{ color: colors.negative }}>Delete sales contract</Text>
-          </Pressable>
         )}
-      </Screen>
-    </KeyboardAvoidingView>
+        <TextField label="Comments" value={String(v.comments ?? '')} onChangeText={(t) => set('comments', t)} multiline />
+      </Card>
+
+      <Card style={{ marginBottom: 12 }}>
+        <SectionHeader
+          title="Materials"
+          subtitle={`${lines.length} line(s)`}
+          right={
+            <IconButton icon="add" size={36} accessibilityLabel="Add line" onPress={addLine} />
+          }
+        />
+        {lines.length === 0 ? (
+          <Text variant="body" tone="muted">No material lines yet.</Text>
+        ) : (
+          lines.map((p, i) => (
+            <View
+              key={p.id || i}
+              style={{ paddingVertical: 10, borderTopWidth: i === 0 ? 0 : 1, borderTopColor: colors.border, gap: 8 }}
+            >
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                <View style={{ flex: 1 }}>
+                  <TextField
+                    label="Description"
+                    value={String(p.description ?? '')}
+                    onChangeText={(t) => setLine(i, { description: t })}
+                  />
+                </View>
+                <Pressable onPress={() => removeLine(i)} hitSlop={8} accessibilityRole="button" accessibilityLabel="Remove line" style={{ paddingTop: 18 }}>
+                  <Ionicons name="trash-outline" size={18} color={colors.negative} />
+                </Pressable>
+              </View>
+              <View style={{ flexDirection: 'row', gap: 10 }}>
+                <View style={{ flex: 1 }}>
+                  <TextField
+                    label="Quantity"
+                    value={String(p.qnty ?? '')}
+                    onChangeText={(t) => setLine(i, { qnty: t.replace(/[^0-9.]/g, '') })}
+                    keyboardType="decimal-pad"
+                  />
+                </View>
+                <View style={{ flex: 1 }}>
+                  <TextField
+                    label="Unit price"
+                    value={String(p.unitPrc ?? '')}
+                    onChangeText={(t) => setLine(i, { unitPrc: t.replace(/[^0-9.]/g, '') })}
+                    keyboardType="decimal-pad"
+                  />
+                </View>
+              </View>
+              <Text variant="caption" tone="faint" style={{ textAlign: 'right' }}>
+                Line total {sym}{fmtMoney(num(p.qnty) * num(p.unitPrc))}
+              </Text>
+            </View>
+          ))
+        )}
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingTop: 10, marginTop: 6, borderTopWidth: 1, borderTopColor: colors.border }}>
+          <Text variant="bodyMedium">Total</Text>
+          <Text variant="bodyMedium" tone="primary" style={{ fontVariant: ['tabular-nums'] }}>
+            {sym}{fmtMoney(total)}
+          </Text>
+        </View>
+      </Card>
+
+      <Button title="Save" loading={save.isPending} onPress={onSave} />
+      {!isNew && (
+        <Pressable onPress={onDelete} style={{ alignSelf: 'center', paddingVertical: 14 }}>
+          <Text variant="bodyMedium" style={{ color: colors.negative }}>Delete sales contract</Text>
+        </Pressable>
+      )}
+    </Screen>
   );
 }
 

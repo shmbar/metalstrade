@@ -23,7 +23,7 @@ export const blankLot = (id: string) => ({
 
 // Load a contract's existing warehouse lots (sorted by arrival date, like whModal).
 export function useStockInLots(contract: Contract | undefined) {
-  const { uidCollection } = useAuth();
+  const uidCollection = useAuth((s) => s.uidCollection);
   const ids = contract?.stock || [];
   return useQuery({
     enabled: !!uidCollection && !!contract,
@@ -42,9 +42,10 @@ export function useStockInLots(contract: Contract | undefined) {
 // Persist the contract's stock lots via the faithful saveContractStocks port
 // (writes lots, re-saves the contract with the lot-id list, regenerates spInv rows).
 export function useSaveStockIn() {
-  const { uidCollection } = useAuth();
+  const uidCollection = useAuth((s) => s.uidCollection);
   const qc = useQueryClient();
   return useMutation({
+    meta: { success: 'Stock successfully saved!' },
     mutationFn: async ({ contract, lots }: { contract: Contract; lots: any[] }) => {
       if (!uidCollection) throw new Error('Not authenticated');
       return saveContractStocks(uidCollection, contract, lots);

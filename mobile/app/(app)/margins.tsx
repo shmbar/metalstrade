@@ -12,14 +12,15 @@ import { useMargins } from '@/features/margins/useMargins';
 import { gisPurchasedDecimals, GIS_OUTSTANDING_DECIMALS } from '@/features/margins/derive';
 import { streamSse, apiConfigured } from '@/lib/api';
 import { fmtAutoKM, fmtMoney } from '@/lib/format';
-import { hapticTap } from '@/lib/haptics';
+import { haptics } from '@/lib/haptics';
+import { useShallow } from 'zustand/react/shallow';
 
 const mt = (n: number) => `${fmtMoney(n, 0)} MT`;
 
 export default function Margins() {
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
-  const { gisAccount, canRoute } = useAuth();
+  const { gisAccount, canRoute } = useAuth(useShallow((s) => ({ gisAccount: s.gisAccount, canRoute: s.canRoute })));
   const allowed = canRoute('margins');
   const hideBalances = usePrivacyStore((s) => s.hidden);
   const togglePrivacy = usePrivacyStore((s) => s.toggle);
@@ -65,7 +66,7 @@ export default function Margins() {
             <IconButton
               icon={hideBalances ? 'eye-off-outline' : 'eye-outline'}
               accessibilityLabel={hideBalances ? 'Show balances' : 'Hide balances'}
-              onPress={() => { hapticTap(); togglePrivacy(); }}
+              onPress={() => { haptics.selection(); togglePrivacy(); }}
             />
             <PeriodSelector />
           </View>
@@ -108,7 +109,7 @@ export default function Margins() {
           {gisAccount && (
             <Card style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
               <Text variant="label" tone="muted">GIS profit</Text>
-              <Text variant="h3" tone="positive">{maskIfHidden(hideBalances, fmtAutoKM(totals.profitGIS))}</Text>
+              <Text variant="figure" tone="positive">{maskIfHidden(hideBalances, fmtAutoKM(totals.profitGIS))}</Text>
               <View style={{ flexDirection: 'row', gap: 14, marginTop: 8 }}>
                 <View style={{ flex: 1 }}>
                   <Text variant="caption" tone="muted">Purchased</Text>

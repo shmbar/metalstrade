@@ -4,7 +4,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { Text } from './Text';
 import { Pressable } from './Pressable';
 import { useTheme } from '@/theme/ThemeProvider';
-import { radius } from '@/theme/tokens';
+import { layout, radius } from '@/theme/tokens';
+import { haptics } from '@/lib/haptics';
 
 export interface ChipProps {
   label: string;
@@ -23,21 +24,23 @@ export interface ChipProps {
  * border, the same treatment as the dashboard's filter chips, so "selected"
  * looks the same on every screen instead of each list inventing its own.
  */
-export function Chip({ label, active = false, onPress, icon, count, trailingIcon }: ChipProps) {
+export function Chip({ label, active: activeProp, onPress, icon, count, trailingIcon }: ChipProps) {
   const { colors } = useTheme();
+  const active = !!activeProp;
+  const press = onPress && activeProp !== undefined ? () => { haptics.selection(); onPress(); } : onPress;
   const fg = active ? colors.primary : colors.textMuted;
   return (
     <Pressable
-      onPress={onPress}
+      onPress={press}
       hitSlop={6}
       accessibilityRole="button"
       accessibilityState={{ selected: active }}
       style={{
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 5,
-        height: 34,
-        paddingHorizontal: 13,
+        gap: 6,
+        height: layout.pillHeight,
+        paddingHorizontal: 14,
         borderRadius: radius.pill,
         borderWidth: 1,
         borderColor: active ? colors.primary : colors.border,
@@ -45,7 +48,7 @@ export function Chip({ label, active = false, onPress, icon, count, trailingIcon
       }}
     >
       {icon ? <Ionicons name={icon} size={14} color={fg} /> : null}
-      <Text variant="caption" color={fg} style={{ fontFamily: 'PlusJakartaSans_600SemiBold' }}>
+      <Text variant="captionStrong" color={fg}>
         {label}
       </Text>
       {typeof count === 'number' ? (
@@ -61,9 +64,8 @@ export function Chip({ label, active = false, onPress, icon, count, trailingIcon
           }}
         >
           <Text
-            variant="caption"
+            variant="tableStrong"
             color={active ? colors.primaryText : colors.textMuted}
-            style={{ fontSize: 11, lineHeight: 14, fontFamily: 'PlusJakartaSans_600SemiBold', fontVariant: ['tabular-nums'] }}
           >
             {count}
           </Text>

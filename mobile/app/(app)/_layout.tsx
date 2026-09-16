@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
-import { View } from 'react-native';
+import { AppState, View } from 'react-native';
+import { onlineManager } from '@tanstack/react-query';
 import { Tabs, Redirect, useSegments } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -8,8 +9,12 @@ import { useSettings } from '@/store/settings';
 import { OfflineBanner } from '@/components/OfflineBanner';
 import { registerPush, listenPushTaps } from '@/features/push/registerPush';
 import { useLiveSync } from '@/features/live/useLiveSync';
+import { useFreshOnFocus } from '@/features/live/useFreshOnFocus';
+import { useWarmLedger } from '@/features/stocks/useWarmLedger';
 import { useTheme } from '@/theme/ThemeProvider';
-import { getShadow } from '@/theme/tokens';
+import { getShadow, typography } from '@/theme/tokens';
+import { haptics } from '@/lib/haptics';
+import { useShallow } from 'zustand/react/shallow';
 
 export { AppErrorBoundary as ErrorBoundary } from '@/components/AppErrorBoundary';
 
@@ -29,8 +34,9 @@ function tabIcon(base: string, activeColor: string) {
 }
 
 export default function AppLayout() {
-  const { user, initializing, uidCollection, currentUser, canRoute, landingHref, allowedPages } = useAuth();
+  const { user, initializing, uidCollection, currentUser, canRoute, landingHref, allowedPages } = useAuth(useShallow((s) => ({ user: s.user, initializing: s.initializing, uidCollection: s.uidCollection, currentUser: s.currentUser, canRoute: s.canRoute, landingHref: s.landingHref, allowedPages: s.allowedPages })));
   const loadSettings = useSettings((s) => s.load);
+  const startSettings = useSettings((s) => s.start);
   const { colors, scheme } = useTheme();
   const insets = useSafeAreaInsets();
   // Per-page permissions (web utils/permissions.js): the tab bar and every route are
@@ -40,11 +46,24 @@ export default function AppLayout() {
   const route = segments[1] || 'index';
   const homeIsAccounting = !canRoute('index') && canRoute('accounting');
 
-  // Load account settings (suppliers/clients/quantity + company data) once we
-  // know the tenant namespace — every screen derives names/rates from these.
+  // The lists start from the device copy, retry until the server answers, follow edits
+  // live, and refresh on reconnect or on returning to the app (store/settings.ts).
   useEffect(() => {
-    if (uidCollection) loadSettings(uidCollection);
-  }, [uidCollection, loadSettings]);
+    if (!uidCollection) return;
+    const stop = startSettings(uidCollection);
+    const refresh = () => loadSettings(uidCollection);
+    const unOnline = onlineManager.subscribe((online) => {
+      if (online) refresh();
+    });
+    const appState = AppState.addEventListener('change', (next) => {
+      if (next === 'active') refresh();
+    });
+    return () => {
+      stop();
+      unOnline();
+      appState.remove();
+    };
+  }, [uidCollection, loadSettings, startSettings]);
 
   // Register this device for push alerts (overdue-invoice digest). Silent no-op
   // if the user declines or the device can't receive push.
@@ -57,6 +76,10 @@ export default function AppLayout() {
 
   // Live multi-user sync: teammate writes refresh this device in real time.
   useLiveSync(uidCollection);
+  // The big stock ledger starts loading at sign-in and then stays live.
+  useWarmLedger(uidCollection);
+  // Switching tab (or returning to the app) refreshes what is on screen and stale.
+  useFreshOnFocus(route, !!uidCollection);
 
   if (initializing) return null;
   if (!user) return <Redirect href="/sign-in" />;
@@ -69,6 +92,7 @@ export default function AppLayout() {
     <View style={{ flex: 1 }}>
     <OfflineBanner />
     <Tabs
+      screenListeners={{ tabPress: () => haptics.selection() }}
       screenOptions={{
         headerShown: false,
         // A visited tab stays mounted, and without this it keeps re-rendering in
@@ -89,7 +113,8 @@ export default function AppLayout() {
           paddingTop: 8,
           ...getShadow(scheme, 'lg'),
         },
-        tabBarLabelStyle: { fontFamily: 'PlusJakartaSans_600SemiBold', fontSize: 10.5, marginTop: -2 },
+        tabBarAllowFontScaling: false,
+        tabBarLabelStyle: { fontFamily: typography.overline.fontFamily, fontSize: typography.overline.fontSize, marginTop: -2 },
       }}
     >
       <Tabs.Screen
@@ -143,6 +168,11 @@ export default function AppLayout() {
       <Tabs.Screen name="margins" options={{ href: null }} />
       <Tabs.Screen name="formulas" options={{ href: null }} />
       <Tabs.Screen name="settings-entity" options={{ href: null }} />
+      <Tabs.Screen name="settings-company" options={{ href: null }} />
+      <Tabs.Screen name="settings-setup" options={{ href: null }} />
+      <Tabs.Screen name="settings-grades" options={{ href: null }} />
+      <Tabs.Screen name="settings-email" options={{ href: null }} />
+      <Tabs.Screen name="settings-users" options={{ href: null }} />
       <Tabs.Screen name="config-editor" options={{ href: null }} />
       <Tabs.Screen name="analysis" options={{ href: null }} />
       <Tabs.Screen name="stock-audit" options={{ href: null }} />

@@ -2,6 +2,7 @@ import React from 'react';
 import { View } from 'react-native';
 import { Text } from '@/components/ui/Text';
 import { BackButton } from '@/components/ui/BackButton';
+import { layout } from '@/theme/tokens';
 
 /**
  * Header for every pushed (non-tab) screen: back control, title block, and an
@@ -26,7 +27,7 @@ export function StackHeader({
   onBack?: () => void;
 }) {
   return (
-    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 14 }}>
+    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: layout.headerGap }}>
       <BackButton label={backLabel} onPress={onBack} />
       <View style={{ flex: 1, minWidth: 0 }}>
         <Text variant="h2" numberOfLines={1}>

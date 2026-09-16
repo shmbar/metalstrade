@@ -1,193 +1,391 @@
 import { useMemo, useState } from 'react';
 import { View, Alert } from 'react-native';
 import { Pressable } from '@/components/ui/Pressable';
-import { useLocalSearchParams } from 'expo-router';
+import { useLocalSearchParams, router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Screen, Card, Text, TextField, Button, EmptyState, Sheet, IconButton } from '@/components/ui';
+import { Screen, Card, Text, TextField, Select, Button, EmptyState, Sheet, IconButton, SegmentedControl, SectionHeader, Avatar } from '@/components/ui';
 import { useTheme } from '@/theme/ThemeProvider';
 import { useSettings } from '@/store/settings';
 import { useSettingsEdit } from '@/features/settings/useSettingsEdit';
+import { toast } from '@/store/toast';
 import { newId } from '@/data/writes';
 import { spacing } from '@/theme/tokens';
 import { StackHeader } from '@/components/StackHeader';
 
-// Per-type config: category key, display field, label, and the editable fields.
-function configFor(type: string) {
-  if (type === 'Annex VII') {
-    return {
-      cat: 'Annex VII', displayKey: 'name', label: 'Annex VII Template',
-      fields: [
-        { key: 'name', label: 'Template name *' },
-        { key: 'rDCode', label: 'R-Code / D-Code (field 8)' },
-        { key: 'wasteDescription', label: 'Waste description (field 9)' },
-        { key: 'baselCode', label: 'Basel Annex IX (10.i)' },
-        { key: 'oecdCode', label: 'OECD code (10.ii)' },
-        { key: 'annexIIIACode', label: 'Annex IIIA (10.iii)' },
-        { key: 'annexIIIBCode', label: 'Annex IIIB (10.iv)' },
-        { key: 'euCode', label: 'EU list of wastes (10.v)' },
-        { key: 'nationalCode', label: 'National code (10.vi)' },
-        { key: 'otherCode', label: 'Other code (10.vii)' },
-        { key: 'exportCountry', label: 'Export / Dispatch country (11)' },
-        { key: 'transitCountry', label: 'Transit country (11)' },
-        { key: 'importCountry', label: 'Import / Destination (11)' },
-      ],
-    };
+/*
+ * One editor for the settings directories that are lists of records — web's Suppliers,
+ * Clients, Bank Account, Stocks and Documents tabs (settings/tabs/*.js). Each type below
+ * carries web's own fields, labels, required fields, list order, delete rule and
+ * delete wording, so a record saved here is the record web would have saved.
+ */
+
+type Field = {
+  key: string;
+  label: string;
+  required?: boolean;
+  placeholder?: string;
+  maxLength?: number;
+  select?: 'currency' | 'stockType';
+  group?: string;
+};
+
+type Config = {
+  cat: string;
+  title: string;
+  /** "New …" / "Edit …" */
+  noun: string;
+  fields: Field[];
+  sortKey: string;
+  primary: (x: any) => string;
+  secondary: (x: any) => string;
+  avatar?: (x: any) => string;
+  /** Documents are removed outright on web; every other list is soft-deleted */
+  hardDelete?: boolean;
+  /** web ModalToDelete text; Documents delete without asking, as web does */
+  confirm?: string;
+  /** web's message for a missing name on the Documents tab */
+  nameMessage?: string;
+};
+
+const DOCS = ['Annex VII', 'ISF', 'Carrier'];
+
+const partyFields = (nameKey: string): Field[] => [
+  { key: nameKey, label: 'Name', required: true },
+  { key: 'nname', label: 'Nick Name', required: true },
+  { key: 'street', label: 'Street', required: true },
+  { key: 'city', label: 'City', required: true },
+  { key: 'country', label: 'Country', required: true },
+  { key: 'other1', label: 'Other' },
+  { key: 'poc', label: 'POC', group: 'Contact' },
+  { key: 'email', label: 'Email', group: 'Contact' },
+  { key: 'phone', label: 'Phone', group: 'Contact' },
+  { key: 'mobile', label: 'Mobile', group: 'Contact' },
+  { key: 'fax', label: 'Fax', group: 'Contact' },
+  { key: 'other2', label: 'Other', group: 'Contact' },
+];
+
+function configFor(type: string): Config {
+  switch (type) {
+    case 'Annex VII':
+      return {
+        cat: 'Annex VII',
+        title: 'Documents',
+        noun: 'Template',
+        sortKey: 'name',
+        hardDelete: true,
+        nameMessage: 'Template name is required.',
+        primary: (x) => x.nickname || x.name || '(unnamed)',
+        secondary: (x) => [x.rDCode, x.wasteDescription].filter(Boolean).join(' · '),
+        fields: [
+          { key: 'name', label: 'Template Name', required: true },
+          { key: 'rDCode', label: 'R-Code / D-Code (field 8)', placeholder: 'e.g. R4' },
+          { key: 'wasteDescription', label: 'Waste Description (field 9)', placeholder: 'e.g. Ni Cr Turnings' },
+          { key: 'baselCode', label: 'Basel Annex IX (field 10.i)', placeholder: 'e.g. B1010' },
+          { key: 'oecdCode', label: 'OECD Code (field 10.ii)' },
+          { key: 'annexIIIACode', label: 'Annex IIIA Code (field 10.iii)' },
+          { key: 'annexIIIBCode', label: 'Annex IIIB Code (field 10.iv)' },
+          { key: 'euCode', label: 'EU List of Wastes (field 10.v)', placeholder: 'e.g. 19.12.02' },
+          { key: 'nationalCode', label: 'National Code (field 10.vi)', placeholder: 'e.g. 7503' },
+          { key: 'otherCode', label: 'Other Code (field 10.vii)' },
+          { key: 'exportCountry', label: 'Export / Dispatch Country (field 11)', placeholder: 'e.g. US' },
+          { key: 'transitCountry', label: 'Transit Country (field 11)' },
+          { key: 'importCountry', label: 'Import / Destination Country (field 11)', placeholder: 'e.g. NL' },
+        ],
+      };
+    case 'ISF':
+      return {
+        cat: 'ISF',
+        title: 'Documents',
+        noun: 'Template',
+        sortKey: 'name',
+        hardDelete: true,
+        nameMessage: 'Template name is required.',
+        primary: (x) => x.nickname || x.name || '(unnamed)',
+        secondary: (x) => [x.htsCommodityCode, x.itemDescription].filter(Boolean).join(' · '),
+        fields: [
+          { key: 'name', label: 'Template Name', required: true },
+          { key: 'importerRecordNum', label: 'Importer Reference #' },
+          { key: 'consigneeNum', label: 'Consignee Number' },
+          { key: 'htsCommodityCode', label: 'HTS-6 Commodity Code', placeholder: 'e.g. 7503.00' },
+          { key: 'itemDescription', label: 'Item Description', placeholder: 'e.g. Ni Cr Stainless Steel Turnings' },
+          { key: 'email1', label: 'Notification Email 1', placeholder: 'e.g. compliance@company.com' },
+          { key: 'email2', label: 'Notification Email 2' },
+        ],
+      };
+    case 'Carrier':
+      return {
+        cat: 'Carrier',
+        title: 'Documents',
+        noun: 'Carrier',
+        sortKey: 'name',
+        hardDelete: true,
+        nameMessage: 'Carrier name is required.',
+        primary: (x) => x.nickname || x.name || '(unnamed)',
+        secondary: (x) => [x.contact, x.email].filter(Boolean).join(' · '),
+        fields: [
+          { key: 'name', label: 'Carrier Name', required: true },
+          { key: 'nickname', label: 'Nickname', placeholder: 'e.g. CMA Estonia' },
+          { key: 'address', label: 'Address' },
+          { key: 'contact', label: 'Contact Person' },
+          { key: 'tel', label: 'Tel.' },
+          { key: 'fax', label: 'Fax' },
+          { key: 'email', label: 'E-Mail' },
+        ],
+      };
+    case 'Bank Account':
+      return {
+        cat: 'Bank Account',
+        title: 'Bank Account',
+        noun: 'Bank account',
+        sortKey: 'bankNname',
+        confirm: 'Deleting this account is irreversible. Please confirm to proceed.',
+        primary: (x) => x.bankNname || x.bankName || '—',
+        secondary: (x) => [x.bankName, x.iban].filter(Boolean).join(' · '),
+        fields: [
+          { key: 'bankName', label: 'Bank', required: true, maxLength: 47 },
+          { key: 'bankNname', label: 'Bank Nick Name', required: true },
+          { key: 'cur', label: 'Currency', required: true, select: 'currency' },
+          { key: 'swiftCode', label: 'Note #1', required: true, maxLength: 45 },
+          { key: 'iban', label: 'Note #2', required: true, maxLength: 47 },
+          { key: 'corrBank', label: 'Note #3', required: true, maxLength: 47 },
+          { key: 'corrBankSwift', label: 'Note #4', required: true, maxLength: 47 },
+          { key: 'other', label: 'Other' },
+        ],
+      };
+    case 'Stocks':
+      return {
+        cat: 'Stocks',
+        title: 'Stocks',
+        noun: 'Stock',
+        sortKey: 'stock',
+        confirm: 'Deleting this stock is irreversible. Please confirm to proceed.',
+        primary: (x) => x.stock || '—',
+        secondary: (x) => [x.nname, x.sType, x.country].filter(Boolean).join(' · '),
+        avatar: (x) => x.nname || x.stock || '',
+        fields: [
+          { key: 'stock', label: 'Name', required: true },
+          { key: 'nname', label: 'Nick Name', required: true },
+          { key: 'country', label: 'Country' },
+          { key: 'address', label: 'Address' },
+          { key: 'sType', label: 'Stock type', select: 'stockType' },
+          { key: 'phone', label: 'Phone' },
+          { key: 'other', label: 'Other' },
+        ],
+      };
+    case 'Client':
+      return {
+        cat: 'Client',
+        title: 'Clients',
+        noun: 'Client',
+        sortKey: 'client',
+        confirm: 'Deleting this client is irreversible. Please confirm to proceed.',
+        primary: (x) => x.nname || x.client || '—',
+        secondary: (x) => [x.client, x.city, x.country].filter(Boolean).join(' · '),
+        avatar: (x) => x.nname || x.client || '',
+        fields: partyFields('client'),
+      };
+    default:
+      return {
+        cat: 'Supplier',
+        title: 'Suppliers',
+        noun: 'Supplier',
+        sortKey: 'supplier',
+        confirm: 'Deleting this supplier is irreversible. Please confirm to proceed.',
+        primary: (x) => x.nname || x.supplier || '—',
+        secondary: (x) => [x.supplier, x.city, x.country].filter(Boolean).join(' · '),
+        avatar: (x) => x.nname || x.supplier || '',
+        fields: partyFields('supplier'),
+      };
   }
-  if (type === 'ISF') {
-    return {
-      cat: 'ISF', displayKey: 'name', label: 'ISF Template',
-      fields: [
-        { key: 'name', label: 'Template name *' },
-        { key: 'importerRecordNum', label: 'Importer reference #' },
-        { key: 'consigneeNum', label: 'Consignee number' },
-        { key: 'htsCommodityCode', label: 'HTS-6 commodity code' },
-        { key: 'itemDescription', label: 'Item description' },
-        { key: 'email1', label: 'Notification email 1' },
-        { key: 'email2', label: 'Notification email 2' },
-      ],
-    };
-  }
-  if (type === 'Carrier') {
-    return {
-      cat: 'Carrier', displayKey: 'name', label: 'Carrier',
-      fields: [
-        { key: 'name', label: 'Carrier name *' },
-        { key: 'nickname', label: 'Nickname' },
-        { key: 'address', label: 'Address' },
-        { key: 'contact', label: 'Contact person' },
-        { key: 'tel', label: 'Tel.' },
-        { key: 'fax', label: 'Fax' },
-        { key: 'email', label: 'E-Mail' },
-      ],
-    };
-  }
-  if (type === 'Bank Account') {
-    return {
-      cat: 'Bank Account',
-      displayKey: 'bankNname',
-      label: 'Bank Account',
-      fields: [
-        { key: 'bankNname', label: 'Display name *' },
-        { key: 'bankName', label: 'Bank name' },
-        { key: 'cur', label: 'Currency' },
-        { key: 'swiftCode', label: 'SWIFT' },
-        { key: 'iban', label: 'IBAN' },
-        { key: 'corrBank', label: 'Correspondent bank' },
-        { key: 'corrBankSwift', label: 'Corr. SWIFT' },
-        { key: 'other', label: 'Other' },
-      ],
-    };
-  }
-  const cat = type === 'Client' ? 'Client' : 'Supplier';
-  return {
-    cat,
-    displayKey: 'nname',
-    label: cat,
-    fields: [
-      { key: 'nname', label: 'Display name *' },
-      { key: cat.toLowerCase(), label: 'Legal / full name' },
-      { key: 'street', label: 'Street' },
-      { key: 'city', label: 'City' },
-      { key: 'country', label: 'Country' },
-      { key: 'other1', label: 'Contact / other' },
-    ],
-  };
 }
 
 export default function SettingsEntity() {
   const { type } = useLocalSearchParams<{ type: string }>();
-  const { cat, displayKey, label, fields: FIELDS } = configFor(type as string);
+  const cfg = configFor(String(type || ''));
+  const isDoc = DOCS.includes(cfg.cat);
 
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
-  const { settings } = useSettings();
+  const settings = useSettings((s) => s.settings);
   const { saveEntities } = useSettingsEdit();
 
   const list = useMemo(
-    () => ((settings as any)?.[cat]?.[cat] || []).filter((x: any) => !x.deleted),
-    [settings, cat]
+    () =>
+      (((settings as any)?.[cfg.cat]?.[cfg.cat] || []) as any[])
+        .filter((x) => !x?.deleted)
+        .sort((a, b) => String(a?.[cfg.sortKey] || '').localeCompare(String(b?.[cfg.sortKey] || ''))),
+    [settings, cfg.cat, cfg.sortKey]
   );
 
-  const [editing, setEditing] = useState<any | null>(null);
+  const currencyOptions = useMemo(
+    () => (((settings as any)?.Currency?.Currency || []) as any[]).filter((c) => !c?.deleted).map((c) => ({ value: c.id, label: String(c.cur || c.id) })),
+    [settings]
+  );
+  const stockTypeOptions = [
+    { value: 'Warehouse', label: 'Warehouse' },
+    { value: 'Virtual', label: 'Virtual' },
+  ];
+
+  const [open, setOpen] = useState(false);
   const [form, setForm] = useState<any>({});
+  const [errors, setErrors] = useState<Record<string, string>>({});
   const [busy, setBusy] = useState(false);
 
-  const openNew = () => { setForm(Object.fromEntries([['id', ''], ...FIELDS.map((f) => [f.key, ''])])); setEditing({}); };
-  const openEdit = (e: any) => { setForm({ ...e }); setEditing(e); };
+  const blank = () => Object.fromEntries([['id', ''], ...cfg.fields.map((f) => [f.key, '']), ...(isDoc ? [] : [['deleted', false]])]);
+  const openNew = () => {
+    setForm(blank());
+    setErrors({});
+    setOpen(true);
+  };
+  const openEdit = (e: any) => {
+    setForm({ ...e });
+    setErrors({});
+    setOpen(true);
+  };
 
   const persist = async (nextList: any[]) => {
     setBusy(true);
     try {
-      await saveEntities(cat, nextList);
-      setEditing(null);
-    } catch (e: any) {
-      Alert.alert('Save failed', e?.message || 'Could not save.');
+      await saveEntities(cfg.cat, nextList);
+      toast.success('Data successfully saved');
+      return true;
+    } catch {
+      toast.error('Failed to save');
+      return false;
     } finally {
       setBusy(false);
     }
   };
 
   const onSave = async () => {
-    if (!form[displayKey]?.trim()) { Alert.alert('Name required', 'Enter a display name.'); return; }
-    const raw = (settings as any)?.[cat]?.[cat] || [];
-    if (form.id) {
-      await persist(raw.map((x: any) => (x.id === form.id ? { ...x, ...form } : x)));
-    } else {
-      await persist([...raw, { ...form, id: newId() }]);
-    }
+    const errs: Record<string, string> = {};
+    cfg.fields.forEach((f) => {
+      if (f.required && !String(form[f.key] ?? '').trim()) errs[f.key] = cfg.nameMessage && f.key === 'name' ? cfg.nameMessage : 'Field must be filled';
+    });
+    setErrors(errs);
+    if (Object.keys(errs).length) return;
+    const raw = ((settings as any)?.[cfg.cat]?.[cfg.cat] || []) as any[];
+    const ok = form.id
+      ? await persist(raw.map((x) => (x.id === form.id ? { ...x, ...form } : x)))
+      : await persist([...raw, { ...form, id: newId() }]);
+    if (ok) setOpen(false);
   };
 
   const onDelete = (e: any) => {
-    Alert.alert(`Delete ${label.toLowerCase()}?`, e[displayKey], [
+    const raw = ((settings as any)?.[cfg.cat]?.[cfg.cat] || []) as any[];
+    const run = async () => {
+      const next = cfg.hardDelete ? raw.filter((x) => x.id !== e.id) : raw.map((x) => (x.id === e.id ? { ...x, deleted: true } : x));
+      const ok = await persist(next);
+      if (ok && form.id === e.id) setOpen(false);
+    };
+    if (!cfg.confirm) {
+      run();
+      return;
+    }
+    Alert.alert('Delete Confirmation', cfg.confirm, [
       { text: 'Cancel', style: 'cancel' },
-      {
-        text: 'Delete',
-        style: 'destructive',
-        onPress: () => {
-          const raw = (settings as any)?.[cat]?.[cat] || [];
-          persist(raw.map((x: any) => (x.id === e.id ? { ...x, deleted: true } : x)));
-        },
-      },
+      { text: 'Delete', style: 'destructive', onPress: run },
     ]);
   };
 
-  const subLine = (e: any) =>
-    FIELDS.slice(1, 4).map((f) => e[f.key]).filter(Boolean).join(' · ');
+  const groups = cfg.fields.reduce<{ title?: string; fields: Field[] }[]>((acc, f) => {
+    const last = acc[acc.length - 1];
+    if (!last || last.title !== f.group) acc.push({ title: f.group, fields: [f] });
+    else last.fields.push(f);
+    return acc;
+  }, []);
+
+  const renderField = (f: Field) => {
+    const label = f.required ? `${f.label} *` : f.label;
+    const value = String(form[f.key] ?? '');
+    const onChange = (t: string) => {
+      setForm((p: any) => ({ ...p, [f.key]: t }));
+      if (errors[f.key]) setErrors((p) => ({ ...p, [f.key]: '' }));
+    };
+    if (f.select) {
+      return (
+        <Select
+          key={f.key}
+          label={label}
+          value={value}
+          options={f.select === 'currency' ? currencyOptions : stockTypeOptions}
+          onChange={onChange}
+          error={errors[f.key] || undefined}
+        />
+      );
+    }
+    return (
+      <TextField
+        key={f.key}
+        label={label}
+        value={value}
+        placeholder={f.placeholder}
+        maxLength={f.maxLength}
+        onChangeText={onChange}
+        error={errors[f.key] || undefined}
+        autoCapitalize={/email/i.test(f.key) ? 'none' : undefined}
+        keyboardType={/email/i.test(f.key) ? 'email-address' : undefined}
+      />
+    );
+  };
 
   return (
     <Screen contentContainerStyle={{ paddingTop: insets.top + 8 }} edges={false}>
-      <StackHeader title={`${label}s`} right={<IconButton icon="add" variant="primary" accessibilityLabel={`New ${label.toLowerCase()}`} onPress={openNew} />} />
+      <StackHeader
+        title={cfg.title}
+        right={<IconButton icon="add" variant="primary" accessibilityLabel={`Add ${cfg.noun.toLowerCase()}`} onPress={openNew} />}
+      />
 
-      {list.length === 0 ? (
-        <EmptyState title={`No ${label.toLowerCase()}s`} message="Tap + to add one." />
-      ) : (
-        <View style={{ gap: 10 }}>
-          {list.map((e: any) => (
-            <Card key={e.id} padded={false}>
-              <Pressable onPress={() => openEdit(e)} style={{ flexDirection: 'row', alignItems: 'center', gap: 12, padding: 14 }}>
-                <View style={{ flex: 1, minWidth: 0 }}>
-                  <Text variant="bodyMedium" numberOfLines={1}>{e[displayKey] || '—'}</Text>
-                  {subLine(e) ? <Text variant="caption" tone="muted" numberOfLines={1}>{subLine(e)}</Text> : null}
-                </View>
-                <IconButton icon="trash-outline" tone="danger" size={36} accessibilityLabel="Delete" onPress={() => onDelete(e)} />
-                <Ionicons name="chevron-forward" size={18} color={colors.textFaint} />
-              </Pressable>
-            </Card>
-          ))}
+      {/* Documents: web's Annex VII / ISF / Carrier switch. */}
+      {isDoc && (
+        <View style={{ marginBottom: 12 }}>
+          <SegmentedControl
+            value={cfg.cat}
+            onChange={(v) => router.setParams({ type: v })}
+            options={DOCS.map((d) => ({ value: d, label: d }))}
+          />
         </View>
       )}
 
-      {/* Edit/new sheet */}
+      {list.length === 0 ? (
+        <EmptyState
+          title={isDoc ? `No ${cfg.cat === 'Carrier' ? 'carriers' : 'templates'} yet` : `No ${cfg.title.toLowerCase()} yet`}
+          message="Tap + to add one."
+        />
+      ) : (
+        <Card padded={false}>
+          {list.map((e: any, i: number) => (
+            <Pressable
+              key={e.id}
+              onPress={() => openEdit(e)}
+              accessibilityRole="button"
+              style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingHorizontal: 14, paddingVertical: 12, borderTopWidth: i ? 1 : 0, borderTopColor: colors.border }}
+            >
+              {cfg.avatar ? <Avatar name={cfg.avatar(e)} size={30} /> : null}
+              <View style={{ flex: 1, minWidth: 0 }}>
+                <Text variant="bodyMedium" numberOfLines={1}>{cfg.primary(e)}</Text>
+                {cfg.secondary(e) ? <Text variant="caption" tone="muted" numberOfLines={1}>{cfg.secondary(e)}</Text> : null}
+              </View>
+              <IconButton icon="trash-outline" tone="danger" size={36} accessibilityLabel={`Delete ${cfg.primary(e)}`} onPress={() => onDelete(e)} />
+              <Ionicons name="chevron-forward" size={16} color={colors.textFaint} />
+            </Pressable>
+          ))}
+        </Card>
+      )}
+
       <Sheet
-        visible={!!editing}
-        onClose={() => setEditing(null)}
-        title={form.id ? `Edit ${label.toLowerCase()}` : `New ${label.toLowerCase()}`}
-        footer={<Button title="Save" loading={busy} onPress={onSave} />}
+        visible={open}
+        onClose={() => setOpen(false)}
+        title={form.id ? `Edit ${cfg.noun}` : `New ${cfg.noun}`}
+        footer={<Button title={form.id ? 'Update' : isDoc ? `Save ${cfg.noun}` : 'Add'} loading={busy} onPress={onSave} />}
       >
         <View style={{ gap: spacing.md }}>
-          {FIELDS.map((f) => (
-            <TextField key={f.key} label={f.label} value={String(form[f.key] ?? '')} onChangeText={(t) => setForm((p: any) => ({ ...p, [f.key]: t }))} />
+          {groups.map((g, gi) => (
+            <View key={`${g.title || 'main'}-${gi}`} style={{ gap: spacing.md }}>
+              {g.title ? <SectionHeader title={g.title} style={{ marginBottom: 0, marginTop: 4 }} /> : null}
+              {g.fields.map(renderField)}
+            </View>
           ))}
         </View>
       </Sheet>

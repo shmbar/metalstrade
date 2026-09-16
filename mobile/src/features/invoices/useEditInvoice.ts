@@ -9,9 +9,10 @@ import { loadDocByIdDate } from '@/data/firestore';
 
 // Persist an IMS/GIS split on an invoice — the third page web renders SplitControl on.
 export function useSaveInvoiceSplit() {
-  const { uidCollection } = useAuth();
+  const uidCollection = useAuth((s) => s.uidCollection);
   const qc = useQueryClient();
   return useMutation({
+    meta: { success: 'Data successfully saved!' },
     mutationFn: async ({ id, year, split }: { id: string; year: string; split: Record<string, unknown> | null }) => {
       if (!uidCollection) throw new Error('Not authenticated');
       await saveSplit(uidCollection, { kind: 'invoice', id, year }, split);
@@ -32,11 +33,12 @@ export function useSaveInvoiceSplit() {
 // editing a quantity on the phone silently desynced the Stocks page — the ledger
 // kept the pre-edit movement forever.
 export function useEditInvoice() {
-  const { uidCollection } = useAuth();
-  const { settings } = useSettings();
+  const uidCollection = useAuth((s) => s.uidCollection);
+  const settings = useSettings((s) => s.settings);
   const qc = useQueryClient();
 
   return useMutation({
+    meta: { success: 'Invoice successfully updated!' },
     mutationFn: async ({
       id,
       year,

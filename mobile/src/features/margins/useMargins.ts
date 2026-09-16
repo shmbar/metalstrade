@@ -16,6 +16,7 @@ import {
   deleteMonth as deleteMonthPure,
 } from './marginsModel';
 import { num } from '@shared/finance';
+import { useShallow } from 'zustand/react/shallow';
 
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 const monthName = (m: any) => {
@@ -48,8 +49,8 @@ export interface MarginTotals {
 // Monthly margins for the selected year + headline totals. Mirrors the web margins
 // page aggregation (incoming=remaining, outstanding=openShip, shipped=purchase-openShip).
 export function useMargins() {
-  const { uidCollection } = useAuth();
-  const { settings, dateSelect, loaded } = useSettings();
+  const uidCollection = useAuth((s) => s.uidCollection);
+  const { settings, dateSelect, loaded } = useSettings(useShallow((s) => ({ settings: s.settings, dateSelect: s.dateSelect, loaded: s.loaded })));
   const marginThreshold =
     settings?.MarginAlert?.threshold != null ? num(settings.MarginAlert.threshold) : 0;
   const year = parseInt(dateSelect.start.substring(0, 4)) || new Date().getFullYear();
@@ -126,8 +127,8 @@ export function useMargins() {
 // Items are ordered by each doc's `ids` array on load so on-screen row order
 // survives a round trip, exactly like web.
 export function useMarginsEditor() {
-  const { uidCollection } = useAuth();
-  const { dateSelect, loaded } = useSettings();
+  const uidCollection = useAuth((s) => s.uidCollection);
+  const { dateSelect, loaded } = useSettings(useShallow((s) => ({ dateSelect: s.dateSelect, loaded: s.loaded })));
   const qc = useQueryClient();
   const year = parseInt(dateSelect.start.substring(0, 4)) || new Date().getFullYear();
 
@@ -156,6 +157,7 @@ export function useMarginsEditor() {
   };
 
   const save = useMutation({
+    meta: { success: 'Data successfully saved!' },
     mutationFn: async () => {
       if (!uidCollection) throw new Error('Not authenticated');
       await saveMargins(uidCollection, months, year);

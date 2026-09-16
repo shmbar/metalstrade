@@ -21,7 +21,7 @@ const fmtM = (v: number, iso: string) =>
 // position first, and each opens onto the lots behind it: description + supplier.
 export function GradeSummaryCard({ dataTable, title = 'Avg cost price per grade' }: { dataTable: any[]; title?: string }) {
   const { colors } = useTheme();
-  const { settings } = useSettings();
+  const settings = useSettings((s) => s.settings);
   const { index } = useGrades();
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
 

@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
-import { View, Alert, KeyboardAvoidingView, Platform } from 'react-native';
-import { Pressable } from '@/components/ui/Pressable';
+import { View, Alert } from 'react-native';
+import { Pressable } from '@/components/ui/Pressable';
 import { useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -15,7 +15,7 @@ import { updateContractField, newId } from '@/data/writes';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/store/auth';
 import { curSymbol, fmtMoney, dateLabel } from '@/lib/format';
-import { hapticSuccess } from '@/lib/haptics';
+import { haptics } from '@/lib/haptics';
 
 // Purchase Invoices editor — the mobile twin of web's poInvModal. Mobile could
 // previously only read poInvoices; there was no way to add one, set its value, or
@@ -24,7 +24,7 @@ export default function PoInvoices() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
-  const { uidCollection } = useAuth();
+  const uidCollection = useAuth((s) => s.uidCollection);
   const qc = useQueryClient();
   const { data: contracts, isLoading, isError, error, refetch } = useContracts();
 
@@ -39,13 +39,13 @@ export default function PoInvoices() {
   };
 
   const save = useMutation({
+    meta: { success: 'Payments successfully saved!' },
     mutationFn: async () => {
       if (!uidCollection || !contract) throw new Error('Not authenticated');
       const date = (contract as any).dateRange?.startDate || (contract as any).date || '';
       await updateContractField(uidCollection, contract.id, date, { poInvoices: rows });
     },
     onSuccess: () => {
-      hapticSuccess();
       setList(null);
       qc.invalidateQueries({ queryKey: ['contracts'] });
       qc.invalidateQueries({ queryKey: ['cashflow'] });
@@ -90,163 +90,161 @@ export default function PoInvoices() {
   );
 
   return (
-    <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-      <Screen contentContainerStyle={{ paddingTop: insets.top + 8 }} edges={false}>
-        <StackHeader
-          title="Purchase invoices"
-          right={
-            <IconButton
-              icon="add"
-              variant="primary"
-              accessibilityLabel="Add purchase invoice"
-              onPress={() => apply(addInvoice(rows, newId(), newId()))}
-            />
-          }
-        />
-        <Text variant="caption" tone="muted" style={{ marginBottom: 12 }}>
-          {(contract as any).order || 'Contract'} · {rows.length} invoice(s)
-        </Text>
-
-        {rows.length === 0 ? (
-          <EmptyState
-            title="No purchase invoices"
-            message="Add one to record what the supplier billed and how it is being paid."
-            icon={<Ionicons name="document-outline" size={40} color={colors.textFaint} />}
+    <Screen contentContainerStyle={{ paddingTop: insets.top + 8 }} edges={false}>
+      <StackHeader
+        title="Purchase invoices"
+        right={
+          <IconButton
+            icon="add"
+            variant="primary"
+            accessibilityLabel="Add purchase invoice"
+            onPress={() => apply(addInvoice(rows, newId(), newId()))}
           />
-        ) : (
-          rows.map((inv) => (
-            <Card key={inv.id} style={{ marginBottom: 12, gap: 10 }}>
-              <View style={{ flexDirection: 'row', gap: 10 }}>
-                <View style={{ flex: 1 }}>
-                  <TextField
-                    label="Invoice #"
-                    value={String(inv.inv ?? '')}
-                    onChangeText={(t) => apply(setInvoiceField(rows, inv.id, 'inv', t))}
-                  />
-                </View>
-                <View style={{ flex: 1 }}>
-                  <TextField
-                    label="Invoice value"
-                    value={String(inv.invValue ?? '')}
-                    onChangeText={(t) => apply(setInvoiceField(rows, inv.id, 'invValue', t))}
-                    keyboardType="decimal-pad"
-                  />
-                </View>
-              </View>
+        }
+      />
+      <Text variant="caption" tone="muted" style={{ marginBottom: 12 }}>
+        {(contract as any).order || 'Contract'} · {rows.length} invoice(s)
+      </Text>
 
-              <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                <Text variant="body" tone="muted">Total paid</Text>
-                <Text variant="bodyMedium" tone="positive" style={{ fontVariant: ['tabular-nums'] }}>
-                  {sym}{fmtMoney(parseFloat(inv.pmnt) || 0)}
-                </Text>
-              </View>
-              <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                <Text variant="body" tone="muted">Balance</Text>
-                <Text
-                  variant="bodyMedium"
-                  style={{ fontVariant: ['tabular-nums'], color: (parseFloat(inv.blnc) || 0) > 0.01 ? colors.negative : colors.positive }}
-                >
-                  {sym}{fmtMoney(parseFloat(inv.blnc) || 0)}
-                </Text>
-              </View>
-
-              {/* Payment schedule */}
-              <View style={{ borderTopWidth: 1, borderTopColor: colors.border, paddingTop: 8 }}>
-                <SectionHeader
-                  title="Payments"
-                  subtitle={`${inv.payments?.length || 0} scheduled`}
-                  right={
-                    <IconButton
-                      icon="add"
-                      size={34}
-                      accessibilityLabel="Add payment"
-                      onPress={() => apply(addPayment(rows, inv.id, newId()))}
-                    />
-                  }
+      {rows.length === 0 ? (
+        <EmptyState
+          title="No purchase invoices"
+          message="Add one to record what the supplier billed and how it is being paid."
+          icon={<Ionicons name="document-outline" size={40} color={colors.textFaint} />}
+        />
+      ) : (
+        rows.map((inv) => (
+          <Card key={inv.id} style={{ marginBottom: 12, gap: 10 }}>
+            <View style={{ flexDirection: 'row', gap: 10 }}>
+              <View style={{ flex: 1 }}>
+                <TextField
+                  label="Invoice #"
+                  value={String(inv.inv ?? '')}
+                  onChangeText={(t) => apply(setInvoiceField(rows, inv.id, 'inv', t))}
                 />
-                {(inv.payments || []).map((p) => (
-                  <View key={p.pmntId} style={{ gap: 8, paddingVertical: 8, borderTopWidth: 1, borderTopColor: colors.border }}>
-                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-                      <View style={{ flex: 1 }}>
-                        <DateField
-                          label={`Date — ${dateLabel(p.pmntDate)}`}
-                          value={(p.pmntDate as any)?.startDate || null}
-                          onChange={(iso) => apply(setPaymentDate(rows, inv.id, p.pmntId, iso))}
-                        />
-                      </View>
-                      <Pressable onPress={() => apply(deletePayment(rows, inv.id, p.pmntId))} hitSlop={8} accessibilityRole="button" accessibilityLabel="Delete payment" style={{ paddingTop: 18 }}>
-                        <Ionicons name="trash-outline" size={17} color={colors.negative} />
-                      </Pressable>
+              </View>
+              <View style={{ flex: 1 }}>
+                <TextField
+                  label="Invoice value"
+                  value={String(inv.invValue ?? '')}
+                  onChangeText={(t) => apply(setInvoiceField(rows, inv.id, 'invValue', t))}
+                  keyboardType="decimal-pad"
+                />
+              </View>
+            </View>
+
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+              <Text variant="body" tone="muted">Total paid</Text>
+              <Text variant="bodyMedium" tone="positive" style={{ fontVariant: ['tabular-nums'] }}>
+                {sym}{fmtMoney(parseFloat(inv.pmnt) || 0)}
+              </Text>
+            </View>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+              <Text variant="body" tone="muted">Balance</Text>
+              <Text
+                variant="bodyMedium"
+                style={{ fontVariant: ['tabular-nums'], color: (parseFloat(inv.blnc) || 0) > 0.01 ? colors.negative : colors.positive }}
+              >
+                {sym}{fmtMoney(parseFloat(inv.blnc) || 0)}
+              </Text>
+            </View>
+
+            {/* Payment schedule */}
+            <View style={{ borderTopWidth: 1, borderTopColor: colors.border, paddingTop: 8 }}>
+              <SectionHeader
+                title="Payments"
+                subtitle={`${inv.payments?.length || 0} scheduled`}
+                right={
+                  <IconButton
+                    icon="add"
+                    size={34}
+                    accessibilityLabel="Add payment"
+                    onPress={() => apply(addPayment(rows, inv.id, newId()))}
+                  />
+                }
+              />
+              {(inv.payments || []).map((p) => (
+                <View key={p.pmntId} style={{ gap: 8, paddingVertical: 8, borderTopWidth: 1, borderTopColor: colors.border }}>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                    <View style={{ flex: 1 }}>
+                      <DateField
+                        label={`Date — ${dateLabel(p.pmntDate)}`}
+                        value={(p.pmntDate as any)?.startDate || null}
+                        onChange={(iso) => apply(setPaymentDate(rows, inv.id, p.pmntId, iso))}
+                      />
                     </View>
-                    <View style={{ flexDirection: 'row', gap: 10 }}>
-                      <View style={{ flex: 1 }}>
-                        <TextField
-                          label="%"
-                          value={String(p.pmntPerc ?? '')}
-                          onChangeText={(t) => apply(setPaymentPerc(rows, inv.id, p.pmntId, t))}
-                          keyboardType="decimal-pad"
-                        />
-                      </View>
-                      <View style={{ flex: 1 }}>
-                        <TextField
-                          label="Amount"
-                          value={String(p.pmnt ?? '')}
-                          onChangeText={(t) => apply(setPaymentAmount(rows, inv.id, p.pmntId, t))}
-                          keyboardType="decimal-pad"
-                        />
-                      </View>
+                    <Pressable onPress={() => apply(deletePayment(rows, inv.id, p.pmntId))} hitSlop={8} accessibilityRole="button" accessibilityLabel="Delete payment" style={{ paddingTop: 18 }}>
+                      <Ionicons name="trash-outline" size={18} color={colors.negative} />
+                    </Pressable>
+                  </View>
+                  <View style={{ flexDirection: 'row', gap: 10 }}>
+                    <View style={{ flex: 1 }}>
+                      <TextField
+                        label="%"
+                        value={String(p.pmntPerc ?? '')}
+                        onChangeText={(t) => apply(setPaymentPerc(rows, inv.id, p.pmntId, t))}
+                        keyboardType="decimal-pad"
+                      />
+                    </View>
+                    <View style={{ flex: 1 }}>
+                      <TextField
+                        label="Amount"
+                        value={String(p.pmnt ?? '')}
+                        onChangeText={(t) => apply(setPaymentAmount(rows, inv.id, p.pmntId, t))}
+                        keyboardType="decimal-pad"
+                      />
                     </View>
                   </View>
-                ))}
-              </View>
+                </View>
+              ))}
+            </View>
 
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, marginTop: 4 }}>
-                {/* Draft hides this invoice from Cashflow (web parity). */}
-                <Pressable
-                  onPress={() => apply(toggleDraft(rows, inv.id, !inv.draft))}
-                  style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}
-                >
-                  <Ionicons
-                    name={inv.draft ? 'checkbox' : 'square-outline'}
-                    size={16}
-                    color={inv.draft ? colors.primary : colors.textFaint}
-                  />
-                  <Text variant="caption" tone="muted">Draft (hide from Cashflow)</Text>
-                </Pressable>
-                <View style={{ flex: 1 }} />
-                <Pressable
-                  onPress={() =>
-                    Alert.alert('Delete invoice?', inv.inv || 'This purchase invoice', [
-                      { text: 'Cancel', style: 'cancel' },
-                      { text: 'Delete', style: 'destructive', onPress: () => apply(deleteInvoice(rows, inv.id)) },
-                    ])
-                  }
-                  hitSlop={8}
-                >
-                  <Text variant="caption" style={{ color: colors.negative }}>Delete</Text>
-                </Pressable>
-              </View>
-            </Card>
-          ))
-        )}
-
-        {rows.length > 0 && (
-          <Card style={{ marginBottom: 12 }}>
-            <Text variant="label" tone="muted" style={{ marginBottom: 6 }}>Totals</Text>
-            <Row label="Invoiced" v={`${sym}${fmtMoney(grand.value)}`} />
-            <Row label="Paid" v={`${sym}${fmtMoney(grand.paid)}`} />
-            <Row label="Balance" v={`${sym}${fmtMoney(grand.blnc)}`} strong />
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, marginTop: 4 }}>
+              {/* Draft hides this invoice from Cashflow (web parity). */}
+              <Pressable
+                onPress={() => { haptics.selection(); apply(toggleDraft(rows, inv.id, !inv.draft)); }}
+                style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}
+              >
+                <Ionicons
+                  name={inv.draft ? 'checkbox' : 'square-outline'}
+                  size={16}
+                  color={inv.draft ? colors.primary : colors.textFaint}
+                />
+                <Text variant="caption" tone="muted">Draft (hide from Cashflow)</Text>
+              </Pressable>
+              <View style={{ flex: 1 }} />
+              <Pressable
+                onPress={() =>
+                  Alert.alert('Delete invoice?', inv.inv || 'This purchase invoice', [
+                    { text: 'Cancel', style: 'cancel' },
+                    { text: 'Delete', style: 'destructive', onPress: () => apply(deleteInvoice(rows, inv.id)) },
+                  ])
+                }
+                hitSlop={8}
+              >
+                <Text variant="caption" style={{ color: colors.negative }}>Delete</Text>
+              </Pressable>
+            </View>
           </Card>
-        )}
+        ))
+      )}
 
-        <Button
-          title={dirty ? 'Save purchase invoices' : 'Saved'}
-          disabled={!dirty}
-          loading={save.isPending}
-          onPress={() => save.mutate()}
-        />
-      </Screen>
-    </KeyboardAvoidingView>
+      {rows.length > 0 && (
+        <Card style={{ marginBottom: 12 }}>
+          <Text variant="label" tone="muted" style={{ marginBottom: 6 }}>Totals</Text>
+          <Row label="Invoiced" v={`${sym}${fmtMoney(grand.value)}`} />
+          <Row label="Paid" v={`${sym}${fmtMoney(grand.paid)}`} />
+          <Row label="Balance" v={`${sym}${fmtMoney(grand.blnc)}`} strong />
+        </Card>
+      )}
+
+      <Button
+        title={dirty ? 'Save purchase invoices' : 'Saved'}
+        disabled={!dirty}
+        loading={save.isPending}
+        onPress={() => save.mutate()}
+      />
+    </Screen>
   );
 }
 

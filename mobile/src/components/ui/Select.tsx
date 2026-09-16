@@ -6,9 +6,10 @@ import { Text } from './Text';
 import { Sheet } from './Sheet';
 import { SearchField } from './SearchField';
 import { useTheme } from '@/theme/ThemeProvider';
-import { radius, spacing } from '@/theme/tokens';
-import { hapticTap } from '@/lib/haptics';
+import { layout, radius, spacing } from '@/theme/tokens';
+import { haptics } from '@/lib/haptics';
 import { matchesAllWords, searchWords } from '@shared/search';
+import { keyboardScrollProps } from '@/lib/keyboard';
 
 export interface SelectOption {
   value: string;
@@ -75,7 +76,7 @@ export function Select({
           flexDirection: 'row',
           alignItems: 'center',
           gap: 6,
-          height: 36,
+          height: layout.pillHeight,
           paddingLeft: 14,
           paddingRight: 10,
           borderRadius: radius.pill,
@@ -84,11 +85,11 @@ export function Select({
           backgroundColor: selected ? colors.primary + '14' : colors.surfaceAlt,
         }}
       >
-        <Text variant="label" tone={selected ? 'primary' : 'muted'} numberOfLines={1} style={{ maxWidth: 170 }}>
+        <Text variant="captionStrong" tone={selected ? 'primary' : 'muted'} numberOfLines={1} style={{ maxWidth: 170 }}>
           {selected ? selected.label : placeholder}
         </Text>
         {clearable && selected ? (
-          <Pressable onPress={() => onChange('')} hitSlop={10} accessibilityRole="button" accessibilityLabel="Clear filter">
+          <Pressable onPress={() => { haptics.selection(); onChange(''); }} hitSlop={10} accessibilityRole="button" accessibilityLabel="Clear filter">
             <Ionicons name="close" size={15} color={colors.primary} />
           </Pressable>
         ) : (
@@ -108,15 +109,15 @@ export function Select({
           borderColor: error ? colors.negative : colors.borderStrong,
           paddingHorizontal: spacing.md,
           paddingVertical: 12,
-          minHeight: 48,
+          minHeight: layout.controlHeight,
           gap: 8,
         }}
       >
-        <Text variant="body" tone={selected ? 'default' : 'faint'} style={{ flex: 1 }} numberOfLines={1}>
+        <Text variant="input" tone={selected ? 'default' : 'faint'} style={{ flex: 1 }} numberOfLines={1}>
           {selected ? selected.label : placeholder}
         </Text>
         {clearable && selected ? (
-          <Pressable onPress={() => onChange('')} hitSlop={8} accessibilityRole="button" accessibilityLabel="Clear">
+          <Pressable onPress={() => { haptics.selection(); onChange(''); }} hitSlop={8} accessibilityRole="button" accessibilityLabel="Clear">
             <Ionicons name="close-circle" size={18} color={colors.textFaint} />
           </Pressable>
         ) : (
@@ -149,6 +150,7 @@ export function Select({
           </View>
         ) : null}
         <FlatList
+        {...keyboardScrollProps}
           data={filtered}
           keyExtractor={(o) => o.value}
           keyboardShouldPersistTaps="handled"
@@ -159,7 +161,7 @@ export function Select({
             return (
               <Pressable
                 onPress={() => {
-                  if (!active) hapticTap();
+                  if (!active) haptics.selection();
                   onChange(item.value);
                   setOpen(false);
                 }}
@@ -174,7 +176,7 @@ export function Select({
                   backgroundColor: active ? colors.primary + '0F' : 'transparent',
                 }}
               >
-                <Text variant="body" tone={active ? 'primary' : 'default'} style={{ flex: 1 }} numberOfLines={1}>
+                <Text variant="input" tone={active ? 'primary' : 'default'} style={{ flex: 1 }} numberOfLines={1}>
                   {item.label}
                 </Text>
                 {active && <Ionicons name="checkmark-circle" size={20} color={colors.primary} />}

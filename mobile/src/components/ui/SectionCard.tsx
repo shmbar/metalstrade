@@ -1,11 +1,13 @@
 import React from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { Ionicons as Icon } from '@expo/vector-icons';
 import { Card } from './Card';
 import { Text } from './Text';
 import { Avatar } from './Avatar';
 import { Pressable } from './Pressable';
 import { useTheme } from '@/theme/ThemeProvider';
+import { useCollapsible } from '@/lib/collapse';
 
 type IconName = React.ComponentProps<typeof Ionicons>['name'];
 type Tone = 'default' | 'positive' | 'negative' | 'warn' | 'primary';
@@ -38,6 +40,9 @@ export function SectionCard({
   totalTone,
   right,
   children,
+  collapsible,
+  open = true,
+  onToggle,
 }: {
   icon: IconName;
   title: string;
@@ -46,19 +51,28 @@ export function SectionCard({
   totalTone?: Tone;
   right?: React.ReactNode;
   children?: React.ReactNode;
+  /** Tap the header to fold the rows away; the heading keeps title + total. */
+  collapsible?: boolean;
+  open?: boolean;
+  onToggle?: () => void;
 }) {
   const { colors } = useTheme();
   const toneColor = useToneColor();
+  const showRows = !collapsible || open;
+  const Header: any = collapsible ? Pressable : View;
   return (
     <Card padded={false} style={{ overflow: 'hidden' }}>
-      <View
+      <Header
+        {...(collapsible
+          ? { onPress: onToggle, accessibilityRole: 'button', accessibilityState: { expanded: open }, accessibilityLabel: `${title}${open ? ' — collapse' : ' — expand'}` }
+          : {})}
         style={{
           flexDirection: 'row',
           alignItems: 'center',
           gap: 10,
           paddingHorizontal: 14,
           paddingTop: 14,
-          paddingBottom: children ? 8 : 14,
+          paddingBottom: children && showRows ? 8 : 14,
         }}
       >
         <View
@@ -85,12 +99,13 @@ export function SectionCard({
         </View>
         {right}
         {total != null ? (
-          <Text variant="h3" numberOfLines={1} style={{ color: toneColor(totalTone), fontVariant: ['tabular-nums'] }}>
+          <Text variant="h3" numberOfLines={1} style={{ color: toneColor(totalTone) }}>
             {total}
           </Text>
         ) : null}
-      </View>
-      {children}
+        {collapsible ? <Icon name={open ? 'chevron-up' : 'chevron-down'} size={16} color={colors.textFaint} /> : null}
+      </Header>
+      {showRows ? children : null}
     </Card>
   );
 }
@@ -131,9 +146,9 @@ export function EntityRow({
         alignItems: 'center',
         gap: 12,
         paddingHorizontal: 14,
-        paddingVertical: 11,
-        borderTopWidth: first ? 0 : StyleSheet.hairlineWidth,
-        borderTopColor: colors.borderStrong,
+        paddingVertical: 12,
+        borderTopWidth: first ? 0 : 1,
+        borderTopColor: colors.border,
       }}
     >
       {avatar ? <Avatar name={name} size={34} /> : null}
@@ -160,4 +175,21 @@ export function EntityRow({
       {onPress ? <Ionicons name="chevron-forward" size={16} color={colors.textFaint} /> : null}
     </Pressable>
   );
+}
+
+/**
+ * A SectionCard that folds, and remembers whether this user left it open.
+ *
+ * Cashflow used to render every row of all ten sections in one scroll (the web app shows
+ * the same sections as closed accordions), which is most of what "too much scrolling"
+ * was. Closed, a section still shows the two things that matter — what it is and what it
+ * totals — so the screen reads as a summary and opens only what you ask for.
+ */
+export function FoldSection({
+  id,
+  defaultOpen = false,
+  ...rest
+}: Parameters<typeof SectionCard>[0] & { id: string; defaultOpen?: boolean }) {
+  const [open, toggle] = useCollapsible(id, defaultOpen);
+  return <SectionCard {...rest} collapsible open={open} onToggle={toggle} />;
 }

@@ -90,7 +90,7 @@ export function buildPayload(rows: SettlementRow[], working: SettlementBase[], i
 }
 
 export function useSettlementLots(contract: Contract | undefined) {
-  const { uidCollection } = useAuth();
+  const uidCollection = useAuth((s) => s.uidCollection);
   const ids = contract?.stock || [];
   return useQuery({
     enabled: !!uidCollection && !!contract && ids.length > 0,
@@ -100,9 +100,10 @@ export function useSettlementLots(contract: Contract | undefined) {
 }
 
 export function useSaveFinalSettlement() {
-  const { uidCollection } = useAuth();
+  const uidCollection = useAuth((s) => s.uidCollection);
   const qc = useQueryClient();
   return useMutation({
+    meta: { success: 'Stock successfully saved!' },
     mutationFn: async ({
       contract,
       payload,

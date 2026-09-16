@@ -256,10 +256,7 @@ function ChangePill({ change, pct }: { change: number | null; pct: number | null
   const figure = pct != null ? `${Math.abs(pct).toFixed(2)}%` : Math.abs(change).toFixed(2);
   return (
     <View style={{ backgroundColor: bg, borderRadius: radius.sm, paddingHorizontal: 6, paddingVertical: 1 }}>
-      <Text
-        variant="caption"
-        style={{ color: fg, fontFamily: 'PlusJakartaSans_500Medium', fontVariant: ['tabular-nums'] }}
-      >
+      <Text variant="captionMedium" style={{ color: fg }}>
         {`${arrow} ${figure}`}
       </Text>
     </View>

@@ -31,11 +31,11 @@ export function Badge({ label, tone = 'neutral' }: { label: string; tone?: Badge
         borderColor: colors.border,
         borderRadius: radius.pill,
         paddingHorizontal: 8,
-        paddingVertical: 2.5,
+        paddingVertical: 3,
       }}
     >
       <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: dot[tone] }} />
-      <Text variant="caption" tone="muted" style={{ fontFamily: 'PlusJakartaSans_500Medium' }}>
+      <Text variant="captionMedium" tone="muted">
         {label}
       </Text>
     </View>

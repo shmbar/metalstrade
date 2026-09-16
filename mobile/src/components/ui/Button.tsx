@@ -3,8 +3,7 @@ import { ActivityIndicator, ViewStyle, View } from 'react-native';
 import { Pressable } from './Pressable';
 import { Text } from './Text';
 import { useTheme } from '@/theme/ThemeProvider';
-import { radius, spacing } from '@/theme/tokens';
-import { hapticTap, hapticWarning } from '@/lib/haptics';
+import { layout, radius, spacing } from '@/theme/tokens';
 
 type Variant = 'primary' | 'secondary' | 'ghost' | 'danger';
 
@@ -52,24 +51,17 @@ export function Button({
   // One tap of feedback for every button in the app, rather than each screen
   // remembering to wire it up — danger buttons (delete, etc.) get the heavier
   // "warning" pattern the way a destructive action deserves to feel.
-  const onPressWithHaptic = onPress
-    ? () => {
-        (variant === 'danger' ? hapticWarning : hapticTap)();
-        onPress();
-      }
-    : undefined;
-
   return (
     <Pressable
-      onPress={onPressWithHaptic}
+      onPress={onPress}
       disabled={isDisabled}
       style={[
         {
           backgroundColor: bg[variant],
           borderRadius: radius.md,
-          paddingVertical: 13,
+          paddingVertical: 12,
           paddingHorizontal: spacing.lg,
-          minHeight: 50,
+          minHeight: layout.controlHeight,
           alignItems: 'center',
           justifyContent: 'center',
           flexDirection: 'row',
@@ -87,7 +79,7 @@ export function Button({
       ) : (
         <>
           {leftIcon && <View>{leftIcon}</View>}
-          <Text variant="bodyMedium" color={fg[variant]} numberOfLines={1} style={{ fontFamily: 'PlusJakartaSans_600SemiBold', flexShrink: 1 }}>
+          <Text variant="bodyStrong" color={fg[variant]} numberOfLines={1} style={{ flexShrink: 1 }}>
             {title}
           </Text>
         </>

@@ -1,9 +1,8 @@
 import { useMemo, useState } from 'react';
 import { View, ScrollView } from 'react-native';
-import { Pressable } from '@/components/ui/Pressable';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Screen, Card, Text, Select, SkeletonList, ErrorState, EmptyState } from '@/components/ui';
+import { Screen, Card, Text, Select, SkeletonList, ErrorState, EmptyState, Button } from '@/components/ui';
 import { PeriodSelector } from '@/components/PeriodSelector';
 import { useTheme } from '@/theme/ThemeProvider';
 import { useSettings } from '@/store/settings';
@@ -20,6 +19,7 @@ import { accountStatementHtml } from '@/lib/pdfTemplates';
 import { useAuth } from '@/store/auth';
 import { num } from '@shared/finance';
 import { StackHeader } from '@/components/StackHeader';
+import { useShallow } from 'zustand/react/shallow';
 
 const COLS = [
   { key: 'invoice', label: 'Invoice', w: 90, money: false },
@@ -33,8 +33,8 @@ const COLS = [
 export default function AccStatement() {
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
-  const { settings, compData, dateSelect } = useSettings();
-  const { gisAccount } = useAuth();
+  const { settings, compData, dateSelect } = useSettings(useShallow((s) => ({ settings: s.settings, compData: s.compData, dateSelect: s.dateSelect })));
+  const gisAccount = useAuth((s) => s.gisAccount);
   const year = dateSelect.start.substring(0, 4);
 
   const clientOptions = useMemo(
@@ -95,34 +95,14 @@ export default function AccStatement() {
     <Screen contentContainerStyle={{ paddingTop: insets.top + 8 }} edges={false}>
       <StackHeader title="Statement" right={<PeriodSelector />} />
 
-      <Card style={{ gap: 12, marginBottom: 14 }}>
+      <Card style={{ gap: 12, marginBottom: 12 }}>
         <Select label="Client" value={client} options={clientOptions} onChange={setClient} required />
         <Select label={`Period (${year})`} value={date1} options={periods} onChange={setDate1} required searchable={false} />
         {/* Web offers both a branded PDF and an Excel export of this statement. */}
         {!!rows?.length && (
           <View style={{ flexDirection: 'row', gap: 10 }}>
-            <Pressable
-              onPress={onExportPdf}
-              style={{
-                flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6,
-                paddingVertical: 9, borderRadius: 999,
-                backgroundColor: colors.surfaceAlt, borderWidth: 1, borderColor: colors.border,
-              }}
-            >
-              <Ionicons name="document-text-outline" size={15} color={colors.primary} />
-              <Text variant="caption" tone="primary">PDF</Text>
-            </Pressable>
-            <Pressable
-              onPress={onExportCsv}
-              style={{
-                flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6,
-                paddingVertical: 9, borderRadius: 999,
-                backgroundColor: colors.surfaceAlt, borderWidth: 1, borderColor: colors.border,
-              }}
-            >
-              <Ionicons name="grid-outline" size={15} color={colors.primary} />
-              <Text variant="caption" tone="primary">Excel (CSV)</Text>
-            </Pressable>
+            <Button title="PDF" variant="secondary" fullWidth={false} style={{ flex: 1 }} onPress={onExportPdf} leftIcon={<Ionicons name="document-text-outline" size={16} color={colors.primary} />} />
+            <Button title="Excel (CSV)" variant="secondary" fullWidth={false} style={{ flex: 1 }} onPress={onExportCsv} leftIcon={<Ionicons name="grid-outline" size={16} color={colors.primary} />} />
           </View>
         )}
       </Card>
@@ -142,7 +122,7 @@ export default function AccStatement() {
               {/* Header */}
               <View style={{ flexDirection: 'row', borderBottomWidth: 1, borderBottomColor: colors.borderStrong, paddingBottom: 6 }}>
                 {COLS.map((c) => (
-                  <Text key={c.key} variant="caption" tone="muted" style={{ width: c.w, textAlign: c.money ? 'right' : 'left', fontFamily: 'PlusJakartaSans_600SemiBold' }}>
+                  <Text key={c.key} variant="tableStrong" tone="muted" style={{ width: c.w, textAlign: c.money ? 'right' : 'left' }}>
                     {c.label}
                   </Text>
                 ))}
@@ -151,7 +131,7 @@ export default function AccStatement() {
               {rows.map((r, i) => (
                 <View key={i} style={{ flexDirection: 'row', paddingVertical: 7, borderBottomWidth: 1, borderBottomColor: colors.border }}>
                   {COLS.map((c) => (
-                    <Text key={c.key} variant="caption" style={{ width: c.w, textAlign: c.money ? 'right' : 'left' }} numberOfLines={1}>
+                    <Text key={c.key} variant="table" style={{ width: c.w, textAlign: c.money ? 'right' : 'left' }} numberOfLines={1}>
                       {c.money
                         ? stmtMoney(num((r as any)[c.key]), r.cur)
                         : c.key === 'due' || c.key === 'date'
@@ -167,17 +147,17 @@ export default function AccStatement() {
                   the client receives and only one here. */}
               {(['us', 'eu'] as const).map((cur) => (
                 <View key={cur} style={{ flexDirection: 'row', paddingVertical: 8 }}>
-                  <Text variant="caption" tone="primary" style={{ width: COLS[0].w + COLS[1].w, fontFamily: 'PlusJakartaSans_600SemiBold' }}>
+                  <Text variant="tableStrong" tone="primary" style={{ width: COLS[0].w + COLS[1].w }}>
                     Total {cur === 'us' ? 'USD' : 'EUR'}
                   </Text>
-                  <Text variant="caption" tone="primary" style={{ width: 90, textAlign: 'right', fontFamily: 'PlusJakartaSans_600SemiBold', fontVariant: ['tabular-nums'] }}>
+                  <Text variant="tableStrong" tone="primary" style={{ width: 90, textAlign: 'right' }}>
                     {stmtMoney(totals[cur].amount, cur)}
                   </Text>
-                  <Text variant="caption" tone="faint" style={{ width: 90, textAlign: 'right' }}>—</Text>
-                  <Text variant="caption" tone="primary" style={{ width: 90, textAlign: 'right', fontFamily: 'PlusJakartaSans_600SemiBold', fontVariant: ['tabular-nums'] }}>
+                  <Text variant="table" tone="faint" style={{ width: 90, textAlign: 'right' }}>—</Text>
+                  <Text variant="tableStrong" tone="primary" style={{ width: 90, textAlign: 'right' }}>
                     {stmtMoney(totals[cur].paid, cur)}
                   </Text>
-                  <Text variant="caption" tone="primary" style={{ width: 90, textAlign: 'right', fontFamily: 'PlusJakartaSans_600SemiBold', fontVariant: ['tabular-nums'] }}>
+                  <Text variant="tableStrong" tone="primary" style={{ width: 90, textAlign: 'right' }}>
                     {stmtMoney(totals[cur].notPaid, cur)}
                   </Text>
                 </View>

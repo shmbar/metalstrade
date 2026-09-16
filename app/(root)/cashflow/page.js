@@ -97,16 +97,28 @@ const Cashflow = () => {
     const saveCargoStatus = async (row, code) => {
         const contractId = row.orderData?.id;
         const contractDate = row.orderData?.date;
-        if (!contractId || !contractDate) return;
+        if (!contractId || !contractDate || !row.id) return;
         const before = row.cargoStatus || '';
-        const setAll = (value) => setsupPaymentsData((cur) =>
-            cur.map((x) => (x.orderData?.id === contractId ? { ...x, cargoStatus: value } : x)));
-        setAll(code);
+        // Only the row that was clicked. This used to move every invoice of the PO,
+        // because the status was stored on the contract.
+        const setRow = (value) => setsupPaymentsData((cur) =>
+            cur.map((x) => (x.id === row.id ? { ...x, cargoStatus: value } : x)));
+        setRow(code);
         try {
-            await updateContractField(uidCollection, contractId, contractDate, { cargoStatus: code });
+            const contract = await loadInvoice(uidCollection, 'contracts', row.orderData);
+            if (!Array.isArray(contract?.poInvoices)) throw new Error('contract could not be read');
+            // Carry the old contract-level value onto the other invoices as we go, then
+            // drop it: without that they would fall back to it and appear to change when
+            // this one is set. Nothing on screen moves except the row that was clicked.
+            const legacy = contract.cargoStatus || '';
+            const poInvoices = contract.poInvoices.map((p) => ({
+                ...p,
+                cargoStatus: p.id === row.id ? code : (p.cargoStatus || legacy),
+            }));
+            await updateContractField(uidCollection, contractId, contractDate, { poInvoices, cargoStatus: '' });
         } catch (e) {
             console.error('cargo status save failed', e);
-            setAll(before);
+            setRow(before);
             setToast({ show: true, text: 'Could not save the cargo status — please try again', clr: 'fail' });
         }
     };

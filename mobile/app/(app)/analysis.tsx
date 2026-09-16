@@ -28,7 +28,7 @@ export default function Analysis() {
     <Screen contentContainerStyle={{ paddingTop: insets.top + 8 }} edges={false} refreshing={isLoading} onRefresh={refetch}>
       <StackHeader title="Analysis" right={<PeriodSelector />} />
 
-      <View style={{ marginBottom: 14 }}>
+      <View style={{ marginBottom: 12 }}>
         <SegmentedControl
           value={tab}
           onChange={(v) => setTab(v as any)}

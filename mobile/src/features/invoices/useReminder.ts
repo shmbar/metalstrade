@@ -18,7 +18,7 @@ export function useGenerateReminder() {
 // Send the reminder via the server (Resend). Returns {ok} or throws (e.g. 503 if
 // RESEND_API_KEY isn't configured on the backend).
 export function useSendReminder() {
-  const { uidCollection } = useAuth();
+  const uidCollection = useAuth((s) => s.uidCollection);
   return useMutation({
     mutationFn: async (args: {
       invoiceId: string;

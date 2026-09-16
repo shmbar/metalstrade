@@ -11,12 +11,13 @@ import React, { useState } from 'react';
 import { View } from 'react-native';
 import { Pressable } from '@/components/ui/Pressable';
 import { Ionicons } from '@expo/vector-icons';
-import { Text, TextField, Button , Sheet } from '@/components/ui';
+import { Text, TextField, Button, Sheet, Chip } from '@/components/ui';
 import { useTheme } from '@/theme/ThemeProvider';
 import { radius, spacing } from '@/theme/tokens';
 import { useAuth } from '@/store/auth';
 import { ensureSplitNotification, clearSplitNotification } from '@/data/writes';
 import { SPLIT_DEFAULT_RATIO, computeShares, curSymbol, splitStatusOf } from '@shared/splitUtils';
+import { useShallow } from 'zustand/react/shallow';
 
 const fmt = (n: number) =>
   (Number(n) || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -42,7 +43,7 @@ export function SplitControl({
   onPersist,
 }: SplitControlProps) {
   const { colors } = useTheme();
-  const { uidCollection, currentUser } = useAuth();
+  const { uidCollection, currentUser } = useAuth(useShallow((s) => ({ uidCollection: s.uidCollection, currentUser: s.currentUser })));
 
   const status = splitStatusOf(row);
   const sym = curSymbol(currency);
@@ -140,7 +141,7 @@ export function SplitControl({
       }}
     >
       {icon && <Ionicons name={icon} size={11} color={fg} />}
-      <Text variant="caption" color={fg}>{label}</Text>
+      <Text variant="captionStrong" color={fg}>{label}</Text>
     </Pressable>
   );
 
@@ -198,17 +199,7 @@ export function SplitControl({
               {[50, 60, 70, 100].map((p) => {
                 const on = r === p;
                 return (
-                  <Pressable
-                    key={p}
-                    onPress={() => setRatio(String(p))}
-                    style={{
-                      paddingHorizontal: 10, paddingVertical: 4, borderRadius: 999,
-                      backgroundColor: on ? colors.primary : colors.surfaceAlt,
-                      borderWidth: 1, borderColor: on ? colors.primary : colors.border,
-                    }}
-                  >
-                    <Text variant="caption" color={on ? '#fff' : colors.textMuted}>{p}/{100 - p}</Text>
-                  </Pressable>
+                  <Chip key={p} label={`${p}/${100 - p}`} active={on} onPress={() => setRatio(String(p))} />
                 );
               })}
             </View>
@@ -222,7 +213,7 @@ export function SplitControl({
               }}
             >
               <Text variant="caption" tone="muted">IMS</Text>
-              <Text variant="h3" style={{ marginTop: 2 }}>{sym}{fmt(preview.imsShare)}</Text>
+              <Text variant="figure" style={{ marginTop: 2 }}>{sym}{fmt(preview.imsShare)}</Text>
             </View>
             <View
               style={{
@@ -231,7 +222,7 @@ export function SplitControl({
               }}
             >
               <Text variant="caption" tone="muted">GIS</Text>
-              <Text variant="h3" tone="primary" style={{ marginTop: 2 }}>{sym}{fmt(preview.gisShare)}</Text>
+              <Text variant="figure" tone="primary" style={{ marginTop: 2 }}>{sym}{fmt(preview.gisShare)}</Text>
             </View>
           </View>
 

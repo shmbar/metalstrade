@@ -34,7 +34,7 @@ export default function StocksScreen() {
         right={tab === 'storage' ? <PeriodSelector /> : undefined}
       />
 
-      <View style={{ marginBottom: 14 }}>
+      <View style={{ marginBottom: 12 }}>
         <SegmentedControl
           value={tab}
           onChange={setTab}

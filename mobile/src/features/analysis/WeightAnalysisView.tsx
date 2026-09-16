@@ -6,13 +6,14 @@ import { useTheme } from '@/theme/ThemeProvider';
 import { useSettings } from '@/store/settings';
 import { useWeightAnalysis } from './useWeightAnalysis';
 import { WeightRow } from './weightAnalysis';
+import { keyboardScrollProps } from '@/lib/keyboard';
 
 // Weight Analysis — contracted assay/weight vs returned ("Back") assay/weight per
 // PO material line, with a per-PO Average row. Web's report is a 15-column grid
 // with PO-merged rowspans; RN has no rowspan, so rows are grouped under a PO header.
 export function WeightAnalysisView() {
   const { colors } = useTheme();
-  const { settings } = useSettings();
+  const settings = useSettings((s) => s.settings);
   const [supplier, setSupplier] = useState('');
 
   const supplierOptions = useMemo(
@@ -55,7 +56,8 @@ export function WeightAnalysisView() {
       ) : rows.length === 0 ? (
         <EmptyState title="No data" message="No contracted-vs-returned pairs for this supplier in the period." />
       ) : (
-        <ScrollView keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
+        <ScrollView
+        {...keyboardScrollProps} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
           {groups.map(([order, list]) => (
             <Card key={order} padded={false} style={{ marginBottom: 12 }}>
               <View style={{ padding: 14, paddingBottom: 8 }}>
@@ -105,7 +107,7 @@ export function WeightAnalysisView() {
 
 function H({ w, children }: { w: number; children: React.ReactNode }) {
   return (
-    <Text variant="caption" tone="muted" style={{ width: w, fontFamily: 'PlusJakartaSans_600SemiBold' }} numberOfLines={1}>
+    <Text variant="tableStrong" tone="muted" style={{ width: w }} numberOfLines={1}>
       {children}
     </Text>
   );
@@ -116,15 +118,7 @@ function C({ w, children, strong, diff }: { w: number; children: any; strong?: b
   const n = parseFloat(children);
   const color = diff && Number.isFinite(n) && n !== 0 ? (n < 0 ? colors.negative : colors.positive) : undefined;
   return (
-    <Text
-      variant="caption"
-      numberOfLines={1}
-      style={{
-        width: w,
-        ...(strong ? { fontFamily: 'PlusJakartaSans_600SemiBold' } : {}),
-        ...(color ? { color } : {}),
-      }}
-    >
+    <Text variant={strong ? 'tableStrong' : 'table'} numberOfLines={1} style={{ width: w, ...(color ? { color } : {}) }}>
       {children === '' || children == null ? '—' : String(children)}
     </Text>
   );

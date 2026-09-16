@@ -1,10 +1,10 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { View, Alert, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, Alert } from 'react-native';
 import { Pressable } from '@/components/ui/Pressable';
 import { useLocalSearchParams, router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Screen, Card, Text, TextField, Select, DateField, Button, SectionHeader, EmptyState, StackHeader, IconButton, SkeletonList } from '@/components/ui';
+import { Screen, Card, Text, TextField, Select, DateField, Button, SectionHeader, EmptyState, StackHeader, IconButton, SkeletonList, KeyboardFooter } from '@/components/ui';
 import { useTheme } from '@/theme/ThemeProvider';
 import { useSettings } from '@/store/settings';
 import { useInvoices, deriveInvoice } from '@/features/invoices/useInvoices';
@@ -14,13 +14,12 @@ import { useInvoiceSalesContracts } from '@/features/invoices/useInvoiceSalesCon
 import { newId } from '@/data/writes';
 import { num } from '@shared/finance';
 import { curSymbol, fmtMoney } from '@/lib/format';
-import { hapticSuccess } from '@/lib/haptics';
 
 export default function InvoiceEdit() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
-  const { settings } = useSettings();
+  const settings = useSettings((s) => s.settings);
   const { data: invoices, isLoading } = useInvoices();
   const edit = useEditInvoice();
 
@@ -146,7 +145,6 @@ export default function InvoiceEdit() {
         raw,
         removedLineIds: removedIds,
       });
-      hapticSuccess();
       router.back();
     } catch (e: any) {
       Alert.alert('Save failed', e?.message || 'Could not save the invoice.');
@@ -154,7 +152,7 @@ export default function InvoiceEdit() {
   };
 
   return (
-    <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+    <View style={{ flex: 1 }}>
       <Screen contentContainerStyle={{ paddingTop: insets.top + 8 }} edges={false}>
         <StackHeader title={`Edit invoice #${view.number}`} subtitle={view.clientName} backLabel="Cancel" />
 
@@ -215,18 +213,18 @@ export default function InvoiceEdit() {
       </Screen>
 
       {/* Sticky save bar */}
-      <View
+      <KeyboardFooter
         style={{
           borderTopWidth: 1,
           borderTopColor: colors.border,
           backgroundColor: colors.bgElevated,
           paddingHorizontal: 16,
           paddingTop: 10,
-          paddingBottom: insets.bottom + 10,
+          paddingBottom: 10,
         }}
       >
         <Button title="Save changes" loading={edit.isPending} onPress={onSave} />
-      </View>
-    </KeyboardAvoidingView>
+      </KeyboardFooter>
+    </View>
   );
 }

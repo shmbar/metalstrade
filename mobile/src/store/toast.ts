@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { haptics } from '@/lib/haptics';
 
 export type ToastTone = 'success' | 'error' | 'info';
 
@@ -34,8 +35,14 @@ export const useToastStore = create<ToastState>((set) => ({
   dismiss: (id) => set((s) => ({ items: s.items.filter((x) => x.id !== id) })),
 }));
 
-const push = (tone: ToastTone) => (message: string, title?: string) =>
-  useToastStore.getState().push({ tone, message, title });
+// The toast is where an outcome is announced, so it is also where the outcome is felt:
+// one success pulse for every save/update/delete in the app, one error pulse for every
+// failure — no screen has to remember to add it (lib/haptics).
+const push = (tone: ToastTone) => (message: string, title?: string) => {
+  if (tone === 'success') haptics.success();
+  else if (tone === 'error') haptics.error();
+  return useToastStore.getState().push({ tone, message, title });
+};
 
 export const toast = {
   success: push('success'),

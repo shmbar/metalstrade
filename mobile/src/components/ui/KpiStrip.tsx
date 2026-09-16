@@ -78,10 +78,10 @@ export function KpiStrip({ items }: { items: KpiItem[] }) {
               </Text>
             </View>
             <Text
-              variant="h2"
+              variant="stat"
               numberOfLines={1}
               adjustsFontSizeToFit
-              style={{ color: value, fontVariant: ['tabular-nums'] }}
+              style={{ color: value }}
             >
               {k.value}
             </Text>

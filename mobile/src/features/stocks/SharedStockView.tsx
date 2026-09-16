@@ -2,13 +2,14 @@ import React, { useMemo, useState } from 'react';
 import { View, ScrollView, Alert, RefreshControl } from 'react-native';
 import { Pressable } from '@/components/ui/Pressable';
 import { Ionicons } from '@expo/vector-icons';
-import { Card, Text, Select, TextField, Button, LoadingState, ErrorState , Sheet } from '@/components/ui';
+import { Card, Text, Select, TextField, Button, LoadingState, ErrorState, Sheet, Chip, IconButton } from '@/components/ui';
 import { useTheme } from '@/theme/ThemeProvider';
 import { radius, spacing, LIST_END_PADDING } from '@/theme/tokens';
 import { GradeSummaryCard } from './GradeSummaryCard';
 import {
   useSharedStock, blankLot, financedOf, OWNERS, FINANCING, Financing, SharedLot,
 } from './useSharedStock';
+import { keyboardScrollProps } from '@/lib/keyboard';
 
 const fmtQ = (v: number) => new Intl.NumberFormat('en-US', { maximumFractionDigits: 3 }).format(v || 0);
 
@@ -127,7 +128,8 @@ export function SharedStockView() {
 
   return (
     <>
-      <ScrollView keyboardShouldPersistTaps="handled"
+      <ScrollView
+        {...keyboardScrollProps} keyboardShouldPersistTaps="handled"
         style={{ flex: 1 }}
         contentContainerStyle={{ paddingBottom: LIST_END_PADDING }}
         showsVerticalScrollIndicator={false}
@@ -139,17 +141,7 @@ export function SharedStockView() {
               Shared between IMS &amp; GIS · {rows.length} lot{rows.length !== 1 ? 's' : ''} · {fmtQ(totalMt)} MT
             </Text>
           </View>
-          <Pressable
-            onPress={openAdd}
-            style={{
-              flexDirection: 'row', alignItems: 'center', gap: 4,
-              paddingHorizontal: 12, paddingVertical: 7, borderRadius: 999,
-              backgroundColor: colors.primary,
-            }}
-          >
-            <Ionicons name="add" size={15} color="#fff" />
-            <Text variant="caption" color="#fff">Add</Text>
-          </Pressable>
+          <IconButton icon="add" variant="primary" accessibilityLabel="Add shared stock" onPress={openAdd} />
         </View>
 
         {rows.length === 0 ? (
@@ -162,16 +154,16 @@ export function SharedStockView() {
         ) : (
           <>
             {rows.map((r) => (
-              <Card key={r.id} style={{ marginBottom: 10 }} onPress={() => openEdit(r)}>
+              <Card key={r.id} style={{ marginBottom: 12 }} onPress={() => openEdit(r)}>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', gap: 12 }}>
                   <View style={{ flex: 1, minWidth: 0 }}>
-                    <Text variant="bodyMedium" numberOfLines={2}>{r.descriptionName}</Text>
+                    <Text variant="h3" numberOfLines={2}>{r.descriptionName}</Text>
                     <Text variant="caption" tone="muted" numberOfLines={1} style={{ marginTop: 2 }}>
                       {[r.stockName, r.supplierName, r.status].filter((x) => x && x !== '—').join(' · ') || '—'}
                     </Text>
                   </View>
                   <View style={{ alignItems: 'flex-end' }}>
-                    <Text variant="bodyMedium">{fmtQ(parseFloat(String(r.qnty)) || 0)} MT</Text>
+                    <Text variant="figure">{fmtQ(parseFloat(String(r.qnty)) || 0)} MT</Text>
                     <Text variant="caption" tone="primary">
                       {curSym(r.cur) || '$'}
                       {new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(
@@ -275,26 +267,7 @@ export function SharedStockView() {
               {OWNERS.map((o) => {
                 const on = lot.owners.includes(o);
                 return (
-                  <Pressable
-                    key={o}
-                    onPress={() => toggleOwner(o)}
-                    accessibilityRole="checkbox"
-                    accessibilityState={{ checked: on }}
-                    accessibilityLabel={`Owner ${o}`}
-                    style={{
-                      flexDirection: 'row', alignItems: 'center', gap: 6,
-                      paddingHorizontal: 12, paddingVertical: 7, borderRadius: 999,
-                      backgroundColor: on ? colors.primary : colors.surfaceAlt,
-                      borderWidth: 1, borderColor: on ? colors.primary : colors.border,
-                    }}
-                  >
-                    <Ionicons
-                      name={on ? 'checkbox' : 'square-outline'}
-                      size={15}
-                      color={on ? '#fff' : colors.textFaint}
-                    />
-                    <Text variant="caption" color={on ? '#fff' : colors.textMuted}>{o}</Text>
-                  </Pressable>
+                  <Chip key={o} label={o} icon={on ? 'checkbox' : 'square-outline'} active={on} onPress={() => toggleOwner(o)} />
                 );
               })}
             </View>
@@ -309,19 +282,7 @@ export function SharedStockView() {
               {FINANCING.map((f) => {
                 const on = (lot.financedBy || 'BOTH') === f;
                 return (
-                  <Pressable
-                    key={f}
-                    onPress={() => setF('financedBy', f as Financing)}
-                    style={{
-                      paddingHorizontal: 12, paddingVertical: 7, borderRadius: 999,
-                      backgroundColor: on ? colors.primary : colors.surfaceAlt,
-                      borderWidth: 1, borderColor: on ? colors.primary : colors.border,
-                    }}
-                  >
-                    <Text variant="caption" color={on ? '#fff' : colors.textMuted}>
-                      {f === 'BOTH' ? 'Both (50/50)' : f}
-                    </Text>
-                  </Pressable>
+                  <Chip key={f} label={f === 'BOTH' ? 'Both (50/50)' : f} active={on} onPress={() => setF('financedBy', f as Financing)} />
                 );
               })}
             </View>

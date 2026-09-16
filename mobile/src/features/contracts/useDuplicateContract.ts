@@ -12,7 +12,7 @@ import { Contract } from '@/data/types';
 // invoices/stock/payments, assigns a new auto PO number, then opens the copy.
 // Shared by the contract detail screen and the list swipe action (web parity).
 export function useDuplicateContract() {
-  const { settings } = useSettings();
+  const settings = useSettings((s) => s.settings);
   const { data: contracts } = useContracts();
   const save = useSaveContract();
 
@@ -35,7 +35,7 @@ export function useDuplicateContract() {
             productsData: arr<any>(contract.productsData).map((p) => ({ ...p, id: newId() })),
           };
           try {
-            const res = await save.mutateAsync({ value: dup, existing: undefined });
+            const res = await save.mutateAsync({ value: dup, existing: undefined, successMessage: 'Contract successfully duplicated!' });
             router.push(`/(app)/contracts/${res.contract.id}`);
           } catch (e: any) {
             Alert.alert('Failed', e?.message || 'Could not duplicate.');

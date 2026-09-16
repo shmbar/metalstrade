@@ -44,9 +44,10 @@ export function blankInvoiceForContract(contract: Contract): Invoice {
 }
 
 export function useCreateInvoice() {
-  const { uidCollection } = useAuth();
+  const uidCollection = useAuth((s) => s.uidCollection);
   const qc = useQueryClient();
   return useMutation({
+    meta: { success: 'Invoice successfully saved!' },
     mutationFn: async ({ contract, invoice, clientName }: { contract: Contract; invoice: Invoice; clientName: string }) => {
       if (!uidCollection) throw new Error('Not authenticated');
       // Web's duplicate-line trap (stockGuards.js, 2c2de202): refuse a sale booked on a

@@ -112,7 +112,7 @@ export function stmtMoney(v: number, cur?: string): string {
 }
 
 export function useAccStatement(clientId: string, year: string, date1: string) {
-  const { uidCollection } = useAuth();
+  const uidCollection = useAuth((s) => s.uidCollection);
   return useQuery({
     enabled: !!uidCollection && !!clientId && !!year && !!date1,
     queryKey: ['acc-statement', uidCollection, clientId, year, date1],

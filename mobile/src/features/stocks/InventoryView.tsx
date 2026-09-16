@@ -10,6 +10,7 @@ import { LotSheet } from './LotSheet';
 import { curSymbol, fmtMoney } from '@/lib/format';
 import { filterInventoryRows, warehouseTotalCell } from './display';
 import { LIST_END_PADDING } from '@/theme/tokens';
+import { keyboardScrollProps } from '@/lib/keyboard';
 
 const fmtQty = (n: number) => new Intl.NumberFormat('en-US', { minimumFractionDigits: 3 }).format(n || 0);
 
@@ -82,7 +83,7 @@ export function InventoryView() {
                         paddingVertical: 6, borderTopWidth: gi === 0 ? 0 : 1, borderTopColor: colors.border,
                       }}
                     >
-                      <Text variant="bodyMedium" style={{ flex: 1, fontFamily: 'PlusJakartaSans_600SemiBold' }}>Total {iso === 'EUR' ? '€' : '$'}</Text>
+                      <Text variant="bodyStrong" style={{ flex: 1 }}>Total {iso === 'EUR' ? '€' : '$'}</Text>
                       <Text variant="bodyMedium" style={{ marginHorizontal: 10, fontVariant: ['tabular-nums'] }}>
                         {fmtQty(quantity)}
                       </Text>
@@ -136,7 +137,8 @@ export function InventoryView() {
         );
 
         return rows.length === 0 ? (
-          <FlatList keyboardShouldPersistTaps="handled"
+          <FlatList
+        {...keyboardScrollProps} keyboardShouldPersistTaps="handled"
             data={[]}
             renderItem={null}
             keyExtractor={() => 'x'}
@@ -154,7 +156,8 @@ export function InventoryView() {
             }
           />
         ) : (
-        <FlatList keyboardShouldPersistTaps="handled"
+        <FlatList
+        {...keyboardScrollProps} keyboardShouldPersistTaps="handled"
           data={rows}
           keyExtractor={(r) => r.id}
           showsVerticalScrollIndicator={false}
@@ -175,7 +178,7 @@ export function InventoryView() {
                   </Text>
                 </View>
                 <View style={{ alignItems: 'flex-end' }}>
-                  <Text variant="h3">
+                  <Text variant="figure">
                     {fmtQty(Number(item.qnty))}
                   </Text>
                   {/* Web leaves this blank when the lot has no weight type rather

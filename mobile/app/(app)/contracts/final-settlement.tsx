@@ -16,12 +16,13 @@ import {
   SettlementBase,
 } from '@/features/stocks/useFinalSettlement';
 import { curSymbol, fmtMoney } from '@/lib/format';
+import { haptics } from '@/lib/haptics';
 
 export default function FinalSettlement() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
-  const { settings } = useSettings();
+  const settings = useSettings((s) => s.settings);
   const { data: contracts } = useContracts();
   const contract = useMemo(() => contracts?.find((c) => c.id === id), [contracts, id]);
 
@@ -89,11 +90,11 @@ export default function FinalSettlement() {
     <Screen contentContainerStyle={{ paddingTop: insets.top + 8 }} edges={false}>
       <StackHeader title="Final settlement" subtitle={contract.order} />
 
-      <View style={{ marginBottom: 14 }}>
+      <View style={{ marginBottom: 12 }}>
       </View>
 
       {/* Draft toggle */}
-      <Card style={{ marginBottom: 14, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+      <Card style={{ marginBottom: 12, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
         <View style={{ flex: 1, paddingRight: 12 }}>
           <Text variant="bodyMedium">Draft mode</Text>
           <Text variant="caption" tone="muted">
@@ -102,7 +103,7 @@ export default function FinalSettlement() {
               : 'Off — saving applies the settlement to cashflow & stocks.'}
           </Text>
         </View>
-        <Switch value={isDraft} onValueChange={setIsDraft} trackColor={{ true: colors.warn }} />
+        <Switch value={isDraft} onValueChange={(on) => { haptics.selection(); setIsDraft(on); }} trackColor={{ true: colors.warn }} />
       </Card>
 
       {isDraft && (
@@ -113,10 +114,10 @@ export default function FinalSettlement() {
             borderWidth: 1,
             borderRadius: 12,
             padding: 12,
-            marginBottom: 14,
+            marginBottom: 12,
           }}
         >
-          <Text variant="caption" color={colors.warn} style={{ fontFamily: 'PlusJakartaSans_600SemiBold' }}>
+          <Text variant="captionStrong" color={colors.warn}>
             Draft mode — these figures are held back and won’t affect cashflow or stocks until you turn off Draft and save.
           </Text>
         </View>

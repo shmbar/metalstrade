@@ -6,6 +6,7 @@ import { loadData } from '@/data/firestore';
 import { Contract, Invoice } from '@/data/types';
 import { InvoiceView } from '@/features/invoices/useInvoices';
 import { computeInvoicesReview, PartyStatement } from '@/features/review/reviewCore';
+import { useShallow } from 'zustand/react/shallow';
 
 export type { PartyStatement } from '@/features/review/reviewCore';
 
@@ -13,8 +14,8 @@ export type { PartyStatement } from '@/features/review/reviewCore';
 // client receivables and supplier payables, per currency. All of the arithmetic
 // lives in reviewCore.ts so it can be parity-tested against web without React.
 export function useInvoicesReview() {
-  const { uidCollection } = useAuth();
-  const { settings, dateSelect, loaded } = useSettings();
+  const uidCollection = useAuth((s) => s.uidCollection);
+  const { settings, dateSelect, loaded } = useSettings(useShallow((s) => ({ settings: s.settings, dateSelect: s.dateSelect, loaded: s.loaded })));
 
   const query = useQuery({
     enabled: !!uidCollection && loaded,

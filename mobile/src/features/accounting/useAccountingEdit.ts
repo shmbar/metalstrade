@@ -16,7 +16,7 @@ import { AccountingGroup, AccountingLine } from './useAccounting';
 export type ExpenseField = 'expInvoice' | 'amountExp' | 'expType' | 'supplier';
 
 export function useAccountingEdit() {
-  const { uidCollection } = useAuth();
+  const uidCollection = useAuth((s) => s.uidCollection);
   const qc = useQueryClient();
   const refresh = () => {
     qc.invalidateQueries({ queryKey: ['accounting'] });
@@ -25,6 +25,7 @@ export function useAccountingEdit() {
   };
 
   const editExpense = useMutation({
+    meta: { success: 'Saved successfully' },
     mutationFn: async ({ line, field, value }: { line: AccountingLine; field: ExpenseField; value: string }) => {
       if (!uidCollection) throw new Error('Not authenticated');
       // Purchase rows come from contract poInvoices — web blocks editing them here.
@@ -43,6 +44,7 @@ export function useAccountingEdit() {
   });
 
   const editInvoiceClient = useMutation({
+    meta: { success: 'Saved successfully' },
     mutationFn: async ({ group, client }: { group: AccountingGroup; client: string }) => {
       if (!uidCollection) throw new Error('Not authenticated');
       if (!group.invoiceId || !group.invoiceDate) throw new Error('Missing invoice mapping.');

@@ -33,7 +33,7 @@ export function HistorySheet({
   title: string;
 }) {
   const { colors } = useTheme();
-  const { uidCollection } = useAuth();
+  const uidCollection = useAuth((s) => s.uidCollection);
   const { data = [], isLoading, isError } = useQuery({
     enabled: visible && !!uidCollection && !!entityId,
     queryKey: ['activity', uidCollection, entityType, entityId],

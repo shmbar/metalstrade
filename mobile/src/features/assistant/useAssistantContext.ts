@@ -10,6 +10,8 @@ import { groupInvoices, resolveInvoiceDate, effectiveDueDate, num } from '@share
 // re-implemented here, so the AI can never drift from the Stocks page math.
 import { computeStockNetSummary } from '@shared/pureHelpers';
 import { arr } from '@/lib/guard';
+import { entityName } from '@/lib/entityName';
+import { useShallow } from 'zustand/react/shallow';
 
 // Web's conStatus ID -> label map (FloatingChat.js:336). Kept here verbatim so the
 // assistant and the web UI agree on wording.
@@ -31,13 +33,13 @@ function buildContext(raw: any, settings: any, compData: any) {
   const expTypeList = settings?.Expenses?.Expenses || [];
   const expPmntList = settings?.ExpPmnt?.ExpPmnt || [];
 
-  const resolveClient = (f: any) => (f?.nname ? f.nname : clientList.find((c: any) => c.id === f)?.nname || f || 'Unknown');
+  const resolveClient = (f: any) => (f?.nname ? f.nname : entityName(clientList, f, 'client'));
   const resolveClientFull = (f: any) => {
     if (f?.client) return f.client;
     const obj = clientList.find((c: any) => c.id === f);
     return obj?.client || obj?.nname || (typeof f === 'string' ? f : '') || '';
   };
-  const resolveSupplier = (f: any) => (f?.nname ? f.nname : supplierList.find((s: any) => s.id === f)?.nname || f || 'Unknown');
+  const resolveSupplier = (f: any) => (f?.nname ? f.nname : entityName(supplierList, f, 'supplier'));
   const resolveCurrency = (f: any) => (f?.cur ? f.cur : currencyList.find((c: any) => c.id === f)?.cur || f || '');
   const resolveExpType = (id: any) => expTypeList.find((e: any) => e.id === id)?.expType || id || 'Unknown';
 
@@ -125,8 +127,8 @@ function buildContext(raw: any, settings: any, compData: any) {
 }
 
 export function useAssistantContext() {
-  const { uidCollection } = useAuth();
-  const { settings, compData, dateSelect, loaded } = useSettings();
+  const uidCollection = useAuth((s) => s.uidCollection);
+  const { settings, compData, dateSelect, loaded } = useSettings(useShallow((s) => ({ settings: s.settings, compData: s.compData, dateSelect: s.dateSelect, loaded: s.loaded })));
 
   const query = useQuery({
     enabled: !!uidCollection && loaded,
@@ -162,5 +164,17 @@ export function useAssistantContext() {
     currentData,
     dateRange: { startDate: dateSelect.start, endDate: dateSelect.end },
     isLoading: query.isLoading || lotsQuery.isLoading,
+    isFetching: query.isFetching || lotsQuery.isFetching,
+    /** when the period data last arrived — web's "synced h:mm" */
+    syncedAt: query.dataUpdatedAt || 0,
+    /** what the answers are drawn from — web's empty-state line (raw period records, net stock lines) */
+    counts: {
+      contracts: (query.data?.contracts || []).length,
+      invoices: (query.data?.invoices || []).length,
+      expenses: (query.data?.expenses || []).length,
+      stockLines: (currentData.stocks || []).length,
+    },
+    /** web's Reload data */
+    reload: () => Promise.all([query.refetch(), lotsQuery.refetch()]),
   };
 }

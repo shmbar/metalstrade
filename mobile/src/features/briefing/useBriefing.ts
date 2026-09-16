@@ -8,6 +8,7 @@ import { apiConfigured, postJson } from '@/lib/api';
 import { fmtCurKM, dateLabel } from '@/lib/format';
 import { effectiveDueDate, num } from '@shared/finance';
 import { arr } from '@/lib/guard';
+import { useShallow } from 'zustand/react/shallow';
 
 // Deterministic briefing facts computed from the books the app already loaded.
 // The AI only phrases these — every number here is exact.
@@ -24,8 +25,8 @@ export interface BriefingFacts {
 const DAY = 86400000;
 
 export function useBriefing() {
-  const { uidCollection, currentUser } = useAuth();
-  const { settings, compData, loaded } = useSettings();
+  const { uidCollection, currentUser } = useAuth(useShallow((s) => ({ uidCollection: s.uidCollection, currentUser: s.currentUser })));
+  const { settings, compData, loaded } = useSettings(useShallow((s) => ({ settings: s.settings, compData: s.compData, loaded: s.loaded })));
   const { data: invoices } = useInvoices();
   const { prices } = useMetalPrices();
 

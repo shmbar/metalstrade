@@ -1,6 +1,5 @@
 import React from 'react';
 import { View } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
 import { Card, Text, Badge } from '@/components/ui';
 import { useTheme } from '@/theme/ThemeProvider';
 import { Contract } from '@/data/types';
@@ -31,44 +30,36 @@ export function ContractCard({
         {/* Header: avatar + PO/supplier · value/tonnage */}
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 12 }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 11, flex: 1, minWidth: 0 }}>
-            <View style={{ width: 42, height: 42, borderRadius: radius.md, backgroundColor: accent + '1c', alignItems: 'center', justifyContent: 'center' }}>
-              <Text variant="label" color={accent} style={{ fontFamily: 'PlusJakartaSans_600SemiBold' }}>{initials(v.supplierName)}</Text>
+            <View style={{ width: 40, height: 40, borderRadius: radius.md, backgroundColor: accent + '1c', alignItems: 'center', justifyContent: 'center' }}>
+              <Text variant="label" color={accent}>{initials(v.supplierName)}</Text>
             </View>
             <View style={{ flex: 1, minWidth: 0 }}>
               <Text variant="h3" numberOfLines={1}>{contract.order || 'Untitled PO'}</Text>
-              <Text variant="caption" tone="muted" numberOfLines={1} style={{ marginTop: 1 }}>{v.supplierName}</Text>
+              {/* Supplier, date and invoice count on ONE line — three separate rows per
+                  card is most of what made these lists a long scroll. */}
+              <Text variant="caption" tone="muted" numberOfLines={1} style={{ marginTop: 1 }}>
+                {[v.supplierName, contract.date ? contract.date.substring(0, 10) : '', v.invoiceCount > 0 ? `${v.invoiceCount} invoice${v.invoiceCount === 1 ? '' : 's'}` : '']
+                  .filter(Boolean)
+                  .join(' · ')}
+              </Text>
             </View>
           </View>
           <View style={{ alignItems: 'flex-end', flexShrink: 0 }}>
-            <Text variant="h3" tone="primary" numberOfLines={1} style={{ fontVariant: ['tabular-nums'] }}>{v.valueLabel}</Text>
+            <Text variant="figure" tone="primary" numberOfLines={1}>{v.valueLabel}</Text>
             <Text variant="caption" tone="faint" style={{ marginTop: 1, fontVariant: ['tabular-nums'] }}>{v.mtLabel}</Text>
           </View>
         </View>
 
-        {/* Materials */}
-        {v.productNames.length > 0 && (
-          <Text variant="caption" tone="muted" numberOfLines={1} style={{ marginTop: 10 }}>
-            {v.productNames.join(' · ')}
-          </Text>
-        )}
-
-        {/* Footer: status · invoices · date */}
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 12 }}>
-          {v.status ? <Badge label={v.status} tone="info" /> : null}
-          {v.invoiceCount > 0 && (
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
-              <Ionicons name="receipt-outline" size={13} color={colors.textFaint} />
-              <Text variant="caption" tone="faint">
-                {v.invoiceCount} invoice{v.invoiceCount === 1 ? '' : 's'}
-              </Text>
-            </View>
-          )}
-          <View style={{ flex: 1 }} />
-          {contract.date ? (
-            <Text variant="caption" tone="faint">
-              {contract.date.substring(0, 10)}
+        {/* Materials + status on one footer line */}
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 8 }}>
+          {v.productNames.length > 0 ? (
+            <Text variant="caption" tone="muted" numberOfLines={1} style={{ flex: 1 }}>
+              {v.productNames.join(' · ')}
             </Text>
-          ) : null}
+          ) : (
+            <View style={{ flex: 1 }} />
+          )}
+          {v.status ? <Badge label={v.status} tone="info" /> : null}
         </View>
       </View>
     </Card>

@@ -14,6 +14,7 @@ import { LIST_END_PADDING } from '@/theme/tokens';
 import { exportCsv } from '@/lib/export';
 import { SwipeRow } from '@/components/SwipeRow';
 import { matchesAllWords, searchWords } from '@shared/search';
+import { keyboardScrollProps } from '@/lib/keyboard';
 
 type Filter = 'All' | 'Unpaid' | 'Partial' | 'Paid';
 const FILTERS: Filter[] = ['All', 'Unpaid', 'Partial', 'Paid'];
@@ -27,7 +28,7 @@ const SORTS: { key: SortKey; label: string }[] = [
 
 export default function InvoicesList() {
   const { colors } = useTheme();
-  const { settings } = useSettings();
+  const settings = useSettings((s) => s.settings);
   const { data: invoices, isLoading, isError, error, refetch } = useInvoices();
   // Dashboard tiles deep-link here with ?filter=Unpaid (drill-through).
   // Dashboard tiles deep-link with ?filter=Unpaid; the Balances tab deep-links
@@ -116,7 +117,7 @@ export default function InvoicesList() {
           {filtered.length} invoice{filtered.length === 1 ? '' : 's'}
         </Text>
         {Object.keys(outstanding).length > 0 && (
-          <Text variant="caption" tone="negative" style={{ fontFamily: 'PlusJakartaSans_600SemiBold', flexShrink: 1 }} numberOfLines={1}>
+          <Text variant="captionStrong" tone="negative" style={{ flexShrink: 1 }} numberOfLines={1}>
             {Object.entries(outstanding)
               .map(([c, v]) => fmtCurKM(c, v))
               .join('  ')}{' '}
@@ -138,7 +139,8 @@ export default function InvoicesList() {
           onAction={search || filter !== 'All' ? undefined : () => router.push('/(app)/contracts')}
         />
       ) : (
-        <FlatList keyboardShouldPersistTaps="handled"
+        <FlatList
+        {...keyboardScrollProps} keyboardShouldPersistTaps="handled"
           data={filtered}
           keyExtractor={(v) => v.id}
           renderItem={({ item, index }) => (

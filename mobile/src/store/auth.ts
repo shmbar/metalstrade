@@ -11,6 +11,8 @@ import {
 } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
 import { queryClient, asyncStoragePersister } from '@/query/client';
+import { clearSettingsCache, useSettings } from '@/store/settings';
+import { stopLotsLedger } from '@/features/stocks/stockLedger';
 // @ts-ignore — plain JS module shared verbatim with the web
 import { isSuperAdmin, normalizeRole, resolvePages } from '@shared/permissions';
 import { canOpenRoute, landingHrefFor } from '@/lib/access';
@@ -139,6 +141,7 @@ export const useAuth = create<AuthState>((set, get) => ({
     const { uidCollection: uc, currentUser: cu } = get();
     if (uc && cu?.uid) await endPresence(uc, cu.uid).catch(() => {});
     await AsyncStorage.removeItem(LAST_SEEN_KEY).catch(() => {});
+    stopLotsLedger();
     await fbSignOut(auth).catch(() => {});
   },
 
@@ -210,6 +213,9 @@ export const useAuth = create<AuthState>((set, get) => ({
         // before their own data arrives. Covers idle-expiry too, which lands here.
         queryClient.clear();
         Promise.resolve(asyncStoragePersister.removeClient()).catch(() => {});
+        // The device copy of supplier/client/warehouse lists goes with it.
+        useSettings.getState().reset();
+        clearSettingsCache();
         set({
           user: null,
           uidCollection: null,

@@ -18,7 +18,7 @@ export function BriefingCard() {
     <Card>
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 8 }}>
         <Ionicons name="sparkles" size={14} color={colors.primary} />
-        <Text variant="label" tone="muted" style={{ textTransform: 'uppercase' }}>Today</Text>
+        <Text variant="overline" tone="muted">Today</Text>
         <View style={{ flex: 1 }} />
         <Text variant="caption" tone="faint">{facts.date}</Text>
       </View>
@@ -30,12 +30,12 @@ export function BriefingCard() {
           <Skeleton height={13} width="60%" />
         </View>
       ) : briefing ? (
-        <Text variant="body" style={{ lineHeight: 21 }}>{briefing}</Text>
+        <Text variant="body">{briefing}</Text>
       ) : (
         // Offline / API failure: show the exact facts plainly.
         <View style={{ gap: 4 }}>
           {factLines.map((l, i) => (
-            <Text key={i} variant="body" tone={i === 0 && facts.overdue ? 'negative' : 'muted'} style={{ lineHeight: 20 }}>
+            <Text key={i} variant="body" tone={i === 0 && facts.overdue ? 'negative' : 'muted'}>
               {l}
             </Text>
           ))}

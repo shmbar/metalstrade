@@ -159,16 +159,82 @@ export const radius = {
 // "everything is Jakarta" is --font-mono, a system monospace stack for
 // IDs/hashes (globals.css:297), which RN reaches via Platform.select rather
 // than a single cross-platform family string.
+//
+// The ladder below is the WHOLE type system (client review 2026-09-16: "many things
+// with font size, uneven"). Screens were reaching past it — 9, 10, 10.5, 15, 16, 18, 20,
+// 24 and 36px set inline, and ~60 captions or body lines re-weighted by hand — because
+// roles they needed had no variant: a table header, a chip, a bold total, an uppercase
+// eyebrow, a KPI figure. Every one of those roles is a variant now, so a screen never
+// sets fontSize/fontFamily itself. Weight carries one meaning, as on web: 600 = label or
+// header, 500 = figure, 400 = body. Digits are tabular everywhere (Text applies it), so
+// columns of amounts line up.
+const JAKARTA = {
+  regular: 'PlusJakartaSans_400Regular',
+  medium: 'PlusJakartaSans_500Medium',
+  semibold: 'PlusJakartaSans_600SemiBold',
+} as const;
+
 export const typography = {
-  display: { fontFamily: 'PlusJakartaSans_600SemiBold', fontSize: 28, lineHeight: 34, letterSpacing: -0.6 },
-  h1: { fontFamily: 'PlusJakartaSans_600SemiBold', fontSize: 22, lineHeight: 28, letterSpacing: -0.4 },
-  h2: { fontFamily: 'PlusJakartaSans_600SemiBold', fontSize: 18, lineHeight: 24, letterSpacing: -0.3 },
-  h3: { fontFamily: 'PlusJakartaSans_600SemiBold', fontSize: 15, lineHeight: 20, letterSpacing: -0.15 },
-  body: { fontFamily: 'PlusJakartaSans_400Regular', fontSize: 14, lineHeight: 20 },
-  bodyMedium: { fontFamily: 'PlusJakartaSans_500Medium', fontSize: 14, lineHeight: 20 },
-  label: { fontFamily: 'PlusJakartaSans_500Medium', fontSize: 12, lineHeight: 16, letterSpacing: 0.2 },
-  caption: { fontFamily: 'PlusJakartaSans_400Regular', fontSize: 11, lineHeight: 14 },
-  mono: { fontFamily: Platform.select({ ios: 'Menlo', android: 'monospace', default: 'monospace' }), fontSize: 20, lineHeight: 24 },
+  /** the one hero number on the dashboard */
+  hero: { fontFamily: JAKARTA.semibold, fontSize: 36, lineHeight: 42, letterSpacing: -0.8 },
+  display: { fontFamily: JAKARTA.semibold, fontSize: 28, lineHeight: 34, letterSpacing: -0.6 },
+  /** tab-root screen title */
+  h1: { fontFamily: JAKARTA.semibold, fontSize: 22, lineHeight: 28, letterSpacing: -0.4 },
+  /** stack screen / sheet title */
+  h2: { fontFamily: JAKARTA.semibold, fontSize: 18, lineHeight: 24, letterSpacing: -0.3 },
+  /** card and section title */
+  h3: { fontFamily: JAKARTA.semibold, fontSize: 16, lineHeight: 22, letterSpacing: -0.2 },
+  /** a card's headline figure */
+  statLg: { fontFamily: JAKARTA.semibold, fontSize: 24, lineHeight: 30, letterSpacing: -0.4 },
+  /** KPI tile figure */
+  stat: { fontFamily: JAKARTA.medium, fontSize: 20, lineHeight: 26, letterSpacing: -0.3 },
+  /** a key figure inside a row or tile */
+  figure: { fontFamily: JAKARTA.medium, fontSize: 16, lineHeight: 22 },
+  body: { fontFamily: JAKARTA.regular, fontSize: 14, lineHeight: 20 },
+  bodyMedium: { fontFamily: JAKARTA.medium, fontSize: 14, lineHeight: 20 },
+  /** button titles, totals, emphasised row text */
+  bodyStrong: { fontFamily: JAKARTA.semibold, fontSize: 14, lineHeight: 20 },
+  /** text typed into or chosen in a field — every field, so a form reads as one */
+  input: { fontFamily: JAKARTA.regular, fontSize: 15, lineHeight: 20 },
+  /** field labels, tile labels, segmented options */
+  label: { fontFamily: JAKARTA.semibold, fontSize: 12, lineHeight: 16, letterSpacing: 0.1 },
+  caption: { fontFamily: JAKARTA.regular, fontSize: 12, lineHeight: 16 },
+  /** a small figure — 500 is the figure weight */
+  captionMedium: { fontFamily: JAKARTA.medium, fontSize: 12, lineHeight: 16 },
+  /** chip and badge text, small status text */
+  captionStrong: { fontFamily: JAKARTA.semibold, fontSize: 12, lineHeight: 16 },
+  /** uppercase eyebrow above a group */
+  overline: { fontFamily: JAKARTA.semibold, fontSize: 11, lineHeight: 14, letterSpacing: 0.6, textTransform: 'uppercase' },
+  /** dense fixed-width grids (material tables, statements) — web's --fs-table rung */
+  table: { fontFamily: JAKARTA.regular, fontSize: 11, lineHeight: 15 },
+  tableStrong: { fontFamily: JAKARTA.semibold, fontSize: 11, lineHeight: 15 },
+  mono: { fontFamily: Platform.select({ ios: 'Menlo', android: 'monospace', default: 'monospace' }), fontSize: 12, lineHeight: 18 },
+} as const;
+
+/** How far system Larger Text may grow the app's type before rows and controls stop fitting. */
+export const MAX_FONT_SCALE = 1.25;
+
+/**
+ * Layout rhythm. Measured across every screen before choosing: most already stacked
+ * cards 12 apart and inset card content 14, but lists used 10 or 12 and detail screens
+ * 14, and controls sat at 34/36/44/48/50 tall — so two screens side by side never
+ * lined up. These are the values the primitives use; screens use them too.
+ */
+export const layout = {
+  /** screen side gutter */
+  gutter: spacing.lg,
+  /** content inset inside a card */
+  cardInset: 14,
+  /** between stacked cards and sections */
+  stack: 12,
+  /** under a screen header */
+  headerGap: 16,
+  /** buttons, text fields, selects, date fields */
+  controlHeight: 48,
+  /** chips, filter pills */
+  pillHeight: 36,
+  /** round icon buttons, back button */
+  iconButton: 40,
 } as const;
 
 export type ColorSchemeName = 'light' | 'dark';

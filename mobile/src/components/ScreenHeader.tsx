@@ -1,6 +1,7 @@
 import React from 'react';
 import { View } from 'react-native';
 import { Text } from '@/components/ui';
+import { layout } from '@/theme/tokens';
 
 export function ScreenHeader({
   title,
@@ -17,7 +18,7 @@ export function ScreenHeader({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        marginBottom: 16,
+        marginBottom: layout.headerGap,
         gap: 12,
       }}
     >

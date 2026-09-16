@@ -14,7 +14,7 @@ function Responsibility({ label, value }: { label: string; value: string }) {
   return (
     <View style={{ flexDirection: 'row', justifyContent: 'space-between', gap: 12, paddingVertical: 5, borderBottomWidth: 1, borderBottomColor: colors.border }}>
       <Text variant="caption" tone="muted" style={{ flex: 1 }}>{label}</Text>
-      <Text variant="caption" color={color} style={{ flex: 1.4, textAlign: 'right', fontFamily: 'PlusJakartaSans_500Medium' }}>
+      <Text variant="captionMedium" color={color} style={{ flex: 1.4, textAlign: 'right' }}>
         {value}
       </Text>
     </View>
@@ -41,7 +41,7 @@ export default function Incoterms() {
 
       <SearchField value={search} onChangeText={setSearch} placeholder="Search term (FOB, CIF…)" autoCapitalize="characters" />
 
-      <View style={{ marginTop: 12, marginBottom: 14 }}>
+      <View style={{ marginTop: 12, marginBottom: 12 }}>
         <SegmentedControl value={mode} onChange={(v) => setMode(v as any)} options={MODE_FILTERS.map((m) => ({ value: m.key as any, label: m.label }))} />
       </View>
 
@@ -53,7 +53,7 @@ export default function Incoterms() {
             <Card key={t.code}>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 8 }}>
                 <View style={{ backgroundColor: colors.primary, borderRadius: 10, paddingHorizontal: 10, paddingVertical: 5 }}>
-                  <Text variant="bodyMedium" color="#fff" style={{ fontFamily: 'PlusJakartaSans_600SemiBold' }}>{t.code}</Text>
+                  <Text variant="bodyStrong" color="#fff">{t.code}</Text>
                 </View>
                 <View style={{ flex: 1, minWidth: 0 }}>
                   <Text variant="h3" numberOfLines={1}>{t.name}</Text>

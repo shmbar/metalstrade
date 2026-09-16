@@ -7,6 +7,7 @@ import { Contract, Invoice } from '@/data/types';
 import { num } from '@shared/finance';
 import { lotIsSold, computeLineSold, aggregateRollups, lineStatus } from '@shared/soldStatus';
 import { reviewFinancials, ReviewFinancials, ViewCur } from './reviewFinance';
+import { useShallow } from 'zustand/react/shallow';
 
 // Per-contract: keep, for each invoice number, only the highest-invType invoice id
 // (so an original isn't counted alongside its credit/final note). Port of getInvArray.
@@ -66,8 +67,8 @@ export interface StatementTotal {
 }
 
 export function useContractsReview(viewCur: 'us' | 'eu' = 'us') {
-  const { uidCollection } = useAuth();
-  const { settings, dateSelect, loaded } = useSettings();
+  const uidCollection = useAuth((s) => s.uidCollection);
+  const { settings, dateSelect, loaded } = useSettings(useShallow((s) => ({ settings: s.settings, dateSelect: s.dateSelect, loaded: s.loaded })));
 
   const query = useQuery({
     enabled: !!uidCollection && loaded,

@@ -9,6 +9,8 @@ import { useTheme } from '@/theme/ThemeProvider';
 import { useNotificationFeed, NotificationRow, Priority } from '@/features/push/useNotificationFeed';
 import { PRIORITY_ORDER } from '@shared/notificationPriority';
 import { LIST_END_PADDING } from '@/theme/tokens';
+import { haptics } from '@/lib/haptics';
+import { keyboardScrollProps } from '@/lib/keyboard';
 
 const relativeTime = (ms?: number) => {
   if (!ms) return '';
@@ -157,7 +159,8 @@ export default function Notifications() {
           icon={<Ionicons name="notifications-off-outline" size={40} color={colors.textFaint} />}
         />
       ) : (
-        <FlatList keyboardShouldPersistTaps="handled"
+        <FlatList
+        {...keyboardScrollProps} keyboardShouldPersistTaps="handled"
           data={items}
           keyExtractor={(it, i) => (it.kind === 'header' ? `h:${it.priority}` : it.row.id || String(i))}
           showsVerticalScrollIndicator={false}
@@ -169,8 +172,8 @@ export default function Notifications() {
               return (
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 6, marginBottom: 8 }}>
                   <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: toneFor(item.priority) }} />
-                  <Text variant="caption" tone="muted">
-                    {PRIORITY_LABEL[item.priority].toUpperCase()} · {item.count}
+                  <Text variant="overline" tone="muted">
+                    {PRIORITY_LABEL[item.priority]} · {item.count}
                   </Text>
                 </View>
               );
@@ -193,7 +196,7 @@ export default function Notifications() {
                     borderWidth: isSelected ? 1.5 : undefined,
                   }}
                   onPress={() => onRowPress(n)}
-                  onLongPress={() => { setSelectMode(true); toggleSelect(n.id); }}
+                  onLongPress={() => { haptics.impact(); setSelectMode(true); toggleSelect(n.id); }}
                 >
                   <View style={{ width: 8, alignItems: 'center', paddingTop: 4 }}>
                     {selectMode ? (
