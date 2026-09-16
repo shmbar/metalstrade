@@ -195,9 +195,15 @@ export function revealOffset(input: {
   // A field taller than the space left (a long comment box) shows its TOP, where the
   // cursor is — scrolling its bottom into view would push the cursor off the screen.
   const need = Math.min(fieldH, visible - margin * 2);
-  if (fieldY + need + margin > offsetY + visible) return Math.max(0, fieldY + need + margin - visible);
-  if (fieldY - margin < offsetY) return Math.max(0, fieldY - margin); // field above the fold
-  return null;
+  const next =
+    fieldY + need + margin > offsetY + visible
+      ? Math.max(0, fieldY + need + margin - visible) // under the keyboard: bring it up
+      : fieldY - margin < offsetY
+        ? Math.max(0, fieldY - margin) // above the fold (Prev, or a re-focus): bring it down
+        : offsetY;
+  // Already where it needs to be. Returning an offset here would scroll the form by a
+  // pixel on every focus — the flicker that made moving between fields feel wrong.
+  return Math.abs(next - offsetY) < 1 ? null : next;
 }
 
 /** How much of a view's frame the keyboard covers (0 when it is clear of it). */

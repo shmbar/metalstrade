@@ -184,6 +184,9 @@ export function Sheet({
                 scrollEventThrottle={16}
                 style={{ flexGrow: 0, flexShrink: 1 }}
                 {...keyboardScrollProps}
+                // The panel itself rides above the keyboard (lift, below), so the body must
+                // not be inset by it a second time.
+                automaticallyAdjustKeyboardInsets={false}
                 showsVerticalScrollIndicator={false}
                 contentContainerStyle={{ paddingHorizontal: spacing.lg, paddingBottom: spacing.md }}
               >

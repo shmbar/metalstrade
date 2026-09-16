@@ -200,10 +200,16 @@ function computeReceivablesWeb(invoices: Invoice[]): any[] {
 }
 
 // ── Stocks Paid / UnPaid — port of web runStocks' invoicesPaymentZero split ──
-// Every netted stock row belongs to a purchase invoice. When that invoice has had
-// NO payment (pmnt === '0' | 0) the row sits under "Stocks - UnPaid", otherwise
-// under "Stocks - Paid". Both are components of web's Total (Left), so without
-// them mobile's incoming figure could never reconcile with the web page.
+// A row sits under "Stocks - UnPaid" when any of its PURCHASE lots belongs to an
+// invoice with nothing paid, otherwise under "Stocks - Paid". Both are components
+// of web's Total (Left), so without them mobile's incoming figure could never
+// reconcile with the web page.
+//
+// Judged over the row's own purchase lots (web funcs.js, 2026-09-16). It used to
+// read one representative lot — the one whose id the row took, i.e. whichever lot
+// came last. Sales are written after the purchases they consume, so a sale became
+// the representative; it carries no purchase invoice, the lookup failed, and the
+// row was called paid. Selling ANY of a material hid what was still owed on the rest.
 //
 // The poInvoice is resolved from the LIVE contract first: lots carry a snapshot of
 // poInvoices taken at breakdown-save time, and payments recorded later never
@@ -214,21 +220,33 @@ function splitStocksPaidUnpaid(inventoryRows: any[], contractsData: any[], setti
   const unpaid: any[] = [];
 
   inventoryRows.forEach((row) => {
-    const child = (row.data || []).find((d: any) => d.id === row.id);
-    if (!child) {
+    let unpaidQty = 0;
+    let unpaidVal = 0;
+    let paidQty = 0;
+    for (const lot of row.data || []) {
+      // Sales only reduce the quantity; they are not a purchase to be paid for.
+      if (lot.type === 'out' || !lot.poInvoice) continue;
+      const live = contractsData.find((k: any) => k.id === lot.contractData?.id)?.poInvoices;
+      const invoice =
+        live?.find((x: any) => x.id === lot.poInvoice) ||
+        lot.poInvoices?.find((x: any) => x.id === lot.poInvoice);
+      if (!invoice) continue;
+      const qty = parseFloat(lot.qnty) || 0;
+      // Nothing paid — by value, not exact spelling ('' or '0.00' used to read as paid).
+      if ((parseFloat(invoice.pmnt) || 0) === 0) {
+        unpaidQty += qty;
+        unpaidVal += parseFloat(lot.total) || 0;
+      } else {
+        paidQty += qty;
+      }
+    }
+    if (unpaidQty <= 0) {
       paid.push(row);
       return;
     }
-    const live = contractsData.find((k: any) => k.id === child.contractData?.id)?.poInvoices;
-    const invoice =
-      live?.find((x: any) => x.id === child.poInvoice) ||
-      child.poInvoices?.find((x: any) => x.id === child.poInvoice);
-    if (!invoice) {
-      paid.push(row);
-      return;
-    }
-    if (invoice.pmnt === '0' || invoice.pmnt === 0) unpaid.push(row);
-    else paid.push(row);
+    // A row can hold paid and unpaid lots of the same alloy; carry the unpaid share
+    // so its total is not read as all owed (web UnpaidShareBadge).
+    unpaid.push(paidQty > 0 ? { ...row, _unpaidVal: unpaidVal, _partlyPaid: true } : row);
   });
 
   const sumTotal = (rows: any[]) =>

@@ -4,6 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { Pressable } from './Pressable';
 import { useTheme } from '@/theme/ThemeProvider';
 import { MAX_FONT_SCALE, radius, typography } from '@/theme/tokens';
+import { useRevealOnFocus } from '@/lib/keyboard';
 
 /**
  * Pill search input — glyph, text, clear — the one find-box shell for every list
@@ -22,6 +23,9 @@ export function SearchField({
   style?: StyleProp<ViewStyle>;
 }) {
   const { colors } = useTheme();
+  // A search box is a field like any other: when it is near the bottom of a screen
+  // (a sheet's filter, a list header that has scrolled) it asks to be scrolled clear.
+  const reveal = useRevealOnFocus();
   return (
     <View
       style={[
@@ -49,6 +53,8 @@ export function SearchField({
         autoCorrect={false}
         returnKeyType="search"
         accessibilityLabel={placeholder}
+        ref={reveal.ref}
+        onFocus={reveal.onFocus}
         maxFontSizeMultiplier={MAX_FONT_SCALE}
         style={{
           flex: 1,

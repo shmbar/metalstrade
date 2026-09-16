@@ -387,3 +387,27 @@ already present in the demo workspace under Contracts and Stock.
 
 See the CHECKLIST at the top of this file. It is the single ordered list —
 keeping a second copy here only guaranteed the two would drift apart.
+
+## Building from the zakarehman13s-team Expo account (2026-09-16)
+
+The original Expo account (zakarehmanai) ran out of free iOS builds until 1 Oct, so builds
+move to the team account's project `zaka-ur-rehman`. TestFlight does not care which Expo
+account builds: the binary reaches the same app record through the APPLE team
+(743R4DV4FW) and bundle id (com.zakarehman.imsmobile).
+
+Changed for this: `app.json` owner → `zakarehman13s-team`, slug → `zaka-ur-rehman`,
+`extra.eas.projectId` cleared (`eas init` writes the new one), and versioning moved from
+EAS's server-side counter to `ios.buildNumber` in app.json (`eas.json cli.appVersionSource:
+"local"`). That last one matters: a fresh EAS project restarts its remote build counter at
+1, and Apple rejects any build number at or below one already uploaded — 34 here. The file
+now says 35, and `autoIncrement` bumps it from there.
+
+    npx eas-cli login          # zakarehman13s-team
+    npx eas-cli init           # links the project, writes extra.eas.projectId
+    npx eas-cli build --platform ios --profile production
+    npx eas-cli submit --platform ios --latest
+
+On the build step choose Apple team 743R4DV4FW and REUSE the existing distribution
+certificate — Apple caps how many exist, and revoking the old one stops the other account
+from building. On submit, this account needs its own App Store Connect API key; creating
+one is safe and does not affect the old one.

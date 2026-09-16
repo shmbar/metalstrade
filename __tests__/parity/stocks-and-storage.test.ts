@@ -191,7 +191,13 @@ const HASH = {
   // place mobile prints a PO is the invoice/expense ledger in app/(app)/cashflow.tsx,
   // whose rows are one-PO-per-row by construction. Its aggregated stock rows are not
   // rendered with a PO, so there is nothing to mislabel there — checked, not assumed.
-  runStocks: 'f36728a15664', // app/(root)/cashflow/funcs.js:188
+  // Re-recorded 2026-09-16: the Paid/UnPaid split judged a row by ONE representative
+  // lot — the last one written, which is a sale as soon as any of the material has
+  // shipped. A sale has no purchase invoice, so the row read as paid and hid what was
+  // still owed ($1.45m IMS, $66k GIS). Now judged over the row's own purchase lots,
+  // with a numeric zero test. Mobile's splitStocksPaidUnpaid (useCashflow.ts) changed
+  // in the same commit to the same rule — confirmed matching, not assumed.
+  runStocks: '84cec2eb311e', // app/(root)/cashflow/funcs.js:244
   staleDays: 'a2e0c4822268', // app/(root)/stocks/storageAging.js:11
   // Re-recorded 2026-09-09: DEMURRAGE_DAYS renamed to LONG_STAY_DAYS — the value
   // (90) is unchanged, but "demurrage" implied a specific shipping-contract charge

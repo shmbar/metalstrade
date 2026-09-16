@@ -152,6 +152,24 @@ export const DraftUseBadge = ({ use }) => {
     );
 };
 
+// A row in "Stocks - UnPaid" that also holds lots already paid for — the same alloy
+// in the same warehouse, bought twice, one invoice settled and one not. The row
+// belongs in the section because money is still owed on it, but its total covers
+// both, so say which part is actually unpaid instead of letting the figure imply
+// the whole row is. Amber: the same "provisional" tone the other chips here use.
+export const UnpaidShareBadge = ({ row }) => {
+    if (!row?._partlyPaid) return null;
+    const unpaid = Number(row._unpaidVal) || 0;
+    return (
+        <Tltip direction='top' tltpText={`Part of this row is already paid for — ${showAmount(unpaid, 'usd')} of it is still owed to the supplier`}>
+            <span className='inline-flex items-center rounded-full px-1.5 shrink-0 cursor-default responsiveTextTable numeric'
+                style={{ ...toneChipStyle(TONES.amber), lineHeight: 1.5 }}>
+                {showAmount(unpaid, 'usd')} unpaid
+            </span>
+        </Tltip>
+    );
+};
+
 // Aggregate finalized chip for the collapsed summary rows (per supplier / per
 // client). A party's balance usually spans several shipments, so a single
 // Yes/No is wrong here — instead we show how many of its balance lines have the
@@ -469,24 +487,44 @@ export const runStocks = async (uidCollection, settings, yr, contractsData = [],
 
     const stocksArr = [...newArr];
 
-    //Find invoices with payment===0
-    let invoicesPaymentZero = stocksArr.filter(c => {
-        // step 1: find child with same id as parent
-        const child = c.data?.find(d => d.id === c.id);
-        if (!child) return false;
+    // Find stock we have not paid the supplier for.
+    //
+    // Judged over the row's OWN purchase lots. It used to read a single representative
+    // lot — `c.data.find(d => d.id === c.id)`, where the row id is whatever lot happened
+    // to be written last (see totalObj['id'] above). Sale movements are written after the
+    // purchase lots they consume, so they sort last and became the representative; a sale
+    // carries no purchase invoice, the lookup failed, and the row was declared paid. The
+    // effect was that selling ANY of a material hid what was still owed on the rest of it
+    // — $1.45m across IMS and $66k in GIS at the time this was found (2026-09-16).
+    //
+    // 'out' lots are skipped for the same reason they are skipped when valuing: they are
+    // sales, and only reduce the quantity. The live contract's invoice list still wins
+    // over the lot's own snapshot, which goes stale as payments are recorded (ELG 010726).
+    let invoicesPaymentZero = [];
+    for (const c of stocksArr) {
+        let unpaidQty = 0, unpaidVal = 0, paidQty = 0;
 
-        // step 2: find the matching poInvoice — prefer the LIVE contract's list.
-        // Lots carry a snapshot of poInvoices taken at breakdown-save time, and
-        // payments recorded on the cashflow page never refreshed it (historic
-        // data), so paid stock kept showing under "Stocks - UnPaid" (ELG 010726).
-        const live = contractsData.find(k => k.id === child.contractData?.id)?.poInvoices;
-        const invoice = live?.find(x => x.id === child.poInvoice)
-            || child.poInvoices?.find(x => x.id === child.poInvoice);
-        if (!invoice) return false;
+        for (const lot of (c.data || [])) {
+            if (lot.type === 'out' || !lot.poInvoice) continue;
+            const live = contractsData.find(k => k.id === lot.contractData?.id)?.poInvoices;
+            const invoice = live?.find(x => x.id === lot.poInvoice)
+                || lot.poInvoices?.find(x => x.id === lot.poInvoice);
+            if (!invoice) continue;
 
-        // step 3: check if payment is "0"
-        return invoice.pmnt === "0" || invoice.pmnt === 0;
-    });
+            // Nothing paid — by value, not by exact spelling. The old test demanded
+            // "0" or 0 precisely, so an invoice carrying '' or '0.00' read as paid.
+            const qty = parseFloat(lot.qnty) || 0;
+            if ((parseFloat(invoice.pmnt) || 0) === 0) { unpaidQty += qty; unpaidVal += parseFloat(lot.total) || 0; }
+            else paidQty += qty;
+        }
+
+        if (unpaidQty <= 0) continue;
+        // A row can hold both — the same alloy in the same warehouse, bought twice, one
+        // invoice settled and one not. It belongs here, since money is still owed on it,
+        // but its total then covers paid lots too. Carry the unpaid share so the table can
+        // say so rather than quietly overstating the row (see UnpaidShareBadge).
+        invoicesPaymentZero.push(paidQty > 0 ? { ...c, _unpaidVal: unpaidVal, _partlyPaid: true } : c);
+    }
 
     const stocksArrNoPayment = [...invoicesPaymentZero];
     //Clean newArr from stocks with payment zero
@@ -725,6 +763,7 @@ export const StoclToolTip = ({ stock, stockDataAll, settings, uidCollection, set
                                     <span className={`flex items-center gap-1.5 min-w-0 ${indent ? 'pl-4' : ''}`}>
                                         <Tltip direction='top' tltpText={z.descriptionName || ''}><span className='block truncate cursor-default'>{z.descriptionName}</span></Tltip>
                                         <DraftUseBadge use={draftMaterials[z.descriptionId] || draftMaterials[z.description]} />
+                                        <UnpaidShareBadge row={z} />
                                     </span>
                                 </td>
                                 <td className="text-center">{

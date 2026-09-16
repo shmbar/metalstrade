@@ -150,7 +150,8 @@ export function Select({
           </View>
         ) : null}
         <FlatList
-        {...keyboardScrollProps}
+          {...keyboardScrollProps}
+          automaticallyAdjustKeyboardInsets={false}
           data={filtered}
           keyExtractor={(o) => o.value}
           keyboardShouldPersistTaps="handled"

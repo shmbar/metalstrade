@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "IMS",
-    "slug": "ims-mobile",
+    "slug": "zaka-ur-rehman",
     "version": "1.0.3",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -17,11 +17,14 @@
             "CFBundleTypeName": "PDF Document",
             "CFBundleTypeRole": "Viewer",
             "LSHandlerRank": "Alternate",
-            "LSItemContentTypes": ["com.adobe.pdf"]
+            "LSItemContentTypes": [
+              "com.adobe.pdf"
+            ]
           }
         ],
         "LSSupportsOpeningDocumentsInPlace": false
-      }
+      },
+      "buildNumber": "37"
     },
     "android": {
       "package": "com.zakarehman.imsmobile",
@@ -37,8 +40,14 @@
       "intentFilters": [
         {
           "action": "VIEW",
-          "category": ["DEFAULT"],
-          "data": [{ "mimeType": "application/pdf" }]
+          "category": [
+            "DEFAULT"
+          ],
+          "data": [
+            {
+              "mimeType": "application/pdf"
+            }
+          ]
         }
       ]
     },
@@ -89,9 +98,9 @@
     "extra": {
       "router": {},
       "eas": {
-        "projectId": "201cc15d-6ae4-4040-9fbf-30197e1db5fe"
+        "projectId": "1be95028-8056-40a7-8727-fca3102153b1"
       }
     },
-    "owner": "zakarehmanai"
+    "owner": "zakarehman13s-team"
   }
 }
