@@ -12,7 +12,7 @@ import { applyKeyboardEvent, KeyboardEventKind, KeyboardState } from '@/lib/keyb
  */
 const SCREEN = 844;
 const kbEvent = (height: number) => ({ endCoordinates: { height, screenY: SCREEN - height, screenX: 0, width: 390 }, duration: 250 }) as any;
-const START: KeyboardState = { height: 0, top: SCREEN, duration: 0 };
+const START: KeyboardState = { height: 0, top: SCREEN, duration: 0, settled: true };
 
 type Step = [KeyboardEventKind, number?];
 const replay = (steps: Step[], { willOnly = false } = {}) =>
@@ -77,6 +77,19 @@ describe('keyboard transitions', () => {
 
   it('a keyboard sliding off the bottom edge counts as hidden', () => {
     const offscreen = { endCoordinates: { height: 336, screenY: SCREEN, screenX: 0, width: 390 }, duration: 250 } as any;
-    expect(applyKeyboardEvent({ height: 336, top: 508, duration: 0 }, 'willChangeFrame', offscreen).height).toBe(0);
+    expect(applyKeyboardEvent({ height: 336, top: 508, duration: 0, settled: true }, 'willChangeFrame', offscreen).height).toBe(0);
+  });
+});
+
+describe('settled flag', () => {
+  it('"will" events leave the state in flight; "did" events settle it', () => {
+    const a = applyKeyboardEvent(START, 'willShow', kbEvent(336));
+    expect(a.settled).toBe(false);
+    const b = applyKeyboardEvent(a, 'didShow', kbEvent(336));
+    expect(b.settled).toBe(true);
+    const c = applyKeyboardEvent(b, 'willHide');
+    expect(c).toMatchObject({ height: 0, settled: false });
+    const d = applyKeyboardEvent(c, 'didHide');
+    expect(d).toMatchObject({ height: 0, settled: true });
   });
 });

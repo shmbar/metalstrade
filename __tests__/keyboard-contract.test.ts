@@ -96,9 +96,19 @@ describe('keyboard contract', () => {
     }
   });
 
-  it('opening a sheet ends editing on the screen behind it, and focuses only once shown', () => {
+  it('a sheet does not present until the previous keyboard has finished closing', () => {
     const sheet = fs.readFileSync(path.join(ROOT, 'src/components/ui/Sheet.tsx'), 'utf8');
-    expect(sheet).toContain('Keyboard.dismiss()');
+    expect(sheet).toContain('usePresentAfterKeyboard(visible)');
+    expect(sheet).toContain('if (!presented) return null;');
+    // The order lives in lib/keyboard, not in the sheet: dismiss -> did-hide -> present.
+    expect(sheet).not.toContain('Keyboard.dismiss()');
+    const lib = fs.readFileSync(path.join(ROOT, 'src/lib/keyboard.tsx'), 'utf8');
+    expect(lib).toContain("presentStep('idle', { type: 'open', keyboardUp })");
+    expect(lib).toContain('Keyboard.dismiss();');
+  });
+
+  it('opening a sheet focuses its field only once shown', () => {
+    const sheet = fs.readFileSync(path.join(ROOT, 'src/components/ui/Sheet.tsx'), 'utf8');
     expect(sheet).toContain('onShow={onShown}');
     expect(sheet).toContain('syncKeyboard()');
     expect(sheet).toContain('flushAutoFocus()');

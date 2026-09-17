@@ -31,6 +31,12 @@ export interface KeyboardState {
   top: number;
   /** Duration of the platform's show/hide animation, ms. */
   duration: number;
+  /**
+   * false while iOS has only ANNOUNCED a move ("will" event) and the animation is in flight;
+   * true once it reports the move complete ("did" event). Anything that must not overlap a
+   * keyboard animation — presenting a sheet — waits for this.
+   */
+  settled: boolean;
 }
 
 const screenHeight = () => {
@@ -41,12 +47,12 @@ const screenHeight = () => {
   }
 };
 
-const hidden = (duration = 250): KeyboardState => ({ height: 0, top: screenHeight(), duration });
+const hidden = (duration = 250, settled = true): KeyboardState => ({ height: 0, top: screenHeight(), duration, settled });
 
 let current: KeyboardState = (() => {
   try {
     const m = (Keyboard as any)?.metrics?.();
-    if (m && m.height > 0) return { height: Math.round(m.height), top: Math.round(m.screenY), duration: 0 };
+    if (m && m.height > 0) return { height: Math.round(m.height), top: Math.round(m.screenY), duration: 0, settled: true };
   } catch {
     /* no metrics before first show */
   }
@@ -56,22 +62,22 @@ let current: KeyboardState = (() => {
 const listeners = new Set<() => void>();
 
 const publish = (next: KeyboardState) => {
-  if (next.height === current.height && next.top === current.top) return;
+  if (next.height === current.height && next.top === current.top && next.settled === current.settled) return;
   current = next;
   listeners.forEach((l) => l());
 };
 
-const fromEvent = (e?: KeyboardEvent): KeyboardState => {
+const fromEvent = (e?: KeyboardEvent, settled = true): KeyboardState => {
   const duration = e?.duration && e.duration > 0 ? e.duration : 250;
   const c = e?.endCoordinates;
-  if (!c) return hidden(duration);
+  if (!c) return hidden(duration, settled);
   const bottom = screenHeight();
   const top = typeof c.screenY === 'number' ? c.screenY : bottom - (c.height || 0);
   // iOS reports where the keyboard will END: one sliding away, or an undocked iPad
   // keyboard, ends at or below the screen's bottom edge — it covers nothing.
   const height = Platform.OS === 'ios' ? bottom - top : c.height || 0;
-  if (height <= 0) return hidden(duration);
-  return { height: Math.round(height), top: Math.round(top), duration };
+  if (height <= 0) return hidden(duration, settled);
+  return { height: Math.round(height), top: Math.round(top), duration, settled };
 };
 
 /*
@@ -91,14 +97,15 @@ const fromEvent = (e?: KeyboardEvent): KeyboardState => {
  */
 export type KeyboardEventKind = 'willShow' | 'willHide' | 'willChangeFrame' | 'didShow' | 'didHide' | 'didChangeFrame';
 
-export function applyKeyboardEvent(state: KeyboardState, kind: KeyboardEventKind, e?: KeyboardEvent): KeyboardState {
+export function applyKeyboardEvent(_state: KeyboardState, kind: KeyboardEventKind, e?: KeyboardEvent): KeyboardState {
   const duration = e?.duration && e.duration > 0 ? e.duration : 250;
+  const settled = kind.startsWith('did');
   switch (kind) {
     case 'willHide':
     case 'didHide':
-      return hidden(duration);
+      return hidden(duration, settled);
     default:
-      return fromEvent(e);
+      return fromEvent(e, settled);
   }
 }
 
@@ -151,6 +158,7 @@ try {
   /* no AppState (tests) */
 }
 
+export const subscribeKeyboard = (l: () => void) => subscribe(l);
 const subscribe = (l: () => void) => {
   listeners.add(l);
   return () => {
@@ -525,3 +533,96 @@ export const keyboardScrollProps = {
 
 /** True when iOS is adding the keyboard inset itself, so we must not add it a second time. */
 export const NATIVE_KEYBOARD_INSETS = Platform.OS === 'ios';
+
+/*
+ * ── Presenting a form while a keyboard is up ─────────────────────────────────────────────
+ *
+ * The flow the client kept hitting: a keyboard is open for a field on the screen (Cash Flow's
+ * search), the user taps Add Entry, and the sheet appears UNDER that keyboard. Traced in
+ * code, the old sequence was:
+ *
+ *   tap → setState → Sheet renders <Modal visible>        ← native presentation STARTS here
+ *       → (commit) → Sheet's effect: Keyboard.dismiss()   ← dismissal issued AFTER that
+ *       → lift effect reads the store: still the OLD keyboard height → sheet placed from it
+ *       → modal fade ends (its own timer) → autofocus → willShow(new) while willHide(old)
+ *         is still in flight → events interleave → the store's last word can be "hidden"
+ *
+ * Presentation and dismissal ran in the same cycle and the form's position was computed from
+ * the keyboard it was about to close. The rule now is a strict order, implemented ONCE here and
+ * used by every sheet:
+ *
+ *   1. keyboard up?  → Keyboard.dismiss()
+ *   2. wait until the store reports hidden AND settled (the "did hide" event) — or, if that
+ *      never comes (no focused input to blur), a short timeout
+ *   3. only then mount the Modal (present)
+ *   4. onShow → re-sync the store → focus the field that asked for autoFocus
+ *   5. the new field's keyboard opens; the sheet lifts by its height
+ *
+ * There is no moment at which the new form is positioned from the old keyboard, because the
+ * new form does not exist until the old keyboard is gone.
+ */
+
+export type PresentPhase = 'idle' | 'closingKeyboard' | 'presented';
+
+/** Pure step of the gate above, so the order can be tested without a device. */
+export function presentStep(
+  phase: PresentPhase,
+  event: { type: 'open'; keyboardUp: boolean } | { type: 'keyboard'; hidden: boolean; settled: boolean } | { type: 'timeout' } | { type: 'close' }
+): PresentPhase {
+  switch (event.type) {
+    case 'open':
+      return event.keyboardUp ? 'closingKeyboard' : 'presented';
+    case 'keyboard':
+      return phase === 'closingKeyboard' && event.hidden && event.settled ? 'presented' : phase;
+    case 'timeout':
+      return phase === 'closingKeyboard' ? 'presented' : phase;
+    case 'close':
+      return 'idle';
+  }
+}
+
+/** If a dismissed keyboard never reports "did hide" (nothing was focused), present anyway. */
+export const PRESENT_FALLBACK_MS = 450;
+
+/**
+ * For a sheet: true once it may mount its Modal. Handles the wait for the previous screen's
+ * keyboard to finish closing; the caller renders nothing until then.
+ */
+export function usePresentAfterKeyboard(visible: boolean): boolean {
+  const [phase, setPhase] = useState<PresentPhase>('idle');
+
+  useEffect(() => {
+    if (!visible) {
+      setPhase('idle');
+      return;
+    }
+    const kb = latestKeyboard();
+    const keyboardUp = kb.height > 0 || !kb.settled || !!(Keyboard as any)?.isVisible?.();
+    let phaseNow = presentStep('idle', { type: 'open', keyboardUp });
+    setPhase(phaseNow);
+    if (phaseNow === 'presented') return;
+
+    Keyboard.dismiss();
+    let done = false;
+    const finish = () => {
+      if (done) return;
+      done = true;
+      unsubscribe();
+      clearTimeout(timer);
+      setPhase('presented');
+    };
+    const unsubscribe = subscribeKeyboard(() => {
+      const now = latestKeyboard();
+      phaseNow = presentStep(phaseNow, { type: 'keyboard', hidden: now.height <= 0, settled: now.settled });
+      if (phaseNow === 'presented') finish();
+    });
+    const timer = setTimeout(finish, PRESENT_FALLBACK_MS);
+    return () => {
+      done = true;
+      unsubscribe();
+      clearTimeout(timer);
+    };
+  }, [visible]);
+
+  return visible && phase === 'presented';
+}

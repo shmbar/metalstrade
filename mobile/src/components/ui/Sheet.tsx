@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Keyboard, Modal, View, ScrollView, StyleSheet, useWindowDimensions } from 'react-native';
+import { Modal, View, ScrollView, StyleSheet, useWindowDimensions } from 'react-native';
 import Animated, { SlideInDown, useAnimatedStyle, useSharedValue, withSpring, withTiming } from 'react-native-reanimated';
 import { Gesture, GestureDetector, GestureHandlerRootView } from 'react-native-gesture-handler';
 import { scheduleOnRN } from 'react-native-worklets';
@@ -9,7 +9,7 @@ import { Text } from './Text';
 import { Pressable } from './Pressable';
 import { useTheme } from '@/theme/ThemeProvider';
 import { getShadow, spacing } from '@/theme/tokens';
-import { KeyboardRevealContext, keyboardScrollProps, syncKeyboard, useKeyboard, useKeyboardAwareScroll } from '@/lib/keyboard';
+import { KeyboardRevealContext, keyboardScrollProps, syncKeyboard, useKeyboard, useKeyboardAwareScroll, usePresentAfterKeyboard } from '@/lib/keyboard';
 
 interface SheetProps {
   visible: boolean;
@@ -72,15 +72,15 @@ export function Sheet({
   const keyboardUp = keyboard.height > 0;
   const body = useKeyboardAwareScroll({ settleMs: LIFT_MS + 60, padForKeyboard: false, deferAutoFocus: true });
 
+  // A keyboard that is up when the sheet is asked to open belongs to a field on the screen
+  // behind it (Cash Flow's search, then Add Entry). The sheet does not present until that
+  // keyboard has finished closing — the order is enforced in lib/keyboard, once, for every
+  // sheet — so the form is never positioned from a keyboard it is about to lose.
+  const presented = usePresentAfterKeyboard(visible);
+
   useEffect(() => {
-    if (!visible) return;
-    y.set(0);
-    // A keyboard that is up when the sheet opens belongs to a field on the SCREEN BEHIND it
-    // (Cash Flow's search, then Add Entry). Left alone it covers the new form, and whatever
-    // is typed goes to the hidden field. Close it, the way iOS ends editing when a sheet is
-    // presented; the sheet's own field brings the keyboard back once the sheet is shown.
-    Keyboard.dismiss();
-  }, [visible, y]);
+    if (presented) y.set(0);
+  }, [presented, y]);
 
   // Once the Modal is really on screen: re-read the keyboard (in case any event arrived out
   // of order during the transition), then focus the field that asked for autoFocus.
@@ -115,7 +115,7 @@ export function Sheet({
     maxHeight: Math.min(height * maxHeightPct, height - topGap - lift.get()),
   }));
 
-  if (!visible) return null;
+  if (!presented) return null;
 
   // With the keyboard up it covers the home indicator, so the safe-area padding goes.
   const bottomPad = (keyboardUp ? 0 : insets.bottom) + spacing.md;

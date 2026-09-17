@@ -69,8 +69,10 @@ function useSettingsState() {
         try {
             await saveDataSettings(uidCollection, 'cmpnyData', compData);
             setToast({ show: true, text: 'Company data saved successfully!', clr: 'success' });
+            return true;
         } catch (error) {
             setToast({ show: true, text: 'Failed to save company data', clr: 'fail' });
+            return false;
         }
     };
     return {
