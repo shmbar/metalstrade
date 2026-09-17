@@ -24,7 +24,14 @@ const QUANTITY = /\b(qty|quantity|weight|wt|mt|kgs?|kilos?|tons?|tonnes?|lbs?|pi
 // Money, when nothing says otherwise.
 const MONEY = /\b(amount|amt|total|value|price|cost|balance|blnc|payment|pmnt|prepayment|paid|due|margin|profit|deviation|fee|freight|expense)\b|unitprc|totalpo/;
 
+// A price or cost PER unit, an average or a rate: $8,460/MT + $7,300/MT is not
+// the price of anything. Every `unitPrc` column in the app is one of these —
+// Contracts Review's "Purchase Value" included, which holds the product's unit
+// price — so the key decides it even where the header does not say "unit".
+const RATE = /unit ?price|unitprc|unitprice|\bprice per\b|\bcost per\b|\bper (mt|kg|ton|tonne|unit)\b|\/ ?(mt|kg|ton|tonne|unit)\b|\bavg\b|\baverage\b|avgprice|avgcost|\brate\b/;
+
 export const isIdentifierColumn = (col) => IDENTIFIER.test(text(col));
+export const isRateColumn = (col) => RATE.test(text(col));
 export const isQuantityColumn = (col) => QUANTITY.test(text(col));
 
 /** Money unless the column (or its meta) says it is a count/weight. */
@@ -34,6 +41,18 @@ export const isMoneyColumn = (col) => {
   const t = text(col);
   if (QUANTITY.test(t) && !MONEY.test(t)) return false;
   return true;
+};
+
+/** How a number column should READ in a spreadsheet: 'money' ($/€ by row),
+ *  'quantity' (three decimals) or 'plain'. Stricter than isMoneyColumn, whose
+ *  "money unless told otherwise" is right for a running total but would put a
+ *  dollar sign on a column nobody named as money. */
+export const numberKind = (col) => {
+  const meta = col?.columnDef?.meta;
+  if (meta?.money === true) return 'money';
+  const t = text(col);
+  if (meta?.money === false || (QUANTITY.test(t) && !MONEY.test(t))) return 'quantity';
+  return MONEY.test(t) ? 'money' : 'plain';
 };
 
 /** Offer order in the picker: quantities first, then money, then the rest. */

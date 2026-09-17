@@ -1,7 +1,7 @@
 'use client';
 
 import { isNumericLike } from './numberUtils';
-import { columnRank, isIdentifierColumn } from './columnKind';
+import { columnRank, isIdentifierColumn, isRateColumn } from './columnKind';
 
 /**
  * Which columns Quick Sum offers, best first.
@@ -11,6 +11,11 @@ import { columnRank, isIdentifierColumn } from './columnKind';
  * Reference columns are out too: PO# 280526 and invoice 2630989 parse perfectly
  * and add up to nothing anybody wants (a page can force one in with
  * `meta: { money: true }` or force any column out with `excludeFromQuickSum`).
+ * So are unit prices, averages and rates (see columnKind RATE) — the client asked
+ * for Unit Price to go: a sum of per-MT prices is not a figure of anything.
+ *
+ * `includeRates` is for the Excel export, which asks a different question — which
+ * columns hold numbers to format — and still wants Unit Price written as $/€.
  *
  * Order matters because the first one is what gets summed by default: quantities,
  * then money, then anything else — so Stocks opens on Quantity rather than on
@@ -22,6 +27,7 @@ export const detectNumericCols = ({
   table,
   sampleSize = 50,
   exclude = ['select'],
+  includeRates = false,
 }) => {
   const cols = table.getAllLeafColumns();
 
@@ -37,6 +43,7 @@ export const detectNumericCols = ({
     if (meta?.options) continue;
     if (meta?.filterVariant === 'dates') continue;
     if (isIdentifierColumn(col) && meta?.money !== true) continue;
+    if (!includeRates && isRateColumn(col)) continue;
 
     let hits = 0;
     let seen = 0;

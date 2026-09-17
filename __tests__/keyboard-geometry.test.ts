@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { overlapFor, revealOffset } from '@/lib/keyboard';
+import { footerLift, overlapFor, revealOffset } from '@/lib/keyboard';
 
 /*
  * The rules that decide whether a user can see what they are typing.
@@ -99,5 +99,40 @@ describe('keyboard geometry · moving between fields', () => {
     const taller = revealOffset({ fieldY, fieldH: 48, offsetY: first ?? 0, viewTop, viewH, keyboardTop: keyboardTop - 60 });
     expect(taller).not.toBeNull();
     expect(taller as number).toBeGreaterThan(first as number);
+  });
+});
+
+describe.each(PHONES)('sticky Save bar · $name', ({ h, kb, tabBar }) => {
+  const keyboardTop = h - kb;
+  // After lifting, where does the bar's bottom edge end up?
+  const settled = (restingBottom: number, lift: number) => restingBottom - lift;
+
+  it('on a full-screen form it sits exactly on the keyboard', () => {
+    const lift = footerLift(kb, h, h);
+    expect(lift).toBe(kb);
+    expect(settled(h, lift)).toBe(keyboardTop);
+  });
+
+  it('above a tab bar it rises only by the part the keyboard covers', () => {
+    const resting = h - tabBar;
+    const lift = footerLift(kb, h, resting);
+    expect(lift).toBe(kb - tabBar);
+    expect(settled(resting, lift)).toBe(keyboardTop);
+  });
+
+  it('with its resting position unknown it rises the whole keyboard — high, never hidden', () => {
+    expect(footerLift(kb, h, null)).toBe(kb);
+    expect(footerLift(kb, h, 0)).toBe(kb); // an unattached view measures as nothing
+  });
+
+  it('settles back when the keyboard closes', () => {
+    expect(footerLift(0, h, h - tabBar)).toBe(0);
+  });
+
+  it('is never left under the keyboard, for any resting position on screen', () => {
+    for (let resting = Math.round(h * 0.4); resting <= h; resting += 7) {
+      const lift = footerLift(kb, h, resting);
+      expect(settled(resting, lift)).toBeLessThanOrEqual(keyboardTop + 1);
+    }
   });
 });

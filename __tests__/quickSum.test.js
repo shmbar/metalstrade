@@ -1,5 +1,8 @@
 import { describe, it, expect } from 'vitest';
 import { toNumber, isNumericLike } from '../components/table/quicksum/numberUtils.js';
+import { isRateColumn } from '../components/table/quicksum/columnKind.js';
+import { detectNumericCols } from '../components/table/quicksum/detectNumericCols.js';
+import { createTable, getCoreRowModel } from '@tanstack/table-core';
 
 // The bug this file guards: the row's `cur` column says what currency the ROW
 // trades in, and it was applied to every summed column — so a tonnage total came
@@ -112,5 +115,44 @@ describe('toNumber — what the sum is built on', () => {
         });
         expect(isNumericLike('abc')).toBe(false);
         expect(isNumericLike('42')).toBe(true);
+    });
+});
+
+// The client: "remove Unit Price from Quick Sum". A sum of per-MT prices is not the
+// price of anything, and neither is a sum of averages.
+describe('Quick Sum column picker — unit prices and averages are not offered', () => {
+    const col = (accessorKey, header) => ({ id: accessorKey, columnDef: { accessorKey, header } });
+
+    it('recognises every per-unit column the app has, whatever its header says', () => {
+        expect(isRateColumn(col('unitPrc', 'Unit Price'))).toBe(true);      // Stocks, Shared stock
+        expect(isRateColumn(col('unitPrc', 'Price'))).toBe(true);           // Misc invoices
+        expect(isRateColumn(col('unitPrc', 'Purchase Value'))).toBe(true);  // Contracts Review — holds the unit price
+        expect(isRateColumn(col('avgPrice', 'Avg Cost /MT'))).toBe(true);   // Stocks summary
+        expect(isRateColumn(col('storage', 'Cost per MT'))).toBe(true);
+    });
+
+    it('leaves real amounts and weights summable', () => {
+        for (const [k, h] of [['total', 'Total'], ['totalAmount', 'Amount'], ['qnty', 'Quantity'], ['pmnt', 'Payment'],
+            ['storageCost', 'Storage Cost'], ['freight', 'Freight'], ['debtBlnc', 'Balance'], ['totalMargin', 'Margin'],
+            ['operator', 'Operator'], ['separated', 'Separated']]) {
+            expect(isRateColumn(col(k, h)), `${h} (${k})`).toBe(false);
+        }
+    });
+
+    it('Stocks offers Quantity and Total, not Unit Price — the export still sees all three as numbers', () => {
+        const data = [
+            { order: '280526', qnty: '6.987', unitPrc: 7300, total: 51005.1 },
+            { order: '010726', qnty: '13.833', unitPrc: 4519.47, total: 62516.92 },
+        ];
+        const columns = [
+            { accessorKey: 'order', header: 'PO#' },
+            { accessorKey: 'qnty', header: 'Quantity' },
+            { accessorKey: 'unitPrc', header: 'Unit Price' },
+            { accessorKey: 'total', header: 'Total' },
+        ];
+        const table = createTable({ data, columns, getCoreRowModel: getCoreRowModel(), state: {}, onStateChange: () => {}, renderFallbackValue: null });
+        table.setOptions((prev) => ({ ...prev, state: { ...table.initialState } }));
+        expect(detectNumericCols({ table }).map((c) => c.label)).toEqual(['Quantity', 'Total']);
+        expect(detectNumericCols({ table, includeRates: true }).map((c) => c.label)).toEqual(['Quantity', 'Unit Price', 'Total']);
     });
 });

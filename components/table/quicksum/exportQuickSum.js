@@ -11,16 +11,49 @@
 // per currency bucket so a mixed $/€ selection stays honest instead of being
 // added into a single meaningless figure.
 //
+// Dressed like every other export in the app (Stocks, Invoices, Contracts, the
+// Cashflow selection basket): purple header band with white bold 12pt, thin borders
+// on every cell, light-blue bordered total rows. It used to write a bold header and
+// nothing else — prices came out as 8460 and 62516.92462, quantities as text, and
+// columns sized to the header cut "751 Microgranules" off mid-word.
+//
 // Values go in as NUMBERS wherever the column is numeric, so the recipient can
 // re-sum them in Excel; formatting is applied as a number format, not by writing
 // a pre-formatted string.
 
 import { saveAs } from 'file-saver';
 import { toNumber } from './numberUtils';
+import { numberKind } from './columnKind';
+import { detectNumericCols } from './detectNumericCols';
+import { getCurrency } from './useQuickSum';
 import { curCode } from '../../../utils/currency';
 
 const BUCKET_LABEL = { USD: 'Total (USD)', EUR: 'Total (EUR)', plain: 'Total' };
-const BUCKET_FMT = { USD: '"$"#,##0.00', EUR: '"€"#,##0.00', plain: '#,##0.000' };
+const BUCKET_ORDER = ['USD', 'EUR', 'plain'];
+
+// Same values as app/(root)/cashflow/sumBasket.js and the per-page excel.js files.
+const HEADER_FILL = { type: 'pattern', pattern: 'solid', fgColor: { argb: '800080' } };
+const HEADER_FONT = { bold: true, size: 12, color: { argb: 'FFFFFF' } };
+const TOTAL_FILL = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'BFDBFE' } };
+const THIN_BORDER = {
+    top: { style: 'thin' }, left: { style: 'thin' },
+    bottom: { style: 'thin' }, right: { style: 'thin' },
+};
+
+const FMT = {
+    USD: '"$"#,##0.00',
+    EUR: '"€"#,##0.00',
+    money: '#,##0.00',          // a money column on a row with no known currency
+    quantity: '#,##0.000',
+};
+
+// What the number format will show, for sizing the column — Excel has no autofit.
+const shown = (n, fmt) => {
+    if (typeof n !== 'number') return String(n ?? '');
+    const decimals = fmt === FMT.quantity ? 3 : fmt ? 2 : 0;
+    const body = n.toLocaleString('en-US', { minimumFractionDigits: decimals, maximumFractionDigits: fmt ? decimals : 6 });
+    return fmt === FMT.USD || fmt === FMT.EUR ? `$${body}` : body;
+};
 
 // react-table hands back whatever the accessor returned — sometimes an object or
 // an array (a supplier record, a list of invoice refs). Excel can only take a
@@ -72,63 +105,94 @@ export const exportQuickSum = async ({ table, totals = [], summedColumnIds = [],
     const cols = table.getVisibleLeafColumns()
         .filter(c => c.id !== 'select' && c.id !== 'sum-col' && c.columnDef?.meta?.excludeFromExcel !== true);
 
-    const summed = new Set(summedColumnIds);
+    // Every column Quick Sum would call numeric (the same test the column picker
+    // uses, so PO# 280526 stays a reference), plus whatever is being summed. Unit
+    // prices are not offered for summing but are still numbers to format.
+    const numericIds = new Set([
+        ...detectNumericCols({ table, sampleSize: 60, includeRates: true }).map(c => c.id),
+        ...summedColumnIds,
+    ]);
+    const totalOf = (id) => totals.find(x => x.id === id);
+    // How each numeric column reads. A summed column follows the bar: the bar put a
+    // currency on it unless it decided the column is a weight.
+    const kindOf = (c) => {
+        const t = totalOf(c.id);
+        const kind = numberKind(c);
+        if (t && t.money === false) return 'quantity';
+        if (t && kind === 'plain') return 'money';
+        return kind;
+    };
+    const kinds = Object.fromEntries(cols.filter(c => numericIds.has(c.id)).map(c => [c.id, kindOf(c)]));
+    const fmtFor = (id, currency) => {
+        const kind = kinds[id];
+        if (kind === 'quantity') return FMT.quantity;
+        if (kind === 'money') return FMT[currency] || FMT.money;
+        return undefined;           // a plain number: Excel's General
+    };
+
     const wb = new ExcelJS.Workbook();
+    wb.creator = 'IMS';
     wb.created = new Date();
-    const ws = wb.addWorksheet('Selection');
+    // Header stays in view while scrolling a long selection.
+    const ws = wb.addWorksheet('Selection', { views: [{ state: 'frozen', ySplit: 1 }] });
+    ws.columns = cols.map(c => ({ header: headerText(c), key: c.id }));
 
-    ws.columns = cols.map(c => ({
-        header: headerText(c),
-        key: c.id,
-        width: Math.min(Math.max(headerText(c).length + 4, 12), 40),
-    }));
+    // Longest thing each column has to show, header included.
+    const widest = Object.fromEntries(cols.map(c => [c.id, headerText(c).length]));
+    const grow = (id, value, fmt) => { widest[id] = Math.max(widest[id], shown(value, fmt).length); };
 
-    ws.getRow(1).font = { bold: true };
-    ws.getRow(1).alignment = { horizontal: 'center', vertical: 'middle', wrapText: true };
+    const header = ws.getRow(1);
+    header.height = 24;
+    header.eachCell((cell) => {
+        cell.fill = HEADER_FILL;
+        cell.font = HEADER_FONT;
+        cell.border = THIN_BORDER;
+        cell.alignment = { horizontal: 'center', vertical: 'middle', wrapText: true };
+    });
 
     for (const r of rows) {
+        const currency = getCurrency(r, table);
         const rec = {};
         for (const c of cols) {
             const raw = r.getValue(c.id);
-            // A summed column is numeric by definition — write the number so Excel
-            // can total it, not the display string.
-            if (summed.has(c.id)) {
+            if (numericIds.has(c.id)) {
                 const n = toNumber(raw);
-                rec[c.id] = Number.isFinite(n) ? n : '';
+                // A numeric column with a stray non-number keeps the text as shown,
+                // rather than becoming a blank that reads as "nothing here".
+                rec[c.id] = Number.isFinite(n) ? n : cellText(displayValue(c, raw));
             } else {
                 rec[c.id] = cellText(displayValue(c, raw));
             }
         }
-        ws.addRow(rec);
+        const row = ws.addRow(rec);
+        for (const c of cols) {
+            const cell = row.getCell(c.id);
+            cell.border = THIN_BORDER;
+            cell.alignment = { vertical: 'middle' };
+            const fmt = typeof cell.value === 'number' ? fmtFor(c.id, currency) : undefined;
+            if (fmt) cell.numFmt = fmt;
+            grow(c.id, cell.value, fmt);
+        }
     }
 
-    // Number format for each summed column, so the figures read the way they do on
-    // screen. Set BEFORE the total rows below: a column-level format overwrites the
-    // cell-level one, so doing this afterwards stripped the $/€ off the totals.
-    for (const c of cols) {
-        const t = totals.find(x => x.id === c.id);
-        if (!t) continue;
-        ws.getColumn(c.id).numFmt = t.money === false ? '#,##0.000' : '#,##0.00';
-    }
-
-    // Which buckets actually carry a figure? A selection all in dollars gets one
-    // total row, not three mostly-empty ones.
+    // One total row per currency the money columns actually carry. A single-pool
+    // figure (a weight, or money with no currency split) rides on the FIRST row
+    // rather than getting a row of its own: Quantity + a $/€ Total used to come out
+    // as three rows — USD, EUR, and a third holding nothing but the tonnage.
     const buckets = [];
     for (const t of totals) {
-        const keys = Object.keys(t.byCurrency || {});
-        if (keys.length) keys.forEach(k => { if (!buckets.includes(k)) buckets.push(k); });
-        else if (t.total != null && !buckets.includes('plain')) buckets.push('plain');
+        Object.keys(t.byCurrency || {}).forEach(k => { if (!buckets.includes(k)) buckets.push(k); });
     }
-    // Stable, readable order.
-    buckets.sort((a, b) => ['USD', 'EUR', 'plain'].indexOf(a) - ['USD', 'EUR', 'plain'].indexOf(b));
+    if (!buckets.length && totals.some(t => t.total != null)) buckets.push('plain');
+    buckets.sort((a, b) => BUCKET_ORDER.indexOf(a) - BUCKET_ORDER.indexOf(b));
 
     if (buckets.length) ws.addRow({});
 
-    for (const bucket of buckets) {
+    for (const [bi, bucket] of buckets.entries()) {
         const rec = {};
         let labelled = false;
         for (const c of cols) {
-            const t = totals.find(x => x.id === c.id);
+            const t = totalOf(c.id);
             if (!t) {
                 // First non-summed column carries the label, so the row is readable.
                 if (!labelled) { rec[c.id] = BUCKET_LABEL[bucket] || 'Total'; labelled = true; }
@@ -136,16 +200,38 @@ export const exportQuickSum = async ({ table, totals = [], summedColumnIds = [],
             }
             const v = Object.keys(t.byCurrency || {}).length
                 ? t.byCurrency[bucket]
-                : (bucket === 'plain' ? t.total : undefined);
+                : (bi === 0 ? t.total : undefined);
             if (v != null) rec[c.id] = v;
         }
         const row = ws.addRow(rec);
-        row.font = { bold: true };
+        // The band runs the full width: addRow only touches cells it was given, so
+        // unfilled ones would leave white gaps through it.
         for (const c of cols) {
-            const t = totals.find(x => x.id === c.id);
-            if (!t) continue;
-            // A non-money column keeps three decimals whatever bucket it lands in.
-            row.getCell(c.id).numFmt = t.money === false ? '#,##0.000' : (BUCKET_FMT[bucket] || '#,##0.00');
+            const cell = row.getCell(c.id);
+            cell.fill = TOTAL_FILL;
+            cell.font = { bold: true };
+            cell.border = THIN_BORDER;
+            cell.alignment = { vertical: 'middle' };
+            const t = totalOf(c.id);
+            if (!t || typeof cell.value !== 'number') continue;
+            // A weight keeps three decimals whatever row it lands on, and a single-pool
+            // money figure has no currency to claim.
+            const split = Object.keys(t.byCurrency || {}).length > 0;
+            const fmt = t.money === false ? FMT.quantity : (split ? (FMT[bucket] || FMT.money) : FMT.money);
+            cell.numFmt = fmt;
+            grow(c.id, cell.value, fmt);
+        }
+    }
+
+    // Sized to content: a little air, never narrower than a short number, never so
+    // wide one long description pushes the rest off screen (it wraps instead).
+    for (const c of cols) {
+        const col = ws.getColumn(c.id);
+        col.width = Math.min(Math.max(widest[c.id] + 3, 10), 48);
+        if (widest[c.id] + 3 > 48) {
+            col.eachCell({ includeEmpty: false }, (cell, rowNumber) => {
+                if (rowNumber > 1) cell.alignment = { ...cell.alignment, wrapText: true };
+            });
         }
     }
 

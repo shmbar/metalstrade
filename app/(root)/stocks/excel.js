@@ -5,6 +5,7 @@ import { getTtl } from '../../../utils/languages';
 import Tltip from '../../../components/tlTip';
 import { FileSpreadsheet } from 'lucide-react';
 import { computeGradeSummary } from './sumtables/gradeTable';
+import { specText } from './specs';
 
 const styles = { alignment: { horizontal: 'center', vertical: 'middle', wrapText: true } }
 // wb / sheet are now created lazily inside exportExcel — see Edit 3.
@@ -27,6 +28,7 @@ const COL_META = {
     originSupplier: { width: 20, isQty: false, isCurrency: false, getValue: (item) => item.originSupplier || '' },
     stock:          { width: 20, isQty: false, isCurrency: false, getValue: (item, settings) => item._pre ? (item.stock || '') : (settings.Stocks.Stocks.find(q => q.id === item.stock)?.nname || '') },
     descriptionName:{ width: 40, isQty: false, isCurrency: false, getValue: (item) => item.descriptionName || '' },
+    spec:           { width: 30, isQty: false, isCurrency: false, getValue: (item, settings) => specText(item, settings) },
     qnty:           { width: 14, isQty: true,  isCurrency: false, getValue: (item) => item.qnty * 1 },
     qTypeTable:     { width: 14, isQty: false, isCurrency: false, getValue: (item, settings) => item._pre ? (item.qTypeTable || '') : (settings.Quantity.Quantity.find(q => q.id === item.qTypeTable)?.qTypeTable || '') },
     unitPrc:        { width: 14, isQty: false, isCurrency: true,  getValue: (item) => isNaN(item.unitPrc) ? '' : item.unitPrc * 1 },

@@ -315,6 +315,132 @@ export const suggestGrade = (profiles, description) => {
     return best ? { grade: best.grade, reason: 'chemistry' } : null;
 };
 
+// ── Specs: what each lot actually is, under its grade ────────────────────────
+//
+// A grade is the trading category — a PO buys 60 MT of 40Ni Turnings, and stock value
+// and average cost are asked of 40Ni. But the 60 MT arrives as three 20 MT lots, one at
+// 43Ni 15Cr 3Mo 2Nb and one at 41Ni 12Cr 3Mo 1Nb, and a Ta ingot is "99%" or "UMZ". The
+// SPEC is that second level: named by hand when it is a producer or a purity, read from
+// the lot's analysis when there is one, from the description's own figures when not,
+// and the material's name when there is nothing to read at all.
+
+/** The lot's material name, as its own PO line spells it. */
+export const lotName = (lot, fallback = '') =>
+    lot?.productsData?.find(p => p.id === (lot.descriptionId || lot.description))?.description
+    || lot?.descriptionName || fallback;
+
+/**
+ * A spec label out of an assay: the elements that make the alloy (5% or more), to the
+ * whole percent — "43Ni 15Cr" — because that is how a lot is spoken of, and 42.6 vs 43.1
+ * is two lots of one spec, not two specs. A near-pure metal keeps its figure ("99.95Ta");
+ * an assay with nothing at 5% names its two largest figures.
+ */
+export const specFromAssay = (assay) => {
+    if (!hasAssay(assay)) return '';
+    const present = ELEMENTS.filter(e => Number.isFinite(assay[e]));
+    let named = present.filter(e => assay[e] >= DEFINING);
+    if (!named.length) {
+        const top = new Set([...present].sort((a, b) => assay[b] - assay[a]).slice(0, 2));
+        named = present.filter(e => top.has(e));
+    }
+    return named.map(e => {
+        const v = assay[e];
+        return `${v >= 90 || v < DEFINING ? fmt(v) : Math.round(v)}${e}`;
+    }).join(' ');
+};
+
+/** A lot's spec → { label, source: 'spec' | 'analysis' | 'description' | 'name' }. */
+export const lotSpec = (lot, descriptionText = '') => {
+    const typed = String(lot?.spec ?? '').trim();
+    if (typed) return { label: typed, source: 'spec' };
+    const { assay, source } = assayOf(lot, descriptionText);
+    const derived = specFromAssay(assay);
+    if (derived) return { label: derived, source };
+    return { label: String(descriptionText ?? '').trim() || '—', source: 'name' };
+};
+
+const lotQty = (lot) => {
+    const f = parseFloat(lot?.finalqnty);
+    return Number.isFinite(f) ? f : (parseFloat(lot?.qnty) || 0);
+};
+
+/**
+ * One stock position — what is left of it (qnty, value) and the lots it was received as
+ * — divided by spec and by the producer it came from (the contract's original supplier).
+ *
+ * Sales record the line, not the lot, so once part of a mixed line has shipped nobody
+ * knows WHICH spec went. What is left is then shared out in proportion to what was
+ * received of each, its value in proportion to what each cost, and the parts are marked
+ * `estimated`. The shares always add back up to the position exactly — the same total
+ * the Stocks table shows for the line.
+ */
+export const splitBySpec = ({ qnty = 0, value = 0, lots = [], description = '' } = {}) => {
+    const q = Number(qnty) || 0;
+    const v = Number(value) || 0;
+    const parts = new Map();
+    let recvQ = 0, recvV = 0;
+    for (const lot of lots || []) {
+        const lq = lotQty(lot);
+        if (!(lq > 0)) continue;
+        const { label, source } = lotSpec(lot, lotName(lot, description));
+        const origin = lot?.originSupplier || '';
+        const key = `${label}|${origin}`;
+        const price = parseFloat(lot?.unitPrc);
+        const lv = Number.isFinite(price) ? lq * price : 0;
+        const p = parts.get(key) || { label, source, origin, received: 0, receivedValue: 0, lots: [] };
+        p.received += lq;
+        p.receivedValue += lv;
+        p.lots.push(lot);
+        parts.set(key, p);
+        recvQ += lq;
+        recvV += lv;
+    }
+    if (!parts.size) {
+        const { label, source } = lotSpec({}, description);
+        return [{ label, source, origin: '', received: q, receivedValue: v, lots: [], qnty: q, value: v, estimated: false }];
+    }
+    const list = [...parts.values()];
+    const estimated = list.length > 1 && recvQ > q + 0.0005;
+    return list.map(p => ({
+        ...p,
+        qnty: q * p.received / recvQ,
+        value: recvV > 0 ? v * p.receivedValue / recvV : v * p.received / recvQ,
+        estimated,
+    }));
+};
+
+/**
+ * A grade's stock by spec: every position under the grade split as above, then the same
+ * spec from the same producer added up across lines, suppliers and warehouses. Largest
+ * value first; specs with nothing left in stock are dropped.
+ * `entries`: [{ qnty, value, lots, description, supplier }] — one per line.
+ */
+export const specBreakdown = (entries = [], { originName = (id) => id } = {}) => {
+    const by = new Map();
+    for (const en of entries || []) {
+        for (const p of splitBySpec(en)) {
+            const key = `${p.label}|${p.origin}`;
+            const g = by.get(key) || {
+                key, label: p.label, source: p.source, origin: p.origin,
+                originName: p.origin ? (originName(p.origin) || p.origin) : '',
+                qnty: 0, value: 0, suppliers: new Set(), spellings: new Set(), lots: [], estimated: false,
+            };
+            g.qnty += p.qnty;
+            g.value += p.value;
+            if (en.supplier) g.suppliers.add(en.supplier);
+            if (en.description) g.spellings.add(en.description);
+            g.lots.push(...p.lots);
+            g.estimated = g.estimated || p.estimated;
+            if (p.source === 'spec') g.source = 'spec';
+            by.set(key, g);
+        }
+    }
+    return [...by.values()]
+        .filter(g => g.qnty > 0.0005)
+        .map(g => ({ ...g, suppliers: [...g.suppliers], spellings: [...g.spellings], avg: g.qnty > 0 ? g.value / g.qnty : 0 }))
+        .sort((a, b) => b.value - a.value);
+};
+
 // ── Find by spec ─────────────────────────────────────────────────────────────
 
 /**

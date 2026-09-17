@@ -8,7 +8,7 @@ import Tltip from '../../../../components/tlTip'
 import CheckBox from '../../../../components/checkbox'
 import ChemistryPopover from '../../../../components/ChemistryPopover'
 import { BtnIcon } from '../../../../components/buttonIcons'
-import { resolveGrade, suggestGrade } from '../../../../utils/grades'
+import { resolveGrade, specBreakdown, suggestGrade } from '../../../../utils/grades'
 import useGrades from '../../../../hooks/useGrades'
 import { gradeKeyOf, gradeLabel, niRangeLabel } from './gradeKey'
 import MergeGradeModal from './mergeGrade'
@@ -203,6 +203,14 @@ const GradeTable = ({ dataTable, loading, settings, gradeIndex }) => {
   }, {}))
 
   const stop = (e) => e.stopPropagation()
+  const originName = (id) => settings?.Supplier?.Supplier?.find(s => s.id === id)?.nname || ''
+  const fmtMTq = (q) => (Number(q) || 0).toLocaleString('en-US', { minimumFractionDigits: 3, maximumFractionDigits: 3 })
+  const SOURCE_NOTE = {
+    spec: 'spec as recorded on the lot',
+    analysis: 'from the lot analysis',
+    description: 'from the figures in the description',
+    name: 'no spec or chemistry recorded yet',
+  }
 
   return (
     <div className="mt-5 flex-auto min-w-0">
@@ -276,15 +284,12 @@ const GradeTable = ({ dataTable, loading, settings, gradeIndex }) => {
                 /* Always the same thing behind the chevron: the lots that make up
                    the total. The description is dropped from a lot's line when it
                    only repeats the grade name above it — same row, less noise. */
-                const lots = r.lots || []
-                const children = lots.map(l => ({
-                  name: l.description && l.description !== r.descriptionName
-                    ? `${l.description} · ${l.supplier}`
-                    : l.supplier,
-                  spelling: l.description,
-                  lots: l.lots,
-                  qnty: l.qnty, value: l.value,
-                }))
+                /* Behind the chevron: the grade's stock by SPEC (utils/grades.js
+                   specBreakdown) — 40Ni opens into 43Ni 15Cr and 41Ni 12Cr, Ta Ingots into
+                   ex UMZ and ex Silmet — each with its own tonnage, average and value. The
+                   spellings each spec came from stay attached, so ticking a spec row still
+                   feeds "Merge into grade". */
+                const children = specBreakdown(r.lots || [], { originName })
                 const canExpand = children.length > 1
                 const isOpen = !!expanded[key]
                 const allPicked = r.spellings.every(s => picked[s] !== undefined)
@@ -322,7 +327,7 @@ const GradeTable = ({ dataTable, loading, settings, gradeIndex }) => {
                         )}
                         {canExpand && (
                           <span className='shrink-0 whitespace-nowrap' style={{ color: 'var(--regent-gray)' }}>
-                            {children.length} lots
+                            {children.length} specs
                           </span>
                         )}
                       </span>
@@ -362,22 +367,40 @@ const GradeTable = ({ dataTable, loading, settings, gradeIndex }) => {
                       <CurrencyChip cur={isoCode} />
                     </td>
                   </tr>
-                  {isOpen && children.map((c, k) => (
-                    <tr key={`${i}-child-${k}`} style={{ background: 'var(--surface-pill)' }}>
+                  {isOpen && children.map((c) => {
+                    const childPicked = c.spellings.length > 0 && c.spellings.every(s => picked[s] !== undefined)
+                    const tipText = [
+                      c.label + (c.originName ? ` ex ${c.originName}` : ''),
+                      SOURCE_NOTE[c.source],
+                      c.suppliers.length ? `supplier ${c.suppliers.join(', ')}` : '',
+                      `from ${c.spellings.join(' · ')}`,
+                    ].filter(Boolean).join(' — ')
+                    return (
+                    <tr key={`${i}-child-${c.key}`} style={{ background: 'var(--surface-pill)' }}>
                       <td style={pickStyle} onClick={stop}>
-                        <CheckBox size='size-3' checked={picked[c.spelling] !== undefined}
-                          onChange={() => pickSpellings([c.spelling], picked[c.spelling] === undefined)} />
+                        <CheckBox size='size-3' checked={childPicked}
+                          onChange={() => pickSpellings(c.spellings, !childPicked)} />
                       </td>
                       <td className="responsiveTextTable" style={{ ...tdStyle, textAlign: 'left', paddingLeft: '28px', color: 'var(--regent-gray)' }}>
                         <span className='flex items-center gap-1 min-w-0 w-full'>
-                          <Tltip direction='top' tltpText={c.name}>
-                            <span className='block truncate cursor-default min-w-0'>{c.name}</span>
+                          <Tltip direction='top' tltpText={tipText}>
+                            <span className='block truncate cursor-default min-w-0'>
+                              <span className={c.source === 'spec' || c.source === 'analysis' ? 'font-medium text-[var(--ink)]' : ''}>{c.label}</span>
+                              {c.originName && <span className='font-medium text-[var(--ink)]'> ex {c.originName}</span>}
+                              {c.suppliers.length > 0 && <span> · {c.suppliers.join(', ')}</span>}
+                            </span>
                           </Tltip>
-                          <ChemistryPopover lots={c.lots} description={c.spelling} grade={r.grade} />
+                          <ChemistryPopover lots={c.lots} description={c.spellings[0] || ''} grade={r.grade} />
                         </span>
                       </td>
                       <td className="responsiveTextTable" style={{ ...tdStyle, color: 'var(--regent-gray)' }}>
-                        <NumericFormat value={c.qnty} displayType="text" thousandSeparator decimalScale={3} fixedDecimalScale />
+                        {c.estimated ? (
+                          <Tltip direction='top' tltpText={`≈ ${fmtMTq(c.qnty)} — part of this material has been sold, and a sale does not record which lot shipped, so what is left is shared across its specs by the quantity received of each.`}>
+                            <span className='cursor-default'>≈ <NumericFormat value={c.qnty} displayType="text" thousandSeparator decimalScale={3} fixedDecimalScale /></span>
+                          </Tltip>
+                        ) : (
+                          <NumericFormat value={c.qnty} displayType="text" thousandSeparator decimalScale={3} fixedDecimalScale />
+                        )}
                       </td>
                       <td className="responsiveTextTable" style={{ ...tdStyle, color: 'var(--regent-gray)' }}>
                         <NumericFormat value={c.qnty > 0 ? c.value / c.qnty : 0} displayType="text" thousandSeparator
@@ -389,7 +412,8 @@ const GradeTable = ({ dataTable, loading, settings, gradeIndex }) => {
                       </td>
                       <td style={tdStyle}></td>
                     </tr>
-                  ))}
+                    )
+                  })}
                   </React.Fragment>
                 )
               })}

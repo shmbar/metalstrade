@@ -65,6 +65,80 @@ describe('keyboard contract', () => {
     expect(offenders).toEqual([]);
   });
 
+  it('no form opens as an iOS page sheet', () => {
+    // Inside a page sheet views report positions relative to the sheet while the keyboard
+    // reports its own relative to the screen, so the Save bar landed short of the keyboard
+    // (contract/invoice edit, build 37).
+    const offenders = files
+      .filter((f) => /_layout\.tsx$/.test(f) && /presentation:\s*'(modal|formSheet|pageSheet)'/.test(fs.readFileSync(f, 'utf8')))
+      .map(rel);
+    expect(offenders).toEqual([]);
+  });
+
+  it('sheets lift by the keyboard height instead of measuring inside the Modal', () => {
+    // Measuring a view inside a Modal on its first presentation returns nothing, which left
+    // Cash Flow → Add Entry behind the keyboard on first open (build 37).
+    const sheet = fs.readFileSync(path.join(ROOT, 'src/components/ui/Sheet.tsx'), 'utf8');
+    expect(sheet).not.toMatch(/useKeyboardOverlap/);
+    expect(sheet).toContain("withTiming(keyboard.height");
+  });
+
+  it('text fields move to the next field on Return instead of dropping the keyboard', () => {
+    const field = fs.readFileSync(path.join(ROOT, 'src/components/ui/TextField.tsx'), 'utf8');
+    expect(field).toMatch(/focusNext/);
+    expect(field).toMatch(/submitBehavior: 'submit'/);
+  });
+
+  it('the keyboard state listens to what the keyboard DID, not only what it announced', () => {
+    const src = fs.readFileSync(path.join(ROOT, 'src/lib/keyboard.tsx'), 'utf8');
+    for (const ev of ['keyboardDidShow', 'keyboardDidHide', 'keyboardDidChangeFrame', 'keyboardWillShow', 'keyboardWillHide']) {
+      expect(src).toContain(`'${ev}'`);
+    }
+  });
+
+  it('opening a sheet ends editing on the screen behind it, and focuses only once shown', () => {
+    const sheet = fs.readFileSync(path.join(ROOT, 'src/components/ui/Sheet.tsx'), 'utf8');
+    expect(sheet).toContain('Keyboard.dismiss()');
+    expect(sheet).toContain('onShow={onShown}');
+    expect(sheet).toContain('syncKeyboard()');
+    expect(sheet).toContain('flushAutoFocus()');
+    expect(sheet).toContain('deferAutoFocus: true');
+    const field = fs.readFileSync(path.join(ROOT, 'src/components/ui/TextField.tsx'), 'utf8');
+    expect(field).toContain('autoFocus={deferFocus ? false : autoFocus}');
+  });
+
+  it('leaving a screen ends editing, so a keyboard never carries over onto the next form', () => {
+    const layout = fs.readFileSync(path.join(ROOT, 'app/(app)/_layout.tsx'), 'utf8');
+    expect(layout).toContain('const screenKey = segments.join');
+    expect(layout.replace(/\s+/g, ' ')).toContain('useEffect(() => { Keyboard.dismiss(); }, [screenKey]);');
+  });
+
+  it('nobody autofocuses a raw TextInput (it would bypass the sheet hand-off)', () => {
+    const offenders: string[] = [];
+    for (const f of files) {
+      if (rel(f) === 'src/components/ui/TextField.tsx') continue;
+      const src = fs.readFileSync(f, 'utf8');
+      const re = /<TextInput\b/g;
+      let m: RegExpExecArray | null;
+      while ((m = re.exec(src))) {
+        // Read the tag's attributes properly (a prop's arrow function contains ">").
+        let depth = 0;
+        let end = src.length;
+        for (let i = m.index + m[0].length; i < src.length; i++) {
+          const c = src[i];
+          if (c === '{') depth++;
+          else if (c === '}') depth--;
+          else if (c === '>' && depth === 0 && src[i - 1] !== '=') {
+            end = i;
+            break;
+          }
+        }
+        if (/\bautoFocus\b/.test(src.slice(m.index, end))) offenders.push(rel(f));
+      }
+    }
+    expect(offenders).toEqual([]);
+  });
+
   it('the shared props really do carry iOS keyboard insets and tap-through', () => {
     const src = fs.readFileSync(path.join(ROOT, 'src/lib/keyboard.tsx'), 'utf8');
     expect(src).toMatch(/automaticallyAdjustKeyboardInsets: Platform\.OS === 'ios'/);

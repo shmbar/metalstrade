@@ -26,6 +26,7 @@ import ChemistryPopover from '../../../components/ChemistryPopover'
 import useGrades from '../../../hooks/useGrades'
 import { resolveGrade, parseSpecQuery, assayMatches, assayOf, describeSpec } from '../../../utils/grades'
 import StorageAging from './storageAging'
+import { rowSpecs, specLabel, specText } from './specs'
 import StockAudit from './stockAudit'
 import { BtnIcon, SearchAdornment } from '../../../components/buttonIcons'
 import { isNumber } from 'mathjs';
@@ -76,6 +77,37 @@ const DescriptionCell = ({ row, value }) => {
     <span className='inline-flex items-center gap-1 min-w-0 max-w-full'>
       <span className='truncate'>{value}</span>
       <ChemistryPopover lots={lots} description={value} grade={grade} />
+    </span>
+  )
+}
+
+/* Spec — what the lots in a row actually are (a typed spec, else their chemistry), and
+   how much of each is left when a line holds more than one. Estimated shares (part of
+   the line sold, lot unknown) carry a ≈. */
+const SpecCell = ({ row }) => {
+  const { settings } = useContext(SettingsContext)
+  const parts = rowSpecs(row)
+  const unit = row?.qTypeTable || 'MT'
+  const fmtQ = (q) => (Number(q) || 0).toLocaleString('en-US', { minimumFractionDigits: 3, maximumFractionDigits: 3 })
+  const named = parts.map(p => ({ ...p, text: specLabel(p, settings) }))
+  // Nothing to show: the table renders an empty value as a blank cell before this is
+  // ever called (newTable.js), like every other empty column.
+  if (!named.some(p => p.text)) return null
+  if (named.length === 1) {
+    const p = named[0]
+    return (
+      <span className={`block truncate max-w-[240px] mx-auto ${p.source === 'description' ? 'text-[var(--ink-secondary)]' : 'font-medium text-[var(--ink)]'}`} title={p.text}>
+        {p.text}
+      </span>
+    )
+  }
+  const line = (p) => `${p.text || p.label} ${p.estimated ? '≈' : ''}${fmtQ(p.qnty)}`
+  return (
+    // Capped: several specs would otherwise widen the column and squeeze the figures;
+    // the full list, with every share, is in the tooltip.
+    <span className='block truncate max-w-[240px] mx-auto' title={named.map(p => `${line(p)} ${unit}`).join('\n')}>
+      {named.slice(0, 2).map(line).join(' · ')}
+      {named.length > 2 && <span className='text-[var(--ink-muted)]'> +{named.length - 2}</span>}
     </span>
   )
 }
@@ -183,6 +215,22 @@ const Stocks = () => {
       filterFn: oneOf,
     },
   ], [ln]);
+
+  /* The Spec column is added HERE, not in propDefaults: that list also drives
+     loadtStocks' aggregation (its accessor keys are the fields it sums) and is pinned
+     by the mobile parity suite. This column only reads what a row already carries.
+     It stays out of the search box so web search matches the columns mobile searches;
+     its own column filter still finds a spec. */
+  const tableColumns = useMemo(() => {
+    const specColumn = {
+      accessorKey: 'spec', header: 'Spec',
+      accessorFn: (row) => specText(row, settings),
+      cell: (props) => <SpecCell row={props.row.original} />,
+      enableGlobalFilter: false,
+    }
+    const at = propDefaults.findIndex(c => c.accessorKey === 'descriptionName')
+    return [...propDefaults.slice(0, at + 1), specColumn, ...propDefaults.slice(at + 1)]
+  }, [propDefaults, settings]);
 
   useEffect(() => {
     const loadtStocks = async () => {
@@ -604,7 +652,7 @@ const Stocks = () => {
               <div className='mt-2'>
                 <Customtable
                   data={shownData}
-                  columns={propDefaults}
+                  columns={tableColumns}
                   SelectRow={SelectRow}
                   cb={stockSelector}
                   type='stock'
@@ -616,7 +664,7 @@ const Stocks = () => {
                     ln,
                     sumData,
                     columnVisibility,
-                    propDefaults,
+                    tableColumns,
                     gradeIndex
                   )}
                   ln={ln}

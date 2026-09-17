@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Modal, View, ScrollView, StyleSheet, useWindowDimensions } from 'react-native';
+import { Keyboard, Modal, View, ScrollView, StyleSheet, useWindowDimensions } from 'react-native';
 import Animated, { SlideInDown, useAnimatedStyle, useSharedValue, withSpring, withTiming } from 'react-native-reanimated';
 import { Gesture, GestureDetector, GestureHandlerRootView } from 'react-native-gesture-handler';
 import { scheduleOnRN } from 'react-native-worklets';
@@ -9,7 +9,7 @@ import { Text } from './Text';
 import { Pressable } from './Pressable';
 import { useTheme } from '@/theme/ThemeProvider';
 import { getShadow, spacing } from '@/theme/tokens';
-import { KeyboardRevealContext, keyboardScrollProps, useKeyboardAwareScroll, useKeyboardOverlap } from '@/lib/keyboard';
+import { KeyboardRevealContext, keyboardScrollProps, syncKeyboard, useKeyboard, useKeyboardAwareScroll } from '@/lib/keyboard';
 
 interface SheetProps {
   visible: boolean;
@@ -63,17 +63,35 @@ export function Sheet({
   const { height } = useWindowDimensions();
   const y = useSharedValue(0);
   const lift = useSharedValue(0);
-  // Measured on a full-screen probe: how much of the sheet's canvas the keyboard covers.
-  const canvas = useKeyboardOverlap();
-  const body = useKeyboardAwareScroll({ settleMs: LIFT_MS + 60, padForKeyboard: false });
+  // The sheet is a full-screen Modal, so the keyboard covers exactly its own height of it —
+  // no measuring. It used to measure a probe view inside the Modal; on the FIRST open the
+  // Modal is not attached yet, that measurement comes back empty, nothing re-measured, and
+  // the sheet stayed behind the keyboard (Cash Flow → Add Entry, build 37). Later opens
+  // worked, which is why it looked random.
+  const keyboard = useKeyboard();
+  const keyboardUp = keyboard.height > 0;
+  const body = useKeyboardAwareScroll({ settleMs: LIFT_MS + 60, padForKeyboard: false, deferAutoFocus: true });
 
   useEffect(() => {
-    if (visible) y.set(0);
+    if (!visible) return;
+    y.set(0);
+    // A keyboard that is up when the sheet opens belongs to a field on the SCREEN BEHIND it
+    // (Cash Flow's search, then Add Entry). Left alone it covers the new form, and whatever
+    // is typed goes to the hidden field. Close it, the way iOS ends editing when a sheet is
+    // presented; the sheet's own field brings the keyboard back once the sheet is shown.
+    Keyboard.dismiss();
   }, [visible, y]);
 
+  // Once the Modal is really on screen: re-read the keyboard (in case any event arrived out
+  // of order during the transition), then focus the field that asked for autoFocus.
+  const onShown = () => {
+    syncKeyboard();
+    body.flushAutoFocus();
+  };
+
   useEffect(() => {
-    lift.set(withTiming(canvas.overlap, { duration: LIFT_MS }));
-  }, [canvas.overlap, lift]);
+    lift.set(withTiming(keyboard.height, { duration: LIFT_MS }));
+  }, [keyboard.height, lift]);
 
   // The drag lives on the header only, so a scrolling body keeps its own gesture.
   const pan = Gesture.Pan()
@@ -100,18 +118,11 @@ export function Sheet({
   if (!visible) return null;
 
   // With the keyboard up it covers the home indicator, so the safe-area padding goes.
-  const bottomPad = (canvas.overlap > 0 ? 0 : insets.bottom) + spacing.md;
+  const bottomPad = (keyboardUp ? 0 : insets.bottom) + spacing.md;
 
   return (
-    <Modal visible transparent animationType="fade" statusBarTranslucent onRequestClose={onClose}>
+    <Modal visible transparent animationType="fade" statusBarTranslucent onRequestClose={onClose} onShow={onShown}>
       <GestureHandlerRootView style={{ flex: 1, justifyContent: 'flex-end' }}>
-        <View
-          ref={canvas.ref}
-          onLayout={canvas.onLayout}
-          collapsable={false}
-          pointerEvents="none"
-          style={StyleSheet.absoluteFill}
-        />
         <Pressable
           style={[StyleSheet.absoluteFill, { backgroundColor: 'rgba(10,8,24,0.45)' }]}
           onPress={onClose}

@@ -1,5 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
-import { Dimensions, Keyboard, KeyboardEvent, NativeScrollEvent, NativeSyntheticEvent, Platform, View } from 'react-native';
+import { AppState, Dimensions, Keyboard, KeyboardEvent, NativeScrollEvent, NativeSyntheticEvent, Platform, View } from 'react-native';
 
 /*
  * Keyboard handling — one implementation for every screen, sheet, footer and field.
@@ -74,16 +74,81 @@ const fromEvent = (e?: KeyboardEvent): KeyboardState => {
   return { height: Math.round(height), top: Math.round(top), duration };
 };
 
+/*
+ * Which keyboard events move the store, and why the "did" events are the authority.
+ *
+ * iOS sends each change twice: "will" when the keyboard is ABOUT to move (so layout can
+ * travel with it) and "did" once it has. The store used to listen to the "will" events
+ * only. When focus jumps from a field on one screen to a field inside a newly opened sheet
+ * — keyboard already up on Cash Flow's search, then Add Entry — iOS can announce "will hide"
+ * for the old field AFTER "will show" for the new one. The keyboard never left the screen,
+ * but the last word the store heard was "hidden", so every sheet, Save bar and scroll-to-field
+ * in the app acted as if there were no keyboard: the form was drawn underneath it
+ * (client screenshots, build 37). Nothing ever corrected it.
+ *
+ * Now "will" events still start the movement early, and the matching "did" event — what
+ * actually happened — overrides whatever the "will" events left behind.
+ */
+export type KeyboardEventKind = 'willShow' | 'willHide' | 'willChangeFrame' | 'didShow' | 'didHide' | 'didChangeFrame';
+
+export function applyKeyboardEvent(state: KeyboardState, kind: KeyboardEventKind, e?: KeyboardEvent): KeyboardState {
+  const duration = e?.duration && e.duration > 0 ? e.duration : 250;
+  switch (kind) {
+    case 'willHide':
+    case 'didHide':
+      return hidden(duration);
+    default:
+      return fromEvent(e);
+  }
+}
+
+const IOS_EVENTS: [string, KeyboardEventKind][] = [
+  ['keyboardWillShow', 'willShow'],
+  ['keyboardWillHide', 'willHide'],
+  ['keyboardWillChangeFrame', 'willChangeFrame'],
+  ['keyboardDidShow', 'didShow'],
+  ['keyboardDidHide', 'didHide'],
+  ['keyboardDidChangeFrame', 'didChangeFrame'],
+];
+// Android has no "will" events; its "did" events are the only ones.
+const ANDROID_EVENTS: [string, KeyboardEventKind][] = [
+  ['keyboardDidShow', 'didShow'],
+  ['keyboardDidHide', 'didHide'],
+];
+
 try {
-  const ios = Platform.OS === 'ios';
-  Keyboard?.addListener?.(ios ? 'keyboardWillShow' : 'keyboardDidShow', (e) => publish(fromEvent(e)));
-  Keyboard?.addListener?.(ios ? 'keyboardWillHide' : 'keyboardDidHide', (e) =>
-    publish(hidden(e?.duration && e.duration > 0 ? e.duration : 250))
-  );
-  // Switching keyboards (emoji, another language, the predictive bar) changes the frame.
-  if (ios) Keyboard?.addListener?.('keyboardWillChangeFrame', (e) => publish(fromEvent(e)));
+  for (const [name, kind] of Platform.OS === 'ios' ? IOS_EVENTS : ANDROID_EVENTS) {
+    Keyboard?.addListener?.(name as any, (e: KeyboardEvent) => publish(applyKeyboardEvent(current, kind, e)));
+  }
 } catch {
   /* no native keyboard module (tests) */
+}
+
+/**
+ * Re-read the keyboard from React Native's own record of the last "did" event. Called at
+ * the moments the app is most likely to have been told a story out of order: a sheet has
+ * finished presenting, the app has come back to the foreground.
+ */
+export function syncKeyboard() {
+  try {
+    const visible = (Keyboard as any)?.isVisible?.();
+    const m = (Keyboard as any)?.metrics?.();
+    if (!visible || !m || !(m.height > 0)) {
+      publish(hidden(0));
+      return;
+    }
+    publish(applyKeyboardEvent(current, 'didShow', { endCoordinates: m, duration: 0 } as any));
+  } catch {
+    /* no native keyboard module (tests) */
+  }
+}
+
+try {
+  AppState?.addEventListener?.('change', (s: string) => {
+    if (s === 'active') syncKeyboard();
+  });
+} catch {
+  /* no AppState (tests) */
 }
 
 const subscribe = (l: () => void) => {
@@ -93,6 +158,8 @@ const subscribe = (l: () => void) => {
   };
 };
 const snapshot = () => current;
+/** The keyboard right now, outside React (timers, measure callbacks). */
+export const latestKeyboard = () => current;
 
 /** The keyboard, as every component sees it at the same moment. */
 export function useKeyboard(): KeyboardState {
@@ -142,8 +209,66 @@ export function useKeyboardOverlap({ shifts = false }: { shifts?: boolean } = {}
   return { ref, overlap, onLayout: measure, duration: keyboard.duration };
 }
 
+/**
+ * Lift for a bar pinned to the bottom of a screen. Replaces measuring the bar WHILE it moves,
+ * which fed its own animation back into the maths and, inside an iOS page sheet (where views
+ * report positions relative to the sheet, not the screen), came out short — the Save bar on
+ * contract and invoice edit stayed under the keyboard (build 37, 2026-09-16).
+ */
+export function useKeyboardLift() {
+  const keyboard = useKeyboard();
+  const ref = useRef<View>(null);
+  const resting = useRef<number | null>(null);
+  const [, bump] = useState(0);
+
+  const measureRest = useCallback((attempt = 0) => {
+    if (latestKeyboard().height > 0) return; // only the resting position is trustworthy
+    const node: any = ref.current;
+    if (!node || typeof node.measureInWindow !== 'function') return;
+    node.measureInWindow((_x: number, y: number, _w: number, h: number) => {
+      if (!h) {
+        // Not attached yet (a screen still animating in): try again shortly.
+        if (attempt < 6) setTimeout(() => measureRest(attempt + 1), 80);
+        return;
+      }
+      const bottom = Math.round(y + h);
+      if (resting.current !== bottom) {
+        resting.current = bottom;
+        bump((n) => n + 1);
+      }
+    });
+  }, []);
+
+  useEffect(() => {
+    if (keyboard.height <= 0) measureRest();
+  }, [keyboard.height, measureRest]);
+
+  return {
+    ref,
+    onLayout: () => measureRest(),
+    lift: footerLift(keyboard.height, screenHeight(), resting.current),
+    duration: keyboard.duration,
+  };
+}
+
+export interface FieldHandle {
+  /** the TextInput, to focus */
+  input: { current: any };
+  /** the field's outer box, to find where it sits in the form */
+  box: { current: any };
+}
+
 export interface KeyboardRevealer {
   reveal: (target: any) => void;
+  /** A field announces itself so Return on the field above can move to it. */
+  register?: (field: FieldHandle) => () => void;
+  /** Return pressed: focus the next field down the form, or close the keyboard on the last. */
+  focusNext?: (field: FieldHandle) => void;
+  /**
+   * Present in a container that is still appearing (a sheet). A field that wants autoFocus
+   * hands itself over instead, and the container focuses it once it is really on screen.
+   */
+  deferAutoFocus?: (field: FieldHandle) => void;
 }
 
 export const KeyboardRevealContext = createContext<KeyboardRevealer | null>(null);
@@ -206,6 +331,21 @@ export function revealOffset(input: {
   return Math.abs(next - offsetY) < 1 ? null : next;
 }
 
+/**
+ * How far a bar pinned to the bottom of a screen (a Save bar, a composer) must rise so its
+ * bottom edge sits on the keyboard's top edge.
+ *
+ * `restingBottom` is where the bar's bottom edge sits with the keyboard DOWN, in screen
+ * coordinates, measured once at rest. Whatever lies below it (a tab bar, nothing) is covered
+ * by the keyboard first, so it is subtracted. When the resting position is unknown the bar
+ * rises by the whole keyboard: it may sit a little high, but it can never end up hidden.
+ */
+export function footerLift(keyboardHeight: number, screenHeight: number, restingBottom: number | null): number {
+  if (keyboardHeight <= 0) return 0;
+  if (restingBottom == null || restingBottom <= 0 || restingBottom > screenHeight + 1) return Math.round(keyboardHeight);
+  return Math.max(0, Math.round(keyboardHeight - (screenHeight - restingBottom)));
+}
+
 /** How much of a view's frame the keyboard covers (0 when it is clear of it). */
 export function overlapFor(bottom: number, keyboardTop: number): number {
   return Math.max(0, Math.round(bottom - keyboardTop));
@@ -218,7 +358,11 @@ export function overlapFor(bottom: number, keyboardTop: number): number {
  *
  * `padForKeyboard: false` for a container that moves above the keyboard itself (a sheet).
  */
-export function useKeyboardAwareScroll({ settleMs = 60, padForKeyboard = true }: { settleMs?: number; padForKeyboard?: boolean } = {}) {
+export function useKeyboardAwareScroll({
+  settleMs = 60,
+  padForKeyboard = true,
+  deferAutoFocus = false,
+}: { settleMs?: number; padForKeyboard?: boolean; deferAutoFocus?: boolean } = {}) {
   const keyboard = useKeyboard();
   const frame = useKeyboardOverlap();
   const scrollRef = useRef<any>(null);
@@ -227,11 +371,15 @@ export function useKeyboardAwareScroll({ settleMs = 60, padForKeyboard = true }:
   const latest = useRef(keyboard);
   latest.current = keyboard;
 
-  const scrollTargetIntoView = useCallback(() => {
+  const scrollTargetIntoView = useCallback((attempt = 0) => {
     const kb = latest.current;
     const field = target.current;
     const sv = scrollRef.current;
     if (!sv || !field || kb.height <= 0 || typeof field.measureLayout !== 'function') return;
+    const retry = () => {
+      // A view that has not attached yet measures as nothing; that used to end the reveal.
+      if (attempt < 5) setTimeout(() => scrollTargetIntoView(attempt + 1), 90);
+    };
     const inner = sv.getInnerViewRef?.();
     const host = sv.getNativeScrollRef?.() ?? sv;
     if (!inner || typeof host?.measureInWindow !== 'function') return;
@@ -240,6 +388,7 @@ export function useKeyboardAwareScroll({ settleMs = 60, padForKeyboard = true }:
       inner,
       (_x: number, fieldY: number, _w: number, fieldH: number) => {
         host.measureInWindow((_wx: number, viewTop: number, _ww: number, viewH: number) => {
+          if (!viewH) return retry();
           const y = revealOffset({
             fieldY,
             fieldH,
@@ -251,7 +400,7 @@ export function useKeyboardAwareScroll({ settleMs = 60, padForKeyboard = true }:
           if (y != null) sv.scrollTo({ y, animated: true });
         });
       },
-      () => {}
+      retry
     );
   }, []);
 
@@ -284,7 +433,64 @@ export function useKeyboardAwareScroll({ settleMs = 60, padForKeyboard = true }:
     offsetY.current = e.nativeEvent.contentOffset.y;
   }, []);
 
-  const revealer = useMemo<KeyboardRevealer>(() => ({ reveal }), [reveal]);
+  // Fields in this form, in no particular order: the NEXT one is found by where each sits on
+  // the page when Return is pressed, so fields that appear conditionally still chain right.
+  const fields = useRef(new Set<FieldHandle>());
+  const register = useCallback((field: FieldHandle) => {
+    fields.current.add(field);
+    return () => {
+      fields.current.delete(field);
+    };
+  }, []);
+
+  const focusNext = useCallback((from: FieldHandle) => {
+    const inner = scrollRef.current?.getInnerViewRef?.();
+    const all = [...fields.current].filter((f) => f.box.current && f.input.current);
+    if (!inner || all.length < 2) {
+      Keyboard.dismiss();
+      return;
+    }
+    const positions: { field: FieldHandle; y: number }[] = [];
+    let pending = all.length;
+    const done = () => {
+      const mine = positions.find((p) => p.field === from);
+      const next = positions
+        .filter((p) => mine && p.field !== from && p.y > mine.y + 1)
+        .sort((a, b) => a.y - b.y)[0];
+      if (next) next.field.input.current.focus(); // keyboard stays up; reveal() scrolls it clear
+      else Keyboard.dismiss();
+    };
+    all.forEach((field) => {
+      field.box.current.measureLayout(
+        inner,
+        (_x: number, y: number) => {
+          positions.push({ field, y });
+          if (--pending === 0) done();
+        },
+        () => {
+          if (--pending === 0) done();
+        }
+      );
+    });
+  }, []);
+
+  // autoFocus inside a Modal fires while the Modal is still being presented — before it is
+  // in a window — so the focus either fails (the screen behind keeps the keyboard and gets
+  // the typing) or lands mid-transition. The container focuses the field once it is shown.
+  const pendingFocus = useRef<FieldHandle | null>(null);
+  const deferFocus = useCallback((field: FieldHandle) => {
+    if (!pendingFocus.current) pendingFocus.current = field; // the first field that asked
+  }, []);
+  const flushAutoFocus = useCallback(() => {
+    const field = pendingFocus.current;
+    pendingFocus.current = null;
+    if (field) setTimeout(() => field.input.current?.focus?.(), 60);
+  }, []);
+
+  const revealer = useMemo<KeyboardRevealer>(
+    () => ({ reveal, register, focusNext, ...(deferAutoFocus ? { deferAutoFocus: deferFocus } : null) }),
+    [reveal, register, focusNext, deferAutoFocus, deferFocus]
+  );
 
   return {
     keyboard: keyboard.height,
@@ -294,6 +500,7 @@ export function useKeyboardAwareScroll({ settleMs = 60, padForKeyboard = true }:
     onScroll,
     revealer,
     bottomInset,
+    flushAutoFocus,
   };
 }
 

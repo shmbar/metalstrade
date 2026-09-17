@@ -17,7 +17,10 @@ export default function ContractsLayout() {
     >
       <Stack.Screen name="index" />
       <Stack.Screen name="[id]" options={{ animation: 'slide_from_right' }} />
-      <Stack.Screen name="edit" options={{ animation: 'slide_from_bottom', presentation: 'modal' }} />
+      {/* A full screen, not an iOS page sheet: inside a page sheet views report positions
+          relative to the sheet while the keyboard reports them relative to the screen, so
+          anything placed against the keyboard (the sticky Save bar) landed short of it. */}
+      <Stack.Screen name="edit" options={{ animation: 'slide_from_bottom' }} />
       <Stack.Screen name="final-settlement" options={{ animation: 'slide_from_right' }} />
       <Stack.Screen name="stock-in" options={{ animation: 'slide_from_right' }} />
       <Stack.Screen name="new-invoice" options={{ animation: 'slide_from_right' }} />

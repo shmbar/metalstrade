@@ -2,7 +2,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Popover, PopoverContent, PopoverTrigger } from '@components/ui/popover';
 import { BtnIcon } from '@components/buttonIcons';
-import { ELEMENTS, assayOf, assayRange, formatAssay, hasAssay, parseAssay } from '@utils/grades';
+import { ELEMENTS, assayOf, assayRange, formatAssay, hasAssay, lotName, lotSpec, parseAssay } from '@utils/grades';
 
 /* The chemistry behind a stock row: which grade it resolves to, what that grade is sold
    as, and what each lot actually assayed — the "718 Offspec is different every lot"
@@ -26,18 +26,26 @@ const fmtEl = (v) => (Number.isFinite(v) ? String(Math.round(v * 100) / 100) : '
 
 export default function ChemistryPopover({ lots = [], description = '', grade = null }) {
     const rows = useMemo(() => lots
-        .filter(l => l && l.type !== 'out')
+        /* Zero-quantity entries are ledger balancing rows (an invoice total with no
+           tonnage), not lots of material: listing them put "0.000" rows among real lots
+           and inflated the lot count. */
+        .filter(l => {
+            if (!l || l.type === 'out') return false;
+            const f = parseFloat(l.finalqnty);
+            return (Number.isFinite(f) ? f : parseFloat(l.qnty) || 0) > 0;
+        })
         .map(l => {
-            const name = l.productsData?.find(p => p.id === (l.descriptionId || l.description))?.description
-                || l.descriptionName || description;
+            const name = lotName(l, description);
             const { assay, source } = assayOf(l, name);
-            return { id: l.id, po: l.order || '—', qnty: l.qnty, assay, source };
+            return { id: l.id, po: l.order || '—', qnty: l.qnty, assay, source, spec: lotSpec(l, name) };
         }), [lots, description]);
 
     const cols = useMemo(() => ELEMENTS.filter(e => rows.some(r => Number.isFinite(r.assay[e]))), [rows]);
     const withAssay = rows.filter(r => hasAssay(r.assay));
     const range = withAssay.length > 1 ? assayRange(withAssay.map(r => r.assay)) : null;
-    const recorded = rows.some(r => r.source === 'analysis');
+    const recorded = rows.some(r => r.source === 'analysis' || r.spec.source === 'spec');
+    // A lot with a typed spec but no figures yet still belongs in the table.
+    const showTable = cols.length > 0 || rows.some(r => r.spec.source === 'spec');
     const [open, setOpen] = useState(false);
     const triggerRef = useRef(null);
 
@@ -86,9 +94,9 @@ export default function ChemistryPopover({ lots = [], description = '', grade = 
                     </p>
                 )}
 
-                {cols.length === 0 ? (
+                {!showTable ? (
                     <p className="responsiveTextTable text-[var(--ink-muted)] mt-2">
-                        No chemistry recorded yet. Add each lot’s analysis in its Materials Breakdown.
+                        No spec or chemistry recorded yet. Add each lot’s spec or analysis in its Materials Breakdown.
                     </p>
                 ) : (
                     <div className="mt-2 overflow-auto max-h-64">
@@ -96,6 +104,7 @@ export default function ChemistryPopover({ lots = [], description = '', grade = 
                             <thead>
                                 <tr>
                                     <th className="text-left">PO</th>
+                                    <th className="text-left">Spec</th>
                                     <th className="text-right">MT</th>
                                     {cols.map(e => <th key={e} className="text-right">{e}</th>)}
                                 </tr>
@@ -104,6 +113,11 @@ export default function ChemistryPopover({ lots = [], description = '', grade = 
                                 {rows.map(r => (
                                     <tr key={r.id}>
                                         <td className="text-left whitespace-nowrap">{r.po}</td>
+                                        {/* A typed spec or measured chemistry reads plainly; one lifted from
+                                            the description is nominal, italic like its figures; none at all is a dash. */}
+                                        <td className={`text-left whitespace-nowrap ${r.spec.source === 'description' ? 'italic text-[var(--ink-muted)]' : r.spec.source === 'spec' ? 'font-medium' : ''}`}>
+                                            {r.spec.source === 'name' ? '—' : r.spec.label}
+                                        </td>
                                         <td className="text-right tnum whitespace-nowrap">{fmtQty(r.qnty)}</td>
                                         {cols.map(e => (
                                             <td key={e} className={`text-right tnum ${r.source === 'description' ? 'italic text-[var(--ink-muted)]' : ''}`}>
@@ -116,7 +130,7 @@ export default function ChemistryPopover({ lots = [], description = '', grade = 
                             {range && (
                                 <tfoot>
                                     <tr>
-                                        <td colSpan={2} className="text-left font-medium">Range</td>
+                                        <td colSpan={3} className="text-left font-medium">Range</td>
                                         {cols.map(e => (
                                             <td key={e} className="text-right tnum whitespace-nowrap">
                                                 {range[e] ? (range[e].min === range[e].max
@@ -129,6 +143,9 @@ export default function ChemistryPopover({ lots = [], description = '', grade = 
                             )}
                         </table>
                     </div>
+                )}
+                {cols.length === 0 && showTable && (
+                    <p className="responsiveTextTable text-[var(--ink-muted)] mt-1.5">No chemistry recorded yet.</p>
                 )}
                 {cols.length > 0 && rows.some(r => r.source === 'description') && (
                     <p className="responsiveTextTable text-[var(--ink-muted)] mt-1.5">

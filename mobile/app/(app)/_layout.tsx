@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { AppState, View } from 'react-native';
+import { AppState, Keyboard, View } from 'react-native';
 import { onlineManager } from '@tanstack/react-query';
 import { Tabs, Redirect, useSegments } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -80,6 +80,14 @@ export default function AppLayout() {
   useWarmLedger(uidCollection);
   // Switching tab (or returning to the app) refreshes what is on screen and stale.
   useFreshOnFocus(route, !!uidCollection);
+
+  // Moving to another screen ends editing on the one being left. Otherwise a keyboard opened
+  // by a search box stays up over the next screen — an Add/Edit form opens with its fields
+  // and its Save bar underneath a keyboard that belongs to a field no longer visible.
+  const screenKey = segments.join('/');
+  useEffect(() => {
+    Keyboard.dismiss();
+  }, [screenKey]);
 
   if (initializing) return null;
   if (!user) return <Redirect href="/sign-in" />;

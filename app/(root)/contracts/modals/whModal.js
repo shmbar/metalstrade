@@ -488,6 +488,11 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowPoInvModal }) => {
                                             onChange={(e) => handleChange(e, 'description', i)}
                                             name='description' classes='h-7' sizeVar='var(--fs-table)'
                                         />
+                                        {String(x.spec || '').trim() && (
+                                            <span className='responsiveTextTable font-medium text-[var(--brand-strong)] truncate px-2' title={`Spec: ${x.spec}`}>
+                                                {x.spec}
+                                            </span>
+                                        )}
                                     </div>
                                 )}
                                 {prodOf(x) && editNameRow !== x.id && (
@@ -497,7 +502,10 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowPoInvModal }) => {
                                     </Tltip>
                                 )}
                                 <AssayEditor value={x.analysis || ''}
-                                    onChange={(v) => handleValue1({ target: { name: 'analysis', value: v } }, i)} />
+                                    onChange={(v) => handleValue1({ target: { name: 'analysis', value: v } }, i)}
+                                    spec={x.spec || ''}
+                                    onSpecChange={(v) => handleValue1({ target: { name: 'spec', value: v } }, i)}
+                                    knownSpecs={data.filter((_, k) => k !== i).map(d => d.spec)} />
                             </div>
 
                             <input type='text' className="number-separator tnum input h-7 responsiveTextTable" name='qnty' style={{ fontFamily: 'inherit' }}

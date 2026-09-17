@@ -3,6 +3,7 @@ import {
     parseAssay, formatAssay, assayOf, assayRange, formatRange, aliasKey, buildGradeIndex,
     resolveGrade, assignAliases, assignGradeToLine, parseSpecQuery, assayMatches, describeSpec,
     findGradeByName, makeGrade, buildGradeProfiles, suggestGrade,
+    specFromAssay, lotSpec, splitBySpec, specBreakdown,
 } from '../utils/grades.js';
 
 // Every string here is a real description or analysis from the IMS/GIS stock.
@@ -185,6 +186,73 @@ describe('suggestGrade — next month\'s spelling of a grade already declared', 
     it('never suggests a deleted grade', () => {
         const gone = buildGradeProfiles([{ ...g718, deleted: true }]);
         expect(suggestGrade(gone, 'IN 718 Chips (51Ni 21Cr 3Mo)')).toBeNull();
+    });
+});
+
+describe('specs — what each lot is, under its grade', () => {
+    it('names a spec the way a lot is spoken of', () => {
+        expect(specFromAssay(parseAssay('43.2Ni 15.1Cr 3Mo 2Nb'))).toBe('43Ni 15Cr');
+        expect(specFromAssay(parseAssay('99.95Ta'))).toBe('99.95Ta');
+        expect(specFromAssay(parseAssay('Cu max 0.5%, P max 0.03%'))).toBe('0.5Cu 0.03P');
+        expect(specFromAssay({})).toBe('');
+    });
+
+    it('a typed spec wins; then the analysis; then the description; then the name', () => {
+        const lot = { analysis: '41.3Ni 12.2Cr 3Mo 1Nb' };
+        expect(lotSpec({ ...lot, spec: 'UMZ' }, 'Ta Ingots')).toEqual({ label: 'UMZ', source: 'spec' });
+        expect(lotSpec(lot, '40Ni Turnings')).toEqual({ label: '41Ni 12Cr', source: 'analysis' });
+        expect(lotSpec({}, '42Ni 15Cr 3Mo Turnings')).toEqual({ label: '42Ni 15Cr', source: 'description' });
+        expect(lotSpec({}, 'Ta Ingots')).toEqual({ label: 'Ta Ingots', source: 'name' });
+    });
+
+    // The client's example: a 60 MT 40Ni PO received as three 20 MT lots.
+    const lots = [
+        { qnty: '20', unitPrc: '4000', analysis: '43Ni 15Cr 3Mo 2Nb' },
+        { qnty: '20', unitPrc: '3800', analysis: '41Ni 12Cr 3Mo 1Nb' },
+        { qnty: '20', unitPrc: '4000', analysis: '42.8Ni 15.2Cr 3Mo 2Nb' },
+    ];
+
+    it('splits a line by spec; nothing sold, nothing estimated', () => {
+        const parts = splitBySpec({ qnty: 60, value: 236000, lots, description: '40Ni Turnings' });
+        expect(parts.map(p => [p.label, p.qnty, p.value, p.estimated])).toEqual([
+            ['43Ni 15Cr', 40, 160000, false],
+            ['41Ni 12Cr', 20, 76000, false],
+        ]);
+    });
+
+    it('once part has sold, shares out what is left, adds back up exactly, and says so', () => {
+        const parts = splitBySpec({ qnty: 30, value: 118000, lots, description: '40Ni Turnings' });
+        expect(parts.map(p => p.label)).toEqual(['43Ni 15Cr', '41Ni 12Cr']);
+        expect(parts.every(p => p.estimated)).toBe(true);
+        expect(parts.reduce((s, p) => s + p.qnty, 0)).toBeCloseTo(30, 9);
+        expect(parts.reduce((s, p) => s + p.value, 0)).toBeCloseTo(118000, 6);
+    });
+
+    it('keeps producers apart: Ta Ingots ex UMZ and ex Silmet', () => {
+        const ta = [
+            { qnty: 10, unitPrc: 300000, originSupplier: 'umz' },
+            { qnty: 5, unitPrc: 310000, originSupplier: 'silmet' },
+            { qnty: 4, unitPrc: 300000, originSupplier: 'umz' },
+        ];
+        const rows = specBreakdown(
+            [{ qnty: 19, value: 5750000, lots: ta, description: 'Ta Ingots', supplier: 'Shalex' }],
+            { originName: (id) => ({ umz: 'UMZ', silmet: 'Silmet' })[id] });
+        expect(rows.map(r => [r.label, r.originName, r.qnty])).toEqual([
+            ['Ta Ingots', 'UMZ', 14],
+            ['Ta Ingots', 'Silmet', 5],
+        ]);
+    });
+
+    it('adds one spec up across lines and suppliers, and drops what is sold out', () => {
+        const rows = specBreakdown([
+            { qnty: 20, value: 80000, lots: [{ qnty: 20, unitPrc: 4000, spec: '42Ni 15Cr' }], description: '40Ni Turnings', supplier: 'Thormet' },
+            { qnty: 10, value: 41000, lots: [{ qnty: 10, unitPrc: 4100 }], description: '42Ni 15Cr 3Mo Turnings', supplier: 'DMT' },
+            { qnty: 0, value: 0, lots: [{ qnty: 5, unitPrc: 3900, spec: '45Ni 13Cr' }], description: '40Ni Turnings', supplier: 'DMT' },
+        ]);
+        expect(rows).toHaveLength(1);
+        expect(rows[0]).toMatchObject({ label: '42Ni 15Cr', source: 'spec', qnty: 30, value: 121000 });
+        expect(rows[0].suppliers).toEqual(['Thormet', 'DMT']);
+        expect(rows[0].avg).toBeCloseTo(4033.33, 2);
     });
 });
 

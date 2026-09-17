@@ -12,7 +12,7 @@ import { isMoneyColumn } from './columnKind';
  * "Total 211,211.00". It also made TanStack log "Column with id 'cur' does not
  * exist" on every render. A visible column is still preferred where there is one,
  * since that is the value the user can see. */
-const getCurrency = (row, table) => {
+export const getCurrency = (row, table) => {
   let curRaw;
   try {
     // getAllColumns, not getColumn('cur'): getColumn itself logs
