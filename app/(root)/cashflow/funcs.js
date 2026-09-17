@@ -16,6 +16,7 @@ import DoalogModal from "./dialogSupplier";
 import DoalogModalClient from "./dialogClient";
 import { SortTh, sortRows, useSortState } from "@components/table/sorting";
 import { BtnIcon } from "../../../components/buttonIcons";
+import { Popover, PopoverContent, PopoverTrigger } from "@components/ui/popover";
 
 
 
@@ -1922,29 +1923,86 @@ const CARGO_STATUSES = [
     { code: 'TRN', label: 'In transit', tone: TONES.blue },
 ];
 
-const CargoStatus = ({ value, onChange }) => (
-    <div className="inline-flex items-center gap-0.5" role="group" aria-label="Cargo status">
-        {CARGO_STATUSES.map((c) => {
-            const on = value === c.code;
-            return (
-                <Tltip key={c.code} direction='top' tltpText={on ? `${c.label} — click to clear` : `Mark as ${c.label.toLowerCase()}`}>
+/* One status at a time. The cell used to show RDY and TRN side by side with the chosen
+   one lit, and the client read two statuses on every row ("it shows both regardless"
+   — 2026-09-17). Now an unset row shows a single "Set status" button, a set row shows
+   only its own chip, and either opens a small menu to choose, switch or clear. */
+const CargoStatus = ({ value, onChange }) => {
+    const [open, setOpen] = useState(false);
+    const current = CARGO_STATUSES.find((c) => c.code === value);
+    const choose = (code) => {
+        setOpen(false);
+        if (onChange && code !== (value || '')) onChange(code);
+    };
+
+    // Read-only (no handler): the chip alone, or nothing.
+    if (!onChange) {
+        return current
+            ? <span title={current.label} className="inline-flex items-center h-5 px-1.5 rounded-lg responsiveTextTable font-semibold leading-none" style={toneChipStyle(current.tone)}>{current.code}</span>
+            : null;
+    }
+
+    return (
+        <Popover open={open} onOpenChange={setOpen}>
+            <PopoverTrigger asChild>
+                {current ? (
                     <button
                         type="button"
-                        aria-pressed={on}
-                        disabled={!onChange}
-                        onClick={() => onChange && onChange(on ? '' : c.code)}
-                        className="h-5 px-1.5 rounded-lg responsiveTextTable font-semibold leading-none transition-colors disabled:cursor-default"
-                        style={on
-                            ? toneChipStyle(c.tone)
-                            : { color: 'var(--ink-muted)', border: '1px solid var(--line)', background: 'transparent' }}
+                        aria-label={`Cargo status: ${current.label} — change`}
+                        title={`${current.label} — click to change`}
+                        className="inline-flex items-center h-5 px-1.5 rounded-lg responsiveTextTable font-semibold leading-none transition-opacity hover:opacity-80"
+                        style={toneChipStyle(current.tone)}
                     >
-                        {c.code}
+                        {current.code}
                     </button>
-                </Tltip>
-            );
-        })}
-    </div>
-);
+                ) : (
+                    <button
+                        type="button"
+                        aria-label="Set cargo status"
+                        className="inline-flex items-center gap-0.5 h-5 px-1.5 rounded-lg responsiveTextTable leading-none text-[var(--ink-muted)] border border-dashed border-[var(--line-strong)] hover:text-[var(--brand)] hover:border-[var(--brand)] transition-colors whitespace-nowrap"
+                    >
+                        Set status
+                    </button>
+                )}
+            </PopoverTrigger>
+            <PopoverContent
+                align="center"
+                sideOffset={4}
+                className="z-popover w-52 p-1 rounded-2xl border-[var(--line)] bg-[var(--bg-card)] shadow-pop"
+            >
+                <div role="menu" aria-label="Cargo status" className="flex flex-col">
+                    {CARGO_STATUSES.map((c) => {
+                        const on = value === c.code;
+                        return (
+                            <button
+                                key={c.code}
+                                type="button"
+                                role="menuitemradio"
+                                aria-checked={on}
+                                onClick={() => choose(c.code)}
+                                className={`flex items-center gap-2 px-2 py-1.5 rounded-lg text-left responsiveTextTable hover:bg-[var(--bg-subtle)] ${on ? 'bg-[var(--bg-subtle)]' : ''}`}
+                            >
+                                <span className="inline-flex items-center justify-center h-5 w-9 rounded-lg font-semibold leading-none shrink-0" style={toneChipStyle(c.tone)}>{c.code}</span>
+                                <span className="flex-1 text-[var(--ink)]">{c.label}</span>
+                                {on && <BtnIcon action="confirm" className="text-[var(--brand)]" />}
+                            </button>
+                        );
+                    })}
+                    {current && (
+                        <button
+                            type="button"
+                            role="menuitem"
+                            onClick={() => choose('')}
+                            className="mt-0.5 flex items-center gap-2 px-2 py-1.5 rounded-lg text-left responsiveTextTable text-[var(--ink-muted)] hover:bg-[var(--bg-subtle)] border-t border-[var(--line)]"
+                        >
+                            <BtnIcon action="clear" /> Clear status
+                        </button>
+                    )}
+                </div>
+            </PopoverContent>
+        </Popover>
+    );
+};
 
 export const SupplierDetails = ({ supplier, data, uidCollection, setDateSelect,
     setValueCon, setIsOpenCon, blankInvoice, router, toggleCheckSupplier, toggleCheckSupplierAll,

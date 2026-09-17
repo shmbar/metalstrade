@@ -1,5 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
-import { AppState, Dimensions, Keyboard, KeyboardEvent, NativeScrollEvent, NativeSyntheticEvent, Platform, View } from 'react-native';
+import { AppState, Dimensions, Keyboard, KeyboardEvent, NativeScrollEvent, NativeSyntheticEvent, Platform, TextInput, View } from 'react-native';
 
 /*
  * Keyboard handling — one implementation for every screen, sheet, footer and field.
@@ -61,10 +61,19 @@ let current: KeyboardState = (() => {
 
 const listeners = new Set<() => void>();
 
+let lastShown: { height: number; screenY: number } | null = null;
+let reconcileTimer: ReturnType<typeof setTimeout> | null = null;
+
 const publish = (next: KeyboardState) => {
+  if (next.height > 0) lastShown = { height: next.height, screenY: next.top };
   if (next.height === current.height && next.top === current.top && next.settled === current.settled) return;
   current = next;
   listeners.forEach((l) => l());
+  // Once this move has had time to finish, check the store against what is focused. This is
+  // the safety net for any ordering the rules above did not foresee: the app can be wrong
+  // for at most one keyboard animation, never for the rest of a form.
+  if (reconcileTimer) clearTimeout(reconcileTimer);
+  reconcileTimer = setTimeout(syncKeyboard, (next.duration || 250) + 80);
 };
 
 const fromEvent = (e?: KeyboardEvent, settled = true): KeyboardState => {
@@ -97,15 +106,45 @@ const fromEvent = (e?: KeyboardEvent, settled = true): KeyboardState => {
  */
 export type KeyboardEventKind = 'willShow' | 'willHide' | 'willChangeFrame' | 'didShow' | 'didHide' | 'didChangeFrame';
 
-export function applyKeyboardEvent(_state: KeyboardState, kind: KeyboardEventKind, e?: KeyboardEvent): KeyboardState {
+/** Is any TextInput focused right now? React Native tracks this synchronously. */
+export const inputIsFocused = (): boolean => {
+  try {
+    return !!(TextInput as any)?.State?.currentlyFocusedInput?.();
+  } catch {
+    return false;
+  }
+};
+
+/**
+ * `focused`: whether a text input is focused at the moment the event arrives. It is the
+ * ground truth the completion events are checked against — see below.
+ */
+export function applyKeyboardEvent(state: KeyboardState, kind: KeyboardEventKind, e?: KeyboardEvent, focused?: boolean): KeyboardState {
   const duration = e?.duration && e.duration > 0 ? e.duration : 250;
-  const settled = kind.startsWith('did');
   switch (kind) {
+    // Announcements: move with them straight away.
     case 'willHide':
+      return hidden(duration, false);
+    case 'willShow':
+    case 'willChangeFrame':
+      return fromEvent(e, false);
+    // Completions: honoured only if they agree with what is actually focused.
+    //
+    // Focus moving from a field on the screen to a field in a sheet made iOS post the old
+    // keyboard's "did hide" AFTER the new field's "will show". The keyboard never left the
+    // screen, but that completion was taken at face value: the store flipped to hidden and
+    // the sheet dropped from above the keyboard to underneath it (Cash Flow → Add Entry,
+    // build 39 screenshot). Event ORDER cannot decide this — iOS uses more than one order —
+    // but focus can: a keyboard cannot have hidden while an input is focused, and cannot
+    // have shown while none is.
     case 'didHide':
-      return hidden(duration, settled);
-    default:
-      return fromEvent(e, settled);
+      if (focused === true) return state; // stale: something is focused, so the keyboard is up
+      return hidden(duration, true);
+    case 'didShow':
+      if (focused === false) return state; // stale: nothing is focused, so it cannot be up
+      return fromEvent(e, true);
+    case 'didChangeFrame':
+      return fromEvent(e, true);
   }
 }
 
@@ -125,7 +164,7 @@ const ANDROID_EVENTS: [string, KeyboardEventKind][] = [
 
 try {
   for (const [name, kind] of Platform.OS === 'ios' ? IOS_EVENTS : ANDROID_EVENTS) {
-    Keyboard?.addListener?.(name as any, (e: KeyboardEvent) => publish(applyKeyboardEvent(current, kind, e)));
+    Keyboard?.addListener?.(name as any, (e: KeyboardEvent) => publish(applyKeyboardEvent(current, kind, e, inputIsFocused())));
   }
 } catch {
   /* no native keyboard module (tests) */
@@ -138,13 +177,18 @@ try {
  */
 export function syncKeyboard() {
   try {
-    const visible = (Keyboard as any)?.isVisible?.();
-    const m = (Keyboard as any)?.metrics?.();
-    if (!visible || !m || !(m.height > 0)) {
-      publish(hidden(0));
+    if (!current.settled) return; // a move is in flight; its completion will settle it
+    const focused = inputIsFocused();
+    if (!focused) {
+      if (current.height > 0) publish(hidden(0));
       return;
     }
-    publish(applyKeyboardEvent(current, 'didShow', { endCoordinates: m, duration: 0 } as any));
+    if (current.height > 0) return; // focused and up: already right
+    // Focused but the store says hidden: a completion was missed. Restore the keyboard's
+    // frame from React Native's record, or the last frame this store saw.
+    const m = (Keyboard as any)?.metrics?.();
+    const frame = m && m.height > 0 ? m : lastShown;
+    if (frame) publish(applyKeyboardEvent(current, 'didShow', { endCoordinates: frame, duration: 0 } as any, true));
   } catch {
     /* no native keyboard module (tests) */
   }

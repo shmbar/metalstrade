@@ -14,11 +14,11 @@ const SCREEN = 844;
 const kbEvent = (height: number) => ({ endCoordinates: { height, screenY: SCREEN - height, screenX: 0, width: 390 }, duration: 250 }) as any;
 const START: KeyboardState = { height: 0, top: SCREEN, duration: 0, settled: true };
 
-type Step = [KeyboardEventKind, number?];
+type Step = [KeyboardEventKind, number?, boolean?];
 const replay = (steps: Step[], { willOnly = false } = {}) =>
   steps
     .filter(([kind]) => !willOnly || kind.startsWith('will'))
-    .reduce((state, [kind, h]) => applyKeyboardEvent(state, kind, h == null ? undefined : kbEvent(h)), START);
+    .reduce((state, [kind, h, focused]) => applyKeyboardEvent(state, kind, h == null ? undefined : kbEvent(h), focused), START);
 
 describe('keyboard transitions', () => {
   it('REPORTED: keyboard already up on Cash Flow search → Add Entry takes focus', () => {
@@ -28,7 +28,7 @@ describe('keyboard transitions', () => {
       ['willShow', 336], ['didShow', 336], // typing in search
       ['willShow', 336], // Title in the sheet takes focus
       ['willHide'], // …and the search box's resignation is announced afterwards
-      ['didShow', 336], // what actually happened: the keyboard is up
+      ['didShow', 336, true], // what actually happened: the keyboard is up, a field is focused
     ];
     // The old store (will-events only) ended here: the app believed there was no keyboard,
     // so the sheet stayed down and the form was drawn underneath it.
@@ -70,7 +70,7 @@ describe('keyboard transitions', () => {
 
   it('a hide that iOS announces but then cancels does not leave the app thinking it is gone', () => {
     // Interactive dismiss: the user drags the keyboard down, then lets go and it springs back.
-    const steps: Step[] = [['willShow', 336], ['didShow', 336], ['willHide'], ['didShow', 336]];
+    const steps: Step[] = [['willShow', 336], ['didShow', 336], ['willHide'], ['didShow', 336, true]];
     expect(replay(steps, { willOnly: true }).height).toBe(0);
     expect(replay(steps).height).toBe(336);
   });
@@ -91,5 +91,44 @@ describe('settled flag', () => {
     expect(c).toMatchObject({ height: 0, settled: false });
     const d = applyKeyboardEvent(c, 'didHide');
     expect(d).toMatchObject({ height: 0, settled: true });
+  });
+});
+
+describe('build 39 screenshot: sheet field focused, keyboard up, sheet dropped to the bottom', () => {
+  it('a late did-hide from the OLD field cannot undo the NEW keyboard', () => {
+    // Keyboard up on the search field; Add Entry tapped; dismiss announced; sheet presents;
+    // the Title field takes focus; then the OLD keyboard's completion arrives late.
+    const steps: Step[] = [
+      ['willShow', 336], ['didShow', 336], // search box
+      ['willHide'], // Keyboard.dismiss()
+      ['willShow', 336], // Title in the sheet takes focus — the keyboard never leaves
+      ['didHide', undefined, true], // the old hide's completion, arriving late — a field IS focused
+    ];
+    // Before: the late didHide was taken at face value -> height 0 -> the sheet dropped.
+    // Now: it completes a move that was superseded, so it is ignored.
+    const end = replay(steps);
+    expect(end.height).toBe(336);
+    expect(end.top).toBe(508);
+  });
+
+  it('the mirror case: a late did-show cannot resurrect a keyboard that was told to hide', () => {
+    const steps: Step[] = [['willShow', 336], ['willHide'], ['didShow', 336, false]]; // nothing focused
+    expect(replay(steps).height).toBe(0);
+  });
+
+  it('a completion that matches its announcement is still honoured', () => {
+    expect(replay([['willShow', 336], ['didShow', 336, true]]).settled).toBe(true);
+    expect(replay([['willShow', 336], ['didShow', 336, true], ['willHide'], ['didHide', undefined, false]])).toMatchObject({ height: 0, settled: true });
+  });
+});
+
+describe('the other order iOS uses: new field announced before the old one resigns', () => {
+  it('willShow(new) → willHide(old) → didShow(new): ends up, because a field is focused', () => {
+    const steps: Step[] = [['willShow', 336], ['didShow', 336, true], ['willShow', 336], ['willHide'], ['didShow', 336, true]];
+    expect(replay(steps).height).toBe(336);
+  });
+  it('without a focus flag (Android, no will events) completions are taken as they come', () => {
+    expect(replay([['didShow', 336], ['didHide']]).height).toBe(0);
+    expect(replay([['didHide'], ['didShow', 336]]).height).toBe(336);
   });
 });

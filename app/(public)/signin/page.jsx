@@ -14,11 +14,15 @@ export default function SignInPage() {
      than useSearchParams(): that hook forces a client-side-rendering bail unless the page
      is wrapped in <Suspense>, which made /signin intermittently 404. */
   const [expired, setExpired] = useState(false);
+  // Hours of inactivity the session was allowed (2, or 24 with "Remember me").
+  const [idleHours, setIdleHours] = useState(0);
 
   const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
-    setExpired(new URLSearchParams(window.location.search).get('expired') === '1');
+    const q = new URLSearchParams(window.location.search);
+    setExpired(q.get('expired') === '1');
+    setIdleHours(parseInt(q.get('idle') || '0', 10) || 0);
   }, []);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -27,10 +31,11 @@ export default function SignInPage() {
 
   useEffect(() => {
     const savedEmail = localStorage.getItem("email");
-    if (savedEmail) {
-      setEmail(savedEmail);
-      setRemember(true);
-    }
+    // Prefill the address only. Ticking the box as well turned every later login
+    // into a remembered one without anyone choosing it — one tick, then a day-long
+    // session on every sign-in after, which is how "it remembers the login after
+    // 48 hours" came about. Staying signed in is a choice made at each login.
+    if (savedEmail) setEmail(savedEmail);
   }, []);
 
   /* No redirect-on-user effect here. useAuthContext owns the "logged in but sitting on
@@ -102,7 +107,9 @@ export default function SignInPage() {
             </div>
             <h1 className="responsiveTextStat font-bold text-[var(--chathams-blue)]">Welcome back</h1>
             <p className="responsiveTextTitle text-[var(--text-faint)] mt-0.5">
-              {expired ? 'Your session timed out after 2 hours of inactivity. Sign in to continue.' : 'Sign in to your IMS account to continue'}
+              {expired
+                ? `You were signed out after ${idleHours ? `${idleHours} hours` : 'a period'} of inactivity. Sign in to continue.`
+                : 'Sign in to your IMS account to continue'}
             </p>
           </div>
 
@@ -184,7 +191,7 @@ export default function SignInPage() {
                   onChange={() => setRemember(!remember)}
                   className="w-3.5 h-3.5 accent-[var(--endeavour)] rounded"
                 />
-                <span className="responsiveTextInput text-[var(--ink-secondary)] whitespace-nowrap">Remember me</span>
+                <span className="responsiveTextInput text-[var(--ink-secondary)] whitespace-nowrap" title="Stay signed in after closing the browser — for up to 24 hours without activity. Unticked, you are signed out after 2 idle hours or when the browser closes.">Keep me signed in for 24 hours</span>
               </label>
             </div>
 

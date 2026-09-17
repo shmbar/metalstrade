@@ -23,7 +23,7 @@ export default function SignIn() {
   const { colors, scheme } = useTheme();
   const insets = useSafeAreaInsets();
   const { height } = useWindowDimensions();
-  const { user, signIn, error, resetPassword } = useAuth(useShallow((s) => ({ user: s.user, signIn: s.signIn, error: s.error, resetPassword: s.resetPassword })));
+  const { user, signIn, error, resetPassword, signedOutReason } = useAuth(useShallow((s) => ({ user: s.user, signIn: s.signIn, error: s.error, resetPassword: s.resetPassword, signedOutReason: s.signedOutReason })));
   const keyboard = useKeyboardHeight();
   const scrollRef = useRef<ScrollView>(null);
 
@@ -228,6 +228,14 @@ export default function SignIn() {
             <Pressable onPress={onForgot} hitSlop={6} style={{ alignSelf: 'flex-end', marginTop: -6 }}>
               <Text variant="captionMedium" tone="primary">Forgot password?</Text>
             </Pressable>
+
+            {/* Why the last session ended (idle expiry) — information, not an error. */}
+            {signedOutReason && !error ? (
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: colors.primary + '14', borderRadius: radius.md, paddingVertical: 9, paddingHorizontal: 12 }}>
+                <Ionicons name="time-outline" size={16} color={colors.primary} />
+                <Text variant="caption" tone="primary" style={{ flex: 1 }}>{signedOutReason}</Text>
+              </View>
+            ) : null}
 
             {error ? (
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: colors.negative + '14', borderRadius: radius.md, paddingVertical: 9, paddingHorizontal: 12 }}>

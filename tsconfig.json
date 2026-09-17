@@ -49,11 +49,12 @@
     "**/*.tsx",
     ".next-check/types/**/*.ts",
     ".next-gv/types/**/*.ts",
+    ".next-ui/types/**/*.ts",
     ".next-verify/types/**/*.ts",
     ".next/dev/types/**/*.ts",
     ".next/types/**/*.ts",
     "next-env.d.ts",
-    ".next-ui/types/**/*.ts"
+    ".next-session/types/**/*.ts"
   ],
   "exclude": [
     "node_modules",

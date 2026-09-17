@@ -25,11 +25,33 @@ const AuthContext = createContext()
 // Inactivity caps, remember-aware. Without "Remember me" a session dies 2h after the
 // last activity (and on browser close, via session persistence) — no accidental
 // auto-login from cookie memory. WITH "Remember me" the session survives browser
-// closes like users expect (the 2h cap was silently overriding the checkbox — the
-// reported "Remember me doesn't work") but still expires after 30 idle days, so a
-// forgotten login can't live forever.
-const SESSION_MAX_MS = 2 * 60 * 60 * 1000;            // 2 hours (Remember me OFF)
-const REMEMBERED_MAX_MS = 30 * 24 * 60 * 60 * 1000;   // 30 days (Remember me ON)
+// closes like users expect, but for a day of inactivity, not thirty: the client found
+// a login still there after two untouched days (2026-09-16) and called it a security
+// issue, which it is on a system holding every invoice and bank detail.
+//
+// "Inactivity" means no key, click, touch or wheel. The stamp behind it
+// (localStorage.lastSeen) is written on those events — never by a timer. It used to
+// be bumped every minute while a tab was open, so a tab left open, or one the browser
+// restored, counted as "in use" forever and neither cap could ever fire.
+export const SESSION_MAX_MS = 2 * 60 * 60 * 1000;         // 2 hours (Remember me OFF)
+export const REMEMBERED_MAX_MS = 24 * 60 * 60 * 1000;     // 24 hours (Remember me ON)
+
+// The cap this browser's session is under, and how long it has sat unused.
+export const sessionCapMs = () => {
+  try { return localStorage.getItem('rememberMe') === '1' ? REMEMBERED_MAX_MS : SESSION_MAX_MS; }
+  catch { return SESSION_MAX_MS; }
+};
+export const idleForMs = () => {
+  try {
+    const last = parseInt(localStorage.getItem('lastSeen') || '0', 10);
+    return last ? Date.now() - last : 0;
+  } catch { return 0; }
+};
+export const touchLastSeen = () => {
+  try { localStorage.setItem('lastSeen', String(Date.now())); } catch { /* private mode */ }
+};
+// Where an expired session lands: the sign-in form, told how long it was allowed.
+export const expiredDest = () => `/signin?expired=1&idle=${Math.round(sessionCapMs() / 3_600_000)}`;
 
 
 const AuthContextProvider = ({ children }) => {
@@ -227,30 +249,57 @@ const AuthContextProvider = ({ children }) => {
       // it IS the fresh login this cap asks for, and judging it by the stamp the last
       // session left behind is what silently bounced people back to the sign-in form.
       if (currentUser && !signingIn.current) {
-        const last = parseInt(localStorage.getItem('lastSeen') || '0', 10);
-        const cap = localStorage.getItem('rememberMe') === '1' ? REMEMBERED_MAX_MS : SESSION_MAX_MS;
-        if (last && Date.now() - last > cap) {
-          localStorage.removeItem('lastSeen');
-          await signOut(auth).catch(() => {});
-          setUser(null);
+        if (idleForMs() > sessionCapMs()) {
+          // The same exit as the in-tab timer, so the sign-in page can say why.
+          await SignOut(expiredDest());
           return;
         }
       }
       setUser(currentUser);
     });
     return () => unsubscribe();
-  }, []);
+    // SignOut is a useCallback with no deps — stable, so this still subscribes once.
+  }, [SignOut]);
 
-  // Keep the "last activity" stamp fresh while logged in (heartbeat + on tab close), so the
-  // 2h cap measures time since the user was last actually using the app.
+  // Keep the "last activity" stamp fresh while logged in — on ACTIVITY, so the cap
+  // measures time since the user last did something. Throttled: one write per 15s is
+  // plenty for a 2h/24h window. No stamp on tab close either: a browser restarting
+  // after two idle days fires beforeunload too, and that stamp revived the session.
   useEffect(() => {
     if (!user) return;
-    const bump = () => localStorage.setItem('lastSeen', String(Date.now()));
-    bump();
-    const id = setInterval(bump, 60_000);
-    window.addEventListener('beforeunload', bump);
-    return () => { clearInterval(id); window.removeEventListener('beforeunload', bump); };
+    let lastWrite = 0;
+    const stamp = () => {
+      const now = Date.now();
+      if (now - lastWrite < 15_000) return;
+      lastWrite = now;
+      touchLastSeen();
+    };
+    const events = ['pointerdown', 'keydown', 'wheel', 'touchstart', 'mousemove'];
+    events.forEach((e) => window.addEventListener(e, stamp, { passive: true, capture: true }));
+    return () => events.forEach((e) => window.removeEventListener(e, stamp, { capture: true }));
   }, [user]);
+
+  // The backstop for a tab that outlived its cap while nothing in it could run: a
+  // laptop asleep, a tab the browser parked, a window restored days later. Timers do
+  // not fire through any of that, so the check runs when the tab comes back into view
+  // and, while it is in view, once a minute. The in-tab idle timer (components/idle.js)
+  // handles the ordinary case with a warning first; this one only steps in a minute
+  // past the cap, after that warning has had its chance.
+  useEffect(() => {
+    if (!user) return;
+    const check = () => { if (idleForMs() > sessionCapMs() + 60_000) SignOut(expiredDest()); };
+    const onVisible = () => { if (document.visibilityState === 'visible') check(); };
+    window.addEventListener('focus', check);
+    window.addEventListener('pageshow', check);
+    document.addEventListener('visibilitychange', onVisible);
+    const id = setInterval(check, 60_000);
+    return () => {
+      clearInterval(id);
+      window.removeEventListener('focus', check);
+      window.removeEventListener('pageshow', check);
+      document.removeEventListener('visibilitychange', onVisible);
+    };
+  }, [user, SignOut]);
 
   // Record the sign-in, once the claims have said which workspace it belongs to.
   // The marker is set by SignIn on a real credential login and cleared here, so a

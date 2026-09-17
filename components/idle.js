@@ -2,32 +2,31 @@
 import { useEffect, useState, Fragment } from 'react'
 import { useIdleTimer } from 'react-idle-timer'
 import { Dialog, Transition, TransitionChild, DialogPanel, DialogTitle } from '@headlessui/react'
-import { UserAuth } from "../contexts/useAuthContext";
+import { UserAuth, sessionCapMs, touchLastSeen, expiredDest } from "../contexts/useAuthContext";
 
-const timeout = 7200_000 //2 hours — matches the session cap in useAuthContext
+/* Signs an idle session out from inside the tab, with a 30-second warning first.
+ *
+ * The window is the session's cap from useAuthContext — 2 hours, or 24 with
+ * "Remember me" — for EVERY session. Remembered sessions used to be exempt here,
+ * which together with a stamp that a timer kept fresh meant an open tab never
+ * expired at all (a login still there two days later, client 2026-09-16).
+ * "Remember me" now means the session survives a browser close; it does not mean
+ * it survives a day of nobody using it. */
 const promptBeforeIdle = 30_000
 
 export default function App() {
-
+    // Read once: the remember flag is set at login and cannot change mid-session.
+    const [timeout] = useState(() => sessionCapMs())
     const [remaining, setRemaining] = useState(timeout)
     const { SignOut } = UserAuth();
-  
-    // "Remember me" sessions are meant to stay logged in (Google-like) — the no-activity
-    // auto-logout applies only to non-remembered logins. This was the last path that still
-    // signed a remembered user out (an open/restored tab idling past 2h), and its SignOut
-    // wiped the remember flag itself — the reported "Remember me doesn't work".
-    const remembered = () => {
-        try { return localStorage.getItem('rememberMe') === '1'; } catch { return false; }
-    }
 
     const onIdle = () => {
-        if (remembered()) { activate(); return; }
         LogOut()
         closeModal(false)
     }
 
     const LogOut = async () => {
-        await SignOut('/signin?expired=1');
+        await SignOut(expiredDest());
     }
 
     const onActive = () => {
@@ -35,7 +34,6 @@ export default function App() {
     }
 
     const onPrompt = () => {
-        if (remembered()) { activate(); return; }
         openModal()
     }
 
@@ -48,11 +46,13 @@ export default function App() {
         throttle: 500
     })
 
+    // Once a second, and only while the warning is up — this used to run with no
+    // delay at all, re-rendering as fast as the browser could go for the whole session.
     useEffect(() => {
+        if (!isOpen) return
         const interval = setInterval(() => {
             setRemaining(Math.ceil(getRemainingTime() / 1000))
-        })
-
+        }, 1000)
         return () => {
             clearInterval(interval)
         }
@@ -60,12 +60,11 @@ export default function App() {
 
     const handleStillHere = () => {
         activate()
+        // The click is activity; say so to the stamp the reload/wake checks read.
+        touchLastSeen()
         closeModal()
     }
 
-
-    const timeTillPrompt = Math.max(remaining - promptBeforeIdle / 1000, 0)
- 
     let [isOpen, setIsOpen] = useState(false)
 
     function closeModal() {
@@ -73,6 +72,7 @@ export default function App() {
     }
 
     function openModal() {
+        setRemaining(Math.ceil(getRemainingTime() / 1000))
         setIsOpen(true)
     }
 
@@ -110,16 +110,15 @@ export default function App() {
                                         as="h3"
                                         className="responsiveTextTitle font-semibold leading-tight text-[var(--chathams-blue)]"
                                     >
-                                        No-Activity Notification
+                                        Still there?
                                     </DialogTitle>
                                     <div className="mt-2">
                                         <p className="responsiveTextTitle text-gray-500">
-                                            It looks like you&#39;ve been inactive for a while.
-                                            To ensure the activity, please press the button below.
+                                            Nothing has happened here for a while, so you are about to be signed out to keep the account safe.
                                         </p>
                                         <br />
                                         <p className="responsiveTextTitle text-gray-500">
-                                            {`You will be loged out in ${remaining} seconds`}
+                                            {`Signing out in ${remaining} seconds.`}
                                         </p>
                                     </div>
 
@@ -129,7 +128,7 @@ export default function App() {
                                             className="inline-flex justify-center rounded-lg border border-transparent bg-blue-100 px-4 py-2 responsiveTextTitle font-medium text-blue-900 hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
                                             onClick={handleStillHere}
                                         >
-                                            Still here...
+                                            I&#39;m still here
                                         </button>
                                     </div>
                                 </DialogPanel>

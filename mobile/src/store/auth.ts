@@ -16,17 +16,18 @@ import { stopLotsLedger } from '@/features/stocks/stockLedger';
 // @ts-ignore — plain JS module shared verbatim with the web
 import { isSuperAdmin, normalizeRole, resolvePages } from '@shared/permissions';
 import { canOpenRoute, landingHrefFor } from '@/lib/access';
+import { decideOnResume, parseLastSeen, IDLE_SIGNED_OUT_MESSAGE } from '@/lib/sessionPolicy';
 
-// Idle-expiry parity with the web app's AuthContext. A phone is inherently a
-// "Remember me" device (users expect to stay signed in), so mobile uses the web's
-// remembered tier: the session expires after 30 idle DAYS — a forgotten login on
-// an old device can't live forever — never the 2h no-remember cap.
-const IDLE_MAX_MS = 30 * 24 * 60 * 60 * 1000;
+// Idle expiry — the rule and its reasons live in lib/sessionPolicy.ts (24 hours,
+// the web's "Keep me signed in" window). The stamp below is "when the app was last
+// in use": written when the app leaves the foreground and after a resume passes
+// the check — never before it.
 const LAST_SEEN_KEY = 'ims:lastSeen';
 
 const bumpLastSeen = () => {
   AsyncStorage.setItem(LAST_SEEN_KEY, String(Date.now())).catch(() => {});
 };
+const readLastSeen = async () => parseLastSeen(await AsyncStorage.getItem(LAST_SEEN_KEY).catch(() => null));
 
 // The GIS account's uidCollection — same sentinel the web app uses to flip
 // "Sharon Admin" ↔ "Gis Admin" and a handful of GIS-specific behaviors.
@@ -76,6 +77,8 @@ interface AuthState {
   canRoute: (route: string) => boolean;
   currentUser: CurrentUser;
   error: string | null;
+  /** why the last session ended without the user signing out (shown on sign-in) */
+  signedOutReason: string | null;
   signIn: (email: string, password: string) => Promise<boolean>;
   signOut: () => Promise<void>;
   resetPassword: (email: string) => Promise<{ ok: boolean; message: string }>;
@@ -113,11 +116,16 @@ export const useAuth = create<AuthState>((set, get) => ({
   landingHref: '/(app)',
   currentUser: buildCurrentUser(null),
   error: null,
+  signedOutReason: null,
 
   signIn: async (email, password) => {
     set({ error: null });
     try {
+      // Stamp BEFORE the credential lands: onAuthStateChanged runs the idle check,
+      // and must not judge a brand-new login by the previous session's stamp.
+      bumpLastSeen();
       await signInWithEmailAndPassword(auth, completeUserEmail(email), password);
+      set({ signedOutReason: null });
       return true;
     } catch (e: any) {
       const code = e?.code || '';
@@ -185,24 +193,37 @@ export const useAuth = create<AuthState>((set, get) => ({
       if (auth.currentUser && uc && cu?.uid) touchPresence(uc, cu).catch(() => {});
     };
     const beatId = setInterval(beat, PRESENCE_HEARTBEAT_MS);
-    const appStateSub = AppState.addEventListener('change', (next) => {
-      if (auth.currentUser && (next === 'active' || next === 'background')) {
+    // Expire this session if it has sat unused past the window; true if it did.
+    // Signing out lands in onAuthStateChanged(null), which clears the device copy
+    // of the company's data along with the session.
+    const expireIfIdle = async () => {
+      if (decideOnResume(await readLastSeen(), Date.now()) === 'resume') return false;
+      set({ signedOutReason: IDLE_SIGNED_OUT_MESSAGE });
+      await get().signOut();
+      return true;
+    };
+    const appStateSub = AppState.addEventListener('change', async (next) => {
+      if (!auth.currentUser) return;
+      if (next === 'background') {
+        // Leaving the app is the last moment it was in use. Not 'inactive': iOS passes
+        // through it on the way BACK from the background too, and a stamp written
+        // there would let the check below pass every time.
+        bumpLastSeen();
+        return;
+      }
+      if (next === 'active') {
+        // Check FIRST. Stamping here before checking is what let an app left in the
+        // background for two days come straight back signed in.
+        if (await expireIfIdle()) return;
         bumpLastSeen();
         // Coming back to the app is the moment the dot is most likely stale.
-        if (next === 'active') beat();
+        beat();
       }
     });
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      // Enforce the idle cap on restore: a session untouched for 30+ days must
-      // re-authenticate instead of silently auto-resuming (web parity).
+      // The same check on a cold start with a saved session.
       if (user) {
-        const raw = await AsyncStorage.getItem(LAST_SEEN_KEY).catch(() => null);
-        const last = parseInt(raw || '0', 10);
-        if (last && Date.now() - last > IDLE_MAX_MS) {
-          await AsyncStorage.removeItem(LAST_SEEN_KEY).catch(() => {});
-          await fbSignOut(auth).catch(() => {});
-          return; // onAuthStateChanged fires again with null and resets state
-        }
+        if (await expireIfIdle()) return; // fires again with null and resets state
         bumpLastSeen();
       }
       if (!user) {

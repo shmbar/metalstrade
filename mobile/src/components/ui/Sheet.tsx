@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { Modal, View, ScrollView, StyleSheet, useWindowDimensions } from 'react-native';
-import Animated, { SlideInDown, useAnimatedStyle, useSharedValue, withSpring, withTiming } from 'react-native-reanimated';
+import Animated, { useAnimatedStyle, useSharedValue, withSpring, withTiming } from 'react-native-reanimated';
 import { Gesture, GestureDetector, GestureHandlerRootView } from 'react-native-gesture-handler';
 import { scheduleOnRN } from 'react-native-worklets';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -78,9 +78,14 @@ export function Sheet({
   // sheet — so the form is never positioned from a keyboard it is about to lose.
   const presented = usePresentAfterKeyboard(visible);
 
+  // The panel slides in on the same value the drag-to-close uses. A Reanimated "entering"
+  // layout animation ran on the panel before; it is a separate animator on the same view as
+  // the keyboard lift, and a lift that lands while it is still running can be lost.
   useEffect(() => {
-    if (presented) y.set(0);
-  }, [presented, y]);
+    if (!presented) return;
+    y.set(height);
+    y.set(withSpring(0, { damping: 20, stiffness: 220, mass: 0.8 }));
+  }, [presented, y, height]);
 
   // Once the Modal is really on screen: re-read the keyboard (in case any event arrived out
   // of order during the transition), then focus the field that asked for autoFocus.
@@ -129,7 +134,6 @@ export function Sheet({
           accessibilityLabel="Close"
         />
         <Animated.View
-          entering={SlideInDown.springify().damping(20).stiffness(220)}
           style={[
             {
               backgroundColor: colors.bgElevated,
