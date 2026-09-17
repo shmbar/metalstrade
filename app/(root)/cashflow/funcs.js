@@ -1603,7 +1603,7 @@ export const ClientDetails = ({ client, data, type, uidCollection, setDateSelect
                                 <SortTh colKey="_order" label="PO#" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left po-col" />
                                 <SortTh colKey="invoice" label="Invoice" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left w-12" />
                                 <SortTh colKey="totalAmount" label="Amount" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-right" />
-                                <SortTh colKey="percentage" label="Prepayment" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left" />
+                                <SortTh colKey="percentage" label="Payment" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left" />
                                 <th className="text-right">Prep. Amount</th>
                                 <FinalTh />
                                 <th className="text-center">ETD</th>
