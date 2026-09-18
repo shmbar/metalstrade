@@ -34,7 +34,7 @@ export function SegmentedControl<T extends string>({ options, value, onChange }:
             onPress={() => { if (!active) haptics.selection(); onChange(o.value); }}
             style={{
               flex: 1,
-              paddingVertical: 8,
+              paddingVertical: 6,
               borderRadius: radius.sm,
               alignItems: 'center',
               backgroundColor: active ? colors.bgElevated : 'transparent',

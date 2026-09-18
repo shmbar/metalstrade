@@ -11,6 +11,7 @@ import { SplitControl } from '@/components/SplitControl';
 import { curSymbol, fmtMoney, dateLabel } from '@/lib/format';
 import { StackHeader } from '@/components/StackHeader';
 import { keyboardScrollProps } from '@/lib/keyboard';
+import { layout } from '@/theme/tokens';
 
 // Web's footer hard-codes exactly two buckets and always renders both, showing
 // $0.00 / €0.00 for an empty one (sumtables footer, expenses/page.js). Mobile
@@ -61,7 +62,7 @@ export default function Expenses() {
     <Screen scroll={false} flush contentContainerStyle={{ paddingTop: insets.top + 8 }} edges={false}>
       <StackHeader title="Expenses" right={<PeriodSelector />} />
 
-      <View style={{ marginBottom: 12 }}>
+      <View style={{ marginBottom: layout.stack }}>
         <SegmentedControl
           value={tab}
           onChange={(v) => setTab(v as any)}
@@ -95,7 +96,7 @@ export default function Expenses() {
       ) : isError ? (
         <ErrorState message={(error as Error)?.message || 'Failed to load.'} onRetry={refetch} />
       ) : rows.length === 0 ? (
-        <EmptyState title="No expenses" message="None in the selected period." icon={<Ionicons name="card-outline" size={40} color={colors.textFaint} />} />
+        <EmptyState title="No expenses" message="None in the selected period." icon={<Ionicons name="card-outline" size={24} color={colors.textFaint} />} />
       ) : (
         <FlatList
         {...keyboardScrollProps} keyboardShouldPersistTaps="handled"
@@ -109,7 +110,7 @@ export default function Expenses() {
           refreshing={isLoading}
           ListHeaderComponent={
             <View>
-              <Card style={{ marginBottom: 12 }}>
+              <Card style={{ marginBottom: layout.stack }}>
                 <SectionHeader title="Totals" subtitle={`${rows.length} expense(s)`} right={<Text variant="h3" tone="primary">{curLine(totals.all)}</Text>} />
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
                   <Text variant="body" tone="muted">Unpaid</Text>
@@ -127,9 +128,9 @@ export default function Expenses() {
             </View>
           }
           renderItem={({ item }) => (
-            <Card style={{ marginBottom: 12 }} onPress={() => router.push(`/(app)/expense-edit?id=${item.id}&kind=${tab === 'supplier' ? 'supplier' : 'company'}`)}>
+            <Card style={{ marginBottom: layout.stack }} onPress={() => router.push(`/(app)/expense-edit?id=${item.id}&kind=${tab === 'supplier' ? 'supplier' : 'company'}`)}>
               <View style={{ flexDirection: 'row', justifyContent: 'space-between', gap: 12 }}>
-                <Avatar name={item.supplierName} size={40} />
+                <Avatar name={item.supplierName} size={layout.leading} />
                 <View style={{ flex: 1, minWidth: 0 }}>
                   <Text variant="h3" numberOfLines={1}>{item.supplierName}</Text>
                   <Text variant="caption" tone="muted" numberOfLines={1}>
@@ -187,7 +188,7 @@ function VendorSummary({
 }) {
   const { colors } = useTheme();
   return (
-    <Card style={{ marginBottom: 12 }}>
+    <Card style={{ marginBottom: layout.stack }}>
       <Text variant="label" tone="muted" style={{ marginBottom: 8 }}>{title}</Text>
       {rows.map((r, i) => (
         <View

@@ -38,9 +38,9 @@ export function Chip({ label, active: activeProp, onPress, icon, count, trailing
       style={{
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 6,
+        gap: 5,
         height: layout.pillHeight,
-        paddingHorizontal: 14,
+        paddingHorizontal: 12,
         borderRadius: radius.pill,
         borderWidth: 1,
         borderColor: active ? colors.primary : colors.border,

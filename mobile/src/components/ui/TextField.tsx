@@ -37,7 +37,7 @@ export function TextField({ label, error, rightElement, style, onFocus, onBlur, 
   const chains = !!revealer?.focusNext && !rest.multiline && rest.onSubmitEditing == null && rest.returnKeyType == null;
 
   return (
-    <View ref={fieldRef} collapsable={false} style={{ gap: 6 }}>
+    <View ref={fieldRef} collapsable={false} style={{ gap: 4 }}>
       {label && (
         <Text variant="label" tone="muted">
           {label}
@@ -61,7 +61,7 @@ export function TextField({ label, error, rightElement, style, onFocus, onBlur, 
           style={[
             {
               flex: 1,
-              paddingVertical: 12,
+              paddingVertical: 10,
               fontFamily: typography.input.fontFamily,
               fontSize: typography.input.fontSize,
               color: colors.text,

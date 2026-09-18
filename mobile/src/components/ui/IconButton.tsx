@@ -2,6 +2,7 @@ import React from 'react';
 import { Ionicons } from '@expo/vector-icons';
 import { Pressable } from './Pressable';
 import { useTheme } from '@/theme/ThemeProvider';
+import { layout } from '@/theme/tokens';
 
 export interface IconButtonProps {
   icon: keyof typeof Ionicons.glyphMap;
@@ -26,7 +27,7 @@ export function IconButton({
   accessibilityLabel,
   variant = 'surface',
   tone = 'primary',
-  size = 40,
+  size = layout.iconButton,
   disabled,
 }: IconButtonProps) {
   const { colors } = useTheme();

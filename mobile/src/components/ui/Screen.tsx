@@ -43,7 +43,7 @@ export function Screen({
   // to screens without one: ~130pt of nothing at the end of every page.
   const pad = {
     paddingTop: edges ? insets.top + spacing.sm : spacing.sm,
-    paddingBottom: flush ? 0 : spacing['2xl'],
+    paddingBottom: flush ? 0 : spacing.xl,
     paddingHorizontal: spacing.lg,
   };
 

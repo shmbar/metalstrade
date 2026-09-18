@@ -8,7 +8,7 @@ import { useSettings } from '@/store/settings';
 import { useStorage, useTagStorage, suggestWh, defaultMonth } from './useStorage';
 import { UNIT } from '@shared/storageUtils';
 import { fmtMoney, dateLabel } from '@/lib/format';
-import { radius, spacing, LIST_END_PADDING } from '@/theme/tokens';
+import { radius, spacing, LIST_END_PADDING, layout } from '@/theme/tokens';
 import { keyboardScrollProps } from '@/lib/keyboard';
 
 const fmtUsd = (v: number) => `$${fmtMoney(v || 0)}`;
@@ -155,7 +155,7 @@ export function StorageView() {
       refreshControl={<RefreshControl refreshing={isLoading} onRefresh={refetch} tintColor={colors.primary} />}
     >
       {/* Unit toggle */}
-      <View style={{ marginBottom: 12 }}>
+      <View style={{ marginBottom: layout.stack }}>
         <SegmentedControl
           value={unit}
           onChange={(v) => setUnit(v as any)}
@@ -179,7 +179,7 @@ export function StorageView() {
                 key={y}
                 onPress={() => setYear(y)}
                 style={{
-                  paddingHorizontal: 14,
+                  paddingHorizontal: layout.cardInset,
                   paddingVertical: 6,
                   borderRadius: 999,
                   backgroundColor: active ? colors.primary : colors.surfaceAlt,
@@ -197,7 +197,7 @@ export function StorageView() {
       )}
 
       {/* Overall rate hero */}
-      <Card style={{ marginBottom: 12, backgroundColor: colors.primary }}>
+      <Card style={{ marginBottom: layout.stack, backgroundColor: colors.primary }}>
         <Text variant="label" color="#ffffffcc">
           Avg storage cost {unitMeta.label}
         </Text>
@@ -213,7 +213,7 @@ export function StorageView() {
       <View style={{ flexDirection: 'row', gap: 12, marginBottom: 12 }}>
         <Card style={{ flex: 1 }}>
           <Text variant="label" tone="muted">Storage spend</Text>
-          <Text variant="stat" style={{ marginTop: 6 }} adjustsFontSizeToFit numberOfLines={1}>
+          <Text variant="stat" style={{ marginTop: 4 }} adjustsFontSizeToFit numberOfLines={1}>
             {fmtUsd(actuals.totalSpend)}
           </Text>
           <Text variant="caption" tone="faint" style={{ marginTop: 2 }}>
@@ -222,7 +222,7 @@ export function StorageView() {
         </Card>
         <Card style={{ flex: 1 }}>
           <Text variant="label" tone="muted">In storage now</Text>
-          <Text variant="stat" style={{ marginTop: 6 }} adjustsFontSizeToFit numberOfLines={1}>
+          <Text variant="stat" style={{ marginTop: 4 }} adjustsFontSizeToFit numberOfLines={1}>
             {fmtMt(actuals.totalMt)} MT
           </Text>
           <Text variant="caption" tone="faint" style={{ marginTop: 2 }}>
@@ -233,7 +233,7 @@ export function StorageView() {
 
       {/* Per-warehouse rates */}
       {metric.rows.length > 0 && (
-        <Card style={{ marginBottom: 12 }}>
+        <Card style={{ marginBottom: layout.stack }}>
           <Text variant="label" tone="muted" style={{ marginBottom: 8 }}>
             By warehouse ({unitMeta.label})
           </Text>
@@ -263,7 +263,7 @@ export function StorageView() {
 
       {/* Per-year summary — web parity (storagecosts perYear table). */}
       {perYear.length > 0 && (
-        <Card style={{ marginBottom: 12 }}>
+        <Card style={{ marginBottom: layout.stack }}>
           <Text variant="label" tone="muted" style={{ marginBottom: 8 }}>
             By year
           </Text>

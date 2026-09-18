@@ -21,7 +21,7 @@ import { pickAndExtractContract, scanAndExtractContract, extractFromUri } from '
 import { haptics } from '@/lib/haptics';
 import { apiConfigured } from '@/lib/api';
 import { Contract, Product } from '@/data/types';
-import { spacing } from '@/theme/tokens';
+import { spacing, layout } from '@/theme/tokens';
 import { newId } from '@/data/writes';
 
 const fieldByKey = Object.fromEntries(SELECT_FIELDS.map((f) => [f.key, f]));
@@ -208,7 +208,7 @@ export default function ContractEdit() {
           backLabel="Cancel"
         />
 
-        <View style={{ gap: 14 }}>
+        <View style={{ gap: layout.stack }}>
           {isNew && apiConfigured() && (
             <View style={{ flexDirection: 'row', gap: 10 }}>
               <View style={{ flex: 1 }}>
@@ -233,7 +233,7 @@ export default function ContractEdit() {
           )}
 
           {/* Identity */}
-          <Card style={{ gap: 14 }}>
+          <Card style={{ gap: spacing.md }}>
             <SectionHeader title="Contract" style={{ marginBottom: 0 }} />
             {renderSelect('supplier', onSupplierChange)}
             {/* The mill behind a trader — web contractDetails originSupplier. */}
@@ -262,14 +262,14 @@ export default function ContractEdit() {
           </Card>
 
           {/* Currency / quantity */}
-          <Card style={{ gap: 14 }}>
+          <Card style={{ gap: spacing.md }}>
             <SectionHeader title="Currency & units" style={{ marginBottom: 0 }} />
             {renderSelect('cur')}
             {renderSelect('qTypeTable')}
           </Card>
 
           {/* Shipment block */}
-          <Card style={{ gap: 14 }}>
+          <Card style={{ gap: spacing.md }}>
             <SectionHeader title="Shipment" />
             {renderSelect('shpType')}
             {renderSelect('origin')}
@@ -283,7 +283,7 @@ export default function ContractEdit() {
           </Card>
 
           {/* Payment terms — select or custom text */}
-          <Card style={{ gap: 12 }}>
+          <Card style={{ gap: spacing.md }}>
             <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
               <Text variant="label" tone="muted">
                 Payment Terms
@@ -446,7 +446,7 @@ export default function ContractEdit() {
           </Card>
 
           {/* Comments + completed */}
-          <Card style={{ gap: 12 }}>
+          <Card style={{ gap: spacing.md }}>
             <TextField
               label="Comments"
               value={String(value.comments || '')}

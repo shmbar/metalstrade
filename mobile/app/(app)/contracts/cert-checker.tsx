@@ -13,6 +13,7 @@ import { useContracts } from '@/features/contracts/useContracts';
 import { updateContractField } from '@/data/writes';
 import { apiConfigured, postJson } from '@/lib/api';
 import { toast } from '@/store/toast';
+import { layout } from '@/theme/tokens';
 
 interface SpecRow { element: string; min: string; max: string; tolerance: string }
 interface ResultRow { element: string; spec: string; actual: number | null; pass: boolean; reason: string }
@@ -105,7 +106,7 @@ export default function CertChecker() {
       />
 
       {/* Spec editor */}
-      <Card style={{ marginBottom: 12 }}>
+      <Card style={{ marginBottom: layout.stack }}>
         <SectionHeader title="Required composition" subtitle="Element min / max / tolerance (%)" />
         {spec.length === 0 ? (
           <Text variant="body" tone="muted" style={{ marginBottom: 8 }}>No elements yet — add the contract spec below.</Text>

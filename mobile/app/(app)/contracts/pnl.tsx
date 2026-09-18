@@ -10,6 +10,7 @@ import { useContracts } from '@/features/contracts/useContracts';
 import { usePnl, useSetContractStatus, useSaveShipmentRow, CONTRACT_STATUSES, ShipmentRow } from '@/features/contracts/usePnl';
 import { curSymbol, fmtMoney, dateLabel } from '@/lib/format';
 import { haptics } from '@/lib/haptics';
+import { layout } from '@/theme/tokens';
 
 const FINALIZED_FLAG = '4568';
 
@@ -66,7 +67,7 @@ export default function ContractPnl() {
       <StackHeader title="P&amp;L · Shipments" subtitle={(contract as any).order || 'Contract'} />
 
       {/* Currency selector — web lets the whole tab be read in $ or €. */}
-      <View style={{ marginBottom: 12 }}>
+      <View style={{ marginBottom: layout.stack }}>
         <SegmentedControl
           value={viewCur}
           onChange={(v) => { setViewCur(v as any); setRows(null); }}
@@ -77,7 +78,7 @@ export default function ContractPnl() {
         />
       </View>
 
-      <Card style={{ marginBottom: 12 }}>
+      <Card style={{ marginBottom: layout.stack }}>
         <SectionHeader title="Profit" subtitle="Sale − Purchase − Expenses" />
         <Row label="Invoice value (sale)" v={m(pnl.saleValue)} />
         <Row label="Purchase value" v={m(pnl.purchaseValue)} />
@@ -92,14 +93,14 @@ export default function ContractPnl() {
         </View>
       </Card>
 
-      <Card style={{ marginBottom: 12 }}>
+      <Card style={{ marginBottom: layout.stack }}>
         <SectionHeader title="Freight" subtitle="freight-type expenses ÷ contracted MT" />
         <Row label="Freight total" v={m(pnl.freightTotal)} />
         <Row label="Contracted" v={`${fmtMoney(pnl.contractMT, 3)} MT`} />
         <Row label="Freight / MT" v={m(pnl.freightPerMT)} strong />
       </Card>
 
-      <Card style={{ marginBottom: 12 }}>
+      <Card style={{ marginBottom: layout.stack }}>
         <SectionHeader title="Contract status" />
         <Select
           label=""
@@ -122,7 +123,7 @@ export default function ContractPnl() {
           shipments.map((r, i) => (
             <View
               key={r.id}
-              style={{ paddingVertical: 12, borderTopWidth: i === 0 ? 0 : 1, borderTopColor: colors.border, gap: 10 }}
+              style={{ paddingVertical: layout.rowPad, borderTopWidth: i === 0 ? 0 : 1, borderTopColor: colors.border, gap: 10 }}
             >
               <Text variant="bodyMedium">Invoice #{r.invoice ?? '—'}</Text>
 

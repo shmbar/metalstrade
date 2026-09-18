@@ -2,6 +2,7 @@ import React from 'react';
 import { View } from 'react-native';
 import { Card, Select, TextField, SectionHeader, Chip, Text } from '@/components/ui';
 import { optionsFor } from '@/features/contracts/form';
+import { spacing } from '@/theme/tokens';
 
 // Web invoiceDetails.handleChange: these delivery terms have no port of discharge.
 const NO_POD_TERMS = ['32432', '456', '43214', '567'];
@@ -63,7 +64,7 @@ export function InvoiceHeaderFields({
 
   return (
     <>
-      <Card style={{ gap: 14 }}>
+      <Card style={{ gap: spacing.md }}>
         <SectionHeader title="Shipping" style={{ marginBottom: 0 }} />
         <Select
           label="Origin"
@@ -106,7 +107,7 @@ export function InvoiceHeaderFields({
         </View>
       </Card>
 
-      <Card style={{ gap: 14 }}>
+      <Card style={{ gap: spacing.md }}>
         <SectionHeader title="Document" style={{ marginBottom: 0 }} />
         {/* Web: typing the client's contract # auto-links the matching sales contract;
             picking one from the list backfills the number. The screen does the match. */}

@@ -7,6 +7,7 @@ import { useTheme } from '@/theme/ThemeProvider';
 import { useSettings } from '@/store/settings';
 import { computeGradeSummary } from './gradeSummary';
 import { useGrades } from './useGrades';
+import { layout } from '@/theme/tokens';
 
 const fmtQ = (v: number) =>
   new Intl.NumberFormat('en-US', { maximumFractionDigits: 3 }).format(v || 0);
@@ -29,7 +30,7 @@ export function GradeSummaryCard({ dataTable, title = 'Avg cost price per grade'
   if (!rows.length) return null;
 
   return (
-    <Card style={{ marginBottom: 12 }}>
+    <Card style={{ marginBottom: layout.stack }}>
       <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10, marginBottom: 8 }}>
         <Text variant="label" tone="muted">
           {title}

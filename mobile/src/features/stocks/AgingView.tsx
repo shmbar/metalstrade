@@ -30,7 +30,7 @@ export function AgingView() {
   if (isLoading) return <View style={{ flex: 1 }}><SkeletonList /></View>;
   if (isError) return <ErrorState message={(error as Error)?.message || 'Failed to load stock.'} onRetry={refetch} />;
   if (byTerminal.length === 0) {
-    return <EmptyState title="No cargo on hand" message="Nothing to age." icon={<Ionicons name="time-outline" size={40} color={colors.textFaint} />} />;
+    return <EmptyState title="No cargo on hand" message="Nothing to age." icon={<Ionicons name="time-outline" size={24} color={colors.textFaint} />} />;
   }
 
   return (

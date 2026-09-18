@@ -27,7 +27,7 @@ export function StackHeader({
   onBack?: () => void;
 }) {
   return (
-    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: layout.headerGap }}>
+    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: layout.headerGap }}>
       <BackButton label={backLabel} onPress={onBack} />
       <View style={{ flex: 1, minWidth: 0 }}>
         <Text variant="h2" numberOfLines={1}>

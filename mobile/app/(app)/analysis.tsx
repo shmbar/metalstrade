@@ -9,6 +9,7 @@ import { useAnalysis } from '@/features/analysis/useAnalysis';
 import { WeightAnalysisView } from '@/features/analysis/WeightAnalysisView';
 import { fmtMoney } from '@/lib/format';
 import { StackHeader } from '@/components/StackHeader';
+import { layout } from '@/theme/tokens';
 
 const mt = (n: number) => `${fmtMoney(n, 1)} MT`;
 
@@ -28,7 +29,7 @@ export default function Analysis() {
     <Screen contentContainerStyle={{ paddingTop: insets.top + 8 }} edges={false} refreshing={isLoading} onRefresh={refetch}>
       <StackHeader title="Analysis" right={<PeriodSelector />} />
 
-      <View style={{ marginBottom: 12 }}>
+      <View style={{ marginBottom: layout.stack }}>
         <SegmentedControl
           value={tab}
           onChange={(v) => setTab(v as any)}
@@ -47,7 +48,7 @@ export default function Analysis() {
       ) : isError ? (
         <ErrorState message={(error as Error)?.message || 'Failed to load.'} onRetry={refetch} />
       ) : rows.length === 0 ? (
-        <EmptyState title="No data" message="No shipped invoices in the selected period." icon={<Ionicons name="bar-chart-outline" size={40} color={colors.textFaint} />} />
+        <EmptyState title="No data" message="No shipped invoices in the selected period." icon={<Ionicons name="bar-chart-outline" size={24} color={colors.textFaint} />} />
       ) : (
         <Card>
           <SectionHeader title={tab === 'material' ? 'Shipped weight by material' : 'Shipped weight by client'} subtitle={`Total ${mt(total)}`} />

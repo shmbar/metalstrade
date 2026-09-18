@@ -7,6 +7,7 @@ import { Text } from './Text';
 import { Avatar } from './Avatar';
 import { Pressable } from './Pressable';
 import { useTheme } from '@/theme/ThemeProvider';
+import { layout } from '@/theme/tokens';
 import { useCollapsible } from '@/lib/collapse';
 
 type IconName = React.ComponentProps<typeof Ionicons>['name'];
@@ -70,22 +71,22 @@ export function SectionCard({
           flexDirection: 'row',
           alignItems: 'center',
           gap: 10,
-          paddingHorizontal: 14,
-          paddingTop: 14,
-          paddingBottom: children && showRows ? 8 : 14,
+          paddingHorizontal: layout.cardInset,
+          paddingTop: layout.cardInset,
+          paddingBottom: children && showRows ? 6 : layout.cardInset,
         }}
       >
         <View
           style={{
-            width: 32,
-            height: 32,
-            borderRadius: 10,
+            width: layout.sectionIcon,
+            height: layout.sectionIcon,
+            borderRadius: 9,
             backgroundColor: colors.primary + '1A',
             alignItems: 'center',
             justifyContent: 'center',
           }}
         >
-          <Ionicons name={icon} size={17} color={colors.primary} />
+          <Ionicons name={icon} size={15} color={colors.primary} />
         </View>
         <View style={{ flex: 1, minWidth: 0 }}>
           <Text variant="h3" numberOfLines={1}>
@@ -103,7 +104,13 @@ export function SectionCard({
             {total}
           </Text>
         ) : null}
-        {collapsible ? <Icon name={open ? 'chevron-up' : 'chevron-down'} size={16} color={colors.textFaint} /> : null}
+        {/* The same trailing slot the rows keep, so the header total and the row figures
+            share one right edge. */}
+        {collapsible ? (
+          <Icon name={open ? 'chevron-up' : 'chevron-down'} size={layout.trailing} color={colors.textFaint} />
+        ) : (
+          <View style={{ width: layout.trailing }} />
+        )}
       </Header>
       {showRows ? children : null}
     </Card>
@@ -144,14 +151,14 @@ export function EntityRow({
       style={{
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 12,
-        paddingHorizontal: 14,
-        paddingVertical: 12,
+        gap: 10,
+        paddingHorizontal: layout.cardInset,
+        paddingVertical: layout.rowPad,
         borderTopWidth: first ? 0 : 1,
         borderTopColor: colors.border,
       }}
     >
-      {avatar ? <Avatar name={name} size={34} /> : null}
+      {avatar ? <Avatar name={name} size={layout.leading} /> : null}
       <View style={{ flex: 1, minWidth: 0 }}>
         <Text variant="bodyMedium" numberOfLines={1}>
           {name}
@@ -172,7 +179,13 @@ export function EntityRow({
           {value}
         </Text>
       ) : null}
-      {onPress ? <Ionicons name="chevron-forward" size={16} color={colors.textFaint} /> : null}
+      {/* A row without a chevron keeps the chevron's width, so every figure in the card
+          ends on the same line — a pressable row and a plain one used to differ by 26pt. */}
+      {onPress ? (
+        <Ionicons name="chevron-forward" size={layout.trailing} color={colors.textFaint} />
+      ) : (
+        <View style={{ width: layout.trailing }} />
+      )}
     </Pressable>
   );
 }

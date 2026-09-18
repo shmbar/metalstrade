@@ -11,7 +11,7 @@ import { useMiscInvoices, useSetMiscCategory, MISC_CATS, MiscRow, MiscCat } from
 import { apiConfigured, postJson } from '@/lib/api';
 import { curSymbol, fmtMoney } from '@/lib/format';
 import { StackHeader } from '@/components/StackHeader';
-import { LIST_END_PADDING } from '@/theme/tokens';
+import { LIST_END_PADDING, layout, spacing } from '@/theme/tokens';
 import { haptics } from '@/lib/haptics';
 import { keyboardScrollProps } from '@/lib/keyboard';
 
@@ -88,7 +88,7 @@ export default function MiscInvoices() {
       ) : isError ? (
         <ErrorState message={(error as Error)?.message || 'Failed to load.'} onRetry={refetch} />
       ) : rows.length === 0 ? (
-        <EmptyState title="No misc invoices" message="None in the selected period." icon={<Ionicons name="receipt-outline" size={40} color={colors.textFaint} />} />
+        <EmptyState title="No misc invoices" message="None in the selected period." icon={<Ionicons name="receipt-outline" size={24} color={colors.textFaint} />} />
       ) : (
         <FlatList
         {...keyboardScrollProps} keyboardShouldPersistTaps="handled"
@@ -100,7 +100,7 @@ export default function MiscInvoices() {
           refreshing={isLoading}
           ListHeaderComponent={
             <View>
-              <Card style={{ marginBottom: 12 }}>
+              <Card style={{ marginBottom: layout.stack }}>
                 <SectionHeader title="Totals" subtitle={`${rows.length} invoice(s)`} />
                 {/* Web renders BOTH currency rows explicitly, always — with the
                     weight sum beside the amount, at 2 decimals (not $K/$M). */}
@@ -125,7 +125,7 @@ export default function MiscInvoices() {
             </View>
           }
           renderItem={({ item }) => (
-            <Card style={{ marginBottom: 12 }} onPress={() => setEditing(item)}>
+            <Card style={{ marginBottom: layout.stack }} onPress={() => setEditing(item)}>
               <View style={{ flexDirection: 'row', justifyContent: 'space-between', gap: 12 }}>
                 <View style={{ flex: 1, minWidth: 0 }}>
                   <Text variant="h3" numberOfLines={1}>{item.description || item.invoice || 'Invoice'}</Text>
@@ -205,7 +205,7 @@ function TotalRow({ label, qnty, amount, sym, first }: { label: string; qnty: nu
       }}
     >
       <Text variant="bodyMedium">{label}</Text>
-      <View style={{ flexDirection: 'row', gap: 14 }}>
+      <View style={{ flexDirection: 'row', gap: spacing.md }}>
         <Text variant="body" tone="muted" style={{ fontVariant: ['tabular-nums'] }}>
           {new Intl.NumberFormat('en-US', { maximumFractionDigits: 3 }).format(qnty || 0)}
         </Text>
@@ -232,7 +232,7 @@ function SupplierSummary({
       .map(([c, v]) => `${curSymbol(c)}${fmtMoney(v)}`)
       .join('  ') || '$0.00';
   return (
-    <Card style={{ marginBottom: 12 }}>
+    <Card style={{ marginBottom: layout.stack }}>
       <Text variant="label" tone="muted" style={{ marginBottom: 8 }}>{title}</Text>
       {groups.map((g, i) => (
         <View

@@ -5,7 +5,7 @@ import { useTheme } from '@/theme/ThemeProvider';
 import { Contract } from '@/data/types';
 import { deriveContract } from './useContracts';
 import { initials } from '@/lib/format';
-import { radius } from '@/theme/tokens';
+import { radius, layout } from '@/theme/tokens';
 
 export function ContractCard({
   contract,
@@ -21,7 +21,7 @@ export function ContractCard({
   const accent = (contract as any).completed ? colors.positive : v.invoiceCount > 0 ? colors.info : colors.primary;
 
   return (
-    <Card onPress={onPress} style={{ marginBottom: 12, overflow: 'hidden' }}>
+    <Card onPress={onPress} style={{ marginBottom: layout.stack, overflow: 'hidden' }}>
       {/* Status accent — short rounded bar pinned to the left edge */}
       <View style={{ position: 'absolute', left: 0, top: 16, bottom: 16, width: 3.5, borderTopRightRadius: 4, borderBottomRightRadius: 4, backgroundColor: accent }} />
 
@@ -30,7 +30,7 @@ export function ContractCard({
         {/* Header: avatar + PO/supplier · value/tonnage */}
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 12 }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 11, flex: 1, minWidth: 0 }}>
-            <View style={{ width: 40, height: 40, borderRadius: radius.md, backgroundColor: accent + '1c', alignItems: 'center', justifyContent: 'center' }}>
+            <View style={{ width: layout.leading, height: layout.leading, borderRadius: radius.md, backgroundColor: accent + '1c', alignItems: 'center', justifyContent: 'center' }}>
               <Text variant="label" color={accent}>{initials(v.supplierName)}</Text>
             </View>
             <View style={{ flex: 1, minWidth: 0 }}>

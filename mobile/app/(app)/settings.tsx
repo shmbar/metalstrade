@@ -9,7 +9,7 @@ import { useTheme } from '@/theme/ThemeProvider';
 import { useAuth } from '@/store/auth';
 import { useSettings } from '@/store/settings';
 import { loadGrades } from '@/data/firestore';
-import { radius } from '@/theme/tokens';
+import { radius, layout } from '@/theme/tokens';
 import { StackHeader } from '@/components/StackHeader';
 import { useShallow } from 'zustand/react/shallow';
 
@@ -44,9 +44,9 @@ function NavRow({
     <Pressable
       onPress={onPress}
       accessibilityRole="button"
-      style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingHorizontal: 14, paddingVertical: 12, borderTopWidth: first ? 0 : 1, borderTopColor: colors.border }}
+      style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingHorizontal: layout.cardInset, paddingVertical: layout.rowPad, borderTopWidth: first ? 0 : 1, borderTopColor: colors.border }}
     >
-      <View style={{ width: 36, height: 36, borderRadius: radius.md, backgroundColor: colors.primary + '18', alignItems: 'center', justifyContent: 'center' }}>
+      <View style={{ width: layout.leading, height: layout.leading, borderRadius: radius.md, backgroundColor: colors.primary + '18', alignItems: 'center', justifyContent: 'center' }}>
         <Ionicons name={icon} size={18} color={colors.primary} />
       </View>
       <View style={{ flex: 1, minWidth: 0 }}>

@@ -32,7 +32,7 @@ import {
 } from '@/features/materials/tableMath';
 import { StackHeader } from '@/components/StackHeader';
 import { useRevealOnFocus } from '@/lib/keyboard';
-import { typography } from '@/theme/tokens';
+import { typography, layout } from '@/theme/tokens';
 
 const COL = 56; // element column width
 const COST_COL = 76;
@@ -66,9 +66,9 @@ export default function Materials() {
       ) : isError ? (
         <ErrorState message={(error as Error)?.message || 'Failed to load materials.'} onRetry={refetch} />
       ) : !data || data.length === 0 ? (
-        <EmptyState title="No material tables" icon={<Ionicons name="grid-outline" size={40} color={colors.textFaint} />} />
+        <EmptyState title="No material tables" icon={<Ionicons name="grid-outline" size={24} color={colors.textFaint} />} />
       ) : (
-        <View style={{ gap: 14 }}>
+        <View style={{ gap: layout.stack }}>
           <GrandTotals tables={data} />
           {data.map((table: any, ti: number) => {
             const elements = (table.elements && table.elements.length ? table.elements : DEFAULT_ELEMENTS) as { key: string; label: string }[];
@@ -109,14 +109,14 @@ export default function Materials() {
 
             return (
               <Card key={table.id || ti} padded={false}>
-                <View style={{ padding: 14, paddingBottom: 8 }}>
+                <View style={{ padding: layout.cardInset, paddingBottom: 6 }}>
                   <Text variant="h3">{table.name || table.nname || `Table ${ti + 1}`}</Text>
                   <Text variant="caption" tone="faint">
                     {rows.length} material{rows.length === 1 ? '' : 's'} · {unit}
                   </Text>
                 </View>
 
-                <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 14, paddingBottom: 14 }}>
+                <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: layout.cardInset, paddingBottom: layout.cardInset }}>
                   <View>
                     {/* Header */}
                     <View style={{ flexDirection: 'row', borderBottomWidth: 1, borderBottomColor: colors.borderStrong, paddingBottom: 6 }}>
@@ -219,7 +219,7 @@ export default function Materials() {
                   </View>
                 </ScrollView>
                 {editing && (
-                  <View style={{ flexDirection: 'row', gap: 12, paddingHorizontal: 14, paddingBottom: 14 }}>
+                  <View style={{ flexDirection: 'row', gap: 12, paddingHorizontal: layout.cardInset, paddingBottom: layout.cardInset }}>
                     <Pressable onPress={() => addRow(table.id)} hitSlop={8} style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
                       <Ionicons name="add-circle-outline" size={16} color={colors.primary} />
                       <Text variant="caption" tone="primary">Add row</Text>
@@ -256,11 +256,11 @@ function GrandTotals({ tables }: { tables: any[] }) {
 
   return (
     <Card padded={false}>
-      <View style={{ padding: 14, paddingBottom: 8 }}>
+      <View style={{ padding: layout.cardInset, paddingBottom: 6 }}>
         <Text variant="h3">Total</Text>
         <Text variant="caption" tone="faint">Across all {tables.length} table{tables.length === 1 ? '' : 's'}</Text>
       </View>
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 14, paddingBottom: 14 }}>
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: layout.cardInset, paddingBottom: layout.cardInset }}>
         <View>
           <View style={{ flexDirection: 'row', borderBottomWidth: 1, borderBottomColor: colors.borderStrong, paddingBottom: 6 }}>
             <Text variant="tableStrong" tone="muted" style={{ width: COL, textAlign: 'right' }}>Kgs</Text>

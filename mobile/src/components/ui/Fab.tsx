@@ -74,7 +74,7 @@ export function Fab({ onPress, icon = 'add', label, extended = true, accessibili
           position: 'absolute',
           right: 16,
           bottom,
-          height: 56,
+          height: 52,
           minWidth: 56,
           paddingHorizontal: showLabel ? 20 : 0,
           borderRadius: 28,

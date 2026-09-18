@@ -17,6 +17,7 @@ import { loadDocByIdDate } from '@/data/firestore';
 import { newId } from '@/data/writes';
 import { num } from '@shared/finance';
 import { curSymbol, fmtMoney } from '@/lib/format';
+import { layout, spacing } from '@/theme/tokens';
 
 const NOTE_LABEL: Record<string, string> = { '2222': 'Credit note', '3333': 'Final note' };
 
@@ -176,8 +177,8 @@ export default function NewInvoice() {
         backLabel="Cancel"
       />
 
-      <View style={{ gap: 14 }}>
-        <Card style={{ gap: 14 }}>
+      <View style={{ gap: layout.stack }}>
+        <Card style={{ gap: spacing.md }}>
           <Select label="Client" value={String(inv.client || '')} options={clientOptions} onChange={(v) => set({ client: v })} required />
           <Select label="Shipment" value={String(inv.shpType || '')} options={shipOptions} onChange={(v) => set({ shpType: v })} required />
           <DateField label={isNote ? `${noteLabel} date` : 'Invoice date'} required value={inv.dateRange?.startDate} onChange={(iso) => set({ dateRange: { startDate: iso, endDate: iso } })} />
@@ -205,7 +206,7 @@ export default function NewInvoice() {
             right={<Text variant="h3" tone="primary">{sym}{fmtMoney(total)}</Text>}
           />
           {lines.map((l: any, i: number) => (
-            <View key={l.id} style={{ gap: 10, paddingVertical: 12, borderTopWidth: i === 0 ? 0 : 1, borderTopColor: colors.border }}>
+            <View key={l.id} style={{ gap: 10, paddingVertical: layout.rowPad, borderTopWidth: i === 0 ? 0 : 1, borderTopColor: colors.border }}>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
                 <Text variant="label" tone="faint" style={{ width: 18 }}>{i + 1}</Text>
                 <View style={{ flex: 1 }}>

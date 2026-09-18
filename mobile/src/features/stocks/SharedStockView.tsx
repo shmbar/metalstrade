@@ -4,7 +4,7 @@ import { Pressable } from '@/components/ui/Pressable';
 import { Ionicons } from '@expo/vector-icons';
 import { Card, Text, Select, TextField, Button, LoadingState, ErrorState, Sheet, Chip, IconButton } from '@/components/ui';
 import { useTheme } from '@/theme/ThemeProvider';
-import { radius, spacing, LIST_END_PADDING } from '@/theme/tokens';
+import { radius, spacing, LIST_END_PADDING, layout } from '@/theme/tokens';
 import { GradeSummaryCard } from './GradeSummaryCard';
 import {
   useSharedStock, blankLot, financedOf, OWNERS, FINANCING, Financing, SharedLot,
@@ -154,7 +154,7 @@ export function SharedStockView() {
         ) : (
           <>
             {rows.map((r) => (
-              <Card key={r.id} style={{ marginBottom: 12 }} onPress={() => openEdit(r)}>
+              <Card key={r.id} style={{ marginBottom: layout.stack }} onPress={() => openEdit(r)}>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', gap: 12 }}>
                   <View style={{ flex: 1, minWidth: 0 }}>
                     <Text variant="h3" numberOfLines={2}>{r.descriptionName}</Text>
@@ -181,7 +181,7 @@ export function SharedStockView() {
             ))}
 
             {/* Bottom summary: total value + who finances how much (web parity). */}
-            <Card style={{ marginBottom: 12 }}>
+            <Card style={{ marginBottom: layout.stack }}>
               <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 3 }}>
                 <Text variant="body" tone="muted">Total</Text>
                 <Text variant="bodyMedium">{fmtQ(totalMt)} MT · {fmtMoneyMap(money.totals)}</Text>

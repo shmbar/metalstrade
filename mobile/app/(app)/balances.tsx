@@ -10,7 +10,7 @@ import { useInvoicesReview, PartyStatement } from '@/features/review/useInvoices
 import { curSymbol, fmtMoney } from '@/lib/format';
 import { StackHeader } from '@/components/StackHeader';
 import { matchesAllWords, searchWords } from '@shared/search';
-import { LIST_END_PADDING } from '@/theme/tokens';
+import { LIST_END_PADDING, layout } from '@/theme/tokens';
 import { keyboardScrollProps } from '@/lib/keyboard';
 
 /**
@@ -60,7 +60,7 @@ export default function Balances() {
     <Screen scroll={false} flush contentContainerStyle={{ paddingTop: insets.top + 8 }} edges={false}>
       <StackHeader title="Balances" right={<PeriodSelector />} />
 
-      <View style={{ marginBottom: 12 }}>
+      <View style={{ marginBottom: layout.stack }}>
         <SegmentedControl
           value={side}
           onChange={(v) => setSide(v as Side)}
@@ -76,7 +76,7 @@ export default function Balances() {
         onChangeText={setSearch}
         placeholder={side === 'clients' ? 'Search client…' : 'Search supplier…'}
       />
-      <View style={{ height: 12 }} />
+      <View style={{ height: 8 }} />
 
       {isLoading ? (
         <SkeletonList />
@@ -92,7 +92,7 @@ export default function Balances() {
                 ? 'Every client invoice in this period is settled.'
                 : 'Every supplier balance in this period is settled.'
           }
-          icon={<Ionicons name="checkmark-circle-outline" size={40} color={colors.textFaint} />}
+          icon={<Ionicons name="checkmark-circle-outline" size={24} color={colors.textFaint} />}
         />
       ) : (
         <FlatList
@@ -104,7 +104,7 @@ export default function Balances() {
           onRefresh={refetch}
           refreshing={isLoading}
           ListHeaderComponent={
-            <Card style={{ marginBottom: 12 }}>
+            <Card style={{ marginBottom: layout.stack }}>
               <Text variant="label" tone="muted" style={{ marginBottom: 8 }}>
                 {side === 'clients' ? 'Total outstanding' : 'Total payable'} · {rows.length}{' '}
                 {side === 'clients' ? 'client' : 'supplier'}
@@ -146,7 +146,7 @@ export default function Balances() {
               }
             >
               <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 12 }}>
-                <Avatar name={item.name} size={40} />
+                <Avatar name={item.name} size={layout.leading} />
                 <View style={{ flex: 1, minWidth: 0 }}>
                   <Text variant="bodyMedium" numberOfLines={1}>
                     {item.name}

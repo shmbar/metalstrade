@@ -10,7 +10,7 @@ import { Screen, Card, Text, Button, LoadingState, ErrorState, EmptyState, Stack
 import { useTheme } from '@/theme/ThemeProvider';
 import { listFiles, uploadFile, deleteFile } from '@/data/storage';
 import { toast } from '@/store/toast';
-import { radius } from '@/theme/tokens';
+import { radius, layout } from '@/theme/tokens';
 
 const iconFor = (name: string): keyof typeof Ionicons.glyphMap => {
   const n = name.toLowerCase();
@@ -72,13 +72,13 @@ export default function ContractFiles() {
       ) : isError ? (
         <ErrorState message={(error as Error)?.message || 'Failed to load files.'} onRetry={refetch} />
       ) : !data || data.length === 0 ? (
-        <EmptyState title="No attachments" message="Upload contracts, certificates or documents here." icon={<Ionicons name="folder-open-outline" size={40} color={colors.textFaint} />} />
+        <EmptyState title="No attachments" message="Upload contracts, certificates or documents here." icon={<Ionicons name="folder-open-outline" size={24} color={colors.textFaint} />} />
       ) : (
         <View style={{ gap: 10 }}>
           {data.map((f) => (
             <Card key={f.name} padded={false}>
               <Pressable onPress={() => Linking.openURL(f.url)} style={{ flexDirection: 'row', alignItems: 'center', gap: 12, padding: 14 }}>
-                <View style={{ width: 36, height: 36, borderRadius: radius.md, backgroundColor: colors.primary + '18', alignItems: 'center', justifyContent: 'center' }}>
+                <View style={{ width: layout.leading, height: layout.leading, borderRadius: radius.md, backgroundColor: colors.primary + '18', alignItems: 'center', justifyContent: 'center' }}>
                   <Ionicons name={iconFor(f.name)} size={18} color={colors.primary} />
                 </View>
                 <Text variant="bodyMedium" style={{ flex: 1 }} numberOfLines={1}>{f.name}</Text>

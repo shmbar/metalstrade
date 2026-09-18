@@ -8,6 +8,7 @@ import { InventoryView } from '@/features/stocks/InventoryView';
 import { StorageView } from '@/features/stocks/StorageView';
 import { AgingView } from '@/features/stocks/AgingView';
 import { SharedStockView } from '@/features/stocks/SharedStockView';
+import { layout } from '@/theme/tokens';
 
 type Tab = 'inventory' | 'shared' | 'storage' | 'aging';
 
@@ -34,7 +35,7 @@ export default function StocksScreen() {
         right={tab === 'storage' ? <PeriodSelector /> : undefined}
       />
 
-      <View style={{ marginBottom: 12 }}>
+      <View style={{ marginBottom: layout.stack }}>
         <SegmentedControl
           value={tab}
           onChange={setTab}

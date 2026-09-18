@@ -20,6 +20,7 @@ import { useAuth } from '@/store/auth';
 import { num } from '@shared/finance';
 import { StackHeader } from '@/components/StackHeader';
 import { useShallow } from 'zustand/react/shallow';
+import { layout } from '@/theme/tokens';
 
 const COLS = [
   { key: 'invoice', label: 'Invoice', w: 90, money: false },
@@ -108,7 +109,7 @@ export default function AccStatement() {
       </Card>
 
       {!ready ? (
-        <EmptyState title="Pick a client & period" message="Choose a client and a mid/end-month period to load the statement." icon={<Ionicons name="reader-outline" size={40} color={colors.textFaint} />} />
+        <EmptyState title="Pick a client & period" message="Choose a client and a mid/end-month period to load the statement." icon={<Ionicons name="reader-outline" size={24} color={colors.textFaint} />} />
       ) : isLoading ? (
         <SkeletonList count={6} />
       ) : isError ? (
@@ -117,7 +118,7 @@ export default function AccStatement() {
         <EmptyState title="No statement" message="No statement found for this client and period." />
       ) : (
         <Card padded={false}>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ padding: 14 }}>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ padding: layout.cardInset }}>
             <View>
               {/* Header */}
               <View style={{ flexDirection: 'row', borderBottomWidth: 1, borderBottomColor: colors.borderStrong, paddingBottom: 6 }}>

@@ -368,8 +368,10 @@ const Expenses = () => {
                         </div>
 
                         {/* Modal */}
+                        {/* "Existing" only once it is: the title said so before anything
+                            was saved, which read as "this is already in". */}
                         <MyDetailsModal isOpen={isOpen} setIsOpen={setIsOpen}
-                            title={getTtl('Existing Expense', ln)} />
+                            title={valueExp?.id ? getTtl('Existing Expense', ln) : getTtl('New Expense', ln)} />
                     </>
                 }
             </div>

@@ -6,6 +6,7 @@ import { useTheme } from '@/theme/ThemeProvider';
 import { INCOTERMS, MODE_FILTERS } from '@/features/incoterms/data';
 import { StackHeader } from '@/components/StackHeader';
 import { matchesAllWords, searchWords } from '@shared/search';
+import { layout } from '@/theme/tokens';
 
 function Responsibility({ label, value }: { label: string; value: string }) {
   const { colors } = useTheme();
@@ -48,7 +49,7 @@ export default function Incoterms() {
       {list.length === 0 ? (
         <EmptyState title="No matches" message="Try a different search or filter." />
       ) : (
-        <View style={{ gap: 14 }}>
+        <View style={{ gap: layout.stack }}>
           {list.map((t) => (
             <Card key={t.code}>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 8 }}>

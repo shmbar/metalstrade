@@ -30,8 +30,8 @@ export function Badge({ label, tone = 'neutral' }: { label: string; tone?: Badge
         borderWidth: 1,
         borderColor: colors.border,
         borderRadius: radius.pill,
-        paddingHorizontal: 8,
-        paddingVertical: 3,
+        paddingHorizontal: 7,
+        paddingVertical: 2,
       }}
     >
       <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: dot[tone] }} />

@@ -51,7 +51,7 @@ export function DateField({ label, value, onChange, required, error }: DateField
   };
 
   return (
-    <View style={{ gap: 6 }}>
+    <View style={{ gap: 4 }}>
       {label && (
         <Text variant="label" tone="muted">
           {label}
@@ -69,7 +69,7 @@ export function DateField({ label, value, onChange, required, error }: DateField
           borderWidth: 1,
           borderColor: error ? colors.negative : colors.borderStrong,
           paddingHorizontal: spacing.md,
-          paddingVertical: 12,
+          paddingVertical: 10,
           minHeight: layout.controlHeight,
           gap: 8,
         }}

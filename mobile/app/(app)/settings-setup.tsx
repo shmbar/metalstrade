@@ -8,6 +8,7 @@ import { Pressable } from '@/components/ui/Pressable';
 import { StackHeader } from '@/components/StackHeader';
 import { useTheme } from '@/theme/ThemeProvider';
 import { useSettings } from '@/store/settings';
+import { layout } from '@/theme/tokens';
 
 /*
  * Settings → Setup — web settings/tabs/setup.js. Every dropdown list in the account's
@@ -49,7 +50,7 @@ export default function SettingsSetup() {
               key={l.key}
               onPress={() => router.push(`/(app)/config-editor?cat=${encodeURIComponent(l.key)}&title=${encodeURIComponent(l.key)}`)}
               accessibilityRole="button"
-              style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingHorizontal: 14, paddingVertical: 12, borderTopWidth: i ? 1 : 0, borderTopColor: colors.border }}
+              style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingHorizontal: layout.cardInset, paddingVertical: layout.rowPad, borderTopWidth: i ? 1 : 0, borderTopColor: colors.border }}
             >
               <Text variant="body" style={{ flex: 1 }}>{l.key}</Text>
               <Text variant="bodyMedium" tone="muted" style={{ fontVariant: ['tabular-nums'] }}>{l.count}</Text>

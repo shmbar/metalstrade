@@ -11,7 +11,7 @@ import { useInvoicesReview, PartyStatement } from '@/features/review/useInvoices
 import { fmtCurKM } from '@/lib/format';
 import { StackHeader } from '@/components/StackHeader';
 import { matchesAllWords, searchWords } from '@shared/search';
-import { LIST_END_PADDING } from '@/theme/tokens';
+import { LIST_END_PADDING, layout } from '@/theme/tokens';
 import { keyboardScrollProps } from '@/lib/keyboard';
 
 const curLine = (byCur: Record<string, number>) => {
@@ -51,7 +51,7 @@ export default function InvoicesReview() {
     <Screen scroll={false} flush contentContainerStyle={{ paddingTop: insets.top + 8 }} edges={false}>
       <StackHeader title="Invoices Review" right={<PeriodSelector />} />
 
-      <View style={{ marginBottom: 12 }}>
+      <View style={{ marginBottom: layout.stack }}>
         <SegmentedControl
           value={tab}
           onChange={(v) => setTab(v as any)}
@@ -65,7 +65,7 @@ export default function InvoicesReview() {
       {tab === 'review' && (
         <>
           <SearchField value={search} onChangeText={setSearch} placeholder="Search invoice # or client…" />
-          <View style={{ height: 12 }} />
+          <View style={{ height: 8 }} />
         </>
       )}
 
@@ -75,7 +75,7 @@ export default function InvoicesReview() {
         <ErrorState message={(error as Error)?.message || 'Failed to load.'} onRetry={refetch} />
       ) : tab === 'review' ? (
         filtered.length === 0 ? (
-          <EmptyState title="No invoices" message="None in the selected period." icon={<Ionicons name="receipt-outline" size={40} color={colors.textFaint} />} />
+          <EmptyState title="No invoices" message="None in the selected period." icon={<Ionicons name="receipt-outline" size={24} color={colors.textFaint} />} />
         ) : (
           <FlatList
         {...keyboardScrollProps} keyboardShouldPersistTaps="handled"
@@ -98,7 +98,7 @@ export default function InvoicesReview() {
           onRefresh={refetch}
           refreshing={isLoading}
           renderItem={() => (
-            <View style={{ gap: 14 }}>
+            <View style={{ gap: layout.stack }}>
               <Card>
                 <SectionHeader title="Clients · receivables" subtitle="Outstanding by client" />
                 <PartyList rows={clients} accent={colors.positive} />

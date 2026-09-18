@@ -18,18 +18,14 @@ import { useShallow } from 'zustand/react/shallow';
 
 export { AppErrorBoundary as ErrorBoundary } from '@/components/AppErrorBoundary';
 
-// Premium tab icon: fills on focus + a small active dot underneath.
-function tabIcon(base: string, activeColor: string) {
+// Tab icon: outline at rest, filled and tinted when selected — the way iOS's own tab bars
+// show the active tab. There used to be a 5pt "active dot" drawn UNDER the icon as part of
+// the layout: it took 8pt from a bar that had none to spare, pushed the label down, and
+// read as a notification badge (client, 2026-09-18: "notification dots are not positioned
+// correctly"). The filled icon and colour already say which tab is active.
+function tabIcon(base: string) {
   return ({ focused, color, size }: { focused: boolean; color: any; size: number }) => (
-    <View style={{ alignItems: 'center', justifyContent: 'center', width: 44 }}>
-      <Ionicons name={(focused ? base : `${base}-outline`) as any} size={size ?? 22} color={color} />
-      <View
-        style={{
-          width: 5, height: 5, borderRadius: 3, marginTop: 3,
-          backgroundColor: focused ? activeColor : 'transparent',
-        }}
-      />
-    </View>
+    <Ionicons name={(focused ? base : `${base}-outline`) as any} size={size ?? 22} color={color} />
   );
 }
 
@@ -112,41 +108,45 @@ export default function AppLayout() {
         freezeOnBlur: true,
         tabBarActiveTintColor: colors.tabActive,
         tabBarInactiveTintColor: colors.tabInactive,
+        // iOS's own tab bar is 49pt + the home-indicator inset. Icon 22, a 2pt gap, label 10:
+        // everything fits with room, on every phone, without negative margins.
         tabBarStyle: {
           backgroundColor: colors.tabBar,
           borderTopWidth: 1,
           borderTopColor: colors.border,
-          height: 60 + insets.bottom,
-          paddingBottom: insets.bottom > 0 ? insets.bottom - 2 : 8,
-          paddingTop: 8,
+          height: 49 + insets.bottom,
+          paddingBottom: insets.bottom,
+          paddingTop: 6,
           ...getShadow(scheme, 'lg'),
         },
+        tabBarItemStyle: { paddingVertical: 0 },
+        tabBarIconStyle: { marginBottom: 0 },
         tabBarAllowFontScaling: false,
-        tabBarLabelStyle: { fontFamily: typography.overline.fontFamily, fontSize: typography.overline.fontSize, marginTop: -2 },
+        tabBarLabelStyle: { fontFamily: typography.overline.fontFamily, fontSize: typography.overline.fontSize, lineHeight: 12, marginTop: 2 },
       }}
     >
       <Tabs.Screen
         name="index"
-        options={{ title: 'Dashboard', tabBarIcon: tabIcon('grid', colors.tabActive), href: canRoute('index') ? undefined : null }}
+        options={{ title: 'Dashboard', tabBarIcon: tabIcon('grid'), href: canRoute('index') ? undefined : null }}
       />
       <Tabs.Screen
         name="contracts"
-        options={{ title: 'Contracts', tabBarIcon: tabIcon('document-text', colors.tabActive), href: canRoute('contracts') ? undefined : null }}
+        options={{ title: 'Contracts', tabBarIcon: tabIcon('document-text'), href: canRoute('contracts') ? undefined : null }}
       />
       <Tabs.Screen
         name="invoices"
-        options={{ title: 'Invoices', tabBarIcon: tabIcon('receipt', colors.tabActive), href: canRoute('invoices') ? undefined : null }}
+        options={{ title: 'Invoices', tabBarIcon: tabIcon('receipt'), href: canRoute('invoices') ? undefined : null }}
       />
       <Tabs.Screen
         name="stocks"
-        options={{ title: 'Stocks', tabBarIcon: tabIcon('cube', colors.tabActive), href: canRoute('stocks') ? undefined : null }}
+        options={{ title: 'Stocks', tabBarIcon: tabIcon('cube'), href: canRoute('stocks') ? undefined : null }}
       />
       {/* Client feedback (2026-09-03, Sharon): the Cashflow page belongs on the
           bottom bar, not Balances — Balances moves to More instead, same slot
           Cashflow used to sit in. */}
       <Tabs.Screen
         name="cashflow"
-        options={{ title: 'Cashflow', tabBarIcon: tabIcon('cash', colors.tabActive), href: canRoute('cashflow') ? undefined : null }}
+        options={{ title: 'Cashflow', tabBarIcon: tabIcon('cash'), href: canRoute('cashflow') ? undefined : null }}
       />
       {/* Routable but not shown in the tab bar (opened from More). */}
       <Tabs.Screen name="balances" options={{ href: null }} />
@@ -167,7 +167,7 @@ export default function AppLayout() {
         name="accounting"
         options={
           homeIsAccounting
-            ? { title: 'Accounting', tabBarIcon: tabIcon('reader', colors.tabActive) }
+            ? { title: 'Accounting', tabBarIcon: tabIcon('reader') }
             : { href: null }
         }
       />

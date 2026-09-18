@@ -19,7 +19,7 @@ import { exportPdf } from '@/lib/export';
 import { invoiceHtml } from '@/lib/pdfTemplates';
 import { num } from '@shared/finance';
 import { curSymbol, fmtMoney, fmtCurKM, dateLabel } from '@/lib/format';
-import { spacing } from '@/theme/tokens';
+import { spacing, layout } from '@/theme/tokens';
 import { toast } from '@/store/toast';
 import { CommentsSheet } from '@/components/CommentsSheet';
 import { HistorySheet } from '@/components/HistorySheet';
@@ -80,7 +80,7 @@ export default function InvoiceDetail() {
         <EmptyState
           title="Invoice not found"
           message="Open it from the invoices list."
-          icon={<Ionicons name="receipt-outline" size={40} color={colors.textFaint} />}
+          icon={<Ionicons name="receipt-outline" size={24} color={colors.textFaint} />}
         />
       </Screen>
     );
@@ -181,7 +181,7 @@ export default function InvoiceDetail() {
       </View>
 
       {/* Title */}
-      <View style={{ marginTop: 12, marginBottom: 16 }}>
+      <View style={{ marginTop: 8, marginBottom: layout.stack }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
           <Avatar name={view.clientName} size={48} />
           <View style={{ flex: 1, minWidth: 0 }}>
@@ -202,7 +202,7 @@ export default function InvoiceDetail() {
       <View style={{ flexDirection: 'row', gap: 12, marginBottom: 12 }}>
         <Card style={{ flex: 1 }}>
           <Text variant="label" tone="muted">Total</Text>
-          <Text variant="stat" style={{ marginTop: 6 }} numberOfLines={1} adjustsFontSizeToFit>
+          <Text variant="stat" style={{ marginTop: 4 }} numberOfLines={1} adjustsFontSizeToFit>
             {fmtCurKM(view.cur, view.total)}
           </Text>
           <Text variant="caption" tone="faint" numberOfLines={1} style={{ fontVariant: ['tabular-nums'] }}>
@@ -211,7 +211,7 @@ export default function InvoiceDetail() {
         </Card>
         <Card style={{ flex: 1 }}>
           <Text variant="label" tone="muted">Paid</Text>
-          <Text variant="stat" tone="positive" style={{ marginTop: 6 }} numberOfLines={1} adjustsFontSizeToFit>
+          <Text variant="stat" tone="positive" style={{ marginTop: 4 }} numberOfLines={1} adjustsFontSizeToFit>
             {fmtCurKM(view.cur, view.paid)}
           </Text>
           <Text variant="caption" tone="faint" numberOfLines={1} style={{ fontVariant: ['tabular-nums'] }}>
@@ -233,7 +233,7 @@ export default function InvoiceDetail() {
       </View>
 
       {/* Prepayment balance (web's "Balance" column) + IMS/GIS split */}
-      <Card style={{ marginBottom: 12 }}>
+      <Card style={{ marginBottom: layout.stack }}>
         {view.prepayBalanceLabel != null && (
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 10 }}>
             <Text variant="body" tone="muted">Balance (after prepayment)</Text>
@@ -251,7 +251,7 @@ export default function InvoiceDetail() {
       </Card>
 
       {/* Products */}
-      <Card style={{ marginBottom: 12 }}>
+      <Card style={{ marginBottom: layout.stack }}>
         <SectionHeader title="Materials" subtitle={`${products.length} line item(s)`} />
         {products.length === 0 ? (
           <Text variant="body" tone="muted">No materials on this invoice.</Text>

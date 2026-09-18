@@ -13,7 +13,7 @@ import { useAllStockLots, STOCK_LOTS_KEY } from '@/features/stocks/useAllStockLo
 import { curSymbol, fmtMoney } from '@/lib/format';
 import { haptics } from '@/lib/haptics';
 import { StackHeader } from '@/components/StackHeader';
-import { LIST_END_PADDING } from '@/theme/tokens';
+import { LIST_END_PADDING, layout } from '@/theme/tokens';
 import { keyboardScrollProps } from '@/lib/keyboard';
 
 const fmtQ = (v: number) => new Intl.NumberFormat('en-US', { minimumFractionDigits: 3, maximumFractionDigits: 3 }).format(v || 0);
@@ -82,7 +82,7 @@ export default function StockAudit() {
         balance and lets you write off the ones that are not factual; the other tabs are read-only reports.
       </Text>
 
-      <View style={{ marginBottom: 12 }}>
+      <View style={{ marginBottom: layout.stack }}>
         <SegmentedControl
           value={tab}
           onChange={(v) => { setTab(v as Tab); setSel([]); }}

@@ -19,6 +19,7 @@ import { annexViiHtml, isfHtml } from '@/lib/customsDocs';
 import { CommentsSheet } from '@/components/CommentsSheet';
 import { HistorySheet } from '@/components/HistorySheet';
 import { useShallow } from 'zustand/react/shallow';
+import { layout } from '@/theme/tokens';
 
 export default function ContractDetail() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -84,7 +85,7 @@ export default function ContractDetail() {
         <EmptyState
           title="Contract not found"
           message="Open it from the contracts list."
-          icon={<Ionicons name="document-text-outline" size={40} color={colors.textFaint} />}
+          icon={<Ionicons name="document-text-outline" size={24} color={colors.textFaint} />}
         />
       </Screen>
     );
@@ -127,7 +128,7 @@ export default function ContractDetail() {
       </View>
 
       {/* Title block */}
-      <View style={{ marginTop: 12, marginBottom: 16 }}>
+      <View style={{ marginTop: 8, marginBottom: layout.stack }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
           <Avatar name={v.supplierName} size={48} />
           <View style={{ flex: 1, minWidth: 0 }}>
@@ -150,7 +151,7 @@ export default function ContractDetail() {
           <Text variant="label" tone="muted">
             Purchase Value
           </Text>
-          <Text variant="stat" tone="primary" style={{ marginTop: 6 }} numberOfLines={1} adjustsFontSizeToFit>
+          <Text variant="stat" tone="primary" style={{ marginTop: 4 }} numberOfLines={1} adjustsFontSizeToFit>
             {fmtCurKM(v.currency, v.totalValue)}
           </Text>
           <Text variant="caption" tone="faint" numberOfLines={1} style={{ fontVariant: ['tabular-nums'] }}>
@@ -161,14 +162,14 @@ export default function ContractDetail() {
           <Text variant="label" tone="muted">
             Tonnage
           </Text>
-          <Text variant="stat" style={{ marginTop: 6 }} numberOfLines={1} adjustsFontSizeToFit>
+          <Text variant="stat" style={{ marginTop: 4 }} numberOfLines={1} adjustsFontSizeToFit>
             {v.mtLabel}
           </Text>
         </Card>
       </View>
 
       {/* Products */}
-      <Card style={{ marginBottom: 12 }}>
+      <Card style={{ marginBottom: layout.stack }}>
         <SectionHeader title="Products" subtitle={`${productsData.length} line item(s)`} />
         {productsData.length === 0 ? (
           <Text variant="body" tone="muted">
@@ -206,7 +207,7 @@ export default function ContractDetail() {
       </Card>
 
       {/* P&L / Shipments tab entry (web tab 3) */}
-      <Card style={{ marginBottom: 12 }} onPress={() => router.push(`/(app)/contracts/pnl?id=${contract.id}`)}>
+      <Card style={{ marginBottom: layout.stack }} onPress={() => router.push(`/(app)/contracts/pnl?id=${contract.id}`)}>
         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
             <Ionicons name="analytics-outline" size={17} color={colors.primary} />
@@ -217,7 +218,7 @@ export default function ContractDetail() {
       </Card>
 
       {/* Purchase payments + health bar */}
-      <Card style={{ marginBottom: 12 }}>
+      <Card style={{ marginBottom: layout.stack }}>
         <SectionHeader
           title="Purchase Payments"
           subtitle={`${poCount} payment record(s)`}
@@ -312,7 +313,7 @@ export default function ContractDetail() {
       )}
 
       {/* Everything else the contract can do — web's tab strip, as tiles. */}
-      <SectionHeader title="Actions" style={{ marginTop: 18 }} />
+      <SectionHeader title="Actions" style={{ marginTop: 12 }} />
       <ActionGrid
         actions={[
           { key: 'stock', label: 'Warehouse stock', icon: 'cube-outline', emphasis: true, onPress: () => router.push(`/(app)/contracts/stock-in?id=${contract.id}`) },

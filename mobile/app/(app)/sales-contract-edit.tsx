@@ -16,6 +16,7 @@ import { num } from '@shared/finance';
 import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '@/store/auth';
 import { loadData } from '@/data/firestore';
+import { layout } from '@/theme/tokens';
 
 // Sales-contract detail / editor — the mobile twin of web's SalesContractDetails
 // modal. Web requires client / cur / contractNo / date, derives `total` from the
@@ -203,7 +204,7 @@ export default function SalesContractEdit() {
         <TextField label="Comments" value={String(v.comments ?? '')} onChangeText={(t) => set('comments', t)} multiline />
       </Card>
 
-      <Card style={{ marginBottom: 12 }}>
+      <Card style={{ marginBottom: layout.stack }}>
         <SectionHeader
           title="Materials"
           subtitle={`${lines.length} line(s)`}
@@ -265,7 +266,7 @@ export default function SalesContractEdit() {
 
       <Button title="Save" loading={save.isPending} onPress={onSave} />
       {!isNew && (
-        <Pressable onPress={onDelete} style={{ alignSelf: 'center', paddingVertical: 14 }}>
+        <Pressable onPress={onDelete} style={{ alignSelf: 'center', paddingVertical: 10 }}>
           <Text variant="bodyMedium" style={{ color: colors.negative }}>Delete sales contract</Text>
         </Pressable>
       )}

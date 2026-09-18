@@ -7,7 +7,7 @@ import { useTheme } from '@/theme/ThemeProvider';
 import { useSettings } from '@/store/settings';
 import { useSettingsEdit } from '@/features/settings/useSettingsEdit';
 import { toast } from '@/store/toast';
-import { spacing } from '@/theme/tokens';
+import { spacing, layout } from '@/theme/tokens';
 
 /*
  * Settings → Company Details — web settings/tabs/general.js. The same six sections and
@@ -107,7 +107,7 @@ export default function SettingsCompany() {
     <View style={{ flex: 1, backgroundColor: colors.bg }}>
       <Screen contentContainerStyle={{ paddingTop: insets.top + 8 }} edges={false}>
         <StackHeader title="Company Details" subtitle="Printed on contracts and invoices" />
-        <View style={{ gap: 14 }}>
+        <View style={{ gap: layout.stack }}>
           {SECTIONS.map((sec) => (
             <Card key={sec.title} style={{ gap: spacing.md }}>
               <SectionHeader title={sec.title} style={{ marginBottom: 0 }} />

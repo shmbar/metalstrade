@@ -25,7 +25,7 @@ import {
   DetailRow,
   fmtMTWhole,
 } from '@/features/dashboard/webCards';
-import { palette } from '@/theme/tokens';
+import { palette, layout } from '@/theme/tokens';
 import { MarketsTicker } from '@/features/prices/MarketsTicker';
 import { fmtCurKM, fmtMT, fmtAutoKM, curSymbol } from '@/lib/format';
 import { haptics } from '@/lib/haptics';
@@ -442,7 +442,7 @@ export default function Dashboard() {
           colors={scheme === 'dark' ? ['#4A3BB0', '#131120'] : ['#8B7CF7', '#6D5CE0', '#4A3BB0']}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
-          style={{ paddingTop: insets.top + 14, paddingHorizontal: spacing.lg, paddingBottom: 28, borderBottomLeftRadius: 32, borderBottomRightRadius: 32 }}
+          style={{ paddingTop: insets.top + 10, paddingHorizontal: spacing.lg, paddingBottom: 20, borderBottomLeftRadius: 28, borderBottomRightRadius: 28 }}
         >
           <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
             <View>
@@ -461,7 +461,7 @@ export default function Dashboard() {
                 hitSlop={12}
                 accessibilityRole="button"
                 accessibilityLabel={hideBalances ? 'Show balances' : 'Hide balances'}
-                style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: 'rgba(255,255,255,0.16)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.22)', alignItems: 'center', justifyContent: 'center' }}
+                style={{ width: layout.iconButton, height: layout.iconButton, borderRadius: layout.iconButton / 2, backgroundColor: 'rgba(255,255,255,0.16)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.22)', alignItems: 'center', justifyContent: 'center' }}
               >
                 <Ionicons name={hideBalances ? 'eye-off' : 'eye'} size={17} color="#ffffff" />
               </Pressable>
@@ -492,7 +492,7 @@ export default function Dashboard() {
           </Pressable>
 
           {/* Glass stat chips — each drills into its report */}
-          <View style={{ flexDirection: 'row', gap: 10, marginTop: 18 }}>
+          <View style={{ flexDirection: 'row', gap: 10, marginTop: 14 }}>
             {[
               { k: 'Contracts', v: data ? String(data.contractCount) : '—', href: '/(app)/contracts' },
               { k: 'Outstanding', v: data ? curLine(outstanding) : '—', href: '/(app)/invoices?filter=Unpaid' },
@@ -532,7 +532,7 @@ export default function Dashboard() {
 
         {/* Quick actions — wraps to a second row once the admin-only 5th tile
             (Sharon/Gis Admin) joins the other four. */}
-        <View style={{ flexDirection: 'row', gap: 8, paddingHorizontal: spacing.lg, marginTop: 18 }}>
+        <View style={{ flexDirection: 'row', gap: 8, paddingHorizontal: spacing.lg, marginTop: layout.stack }}>
           {QUICK.filter((q) => canRoute(routeKeyOf(q.href))).map((q) => (
             /* Each tile takes an equal share of the row, so four actions or five
                (the admin-only workspace tile) both come out evenly spaced instead
@@ -548,18 +548,18 @@ export default function Dashboard() {
 
         {/* Markets - web's MarketsTicker: exchange rates + LME metal prices,
             both scrolling and refreshing live. */}
-        <View style={{ paddingHorizontal: spacing.lg, marginTop: 18 }}>
+        <View style={{ paddingHorizontal: spacing.lg, marginTop: layout.stack }}>
           <MarketsTicker />
         </View>
 
         {/* Body */}
-        <View style={{ paddingHorizontal: spacing.lg, marginTop: 18 }}>
+        <View style={{ paddingHorizontal: spacing.lg, marginTop: layout.stack }}>
           {isLoading && !data ? (
             <SkeletonList count={6} />
           ) : isError ? (
             <ErrorState message={(error as Error)?.message || 'Failed to load dashboard data.'} onRetry={refetch} />
           ) : data ? (
-            <View style={{ gap: 14 }}>
+            <View style={{ gap: layout.stack }}>
               {/* ══ BAND 1 — SALES ════════════════════════════════════════════
                   Web renders Sales FIRST (dashboard/page.js:2582, ahead of
                   Purchasing & costs at :2604) — the only two figures on the page

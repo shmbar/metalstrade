@@ -7,6 +7,7 @@ import { useSettings } from '@/store/settings';
 import { useWeightAnalysis } from './useWeightAnalysis';
 import { WeightRow } from './weightAnalysis';
 import { keyboardScrollProps } from '@/lib/keyboard';
+import { layout } from '@/theme/tokens';
 
 // Weight Analysis — contracted assay/weight vs returned ("Back") assay/weight per
 // PO material line, with a per-PO Average row. Web's report is a 15-column grid
@@ -38,7 +39,7 @@ export function WeightAnalysisView() {
 
   return (
     <View style={{ flex: 1 }}>
-      <Card style={{ marginBottom: 12 }}>
+      <Card style={{ marginBottom: layout.stack }}>
         {/* Supplier is REQUIRED — web loads nothing until one is chosen. */}
         <Select label="Supplier" value={supplier} options={supplierOptions} onChange={setSupplier} required />
       </Card>
@@ -47,7 +48,7 @@ export function WeightAnalysisView() {
         <EmptyState
           title="Pick a supplier"
           message="The weight analysis is scoped to one supplier at a time."
-          icon={<Ionicons name="funnel-outline" size={40} color={colors.textFaint} />}
+          icon={<Ionicons name="funnel-outline" size={24} color={colors.textFaint} />}
         />
       ) : isLoading ? (
         <SkeletonList count={5} />
@@ -60,13 +61,13 @@ export function WeightAnalysisView() {
         {...keyboardScrollProps} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
           {groups.map(([order, list]) => (
             <Card key={order} padded={false} style={{ marginBottom: 12 }}>
-              <View style={{ padding: 14, paddingBottom: 8 }}>
+              <View style={{ padding: layout.cardInset, paddingBottom: 6 }}>
                 <Text variant="h3">{order}</Text>
                 <Text variant="caption" tone="faint">
                   {list.filter((r) => !r.isAverage).length} line(s)
                 </Text>
               </View>
-              <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 14, paddingBottom: 14 }}>
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: layout.cardInset, paddingBottom: layout.cardInset }}>
                 <View>
                   {/* Header — web groups these under "Contracted" / "Back" bands. */}
                   <View style={{ flexDirection: 'row', borderBottomWidth: 1, borderBottomColor: colors.borderStrong, paddingBottom: 6 }}>

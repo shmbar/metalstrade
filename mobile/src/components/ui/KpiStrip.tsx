@@ -18,8 +18,8 @@ export interface KpiItem {
   onPress?: () => void;
 }
 
-const TILE_W = 158;
-const GAP = 10;
+const TILE_W = 148;
+const GAP = 8;
 
 /**
  * Web's KpiStrip, shaped for a phone: tiles side by side in a row that snaps as
@@ -59,19 +59,19 @@ export function KpiStrip({ items }: { items: KpiItem[] }) {
         const value = toneColor(k.tone);
         const accent = k.tone && k.tone !== 'default' ? value : colors.primary;
         return (
-          <Card key={k.key} onPress={k.onPress} style={{ width: TILE_W, gap: 8 }}>
+          <Card key={k.key} onPress={k.onPress} style={{ width: TILE_W, gap: 6 }}>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
               <View
                 style={{
-                  width: 28,
-                  height: 28,
-                  borderRadius: 9,
+                  width: 24,
+                  height: 24,
+                  borderRadius: 8,
                   backgroundColor: accent + '1F',
                   alignItems: 'center',
                   justifyContent: 'center',
                 }}
               >
-                <Ionicons name={k.icon} size={15} color={accent} />
+                <Ionicons name={k.icon} size={13} color={accent} />
               </View>
               <Text variant="label" tone="muted" numberOfLines={1} style={{ flex: 1 }}>
                 {k.label}

@@ -139,11 +139,11 @@ function Chip({ children }: { children: React.ReactNode }) {
       style={{
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 6,
-        marginRight: 8,
-        paddingHorizontal: 10,
-        paddingVertical: 6,
-        borderRadius: radius.md,
+        gap: 5,
+        marginRight: 6,
+        paddingHorizontal: 8,
+        paddingVertical: 3,
+        borderRadius: radius.sm,
         backgroundColor: colors.surfaceAlt,
         borderWidth: 1,
         borderColor: colors.border,
@@ -173,8 +173,8 @@ function TickerCard({
         borderRadius: radius.xl,
         borderWidth: 1,
         borderColor: colors.border,
-        paddingTop: 10,
-        paddingBottom: 12,
+        paddingTop: 8,
+        paddingBottom: 8,
         overflow: 'hidden',
       }}
     >
@@ -184,23 +184,12 @@ function TickerCard({
           alignItems: 'center',
           justifyContent: 'space-between',
           paddingHorizontal: 12,
-          marginBottom: 8,
+          marginBottom: 6,
         }}
       >
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-          <View
-            style={{
-              width: 26,
-              height: 26,
-              borderRadius: radius.sm,
-              backgroundColor: colors.primary + '1A',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            <Ionicons name={icon} size={14} color={colors.primary} />
-          </View>
-          <Text variant="bodyMedium">{title}</Text>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+          <Ionicons name={icon} size={13} color={colors.primary} />
+          <Text variant="label" tone="muted">{title}</Text>
         </View>
         {right}
       </View>
@@ -230,7 +219,7 @@ function SkeletonStrip() {
   return (
     <View style={{ flexDirection: 'row', gap: 8, paddingHorizontal: 12 }}>
       {[0, 1, 2].map((i) => (
-        <Skeleton key={i} width={128} height={32} style={{ borderRadius: radius.md }} />
+        <Skeleton key={i} width={112} height={24} style={{ borderRadius: radius.sm }} />
       ))}
     </View>
   );
@@ -255,8 +244,8 @@ function ChangePill({ change, pct }: { change: number | null; pct: number | null
   const arrow = up ? '▲' : down ? '▼' : '•';
   const figure = pct != null ? `${Math.abs(pct).toFixed(2)}%` : Math.abs(change).toFixed(2);
   return (
-    <View style={{ backgroundColor: bg, borderRadius: radius.sm, paddingHorizontal: 6, paddingVertical: 1 }}>
-      <Text variant="captionMedium" style={{ color: fg }}>
+    <View style={{ backgroundColor: bg, borderRadius: radius.sm, paddingHorizontal: 5, paddingVertical: 0 }}>
+      <Text variant="tableStrong" style={{ color: fg }}>
         {`${arrow} ${figure}`}
       </Text>
     </View>
@@ -276,12 +265,12 @@ function FxTicker() {
         <Marquee>
           {pairs.map((p) => (
             <Chip key={p.key}>
-              <Text variant="body">{FLAG[p.base] ?? ''}</Text>
-              <Text variant="body" tone="muted">
+              <Text variant="caption">{FLAG[p.base] ?? ''}</Text>
+              <Text variant="caption" tone="muted">
                 {p.label}
               </Text>
               {/* Web's formatRate: four decimals. */}
-              <Text variant="bodyMedium" style={{ fontVariant: ['tabular-nums'] }}>
+              <Text variant="captionMedium">
                 {p.rate != null ? p.rate.toFixed(4) : '—'}
               </Text>
             </Chip>
@@ -314,7 +303,7 @@ function MetalsTicker() {
             accessibilityRole="button"
             accessibilityLabel="Refresh metal prices"
           >
-            <Ionicons name="refresh" size={16} color={colors.primary} style={{ opacity: isFetching ? 0.4 : 1 }} />
+            <Ionicons name="refresh" size={14} color={colors.primary} style={{ opacity: isFetching ? 0.4 : 1 }} />
           </Pressable>
         </View>
       }
@@ -327,10 +316,10 @@ function MetalsTicker() {
         <Marquee>
           {prices.map((m) => (
             <Chip key={m.key}>
-              <Text variant="body" tone="muted">
+              <Text variant="caption" tone="muted">
                 {`${m.name} (${m.unit})`}
               </Text>
-              <Text variant="bodyMedium" style={{ fontVariant: ['tabular-nums'] }}>
+              <Text variant="captionMedium">
                 {usd2.format(m.price)}
               </Text>
               <ChangePill change={m.change} pct={m.changePct} />
@@ -344,7 +333,7 @@ function MetalsTicker() {
 
 export function MarketsTicker() {
   return (
-    <View style={{ gap: 10 }}>
+    <View style={{ gap: 8 }}>
       <FxTicker />
       <MetalsTicker />
     </View>

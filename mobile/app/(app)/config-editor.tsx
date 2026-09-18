@@ -78,7 +78,7 @@ export default function ConfigEditor() {
         </Card>
       )}
 
-      <Button title="Save changes" loading={busy} style={{ marginTop: 16 }} onPress={save} />
+      <Button title="Save changes" loading={busy} style={{ marginTop: 12 }} onPress={save} />
     </Screen>
   );
 }

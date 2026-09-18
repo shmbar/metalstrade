@@ -13,13 +13,14 @@ import { usePathname } from 'next/navigation'
 import { getTtl } from '@utils/languages';
 import Tltip from '@components/tlTip';
 import { Selector } from '@components/selectors/selectShad';
-import { Save, Eraser, Trash, FileText } from "lucide-react"
+import { Eraser, Trash, FileText } from "lucide-react"
+import { BtnIcon } from '@components/buttonIcons';
 import { Button } from '@components/ui/button';
 import DocumentImportOverlay from '@components/DocumentImportOverlay';
 
 const Expenses = ({ showExpenses }) => {
 
-    const { valueExp, setValueExp, blankExpense, saveData_ExpenseInInvoice,
+    const { valueExp, setValueExp, blankExpense, saveData_ExpenseInInvoice, saving,
         delExpense, errorsExp, setErrorsExp } = useContext(ExpensesContext);
     const { valueInv, setValueInv, invoicesData, setInvoicesData } = useContext(InvoiceContext);
     const { settings, setLoading, setDateYr, ln, setToast } = useContext(SettingsContext);
@@ -219,9 +220,11 @@ const Expenses = ({ showExpenses }) => {
                                         className="h-7 px-2"
                                         onClick={() => saveData_ExpenseInInvoice(uidCollection, valueInv, setValueInv, invoicesData, setInvoicesData, contractsData,
                                             setContractsData, valueCon)}
+                                        disabled={saving}
+                                        aria-busy={saving}
                                     >
-                                        <Save />
-                                        {getTtl('save', ln)}
+                                        <BtnIcon action={saving ? 'saving' : 'save'} spin={saving} />
+                                        {saving ? 'Saving…' : getTtl('save', ln)}
                                     </Button>
                                 </Tltip>
                                 <Tltip direction='top' tltpText='Set New Expense'>

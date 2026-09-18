@@ -11,7 +11,7 @@ import { fmtMoney, curSymbol } from '@/lib/format';
 import { sumReviewFinancials } from '@/features/review/reviewFinance';
 import { StackHeader } from '@/components/StackHeader';
 import { matchesAllWords, searchWords } from '@shared/search';
-import { LIST_END_PADDING } from '@/theme/tokens';
+import { LIST_END_PADDING, layout } from '@/theme/tokens';
 import { keyboardScrollProps } from '@/lib/keyboard';
 
 const wt = (n: number) => `${fmtMoney(n, 3)}`; // web showWeight — fixed 3 dp
@@ -45,7 +45,7 @@ export default function ContractsReview() {
     <Screen scroll={false} flush contentContainerStyle={{ paddingTop: insets.top + 8 }} edges={false}>
       <StackHeader title="Contracts Review" right={<PeriodSelector />} />
 
-      <View style={{ marginBottom: 12 }}>
+      <View style={{ marginBottom: layout.stack }}>
         <SegmentedControl
           value={tab}
           onChange={(v) => setTab(v as any)}
@@ -73,7 +73,7 @@ export default function ContractsReview() {
               <Text variant="captionStrong" tone="primary">{viewCur === 'eu' ? 'EUR €' : 'USD $'}</Text>
             </Pressable>
           </View>
-          <View style={{ height: 12 }} />
+          <View style={{ height: 8 }} />
         </>
       )}
 
@@ -83,7 +83,7 @@ export default function ContractsReview() {
         <ErrorState message={(error as Error)?.message || 'Failed to load.'} onRetry={refetch} />
       ) : tab === 'review' ? (
         filtered.length === 0 ? (
-          <EmptyState title="No contracts" message="None in the selected period." icon={<Ionicons name="albums-outline" size={40} color={colors.textFaint} />} />
+          <EmptyState title="No contracts" message="None in the selected period." icon={<Ionicons name="albums-outline" size={24} color={colors.textFaint} />} />
         ) : (
           <FlatList
         {...keyboardScrollProps} keyboardShouldPersistTaps="handled"
@@ -96,7 +96,7 @@ export default function ContractsReview() {
             renderItem={({ item }) => {
               const pct = item.poWeight > 0 ? Math.min(100, (item.shippedWeight / item.poWeight) * 100) : 0;
               return (
-                <Card style={{ marginBottom: 12 }}>
+                <Card style={{ marginBottom: layout.stack }}>
                   <View style={{ flexDirection: 'row', justifyContent: 'space-between', gap: 12 }}>
                     <View style={{ flex: 1, minWidth: 0 }}>
                       <Text variant="h3" numberOfLines={1}>{item.order}</Text>
@@ -138,7 +138,7 @@ export default function ContractsReview() {
             ListHeaderComponent={
               /* Totals strip — recomputed live from the FILTERED rows, per currency,
                  exactly like web's totals row above the header. */
-              <Card style={{ marginBottom: 12 }}>
+              <Card style={{ marginBottom: layout.stack }}>
                 <Text variant="label" tone="muted" style={{ marginBottom: 8 }}>
                   Totals · {filtered.length} contract(s)
                 </Text>
@@ -171,7 +171,7 @@ export default function ContractsReview() {
           onRefresh={refetch}
           refreshing={isLoading}
           ListHeaderComponent={
-            <Card style={{ marginBottom: 12 }}>
+            <Card style={{ marginBottom: layout.stack }}>
               <Text variant="label" tone="muted" style={{ marginBottom: 8 }}>By supplier</Text>
               {statement.map((item, i) => (
                 <View
@@ -190,7 +190,7 @@ export default function ContractsReview() {
             </Card>
           }
           renderItem={({ item }) => (
-            <Card style={{ marginBottom: 12 }}>
+            <Card style={{ marginBottom: layout.stack }}>
               <View style={{ flexDirection: 'row', justifyContent: 'space-between', gap: 10 }}>
                 <View style={{ flex: 1, minWidth: 0 }}>
                   <Text variant="bodyMedium" numberOfLines={2}>{item.description}</Text>

@@ -13,6 +13,7 @@ import { newId } from '@/data/writes';
 import { num } from '@shared/finance';
 import { curSymbol, fmtMoney } from '@/lib/format';
 import { haptics } from '@/lib/haptics';
+import { layout } from '@/theme/tokens';
 
 export default function StockIn() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -125,7 +126,7 @@ export default function StockIn() {
       {isLoading && !seeded ? (
         <LoadingState label="Loading lots…" />
       ) : (
-        <View style={{ gap: 14 }}>
+        <View style={{ gap: layout.stack }}>
           {lots.map((l, i) => (
             <Card key={l.id} style={{ gap: 12 }}>
               <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -172,7 +173,7 @@ export default function StockIn() {
 
           <Pressable
             onPress={add}
-            style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, paddingVertical: 12, borderRadius: 12, borderWidth: 1.5, borderStyle: 'dashed', borderColor: colors.borderStrong }}
+            style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, paddingVertical: 10, borderRadius: 12, borderWidth: 1.5, borderStyle: 'dashed', borderColor: colors.borderStrong }}
           >
             <Ionicons name="add" size={18} color={colors.primary} />
             <Text variant="bodyMedium" tone="primary">Add lot</Text>

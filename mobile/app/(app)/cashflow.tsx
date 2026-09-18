@@ -33,7 +33,7 @@ import { useCashflowActions } from '@/features/cashflow/useCashflowActions';
 import { useSharedStock } from '@/features/stocks/useSharedStock';
 import { fmtAutoKM, fmtCurKM, curSymbol, fmtMoney, dateLabel } from '@/lib/format';
 import { haptics } from '@/lib/haptics';
-import { radius, spacing } from '@/theme/tokens';
+import { radius, spacing, layout } from '@/theme/tokens';
 import { matchesAllWords, searchWords } from '@shared/search';
 import { entityName } from '@/lib/entityName';
 import { useShallow } from 'zustand/react/shallow';
@@ -338,7 +338,7 @@ export default function Cashflow() {
     : [];
 
   const emptyRow = (none: string) => (
-    <Text variant="body" tone="faint" style={{ paddingHorizontal: 14, paddingBottom: 14 }}>
+    <Text variant="body" tone="faint" style={{ paddingHorizontal: layout.cardInset, paddingBottom: layout.cardInset }}>
       {words.length ? 'No matches' : none}
     </Text>
   );
@@ -395,8 +395,8 @@ export default function Cashflow() {
             flexDirection: 'row',
             alignItems: 'center',
             gap: 8,
-            paddingHorizontal: 14,
-            paddingVertical: 12,
+            paddingHorizontal: layout.cardInset,
+            paddingVertical: layout.rowPad,
             borderTopWidth: fixed || rows.length ? StyleSheet.hairlineWidth : 0,
             borderTopColor: colors.borderStrong,
           }}
@@ -455,7 +455,7 @@ export default function Cashflow() {
             flexDirection: 'row',
             alignItems: 'center',
             gap: 6,
-            paddingHorizontal: 14,
+            paddingHorizontal: layout.cardInset,
             borderRadius: radius.pill,
             backgroundColor: colors.surfaceAlt,
             borderWidth: 1,
@@ -474,7 +474,7 @@ export default function Cashflow() {
         </Text>
       ) : null}
 
-      <View style={{ height: 14 }} />
+      <View style={{ height: 8 }} />
 
       {isLoading && !data ? (
         <SkeletonList count={6} />
@@ -506,7 +506,7 @@ export default function Cashflow() {
         </FoldSection>
       ) : (
         /* ══ GENERAL CASHFLOW tab ═════════════════════════════════════════════ */
-        <View style={{ gap: 14 }}>
+        <View style={{ gap: layout.stack }}>
           <KpiStrip items={kpis} />
 
           {isAdmin &&
@@ -647,7 +647,7 @@ export default function Cashflow() {
                   <Line label="Client receivables" v={money(fmtAutoKM(data.kpi.clientsDue))} />
                   <Line label="Financing (left)" v={money(fmtAutoKM(data.manual.financedLeft))} />
                   <Line label="Total (Left)" v={money(fmtAutoKM(data.totalLeft))} strong />
-                  <View style={{ height: 10 }} />
+                  <View style={{ height: 8 }} />
                   <Line label="Supplier payables" v={money(fmtAutoKM(data.payablesUsd))} />
                   <Line label="Unpaid expenses" v={money(fmtAutoKM(data.expensesUsd))} />
                   <Line label="Financing (right)" v={money(fmtAutoKM(data.manual.financedRight))} />
@@ -726,7 +726,7 @@ export default function Cashflow() {
           return (
             <View
               key={`${item.id || item.poInvoiceId || i}`}
-              style={{ paddingVertical: 12, borderTopWidth: i ? StyleSheet.hairlineWidth : 0, borderTopColor: colors.borderStrong }}
+              style={{ paddingVertical: 10, borderTopWidth: i ? StyleSheet.hairlineWidth : 0, borderTopColor: colors.borderStrong }}
             >
               <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 12 }}>
                 <View style={{ flex: 1, minWidth: 0, gap: 2 }}>
@@ -799,7 +799,7 @@ export default function Cashflow() {
                     onPress={() => onAction(item)}
                     accessibilityRole="button"
                     style={{
-                      paddingHorizontal: 14,
+                      paddingHorizontal: layout.cardInset,
                       paddingVertical: 7,
                       borderRadius: radius.pill,
                       backgroundColor: colors.primary + '1A',

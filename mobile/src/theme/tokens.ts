@@ -176,43 +176,51 @@ const JAKARTA = {
 
 export const typography = {
   /** the one hero number on the dashboard */
-  hero: { fontFamily: JAKARTA.semibold, fontSize: 36, lineHeight: 42, letterSpacing: -0.8 },
-  display: { fontFamily: JAKARTA.semibold, fontSize: 28, lineHeight: 34, letterSpacing: -0.6 },
-  /** tab-root screen title */
-  h1: { fontFamily: JAKARTA.semibold, fontSize: 22, lineHeight: 28, letterSpacing: -0.4 },
+  hero: { fontFamily: JAKARTA.semibold, fontSize: 30, lineHeight: 36, letterSpacing: -0.7 },
+  display: { fontFamily: JAKARTA.semibold, fontSize: 24, lineHeight: 30, letterSpacing: -0.5 },
+  /** tab-root screen title — web's --fs-page is 16; a phone title carries a little more */
+  h1: { fontFamily: JAKARTA.semibold, fontSize: 20, lineHeight: 26, letterSpacing: -0.4 },
   /** stack screen / sheet title */
-  h2: { fontFamily: JAKARTA.semibold, fontSize: 18, lineHeight: 24, letterSpacing: -0.3 },
-  /** card and section title */
-  h3: { fontFamily: JAKARTA.semibold, fontSize: 16, lineHeight: 22, letterSpacing: -0.2 },
-  /** a card's headline figure */
-  statLg: { fontFamily: JAKARTA.semibold, fontSize: 24, lineHeight: 30, letterSpacing: -0.4 },
+  h2: { fontFamily: JAKARTA.semibold, fontSize: 17, lineHeight: 22, letterSpacing: -0.3 },
+  /** card and section title — web's --fs-title (13–14) */
+  h3: { fontFamily: JAKARTA.semibold, fontSize: 15, lineHeight: 20, letterSpacing: -0.2 },
+  /** a card's headline figure — web's --fs-stat (20–24) */
+  statLg: { fontFamily: JAKARTA.semibold, fontSize: 22, lineHeight: 28, letterSpacing: -0.4 },
   /** KPI tile figure */
-  stat: { fontFamily: JAKARTA.medium, fontSize: 20, lineHeight: 26, letterSpacing: -0.3 },
+  stat: { fontFamily: JAKARTA.medium, fontSize: 18, lineHeight: 24, letterSpacing: -0.3 },
   /** a key figure inside a row or tile */
-  figure: { fontFamily: JAKARTA.medium, fontSize: 16, lineHeight: 22 },
-  body: { fontFamily: JAKARTA.regular, fontSize: 14, lineHeight: 20 },
-  bodyMedium: { fontFamily: JAKARTA.medium, fontSize: 14, lineHeight: 20 },
+  figure: { fontFamily: JAKARTA.medium, fontSize: 15, lineHeight: 20 },
+  /** web's --fs-body is 11–13; 13 is the phone's floor for running text */
+  body: { fontFamily: JAKARTA.regular, fontSize: 13, lineHeight: 18 },
+  bodyMedium: { fontFamily: JAKARTA.medium, fontSize: 13, lineHeight: 18 },
   /** button titles, totals, emphasised row text */
-  bodyStrong: { fontFamily: JAKARTA.semibold, fontSize: 14, lineHeight: 20 },
+  bodyStrong: { fontFamily: JAKARTA.semibold, fontSize: 13, lineHeight: 18 },
   /** text typed into or chosen in a field — every field, so a form reads as one */
-  input: { fontFamily: JAKARTA.regular, fontSize: 15, lineHeight: 20 },
-  /** field labels, tile labels, segmented options */
-  label: { fontFamily: JAKARTA.semibold, fontSize: 12, lineHeight: 16, letterSpacing: 0.1 },
-  caption: { fontFamily: JAKARTA.regular, fontSize: 12, lineHeight: 16 },
+  input: { fontFamily: JAKARTA.regular, fontSize: 14, lineHeight: 19 },
+  /** field labels, tile labels, segmented options — web's --fs-input */
+  label: { fontFamily: JAKARTA.semibold, fontSize: 11, lineHeight: 15, letterSpacing: 0.1 },
+  caption: { fontFamily: JAKARTA.regular, fontSize: 11, lineHeight: 15 },
   /** a small figure — 500 is the figure weight */
-  captionMedium: { fontFamily: JAKARTA.medium, fontSize: 12, lineHeight: 16 },
+  captionMedium: { fontFamily: JAKARTA.medium, fontSize: 11, lineHeight: 15 },
   /** chip and badge text, small status text */
-  captionStrong: { fontFamily: JAKARTA.semibold, fontSize: 12, lineHeight: 16 },
+  captionStrong: { fontFamily: JAKARTA.semibold, fontSize: 11, lineHeight: 15 },
   /** uppercase eyebrow above a group */
-  overline: { fontFamily: JAKARTA.semibold, fontSize: 11, lineHeight: 14, letterSpacing: 0.6, textTransform: 'uppercase' },
+  overline: { fontFamily: JAKARTA.semibold, fontSize: 10, lineHeight: 13, letterSpacing: 0.6, textTransform: 'uppercase' },
   /** dense fixed-width grids (material tables, statements) — web's --fs-table rung */
-  table: { fontFamily: JAKARTA.regular, fontSize: 11, lineHeight: 15 },
-  tableStrong: { fontFamily: JAKARTA.semibold, fontSize: 11, lineHeight: 15 },
-  mono: { fontFamily: Platform.select({ ios: 'Menlo', android: 'monospace', default: 'monospace' }), fontSize: 12, lineHeight: 18 },
+  table: { fontFamily: JAKARTA.regular, fontSize: 11, lineHeight: 14 },
+  tableStrong: { fontFamily: JAKARTA.semibold, fontSize: 11, lineHeight: 14 },
+  mono: { fontFamily: Platform.select({ ios: 'Menlo', android: 'monospace', default: 'monospace' }), fontSize: 11, lineHeight: 16 },
 } as const;
 
 /** How far system Larger Text may grow the app's type before rows and controls stop fitting. */
-export const MAX_FONT_SCALE = 1.25;
+/*
+ * Client review 2026-09-18 ("some font sizes are still too large"): the ladder above sat one
+ * rung above web's everywhere (body 14 vs web's 11–13, titles 16–22 vs 13–16), and system
+ * Larger Text could add a further 25% on top. Every rung now sits on web's scale — a phone
+ * keeps one size more for running text — and Larger Text may add at most 10%, so a dense
+ * ledger stays a ledger on any phone.
+ */
+export const MAX_FONT_SCALE = 1.1;
 
 /**
  * Layout rhythm. Measured across every screen before choosing: most already stacked
@@ -224,17 +232,25 @@ export const layout = {
   /** screen side gutter */
   gutter: spacing.lg,
   /** content inset inside a card */
-  cardInset: 14,
+  cardInset: 12,
+  /** a row inside a card: vertical padding */
+  rowPad: 10,
   /** between stacked cards and sections */
-  stack: 12,
+  stack: 10,
   /** under a screen header */
-  headerGap: 16,
-  /** buttons, text fields, selects, date fields */
-  controlHeight: 48,
+  headerGap: 12,
+  /** buttons, text fields, selects, date fields — iOS's own control height */
+  controlHeight: 44,
   /** chips, filter pills */
-  pillHeight: 36,
+  pillHeight: 32,
   /** round icon buttons, back button */
-  iconButton: 40,
+  iconButton: 36,
+  /** leading avatar / icon disc in a row */
+  leading: 36,
+  /** icon disc in a section header */
+  sectionIcon: 28,
+  /** trailing chevron width — reserved even when a row has none, so figures line up */
+  trailing: 16,
 } as const;
 
 export type ColorSchemeName = 'light' | 'dark';
@@ -247,4 +263,4 @@ export const getColors = (scheme: ColorSchemeName): ThemeColors =>
  * reserves the device's bottom inset — so this is breathing room only, not inset.
  * A list with a floating create button uses FAB_CLEARANCE instead.
  */
-export const LIST_END_PADDING = spacing['2xl'];
+export const LIST_END_PADDING = spacing.xl;

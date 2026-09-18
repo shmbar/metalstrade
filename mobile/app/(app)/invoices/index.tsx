@@ -96,7 +96,7 @@ export default function InvoicesList() {
       {/* Status filters and sort share one swipeable row — a divider keeps the
           two groups apart. Stacking them as two rows pushed the list below the
           fold on small phones; cramming both beside the count squeezed the chips. */}
-      <ChipRow style={{ marginTop: 12 }}>
+      <ChipRow style={{ marginTop: 8 }}>
         {FILTERS.map((f) => (
           <Chip key={f} label={f} active={filter === f} onPress={() => setFilter(f)} />
         ))}
@@ -134,7 +134,7 @@ export default function InvoicesList() {
         <EmptyState
           title={search || filter !== 'All' ? 'No matches' : 'No invoices'}
           message={search || filter !== 'All' ? 'Try a different search or filter.' : 'Invoices are created from a contract.'}
-          icon={<Ionicons name="receipt-outline" size={40} color={colors.textFaint} />}
+          icon={<Ionicons name="receipt-outline" size={24} color={colors.textFaint} />}
           actionLabel={search || filter !== 'All' ? undefined : 'Open contracts'}
           onAction={search || filter !== 'All' ? undefined : () => router.push('/(app)/contracts')}
         />

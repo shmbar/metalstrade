@@ -266,7 +266,7 @@ export default function Assistant() {
           right={
             configured ? (
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-                <IconButton icon="refresh" size={38} accessibilityLabel="Reload data" disabled={isFetching} onPress={() => reload()} />
+                <IconButton icon="refresh" accessibilityLabel="Reload data" disabled={isFetching} onPress={() => reload()} />
                 {messages.length > 0 && <Chip label="Clear chat" onPress={clearChat} />}
               </View>
             ) : undefined
@@ -279,7 +279,7 @@ export default function Assistant() {
           <EmptyState
             title="Backend not configured"
             message="Set EXPO_PUBLIC_API_BASE_URL to your deployed web app URL (which hosts /api/assistant) to enable the AI Assistant."
-            icon={<Ionicons name="cloud-offline-outline" size={40} color={colors.textFaint} />}
+            icon={<Ionicons name="cloud-offline-outline" size={24} color={colors.textFaint} />}
           />
         </View>
       ) : (
@@ -288,7 +288,7 @@ export default function Assistant() {
             <ScrollView
         {...keyboardScrollProps}
               style={{ flex: 1 }}
-              contentContainerStyle={{ flexGrow: 1, justifyContent: 'center', padding: spacing.lg, gap: 20 }}
+              contentContainerStyle={{ flexGrow: 1, justifyContent: 'center', padding: spacing.lg, gap: 16 }}
               keyboardShouldPersistTaps="handled"
               keyboardDismissMode={Platform.OS === 'ios' ? 'interactive' : 'on-drag'}
               showsVerticalScrollIndicator={false}
@@ -311,7 +311,7 @@ export default function Assistant() {
                     onPress={() => send(s.text)}
                     disabled={busy}
                     accessibilityRole="button"
-                    style={{ width: '48.5%', borderRadius: radius.lg, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.card, paddingHorizontal: 12, paddingVertical: 11, gap: 5, opacity: busy ? 0.5 : 1 }}
+                    style={{ width: '48.5%', borderRadius: radius.lg, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.card, paddingHorizontal: 12, paddingVertical: 9, gap: 4, opacity: busy ? 0.5 : 1 }}
                   >
                     <Text variant="overline" tone="faint">{s.category}</Text>
                     <Text variant="bodyStrong">{s.text}</Text>
@@ -326,14 +326,14 @@ export default function Assistant() {
               style={{ flex: 1 }}
               data={messages}
               keyExtractor={(m) => m.id}
-              contentContainerStyle={{ padding: spacing.lg, gap: 14 }}
+              contentContainerStyle={{ padding: spacing.lg, gap: 10 }}
               keyboardShouldPersistTaps="handled"
               keyboardDismissMode={Platform.OS === 'ios' ? 'interactive' : 'on-drag'}
               showsVerticalScrollIndicator={false}
               onContentSizeChange={scrollEnd}
               ListFooterComponent={
                 loading && !streamingNow ? (
-                  <View style={{ alignSelf: 'flex-start', marginTop: 14, borderRadius: 16, borderTopLeftRadius: 6, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.card, paddingHorizontal: 16, paddingVertical: 14, flexDirection: 'row', gap: 6 }} accessibilityLabel="Thinking">
+                  <View style={{ alignSelf: 'flex-start', marginTop: 10, borderRadius: 14, borderTopLeftRadius: 6, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.card, paddingHorizontal: 16, paddingVertical: 14, flexDirection: 'row', gap: 6 }} accessibilityLabel="Thinking">
                     <ThinkingDot delay={0} />
                     <ThinkingDot delay={150} />
                     <ThinkingDot delay={300} />
@@ -344,7 +344,7 @@ export default function Assistant() {
                 if (item.role === 'user') {
                   return (
                     <View style={{ alignItems: 'flex-end' }}>
-                      <View style={{ maxWidth: '80%', borderRadius: 16, borderBottomRightRadius: 6, paddingHorizontal: 14, paddingVertical: 10, backgroundColor: colors.primary + '1F' }}>
+                      <View style={{ maxWidth: '80%', borderRadius: 14, borderBottomRightRadius: 6, paddingHorizontal: 12, paddingVertical: 8, backgroundColor: colors.primary + '1F' }}>
                         <Text variant="body">{item.content}</Text>
                       </View>
                     </View>
@@ -356,14 +356,14 @@ export default function Assistant() {
                     <View
                       style={{
                         alignSelf: 'stretch',
-                        borderRadius: 16,
+                        borderRadius: 14,
                         borderTopLeftRadius: 6,
                         borderWidth: 1,
                         borderColor: item.isError ? colors.negative + '40' : colors.border,
                         backgroundColor: item.isError ? colors.negative + '12' : colors.card,
-                        paddingHorizontal: 14,
-                        paddingVertical: 12,
-                        gap: 12,
+                        paddingHorizontal: 12,
+                        paddingVertical: 10,
+                        gap: 10,
                       }}
                     >
                       <Text>

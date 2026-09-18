@@ -28,7 +28,7 @@ import {
   LOGIN_TYPE,
   WEEK_MS,
 } from '@shared/activityStats';
-import { radius, LIST_END_PADDING } from '@/theme/tokens';
+import { radius, LIST_END_PADDING, layout } from '@/theme/tokens';
 import { matchesAllWords, searchWords } from '@shared/search';
 import { keyboardScrollProps } from '@/lib/keyboard';
 
@@ -91,7 +91,7 @@ export default function Activity() {
           reader what they are looking at. */}
       <Text variant="caption" tone="muted" style={{ marginBottom: 10 }}>{active.blurb}</Text>
 
-      <View style={{ marginBottom: 12 }}>
+      <View style={{ marginBottom: layout.stack }}>
         <SegmentedControl
           value={tab}
           onChange={(v) => setTab(v as TabId)}
@@ -141,7 +141,7 @@ function FeedTab({ query }: { query: any }) {
         <EmptyState
           title="Nothing here"
           message={q || type !== 'all' || actor !== 'all' ? 'No entries match those filters.' : 'No activity recorded yet.'}
-          icon={<Ionicons name="pulse-outline" size={40} color={colors.textFaint} />}
+          icon={<Ionicons name="pulse-outline" size={24} color={colors.textFaint} />}
         />
       ) : (
         <FlatList
@@ -220,7 +220,7 @@ function OnlineTab({ query }: { query: any }) {
       refreshing={query.isLoading}
       renderItem={({ item }) =>
         item.k === 'online' ? (
-          <Card style={{ marginBottom: 12 }}>
+          <Card style={{ marginBottom: layout.stack }}>
             <Text variant="label" tone="muted" style={{ marginBottom: 4 }}>Here now · {online.length}</Text>
             {online.length === 0 ? (
               <Text variant="caption" tone="faint">Nobody is signed in right now.</Text>
@@ -271,7 +271,7 @@ function SummaryTab({ query }: { query: any }) {
       contentContainerStyle={{ paddingBottom: LIST_END_PADDING }}
       onRefresh={query.refetch}
       refreshing={query.isLoading}
-      ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
+      ItemSeparatorComponent={() => <View style={{ height: 8 }} />}
       renderItem={({ item }) => {
         if (item.k === 'board') {
           return (

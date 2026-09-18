@@ -264,6 +264,7 @@ const TitlesArr = [
 
     /*****Expenses */
     { 'Existing Expense': ['Existing Expense', 'Существующии расход'] },
+    { 'New Expense': ['New Expense', 'Новый расход'] },
     { 'Paid / Unpaid': ['Paid / Unpaid', 'Платный/Неоплачиваемый'] },
     { 'Paid': ['Paid', 'Оплаченный'] },
     { 'UnPaid': ['UnPaid', 'Неоплачиваемый'] },

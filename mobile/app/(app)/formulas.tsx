@@ -16,6 +16,7 @@ import {
 } from '@/features/formulas/calc';
 import { toast } from '@/store/toast';
 import { useShallow } from 'zustand/react/shallow';
+import { layout } from '@/theme/tokens';
 
 const money = (num: number, symbol = '$') => {
   if (!Number.isFinite(num)) return symbol + '0';
@@ -107,7 +108,7 @@ export default function Formulas() {
     return (
       <Screen contentContainerStyle={{ paddingTop: insets.top + 8 }} edges={false}>
         <StackHeader title="Formulas" />
-        <EmptyState title="Admin only" message="Formulas are restricted to Admin accounts." icon={<Ionicons name="lock-closed-outline" size={40} color={colors.textFaint} />} />
+        <EmptyState title="Admin only" message="Formulas are restricted to Admin accounts." icon={<Ionicons name="lock-closed-outline" size={24} color={colors.textFaint} />} />
       </Screen>
     );
   }
@@ -136,7 +137,7 @@ export default function Formulas() {
     <Screen contentContainerStyle={{ paddingTop: insets.top + 8 }} edges={false}>
       <StackHeader title="Formulas" subtitle="FeNiCr / Stainless / SuperAlloys pricing" />
 
-      <View style={{ marginBottom: 12 }}>
+      <View style={{ marginBottom: layout.stack }}>
         <SegmentedControl
           value={tab}
           onChange={(v) => setTab(v as FormulaTab)}
@@ -151,7 +152,7 @@ export default function Formulas() {
       {isLoading && !seeded ? (
         <LoadingState />
       ) : (
-        <View style={{ gap: 14 }}>
+        <View style={{ gap: layout.stack }}>
           {/* Outputs */}
           <Card style={{ backgroundColor: colors.primary }}>
             <Text variant="label" color="#ffffffcc">{tab === 'supperalloys' ? 'Cost' : 'Cost / Sales'} · Fe {out.fe?.toFixed(2)}%</Text>

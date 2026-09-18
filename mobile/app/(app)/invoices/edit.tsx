@@ -14,6 +14,7 @@ import { useInvoiceSalesContracts } from '@/features/invoices/useInvoiceSalesCon
 import { newId } from '@/data/writes';
 import { num } from '@shared/finance';
 import { curSymbol, fmtMoney } from '@/lib/format';
+import { layout, spacing } from '@/theme/tokens';
 
 export default function InvoiceEdit() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -156,8 +157,8 @@ export default function InvoiceEdit() {
       <Screen contentContainerStyle={{ paddingTop: insets.top + 8 }} edges={false}>
         <StackHeader title={`Edit invoice #${view.number}`} subtitle={view.clientName} backLabel="Cancel" />
 
-        <View style={{ gap: 14 }}>
-          <Card style={{ gap: 14 }}>
+        <View style={{ gap: layout.stack }}>
+          <Card style={{ gap: spacing.md }}>
             <Select label="Client" value={client} options={clientOptions} onChange={setClient} required />
             <Select label="Shipment" value={shpType} options={shipOptions} onChange={setShpType} required />
             <DateField label="Delivery date" value={delDate} onChange={setDelDate} />
@@ -181,7 +182,7 @@ export default function InvoiceEdit() {
           <Card>
             <SectionHeader title="Materials" subtitle={`${lines.length} line(s)`} right={<Text variant="h3" tone="primary">{sym}{fmtMoney(total)}</Text>} />
             {lines.map((l, i) => (
-              <View key={l.id || i} style={{ gap: 8, paddingVertical: 12, borderTopWidth: i === 0 ? 0 : 1, borderTopColor: colors.border }}>
+              <View key={l.id || i} style={{ gap: 8, paddingVertical: layout.rowPad, borderTopWidth: i === 0 ? 0 : 1, borderTopColor: colors.border }}>
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
                   <View style={{ flex: 1 }}>
                     <TextField value={String(l.description ?? '')} onChangeText={(t) => setLine(i, { description: t })} placeholder="Description" />

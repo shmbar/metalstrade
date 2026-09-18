@@ -17,7 +17,7 @@ import { BtnIcon } from '@components/buttonIcons';
 
 const Expenses = () => {
 
-    const { valueExp, setValueExp, blankExpense, saveData_ExpenseExpenses,
+    const { valueExp, setValueExp, blankExpense, saveData_ExpenseExpenses, saving,
         deleteExpenseFromExpPage, errorsExp, setErrorsExp } = useContext(ExpensesContext);
     const { valueInv, setValueInv, } = useContext(InvoiceContext);
     const { contractsData } = useContext(ContractsContext);
@@ -291,9 +291,11 @@ const Expenses = () => {
                     <button
                         className="blackButton"
                         onClick={() => saveData_ExpenseExpenses(uidCollection, valueInv, setValueInv)}
+                        disabled={saving}
+                        aria-busy={saving}
                     >
-                        <BtnIcon action="save" />
-                        {getTtl('save', ln)}
+                        <BtnIcon action={saving ? 'saving' : 'save'} spin={saving} />
+                        {saving ? 'Saving…' : getTtl('save', ln)}
                     </button>
                 </Tltip>
             </div>

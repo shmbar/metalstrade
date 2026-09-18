@@ -22,13 +22,13 @@ export function StatCard({ label, value, icon, accent, sub, delta, onPress }: St
   const ac = accent || colors.primary;
 
   return (
-    <Card onPress={onPress} style={{ minHeight: 120, justifyContent: 'space-between' }}>
+    <Card onPress={onPress} style={{ justifyContent: 'space-between', gap: 8 }}>
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
         {icon && (
           <View
             style={{
-              width: 30,
-              height: 30,
+              width: 26,
+              height: 26,
               borderRadius: radius.md,
               alignItems: 'center',
               justifyContent: 'center',
@@ -43,7 +43,7 @@ export function StatCard({ label, value, icon, accent, sub, delta, onPress }: St
         </Text>
       </View>
 
-      <View style={{ marginTop: 10 }}>
+      <View>
         <Text variant="stat" numberOfLines={1} adjustsFontSizeToFit>
           {value}
         </Text>

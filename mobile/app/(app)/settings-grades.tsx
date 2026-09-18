@@ -14,7 +14,7 @@ import { newId } from '@/data/writes';
 import { saveGrades } from '@/features/settings/gradesStore';
 import { aliasKey, assignAliases, findGradeByName, formatAssay, hasAssay, makeGrade, parseAssay } from '@shared/grades';
 import { matchesAllWords } from '@shared/search';
-import { spacing } from '@/theme/tokens';
+import { spacing, layout } from '@/theme/tokens';
 
 /*
  * Settings → Grades — web settings/tabs/grades.js. The grade registry, for editing: rename
@@ -153,7 +153,7 @@ export default function SettingsGrades() {
         right={<IconButton icon="add" variant="primary" accessibilityLabel="Add a new grade" onPress={startNew} />}
       />
       <SearchField value={filter} onChangeText={setFilter} placeholder="Find grade or spelling" />
-      <View style={{ height: 12 }} />
+      <View style={{ height: 8 }} />
 
       {isLoading ? (
         <SkeletonList count={5} />
@@ -161,7 +161,7 @@ export default function SettingsGrades() {
         <EmptyState
           title={filter ? 'Nothing matches' : 'No grades yet'}
           message={filter ? 'Try another name or spelling.' : 'Add one here, or merge rows on the Stocks page.'}
-          icon={<Ionicons name="pricetags-outline" size={40} color={colors.textFaint} />}
+          icon={<Ionicons name="pricetags-outline" size={24} color={colors.textFaint} />}
         />
       ) : (
         <Card padded={false}>
@@ -170,7 +170,7 @@ export default function SettingsGrades() {
               key={g.id}
               onPress={() => select(g)}
               accessibilityRole="button"
-              style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingHorizontal: 14, paddingVertical: 12, borderTopWidth: i ? 1 : 0, borderTopColor: colors.border }}
+              style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingHorizontal: layout.cardInset, paddingVertical: layout.rowPad, borderTopWidth: i ? 1 : 0, borderTopColor: colors.border }}
             >
               <View style={{ flex: 1, minWidth: 0 }}>
                 <Text variant="bodyMedium" numberOfLines={1}>{g.name}</Text>

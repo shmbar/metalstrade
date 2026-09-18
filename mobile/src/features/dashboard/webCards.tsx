@@ -5,7 +5,7 @@ import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { Text, Sheet, Avatar } from '@/components/ui';
 import { Pressable } from '@/components/ui/Pressable';
 import { useTheme } from '@/theme/ThemeProvider';
-import { getShadow, palette } from '@/theme/tokens';
+import { getShadow, palette, layout, radius } from '@/theme/tokens';
 import { fmtAutoKM } from '@/lib/format';
 
 /*
@@ -72,12 +72,12 @@ export function DashCard({
   return (
     <View
       style={[
-        { backgroundColor: colors.card, borderRadius: 16, borderWidth: 1, borderColor: colors.border, padding: 16, ...getShadow(scheme, 'sm') },
+        { backgroundColor: colors.card, borderRadius: 16, borderWidth: 1, borderColor: colors.border, padding: layout.cardInset, ...getShadow(scheme, 'sm') },
         style,
       ]}
     >
       {title ? (
-        <View style={{ marginBottom: 12 }}>
+        <View style={{ marginBottom: layout.stack }}>
           <Text variant="h3">
             {title}
           </Text>
@@ -150,7 +150,7 @@ export function SummaryPanel({ tiles }: { tiles: SummaryTileSpec[] }) {
   for (let i = 0; i < tiles.length; i += 2) rows.push(tiles.slice(i, i + 2));
   return (
     <View style={{ borderRadius: 16, ...getShadow(scheme, 'sm') }}>
-      <View style={{ borderRadius: 16, borderWidth: 1, borderColor: colors.border, overflow: 'hidden', backgroundColor: colors.border, gap: 1 }}>
+      <View style={{ borderRadius: radius.xl, borderWidth: 1, borderColor: colors.border, overflow: 'hidden', backgroundColor: colors.border, gap: 1 }}>
         {rows.map((r, i) => (
           <View key={i} style={{ flexDirection: 'row', gap: 1 }}>
             {r.map((t) => (
@@ -354,11 +354,11 @@ export function TonnageCard({
       onPress={onPress}
       disabled={!onPress}
       accessibilityRole="button"
-      style={{ backgroundColor: colors.card, borderRadius: 16, borderWidth: 1, borderColor: colors.border, padding: 16, gap: 12, ...getShadow(scheme, 'sm') }}
+      style={{ backgroundColor: colors.card, borderRadius: 16, borderWidth: 1, borderColor: colors.border, padding: layout.cardInset, gap: 10, ...getShadow(scheme, 'sm') }}
     >
       <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, flex: 1, minWidth: 0 }}>
-          <View style={{ width: 30, height: 30, borderRadius: 8, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.primary + '1A' }}>
+          <View style={{ width: layout.sectionIcon, height: layout.sectionIcon, borderRadius: 8, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.primary + '1A' }}>
             <Ionicons name="cube-outline" size={16} color={colors.primary} />
           </View>
           <Text variant="captionMedium" numberOfLines={2} style={{ flex: 1, color: colors.textFaint }}>
@@ -431,9 +431,9 @@ export function GisCommissionCard({
       accessibilityLabel="Show the GIS commission payments"
       style={{ borderRadius: 16, borderWidth: 1, borderColor: teal + '38', backgroundColor: colors.card, overflow: 'hidden' }}
     >
-      <View style={{ padding: 16, backgroundColor: teal + '12' }}>
+      <View style={{ padding: layout.cardInset, backgroundColor: teal + '12' }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-          <View style={{ width: 30, height: 30, borderRadius: 8, alignItems: 'center', justifyContent: 'center', backgroundColor: teal + '29' }}>
+          <View style={{ width: layout.sectionIcon, height: layout.sectionIcon, borderRadius: 8, alignItems: 'center', justifyContent: 'center', backgroundColor: teal + '29' }}>
             <MaterialCommunityIcons name="percent-outline" size={15} color={teal} />
           </View>
           <Text variant="captionMedium" style={{ color: colors.textFaint }}>
@@ -505,10 +505,10 @@ export function MiscInvoicesCard({
       onPress={onPress}
       disabled={!onPress}
       accessibilityRole="button"
-      style={{ backgroundColor: colors.card, borderRadius: 16, borderWidth: 1, borderColor: colors.border, padding: 16, gap: 12, ...getShadow(scheme, 'sm') }}
+      style={{ backgroundColor: colors.card, borderRadius: 16, borderWidth: 1, borderColor: colors.border, padding: layout.cardInset, gap: 10, ...getShadow(scheme, 'sm') }}
     >
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-        <View style={{ width: 30, height: 30, borderRadius: 8, alignItems: 'center', justifyContent: 'center', backgroundColor: pink + '1A' }}>
+        <View style={{ width: layout.sectionIcon, height: layout.sectionIcon, borderRadius: 8, alignItems: 'center', justifyContent: 'center', backgroundColor: pink + '1A' }}>
           <Ionicons name="document-text-outline" size={16} color={pink} />
         </View>
         <View style={{ flex: 1, minWidth: 0 }}>

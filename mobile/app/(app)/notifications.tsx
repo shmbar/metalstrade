@@ -156,7 +156,7 @@ export default function Notifications() {
         <EmptyState
           title="All caught up"
           message="No notifications."
-          icon={<Ionicons name="notifications-off-outline" size={40} color={colors.textFaint} />}
+          icon={<Ionicons name="notifications-off-outline" size={24} color={colors.textFaint} />}
         />
       ) : (
         <FlatList

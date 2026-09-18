@@ -19,6 +19,7 @@ import { useAuth } from '@/store/auth';
 import { updateContractField } from '@/data/writes';
 import { toast } from '@/store/toast';
 import { keyboardScrollProps } from '@/lib/keyboard';
+import { layout } from '@/theme/tokens';
 
 type SortKey = 'date' | 'value' | 'mt';
 const SORTS: { key: SortKey; label: string }[] = [
@@ -128,7 +129,7 @@ export default function ContractsList() {
             alignItems: 'center',
             gap: 10,
             marginBottom: 10,
-            paddingHorizontal: 14,
+            paddingHorizontal: layout.cardInset,
             paddingVertical: 11,
             borderRadius: 14,
             borderWidth: 1,
@@ -175,7 +176,7 @@ export default function ContractsList() {
         <EmptyState
           title={search ? 'No matches' : 'No contracts'}
           message={search ? 'Try a different search.' : 'No contracts in the selected period.'}
-          icon={<Ionicons name="document-text-outline" size={40} color={colors.textFaint} />}
+          icon={<Ionicons name="document-text-outline" size={24} color={colors.textFaint} />}
           actionLabel={search ? undefined : 'Create contract'}
           onAction={search ? undefined : () => router.push('/(app)/contracts/edit')}
         />
@@ -217,7 +218,7 @@ export default function ContractsList() {
             return (
               <View
                 key={c.id}
-                style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 12, borderTopWidth: i ? 1 : 0, borderTopColor: colors.border }}
+                style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: layout.rowPad, borderTopWidth: i ? 1 : 0, borderTopColor: colors.border }}
               >
                 <Pressable
                   onPress={() => {

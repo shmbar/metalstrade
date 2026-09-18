@@ -1,4 +1,4 @@
-import { useContext, useState, useEffect, useTransition } from 'react'
+import { useContext, useState, useEffect } from 'react'
 import { ExpensesContext } from "@contexts/useExpensesContext";
 import Datepicker from "react-tailwindcss-datepicker";
 import { SettingsContext } from "@contexts/useSettingsContext";
@@ -14,20 +14,17 @@ import { BtnIcon } from '@components/buttonIcons';
 
 const Expenses = ({setIsOpen}) => {
 
-    const { valueExp, setValueExp, blankExpense, saveData_CompanyExpenses,
+    const { valueExp, setValueExp, blankExpense, saveData_CompanyExpenses, saving,
         errorsExp, setErrorsExp, deleteCompExp, copyTomisc } = useContext(ExpensesContext);
     const { settings, ln } = useContext(SettingsContext);
     const { uidCollection } = UserAuth();
-    const [isPending, startTransition] = useTransition();
     const sups = settings.Supplier.Supplier;
     const [opendialogShipment, setDialogShipment] = useState(false)
     const [showDocImport, setShowDocImport] = useState(false)
 
-    const saveExpense = () => {
-        startTransition(() => {
-            saveData_CompanyExpenses(uidCollection)
-        })
-    }
+    // Called directly, not inside startTransition: a transition defers the render
+    // that shows "Saving…", which is the one render this click needs at once.
+    const saveExpense = () => saveData_CompanyExpenses(uidCollection)
 
     useEffect(() => {
         if (Object.values(errorsExp).includes(true)) {
@@ -177,10 +174,11 @@ const Expenses = ({setIsOpen}) => {
                     <button
                         className='blackButton'
                         onClick={saveExpense}
-                        disabled={isPending}
+                        disabled={saving}
+                        aria-busy={saving}
                     >
-                        <BtnIcon action="save" />
-                        {getTtl('save', ln)}
+                        <BtnIcon action={saving ? 'saving' : 'save'} spin={saving} />
+                        {saving ? 'Saving…' : getTtl('save', ln)}
                     </button>
                 </Tltip>
                 <Tltip direction='top' tltpText='Clear form'>

@@ -17,6 +17,7 @@ import {
 } from '@/features/stocks/useFinalSettlement';
 import { curSymbol, fmtMoney } from '@/lib/format';
 import { haptics } from '@/lib/haptics';
+import { layout } from '@/theme/tokens';
 
 export default function FinalSettlement() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -90,11 +91,11 @@ export default function FinalSettlement() {
     <Screen contentContainerStyle={{ paddingTop: insets.top + 8 }} edges={false}>
       <StackHeader title="Final settlement" subtitle={contract.order} />
 
-      <View style={{ marginBottom: 12 }}>
+      <View style={{ marginBottom: layout.stack }}>
       </View>
 
       {/* Draft toggle */}
-      <Card style={{ marginBottom: 12, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+      <Card style={{ marginBottom: layout.stack, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
         <View style={{ flex: 1, paddingRight: 12 }}>
           <Text variant="bodyMedium">Draft mode</Text>
           <Text variant="caption" tone="muted">
@@ -131,10 +132,10 @@ export default function FinalSettlement() {
         <EmptyState
           title="No stock lots"
           message="This contract has no warehouse lots to settle."
-          icon={<Ionicons name="cube-outline" size={40} color={colors.textFaint} />}
+          icon={<Ionicons name="cube-outline" size={24} color={colors.textFaint} />}
         />
       ) : (
-        <View style={{ gap: 14 }}>
+        <View style={{ gap: layout.stack }}>
           {built.rows.map((r, i) => {
             const w = working[i];
             if (!w) return null;

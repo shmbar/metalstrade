@@ -2,7 +2,7 @@ import React from 'react';
 import { View, ViewProps, Pressable as RNPressable } from 'react-native';
 import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
 import { useTheme } from '@/theme/ThemeProvider';
-import { radius, getShadow, Elevation } from '@/theme/tokens';
+import { radius, getShadow, Elevation, layout } from '@/theme/tokens';
 import { haptics } from '@/lib/haptics';
 
 export interface CardProps extends ViewProps {
@@ -34,7 +34,7 @@ export function Card({ padded = true, style, children, onPress, onLongPress, ele
       borderRadius: radius.xl,
       borderWidth: 1,
       borderColor: colors.border,
-      padding: padded ? 14 : 0,
+      padding: padded ? layout.cardInset : 0,
       ...(elevation === 'none' ? {} : getShadow(scheme, elevation)),
     },
     style,

@@ -14,6 +14,7 @@ import { streamSse, apiConfigured } from '@/lib/api';
 import { fmtAutoKM, fmtMoney } from '@/lib/format';
 import { haptics } from '@/lib/haptics';
 import { useShallow } from 'zustand/react/shallow';
+import { layout, spacing } from '@/theme/tokens';
 
 const mt = (n: number) => `${fmtMoney(n, 0)} MT`;
 
@@ -48,7 +49,7 @@ export default function Margins() {
     return (
       <Screen contentContainerStyle={{ paddingTop: insets.top + 8 }} edges={false}>
         <StackHeader title="Margins" />
-        <EmptyState title="Admin only" message="Margins are restricted to Admin accounts." icon={<Ionicons name="lock-closed-outline" size={40} color={colors.textFaint} />} />
+        <EmptyState title="Admin only" message="Margins are restricted to Admin accounts." icon={<Ionicons name="lock-closed-outline" size={24} color={colors.textFaint} />} />
       </Screen>
     );
   }
@@ -78,12 +79,12 @@ export default function Margins() {
       ) : isError ? (
         <ErrorState message={(error as Error)?.message || 'Failed to load.'} onRetry={refetch} />
       ) : (
-        <View style={{ gap: 14 }}>
+        <View style={{ gap: layout.stack }}>
           {/* Headline stats — web's 5-card strip (firstpart.js): Incoming,
               Outstanding shipment, Quantity, Profits, Shipped. Mobile was
               missing the Incoming card even though useMargins already
               computed it (totals.incoming, = margins remaining). */}
-          <View style={{ flexDirection: 'row', gap: 14 }}>
+          <View style={{ flexDirection: 'row', gap: spacing.md }}>
             <View style={{ flex: 1 }}>
               <StatCard label="Incoming" value={maskIfHidden(hideBalances, fmtAutoKM(totals.incoming))} accent={colors.info} sub="margins remaining" icon={<Ionicons name="arrow-down-circle" size={16} color={colors.info} />} />
             </View>
@@ -91,7 +92,7 @@ export default function Margins() {
               <StatCard label="Profit" value={maskIfHidden(hideBalances, fmtAutoKM(totals.profit))} accent={colors.positive} sub="total margin $" icon={<Ionicons name="trending-up" size={16} color={colors.positive} />} />
             </View>
           </View>
-          <View style={{ flexDirection: 'row', gap: 14 }}>
+          <View style={{ flexDirection: 'row', gap: spacing.md }}>
             <View style={{ flex: 1 }}>
               <StatCard label="Quantity" value={mt(totals.quantity)} accent={colors.primary} sub="purchased" icon={<Ionicons name="cube" size={16} color={colors.primary} />} />
             </View>
@@ -99,7 +100,7 @@ export default function Margins() {
               <StatCard label="Shipped" value={mt(totals.shipped)} accent={colors.primary} sub="qty − open" icon={<Ionicons name="boat" size={16} color={colors.primary} />} />
             </View>
           </View>
-          <View style={{ flexDirection: 'row', gap: 14 }}>
+          <View style={{ flexDirection: 'row', gap: spacing.md }}>
             <View style={{ flex: 1 }}>
               <StatCard label="Outstanding" value={mt(totals.outstandingShip)} accent={colors.warn} sub="open shipment" icon={<Ionicons name="hourglass" size={16} color={colors.warn} />} />
             </View>
@@ -110,7 +111,7 @@ export default function Margins() {
             <Card style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
               <Text variant="label" tone="muted">GIS profit</Text>
               <Text variant="figure" tone="positive">{maskIfHidden(hideBalances, fmtAutoKM(totals.profitGIS))}</Text>
-              <View style={{ flexDirection: 'row', gap: 14, marginTop: 8 }}>
+              <View style={{ flexDirection: 'row', gap: spacing.md, marginTop: 8 }}>
                 <View style={{ flex: 1 }}>
                   <Text variant="caption" tone="muted">Purchased</Text>
                   {/* web thirdpart.js:340 — no decimals on a whole number, otherwise 2 */}

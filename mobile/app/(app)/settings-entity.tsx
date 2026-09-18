@@ -10,7 +10,7 @@ import { useSettings } from '@/store/settings';
 import { useSettingsEdit } from '@/features/settings/useSettingsEdit';
 import { toast } from '@/store/toast';
 import { newId } from '@/data/writes';
-import { spacing } from '@/theme/tokens';
+import { spacing, layout } from '@/theme/tokens';
 import { StackHeader } from '@/components/StackHeader';
 
 /*
@@ -339,7 +339,7 @@ export default function SettingsEntity() {
 
       {/* Documents: web's Annex VII / ISF / Carrier switch. */}
       {isDoc && (
-        <View style={{ marginBottom: 12 }}>
+        <View style={{ marginBottom: layout.stack }}>
           <SegmentedControl
             value={cfg.cat}
             onChange={(v) => router.setParams({ type: v })}
@@ -360,7 +360,7 @@ export default function SettingsEntity() {
               key={e.id}
               onPress={() => openEdit(e)}
               accessibilityRole="button"
-              style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingHorizontal: 14, paddingVertical: 12, borderTopWidth: i ? 1 : 0, borderTopColor: colors.border }}
+              style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingHorizontal: layout.cardInset, paddingVertical: layout.rowPad, borderTopWidth: i ? 1 : 0, borderTopColor: colors.border }}
             >
               {cfg.avatar ? <Avatar name={cfg.avatar(e)} size={30} /> : null}
               <View style={{ flex: 1, minWidth: 0 }}>

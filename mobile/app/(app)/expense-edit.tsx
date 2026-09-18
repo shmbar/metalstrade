@@ -14,6 +14,7 @@ import { useAuth } from '@/store/auth';
 import { getInvoicesByNumbers } from '@/data/firestore';
 import { newId } from '@/data/writes';
 import { toast } from '@/store/toast';
+import { spacing } from '@/theme/tokens';
 
 // Existing-expense editor — the mobile twin of web's expenses modal
 // (app/(root)/expenses/modals/expenses.js). Web required all of
@@ -145,7 +146,7 @@ export default function ExpenseEdit() {
     <Screen contentContainerStyle={{ paddingTop: insets.top + 8 }} edges={false}>
       <StackHeader title={isNew ? 'New expense' : 'Edit expense'} backLabel="Cancel" />
 
-      <Card style={{ gap: 12 }}>
+      <Card style={{ gap: spacing.md }}>
         <TextField
           label="Expense invoice # *"
           value={String(v.expense ?? '')}
@@ -196,7 +197,7 @@ export default function ExpenseEdit() {
         />
       )}
       {!isNew && (
-        <Pressable onPress={onDelete} style={{ alignSelf: 'center', paddingVertical: 14 }}>
+        <Pressable onPress={onDelete} style={{ alignSelf: 'center', paddingVertical: 10 }}>
           <Text variant="bodyMedium" style={{ color: colors.negative }}>Delete expense</Text>
         </Pressable>
       )}

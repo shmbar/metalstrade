@@ -16,6 +16,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/store/auth';
 import { curSymbol, fmtMoney, dateLabel } from '@/lib/format';
 import { haptics } from '@/lib/haptics';
+import { layout } from '@/theme/tokens';
 
 // Purchase Invoices editor — the mobile twin of web's poInvModal. Mobile could
 // previously only read poInvoices; there was no way to add one, set its value, or
@@ -110,7 +111,7 @@ export default function PoInvoices() {
         <EmptyState
           title="No purchase invoices"
           message="Add one to record what the supplier billed and how it is being paid."
-          icon={<Ionicons name="document-outline" size={40} color={colors.textFaint} />}
+          icon={<Ionicons name="document-outline" size={24} color={colors.textFaint} />}
         />
       ) : (
         rows.map((inv) => (
@@ -230,7 +231,7 @@ export default function PoInvoices() {
       )}
 
       {rows.length > 0 && (
-        <Card style={{ marginBottom: 12 }}>
+        <Card style={{ marginBottom: layout.stack }}>
           <Text variant="label" tone="muted" style={{ marginBottom: 6 }}>Totals</Text>
           <Row label="Invoiced" v={`${sym}${fmtMoney(grand.value)}`} />
           <Row label="Paid" v={`${sym}${fmtMoney(grand.paid)}`} />

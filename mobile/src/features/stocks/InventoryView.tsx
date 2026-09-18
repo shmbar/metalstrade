@@ -9,7 +9,7 @@ import { GradeSummaryCard } from './GradeSummaryCard';
 import { LotSheet } from './LotSheet';
 import { curSymbol, fmtMoney } from '@/lib/format';
 import { filterInventoryRows, warehouseTotalCell } from './display';
-import { LIST_END_PADDING } from '@/theme/tokens';
+import { LIST_END_PADDING, layout } from '@/theme/tokens';
 import { keyboardScrollProps } from '@/lib/keyboard';
 
 const fmtQty = (n: number) => new Intl.NumberFormat('en-US', { minimumFractionDigits: 3 }).format(n || 0);
@@ -149,7 +149,7 @@ export function InventoryView() {
               <EmptyState
                 title={search ? 'No matches' : 'No stock on hand'}
                 message={search ? 'Try a different search.' : 'Stock arrives via Warehouse Stock-In on a contract.'}
-                icon={<Ionicons name="cube-outline" size={40} color={colors.textFaint} />}
+                icon={<Ionicons name="cube-outline" size={24} color={colors.textFaint} />}
                 actionLabel={search ? undefined : 'Open contracts'}
                 onAction={search ? undefined : () => router.push('/(app)/contracts')}
               />
@@ -167,7 +167,7 @@ export function InventoryView() {
           refreshing={isLoading}
           renderItem={({ item, index }) => (
             <FadeInItem index={index}>
-            <Card style={{ marginBottom: 12 }} onPress={() => setLot(item)}>
+            <Card style={{ marginBottom: layout.stack }} onPress={() => setLot(item)}>
               <View style={{ flexDirection: 'row', justifyContent: 'space-between', gap: 12 }}>
                 <View style={{ flex: 1, minWidth: 0 }}>
                   <Text variant="h3" numberOfLines={2}>

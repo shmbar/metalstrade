@@ -59,7 +59,7 @@ export function Button({
         {
           backgroundColor: bg[variant],
           borderRadius: radius.md,
-          paddingVertical: 12,
+          paddingVertical: 10,
           paddingHorizontal: spacing.lg,
           minHeight: layout.controlHeight,
           alignItems: 'center',

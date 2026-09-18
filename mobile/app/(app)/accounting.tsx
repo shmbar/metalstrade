@@ -12,7 +12,7 @@ import { curSymbol, fmtMoney, dateLabel } from '@/lib/format';
 import { exportCsv } from '@/lib/export';
 import { useSettings } from '@/store/settings';
 import { matchesAllWords, searchWords } from '@shared/search';
-import { LIST_END_PADDING } from '@/theme/tokens';
+import { LIST_END_PADDING, layout } from '@/theme/tokens';
 import { keyboardScrollProps } from '@/lib/keyboard';
 
 export default function Accounting() {
@@ -75,14 +75,14 @@ export default function Accounting() {
       />
 
       <SearchField value={search} onChangeText={setSearch} placeholder="Search invoice # or client…" />
-      <View style={{ height: 12 }} />
+      <View style={{ height: 8 }} />
 
       {isLoading ? (
         <SkeletonList />
       ) : isError ? (
         <ErrorState message={(error as Error)?.message || 'Failed to load.'} onRetry={refetch} />
       ) : groups.length === 0 ? (
-        <EmptyState title="No entries" message="No invoices in the selected period." icon={<Ionicons name="reader-outline" size={40} color={colors.textFaint} />} />
+        <EmptyState title="No entries" message="No invoices in the selected period." icon={<Ionicons name="reader-outline" size={24} color={colors.textFaint} />} />
       ) : (
         <FlatList
         {...keyboardScrollProps} keyboardShouldPersistTaps="handled"
@@ -96,7 +96,7 @@ export default function Accounting() {
             const symS = curSymbol(item.curINV);
             const costs = item.lines.reduce((s, l) => s + l.amountExp, 0);
             return (
-              <Card style={{ marginBottom: 12 }}>
+              <Card style={{ marginBottom: layout.stack }}>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', gap: 12 }}>
                   <View style={{ flex: 1, minWidth: 0 }}>
                     <Text variant="h3" numberOfLines={1}>#{item.saleInvoice || item.invoice}</Text>

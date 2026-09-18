@@ -22,13 +22,13 @@ function Disc({ children, tint }: { children: React.ReactNode; tint: string }) {
   return (
     <View
       style={{
-        width: 72,
-        height: 72,
-        borderRadius: 36,
+        width: 52,
+        height: 52,
+        borderRadius: 26,
         backgroundColor: tint + '1A',
         alignItems: 'center',
         justifyContent: 'center',
-        marginBottom: 6,
+        marginBottom: 4,
       }}
     >
       {children}
@@ -68,9 +68,9 @@ export function EmptyState({
 }) {
   const { colors } = useTheme();
   return (
-    <View style={{ alignItems: 'center', justifyContent: 'center', paddingVertical: spacing['3xl'], paddingHorizontal: spacing.lg, gap: 8 }}>
+    <View style={{ alignItems: 'center', justifyContent: 'center', paddingVertical: spacing.xl, paddingHorizontal: spacing.lg, gap: 6 }}>
       <Disc tint={colors.primary}>
-        {icon ?? <Ionicons name="file-tray-outline" size={32} color={colors.primary} />}
+        {icon ?? <Ionicons name="file-tray-outline" size={24} color={colors.primary} />}
       </Disc>
       <Text variant="h3" style={{ textAlign: 'center' }}>
         {title}
@@ -81,7 +81,7 @@ export function EmptyState({
         </Text>
       ) : null}
       {actionLabel && onAction ? (
-        <Button title={actionLabel} variant="secondary" fullWidth={false} onPress={onAction} style={{ marginTop: 10, paddingHorizontal: spacing.xl }} />
+        <Button title={actionLabel} variant="secondary" fullWidth={false} onPress={onAction} style={{ marginTop: 6, paddingHorizontal: spacing.xl }} />
       ) : null}
     </View>
   );
@@ -91,11 +91,11 @@ export function ErrorState({ message, onRetry }: { message: string; onRetry?: ()
   const { colors } = useTheme();
   return (
     <View
-      style={{ alignItems: 'center', justifyContent: 'center', paddingVertical: spacing['3xl'], paddingHorizontal: spacing.lg, gap: 8 }}
+      style={{ alignItems: 'center', justifyContent: 'center', paddingVertical: spacing.xl, paddingHorizontal: spacing.lg, gap: 6 }}
       accessibilityRole="alert"
     >
       <Disc tint={colors.negative}>
-        <Ionicons name="cloud-offline-outline" size={32} color={colors.negative} />
+        <Ionicons name="cloud-offline-outline" size={24} color={colors.negative} />
       </Disc>
       <Text variant="h3" style={{ textAlign: 'center' }}>
         Couldn’t load this
@@ -110,7 +110,7 @@ export function ErrorState({ message, onRetry }: { message: string; onRetry?: ()
           fullWidth={false}
           onPress={onRetry}
           leftIcon={<Ionicons name="refresh" size={16} color={colors.primary} />}
-          style={{ marginTop: 10, paddingHorizontal: spacing.xl }}
+          style={{ marginTop: 6, paddingHorizontal: spacing.xl }}
         />
       ) : null}
     </View>

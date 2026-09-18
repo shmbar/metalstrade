@@ -11,6 +11,7 @@ import { fmtMoney } from '@/lib/format';
 import { StackHeader } from '@/components/StackHeader';
 import { matchesAllWords, searchWords } from '@shared/search';
 import { keyboardScrollProps } from '@/lib/keyboard';
+import { layout } from '@/theme/tokens';
 
 // Web's Total Amount prefix (page.js:103) is '$' for 'us', '€' for 'eu' and NOTHING
 // for anything else. The shared curSymbol falls back to '$' on an empty currency and
@@ -40,14 +41,14 @@ export default function SalesContracts() {
       <StackHeader title="Sales Contracts" right={<PeriodSelector />} />
 
       <SearchField value={search} onChangeText={setSearch} placeholder="Search contract #, consignee, material…" />
-      <View style={{ height: 12 }} />
+      <View style={{ height: 8 }} />
 
       {isLoading ? (
         <SkeletonList />
       ) : isError ? (
         <ErrorState message={(error as Error)?.message || 'Failed to load.'} onRetry={refetch} />
       ) : filtered.length === 0 ? (
-        <EmptyState title="No sales contracts" message="None in the selected period." icon={<Ionicons name="document-attach-outline" size={40} color={colors.textFaint} />} />
+        <EmptyState title="No sales contracts" message="None in the selected period." icon={<Ionicons name="document-attach-outline" size={24} color={colors.textFaint} />} />
       ) : (
         <FlatList
         {...keyboardScrollProps} keyboardShouldPersistTaps="handled"
@@ -60,7 +61,7 @@ export default function SalesContracts() {
           onRefresh={refetch}
           refreshing={isLoading}
           renderItem={({ item }: any) => (
-            <Card style={{ marginBottom: 12 }} onPress={() => router.push(`/(app)/sales-contract-edit?id=${item.id}`)}>
+            <Card style={{ marginBottom: layout.stack }} onPress={() => router.push(`/(app)/sales-contract-edit?id=${item.id}`)}>
               <View style={{ flexDirection: 'row', justifyContent: 'space-between', gap: 12 }}>
                 <View style={{ flex: 1, minWidth: 0 }}>
                   <Text variant="h3" numberOfLines={1}>{item.contractNo}</Text>

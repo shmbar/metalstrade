@@ -3,7 +3,7 @@ import { View, TextInput, TextInputProps, StyleProp, ViewStyle } from 'react-nat
 import { Ionicons } from '@expo/vector-icons';
 import { Pressable } from './Pressable';
 import { useTheme } from '@/theme/ThemeProvider';
-import { MAX_FONT_SCALE, radius, typography } from '@/theme/tokens';
+import { layout, MAX_FONT_SCALE, radius, typography } from '@/theme/tokens';
 import { useRevealOnFocus } from '@/lib/keyboard';
 
 /**
@@ -33,8 +33,8 @@ export function SearchField({
           flexDirection: 'row',
           alignItems: 'center',
           gap: 8,
-          height: 44,
-          paddingHorizontal: 14,
+          height: layout.controlHeight - 4,
+          paddingHorizontal: 12,
           borderRadius: radius.pill,
           backgroundColor: colors.surfaceAlt,
           borderWidth: 1,
@@ -43,7 +43,7 @@ export function SearchField({
         style,
       ]}
     >
-      <Ionicons name="search" size={17} color={colors.textFaint} />
+      <Ionicons name="search" size={16} color={colors.textFaint} />
       <TextInput
         value={value}
         onChangeText={onChangeText}

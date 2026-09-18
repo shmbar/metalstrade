@@ -146,7 +146,7 @@ export function Sheet({
           ]}
         >
           <GestureDetector gesture={pan}>
-            <View style={{ paddingTop: 8, paddingHorizontal: spacing.lg, paddingBottom: title ? spacing.md : spacing.sm }}>
+            <View style={{ paddingTop: 8, paddingHorizontal: spacing.lg, paddingBottom: title ? spacing.sm : spacing.xs }}>
               <View
                 style={{
                   alignSelf: 'center',
@@ -154,7 +154,7 @@ export function Sheet({
                   height: 5,
                   borderRadius: 3,
                   backgroundColor: colors.borderStrong,
-                  marginBottom: title ? 12 : 4,
+                  marginBottom: title ? 10 : 4,
                 }}
               />
               {title ? (

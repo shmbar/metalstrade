@@ -12,7 +12,7 @@ import { toast } from '@/store/toast';
 import { apiConfigured, getJson, sendJson } from '@/lib/api';
 import { PAGE_GROUPS, PAGE_KEYS, assignableRoles, canManageRole, defaultPagesForRole, roleLabel, roleMeta } from '@shared/permissions';
 import { matchesAllWords } from '@shared/search';
-import { radius, spacing } from '@/theme/tokens';
+import { radius, spacing, layout } from '@/theme/tokens';
 import { haptics } from '@/lib/haptics';
 import { useShallow } from 'zustand/react/shallow';
 
@@ -271,13 +271,13 @@ export default function SettingsUsers() {
     <EmptyState
       title="No access"
       message="You do not have permission to manage users."
-      icon={<Ionicons name="lock-closed-outline" size={40} color={colors.textFaint} />}
+      icon={<Ionicons name="lock-closed-outline" size={24} color={colors.textFaint} />}
     />
   ) : !apiConfigured() ? (
     <EmptyState
       title="Backend not configured"
       message="Set EXPO_PUBLIC_API_BASE_URL to your deployed web app URL to manage users."
-      icon={<Ionicons name="cloud-offline-outline" size={40} color={colors.textFaint} />}
+      icon={<Ionicons name="cloud-offline-outline" size={24} color={colors.textFaint} />}
     />
   ) : usersQuery.isLoading ? (
     <SkeletonList count={4} />
@@ -294,7 +294,7 @@ export default function SettingsUsers() {
     <EmptyState
       title={filter ? 'Nothing matches' : 'No users yet'}
       message={filter ? 'Try another name or email.' : 'Add the first member below.'}
-      icon={<Ionicons name="people-outline" size={40} color={colors.textFaint} />}
+      icon={<Ionicons name="people-outline" size={24} color={colors.textFaint} />}
     />
   ) : (
     <Card padded={false}>
@@ -306,7 +306,7 @@ export default function SettingsUsers() {
             onPress={() => edit(u)}
             accessibilityRole="button"
             accessibilityLabel={`User ${u.displayName || u.email}`}
-            style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingLeft: 14, paddingRight: 6, paddingVertical: 12, borderTopWidth: i ? 1 : 0, borderTopColor: colors.border }}
+            style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingLeft: layout.cardInset, paddingRight: 6, paddingVertical: layout.rowPad, borderTopWidth: i ? 1 : 0, borderTopColor: colors.border }}
           >
             <View style={{ flex: 1, minWidth: 0, gap: 4 }}>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
@@ -348,7 +348,7 @@ export default function SettingsUsers() {
         subtitle={canManageUsers && members.length ? `${members.length} member${members.length === 1 ? '' : 's'} · roles and page access` : 'Roles and page access'}
       />
       {canManageUsers && apiConfigured() && members.length > 3 && (
-        <View style={{ marginBottom: 12 }}>
+        <View style={{ marginBottom: layout.stack }}>
           <SearchField value={filter} onChangeText={setFilter} placeholder="Find name, email or role" />
         </View>
       )}

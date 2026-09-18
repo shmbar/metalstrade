@@ -3,6 +3,7 @@ import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { Pressable } from './Pressable';
 import { useTheme } from '@/theme/ThemeProvider';
+import { layout } from '@/theme/tokens';
 
 /**
  * Circular back control — the one every pushed screen uses.
@@ -27,9 +28,9 @@ export function BackButton({ onPress, label = 'Back' }: { onPress?: () => void; 
       accessibilityRole="button"
       accessibilityLabel={label}
       style={{
-        width: 40,
-        height: 40,
-        borderRadius: 20,
+        width: layout.iconButton,
+        height: layout.iconButton,
+        borderRadius: layout.iconButton / 2,
         backgroundColor: colors.surfaceAlt,
         borderWidth: 1,
         borderColor: colors.border,
@@ -37,7 +38,7 @@ export function BackButton({ onPress, label = 'Back' }: { onPress?: () => void; 
         justifyContent: 'center',
       }}
     >
-      <Ionicons name="chevron-back" size={20} color={colors.text} style={{ marginLeft: -2 }} />
+      <Ionicons name="chevron-back" size={18} color={colors.text} style={{ marginLeft: -2 }} />
     </Pressable>
   );
 }

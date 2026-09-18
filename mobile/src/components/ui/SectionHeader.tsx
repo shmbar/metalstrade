@@ -16,7 +16,7 @@ export function SectionHeader({
   return (
     <View
       style={[
-        { flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12, marginBottom: 12 },
+        { flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12, marginBottom: 8 },
         style,
       ]}
     >

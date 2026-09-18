@@ -13,7 +13,7 @@ import { router } from 'expo-router';
 import { toast } from '@/store/toast';
 import { SHIPMENT_STATUSES } from '@shared/shipmentStatus';
 import { StackHeader } from '@/components/StackHeader';
-import { LIST_END_PADDING } from '@/theme/tokens';
+import { LIST_END_PADDING, layout } from '@/theme/tokens';
 import { keyboardScrollProps } from '@/lib/keyboard';
 
 const tone = (s: string): 'neutral' | 'info' | 'positive' | 'negative' | 'warn' => {
@@ -70,7 +70,7 @@ export default function Shipment() {
       {/* Triage and status share one swipeable row. The separate "In transit" triage chip
           applied exactly the same filter as the In Transit status chip beside it, so the
           screen showed it twice across three stacked rows of chips. */}
-      <ChipRow style={{ marginTop: 10 }}>
+      <ChipRow style={{ marginTop: 8 }}>
         <Chip label="Overdue" count={counts.overdue} active={urgency === 'overdue'} onPress={() => setUrgency((u) => (u === 'overdue' ? '' : 'overdue'))} />
         <Chip label="Arriving ≤7d" count={counts.soon} active={urgency === 'soon'} onPress={() => setUrgency((u) => (u === 'soon' ? '' : 'soon'))} />
         <ChipDivider />
@@ -95,14 +95,14 @@ export default function Shipment() {
           )}
         </ChipRow>
       )}
-      <View style={{ height: 12 }} />
+      <View style={{ height: 8 }} />
 
       {isLoading ? (
         <SkeletonList />
       ) : isError ? (
         <ErrorState message={(error as Error)?.message || 'Failed to load.'} onRetry={refetch} />
       ) : rows.length === 0 ? (
-        <EmptyState title="No shipments" message="No contracts match the current filters." icon={<Ionicons name="boat-outline" size={40} color={colors.textFaint} />} />
+        <EmptyState title="No shipments" message="No contracts match the current filters." icon={<Ionicons name="boat-outline" size={24} color={colors.textFaint} />} />
       ) : (
         <FlatList
         {...keyboardScrollProps} keyboardShouldPersistTaps="handled"
@@ -118,7 +118,7 @@ export default function Shipment() {
             </Text>
           }
           renderItem={({ item }) => (
-            <Card style={{ marginBottom: 12 }} onPress={() => setEditing(item)}>
+            <Card style={{ marginBottom: layout.stack }} onPress={() => setEditing(item)}>
               <View style={{ flexDirection: 'row', justifyContent: 'space-between', gap: 12 }}>
                 <View style={{ flex: 1, minWidth: 0 }}>
                   <Text variant="h3" numberOfLines={1}>
@@ -267,7 +267,7 @@ export default function Shipment() {
                   {editing.shipments.length} shipment{editing.shipments.length === 1 ? '' : 's'}
                 </Text>
                 {editing.shipments.map((sh, i) => (
-                  <View key={sh.id} style={{ paddingVertical: 12, borderTopWidth: i ? 1 : 0, borderTopColor: colors.border, gap: 8 }}>
+                  <View key={sh.id} style={{ paddingVertical: layout.rowPad, borderTopWidth: i ? 1 : 0, borderTopColor: colors.border, gap: 8 }}>
                     <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10 }}>
                       <Pressable
                         onPress={() => {

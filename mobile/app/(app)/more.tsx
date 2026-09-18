@@ -9,7 +9,7 @@ import { ScreenHeader } from '@/components/ScreenHeader';
 import { useTheme } from '@/theme/ThemeProvider';
 import { useAuth } from '@/store/auth';
 import { clearBiometricCredentials } from '@/lib/secureStore';
-import { radius } from '@/theme/tokens';
+import { radius, layout } from '@/theme/tokens';
 import { matchesAllWords, searchWords } from '@shared/search';
 import { routeKeyOf } from '@/lib/access';
 import { useShallow } from 'zustand/react/shallow';
@@ -79,9 +79,9 @@ function NavRow({ item, first, isAdmin }: { item: NavItem; first: boolean; isAdm
   return (
     <Pressable
       onPress={() => router.push(item.href as any)}
-      style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingHorizontal: 14, paddingVertical: 12, borderTopWidth: first ? 0 : 1, borderTopColor: colors.border }}
+      style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingHorizontal: layout.cardInset, paddingVertical: layout.rowPad, borderTopWidth: first ? 0 : 1, borderTopColor: colors.border }}
     >
-      <View style={{ width: 36, height: 36, borderRadius: radius.md, backgroundColor: colors.primary + '22', alignItems: 'center', justifyContent: 'center' }}>
+      <View style={{ width: layout.leading, height: layout.leading, borderRadius: radius.md, backgroundColor: colors.primary + '22', alignItems: 'center', justifyContent: 'center' }}>
         <Ionicons name={item.icon} size={18} color={colors.primary} />
       </View>
       <View style={{ flex: 1, minWidth: 0 }}>
@@ -146,8 +146,8 @@ export default function More() {
       {/* Account card — who is signed in, on which workspace, and the way out.
           Sign out lives here (where every phone app keeps it: under the
           profile) as well as at the foot of the page. */}
-      <Card style={{ marginBottom: 12 }} padded={false}>
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, padding: 14 }}>
+      <Card style={{ marginBottom: layout.stack }} padded={false}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, padding: layout.cardInset }}>
           <View style={{ width: 48, height: 48, borderRadius: 24, backgroundColor: colors.primary, alignItems: 'center', justifyContent: 'center' }}>
             <Text variant="h2" color={colors.primaryText}>{currentUser.name.charAt(0).toUpperCase()}</Text>
           </View>
@@ -166,7 +166,7 @@ export default function More() {
               <Pressable
                 onPress={() => router.push('/(app)/settings')}
                 accessibilityRole="button"
-                style={{ flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, paddingVertical: 12 }}
+                style={{ flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, paddingVertical: 10 }}
               >
                 <Ionicons name="settings-outline" size={16} color={colors.primary} />
                 <Text variant="label" tone="primary">Settings</Text>
@@ -177,7 +177,7 @@ export default function More() {
           <Pressable
             onPress={onSignOut}
             accessibilityRole="button"
-            style={{ flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, paddingVertical: 12 }}
+            style={{ flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, paddingVertical: 10 }}
           >
             <Ionicons name="log-out-outline" size={16} color={colors.negative} />
             <Text variant="label" style={{ color: colors.negative }}>Sign out</Text>
@@ -187,7 +187,7 @@ export default function More() {
 
       {/* Search across all tools */}
       <SearchField value={query} onChangeText={setQuery} placeholder="Search tools… (e.g. balances, audit)" />
-      <View style={{ height: 14 }} />
+      <View style={{ height: 8 }} />
 
       {/* AI Assistant — the page's one feature row, so it reads as an invitation
           rather than the first item of the Money list. */}
@@ -197,7 +197,7 @@ export default function More() {
           style={{ marginBottom: 12, backgroundColor: colors.primary + '0F', borderColor: colors.primary + '33' }}
         >
           <Pressable onPress={() => router.push('/(app)/assistant')} accessibilityRole="button" style={{ flexDirection: 'row', alignItems: 'center', gap: 12, padding: 15 }}>
-            <View style={{ width: 36, height: 36, borderRadius: radius.md, backgroundColor: colors.primary, alignItems: 'center', justifyContent: 'center' }}>
+            <View style={{ width: layout.leading, height: layout.leading, borderRadius: radius.md, backgroundColor: colors.primary, alignItems: 'center', justifyContent: 'center' }}>
               <Ionicons name="sparkles" size={19} color={colors.primaryText} />
             </View>
             <View style={{ flex: 1, minWidth: 0 }}>
@@ -211,7 +211,7 @@ export default function More() {
 
       {/* Grouped tools */}
       {groups.length === 0 ? (
-        <EmptyState title="No matches" message="Try a different search." icon={<Ionicons name="search-outline" size={40} color={colors.textFaint} />} />
+        <EmptyState title="No matches" message="Try a different search." icon={<Ionicons name="search-outline" size={24} color={colors.textFaint} />} />
       ) : (
         groups.map((g) => (
           <View key={g.group} style={{ marginBottom: 12 }}>
@@ -229,7 +229,7 @@ export default function More() {
 
       {/* Appearance */}
       {!query && (
-        <Card style={{ marginBottom: 12 }}>
+        <Card style={{ marginBottom: layout.stack }}>
           <SectionHeader title="Appearance" />
           <View style={{ flexDirection: 'row', gap: 8 }}>
             {themeOptions.map((o) => (
@@ -254,7 +254,7 @@ export default function More() {
             leftIcon={<Ionicons name="log-out-outline" size={18} color={colors.negative} />}
             onPress={onSignOut}
           />
-          <Text variant="caption" tone="faint" style={{ textAlign: 'center', marginTop: 16 }}>
+          <Text variant="caption" tone="faint" style={{ textAlign: 'center', marginTop: 12 }}>
             IMS Tech · v{Constants.expoConfig?.version || '1.0'} · same account as the web CRM
           </Text>
         </>
