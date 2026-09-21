@@ -444,6 +444,50 @@ describe('finance.settledInQty — a zero-weight settlement line is not an arriv
   });
 });
 
+describe('finance.settlementReduction — a settlement that weighed the delivery light', () => {
+  // Triart PO 150125-1 (client, 2026-09-21): delivery 150125-1-5 booked 21.191 MT,
+  // sales invoice 1240 sold 21.171 MT, and settlement CI250407-1 recorded the
+  // difference as a zero-weight line with finalqnty -0.020. The line sat at exactly
+  // that 0.020 MT because the per-lot sum cannot see a row with no quantity.
+  const line = [
+    { type: 'in', qnty: '21.191', finalqnty: '21.191' },
+    { type: 'in', qnty: '20.836', finalqnty: '20.836' },
+    { type: 'in', qnty: '0', finalqnty: '-0.020' },
+    { type: 'out', qnty: '21.171' },
+    { type: 'out', qnty: '20.836' },
+  ];
+
+  it('returns the reduction booked on zero-weight lines', () => {
+    expect(both(webFinance.settlementReduction, mobFinance.settlementReduction, line)).toBeCloseTo(-0.02, 6);
+  });
+
+  it('closes that line to zero once applied', () => {
+    const net = line.reduce((t, l) => t + (l.type === 'in' ? webFinance.settledInQty(l) : -webFinance.num(l.qnty)), 0);
+    expect(net).toBeCloseTo(0.02, 6);
+    expect(net + webFinance.settlementReduction(line)).toBeCloseTo(0, 6);
+  });
+
+  it('ignores a POSITIVE zero-weight line — that is the Nicrometal case, and adding it invents stock', () => {
+    expect(both(webFinance.settlementReduction, mobFinance.settlementReduction, [
+      { type: 'in', qnty: '0', finalqnty: '0.254' },
+      { type: 'in', qnty: 0, finalqnty: 40.293 },
+    ])).toBe(0);
+  });
+
+  it('ignores lots that carry a weight of their own, and out-lots', () => {
+    expect(both(webFinance.settlementReduction, mobFinance.settlementReduction, [
+      { type: 'in', qnty: '0.876', finalqnty: '0.634' },   // settled light, but it has a weight
+      { type: 'out', qnty: '0', finalqnty: '-5' },          // a sale is not a settlement line
+    ])).toBe(0);
+  });
+
+  it('survives junk: no lots, nulls, unparseable figures', () => {
+    expect(both(webFinance.settlementReduction, mobFinance.settlementReduction, [])).toBe(0);
+    expect(both(webFinance.settlementReduction, mobFinance.settlementReduction, undefined)).toBe(0);
+    expect(both(webFinance.settlementReduction, mobFinance.settlementReduction, [null, { type: 'in', qnty: '0', finalqnty: 'abc' }])).toBe(0);
+  });
+});
+
 describe('finance.toMT — quantity is converted through the contract\'s own unit setting', () => {
   it('exposes the unit factors the Inventory tab uses', () => {
     // utils/finance.js:22 — { MT: 1, KGS: 0.001, LB: 0.0005 }.
@@ -1770,7 +1814,7 @@ const SHARED_EXPORTS: Record<string, { covered: string[]; untestable?: Record<st
       'DEFAULT_TERM_DAYS', 'FINALIZED_FLAG', 'UNIT_TO_MT', 'agingBuckets', 'contractPurchaseValue',
       'effectiveDueDate', 'fx', 'groupInvoices', 'invoiceBalance', 'invoicePaid', 'invoiceRevenue',
       'isFinalNote', 'isFinalized', 'isIssued', 'isOverdue', 'num', 'pnl', 'receivables',
-      'resolveCur', 'settledInQty', 'toMT', 'unitOf',
+      'resolveCur', 'settledInQty', 'settlementReduction', 'toMT', 'unitOf',
     ],
     untestable: {
       resolveDueDate: 're-export of pureHelpers.resolveDueDate (finance.js:9-11) — covered there',

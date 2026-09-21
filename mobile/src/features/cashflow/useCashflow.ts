@@ -7,7 +7,7 @@ import { useAllStockLots } from '@/features/stocks/useAllStockLots';
 import { computeInventory, cashflowStockLots } from '@/features/stocks/aggregate';
 import { Contract, Invoice } from '@/data/types';
 import { resolveClientName } from '@/features/invoices/useInvoices';
-import { num } from '@shared/finance';
+import { num, settlementReduction } from '@shared/finance';
 // @ts-ignore — plain JS module shared verbatim with the web
 import { lotIsSold } from '@shared/soldStatus';
 import { useShallow } from 'zustand/react/shallow';
@@ -371,11 +371,15 @@ function computeUnsoldWeb(contractsData: any[], stockData: any[], settings: any)
       );
       const soldQty = prodLots.filter(lotIsSold).reduce((s, l) => s + (Number(l.qnty) || 0), 0);
 
+      // …and a settlement that weighed the delivery LIGHT takes its difference off
+      // the line (web utils/finance settlementReduction; the row carries no
+      // quantity of its own, so the sums above cannot see it).
       const qnty =
         prodLots.length > 0
           ? Math.max(
               0,
               unsoldLots.reduce((s, l) => s + (Number(l.qnty) || 0), 0) - Math.max(0, outQty - soldQty)
+                + settlementReduction(prodLots)
             )
           : singleOwnLine && !prod.import && hasImportLots
             ? 0

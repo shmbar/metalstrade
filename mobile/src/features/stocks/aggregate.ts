@@ -38,6 +38,20 @@ const settledInQty = (lot: any): number => {
   return base + settle;
 };
 
+/* Port of utils/finance.js settlementReduction. The other half: a zero-weight line
+   whose settled figure is NEGATIVE is the supplier settling for LESS than was
+   delivered, and that reduction belongs to the material LINE — the per-lot sum
+   above cannot see it, because the row carries no quantity of its own.
+   Triart PO 150125-1 left 0.020 MT of B28 Solids on the books that way. Reductions
+   only: a positive figure is the Nicrometal case settledInQty guards against. */
+const settlementReduction = (lots: any[] = []): number =>
+  (lots || []).reduce((total: number, l: any) => {
+    if (!l || l.type !== 'in') return total;
+    if (Math.abs(f(l.qnty) || 0) !== 0) return total;
+    const fin = f(l.finalqnty) || 0;
+    return fin < 0 ? total + fin : total;
+  }, 0);
+
 
 // Verbatim port of web cashflow/funcs.js isNumber (:314). Deliberately STRICT:
 // a non-string is not a number, and the whole trimmed string must be numeric.
@@ -248,6 +262,9 @@ export function computeInventory(
       totalObj.id = currentObj.id;
       totalObj.qTypeTable = currentObj.qTypeTable || '';
     });
+    // The settlement's own correction row has no quantity, so it is applied here,
+    // once per line — same order as web (stocks page.js / cashflow funcs.js).
+    totalObj.qnty = (f(totalObj.qnty) || 0) + settlementReduction(group);
 
     if (cashflow) {
       // web funcs.js:352-356 — prefer the contract product line's unit price, and

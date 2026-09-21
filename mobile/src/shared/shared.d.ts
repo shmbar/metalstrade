@@ -33,6 +33,8 @@ declare module '@shared/finance' {
   export function fx(amount: number, cur: string, rate: number, base?: string): number;
   export function unitOf(contract: any, settings: any): string;
   export function toMT(qty: number, contract: any, settings: any): number;
+  export function settledInQty(lot: any): number;
+  export function settlementReduction(lots: any[]): number;
   export function groupInvoices(list: any[]): any[];
   export function invoiceRevenue(
     list: any[],

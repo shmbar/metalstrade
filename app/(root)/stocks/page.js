@@ -15,7 +15,7 @@ import VideoLoader from '../../../components/videoLoader';
 import { TableSkeleton } from "../../../components/skeletons";
 import { UserAuth } from "../../../contexts/useAuthContext"
 import { loadStockData, filteredArray, loadAllStockData } from '../../../utils/utils'
-import { settledInQty } from '../../../utils/finance'
+import { settledInQty, settlementReduction } from '../../../utils/finance'
 import { Selector } from '../../../components/selectors/selectShad.js'
 import { EXD } from './excel'
 import { getTtl } from '../../../utils/languages';
@@ -291,6 +291,10 @@ const Stocks = () => {
           totalObj['id'] = currentObj.id
           totalObj['qTypeTable'] = currentObj.qTypeTable || ''
         }
+        // The settlement's own correction row carries no quantity, so the loop above
+        // cannot see it: a settlement that weighed the delivery light is a line-level
+        // reduction (utils/finance settlementReduction).
+        totalObj['qnty'] = (parseFloat(totalObj['qnty']) || 0) + settlementReduction(filteredstockData)
 
 
 

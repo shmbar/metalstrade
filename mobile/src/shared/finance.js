@@ -128,6 +128,30 @@ export const settledInQty = (lot) => {
   return base + settle;
 };
 
+/* The other half of that story: a zero-weight settlement line whose settled figure
+   is NEGATIVE — the supplier settling for LESS than was delivered.
+
+   Triart PO 150125-1 (client, 2026-09-21: "where is this 20 kg from — I found it in
+   the final settlement but we didn't put this material there"). Delivery 150125-1-5
+   booked 21.191 MT on 21 Feb 2025 and sales invoice 1240 sold 21.171 MT the same
+   day; settlement invoice CI250407-1 then recorded the 0.020 MT difference as a
+   zero-weight line with finalqnty -0.020. Every other delivery on that PO matches
+   its sale to the gram, so the line sat at exactly that 0.020 MT — $62.99 of stock
+   that is not in any warehouse.
+
+   Only reductions count here. A POSITIVE figure on a zero-weight line is the
+   Nicrometal case above — material found at the buyer's end, already shipped —
+   and adding it would invent stock; subtracting a reduction can only ever remove
+   stock that was never there. Takes the lots of ONE material line (they are not
+   per-lot: the correction belongs to the line, not to any single delivery). */
+export const settlementReduction = (lots = []) =>
+  lots.reduce((total, l) => {
+    if (!l || l.type !== 'in') return total;
+    if (Math.abs(num(l.qnty)) !== 0) return total;
+    const fin = num(l.finalqnty);
+    return fin < 0 ? total + fin : total;
+  }, 0);
+
 // ── grouping ─────────────────────────────────────────────────────────────────
 // Dedupe a flat list of invoice docs by invoice number. When a group contains a
 // Credit/Final note, those supersede the original '1111' invoice; payments are

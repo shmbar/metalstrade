@@ -30,6 +30,18 @@ import { repoFileText, expectWebUnchanged, webFnSource } from './_helpers/webSou
    a lot whose ORIGINAL quantity is zero counts nothing, because those are the
    zero-weight lines added so a final settlement can list items the client found
    after sorting a shipment — material that is at the buyer's, not in a warehouse. */
+/* Mirror of utils/finance.js settlementReduction: a zero-weight settlement line
+   whose settled figure is NEGATIVE reduces the LINE (the per-lot sums below cannot
+   see it — the row has no quantity). Reductions only; a positive one is the
+   Nicrometal case settledInQty already guards. */
+const settlementReduction = (lots: any[] = []): number =>
+  (lots || []).reduce((total: number, l: any) => {
+    if (!l || l.type !== 'in') return total;
+    if (Math.abs(parseFloat(l.qnty) || 0) !== 0) return total;
+    const fin = parseFloat(l.finalqnty) || 0;
+    return fin < 0 ? total + fin : total;
+  }, 0);
+
 const settledInQty = (lot: any): number => {
   const base = Math.abs(parseFloat(lot?.qnty)) || 0;
   if (base === 0) return 0;
@@ -113,7 +125,12 @@ import {
 // RECORDED WEB HASHES — the drift alarm. See __tests__/parity/README.md.
 // ═════════════════════════════════════════════════════════════════════════════
 const HASH = {
-  loadtStocks: '798293542752', // app/(root)/stocks/page.js:132  (aggregation core)
+  // Re-recorded 2026-09-21: a line's quantity now also takes finance.settlementReduction
+  // (a zero-weight settlement line settled LIGHT — Triart PO 150125-1, 0.020 MT of stock
+  // that was in no warehouse). Mobile's computeInventory (stocks/aggregate.ts) applies the
+  // same reduction at the same point — confirmed by the "settled the delivery light" case
+  // in Tier 3 below, which runs web mirror and mobile over one ledger, not assumed.
+  loadtStocks: '09a134186cd2', // app/(root)/stocks/page.js:132  (aggregation core)
   setTotals: '0878395a5db7', // app/(root)/stocks/page.js:263
   getFormatted: 'ce2b9a9845ad', // app/(root)/stocks/page.js:312
   showWeight: 'eff225f4c25c', // app/(root)/stocks/page.js:288
@@ -197,7 +214,10 @@ const HASH = {
   // still owed ($1.45m IMS, $66k GIS). Now judged over the row's own purchase lots,
   // with a numeric zero test. Mobile's splitStocksPaidUnpaid (useCashflow.ts) changed
   // in the same commit to the same rule — confirmed matching, not assumed.
-  runStocks: '84cec2eb311e', // app/(root)/cashflow/funcs.js:244
+  // Re-recorded again 2026-09-21: both quantity paths (the unsold-contract-line one and
+  // the inventory-total one) now subtract settlementReduction; mobile's computeUnsoldWeb
+  // (useCashflow.ts) and computeInventory carry the same term.
+  runStocks: '6ea75924f563', // app/(root)/cashflow/funcs.js:244
   staleDays: 'a2e0c4822268', // app/(root)/stocks/storageAging.js:11
   // Re-recorded 2026-09-09: DEMURRAGE_DAYS renamed to LONG_STAY_DAYS — the value
   // (90) is unchanged, but "demurrage" implied a specific shipping-contract charge
@@ -313,6 +333,7 @@ const webLoadStocks = (rawStockData: any[], settings: any): any[] => {
       totalObj['id'] = currentObj.id;
       totalObj['qTypeTable'] = currentObj.qTypeTable || '';
     }
+    totalObj['qnty'] = (parseFloat(totalObj['qnty']) || 0) + settlementReduction(filteredstockData);
 
     totalObj['total'] =
       totalObj.qnty === 0 &&
@@ -434,6 +455,7 @@ const webRunStocksRows = (rawStockData: any[], settings: any): any[] => {
         totalObj['id'] = currentObj.id;
         totalObj['qTypeTable'] = currentObj.qTypeTable || '';
       }
+      totalObj['qnty'] = (parseFloat(totalObj['qnty']) || 0) + settlementReduction(filteredData);
 
       const untPrc = filteredData[0].productsData?.find(
         (z: any) => z.id === (filteredData[0].descriptionId || filteredData[0].description)
@@ -1039,6 +1061,33 @@ describe('Tier 3 — inventory aggregation (stocks page loadtStocks)', () => {
     const r = rows.find((x) => x.id === 'lot-1out')!; // last row of the group supplies the id
     expect(r.qnty).toBe(6); // 10 in − 4 out
     expect(r.total).toBe(6000); // 6 × 1000
+  });
+
+  it('a settlement that weighed the delivery light closes the line, web and mobile alike', () => {
+    // Triart PO 150125-1 (client, 2026-09-21): 21.191 MT received, 21.171 MT sold, and
+    // settlement CI250407-1 booked the 0.020 MT difference as a zero-weight line with
+    // finalqnty -0.020. Without applying it the line reads 0.020 MT of stock that is in
+    // no warehouse; the row carries no quantity, so it has to be applied per LINE.
+    const lots = [
+      makeStockLot({ id: 's-in', qnty: '21.191', finalqnty: '21.191', unitPrc: '3150' }),
+      makeStockLot({ id: 's-settle', qnty: '0', finalqnty: '-0.020', unitPrc: '100012.50' }),
+      makeStockLot({ id: 's-out', type: 'out', qnty: '21.171', invoice: 1240 }),
+    ];
+    const web = webLoadStocks(structuredClone(lots), SETTINGS);
+    const { rows } = computeInventory(structuredClone(lots), SETTINGS);
+    expect(rows.map(rowShape)).toEqual(web.map(rowShape));
+    expect(rows).toHaveLength(0); // 0.020 - 0.020 = 0, and 0 is not on-hand stock
+  });
+
+  it('a POSITIVE zero-weight settlement line still adds nothing (Nicrometal PO 181024)', () => {
+    const lots = [
+      makeStockLot({ id: 'n-in', qnty: '5', finalqnty: '5', unitPrc: '1000' }),
+      makeStockLot({ id: 'n-settle', qnty: '0', finalqnty: '0.254', unitPrc: '1000' }),
+    ];
+    const web = webLoadStocks(structuredClone(lots), SETTINGS);
+    const { rows } = computeInventory(structuredClone(lots), SETTINGS);
+    expect(rows.map(rowShape)).toEqual(web.map(rowShape));
+    expect(rows[0].qnty).toBe(5); // not 5.254
   });
 
   it('a settled IN lot counts its finalqnty, not the quantity originally received', () => {

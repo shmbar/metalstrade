@@ -1,6 +1,6 @@
 import { useState, useContext } from 'react';
 import { SettingsContext } from "../../../contexts/useSettingsContext";
-import { settledInQty } from "../../../utils/finance";
+import { settledInQty, settlementReduction } from "../../../utils/finance";
 
 import CheckBox from "../../../components/checkbox";
 import Avatar from "../../../components/Avatar";
@@ -318,8 +318,11 @@ export const runStocks = async (uidCollection, settings, yr, contractsData = [],
                 ...prodOuts.filter(l => !hasInv(l)),
             ].reduce((s, l) => s + Math.abs(Number(l.qnty) || 0), 0);
             const soldQty = prodLots.filter(lotIsSold).reduce((s, l) => s + (Number(l.qnty) || 0), 0);
+            // …and a settlement that weighed the delivery LIGHT takes its difference off
+            // the line (utils/finance settlementReduction).
             const qnty = prodLots.length > 0
-                ? Math.max(0, unsoldLots.reduce((s, l) => s + (Number(l.qnty) || 0), 0) - Math.max(0, outQty - soldQty))
+                ? Math.max(0, unsoldLots.reduce((s, l) => s + (Number(l.qnty) || 0), 0) - Math.max(0, outQty - soldQty)
+                    + settlementReduction(prodLots))
                 : (singleOwnLine && !prod.import && hasImportLots ? 0 : (Number(prod.qnty) || 0));
             if (qnty <= 0.0005) continue; // nothing left (or represented by the per-alloy lines)
             // Value mirrors the inventory tables: quantity × the line's unit price. Summing
@@ -403,6 +406,9 @@ export const runStocks = async (uidCollection, settings, yr, contractsData = [],
                 totalObj['id'] = currentObj.id
                 totalObj['qTypeTable'] = currentObj.qTypeTable || ''
             }
+            // A settlement that weighed the delivery light belongs to the LINE, not to any
+            // one lot: it is booked as a zero-weight row, so the per-lot sum above skips it.
+            totalObj['qnty'] = (parseFloat(totalObj['qnty']) || 0) + settlementReduction(filteredData)
 
 
             let untPrc = filteredData[0].productsData?.find(z => z.id ===
