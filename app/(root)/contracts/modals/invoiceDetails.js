@@ -700,7 +700,13 @@ const ContractModal = () => {
 					<ProductsTable value={valueInv} setValue={setValueInv}
 						currency={settings.Currency.Currency} uidCollection={uidCollection}
 						setDeleteProducts={setDeleteProducts} settings={settings}
-						materialsArr={(valueCon.productsData || []).map(x => ({ id: x.id, description: x.description }))}
+						/* `po` names the contract each material line belongs to — an imported line
+						   belongs to the PO it came from, everything else to this one. */
+						materialsArr={(valueCon.productsData || []).map(x => ({
+							id: x.id, description: x.description,
+							po: x.import ? (x.importedFrom?.order || '') : (valueCon?.order || ''),
+							importedFrom: x.importedFrom,
+						}))}
 						certOpen={certOpen} setCertOpen={setCertOpen}
 						salesContracts={scLineOptions}
 					/>

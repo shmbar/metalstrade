@@ -4,7 +4,7 @@ import { useSettings } from '@/store/settings';
 import { updateInvoiceDoc, saveStockIn, delStock, saveSplit } from '@/data/writes';
 import { STOCK_LOTS_KEY } from '@/features/stocks/useAllStockLots';
 import { duplicateLineTrap } from '@shared/stockGuards';
-import { loadStockOnHandByLine } from '@/features/stocks/onHand';
+import { loadStockRowsByLine } from '@/features/stocks/onHand';
 import { loadDocByIdDate } from '@/data/firestore';
 
 // Persist an IMS/GIS split on an invoice — the third page web renders SplitControl on.
@@ -64,10 +64,8 @@ export function useEditInvoice() {
           id: raw.poSupplier.id,
           date: raw.poSupplier.date,
         });
-        const trap = await duplicateLineTrap(
-          { ...raw, ...patch },
-          (con?.productsData || []) as any,
-          (ids, wh) => loadStockOnHandByLine(uidCollection, ids, wh)
+        const trap = await duplicateLineTrap({ ...raw, ...patch }, con, (ids) =>
+          loadStockRowsByLine(uidCollection, ids)
         );
         if (trap) throw new Error(trap);
       }

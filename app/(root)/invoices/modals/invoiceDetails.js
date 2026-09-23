@@ -656,7 +656,13 @@ const InvoiceModal = () => {
 						<ProductsTable value={valueInv} setValue={setValueInv}
 							currency={settings.Currency.Currency} uidCollection={uidCollection}
 							settings={settings} setDeleteProducts={setDeleteProducts}
-							materialsArr={(valueInv.productsData || []).map(x => ({ id: x.id, description: x.description }))}
+							/* `po` names the contract each material line belongs to — an imported line
+							   belongs to the PO it came from, everything else to this invoice's own. */
+							materialsArr={(valueInv.productsData || []).map(x => ({
+								id: x.id, description: x.description,
+								po: x.import ? (x.importedFrom?.order || '') : (valueInv.poSupplier?.order || ''),
+								importedFrom: x.importedFrom,
+							}))}
 							salesContracts={scLineOptions}
 						/>
 					</div>

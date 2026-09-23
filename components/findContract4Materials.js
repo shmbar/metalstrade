@@ -17,7 +17,13 @@ const FindCOntract4Materials = ({ open, setOpen, uidCollection, value, setValue 
         setContract(cont)
      
         if (cont.length > 0) {
-            let tmpArr = cont[0].productsData.map(x => ({ ...x, import: true, importedFrom: { id: cont[0].id, date: cont[0].date } }))
+            // `order` alongside id/date: the invoice's material dropdown names the PO each
+            // line came from (client, 2026-09-23 — "sometimes it's the same name material"),
+            // and carrying it here saves that list a lookup per source contract.
+            let tmpArr = cont[0].productsData.map(x => ({
+                ...x, import: true,
+                importedFrom: { id: cont[0].id, date: cont[0].date, order: cont[0].order || '' },
+            }))
 
             let newProductsData = [
                 ...new Map(

@@ -25,11 +25,13 @@ import { matchesAllWords } from '@utils/search';
    tailwind-merge does not dedupe two custom classes, so both land on the element
    and the one declared later in globals.css takes it. The --fs-* vars exist for
    exactly this — inline sizes that still ride the shared ladder. */
-/* hint: optional (item) => { text, tone } rendered as a muted suffix on each OPTION
-   only — never on the closed trigger, so the cell stays clean once a choice is made.
-   tone 'danger' colours the suffix as a warning. First use: stock on hand beside each
-   material in the sales-invoice dropdown, so a line with nothing behind it is
-   obvious at the moment of choosing rather than weeks later in cashflow. */
+/* hint: optional (item) => { note, text, tone } rendered as a muted suffix on each
+   OPTION only — never on the closed trigger, so the cell stays clean once a choice is
+   made. `note` identifies the option (always muted), `text` is the figure and tone
+   'danger' colours it as a warning. First use: the sales-invoice material dropdown,
+   which names the PO each line belongs to — two POs can carry the same material name —
+   and the stock behind it, so a line with nothing behind it is obvious at the moment of
+   choosing rather than weeks later in cashflow. */
 /* onCreate: optional (typedText) => void. When the search text matches no option
    exactly, the list offers "<createLabel> “text”" at the top, and Enter on an empty
    result does the same. For lists the user grows while using them — a grade that does
@@ -214,18 +216,30 @@ export function Selector({ arr, value, onChange, name, clear, disabled, secondar
                                    here and the one thing in the menu that never followed the
                                    theme. Plain options take their colour from the panel. */
                                 className={cn((k.id === 'EditTextDelTime' || k.id === 'allStocks' || k.id === 'EditTextRmrks' || k.id === 'EditTextTermPmnt') &&
-                                    'font-semibold italic text-[var(--brand-strong)]')} >
-                                {secondaryName ? k[secondaryName] : k[name]}
-                                {(() => {
+                                    'font-semibold italic text-[var(--brand-strong)]')}
+                                /* The hint goes in `suffix`, outside ItemText, so it stays in
+                                   the list and never reaches the closed cell (ui/select.tsx). */
+                                suffix={(() => {
                                     const h = hint ? hint(k) : null;
-                                    if (!h?.text) return null;
+                                    if (!h?.text && !h?.note) return null;
                                     return (
-                                        <span className={cn('ml-2 tabular-nums',
-                                            h.tone === 'danger' ? 'text-[var(--danger-text)]' : 'text-[var(--ink-muted)]')}>
-                                            {h.text}
-                                        </span>
+                                        <>
+                                            {/* `note` says WHICH record the option is (the PO a material
+                                                line belongs to); it stays muted whatever the tone, because
+                                                only the figure after it can be a warning. */}
+                                            {h.note && (
+                                                <span className="ml-2 whitespace-nowrap text-[var(--ink-muted)]">{h.note}</span>
+                                            )}
+                                            {h.text && (
+                                                <span className={cn('ml-2 whitespace-nowrap tabular-nums',
+                                                    h.tone === 'danger' ? 'text-[var(--danger-text)]' : 'text-[var(--ink-muted)]')}>
+                                                    {h.text}
+                                                </span>
+                                            )}
+                                        </>
                                     );
-                                })()}
+                                })()} >
+                                {secondaryName ? k[secondaryName] : k[name]}
                             </SelectItem>
                         )
                     })}

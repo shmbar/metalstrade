@@ -1,6 +1,6 @@
 import Modal from '@components/modal.js'
 import { useNumericCaret } from '@utils/numericCaret';
-import { useContext, useState, useEffect } from 'react'
+import { useContext, useState, useEffect, useMemo } from 'react'
 import { SettingsContext } from "@contexts/useSettingsContext";
 import { ContractsContext } from "@contexts/useContractsContext";
 import FloatingDatepicker from '@components/FloatingDatepicker';
@@ -8,7 +8,8 @@ import { UserAuth } from "@contexts/useAuthContext";
 
 import ChkBox from '@components/checkbox';
 import { v4 as uuidv4 } from 'uuid';
-import { getD, loadStockData, validate } from '@utils/utils'
+import { getD, loadSalesMovementsByLine, loadStockData, validate } from '@utils/utils'
+import { allocateSalesToLots, lotSalesCellText, lotSalesTooltip } from '@utils/salesUsage'
 import { getTtl } from '@utils/languages';
 import Tltip from '@components/tlTip';
 import { Selector } from '@components/selectors/selectShad.js';
@@ -48,6 +49,9 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowPoInvModal }) => {
     const [data, setData] = useState([]);
     const [errors, setErrors] = useState([])
     const [showDocImport, setShowDocImport] = useState(false)
+    /* Which sales invoices already took material from each of this contract's lines.
+       Read from the stock ledger, so it needs nothing typed and cannot go stale. */
+    const [salesByLine, setSalesByLine] = useState({})
 
     const handleValue = (e, i) => {
         let itm = valueCon.poInvoices[i]
@@ -60,6 +64,15 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowPoInvModal }) => {
     useEffect(() => {
 
         const loadStock = async () => {
+            /* Started first, awaited last: the sales links do not depend on the lots, so
+               they load alongside them instead of after them. A breakdown that cannot
+               show its sales links is still a working breakdown — never block the rows. */
+            const lineIds = (valueCon.productsData || []).map(p => p.id).filter(Boolean)
+            const salesP = loadSalesMovementsByLine(uidCollection, lineIds).catch(e => {
+                console.warn('sales links not loaded:', e?.message || e)
+                return {}
+            })
+
             let stockData = valueCon.stock.length > 0 ? await loadStockData(uidCollection, 'id', valueCon.stock) : []
 
             stockData = stockData.sort((a, b) => {
@@ -69,6 +82,7 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowPoInvModal }) => {
             })
 
             setData(stockData)
+            setSalesByLine(await salesP)
         }
 
         loadStock()
@@ -429,16 +443,22 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowPoInvModal }) => {
     /* Column widths are sized to the CONTENT each cell holds, not to the label that used
        to sit above it — that swap is what takes this modal from 1540px to ~1230px. The
        Misc Inv column adds a Comp. Name field only when some row has it ticked. */
+    /* Which lots are already sold, and on which invoices. Sales are recorded against the
+       material LINE, so each line's sales are allocated to its lots — by weight first,
+       then first in, first out (utils/salesUsage.js). Tinting every lot of a sold line
+       would mark a line of three lots with one shipped as all three sold. Recomputed as
+       quantities are edited: it follows the rows on screen, saved or not. */
+    const allocation = useMemo(() => allocateSalesToLots(data, salesByLine), [data, salesByLine]);
     const anySpInv = data.some(z => z.spInv);
-    const gridCols = ['26px', '144px', '88px', '78px', '92px', '88px', '116px', '106px', '86px', '86px', '112px', '34px', '34px']
+    const gridCols = ['26px', '144px', '88px', '78px', '92px', '88px', '116px', '106px', '86px', '86px', '96px', '112px', '34px', '34px']
         .concat(anySpInv ? ['112px'] : []).join(' ');
     const WH_MIN_WIDTH = gridCols.split(' ').reduce((sum, w) => sum + parseInt(w, 10), 0)
-        + (anySpInv ? 13 : 12) * 6;
+        + (anySpInv ? 14 : 13) * 6;
     const whHead = 'responsiveTextTable font-medium text-[var(--chathams-blue)] truncate';
 
     return (
         <Modal isOpen={isOpen} setIsOpen={setIsOpen} title={getTtl('Materials Breakdown', ln)}
-            w={anySpInv ? 'max-w-[1320px]' : 'max-w-[1200px]'}>
+            w={anySpInv ? 'max-w-[1440px]' : 'max-w-[1320px]'}>
             {/* One header row instead of the 13 labels this used to repeat on EVERY material
                 row. That repetition was what forced the 1540px width: each control had to be
                 at least as wide as its own label ("Purchase Inv#:", "Arrival Date:"). With the
@@ -458,16 +478,25 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowPoInvModal }) => {
                         <span className={whHead}>{getTtl('Stock', ln)}</span>
                         <span className={whHead}>{getTtl('Status', ln)}</span>
                         <span className={whHead}>Sales Po#</span>
+                        <span className={whHead}>Sales Inv#</span>
                         <span className={whHead}>{getTtl('Consignee', ln)}</span>
                         <span className={`${whHead} text-center`}>Draft</span>
                         <span className={`${whHead} text-center`}>Misc</span>
                         {anySpInv && <span className={whHead}>Comp. Name</span>}
                     </div>
 
-                    {data.map((x, i) => (
+                    {data.map((x, i) => {
+                        // Sold lots are tinted with a bar; a part-sold lot keeps only the bar.
+                        const sale = allocation[x.id]
+                        const sold = sale && sale.state !== 'none'
+                        return (
                         <div key={x.id}
                             className='grid gap-1.5 items-center px-1 py-1.5 border-b border-[var(--line)] last:border-b-0 hover:bg-[var(--bg-subtle)] transition-colors'
-                            style={{ gridTemplateColumns: gridCols }}>
+                            style={{
+                                gridTemplateColumns: gridCols,
+                                ...(sold ? { boxShadow: 'inset 3px 0 0 var(--brand)' } : {}),
+                                ...(sold && sale.state === 'full' ? { background: 'var(--brand-soft)' } : {}),
+                            }}>
 
                             <ChkBox checked={checkedItems.includes(x.id)} size='h-4 w-4' onChange={() => checkItem(x.id)} />
 
@@ -554,6 +583,20 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowPoInvModal }) => {
                                 value={x.salesPo} placeholder="Sales Po#"
                                 onChange={e => handleValue1(e, i)} />
 
+                            {/* Sales invoices this material is already on — read, not typed.
+                                A native title, because the list runs to several lines. */}
+                            <div className='min-w-0 flex items-center'>
+                                {sold ? (
+                                    <span className='inline-flex items-center h-7 px-2 rounded-lg border truncate cursor-default responsiveTextTable font-medium'
+                                        style={{ borderColor: 'var(--brand-border)', background: 'var(--bg-card)', color: 'var(--brand-strong)' }}
+                                        title={lotSalesTooltip(sale, getD(settings.Quantity.Quantity, valueCon, 'qTypeTable'))}>
+                                        {lotSalesCellText(sale)}
+                                    </span>
+                                ) : (
+                                    <span className='responsiveTextTable text-[var(--ink-muted)] px-1'>—</span>
+                                )}
+                            </div>
+
                             <Selector
                                 arr={settings.Client.Client}
                                 value={data[i]}
@@ -581,7 +624,8 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowPoInvModal }) => {
                                     name='compName' style={{ fontFamily: 'inherit' }} value={x.compName} onChange={e => handleValue1(e, i)} />
                             ) : <span />)}
                         </div>
-                    ))}
+                        )
+                    })}
                 </div>
             </div>
 

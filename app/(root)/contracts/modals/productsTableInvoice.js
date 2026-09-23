@@ -3,7 +3,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { NumericFormat } from 'react-number-format';
 import ChkBox from '@components/checkbox.js'
 import { } from 'lucide-react';
-import { filteredArray, getD, loadStockDataPerDescription, loadStockOnHandByLine, sortArr } from '@utils/utils.js';
+import { filteredArray, getD, loadInvoice, loadStockDataPerDescription, loadStockOnHandByLine, sortArr } from '@utils/utils.js';
 import { SettingsContext } from "@contexts/useSettingsContext";
 import SlctOpt from '@components/invoicePrdSlct'
 import { CalculateNum } from '@components/calculate';
@@ -55,11 +55,37 @@ const ProductsTable = ({ value, setValue, currency, settings, uidCollection, set
             .catch(() => { if (alive) setOnHand({}); });   // no hint beats a wrong one
         return () => { alive = false; };
     }, [uidCollection, lineIdsKey]);
+    /* Which PO each material line belongs to. The invoice's own contract lines carry the
+       invoice's PO; lines pulled in with "Import materials" carry their source contract's.
+       Imports have recorded that PO since 2026-09-23 — older ones only kept { id, date },
+       so those source contracts are read once here (same lookup refPurchaseInvoices does).
+       Client, 2026-09-23: "can we please also see the number of the PO it refers to?
+       sometimes it's the same name material". */
+    const [importedPo, setImportedPo] = useState({});
+    const unknownSources = (materialsArr || [])
+        .filter(x => !x.po && x.importedFrom?.id && (typeof x.importedFrom.date === 'string' || x.importedFrom.date?.startDate))
+        .map(x => ({ id: x.importedFrom.id, date: typeof x.importedFrom.date === 'string' ? x.importedFrom.date : x.importedFrom.date.startDate }));
+    const unknownKey = [...new Set(unknownSources.map(r => `${r.id}:${r.date}`))].sort().join('|');
+    useEffect(() => {
+        let alive = true;
+        if (!uidCollection || !unknownKey) { setImportedPo({}); return; }
+        Promise.all(unknownKey.split('|').map(async (ref) => {
+            const [id, date] = ref.split(':');
+            const con = await loadInvoice(uidCollection, 'contracts', { id, date }).catch(() => null);
+            return [id, con?.order || ''];
+        })).then(pairs => { if (alive) setImportedPo(Object.fromEntries(pairs.filter(([, o]) => o))); })
+            .catch(() => { if (alive) setImportedPo({}); });  // no PO beats a wrong one
+        return () => { alive = false; };
+    }, [uidCollection, unknownKey]);
+    const poOf = (k) => k.po || importedPo[k.importedFrom?.id] || '';
+
     const stockHint = (k) => {
-        if (!onHand || !(k.id in onHand)) return null;
+        const po = poOf(k);
+        const note = po ? `PO ${po}` : '';
+        if (!onHand || !(k.id in onHand)) return note ? { note } : null;
         const q = onHand[k.id];
-        if (Math.abs(q) < 0.0005) return { text: 'none in stock', tone: 'danger' };
-        return { text: `${q.toFixed(3)} in stock` };
+        if (Math.abs(q) < 0.0005) return { note, text: 'none in stock', tone: 'danger' };
+        return { note, text: `${q.toFixed(3)} in stock` };
     };
 
 

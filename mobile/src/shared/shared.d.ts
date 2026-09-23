@@ -305,7 +305,11 @@ declare module '@shared/stockGuards' {
   /** The duplicate-line trap: null when the save is fine, else the message to show. */
   export function duplicateLineTrap(
     invoice: any,
-    contractProducts: { id: string; description?: string }[],
-    loadOnHand: (lineIds: string[], warehouseId: string) => Promise<Record<string, number>>
+    contract: { id?: string; productsData?: { id: string; description?: string }[]; invoices?: { invoice?: unknown }[] } | null | undefined,
+    loadRows: (lineIds: string[]) => Promise<any[]>
   ): Promise<string | null>;
+  /** The ledger rows that belong to one contract, the invoice being saved left out. */
+  export function contractLedger(rows: any[], contract: any, invoiceNum?: unknown): any[];
+  /** Net quantity per line over a set of ledger rows. */
+  export function onHandByLine(rows: any[], lineIds: string[]): Record<string, number>;
 }

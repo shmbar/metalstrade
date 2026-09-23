@@ -43,7 +43,7 @@ import {
   newId,
 } from '@/data/writes';
 import { addComment } from '@/features/comments/useComments';
-import { loadStockOnHandByLine } from '@/features/stocks/onHand';
+import { loadStockRowsByLine } from '@/features/stocks/onHand';
 import { duplicateLineTrap } from '@shared/stockGuards';
 import { contractPoHtml } from '@/lib/pdfTemplates';
 
@@ -257,18 +257,18 @@ describe.skipIf(!enabled)('write smoke — test workspace only', () => {
   });
 
   it('duplicate-line trap blocks the empty sibling line and allows the stocked one', async () => {
-    const products = (await readContract()).productsData;
-    const loader = (ids: string[], wh: string) => loadStockOnHandByLine(uid, ids, wh);
+    const contract = await readContract();
+    const loader = (ids: string[]) => loadStockRowsByLine(uid, ids);
 
-    const onEmpty = await duplicateLineTrap({ productsDataInvoice: [{ descriptionId: L2, qnty: 3, stock: WH }] }, products, loader);
+    const onEmpty = await duplicateLineTrap({ productsDataInvoice: [{ descriptionId: L2, qnty: 3, stock: WH }] }, contract, loader);
     expect(onEmpty).toMatch(/has nothing in stock/);
 
-    const onStocked = await duplicateLineTrap({ productsDataInvoice: [{ descriptionId: L1, qnty: 3, stock: WH }] }, products, loader);
+    const onStocked = await duplicateLineTrap({ productsDataInvoice: [{ descriptionId: L1, qnty: 3, stock: WH }] }, contract, loader);
     expect(onStocked).toBeNull();
 
     const asDraft = await duplicateLineTrap(
       { draft: true, productsDataInvoice: [{ descriptionId: L2, qnty: 3, stock: WH }] },
-      products,
+      contract,
       loader
     );
     expect(asDraft).toBeNull();

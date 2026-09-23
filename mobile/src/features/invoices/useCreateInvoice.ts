@@ -4,7 +4,7 @@ import { useAuth } from '@/store/auth';
 import { createInvoiceForContract } from '@/data/writes';
 import { Contract, Invoice } from '@/data/types';
 import { duplicateLineTrap } from '@shared/stockGuards';
-import { loadStockOnHandByLine } from '@/features/stocks/onHand';
+import { loadStockRowsByLine } from '@/features/stocks/onHand';
 
 // Blank sales invoice prefilled from a contract — mirrors newInvoice + the web's
 // createInvoiceFromContract (shipment terms inherited, currency from the contract).
@@ -54,9 +54,7 @@ export function useCreateInvoice() {
       // contract line with nothing in stock while a sibling line of the same contract
       // holds enough — the same material entered twice, which left GIS invoice 46's
       // 5.202 MT stranded under Stocks - UnPaid while a phantom -5.202 hung elsewhere.
-      const trap = await duplicateLineTrap(invoice, (contract.productsData || []) as any, (ids, wh) =>
-        loadStockOnHandByLine(uidCollection, ids, wh)
-      );
+      const trap = await duplicateLineTrap(invoice, contract as any, (ids) => loadStockRowsByLine(uidCollection, ids));
       if (trap) throw new Error(trap);
       return createInvoiceForContract(uidCollection, contract, invoice, clientName);
     },

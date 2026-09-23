@@ -40,6 +40,8 @@ import { priorityOf } from './notificationPriority';
 // across the app keeps working unchanged.
 export { resolveDueDate, resolveInvoiceDate, groupInvoicesByNumber, computeStockNetSummary } from './pureHelpers';
 import { dedupeById } from './pureHelpers';
+import { groupSalesByLine } from './salesUsage';
+import { onHandByLine } from './stockGuards';
 
 const storage = getStorage();
 
@@ -1196,7 +1198,15 @@ export const deleteSharedStock = async (id) => {
 // stock reader drops them (filteredArray); drafts are not stock.
 export const loadStockOnHandByLine = async (uidCollection, lineIds = [], stock = null) => {
   const ids = [...new Set(lineIds.filter(Boolean))];
-  if (!ids.length) return {};
+  return onHandByLine(await loadStockRowsByLine(uidCollection, ids, stock), ids);
+};
+
+// The ledger rows behind loadStockOnHandByLine, before they are summed. The
+// duplicate-line trap needs rows, not totals: a line id can be shared by several
+// contracts, and only a row says which contract it belongs to (stockGuards.js).
+export const loadStockRowsByLine = async (uidCollection, lineIds = [], stock = null) => {
+  const ids = [...new Set(lineIds.filter(Boolean))];
+  if (!ids.length) return [];
   const lots = [];
   for (let i = 0; i < ids.length; i += 30) {                 // Firestore `in` cap
     const chunk = ids.slice(i, i + 30);
@@ -1207,20 +1217,34 @@ export const loadStockOnHandByLine = async (uidCollection, lineIds = [], stock =
   }
   // a lot can match on both fields — count it once
   const seen = new Set();
-  const kept = filteredArray(lots.filter(l => {
+  return filteredArray(lots.filter(l => {
     if (seen.has(l.id)) return false;
     seen.add(l.id);
     if (stock && l.stock !== stock) return false;   // one warehouse, when asked
     return l.draft !== true && l.total !== 0;
   }));
-  const onHand = {};
-  ids.forEach(id => { onHand[id] = 0; });
-  kept.forEach(l => {
-    const key = ids.includes(l.description) ? l.description : l.descriptionId;
-    if (!(key in onHand)) return;
-    onHand[key] += (Number(l.qnty) || 0) * (l.type === 'in' ? 1 : -1);
-  });
-  return onHand;
+};
+
+/**
+ * Which sales invoices have already taken material from each PO line →
+ * { [lineId]: [movement, …] }. Same two-field lookup as loadStockOnHandByLine (an
+ * invoice line carries descriptionId, a purchase lot carries description) and the same
+ * supersede rule, so an invoice replaced by a final one is not counted twice.
+ */
+export const loadSalesMovementsByLine = async (uidCollection, lineIds = []) => {
+  const ids = [...new Set(lineIds.filter(Boolean))];
+  if (!ids.length) return {};
+  const lots = [];
+  for (let i = 0; i < ids.length; i += 30) {                 // Firestore `in` cap
+    const chunk = ids.slice(i, i + 30);
+    for (const field of ['description', 'descriptionId']) {
+      const snap = await getDocs(query(collection(db, uidCollection, 'data', 'stocks'), where(field, 'in', chunk)));
+      snap.docs.forEach(d => lots.push({ id: d.id, ...d.data() }));
+    }
+  }
+  const seen = new Set();                                    // a lot can match both fields
+  const once = lots.filter(l => (seen.has(l.id) ? false : (seen.add(l.id), true)));
+  return groupSalesByLine(filteredArray(once).filter(l => l.draft !== true));
 };
 
 export const loadStockDataPerDescription = async (uidCollection, stock, description) => {
