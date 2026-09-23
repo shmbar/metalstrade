@@ -130,7 +130,10 @@ const HASH = {
   // that was in no warehouse). Mobile's computeInventory (stocks/aggregate.ts) applies the
   // same reduction at the same point — confirmed by the "settled the delivery light" case
   // in Tier 3 below, which runs web mirror and mobile over one ledger, not assumed.
-  loadtStocks: '09a134186cd2', // app/(root)/stocks/page.js:132  (aggregation core)
+  // 2026-09-23: rows now default to newest contract first (`_ts`, PO tie-break) —
+  // ORDER only, no figure changed; mobile applies the same order in useStocks.ts.
+  // The Tier 3 comparisons below sort by id, so they are order-agnostic by design.
+  loadtStocks: '378ce05f1230', // app/(root)/stocks/page.js:132  (aggregation core)
   setTotals: '0878395a5db7', // app/(root)/stocks/page.js:263
   getFormatted: 'ce2b9a9845ad', // app/(root)/stocks/page.js:312
   showWeight: 'eff225f4c25c', // app/(root)/stocks/page.js:288

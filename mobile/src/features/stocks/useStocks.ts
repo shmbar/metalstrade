@@ -26,8 +26,19 @@ export function useStocks() {
   const data = useMemo(() => {
     if (!query.data) return null;
     const { rows, totals } = computeInventory(query.data, settings);
+    // Newest contract first, PO number breaking ties — the web Stocks page's default
+    // (stocks/page.js), which in turn is Cashflow's. Without it the list came out in
+    // Firestore document-id order, i.e. no order at all. Sorted here, not inside
+    // computeInventory, so the shared aggregation stays a straight port.
+    const contractTs = (r: any) => {
+      const d = (r.data || []).find((z: any) => z?.contractData)?.contractData?.date;
+      return d ? new Date(d).getTime() || 0 : 0;
+    };
+    const ordered = [...rows].sort((a: any, b: any) =>
+      contractTs(b) - contractTs(a)
+      || String(a.order ?? '').localeCompare(String(b.order ?? ''), undefined, { numeric: true }));
     return {
-      rows: rows.map((r) => formatInventoryRow(r, settings)),
+      rows: ordered.map((r) => formatInventoryRow(r, settings)),
       totals: totals.map((t) => ({
         ...t,
         warehouseName: settings?.Stocks?.Stocks?.find((s: any) => s.id === t.stock)?.nname || '—',

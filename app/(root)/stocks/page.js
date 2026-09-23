@@ -165,7 +165,9 @@ const Stocks = () => {
         filterVariant: 'dates',
         excludeFromQuickSum: true,
       },
-      filterFn: 'dateBetweenFilterFn'
+      filterFn: 'dateBetweenFilterFn',
+      // By the real date, not the dd.mm.yy text the cell shows.
+      sortingFn: (a, b) => (a.original._ts || 0) - (b.original._ts || 0),
     },
     /* Supplier, original supplier and warehouse all filter as a checklist: the
        client's "I can't search two stocks or two suppliers together". */
@@ -303,7 +305,12 @@ const Stocks = () => {
         ) ? totalObj.unitPrc : parseFloat(totalObj.qnty * totalObj.unitPrc)
 
         totalObj['data'] = filteredstockData
-        totalObj['date'] = dateFormat(filteredstockData.find(z => z.contractData)?.contractData?.date, 'dd.mm.yy')
+        // `date` is a DISPLAY string (dd.mm.yy) and cannot be sorted — as text it puts
+        // the 1st of April before the 4th of February. `_ts` is the same contract date as
+        // a number, for the default order below and the Date column's own sort.
+        const contractDate = filteredstockData.find(z => z.contractData)?.contractData?.date
+        totalObj['date'] = dateFormat(contractDate, 'dd.mm.yy')
+        totalObj['_ts'] = contractDate ? (new Date(contractDate).getTime() || 0) : 0
         totalObj['cur'] = filteredstockData[0]['cur']
         totalObj['sType'] = settings?.Stocks?.Stocks?.find(x => x.id === totalObj.stock)?.sType || ''
         totalObj['ind'] = parseFloat(key) //row number
@@ -346,6 +353,14 @@ const Stocks = () => {
         }
       }
 
+
+      // Newest contract first, PO number breaking ties — the order Cashflow's stock
+      // tables use (funcs.js byNewestThenPO). With no order of its own, the page listed
+      // lines as Firestore returned them, i.e. by random document id (client,
+      // 2026-09-23: "on cashflow it has autosorting, but on stock page no"). Clicking a
+      // column header still sorts by that column.
+      newArr.sort((a, b) => (b._ts || 0) - (a._ts || 0)
+        || String(a.order ?? '').localeCompare(String(b.order ?? ''), undefined, { numeric: true }))
 
       setTotals(newArr)
 
