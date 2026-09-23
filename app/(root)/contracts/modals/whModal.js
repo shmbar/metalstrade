@@ -462,7 +462,7 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowPoInvModal }) => {
 
     return (
         <Modal isOpen={isOpen} setIsOpen={setIsOpen} title={getTtl('Materials Breakdown', ln)}
-            w={anySpInv ? 'max-w-[1440px]' : 'max-w-[1320px]'}>
+            w={anySpInv ? 'max-w-[1440px]' : 'max-w-[1320px]'} draggable>
             {/* One header row instead of the 13 labels this used to repeat on EVERY material
                 row. That repetition was what forced the 1540px width: each control had to be
                 at least as wide as its own label ("Purchase Inv#:", "Arrival Date:"). With the
