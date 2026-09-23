@@ -1247,6 +1247,33 @@ export const loadSalesMovementsByLine = async (uidCollection, lineIds = []) => {
   return groupSalesByLine(filteredArray(once).filter(l => l.draft !== true));
 };
 
+/**
+ * Which of these sales-invoice numbers still exist in this workspace → Map of number (as
+ * a string) → the PO number of the contract that invoice is on. A purchase invoice keeps its link to a sales invoice as the bare number
+ * (poInvoices[].invRef), so the link outlives the invoice when that is deleted. And "not
+ * on this contract" does not mean gone: material imported from one PO and sold on
+ * another links to a sales invoice that lives on the OTHER contract. Only a number found
+ * in no invoice year at all is a leftover. Numbers are stored as numbers, older ones as
+ * strings — both forms are asked for.
+ */
+export const existingSalesInvoiceNumbers = async (uidCollection, numbers = []) => {
+  const uniq = [...new Set(numbers.map(n => String(n ?? '').trim()).filter(Boolean))];
+  if (!uniq.length) return new Map();
+  const forms = uniq.flatMap(n => (Number.isFinite(Number(n)) ? [n, Number(n)] : [n]));
+  const chunks = [];
+  for (let i = 0; i < forms.length; i += 30) chunks.push(forms.slice(i, i + 30));   // Firestore `in` cap
+  const years = [];
+  for (let y = 2015; y <= new Date().getFullYear() + 1; y++) years.push(y);
+  const snaps = await Promise.all(years.flatMap(y => chunks.map(c =>
+    getDocs(query(collection(db, uidCollection, 'data', `invoices_${y}`), where('invoice', 'in', c))))));
+  const found = new Map();
+  snaps.forEach(s => s.docs.forEach(d => {
+    const inv = d.data();
+    found.set(String(inv.invoice), found.get(String(inv.invoice)) || String(inv.poSupplier?.order || ''));
+  }));
+  return found;
+};
+
 export const loadStockDataPerDescription = async (uidCollection, stock, description) => {
 
   const q = query(

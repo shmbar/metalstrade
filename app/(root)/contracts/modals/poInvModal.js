@@ -9,7 +9,7 @@ import { UserAuth } from "@contexts/useAuthContext";
 import ChkBox from '@components/checkbox';
 import { v4 as uuidv4 } from 'uuid';
 import { getTtl } from '@utils/languages';
-import { loadData } from '@utils/utils';
+import { existingSalesInvoiceNumbers, loadData } from '@utils/utils';
 import Datepicker from "react-tailwindcss-datepicker";
 import { Button } from '@components/ui/button';
 import { CirclePlus, CircleMinus, Trash, ArrowBigRight, FileText, Download, X } from "lucide-react";
@@ -341,23 +341,41 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowStockModal }) => {
         setShowMirror(false);
     };
 
-    const deleteItems = () => {
+    const deleteItems = async () => {
 
-        let isExit = false
+        /* A link only blocks while the sales invoice it names still EXISTS. It used to
+           block on any link at all, so one left behind by a deleted sales invoice blocked
+           this delete for good — with no way to untick it, since the link grid has no
+           column for an invoice that is gone (PO 020725: supplier invoice 496 kept a link
+           to sales invoice 1299, deleted since). A link to an invoice on ANOTHER contract
+           is real (material imported from one PO, sold on another) and still blocks. */
+        const refs = [...new Set(checkedItems.flatMap(id =>
+            (valueCon.poInvoices.find(z => z.id === id)?.invRef || []).map(String)))];
 
-        checkedItems.forEach(id => {
-            let tmpInvRef = valueCon.poInvoices.find(z => z.id === id).invRef
-            if (tmpInvRef.length >= 1) {
-                isExit = true
+        if (refs.length) {
+            let live;
+            try {
+                live = await existingSalesInvoiceNumbers(uidCollection, refs);
+            } catch (e) {
+                setToast({ show: true, text: `Could not check the linked sales invoices (${e?.code || e?.message || e}) — nothing was removed.`, clr: 'fail' })
+                return;
             }
-        })
-
-        if (isExit) {
-            setToast({
-                show: true,
-                text: 'This invoice is relayed to customer invoice!', clr: 'fail'
-            })
-            return;
+            const blocking = refs.filter(r => live.has(r));
+            if (blocking.length) {
+                /* Say WHERE to unlink it. A link to a sales invoice on another PO (material
+                   imported from here, sold there) is not in this contract's link grid at
+                   all — it is ticked, and unticked, from that PO's Shipments Tracking tab. */
+                const where = blocking.map(r => {
+                    const po = live.get(r);
+                    return po && po !== String(valueCon.order || '') ? `${r} (on PO ${po})` : r;
+                });
+                const elsewhere = blocking.some(r => live.get(r) && live.get(r) !== String(valueCon.order || ''));
+                setToast({
+                    show: true,
+                    text: `Linked to sales invoice ${where.join(', ')} — unlink it first in the Shipments Tracking tab of ${elsewhere ? 'that PO' : 'this PO'}.`, clr: 'fail'
+                })
+                return;
+            }
         }
 
         let delItems = valueCon.poInvoices.filter((item) => !checkedItems.includes(item.id));

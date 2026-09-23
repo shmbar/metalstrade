@@ -5,6 +5,7 @@ import { db } from '@utils/firebase';
 import { UserAuth } from "@contexts/useAuthContext";
 import { getTtl } from '@utils/languages';
 import { bustLoadCache } from '@utils/loadCache';
+import { existingSalesInvoiceNumbers } from '@utils/utils';
 
 const RefPurchaseInvoices = ({ valueCon, setValueCon, saveData_PoInvoices, ln }) => {
 
@@ -64,6 +65,40 @@ const RefPurchaseInvoices = ({ valueCon, setValueCon, saveData_PoInvoices, ln })
         [valueCon.invoices]
     );
 
+    /* A tick for a sales invoice that has since been DELETED had no column to sit in,
+       so it could be neither seen nor cleared — while the purchase invoice's delete
+       guard went on counting it. Such links get a column of their own, marked removed,
+       where they can only be cleared.
+
+       "Not on this contract" is not enough to call a link dead: material imported from
+       one PO and sold on another links to a sales invoice on the OTHER contract, and
+       that link is real. So a candidate is looked up, and only a number that exists in
+       no invoice year becomes a removed column. Only this contract's own purchase
+       invoices are read: an imported row's links belong to its own contract. */
+    const candidates = useMemo(() => {
+        const live = new Set(salesInvCols.map(String));
+        return [...new Set((valueCon.poInvoices || [])
+            .flatMap(p => (Array.isArray(p.invRef) ? p.invRef : []).map(String))
+            .filter(r => r && !live.has(r)))].sort();
+    }, [valueCon.poInvoices, salesInvCols]);
+    const candidatesKey = candidates.join('|');
+    const [goneRefs, setGoneRefs] = useState([]);
+
+    useEffect(() => {
+        let cancelled = false;
+        if (!candidates.length) { setGoneRefs([]); return; }
+        existingSalesInvoiceNumbers(uidCollection, candidates)
+            .then(found => { if (!cancelled) setGoneRefs(candidates.filter(c => !found.has(c))); })
+            .catch(() => { if (!cancelled) setGoneRefs([]); });   // unsure → show nothing extra
+        return () => { cancelled = true; };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [candidatesKey, uidCollection]);
+
+    const cols = useMemo(() => [
+        ...salesInvCols.map(n => ({ n, stale: false })),
+        ...goneRefs.map(n => ({ n, stale: true })),
+    ], [salesInvCols, goneRefs]);
+
     const setRef = async (y, x) => {
         const has = y.invRef.includes(x.toString());
         const newArr = has ? y.invRef.filter(it => it !== x.toString()) : [...y.invRef, x.toString()];
@@ -114,20 +149,21 @@ const RefPurchaseInvoices = ({ valueCon, setValueCon, saveData_PoInvoices, ln })
                                 className='sticky left-0 z-sticky font-medium responsiveTextTable bg-[var(--bg-subtle)] text-[var(--chathams-blue)] whitespace-nowrap h-10 px-3 border-b border-r border-[var(--line)]'>
                                 {getTtl('POInvoices', ln)}
                             </th>
-                            <th colSpan={salesInvCols.length}
+                            <th colSpan={cols.length}
                                 className='font-medium responsiveTextTable bg-[var(--bg-subtle)] text-[var(--chathams-blue)] h-5 whitespace-nowrap border-b border-[var(--line-strong)] text-center'>
                                 {getTtl('SalesInvoices', ln)}
                             </th>
                         </tr>
                         <tr>
-                            {salesInvCols.map((y, k) => (
+                            {cols.map((c, k) => (
                                 <th
                                     scope="col"
                                     key={k}
-                                    className='bg-[var(--bg-subtle)] border-b border-[var(--line)] px-3 responsiveTextTable font-medium text-[var(--chathams-blue)]
-                                    h-5 text-center whitespace-nowrap'
+                                    title={c.stale ? `Sales invoice ${c.n} no longer exists — click a tick to clear the leftover link` : undefined}
+                                    className={`bg-[var(--bg-subtle)] border-b border-[var(--line)] px-3 responsiveTextTable font-medium
+                                    h-5 text-center whitespace-nowrap ${c.stale ? 'text-[var(--warn-text)]' : 'text-[var(--chathams-blue)]'}`}
                                 >
-                                    {y}
+                                    {c.stale ? `${c.n} · removed` : c.n}
                                 </th>
                             ))}
                         </tr>
@@ -146,15 +182,21 @@ const RefPurchaseInvoices = ({ valueCon, setValueCon, saveData_PoInvoices, ln })
                                         }
                                     </div>
                                 </td>
-                                {salesInvCols.map((x, q) => {
+                                {cols.map(({ n: x, stale }, q) => {
                                     const active = y.invRef.includes(x.toString());
+                                    // A removed invoice can only be UNticked, and only on this contract's own rows.
+                                    const clickable = !stale || (active && !y._source);
                                     return (
                                         <td
                                             key={q}
                                             data-label={q}
-                                            className={`px-3 border-b border-r border-[var(--line-strong)] h-11 cursor-pointer transition-colors
-                                            ${active ? 'bg-[var(--brand-soft)]' : 'bg-[var(--bg-card)] hover:bg-[var(--bg-subtle)]'}`}
-                                            onClick={() => setRef(y, x)}
+                                            title={stale && clickable ? 'Clear this leftover link' : undefined}
+                                            className={`px-3 border-b border-r border-[var(--line-strong)] h-11 transition-colors
+                                            ${clickable ? 'cursor-pointer' : 'cursor-default'}
+                                            ${active && stale ? 'bg-[var(--warn-bg)]'
+                                                : active ? 'bg-[var(--brand-soft)]'
+                                                : clickable ? 'bg-[var(--bg-card)] hover:bg-[var(--bg-subtle)]' : 'bg-[var(--bg-card)]'}`}
+                                            onClick={() => { if (clickable) setRef(y, x) }}
                                         >
                                             <div className='flex items-center justify-center'>
                                                 <span className={`inline-flex items-center justify-center size-4 rounded-lg transition-all

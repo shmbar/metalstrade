@@ -70,9 +70,12 @@ const FloatingDatepicker = ({
     const [open, setOpen] = useState(false);
     const [pos, setPos] = useState({ top: 0, left: 0, flip: false });
 
+    // A few old lots hold a raw Firestore Timestamp instead of an ISO date — read those too.
     const raw = value?.startDate ?? null;
-    const parsed = raw ? dayjs(raw) : null;
-    const text = parsed && parsed.isValid() ? parsed.format(displayFormat) : '';
+    const parsed = raw?.seconds != null ? dayjs.unix(raw.seconds) : raw ? dayjs(raw) : null;
+    const valid = !!parsed && parsed.isValid();
+    const text = valid ? parsed.format(displayFormat) : '';
+    const iso = valid ? parsed.format('YYYY-MM-DD') : null;
 
     const openAt = () => {
         if (disabled || !anchorRef.current) return;
@@ -169,10 +172,15 @@ const FloatingDatepicker = ({
                 <Portal>
                     <div ref={popRef}
                         style={{ position: 'fixed', top: pos.top, left: pos.left, zIndex: 'var(--z-popover)' }}>
+                        {/* startFrom is what makes the library open on the date the cell
+                            HOLDS: without it the calendar always opened on today's month,
+                            with the cell's own date nowhere in sight (v1.6.6 only follows
+                            value.startDate when startFrom is set). */}
                         <Datepicker
                             asSingle={true}
                             useRange={false}
-                            value={value ?? EMPTY}
+                            value={iso ? { startDate: iso, endDate: iso } : EMPTY}
+                            startFrom={iso ?? new Date()}
                             onChange={v => { onChange(v); setOpen(false); }}
                             displayFormat={displayFormat}
                             popoverDirection={pos.flip ? 'up' : 'down'}

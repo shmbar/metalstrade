@@ -75,11 +75,15 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowPoInvModal }) => {
 
             let stockData = valueCon.stock.length > 0 ? await loadStockData(uidCollection, 'id', valueCon.stock) : []
 
-            stockData = stockData.sort((a, b) => {
-                const dateA = a.indDate?.endDate ? new Date(a.indDate.endDate).getTime() : Infinity;
-                const dateB = b.indDate?.endDate ? new Date(b.indDate.endDate).getTime() : Infinity;
-                return dateA - dateB;
-            })
+            /* In the order the rows were entered. Every Save writes the contract's stock[]
+               from the rows as they stand on screen, so stock[] IS that order. The query
+               returns lots by document id — random uuids — and the arrival-date sort that
+               used to run here could only break ties in that random order: rows sharing a
+               date (all of them, after Copy 1st row down) came back shuffled on each open,
+               and a re-dated row jumped to another place after Save. */
+            const entered = new Map(valueCon.stock.map((id, i) => [id, i]))
+            const place = (row) => entered.get(row.id) ?? entered.size
+            stockData = stockData.sort((a, b) => place(a) - place(b))
 
             setData(stockData)
             setSalesByLine(await salesP)

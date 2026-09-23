@@ -1050,7 +1050,26 @@ export const StocksUnSold = ({ supplier, stockDataAllArray, settings, uidCollect
                                                 <span style={{ color: 'var(--regent-gray)' }}>({grp.length})</span>
                                             </span>
                                         </td>
-                                        <td className="text-left w-20"></td>
+                                        {/* The warehouse, drawn as a normal row draws it, when the whole PO
+                                            sits in one. This cell was always left empty, so a PO held entirely
+                                            at Seagull only said so once opened. Spread over several (a row with
+                                            no warehouse counts as one of them), it shows the first and a count,
+                                            with every one named on hover. */}
+                                        <td className="text-left w-20">{(() => {
+                                            const names = [...new Set(grp.map(r => String(r.stockName || '').trim()))];
+                                            const named = names.filter(Boolean);
+                                            if (!named.length) return null;
+                                            const label = names.length === 1 ? named[0] : `${named[0]} +${names.length - 1}`;
+                                            const tip = names.map(n => n || '(no warehouse)').join(', ');
+                                            return (
+                                                <Tltip direction='top' tltpText={tip}>
+                                                    <span className="flex items-center gap-1.5 min-w-0 cursor-default">
+                                                        <Avatar name={named[0]} size={18} />
+                                                        <span className="block truncate">{label}</span>
+                                                    </span>
+                                                </Tltip>
+                                            );
+                                        })()}</td>
                                         <td className="text-center font-medium">{
                                             <NumericFormat value={qSum} displayType="text" thousandSeparator decimalScale='3' fixedDecimalScale />
                                         }</td>
@@ -2154,7 +2173,11 @@ export const SupplierDetails = ({ supplier, data, uidCollection, setDateSelect,
                         <th className="text-right">
                             {showAmount(filteredArr.reduce((sum, item) => sum + item.blnc * 1, 0), 'usd')}
                         </th>
-                        <th></th>
+                        {/* Status, Final, Pmn — one cell each, like the header. This row kept
+                            both of the old ETD/ETA cells when Status replaced them, and the
+                            spare cell pushed Save into a column of its own at the far right
+                            (client, 2026-09-23: "where is this field gone missing"). Save
+                            sits under the select-all checkbox it acts on. */}
                         <th></th>
                         <th></th>
                         <th></th>
