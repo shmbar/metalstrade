@@ -4,6 +4,12 @@ import { useRef, useState } from 'react';
 import Tltip from '../../../../components/tlTip';
 import { useNumericCaret } from '@utils/numericCaret';
 
+// The non-money fields (purchase, shipped) are tonnage, and tonnage is kept to
+// three decimals across the app — the page's handleChange already accepts three.
+// This used to cut the display to two, so 0.707 MT was SAVED but shown as 0.70
+// (client, 2026-09-23), and the next edit started from that "0.70" on screen —
+// which could quietly save it back as 0.70. Shown as typed, up to three decimals.
+const MT_DECIMALS = 3;
 const showAmount = (nStr) => {
   nStr += '';
   var x = nStr.split('.');
@@ -13,7 +19,7 @@ const showAmount = (nStr) => {
   while (rgx.test(x1)) {
     x1 = x1.replace(rgx, '$1,$2');
   }
-  x2 = x2.length > 3 ? x2.substring(0, 3) : x2;
+  x2 = x2.length > MT_DECIMALS + 1 ? x2.substring(0, MT_DECIMALS + 1) : x2;
   return x1 + x2;
 };
 

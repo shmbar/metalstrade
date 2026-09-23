@@ -428,10 +428,10 @@ describe('GIS totals decimal rules', () => {
     const src = collapsed('app/(root)/margins/thirdpart.js');
     // :340 — Purchased quantity total. `false` DISABLES NumericFormat's decimal
     // limit, so a whole number renders with no decimal part at all.
-    expect(src).toContain("decimalScale={!Number.isInteger(purchase) && '2'}");
-    // :399-406 — Outstanding shipment total is unconditionally two decimals.
+    expect(src).toContain("decimalScale={!Number.isInteger(purchase) && '3'}");
+    // :399-406 — Outstanding shipment total is unconditionally three decimals (tonnage).
     expect(src).toContain(
-      'value={outStandingShip} displayType="text" thousandSeparator allowNegative={true} decimalScale="2"'
+      'value={outStandingShip} displayType="text" thousandSeparator allowNegative={true} decimalScale="3"'
     );
   });
 
@@ -440,15 +440,17 @@ describe('GIS totals decimal rules', () => {
     expect(fmtMoney(1200, gisPurchasedDecimals(1200))).toBe('1,200');
   });
 
-  it('GIS Purchased quantity shows exactly 2 decimals when it is not whole', () => {
-    expect(gisPurchasedDecimals(1200.5)).toBe(2);
-    expect(fmtMoney(1200.5, gisPurchasedDecimals(1200.5))).toBe('1,200.50');
+  it('GIS Purchased quantity shows exactly 3 decimals when it is not whole', () => {
+    // Tonnage is three decimals across the app — 0.707 MT must not read 0.71.
+    expect(gisPurchasedDecimals(1200.5)).toBe(3);
+    expect(fmtMoney(1200.5, gisPurchasedDecimals(1200.5))).toBe('1,200.500');
+    expect(fmtMoney(0.707, gisPurchasedDecimals(0.707))).toBe('0.707');
   });
 
-  it('GIS Outstanding shipment is always 2 decimals, whole number or not', () => {
-    expect(GIS_OUTSTANDING_DECIMALS).toBe(2);
-    expect(fmtMoney(1200, GIS_OUTSTANDING_DECIMALS)).toBe('1,200.00');
-    expect(fmtMoney(1200.5, GIS_OUTSTANDING_DECIMALS)).toBe('1,200.50');
+  it('GIS Outstanding shipment is always 3 decimals, whole number or not', () => {
+    expect(GIS_OUTSTANDING_DECIMALS).toBe(3);
+    expect(fmtMoney(1200, GIS_OUTSTANDING_DECIMALS)).toBe('1,200.000');
+    expect(fmtMoney(19.293, GIS_OUTSTANDING_DECIMALS)).toBe('19.293');
   });
 });
 

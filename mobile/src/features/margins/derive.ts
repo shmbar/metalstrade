@@ -39,14 +39,15 @@ export const monthRemaining = (items: any[]): number =>
 // The GIS totals row formats its columns inconsistently on web, and mobile has to
 // match or the two screens print different numbers of digits for the same figure:
 //
-//   Purchased quantity  decimalScale={!Number.isInteger(purchase) && '2'}   (:340)
+//   Purchased quantity  decimalScale={!Number.isInteger(purchase) && '3'}   (:340)
 //        → `false` disables NumericFormat's decimal limit entirely, so a whole
 //          number renders with NO decimals at all ("1,200", not "1,200.00").
-//   Outstanding shipment decimalScale="2"                                    (:404)
-//        → always two, whole number or not.
+//   Outstanding shipment decimalScale="3"                                    (:404)
+//        → always three, whole number or not. Both are tonnage, and tonnage is
+//          three decimals across the app (client, 2026-09-23: 0.707 MT read 0.70).
 
-/** Decimal places for the GIS "Purchased quantity (MT)" total: none when whole, else 2. */
-export const gisPurchasedDecimals = (v: number): number => (Number.isInteger(v) ? 0 : 2);
+/** Decimal places for the GIS "Purchased quantity (MT)" total: none when whole, else 3. */
+export const gisPurchasedDecimals = (v: number): number => (Number.isInteger(v) ? 0 : 3);
 
-/** Decimal places for the GIS "Outstanding shipment" total: always 2. */
-export const GIS_OUTSTANDING_DECIMALS = 2;
+/** Decimal places for the GIS "Outstanding shipment" total: always 3. */
+export const GIS_OUTSTANDING_DECIMALS = 3;
