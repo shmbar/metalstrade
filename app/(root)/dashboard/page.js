@@ -1833,7 +1833,7 @@ const Dash = () => {
     const byCur = financeReceivables(recvLists.pending, { asOf: new Date(), termDays }).byCur || {};
     return Object.fromEntries(Object.entries(byCur)
       .map(([c, d]) => [c, (d.finalized || 0) + (d.provisional || 0)])
-      .filter(([, v]) => v > 0.005));
+      .filter(([, v]) => Math.abs(v) > 0.005));
   }, [recvLists, termDays]);
 
   // Receivables aging buckets (0–30 / 31–60 / 61–90 / 90+), same source as receivables.

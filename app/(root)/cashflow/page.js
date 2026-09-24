@@ -71,11 +71,12 @@ const SectionHeader = ({ icon: Icon, title, className = '', children }) => (
 
 /* Pending (payment on hold) beside a supplier or client name: how much of theirs is on
    hold, muted, next to the active figure it is NOT part of. Nothing when there is none. */
-const PendingNote = ({ amount, prefix = '$' }) => (Number(amount) || 0) > 0.005 ? (
+// Either sign: a held OVERPAID invoice (a credit, e.g. −$631.00) is a hold too.
+const PendingNote = ({ amount, prefix = '$' }) => Math.abs(Number(amount) || 0) > 0.005 ? (
     <span className="inline-flex items-center gap-1 mr-2 responsiveTextTable text-[var(--ink-muted)] tabular-nums whitespace-nowrap"
         title="On hold — not included in the total">
         <Clock size={11} aria-hidden="true" />
-        <NumericFormat value={amount} displayType="text" thousandSeparator prefix={prefix} decimalScale={2} fixedDecimalScale />
+        <NumericFormat value={amount} displayType="text" thousandSeparator allowNegative={true} prefix={prefix} decimalScale={2} fixedDecimalScale />
     </span>
 ) : null;
 
@@ -1376,7 +1377,7 @@ const Cashflow = () => {
     // aggregation (funcs.js pendingSplit) and shown underneath instead.
     const clientsPendingKpi = [...clientInvoices1, ...clientInvoices2].reduce((t, o) => t + (parseFloat(o._pendingBlnc) || 0), 0);
     const suppliersPendingKpi = [...(supPayments1 || []), ...(supPayments2 || [])].reduce((t, o) => t + (parseFloat(o._pendingBlnc) || 0), 0);
-    const pendingSub = (amount) => amount > 0.005 ? (
+    const pendingSub = (amount) => Math.abs(amount) > 0.005 ? (
         <span className="inline-flex items-center gap-1 tabular-nums">
             <Clock size={11} aria-hidden="true" /> Pending {moneyFull('us', amount)}
         </span>

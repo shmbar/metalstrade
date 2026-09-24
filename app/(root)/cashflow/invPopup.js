@@ -4,6 +4,7 @@ import { Dialog, DialogContent, DialogTitle } from '../../../components/ui/dialo
 import { TONES } from '../../../components/statusUtils';
 import dateFormat from 'dateformat';
 import { getD, reOrderTableInv, getAllfiles, uploadFile } from '../../../utils/utils';
+import { pickInvoiceFile, nameForInvoice } from '../../../utils/invoiceFiles';
 import { Pdf as InvoicePdf } from '../contracts/modals/pdf/pdfInvoice';
 import { FaFilePdf } from 'react-icons/fa';
 import { FileUploader } from 'react-drag-drop-files';
@@ -53,7 +54,7 @@ function SupplierDocPreview({ inv, onClose, settings, gisAccount }) {
         setLoadingFiles(true);
         (async () => {
             try {
-                const arr = await getAllfiles(contractId);
+                const arr = await getAllfiles(contractId, { meta: true });
                 if (active) setFiles(Array.isArray(arr) ? arr : []);
             } catch {
                 if (active) setFiles([]);
@@ -66,7 +67,10 @@ function SupplierDocPreview({ inv, onClose, settings, gisAccount }) {
 
     const isPdf = (n = '') => /\.pdf(\?|$)/i.test(n);
     const isImage = (n = '') => /\.(png|jpe?g|gif|webp|bmp)(\?|$)/i.test(n);
-    const primaryFile = files.find(f => isPdf(f.name)) || files.find(f => isImage(f.name)) || files[0] || null;
+    /* THIS invoice's file, picked by its name (utils/invoiceFiles.js). Every file of the
+       PO sits in one folder, and this used to show the folder's first PDF for every
+       invoice — PO 010926 opened 146 for invoice 147, however often 147 was re-uploaded. */
+    const primaryFile = pickInvoiceFile(files, inv.invoice);
 
     const [uploading, setUploading] = useState(false);
     const [uploadErr, setUploadErr] = useState('');
@@ -76,11 +80,15 @@ function SupplierDocPreview({ inv, onClose, settings, gisAccount }) {
         if (!contractId) { setUploadErr('Cannot attach — this invoice has no contract reference.'); return; }
         setUploading(true);
         try {
-            await uploadFile(contractId, file, setFiles);
+            // Named so it is found again for this invoice: "scan_0001.pdf" dropped on
+            // invoice 147 is stored as "Invoice 147 - scan_0001.pdf".
+            const named = nameForInvoice(file.name, inv.invoice);
+            const toSend = named === file.name ? file : new File([file], named, { type: file.type });
+            await uploadFile(contractId, toSend, setFiles);
             // Re-list from storage so what's shown matches what actually persisted — a failed
             // write must not leave the popup claiming "no invoice" after a drop, and a real
             // file must survive a reopen.
-            const arr = await getAllfiles(contractId);
+            const arr = await getAllfiles(contractId, { meta: true });
             setFiles(Array.isArray(arr) ? arr : []);
         } catch (e) {
             console.error('invoice upload failed:', e);
@@ -222,6 +230,14 @@ function SupplierDocPreview({ inv, onClose, settings, gisAccount }) {
                                         </a>
                                     ))}
                                 </div>
+                                {/* A corrected copy is dropped here: the newest upload for an
+                                    invoice is the one shown. */}
+                                <div style={{ marginTop: '12px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
+                                    <span style={{ fontSize: 'var(--fs-table)', color: 'var(--regent-gray)' }}>Wrong file? Drop the right one for invoice {inv.invoice}:</span>
+                                    <FileUploader handleChange={handleUpload} name="file" types={['PDF', 'PNG', 'JPG', 'JPEG']} disabled={uploading || !contractId} />
+                                    {uploading && <span style={{ fontSize: 'var(--fs-table)', color: 'var(--endeavour)' }}>Uploading…</span>}
+                                    {uploadErr && <span style={{ fontSize: 'var(--fs-table)', color: 'var(--danger-text)' }}>{uploadErr}</span>}
+                                </div>
                             </div>
                         ) : (
                             <div>
@@ -245,8 +261,21 @@ function SupplierDocPreview({ inv, onClose, settings, gisAccount }) {
                                     </tbody>
                                 </table>
                                 <p style={{ marginTop: '24px', textAlign: 'center', fontSize: 'var(--fs-body)', color: 'var(--regent-gray)' }}>
-                                    No original invoice uploaded for this contract.
+                                    {files.length
+                                        ? `No file named for invoice ${inv.invoice} on this PO. Drop it below, or open one of the PO’s files:`
+                                        : 'No original invoice uploaded for this contract.'}
                                 </p>
+                                {/* The PO's other files, never passed off as this invoice. */}
+                                {files.length > 0 && (
+                                    <div style={{ marginTop: '8px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
+                                        {files.map((f, i) => (
+                                            <a key={i} href={f.url} target="_blank" rel="noreferrer"
+                                                style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: 'var(--fs-table)', color: 'var(--endeavour)' }}>
+                                                <FaFilePdf size={11} /> {f.name}
+                                            </a>
+                                        ))}
+                                    </div>
+                                )}
                                 <div style={{ marginTop: '12px', display: 'flex', justifyContent: 'center' }}>
                                     <FileUploader handleChange={handleUpload} name="file" types={['PDF', 'PNG', 'JPG', 'JPEG']} disabled={uploading || !contractId} />
                                 </div>

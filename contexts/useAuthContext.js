@@ -53,6 +53,13 @@ export const touchLastSeen = () => {
 // Where an expired session lands: the sign-in form, told how long it was allowed.
 export const expiredDest = () => `/signin?expired=1&idle=${Math.round(sessionCapMs() / 3_600_000)}`;
 
+// Pages that must render without a session. /privacy and /support are the URLs on the
+// App Store listing — a reviewer opens them logged out, and a bounce to /signin there
+// fails review outright. The match is by prefix for /blog because posts live at
+// /blog/<slug>, which an exact-match list quietly sent to the sign-in page as well.
+const PUBLIC_ROUTES = ['/', '/about', '/contact', '/signin', '/blog', '/features', '/landing', '/privacy', '/support', '/terms'];
+export const isPublicPath = (p) => PUBLIC_ROUTES.includes(p) || !!p?.startsWith('/blog/');
+
 
 const AuthContextProvider = ({ children }) => {
 
@@ -74,6 +81,9 @@ const AuthContextProvider = ({ children }) => {
   // notifies auth listeners from inside signInWithEmailAndPassword, before it resolves,
   // so the guard would otherwise run against whatever the last session left behind.
   const signingIn = useRef(false)
+  // An expired session being dropped quietly on a public page (see onAuthStateChanged
+  // below). SignIn waits for it, so that drop can never land on top of a new login.
+  const expiring = useRef(null)
 
   const gisAccount = uidCollection=== 'aB3dE7FgHi9JkLmNoPqRsTuVwGIS' ?  true: false
 
@@ -106,9 +116,12 @@ const AuthContextProvider = ({ children }) => {
   const SignIn = useCallback(async (email, password, remember = false) => {
     // The previous session's stamps. Restored if this attempt fails, so a wrong password
     // can never extend the inactivity window of a session that has already expired.
+    signingIn.current = true;
+    // An expired session still being dropped must finish first: its clean-up clears the
+    // stamps written below, and its signOut would sign the NEW login straight out.
+    if (expiring.current) await expiring.current.catch(() => { });
     const prevSeen = localStorage.getItem('lastSeen');
     const prevRemember = localStorage.getItem('rememberMe');
-    signingIn.current = true;
     try {
       // "Remember me": keep the session across browser close (local) vs clear it on close
       // (session) — so an unchecked login can't auto-resume from cookie memory later.
@@ -150,8 +163,7 @@ const AuthContextProvider = ({ children }) => {
       // bounce to /signin there fails review outright. The match is by prefix
       // for /blog because posts live at /blog/<slug>, which the old exact-match
       // list quietly sent to the sign-in page as well.
-      const publicRoutes = ['/', '/about', '/contact', '/signin', '/blog', '/features', '/landing', '/privacy', '/support', '/terms'];
-      const isPublicRoute = publicRoutes.includes(pathName) || pathName?.startsWith('/blog/');
+      const isPublicRoute = isPublicPath(pathName);
       // Logged in but still sitting on the form — send them into the app. Sole owner of
       // the post-login redirect: SignIn and the sign-in page each fired their own push in
       // the same commit, so three navigations raced for one login. Checked ahead of the
@@ -250,7 +262,27 @@ const AuthContextProvider = ({ children }) => {
       // session left behind is what silently bounced people back to the sign-in form.
       if (currentUser && !signingIn.current) {
         if (idleForMs() > sessionCapMs()) {
-          // The same exit as the in-tab timer, so the sign-in page can say why.
+          /* On the sign-in form (or any public page) the expired session is dropped
+             QUIETLY — no reload. It used to go through the full SignOut, which ends in
+             window.location.replace: the form was already on screen, password autofill
+             had it filled, and the reload landed ~1.3s in — just as Sign in was clicked,
+             wiping that login. "It never works the first time" (2026-09-24; reproduced
+             on the live site, 2 of 3 sign-ins bounced back to /signin?expired=1). */
+          if (isPublicPath(window.location.pathname)) {
+            expiring.current = (async () => {
+              const savedEmail = localStorage.getItem('email');
+              const savedTheme = localStorage.getItem('ims-theme');
+              try { sessionStorage.clear(); localStorage.clear(); } catch { /* private mode */ }
+              if (savedEmail) localStorage.setItem('email', savedEmail);
+              if (savedTheme) localStorage.setItem('ims-theme', savedTheme);
+              await signOut(auth).catch(() => { });
+            })();
+            await expiring.current;
+            expiring.current = null;
+            setUser(null);
+            return;
+          }
+          // Inside the app: the same exit as the in-tab timer, so the sign-in page can say why.
           await SignOut(expiredDest());
           return;
         }

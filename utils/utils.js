@@ -29,7 +29,7 @@ const writeBatch = (...args) => {
   return batch;
 };
 
-import { getStorage, ref, uploadBytes, listAll, getDownloadURL, deleteObject } from "firebase/storage";
+import { getStorage, ref, uploadBytes, listAll, getDownloadURL, deleteObject, getMetadata } from "firebase/storage";
 import { getTtl } from './languages';
 import { splitNotifId } from './splitUtils';
 import { priorityOf } from './notificationPriority';
@@ -1109,13 +1109,16 @@ export const uploadFile = async (id, imageUplaod, setList) => {
   })
 }
 
-export const getAllfiles = async (id) => {
+export const getAllfiles = async (id, { meta = false } = {}) => {
 
   const Ref = ref(storage, `${id}/`);
   const response = await listAll(Ref);
 
   const urlArr = await Promise.all(response.items.map(async (x) => {
     const url = { name: x.name, url: await getDownloadURL(x) };
+    // Opt-in: one more request per file. The Cashflow invoice preview needs it to show
+    // the NEWER of two uploads for one invoice — a re-upload is a correction.
+    if (meta) url.updated = (await getMetadata(x).catch(() => null))?.updated || '';
     return url;
   }));
 
@@ -1190,15 +1193,55 @@ export const loadStockData = async (uidCollection, key, stockArr) => {
     */
 }
 
-export const loadAllStockData = async (uidCollection) =>
-  cachedLoad(cacheKey('loadAllStockData', uidCollection), async () => {
-    const querySnapshot = await getDocs(collection(db, uidCollection, 'data', 'stocks'));
+/* The stock ledger, read ONCE per session and then kept live.
 
-    return querySnapshot.docs.map((doc) => {
-      doc.empty && console.log('No matching documents');
-      return !doc.empty && doc.data();
-    });
+   Every page that needs stock (Stocks, Cashflow, Storage Costs, shared stock) reads the
+   WHOLE ledger — 3,341 documents, 5.2 MB for IMS — and each visit used to fetch it all
+   over again: the 45s page cache is also cleared whenever the tab regains focus, so
+   switching back to the app and opening Stocks re-downloaded everything. On the live
+   site that made the Stocks page take 53–80s (measured 2026-09-24), nearly all of it
+   spent waiting, not computing.
+
+   Now one listener per workspace holds the ledger for the session. The first read waits
+   for the server exactly as before; every read after it is the same data, already
+   current — Firestore pushes each change as it happens (a save in this tab at once), so
+   there is nothing to expire and no staleness to guard against. After a reload the
+   listener resumes from the browser's persistent cache and only changes come down.
+
+   A read resolves on the first SERVER-confirmed snapshot, never on the browser cache
+   alone, so no page is handed an old ledger as if it were current — unless the browser
+   is offline, where the cached copy is all there is (as getDocs did). Each caller gets
+   its own array; the documents are shared, and no caller edits them in place. */
+const liveLedgers = new Map();
+
+const openLedger = (uidCollection) => {
+  const entry = { docs: null };
+  entry.ready = new Promise((resolve, reject) => {
+    entry.unsub = onSnapshot(
+      collection(db, uidCollection, 'data', 'stocks'),
+      { includeMetadataChanges: true },
+      (snap) => {
+        entry.docs = snap.docs.map(d => d.data());
+        const offline = typeof navigator !== 'undefined' && navigator.onLine === false;
+        if (!snap.metadata.fromCache || offline) resolve();
+      },
+      (err) => {
+        // Refused (signed out, rules) or the stream failed: forget this listener so
+        // the next read starts clean, and fail this one as the one-off read used to.
+        liveLedgers.delete(uidCollection);
+        reject(err);
+      },
+    );
   });
+  liveLedgers.set(uidCollection, entry);
+  return entry;
+};
+
+export const loadAllStockData = async (uidCollection) => {
+  const entry = liveLedgers.get(uidCollection) || openLedger(uidCollection);
+  await entry.ready;
+  return [...entry.docs];
+};
 
 // ── Shared Stock (IMS + GIS) ──────────────────────────────────────────────────
 // Jointly-held inventory lives in a fixed cross-account namespace that BOTH the IMS
