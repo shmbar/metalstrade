@@ -1,4 +1,4 @@
-'use client';import { useContext, useEffect, useState, useMemo, useCallback } from 'react';
+'use client';import { useContext, useEffect, useState, useMemo, useCallback, useRef } from 'react';
 import Customtable from './newTable';
 import MyDetailsModal from './modals/dataModal.js'
 import { SettingsContext } from "../../../contexts/useSettingsContext";
@@ -29,14 +29,35 @@ import { oneOf } from '../../../components/table/filters/oneOfFilter';
 import { NameCell } from '../../../components/Avatar';
 import CurrencyChip from '../../../components/CurrencyChip';
 import { curCode } from '../../../utils/currency';
+import InvPopup from '../cashflow/invPopup';
+import ExpenseInvoiceCell, { hasAttachment } from '../../../components/ExpenseInvoiceCell';
 
 
 const Expenses = () => {
 
 
-    const { settings, dateSelect, loading, setLoading, ln } = useContext(SettingsContext);
+    const { settings, dateSelect, loading, setLoading, ln, compData } = useContext(SettingsContext);
     const { expensesData, setValueExp, setExpensesData, isOpen, setIsOpen, valueExp } = useContext(ExpensesContext);
-    const { uidCollection, currentUser, logActivity } = UserAuth();
+    const { uidCollection, currentUser, logActivity, gisAccount } = UserAuth();
+
+    /* The invoice behind an expense, opened from the list (the same preview Cashflow's
+       expense rows use — with a drop zone when nothing is attached). The rows on screen
+       carry display names, so the raw record is looked up by id; through a ref, so the
+       column definitions need not rebuild on every data change. */
+    const [invPreview, setInvPreview] = useState(null);
+    const [filesTick, setFilesTick] = useState(0);
+    const dataRef = useRef(expensesData);
+    dataRef.current = expensesData;
+    const openInvoice = useCallback((id) => {
+        const raw = (dataRef.current || []).find(x => x.id === id);
+        if (raw) setInvPreview({ ...raw, _type: 'expense' });
+    }, []);
+    const closeInvoice = useCallback(() => {
+        const id = invPreview?.id;
+        setInvPreview(null);
+        // a file may have been dropped in the preview: re-read that row's paperclip
+        if (id) hasAttachment(id, { fresh: true }).then(() => setFilesTick(t => t + 1));
+    }, [invPreview]);
     const [filteredId, setFilteredId] = useState([])
     const [totals, setTotals] = useState([])
     const [totalsAll, setTotalsAll] = useState([])
@@ -198,7 +219,13 @@ const Expenses = () => {
                 );
             },
         },
-        { accessorKey: 'expense', header: getTtl('Expense Invoice', ln) + '#', meta: { excludeFromQuickSum: true } },
+        {
+            accessorKey: 'expense', header: getTtl('Expense Invoice', ln) + '#', meta: { excludeFromQuickSum: true },
+            cell: (props) => (
+                <ExpenseInvoiceCell id={props.row.original.id} number={props.getValue()}
+                    refreshKey={filesTick} onOpen={() => openInvoice(props.row.original.id)} />
+            ),
+        },
         { accessorKey: 'expType', header: getTtl('Expense Type', ln) },
         {
             accessorKey: 'paid', header: getTtl('Status', ln), meta: {
@@ -208,7 +235,7 @@ const Expenses = () => {
         },
         { accessorKey: 'comments', header: getTtl('Comments', ln) },
 
-    ], [settings, ln, uidCollection, currentUser, logActivity, persistSplit]);
+    ], [settings, ln, uidCollection, currentUser, logActivity, persistSplit, filesTick, openInvoice]);
 
 
     let invisible = ['lstSaved', 'cur',].reduce((acc, key) => {
@@ -333,6 +360,11 @@ const Expenses = () => {
                                     );
                                 })()}
                             </div>
+
+                            {invPreview && (
+                                <InvPopup inv={invPreview} onClose={closeInvoice}
+                                    settings={settings} compData={compData} gisAccount={gisAccount} />
+                            )}
 
                             {/* Table Component */}
                             <Customtable
