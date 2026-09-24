@@ -366,7 +366,13 @@ const lotQty = (lot) => {
 
 /**
  * One stock position — what is left of it (qnty, value) and the lots it was received as
- * — divided by spec and by the producer it came from (the contract's original supplier).
+ * — divided by spec.
+ *
+ * NOT by the contract's "Original supplier". That field is who the material was bought
+ * through (Timur, on Shalex's POs), not who made it, and it has a column of its own: read
+ * as a producer it labelled every lot of those POs "ex Timur" (2026-09-24). A producer is
+ * a SPEC — typed on the lot ("UMZ") — or is in the material's own name ("Ta Bars UMZ"),
+ * which is what a lot with no spec and no chemistry is labelled by anyway.
  *
  * Sales record the line, not the lot, so once part of a mixed line has shipped nobody
  * knows WHICH spec went. What is left is then shared out in proportion to what was
@@ -383,11 +389,10 @@ export const splitBySpec = ({ qnty = 0, value = 0, lots = [], description = '' }
         const lq = lotQty(lot);
         if (!(lq > 0)) continue;
         const { label, source } = lotSpec(lot, lotName(lot, description));
-        const origin = lot?.originSupplier || '';
-        const key = `${label}|${origin}`;
+        const key = label;
         const price = parseFloat(lot?.unitPrc);
         const lv = Number.isFinite(price) ? lq * price : 0;
-        const p = parts.get(key) || { label, source, origin, received: 0, receivedValue: 0, lots: [] };
+        const p = parts.get(key) || { label, source, received: 0, receivedValue: 0, lots: [] };
         p.received += lq;
         p.receivedValue += lv;
         p.lots.push(lot);
@@ -397,7 +402,7 @@ export const splitBySpec = ({ qnty = 0, value = 0, lots = [], description = '' }
     }
     if (!parts.size) {
         const { label, source } = lotSpec({}, description);
-        return [{ label, source, origin: '', received: q, receivedValue: v, lots: [], qnty: q, value: v, estimated: false }];
+        return [{ label, source, received: q, receivedValue: v, lots: [], qnty: q, value: v, estimated: false }];
     }
     const list = [...parts.values()];
     const estimated = list.length > 1 && recvQ > q + 0.0005;
@@ -411,18 +416,17 @@ export const splitBySpec = ({ qnty = 0, value = 0, lots = [], description = '' }
 
 /**
  * A grade's stock by spec: every position under the grade split as above, then the same
- * spec from the same producer added up across lines, suppliers and warehouses. Largest
- * value first; specs with nothing left in stock are dropped.
+ * spec added up across lines, suppliers and warehouses. Largest value first; specs with
+ * nothing left in stock are dropped.
  * `entries`: [{ qnty, value, lots, description, supplier }] — one per line.
  */
-export const specBreakdown = (entries = [], { originName = (id) => id } = {}) => {
+export const specBreakdown = (entries = []) => {
     const by = new Map();
     for (const en of entries || []) {
         for (const p of splitBySpec(en)) {
-            const key = `${p.label}|${p.origin}`;
+            const key = p.label;
             const g = by.get(key) || {
-                key, label: p.label, source: p.source, origin: p.origin,
-                originName: p.origin ? (originName(p.origin) || p.origin) : '',
+                key, label: p.label, source: p.source,
                 qnty: 0, value: 0, suppliers: new Set(), spellings: new Set(), lots: [], estimated: false,
             };
             g.qnty += p.qnty;

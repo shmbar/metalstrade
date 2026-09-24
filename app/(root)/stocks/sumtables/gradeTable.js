@@ -203,7 +203,6 @@ const GradeTable = ({ dataTable, loading, settings, gradeIndex }) => {
   }, {}))
 
   const stop = (e) => e.stopPropagation()
-  const originName = (id) => settings?.Supplier?.Supplier?.find(s => s.id === id)?.nname || ''
   const fmtMTq = (q) => (Number(q) || 0).toLocaleString('en-US', { minimumFractionDigits: 3, maximumFractionDigits: 3 })
   const SOURCE_NOTE = {
     spec: 'spec as recorded on the lot',
@@ -285,11 +284,11 @@ const GradeTable = ({ dataTable, loading, settings, gradeIndex }) => {
                    the total. The description is dropped from a lot's line when it
                    only repeats the grade name above it — same row, less noise. */
                 /* Behind the chevron: the grade's stock by SPEC (utils/grades.js
-                   specBreakdown) — 40Ni opens into 43Ni 15Cr and 41Ni 12Cr, Ta Ingots into
-                   ex UMZ and ex Silmet — each with its own tonnage, average and value. The
+                   specBreakdown) — 40Ni opens into 43Ni 15Cr and 41Ni 12Cr, Ta Bars into
+                   Ta Bars UMZ and Ta Bars Silmet — each with its own tonnage, average and value. The
                    spellings each spec came from stay attached, so ticking a spec row still
                    feeds "Merge into grade". */
-                const children = specBreakdown(r.lots || [], { originName })
+                const children = specBreakdown(r.lots || [])
                 const canExpand = children.length > 1
                 const isOpen = !!expanded[key]
                 const allPicked = r.spellings.every(s => picked[s] !== undefined)
@@ -370,7 +369,7 @@ const GradeTable = ({ dataTable, loading, settings, gradeIndex }) => {
                   {isOpen && children.map((c) => {
                     const childPicked = c.spellings.length > 0 && c.spellings.every(s => picked[s] !== undefined)
                     const tipText = [
-                      c.label + (c.originName ? ` ex ${c.originName}` : ''),
+                      c.label,
                       SOURCE_NOTE[c.source],
                       c.suppliers.length ? `supplier ${c.suppliers.join(', ')}` : '',
                       `from ${c.spellings.join(' · ')}`,
@@ -386,7 +385,6 @@ const GradeTable = ({ dataTable, loading, settings, gradeIndex }) => {
                           <Tltip direction='top' tltpText={tipText}>
                             <span className='block truncate cursor-default min-w-0'>
                               <span className={c.source === 'spec' || c.source === 'analysis' ? 'font-medium text-[var(--ink)]' : ''}>{c.label}</span>
-                              {c.originName && <span className='font-medium text-[var(--ink)]'> ex {c.originName}</span>}
                               {c.suppliers.length > 0 && <span> · {c.suppliers.join(', ')}</span>}
                             </span>
                           </Tltip>

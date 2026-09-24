@@ -228,19 +228,33 @@ describe('specs — what each lot is, under its grade', () => {
         expect(parts.reduce((s, p) => s + p.value, 0)).toBeCloseTo(118000, 6);
     });
 
-    it('keeps producers apart: Ta Ingots ex UMZ and ex Silmet', () => {
+    it('keeps producers apart — by the spec typed on the lot', () => {
         const ta = [
-            { qnty: 10, unitPrc: 300000, originSupplier: 'umz' },
-            { qnty: 5, unitPrc: 310000, originSupplier: 'silmet' },
-            { qnty: 4, unitPrc: 300000, originSupplier: 'umz' },
+            { qnty: 10, unitPrc: 300000, spec: 'UMZ' },
+            { qnty: 5, unitPrc: 310000, spec: 'Silmet' },
+            { qnty: 4, unitPrc: 300000, spec: 'UMZ' },
         ];
-        const rows = specBreakdown(
-            [{ qnty: 19, value: 5750000, lots: ta, description: 'Ta Ingots', supplier: 'Shalex' }],
-            { originName: (id) => ({ umz: 'UMZ', silmet: 'Silmet' })[id] });
-        expect(rows.map(r => [r.label, r.originName, r.qnty])).toEqual([
-            ['Ta Ingots', 'UMZ', 14],
-            ['Ta Ingots', 'Silmet', 5],
+        const rows = specBreakdown([{ qnty: 19, value: 5750000, lots: ta, description: 'Ta Ingots', supplier: 'Shalex' }]);
+        expect(rows.map(r => [r.label, r.qnty])).toEqual([['UMZ', 14], ['Silmet', 5]]);
+    });
+
+    it('keeps producers apart — by the material name, when nothing is typed', () => {
+        // real: PO 050626-TIM holds Ta Bars UMZ and Ta Bars Silmet as two lines
+        const rows = specBreakdown([
+            { qnty: 10, value: 3000000, lots: [{ qnty: 10, unitPrc: 300000 }], description: 'Ta Bars UMZ', supplier: 'Shalex' },
+            { qnty: 5, value: 1550000, lots: [{ qnty: 5, unitPrc: 310000 }], description: 'Ta Bars Silmet', supplier: 'Shalex' },
         ]);
+        expect(rows.map(r => [r.label, r.source, r.qnty])).toEqual([['Ta Bars UMZ', 'name', 10], ['Ta Bars Silmet', 'name', 5]]);
+    });
+
+    it('never reads the Original supplier as the producer', () => {
+        // real: Shalex POs bought through Timur — every lot was labelled "ex Timur"
+        const lots = [{ qnty: 10, unitPrc: 300000, originSupplier: 'timur-id' }, { qnty: 5, unitPrc: 300000, originSupplier: 'other-id' }];
+        const rows = specBreakdown([{ qnty: 15, value: 4500000, lots, description: 'Ta Bars UMZ', supplier: 'Shalex' }]);
+        expect(rows).toHaveLength(1);
+        expect(rows[0]).toMatchObject({ label: 'Ta Bars UMZ', qnty: 15 });
+        const { lots: _lots, ...row } = rows[0];                      // the raw lots keep their own fields
+        expect(JSON.stringify(row)).not.toMatch(/timur|origin/i);
     });
 
     it('adds one spec up across lines and suppliers, and drops what is sold out', () => {

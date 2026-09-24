@@ -24,16 +24,13 @@ export const rowSpecs = (row) => {
   return parts
 }
 
-export const originNameOf = (settings, id) =>
-  settings?.Supplier?.Supplier?.find(s => s.id === id)?.nname || ''
-
-/* How one spec reads: "43Ni 15Cr", "UMZ ex Silmet", or just "ex UMZ" for a lot with no
-   spec or chemistry of its own but a known producer. Empty when there is nothing to
-   add to the description beside it. */
-export const specLabel = (part, settings) => [
-  part.source !== 'name' ? part.label : '',
-  part.origin ? `ex ${originNameOf(settings, part.origin) || part.origin}` : '',
-].filter(Boolean).join(' ')
+/* How one spec reads: a typed spec ("UMZ", "99%") or the chemistry ("43Ni 15Cr").
+   Empty when there is nothing to add to the description beside it — a lot known only
+   by its name is already named in the Description column. (The contract's Original
+   supplier is not a spec: it has its own column, and shown here as "ex Timur" it read
+   as the producer of material Timur only sold on.) */
+// eslint-disable-next-line no-unused-vars
+export const specLabel = (part, settings) => (part.source !== 'name' ? part.label : '')
 
 export const specText = (row, settings) =>
   rowSpecs(row).map(p => specLabel(p, settings)).filter(Boolean).join(' · ')
