@@ -2,7 +2,8 @@ import { useContext, useState, useEffect } from 'react'
 import { ExpensesContext } from "@contexts/useExpensesContext";
 import Datepicker from "react-tailwindcss-datepicker";
 import { SettingsContext } from "@contexts/useSettingsContext";
-import { validate, ErrDiv } from '@utils/utils'
+import { validate, ErrDiv, uploadFile } from '@utils/utils'
+import ExpenseFilesModal from '../../expenses/modals/filesModal'
 import { UserAuth } from "@contexts/useAuthContext";
 import { getTtl } from '@utils/languages';
 import Tltip from '@components/tlTip';
@@ -15,12 +16,25 @@ import { BtnIcon } from '@components/buttonIcons';
 const Expenses = ({setIsOpen}) => {
 
     const { valueExp, setValueExp, blankExpense, saveData_CompanyExpenses, saving,
-        errorsExp, setErrorsExp, deleteCompExp, copyTomisc } = useContext(ExpensesContext);
-    const { settings, ln } = useContext(SettingsContext);
+        errorsExp, setErrorsExp, deleteCompExp, copyTomisc, expenseFolderId } = useContext(ExpensesContext);
+    const { settings, ln, setToast } = useContext(SettingsContext);
     const { uidCollection } = UserAuth();
     const sups = settings.Supplier.Supplier;
     const [opendialogShipment, setDialogShipment] = useState(false)
     const [showDocImport, setShowDocImport] = useState(false)
+    const [showFiles, setShowFiles] = useState(false)
+    const [filesFolder, setFilesFolder] = useState(null)
+    // What happened to the PDF given to "Autofill from PDF": it is now kept with the
+    // expense, and the form says so.
+    const [attachNote, setAttachNote] = useState(null)   // { state: 'uploading'|'done'|'failed', name }
+    const attachFile = (file) => {
+        const folder = expenseFolderId();
+        setAttachNote({ state: 'uploading', name: file.name });
+        uploadFile(folder, file, () => { })
+            .then(() => setAttachNote({ state: 'done', name: file.name }))
+            .catch(() => setAttachNote({ state: 'failed', name: file.name }));
+    }
+    const openFiles = () => { setFilesFolder(expenseFolderId()); setShowFiles(true) }
 
     // Called directly, not inside startTransition: a transition defers the render
     // that shows "Saving…", which is the one render this click needs at once.
@@ -59,7 +73,20 @@ const Expenses = ({setIsOpen}) => {
         <div>
             {/* AI invoice reading — extract vendor, amount, date, currency & category from a PDF */}
             <div className='flex items-center justify-end gap-2 mx-2 mt-2'>
-                <Tltip direction='top' tltpText='Drop an invoice/proforma PDF — AI fills the vendor, amount, date, currency and category.'>
+                {attachNote && (
+                    <span className={`responsiveTextTable mr-auto ${attachNote.state === 'failed' ? 'text-[var(--danger-text)]' : 'text-[var(--ink-muted)]'}`}>
+                        {attachNote.state === 'uploading' ? `Attaching ${attachNote.name}…`
+                            : attachNote.state === 'done' ? `${attachNote.name} is attached to this expense.`
+                                : `${attachNote.name} could not be attached — add it with Files.`}
+                    </span>
+                )}
+                <Tltip direction='top' tltpText='Attach the expense invoice PDF/image — kept with this expense, also before it is first saved.'>
+                    <button type='button' onClick={openFiles} className='whiteButton'>
+                        <BtnIcon action="files" />
+                        Files
+                    </button>
+                </Tltip>
+                <Tltip direction='top' tltpText='Drop an invoice/proforma PDF — AI fills the vendor, amount, date, currency and category, and the PDF is attached to the expense.'>
                     <button
                         type='button'
                         onClick={() => setShowDocImport(true)}
@@ -78,9 +105,16 @@ const Expenses = ({setIsOpen}) => {
                     clients={[]}
                     currencies={settings?.Currency?.Currency || []}
                     expenseTypes={settings?.Expenses?.Expenses || []}
-                    onApply={(fields) => setValueExp(prev => ({ ...prev, ...fields }))}
+                    onApply={(fields, file) => {
+                        setValueExp(prev => ({ ...prev, ...fields }));
+                        if (file) attachFile(file);
+                    }}
                     onClose={() => setShowDocImport(false)}
                 />
+            )}
+
+            {showFiles && filesFolder && (
+                <ExpenseFilesModal isOpen={showFiles} setIsOpen={setShowFiles} folderId={filesFolder} setToast={setToast} />
             )}
 
             <div className='z-10 relative mt-2 rounded-2xl flex m-2 pb-4' style={{ border: '1px solid var(--line)', background: "var(--bg-card)" }}>

@@ -407,6 +407,13 @@ const useSettingsState = (props) => {
             success && setToast({ show: true, text: getTtl('Expense successfully deleted!', ln), clr: 'success' })
             setIsOpen(false)
         },
+        /* The storage folder this expense's files belong in: its id — and for an expense
+           not saved yet, the id it WILL be saved under (settled on the form now; both
+           saves that create an expense write exactly this id). Files dropped on a new
+           expense used to go to one shared "generalExpenses" folder, or — through
+           "Autofill from PDF" — nowhere at all, so an invoice loaded while entering an
+           expense was never attached to it (2026-09-24). */
+        expenseFolderId: () => settledId(),
         copyTomisc: async (uidCollection) => {
             if (valueExp.id === '') return;
 

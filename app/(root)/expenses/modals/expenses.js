@@ -5,7 +5,7 @@ import Datepicker from "react-tailwindcss-datepicker";
 import { Selector } from '../../../../components/selectors/selectShad.js'
 import { SettingsContext } from "../../../../contexts/useSettingsContext";
 import { InvoiceContext } from "../../../../contexts/useInvoiceContext";
-import { validate, ErrDiv } from '../../../../utils/utils'
+import { validate, ErrDiv, uploadFile } from '../../../../utils/utils'
 import { UserAuth } from "../../../../contexts/useAuthContext";
 import { getTtl } from '../../../../utils/languages';
 import Tltip from '../../../../components/tlTip';
@@ -18,7 +18,7 @@ import { BtnIcon } from '@components/buttonIcons';
 const Expenses = () => {
 
     const { valueExp, setValueExp, blankExpense, saveData_ExpenseExpenses, saving,
-        deleteExpenseFromExpPage, errorsExp, setErrorsExp } = useContext(ExpensesContext);
+        deleteExpenseFromExpPage, errorsExp, setErrorsExp, expenseFolderId } = useContext(ExpensesContext);
     const { valueInv, setValueInv, } = useContext(InvoiceContext);
     const { contractsData } = useContext(ContractsContext);
     const { settings, ln, setToast } = useContext(SettingsContext);
@@ -28,6 +28,15 @@ const Expenses = () => {
     const [catResult, setCatResult] = useState(null); // null | 'high' | 'medium' | 'low' | 'error'
     const [showDocImport, setShowDocImport] = useState(false);
     const [showFiles, setShowFiles] = useState(false);
+    const [filesFolder, setFilesFolder] = useState(null);
+    const [attachNote, setAttachNote] = useState(null);   // { state, name } — the autofill PDF
+    const attachFile = (file) => {
+        const folder = expenseFolderId();
+        setAttachNote({ state: 'uploading', name: file.name });
+        uploadFile(folder, file, () => { })
+            .then(() => setAttachNote({ state: 'done', name: file.name }))
+            .catch(() => setAttachNote({ state: 'failed', name: file.name }));
+    };
 
     const handleAutoCategory = async () => {
         // The "Expense Invoice" field is a reference NUMBER (e.g. "9") — useless for
@@ -127,8 +136,15 @@ const Expenses = () => {
         <div>
             {/* Action bar — AI-powered supplier invoice import + file attachments */}
             <div className='flex items-center justify-end gap-2 mx-2 mt-2'>
-                <Tltip direction='top' tltpText='Attach the expense invoice PDF/image. Saved to a folder for this expense, or the general expenses folder for new entries.'>
-                    <button type='button' onClick={() => setShowFiles(true)} className='whiteButton'>
+                {attachNote && (
+                    <span className={`responsiveTextTable mr-auto ${attachNote.state === 'failed' ? 'text-[var(--danger-text)]' : 'text-[var(--ink-muted)]'}`}>
+                        {attachNote.state === 'uploading' ? `Attaching ${attachNote.name}…`
+                            : attachNote.state === 'done' ? `${attachNote.name} is attached to this expense.`
+                                : `${attachNote.name} could not be attached — add it with Files.`}
+                    </span>
+                )}
+                <Tltip direction='top' tltpText='Attach the expense invoice PDF/image — kept with this expense, also before it is first saved.'>
+                    <button type='button' onClick={() => { setFilesFolder(expenseFolderId()); setShowFiles(true); }} className='whiteButton'>
                         <BtnIcon action="files" />
                         Files
                     </button>
@@ -145,7 +161,7 @@ const Expenses = () => {
                 <ExpenseFilesModal
                     isOpen={showFiles}
                     setIsOpen={setShowFiles}
-                    folderId={valueExp.id || 'generalExpenses'}
+                    folderId={filesFolder || valueExp.id}
                     setToast={setToast}
                 />
             )}
@@ -158,7 +174,10 @@ const Expenses = () => {
                     currencies={settings?.Currency?.Currency || []}
                     expenseTypes={settings?.Expenses?.Expenses || []}
                     contractIndex={buildContractIndex()}
-                    onApply={(fields) => setValueExp(prev => ({ ...prev, ...fields }))}
+                    onApply={(fields, file) => {
+                        setValueExp(prev => ({ ...prev, ...fields }));
+                        if (file) attachFile(file);   // kept with the expense, not only read
+                    }}
                     onClose={() => setShowDocImport(false)}
                 />
             )}
