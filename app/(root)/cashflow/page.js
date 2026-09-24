@@ -9,7 +9,8 @@ import AutosavePill from "../../../components/AutosavePill";
 import Spin from '../../../components/spinTable';
 import VideoLoader from '../../../components/videoLoader';
 import { CardsSkeleton } from "../../../components/skeletons";
-import { loadData, loadDataSettings, loadInvoice, loadMargins, loadSharedStock, loadStockData, loadAllStockData, saveCashflow, saveCashflowFinanced, saveDataSettings, saveMultipleData, saveStockIn, syncSpecialInvoicesPaidStatus, updateClientPayment, updateExpPayments, updateContractField } from "../../../utils/utils";
+import { loadData, loadDataSettings, loadInvoice, loadMargins, loadSharedStock, loadStockData, loadAllStockData, saveCashflow, saveCashflowFinanced, saveDataSettings, saveMultipleData, saveStockIn, syncSpecialInvoicesPaidStatus, updateClientPayment, updateExpPayments, updateContractField, updateInvoiceField } from "../../../utils/utils";
+import { resolveInvoiceDate } from "../../../utils/pureHelpers";
 import { UserAuth } from "../../../contexts/useAuthContext";
 import { NumericFormat } from "react-number-format";
 import { addComma, ClientDetails, clientToolTip, entityName, ExpensesToolTip, FinalSummaryBadge, getTotals, getTotalsSupPayments, runExpenses, runInvoices, runStocks, runSupPayments, SharedStockDetails, StocksUnSold, StoclToolTip, SupplierDetails, supplierToolTip } from "./funcs";
@@ -33,8 +34,9 @@ import { exportCashflowToExcel } from "./excel";
 import KpiStrip from "../../../components/KpiStrip";
 import { BtnIcon, SearchAdornment } from "../../../components/buttonIcons";
 import Avatar from "../../../components/Avatar";
-import { Boxes, Users, Factory, Wallet, Banknote } from "lucide-react";
+import { Boxes, Users, Factory, Wallet, Banknote, Clock } from "lucide-react";
 import { matchesAllWords } from '@utils/search';
+import { moneyFull } from '@utils/currency';
 
 function countDecimalDigits(inputString) {
     const match = inputString.match(/(?:\.(\d+))?(?:[eE]([+-]?\d+))?$/);
@@ -67,6 +69,49 @@ const SectionHeader = ({ icon: Icon, title, className = '', children }) => (
 );
 
 
+/* Pending (payment on hold) beside a supplier or client name: how much of theirs is on
+   hold, muted, next to the active figure it is NOT part of. Nothing when there is none. */
+const PendingNote = ({ amount, prefix = '$' }) => (Number(amount) || 0) > 0.005 ? (
+    <span className="inline-flex items-center gap-1 mr-2 responsiveTextTable text-[var(--ink-muted)] tabular-nums whitespace-nowrap"
+        title="On hold — not included in the total">
+        <Clock size={11} aria-hidden="true" />
+        <NumericFormat value={amount} displayType="text" thousandSeparator prefix={prefix} decimalScale={2} fixedDecimalScale />
+    </span>
+) : null;
+
+/* A section's closing lines: the pending holds (faded, only when there are any), then
+   the active total, labelled for what it is — "Total (Payable)" / "Total (Receivable)".
+   `field` is the aggregate's active figure (blnc for suppliers, debtBlnc for clients);
+   the aggregates carry the held amount beside it as _pendingBlnc (funcs.js pendingSplit). */
+const SectionTotals = ({ rows = [], field, label }) => {
+    // Not called `total`: the parity suite finds the page's Total (Left) by that name.
+    const activeSum = rows.reduce((t, o) => t + (parseFloat(o[field]) || 0), 0);
+    const pending = rows.reduce((t, o) => t + (parseFloat(o._pendingBlnc) || 0), 0);
+    const count = rows.reduce((t, o) => t + (o._pendingCount || 0), 0);
+    const figure = (value, cls) => (
+        <NumericFormat value={value} displayType="text" thousandSeparator allowNegative={true}
+            prefix='$' decimalScale='2' fixedDecimalScale className={cls} />
+    );
+    return (
+        <>
+            {count > 0 && (
+                <div className="rounded-lg px-0 mt-1 flex items-center justify-between opacity-[0.72]">
+                    <div className="responsiveText text-[var(--ink-secondary)] flex items-center gap-1.5">
+                        <Clock size={13} aria-hidden="true" /> Pending ({count})
+                    </div>
+                    {figure(pending, 'responsiveText text-[var(--ink-secondary)] tabular-nums')}
+                </div>
+            )}
+            <div className="rounded-lg py-1 px-0 mt-1 flex items-center justify-between">
+                <div className="responsiveTextTotal text-[var(--ink)] font-medium border-t border-[var(--line-strong)] pt-0.5">
+                    {label}
+                </div>
+                {figure(activeSum, 'responsiveTextTotal text-[var(--ink)] font-medium border-t border-[var(--line-strong)] pt-0.5')}
+            </div>
+        </>
+    );
+};
+
 const Cashflow = () => {
 
     const { settings, compData, ln, setLoading, loading, setToast, setDateSelect } = useContext(SettingsContext);
@@ -90,36 +135,62 @@ const Cashflow = () => {
         });
     };
 
-    // Cargo status (RDY / TRN) is a property of the supplier CONTRACT: every invoice
-    // row of that PO shows it, in both the Payment and the Balances tables, so all of
-    // them change together — on screen first, then on the contract. A failed write
-    // puts the previous value back and says so.
-    const saveCargoStatus = async (row, code) => {
+    /* Pending — a payment on hold (client, 2026-09-24; see PendingToggle in funcs.js).
+       The row changes on screen first and the section figures are re-summed from the
+       same getTotals* the load uses, so every total, the top cards and the left/right
+       balance move with it; then the flag is written. A failed write puts the row back
+       and says so.
+
+       Supplier invoices: one field on the contract, pendingInvoices.<purchase-invoice
+       id> — a single-field write, so it can never race a payment that rewrites the
+       poInvoices array. Client invoices: paymentPending on the invoice document itself. */
+    const regroupSuppliers = (rows) => {
+        setSupPayments1(getTotalsSupPayments(rows.filter(z => z.pmnt * 1 > 0)));
+        setSupPayments2(getTotalsSupPayments(rows.filter(z => parseFloat(z.pmnt) === 0)));
+    };
+    const regroupClients = (rows) => {
+        setClientInvoices1(getTotals(rows.filter(z => z.payments.length > 0)));
+        setClientInvoices2(getTotals(rows.filter(z => z.payments.length === 0)));
+    };
+    // Latest rows, read through refs rather than a setState updater: re-summing from
+    // inside an updater would schedule updates from an update function, which React
+    // forbids. The refs are written below where the states are declared.
+    const saveSupplierPending = async (row, flag) => {
         const contractId = row.orderData?.id;
         const contractDate = row.orderData?.date;
         if (!contractId || !contractDate || !row.id) return;
-        const before = row.cargoStatus || '';
-        // Only the row that was clicked. This used to move every invoice of the PO,
-        // because the status was stored on the contract.
-        const setRow = (value) => setsupPaymentsData((cur) =>
-            cur.map((x) => (x.id === row.id ? { ...x, cargoStatus: value } : x)));
-        setRow(code);
+        const apply = (value) => {
+            // A pending invoice is never left ticked for payment.
+            const next = supRowsRef.current.map((x) => (x.id === row.id ? { ...x, pending: value, checked: value ? false : x.checked } : x));
+            supRowsRef.current = next;
+            setsupPaymentsData(next);
+            regroupSuppliers(next);
+        };
+        apply(flag);
         try {
-            const contract = await loadInvoice(uidCollection, 'contracts', row.orderData);
-            if (!Array.isArray(contract?.poInvoices)) throw new Error('contract could not be read');
-            // Carry the old contract-level value onto the other invoices as we go, then
-            // drop it: without that they would fall back to it and appear to change when
-            // this one is set. Nothing on screen moves except the row that was clicked.
-            const legacy = contract.cargoStatus || '';
-            const poInvoices = contract.poInvoices.map((p) => ({
-                ...p,
-                cargoStatus: p.id === row.id ? code : (p.cargoStatus || legacy),
-            }));
-            await updateContractField(uidCollection, contractId, contractDate, { poInvoices, cargoStatus: '' });
+            await updateContractField(uidCollection, contractId, contractDate, { [`pendingInvoices.${row.id}`]: flag });
         } catch (e) {
-            console.error('cargo status save failed', e);
-            setRow(before);
-            setToast({ show: true, text: 'Could not save the cargo status — please try again', clr: 'fail' });
+            console.error('pending save failed', e);
+            apply(!flag);
+            setToast({ show: true, text: 'Could not save the pending status — please try again', clr: 'fail' });
+        }
+    };
+    const saveClientPending = async (row, flag) => {
+        const invoiceDate = resolveInvoiceDate(row) || row.date;
+        if (!row.id || !invoiceDate) return;
+        const apply = (value) => {
+            const next = clientsDataRef.current.map((x) => (x.id === row.id ? { ...x, pending: value, checked: value ? false : x.checked } : x));
+            clientsDataRef.current = next;
+            setClientsData(next);
+            regroupClients(next);
+        };
+        apply(flag);
+        try {
+            await updateInvoiceField(uidCollection, row.id, invoiceDate, { paymentPending: flag });
+        } catch (e) {
+            console.error('pending save failed', e);
+            apply(!flag);
+            setToast({ show: true, text: 'Could not save the pending status — please try again', clr: 'fail' });
         }
     };
     const currentYear = new Date().getFullYear()
@@ -199,6 +270,10 @@ const Cashflow = () => {
     const [clientSortName1, setClientSortName1] = useState(false)
 
     const [supPaymentsData, setsupPaymentsData] = useState([])
+    // Same idea as clientsDataRef: the latest supplier rows for handlers that finish
+    // after an await (saveSupplierPending).
+    const supRowsRef = useRef(supPaymentsData);
+    supRowsRef.current = supPaymentsData;
     const [supPmntssSort, setSupPmntssSort] = useState(true)
     const [supPmntssSort1, setSupPmntssSort1] = useState(true)
     const [supPmntssSortName, setSupPmntssSortName] = useState(false)
@@ -335,7 +410,7 @@ const Cashflow = () => {
 
             //load invoices (from the shared raw rows — no second download)
             let invoices = await runInvoices(uidCollection, settings, yr, rawInvoices)
-            invoices = invoices.map(z => ({ ...z, clientName: settings.Client.Client.find(k => k.id === z.client)?.nname, checked: false }))
+            invoices = invoices.map(z => ({ ...z, clientName: settings.Client.Client.find(k => k.id === z.client)?.nname, checked: false, pending: !!z.paymentPending }))
             setClientsData(invoices)
             setClientInvoices1(getTotals(invoices.filter(z => z.payments.length > 0)))
             setClientInvoices2(getTotals(invoices.filter(z => z.payments.length === 0)))
@@ -742,13 +817,14 @@ const Cashflow = () => {
             setToggleClientPartial(prev => ({
                 ...prev, [arr[0]?.client]: !prev[arr[0]?.client],
             }));
-            setClientsData(clientsData.map(x => x.payments.length > 0 && x.client === arr[0]?.client ?
+            // Pending invoices (on hold) are never swept into a select-all payment.
+            setClientsData(clientsData.map(x => x.payments.length > 0 && x.client === arr[0]?.client && !x.pending ?
                 { ...x, checked: !toggleClientPartial[arr[0]?.client] } : x))
         } else {
             setToggleClientFull(prev => ({
                 ...prev, [arr[0]?.client]: !prev[arr[0]?.client],
             }));
-            setClientsData(clientsData.map(x => x.payments.length === 0 && x.client === arr[0].client ?
+            setClientsData(clientsData.map(x => x.payments.length === 0 && x.client === arr[0].client && !x.pending ?
                 { ...x, checked: !toggleClientFull[arr[0]?.client] } : x))
         }
     }
@@ -1296,8 +1372,17 @@ const Cashflow = () => {
     // already render (no new computation beyond re-running the identical reduces).
     const clientsDueKpi = [...clientInvoices1, ...clientInvoices2].reduce((t, o) => t + (parseFloat(o.debtBlnc) || 0), 0);
     const suppliersDueKpi = [...(supPayments1 || []), ...(supPayments2 || [])].reduce((t, o) => t + (parseFloat(o.blnc) || 0), 0);
+    // Both "due" figures above are ACTIVE only — pending holds are left out by the
+    // aggregation (funcs.js pendingSplit) and shown underneath instead.
+    const clientsPendingKpi = [...clientInvoices1, ...clientInvoices2].reduce((t, o) => t + (parseFloat(o._pendingBlnc) || 0), 0);
+    const suppliersPendingKpi = [...(supPayments1 || []), ...(supPayments2 || [])].reduce((t, o) => t + (parseFloat(o._pendingBlnc) || 0), 0);
+    const pendingSub = (amount) => amount > 0.005 ? (
+        <span className="inline-flex items-center gap-1 tabular-nums">
+            <Clock size={11} aria-hidden="true" /> Pending {moneyFull('us', amount)}
+        </span>
+    ) : undefined;
     const expensesKpi = (expenses || []).reduce((t, o) => t + (parseFloat(o.amount) || 0), 0);
-    const fmtUsd = (n) => '$' + Number(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const fmtUsd = (n) => moneyFull('us', n); // "-$1,234.00", not "$-1,234.00"
     const kpiItems = [
         ...(isAdmin ? [{
             label: 'Total Balance',
@@ -1306,8 +1391,8 @@ const Cashflow = () => {
             tone: ((totalLeft || 0) - (totalRight || 0)) >= 0 ? 'green' : 'red',
             sub: 'Left − right totals',
         }] : []),
-        { label: 'Clients due', value: clientsDueKpi, format: fmtUsd, icon: Users, tone: 'blue' },
-        { label: 'Suppliers due', value: suppliersDueKpi, format: fmtUsd, icon: Factory, tone: 'amber' },
+        { label: 'Clients due', value: clientsDueKpi, format: fmtUsd, icon: Users, tone: 'blue', sub: pendingSub(clientsPendingKpi) },
+        { label: 'Suppliers due', value: suppliersDueKpi, format: fmtUsd, icon: Factory, tone: 'amber', sub: pendingSub(suppliersPendingKpi) },
         { label: 'Expenses', value: expensesKpi, format: fmtUsd, icon: Wallet, tone: 'red' },
     ];
 
@@ -1688,6 +1773,7 @@ const Cashflow = () => {
                                                                             <FinalSummaryBadge finalized={x._finCount} total={x._finTotal} />
                                                                         </div>
                                                                         <div className='leading-4 2xl:leading-6 '>
+                                                                            <PendingNote amount={x._pendingBlnc} prefix={x.cur === 'us' ? '$' : '€'} />
                                                                             <NumericFormat
                                                                                 value={x.debtBlnc}
                                                                                 displayType="text"
@@ -1701,28 +1787,12 @@ const Cashflow = () => {
 
                                                                         </div>
                                                                     </div>}>
-                                                                    <ClientDetails client={x.client} data={clientsData} type="InDebt" uidCollection={uidCollection} setDateSelect={setDateSelect} setValueCon={setValueCon} setIsOpenCon={setIsOpenCon} blankInvoice={blankInvoice} router={router} toggleCheckClient={toggleCheckClient} toggleCheckClientAll={toggleCheckClientAll} toggleClientPartial={toggleClientPartial} toggleClientFull={toggleClientFull} savePmntClient={savePmntClient} clientPartialPayment={clientPartialPayment} openInvModal={openInvModal} sumSel={sumSel} toggleSum={toggleSum} />
+                                                                    <ClientDetails client={x.client} data={clientsData} type="InDebt" uidCollection={uidCollection} setDateSelect={setDateSelect} setValueCon={setValueCon} setIsOpenCon={setIsOpenCon} blankInvoice={blankInvoice} router={router} toggleCheckClient={toggleCheckClient} toggleCheckClientAll={toggleCheckClientAll} toggleClientPartial={toggleClientPartial} toggleClientFull={toggleClientFull} savePmntClient={savePmntClient} clientPartialPayment={clientPartialPayment} openInvModal={openInvModal} onPending={saveClientPending} sumSel={sumSel} toggleSum={toggleSum} />
                                                                 </MyAccordion>
                                                             </div>
                                                         )
                                                     })}
-                                                    <div className="rounded-lg py-1 px-0 mt-1 flex items-center justify-between">
-                                                        <div className="responsiveTextTotal text-[var(--ink)] font-medium border-t border-[var(--line-strong)] pt-0.5">
-                                                            Total
-                                                        </div>
-                                                        <NumericFormat
-                                                            value={clientInvoices2.reduce((total, obj) => {
-                                                                return total + (parseFloat(obj.debtBlnc) || 0);
-                                                            }, 0)}
-                                                            displayType="text"
-                                                            thousandSeparator
-                                                            allowNegative={true}
-                                                            prefix='$'
-                                                            decimalScale='2'
-                                                            fixedDecimalScale
-                                                            className='responsiveTextTotal text-[var(--ink)] font-medium border-t border-[var(--line-strong)] pt-0.5'
-                                                        />
-                                                    </div>
+                                                    <SectionTotals rows={clientInvoices2} field="debtBlnc" label="Total (Receivable)" />
                                                 </div>
 
 
@@ -1745,6 +1815,7 @@ const Cashflow = () => {
                                                                             <FinalSummaryBadge finalized={x._finCount} total={x._finTotal} />
                                                                         </div>
                                                                         <div className='leading-4 2xl:leading-6'>
+                                                                            <PendingNote amount={x._pendingBlnc} prefix={x.cur === 'us' ? '$' : '€'} />
                                                                             <NumericFormat
                                                                                 value={x.debtBlnc}
                                                                                 displayType="text"
@@ -1758,29 +1829,13 @@ const Cashflow = () => {
 
                                                                         </div>
                                                                     </div>}>
-                                                                    <ClientDetails client={x.client} data={clientsData} type="PartPaid" uidCollection={uidCollection} setDateSelect={setDateSelect} setValueCon={setValueCon} setIsOpenCon={setIsOpenCon} blankInvoice={blankInvoice} router={router} toggleCheckClient={toggleCheckClient} toggleCheckClientAll={toggleCheckClientAll} toggleClientPartial={toggleClientPartial} toggleClientFull={toggleClientFull} savePmntClient={savePmntClient} clientPartialPayment={clientPartialPayment} openInvModal={openInvModal} sumSel={sumSel} toggleSum={toggleSum} />
+                                                                    <ClientDetails client={x.client} data={clientsData} type="PartPaid" uidCollection={uidCollection} setDateSelect={setDateSelect} setValueCon={setValueCon} setIsOpenCon={setIsOpenCon} blankInvoice={blankInvoice} router={router} toggleCheckClient={toggleCheckClient} toggleCheckClientAll={toggleCheckClientAll} toggleClientPartial={toggleClientPartial} toggleClientFull={toggleClientFull} savePmntClient={savePmntClient} clientPartialPayment={clientPartialPayment} openInvModal={openInvModal} onPending={saveClientPending} sumSel={sumSel} toggleSum={toggleSum} />
                                                                 </MyAccordion>
                                                             </div>
                                                         )
                                                     })}
 
-                                                    <div className="rounded-lg py-1 px-0 mt-1 flex items-center justify-between">
-                                                        <div className="responsiveTextTotal text-[var(--ink)] font-medium border-t border-[var(--line-strong)] pt-0.5">
-                                                            Total
-                                                        </div>
-                                                        <NumericFormat
-                                                            value={clientInvoices1.reduce((total, obj) => {
-                                                                return total + (parseFloat(obj.debtBlnc) || 0);
-                                                            }, 0)}
-                                                            displayType="text"
-                                                            thousandSeparator
-                                                            allowNegative={true}
-                                                            prefix='$'
-                                                            decimalScale='2'
-                                                            fixedDecimalScale
-                                                            className='responsiveTextTotal text-[var(--ink)] font-medium border-t border-[var(--line-strong)] pt-0.5'
-                                                        />
-                                                    </div>
+                                                    <SectionTotals rows={clientInvoices1} field="debtBlnc" label="Total (Receivable)" />
                                                 </div>
 
 
@@ -1884,6 +1939,7 @@ const Cashflow = () => {
                                                                             <FinalSummaryBadge finalized={x._finCount} total={x._finTotal} />
                                                                         </div>
                                                                         <div className="w-full text-right">
+                                                                            <PendingNote amount={x._pendingBlnc} />
                                                                             <NumericFormat
                                                                                 value={x.blnc}
                                                                                 displayType="text"
@@ -1897,29 +1953,13 @@ const Cashflow = () => {
                                                                         </div>
                                                                     </div>
                                                                 }>
-                                                                    <SupplierDetails supplier={x.supplier} data={supPaymentsData.filter(z => z.pmnt * 1 === 0)} uidCollection={uidCollection} setDateSelect={setDateSelect} setValueCon={setValueCon} setIsOpenCon={setIsOpenCon} blankInvoice={blankInvoice} router={router} toggleCheckSupplier={toggleCheckSupplier} toggleCheckSupplierAll={toggleCheckSupplierAll} toggleSupplier={toggleSupplier} savePmntSupplier={savePmntSupplier} supplierPartialPayment={supplierPartialPayment} supplierCloseBalance={supplierCloseBalance} openInvModal={openInvModal} onCargoStatus={saveCargoStatus} sumSel={sumSel} toggleSum={toggleSum} />
+                                                                    <SupplierDetails supplier={x.supplier} data={supPaymentsData.filter(z => z.pmnt * 1 === 0)} uidCollection={uidCollection} setDateSelect={setDateSelect} setValueCon={setValueCon} setIsOpenCon={setIsOpenCon} blankInvoice={blankInvoice} router={router} toggleCheckSupplier={toggleCheckSupplier} toggleCheckSupplierAll={toggleCheckSupplierAll} toggleSupplier={toggleSupplier} savePmntSupplier={savePmntSupplier} supplierPartialPayment={supplierPartialPayment} supplierCloseBalance={supplierCloseBalance} openInvModal={openInvModal} onPending={saveSupplierPending} sumSel={sumSel} toggleSum={toggleSum} />
                                                                 </MyAccordion>
                                                             </div>
 
                                                         )
                                                     })}
-                                                    <div className="rounded-lg py-1 px-0 mt-1 flex items-center justify-between">
-                                                        <div className="responsiveTextTotal text-[var(--ink)] font-medium border-t border-[var(--line-strong)] pt-0.5">
-                                                            Total
-                                                        </div>
-                                                        <NumericFormat
-                                                            value={supPayments2?.reduce((total, obj) => {
-                                                                return total + (parseFloat(obj.blnc) || 0);
-                                                            }, 0)}
-                                                            displayType="text"
-                                                            thousandSeparator
-                                                            allowNegative={true}
-                                                            prefix='$'
-                                                            decimalScale='2'
-                                                            fixedDecimalScale
-                                                            className='responsiveTextTotal text-[var(--ink)] font-medium border-t border-[var(--line-strong)] pt-0.5'
-                                                        />
-                                                    </div>
+                                                    <SectionTotals rows={supPayments2 || []} field="blnc" label="Total (Payable)" />
                                                 </div>
 
 
@@ -1944,6 +1984,7 @@ const Cashflow = () => {
                                                                             <FinalSummaryBadge finalized={x._finCount} total={x._finTotal} />
                                                                         </div>
                                                                         <div className="w-full text-right">
+                                                                            <PendingNote amount={x._pendingBlnc} />
                                                                             <NumericFormat
                                                                                 value={x.blnc}
                                                                                 displayType="text"
@@ -1957,29 +1998,13 @@ const Cashflow = () => {
                                                                         </div>
                                                                     </div>
                                                                 }>
-                                                                    <SupplierDetails supplier={x.supplier} data={supPaymentsData.filter(z => z.pmnt * 1 > 0)} uidCollection={uidCollection} setDateSelect={setDateSelect} setValueCon={setValueCon} setIsOpenCon={setIsOpenCon} blankInvoice={blankInvoice} router={router} toggleCheckSupplier={toggleCheckSupplier} toggleCheckSupplierAll={toggleCheckSupplierAll} toggleSupplier={toggleSupplier} savePmntSupplier={savePmntSupplier} supplierPartialPayment={supplierPartialPayment} supplierCloseBalance={supplierCloseBalance} openInvModal={openInvModal} onCargoStatus={saveCargoStatus} sumSel={sumSel} toggleSum={toggleSum} />
+                                                                    <SupplierDetails supplier={x.supplier} data={supPaymentsData.filter(z => z.pmnt * 1 > 0)} uidCollection={uidCollection} setDateSelect={setDateSelect} setValueCon={setValueCon} setIsOpenCon={setIsOpenCon} blankInvoice={blankInvoice} router={router} toggleCheckSupplier={toggleCheckSupplier} toggleCheckSupplierAll={toggleCheckSupplierAll} toggleSupplier={toggleSupplier} savePmntSupplier={savePmntSupplier} supplierPartialPayment={supplierPartialPayment} supplierCloseBalance={supplierCloseBalance} openInvModal={openInvModal} onPending={saveSupplierPending} sumSel={sumSel} toggleSum={toggleSum} />
                                                                 </MyAccordion>
                                                             </div>
                                                         )
                                                     })}
 
-                                                    <div className="rounded-lg py-1 px-0 mt-1 flex items-center justify-between">
-                                                        <div className="responsiveTextTotal text-[var(--ink)] font-medium border-t border-[var(--line-strong)] pt-0.5">
-                                                            Total
-                                                        </div>
-                                                        <NumericFormat
-                                                            value={supPayments1?.reduce((total, obj) => {
-                                                                return total + (parseFloat(obj.blnc) || 0);
-                                                            }, 0)}
-                                                            displayType="text"
-                                                            thousandSeparator
-                                                            allowNegative={true}
-                                                            prefix='$'
-                                                            decimalScale='2'
-                                                            fixedDecimalScale
-                                                            className='responsiveTextTotal text-[var(--ink)] font-medium border-t border-[var(--line-strong)] pt-0.5'
-                                                        />
-                                                    </div>
+                                                    <SectionTotals rows={supPayments1 || []} field="blnc" label="Total (Payable)" />
                                                 </div>
 
                                                 <div className="p-2 bg-[var(--bg-card)] mb-3 flex flex-col cf-card">

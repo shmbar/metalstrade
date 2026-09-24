@@ -31,8 +31,27 @@ export default function SumBasket({ items = [], onRemove, onClear }) {
     const [metric, setMetric] = useState('auto');
     const [exporting, setExporting] = useState(false);
     const [exportErr, setExportErr] = useState(false);
+    const [copiedNos, setCopiedNos] = useState(false);
 
     if (!items.length) return null;
+
+    /* Just the invoice numbers, for pasting into a bank transfer's payment reference
+       (client, 2026-09-24: "so I don't need to download the Excel and select all the
+       invoice numbers"). One line, comma-separated, each number once, in number
+       order — 090926-1, 090926-2, … — whatever order the rows were ticked in.
+       Stock rows are left out: their reference line is a material, not an invoice. */
+    const invoiceNos = [...new Set(items
+        .filter(it => it.kind !== 'stock')
+        .map(it => String(it.sub ?? '').trim())
+        .filter(Boolean))]
+        .sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
+    const copyInvoiceNos = () => {
+        if (!invoiceNos.length) return;
+        navigator.clipboard?.writeText(invoiceNos.join(', ')).then(() => {
+            setCopiedNos(true);
+            setTimeout(() => setCopiedNos(false), 1500);
+        }).catch(() => {});
+    };
 
     // Resolve the value each row contributes under the active metric (null = N/A).
     const valOf = (it) => {
@@ -162,6 +181,9 @@ export default function SumBasket({ items = [], onRemove, onClear }) {
             actions={<>
                 <SumPanelAction action="excel" onClick={exportExcel} disabled={exporting} pulse={exporting} danger={exportErr}
                     title={exportErr ? 'Export failed — see the browser console' : 'Export selection to Excel'} />
+                <SumPanelAction action={copiedNos ? 'confirm' : 'invoices'} onClick={copyInvoiceNos}
+                    disabled={!invoiceNos.length}
+                    title={copiedNos ? 'Invoice numbers copied' : `Copy invoice numbers only (${invoiceNos.length}) — for the bank payment reference`} />
                 <SumPanelAction action={copied ? 'confirm' : 'copy'} onClick={copySummary} title="Copy summary" />
                 <SumPanelAction action={collapsed ? 'expand' : 'collapse'} onClick={() => setCollapsed(c => !c)}
                     title={collapsed ? 'Show list' : 'Hide list'} />

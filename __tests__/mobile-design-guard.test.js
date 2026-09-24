@@ -50,8 +50,24 @@ describe('mobile design guard', () => {
     expect(direct).toEqual([]);
   });
 
-  it('plain buttons stay silent — the outcome toast carries the feedback', () => {
+  it('primary and danger buttons tick on touch-down; secondary buttons stay silent', () => {
+    // Client, 2026-09-24: "haptic feels slow". A Save's only feedback used to be the success
+    // pulse after the server answered. The press itself is now acknowledged at once.
     const button = fs.readFileSync(path.join(ROOT, 'src/components/ui/Button.tsx'), 'utf8');
-    expect(button).not.toMatch(/haptic/i);
+    expect(button).toContain("haptic={variant === 'primary' || variant === 'danger' ? 'impact' : undefined}");
+  });
+
+  it('selection haptics fire on touch-down, never from a tap-release handler', () => {
+    // onPress runs when the finger LIFTS and after the JS thread handles the tap; iOS's own
+    // controls tick on touch-down. Use the Pressable/IconButton/Card `haptic` prop instead.
+    const offenders = [];
+    for (const f of files) {
+      const src = fs.readFileSync(f, 'utf8');
+      src.split(/\r?\n/).forEach((line, i) => {
+        if (/onPress=\{[^}]*haptics\.selection\(\)/.test(line)) offenders.push(`${rel(f)}:${i + 1}`);
+      });
+      if (/onPress=\{(async )?\(\) => \{\s*\n\s*haptics\.selection\(\)/.test(src)) offenders.push(`${rel(f)} (multi-line onPress)`);
+    }
+    expect(offenders).toEqual([]);
   });
 });

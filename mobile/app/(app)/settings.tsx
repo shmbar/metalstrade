@@ -88,6 +88,7 @@ export default function SettingsScreen() {
         <NavRow title="Grades" sub="Material grades, shared by IMS and GIS" count={grades.filter((g: any) => !g.deleted).length} icon="pricetags-outline" onPress={() => router.push('/(app)/settings-grades')} />
         <NavRow title="Documents" sub="Annex VII / ISF templates and carriers" count={docCount} icon="document-text-outline" onPress={() => router.push('/(app)/settings-entity?type=Annex%20VII')} />
         <NavRow title="Email Setup" sub="Payment reminder emails and cadence" icon="mail-outline" onPress={() => router.push('/(app)/settings-email')} />
+        <NavRow title="Notifications" sub="Choose what you are notified about" icon="notifications-outline" onPress={() => router.push('/(app)/settings-notifications')} />
         {isAdmin && (
           <NavRow title="Users" sub="Members, roles and page access" icon="shield-checkmark-outline" onPress={() => router.push('/(app)/settings-users')} />
         )}

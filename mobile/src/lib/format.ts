@@ -1,5 +1,6 @@
 // Display formatters — ported from the web dashboard (app/(root)/dashboard/page.js)
-// so on-screen numbers match the CRM exactly. Pure, no React.
+// so on-screen numbers match the web app exactly. Pure, no React.
+import { moneyCompact as sharedMoneyCompact, moneyFull as sharedMoneyFull } from '@shared/currency';
 
 export const curSymbol = (cur: string | undefined): string => {
   const c = String(cur || '').toLowerCase();
@@ -18,25 +19,13 @@ export const fmtMoney = (n: number | string, decimals = 2): string => {
   });
 };
 
-// Compact $K / $M formatter (defaults to USD symbol). Mirrors dashboard fmtAutoKM.
-export const fmtAutoKM = (n: number, decimals = 2, sym = '$'): string => {
-  const num = Number(n);
-  if (!Number.isFinite(num)) return `${sym}0`;
-  if (Math.abs(num) >= 1_000_000) return `${sym}${fmtMoney(num / 1_000_000, decimals)}M`;
-  if (Math.abs(num) >= 1_000) return `${sym}${fmtMoney(num / 1_000, decimals)}K`;
-  return `${sym}${fmtMoney(num, decimals)}`;
-};
+// Compact $K / $M formatter (defaults to USD). Web's dashboard fmtAutoKM is the same
+// shared moneyCompact; `sym` accepts a glyph ('$', '€') or a currency id.
+export const fmtAutoKM = (n: number, decimals = 2, sym = '$'): string => sharedMoneyCompact(sym, n, decimals);
 
 // Currency-aware compact formatter — used wherever amounts must stay per-currency
 // (never summed across $/€). Mirrors the dashboard's fmtCurKM.
-export const fmtCurKM = (cur: string, n: number): string => {
-  const s = curSymbol(cur);
-  const num = Number(n) || 0;
-  const a = Math.abs(num);
-  if (a >= 1e6) return `${s}${(num / 1e6).toFixed(2)}M`;
-  if (a >= 1e3) return `${s}${(num / 1e3).toFixed(2)}K`;
-  return `${s}${num.toFixed(2)}`;
-};
+export const fmtCurKM = (cur: string, n: number): string => moneyCompact(cur, n);
 
 export const fmtMT = (n: number): string =>
   `${new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 }).format(n || 0)} MT`;
@@ -68,3 +57,24 @@ export const initials = (name = ''): string =>
     .slice(0, 2)
     .map((s) => s[0]?.toUpperCase() || '')
     .join('') || '?';
+
+/*
+ * ── One money format for the whole app ───────────────────────────────────────────────
+ *
+ * Client, 2026-09-24: "some cells are missing decimals and/or the $ symbol". Screens had
+ * grown their own little formatters: one printed $1,234.5 (no minimum decimals), one printed
+ * NO symbol for a currency other than $/€, one rounded money to whole dollars. Every amount
+ * now goes through these two, which always give:
+ *   - the currency's own symbol ($, €) — or its code for any other currency, never nothing;
+ *   - exactly two decimals, with thousands separators;
+ *   - the minus sign in front of the symbol (-$1,234.50), as web's Intl output does.
+ * Never mixes currencies: the caller passes the currency of THIS amount.
+ */
+// Both live in the shared currency module (utils/currency.js ⇄ @shared/currency), so web
+// and mobile print every amount the same way.
+/** Full amount: "$1,234.50", "€0.05", "-$12.00", "GBP 1,234.50". */
+export const moneyFull = (cur: string | undefined, value: number | string, decimals = 2): string =>
+  sharedMoneyFull(cur, value, decimals);
+
+/** Compact amount for tiles and totals: "$1.23M", "€45.60K", "-$980.00". */
+export const moneyCompact = (cur: string | undefined, value: number | string): string => sharedMoneyCompact(cur, value);

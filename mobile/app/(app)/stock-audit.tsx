@@ -11,7 +11,6 @@ import { saveStockIn, newId } from '@/data/writes';
 import { buildAudit, buildWriteOffRows, leftoverKey, LeftoverGroup } from '@/features/stocks/audit';
 import { useAllStockLots, STOCK_LOTS_KEY } from '@/features/stocks/useAllStockLots';
 import { curSymbol, fmtMoney } from '@/lib/format';
-import { haptics } from '@/lib/haptics';
 import { StackHeader } from '@/components/StackHeader';
 import { LIST_END_PADDING, layout } from '@/theme/tokens';
 import { keyboardScrollProps } from '@/lib/keyboard';
@@ -135,7 +134,7 @@ export default function StockAudit() {
                   borderColor: isSel ? colors.primary : undefined,
                   borderWidth: isSel ? 1.5 : undefined,
                 }}
-                onPress={tab === 'left' ? () => { haptics.selection(); toggleSel(k); } : undefined}
+                haptic={tab === 'left' ? 'selection' : undefined} onPress={tab === 'left' ? () => { toggleSel(k); } : undefined}
               >
                 <View style={{ flexDirection: 'row', gap: 10 }}>
                   {tab === 'left' && (

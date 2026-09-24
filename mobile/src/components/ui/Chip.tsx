@@ -27,11 +27,12 @@ export interface ChipProps {
 export function Chip({ label, active: activeProp, onPress, icon, count, trailingIcon }: ChipProps) {
   const { colors } = useTheme();
   const active = !!activeProp;
-  const press = onPress && activeProp !== undefined ? () => { haptics.selection(); onPress(); } : onPress;
+  // A chip given `active` is a toggle: it ticks on touch-down, like an iOS segmented control.
   const fg = active ? colors.primary : colors.textMuted;
   return (
     <Pressable
-      onPress={press}
+      onPress={onPress}
+      haptic={onPress && activeProp !== undefined ? 'selection' : undefined}
       hitSlop={6}
       accessibilityRole="button"
       accessibilityState={{ selected: active }}

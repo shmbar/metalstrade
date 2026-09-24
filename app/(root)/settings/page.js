@@ -14,6 +14,7 @@ import { getTtl } from "../../../utils/languages";
 import Users from './tabs/users'
 import Documents from './tabs/documents'
 import EmailSetup from './tabs/emailSetup'
+import NotificationSettings from './tabs/notifications'
 import { UserAuth } from '../../../contexts/useAuthContext'
 import Spin from '../../../components/spinTable';
 import VideoLoader from '../../../components/videoLoader';
@@ -37,6 +38,7 @@ const PANELS = {
   'Grades': Grades,
   'Documents': Documents,
   'Email Setup': EmailSetup,
+  'Notifications': NotificationSettings,
   'Users': Users,
 }
 
@@ -46,7 +48,7 @@ const Page = () => {
   const ln = compData?.lng || 'English';
   const { canManageUsers } = UserAuth();
 
-  let tabs = ['Company Details', 'Setup', 'Suppliers', 'Clients', 'Bank Account', 'Stocks', 'Grades', 'Documents', 'Email Setup']
+  let tabs = ['Company Details', 'Setup', 'Suppliers', 'Clients', 'Bank Account', 'Stocks', 'Grades', 'Documents', 'Email Setup', 'Notifications']
   // Super Admins and Admins both manage people; the role hierarchy inside the
   // tab decides who each of them is allowed to touch.
   if (canManageUsers) tabs.push('Users');

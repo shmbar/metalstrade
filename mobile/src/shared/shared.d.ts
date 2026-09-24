@@ -313,3 +313,38 @@ declare module '@shared/stockGuards' {
   /** Net quantity per line over a set of ledger rows. */
   export function onHandByLine(rows: any[], lineIds: string[]): Record<string, number>;
 }
+
+declare module '@shared/notificationPrefs' {
+  export interface NotificationCategory {
+    key: string;
+    label: string;
+    description: string;
+    match?: (n: any) => boolean;
+  }
+  export interface NotificationPrefs {
+    categories: Record<string, boolean>;
+  }
+  export const NOTIFICATION_CATEGORIES: NotificationCategory[];
+  export const OTHER_CATEGORY: NotificationCategory;
+  export const CATEGORY_KEYS: string[];
+  export function categoryOf(n: any): string;
+  export function categoryLabel(key: string): string;
+  export function defaultNotificationPrefs(): NotificationPrefs;
+  export function normalizeNotificationPrefs(raw: any): NotificationPrefs;
+  export function isCategoryEnabled(prefs: any, key: string): boolean;
+  export function isNotificationEnabled(prefs: any, n: any): boolean;
+  export function notificationPrefsPath(uidCollection: string, userUid: string): [string, string, string, string];
+  export const PUSH_CATEGORIES: { overdueReceivables: string };
+  export function shouldDeliverPush(prefsByUser: any[], device: { userUid?: string; userEmail?: string }, category: string): boolean;
+}
+
+declare module '@shared/currency' {
+  export function curKind(cur: unknown): 'usd' | 'eur' | null;
+  export function curSymbol(cur: unknown): string;
+  export function curCode(cur: unknown): string;
+  export function curTone(cur: unknown): 'green' | 'blue' | 'gray';
+  /** "$1,234.50", "-€12.00", "GBP 1,234.50" — the one money format, web and mobile. */
+  export function moneyFull(cur: string | undefined | null, value: number | string, decimals?: number): string;
+  /** "$1.23M", "-€45.60K", "$980.00". */
+  export function moneyCompact(cur: string | undefined | null, value: number | string, decimals?: number): string;
+}

@@ -15,7 +15,6 @@ import { updateContractField, newId } from '@/data/writes';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/store/auth';
 import { curSymbol, fmtMoney, dateLabel } from '@/lib/format';
-import { haptics } from '@/lib/haptics';
 import { layout } from '@/theme/tokens';
 
 // Purchase Invoices editor — the mobile twin of web's poInvModal. Mobile could
@@ -203,7 +202,7 @@ export default function PoInvoices() {
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, marginTop: 4 }}>
               {/* Draft hides this invoice from Cashflow (web parity). */}
               <Pressable
-                onPress={() => { haptics.selection(); apply(toggleDraft(rows, inv.id, !inv.draft)); }}
+                haptic="selection" onPress={() => { apply(toggleDraft(rows, inv.id, !inv.draft)); }}
                 style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}
               >
                 <Ionicons

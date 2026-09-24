@@ -7,6 +7,7 @@ const KEY = {
   bioEnabled: 'ims.bio.enabled',
   bioEmail: 'ims.bio.email',
   bioPassword: 'ims.bio.password',
+  lockEnabled: 'ims.lock.enabled',
 } as const;
 
 export async function setBiometricCredentials(email: string, password: string): Promise<void> {
@@ -38,4 +39,28 @@ export async function clearBiometricCredentials(): Promise<void> {
     SecureStore.deleteItemAsync(KEY.bioEmail),
     SecureStore.deleteItemAsync(KEY.bioPassword),
   ]);
+}
+
+/*
+ * "Lock with Face ID" is a separate choice from "Sign in with Face ID".
+ *
+ * Signing in with Face ID needs the password kept in the Keychain (after a real sign-out
+ * there is no session left to unlock). Locking needs nothing stored at all: the session is
+ * still there, Face ID only has to prove it is the owner holding the phone. Unset means
+ * "follow the sign-in choice", so everyone who already turned Face ID on gets the lock
+ * instead of being signed out.
+ */
+export async function getLockPreference(): Promise<boolean | null> {
+  const v = await SecureStore.getItemAsync(KEY.lockEnabled);
+  return v === '1' ? true : v === '0' ? false : null;
+}
+
+export async function setLockPreference(on: boolean): Promise<void> {
+  await SecureStore.setItemAsync(KEY.lockEnabled, on ? '1' : '0');
+}
+
+/** Is the Face ID lock on for this device (explicit choice, else the sign-in choice)? */
+export async function isLockEnabled(): Promise<boolean> {
+  const pref = await getLockPreference();
+  return pref ?? (await isBiometricEnabled());
 }

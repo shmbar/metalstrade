@@ -121,7 +121,10 @@ export function useContractsReview(viewCur: 'us' | 'eu' = 'us') {
           .map((l: any) => ({ qnty: num(l.qnty), sold: lotIsSold(l) }));
         const lineRollup = computeLineSold({ contractQty, shippedQty: shipped, lots });
         lineRollups.push(lineRollup);
-        poWeight += contractQty;
+        // A helper line (split off another line, or brought in from another PO) repeats
+        // weight already on a line of its own — web ContractsReview&Statement, same fix:
+        // PO 210426-1 read 150.838 MT against a real 102.216.
+        if (!(product as any)?.import) poWeight += contractQty;
         shippedWeight += shipped;
 
         // Web renders ONE STATEMENT ROW PER MATERIAL LINE (16 columns). Mobile used

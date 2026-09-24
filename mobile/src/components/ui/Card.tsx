@@ -6,6 +6,8 @@ import { radius, getShadow, Elevation, layout } from '@/theme/tokens';
 import { haptics } from '@/lib/haptics';
 
 export interface CardProps extends ViewProps {
+  /** Touch-down feedback for a card that toggles something (a selectable row). */
+  haptic?: 'selection' | 'impact';
   padded?: boolean;
   onPress?: () => void;
   onLongPress?: () => void;
@@ -23,7 +25,7 @@ const PRESS_OUT = { damping: 14, stiffness: 320, mass: 0.6 };
 
 // Flat-by-default surface: white on the neutral canvas + hairline border does
 // the separation (modern fintech). Pass `elevation` only for things that float.
-export function Card({ padded = true, style, children, onPress, onLongPress, elevation = 'none', ...rest }: CardProps) {
+export function Card({ padded = true, style, children, onPress, onLongPress, elevation = 'none', haptic, ...rest }: CardProps) {
   const { colors, scheme } = useTheme();
   const scale = useSharedValue(1);
   const pressStyle = useAnimatedStyle(() => ({ transform: [{ scale: scale.get() }] }));
@@ -46,6 +48,8 @@ export function Card({ padded = true, style, children, onPress, onLongPress, ele
         onPress={onPress}
         onLongPress={onLongPress ? () => { haptics.impact(); onLongPress(); } : undefined}
         onPressIn={() => {
+          if (haptic === 'selection') haptics.selection();
+          else if (haptic === 'impact') haptics.impact();
           scale.set(withSpring(0.975, PRESS_IN));
         }}
         onPressOut={() => {

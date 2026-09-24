@@ -41,6 +41,8 @@ export const ROUTE_PAGES: Record<string, string[]> = {
   'settings-grades': ['settings'],
   'settings-email': ['settings'],
   'settings-users': ['settings'],
+  // Everyone may choose what they are notified about, whatever pages they can open.
+  'settings-notifications': [],
   'config-editor': ['settings'],
   more: [],
   notifications: [],

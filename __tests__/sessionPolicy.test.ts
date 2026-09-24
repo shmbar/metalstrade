@@ -41,3 +41,48 @@ describe('mobile session policy — a day of inactivity ends the session', () =>
     expect(decideOnResume(lastUse, NOW)).toBe('expire');
   });
 });
+
+import {
+  decideSession,
+  isRevokedAuthError,
+  LOCK_AFTER_MS,
+  BIOMETRIC_MAX_MS,
+} from '../mobile/src/lib/sessionPolicy';
+
+describe('Face ID lock instead of sign-out (client, 2026-09-24)', () => {
+  const now = Date.UTC(2026, 8, 24, 12);
+  const H = 60 * 60 * 1000;
+  const lock = { biometricLock: true };
+  const noLock = { biometricLock: false };
+
+  it('with Face ID, two days away LOCKS instead of signing out — the session and data are kept', () => {
+    expect(decideSession(now - 48 * H, now, lock)).toBe('lock');
+  });
+
+  it('without Face ID, the 16 Sep rule still stands: two days away signs out', () => {
+    expect(decideSession(now - 48 * H, now, noLock)).toBe('expire');
+  });
+
+  it('a quick app switch never locks', () => {
+    expect(decideSession(now - 10_000, now, lock)).toBe('resume');
+    expect(decideSession(now - LOCK_AFTER_MS, now, lock)).toBe('resume');
+    expect(decideSession(now - LOCK_AFTER_MS - 1, now, lock)).toBe('lock');
+  });
+
+  it('even with Face ID a password is required after 30 days away', () => {
+    expect(decideSession(now - BIOMETRIC_MAX_MS, now, lock)).toBe('lock');
+    expect(decideSession(now - BIOMETRIC_MAX_MS - 1, now, lock)).toBe('expire');
+  });
+
+  it('a cold start with no stamp asks for Face ID when the lock is on, and just opens when it is off', () => {
+    expect(decideSession(0, now, lock)).toBe('lock');
+    expect(decideSession(0, now, noLock)).toBe('resume');
+  });
+
+  it('only a definite account error signs out — never a network failure', () => {
+    expect(isRevokedAuthError('auth/user-disabled')).toBe(true);
+    expect(isRevokedAuthError('auth/user-token-expired')).toBe(true);
+    expect(isRevokedAuthError('auth/network-request-failed')).toBe(false);
+    expect(isRevokedAuthError(undefined)).toBe(false);
+  });
+});

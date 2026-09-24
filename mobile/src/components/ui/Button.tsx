@@ -54,6 +54,7 @@ export function Button({
   return (
     <Pressable
       onPress={onPress}
+      haptic={variant === 'primary' || variant === 'danger' ? 'impact' : undefined}
       disabled={isDisabled}
       style={[
         {

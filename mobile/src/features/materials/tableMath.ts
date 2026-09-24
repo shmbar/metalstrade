@@ -9,6 +9,7 @@
 //   app/(root)/materialtables/page.js      — cross-table grand totals (:321-344)
 
 import { DEFAULT_ELEMENTS, UNIT_TO_MT } from './constants';
+import { moneyFull } from '@/lib/format';
 
 export interface Element {
   key: string;
@@ -40,8 +41,9 @@ export const fmtWeight = (v: any, unit: string): string => {
     : new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 }).format(Math.round(n));
 };
 
-export const money = (n: number): string =>
-  '$' + new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(n);
+// Material tables are priced in USD (web materialtables). The shared format keeps the
+// minus sign in front of the symbol — this used to print $-1,234.00.
+export const money = (n: number): string => moneyFull('us', n);
 
 // ── footer ───────────────────────────────────────────────────────────────────
 

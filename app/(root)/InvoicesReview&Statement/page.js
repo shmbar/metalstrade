@@ -32,6 +32,7 @@ import { NameCell } from '../../../components/Avatar';
 import { oneOf } from '../../../components/table/filters/oneOfFilter';
 import KpiStrip from '../../../components/KpiStrip';
 import { Receipt, Wallet, TrendingDown, Scale } from 'lucide-react';
+import { moneyFull } from '@utils/currency';
 
 const TotalInvoicePayments = (data) => {
   let accumulatedPmnt = 0;
@@ -927,7 +928,7 @@ const Shipments = () => {
   // in the band, one row under the dollar one. Four cards stay four cards: this
   // strip is the HEADLINE, and eight tiles is a second table, not a summary.
   const ttlUs = totals[0]?.us;
-  const fmtUsd = (n) => '$' + Number(n || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const fmtUsd = (n) => moneyFull('us', n); // shared money format (utils/currency.js)
   const kpiItems = [
     { label: getTtl('invValueSale', ln), value: ttlUs?.totalAmount || 0, format: fmtUsd, icon: Receipt, tone: 'blue' },
     {

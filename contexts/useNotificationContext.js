@@ -3,7 +3,9 @@ import { createContext, useContext, useEffect, useMemo, useState, useCallback, u
 import { UserAuth } from './useAuthContext';
 import {
     subscribeNotifications, markNotificationRead, markAllNotificationsRead, snoozeNotification,
+    subscribeNotificationPrefs, saveNotificationPrefs,
 } from '../utils/utils';
+import { CATEGORY_KEYS, isNotificationEnabled, normalizeNotificationPrefs } from '../utils/notificationPrefs';
 import { sortByPriority } from '../utils/notificationPriority';
 import NotificationPopups from '../components/NotificationPopups';
 
@@ -36,6 +38,42 @@ const NotificationProvider = ({ children }) => {
     const { uidCollection, currentUser } = UserAuth() || {};
     const uid = currentUser?.uid || '';
     const name = currentUser?.name || '';
+    const email = currentUser?.email || '';
+
+    // What this person has chosen to be notified about — one Firestore document shared with
+    // the mobile app and the push sender (utils/notificationPrefs.js). Disabled categories get
+    // no chime, no pop-up and no badge count here, no push on the phone.
+    const [prefsDoc, setPrefsDoc] = useState(null);
+    const prefs = useMemo(() => normalizeNotificationPrefs(prefsDoc), [prefsDoc]);
+    const prefsRef = useRef(prefs);
+    prefsRef.current = prefs;
+    useEffect(() => {
+        if (!uidCollection || !uid) { setPrefsDoc(null); return; }
+        return subscribeNotificationPrefs(uidCollection, uid, (data) => {
+            // One-time migration: the bell used to keep "muted" categories in this browser
+            // only, where the phone could never see them. Move them into the shared
+            // document the first time, then forget the browser copy.
+            if (!data) {
+                try {
+                    const legacy = JSON.parse(localStorage.getItem('ims:mutedNotifCats') || '[]');
+                    const rename = { warehouse: 'storage' };
+                    if (Array.isArray(legacy) && legacy.length) {
+                        const categories = Object.fromEntries(CATEGORY_KEYS.map((k) => [k, true]));
+                        legacy.forEach((k) => { const key = rename[k] || k; if (key in categories) categories[key] = false; });
+                        saveNotificationPrefs(uidCollection, uid, categories, email);
+                        localStorage.removeItem('ims:mutedNotifCats');
+                    }
+                } catch { /* nothing to migrate */ }
+            }
+            setPrefsDoc(data);
+        });
+    }, [uidCollection, uid, email]);
+
+    const setCategoryEnabled = useCallback((key, on) => {
+        const categories = { ...prefsRef.current.categories, [key]: !!on };
+        setPrefsDoc({ categories }); // show the change at once; the snapshot confirms it
+        return saveNotificationPrefs(uidCollection, uid, categories, email);
+    }, [uidCollection, uid, email]);
 
     const [all, setAll] = useState([]);
     const [muted, setMuted] = useState(false);
@@ -73,7 +111,8 @@ const NotificationProvider = ({ children }) => {
             if (primed.current) {
                 const fresh = rows.filter(r =>
                     !seenIds.current.has(r.id) && r.actorUid !== uid &&
-                    (!Array.isArray(r.audience) || !uid || r.audience.includes(uid)));
+                    (!Array.isArray(r.audience) || !uid || r.audience.includes(uid)) &&
+                    isNotificationEnabled(prefsRef.current, r));
                 if (fresh.length && popupHostMounted.current) {
                     if (!mutedRef.current) chime();
                     setPopups(prev => [
@@ -120,9 +159,10 @@ const NotificationProvider = ({ children }) => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [all, uid, snoozeTick]);
 
+    // Unread = the badge. A category the person switched off does not count.
     const unread = useMemo(
-        () => notifications.filter(n => !(n.readBy || []).includes(uid)),
-        [notifications, uid]
+        () => notifications.filter(n => !(n.readBy || []).includes(uid) && isNotificationEnabled(prefs, n)),
+        [notifications, uid, prefs]
     );
     const unreadCount = unread.length;
 
@@ -156,8 +196,8 @@ const NotificationProvider = ({ children }) => {
     // Memoized: consumers (the bell) only re-render when the notification data or
     // callbacks actually change.
     const value = useMemo(
-        () => ({ notifications, unread, unreadCount, markRead, markAllRead, markManyRead, snooze, muted, toggleMute, popups, dismissPopup, _setPopupHostMounted }),
-        [notifications, unread, unreadCount, markRead, markAllRead, markManyRead, snooze, muted, toggleMute, popups, dismissPopup, _setPopupHostMounted]
+        () => ({ notifications, unread, unreadCount, markRead, markAllRead, markManyRead, snooze, muted, toggleMute, popups, dismissPopup, _setPopupHostMounted, prefs, setCategoryEnabled }),
+        [notifications, unread, unreadCount, markRead, markAllRead, markManyRead, snooze, muted, toggleMute, popups, dismissPopup, _setPopupHostMounted, prefs, setCategoryEnabled]
     );
 
     return (

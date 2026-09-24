@@ -6,7 +6,7 @@ import { Text, Sheet, Avatar } from '@/components/ui';
 import { Pressable } from '@/components/ui/Pressable';
 import { useTheme } from '@/theme/ThemeProvider';
 import { getShadow, palette, layout, radius } from '@/theme/tokens';
-import { fmtAutoKM } from '@/lib/format';
+import { fmtAutoKM, moneyFull } from '@/lib/format';
 
 /*
  * The dashboard's cards, as web draws them (app/(root)/dashboard/page.js): SummaryTile
@@ -469,8 +469,8 @@ export function GisCommissionCard({
 
 // ── Misc invoices (web MiscInvoicesCard) ───────────────────────────────────────
 
-const fmtCurFull = (cur: string, v: number) =>
-  `${cur === 'us' ? '$' : cur === 'eu' ? '€' : ''}${new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(v || 0)}`;
+// Printed no symbol at all for a currency other than $/€; now the shared format.
+const fmtCurFull = (cur: string, v: number) => moneyFull(cur, v);
 
 export function MiscInvoicesCard({
   byCur,

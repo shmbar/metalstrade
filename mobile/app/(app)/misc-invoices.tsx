@@ -12,7 +12,6 @@ import { apiConfigured, postJson } from '@/lib/api';
 import { curSymbol, fmtMoney } from '@/lib/format';
 import { StackHeader } from '@/components/StackHeader';
 import { LIST_END_PADDING, layout, spacing } from '@/theme/tokens';
-import { haptics } from '@/lib/haptics';
 import { keyboardScrollProps } from '@/lib/keyboard';
 
 const CAT_TONE: Record<string, 'info' | 'warn' | 'positive' | 'neutral'> = {
@@ -174,8 +173,8 @@ export default function MiscInvoices() {
           return (
             <Pressable
               key={c.id || 'none'}
+              haptic="selection"
               onPress={async () => {
-                haptics.selection();
                 if (editing) await setCat.mutateAsync({ id: editing.id, category: c.id });
                 setEditing(null);
               }}

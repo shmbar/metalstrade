@@ -31,7 +31,8 @@ export function SegmentedControl<T extends string>({ options, value, onChange }:
         return (
           <Pressable
             key={o.value}
-            onPress={() => { if (!active) haptics.selection(); onChange(o.value); }}
+            haptic={active ? undefined : 'selection'}
+            onPress={() => onChange(o.value)}
             style={{
               flex: 1,
               paddingVertical: 6,

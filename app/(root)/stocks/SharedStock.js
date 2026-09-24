@@ -13,6 +13,7 @@
 
 import { useContext, useEffect, useMemo, useState } from 'react';
 import { NumericFormat } from 'react-number-format';
+import { curSymbol } from '@utils/currency';
 import { v4 as uuidv4 } from 'uuid';
 import dateFormat from 'dateformat';
 import { Share2, Save, Trash2 } from 'lucide-react';
@@ -55,7 +56,12 @@ const SharedStock = () => {
     const currencies = settings?.Currency?.Currency || [];
     const whName = (id) => { const w = warehouses.find(x => x.id === id); return w?.stock || w?.nname || '—'; };
     const supName = (id) => suppliers.find(s => s.id === id)?.nname || '—';
-    const curSym = (id) => currencies.find(c => c.id === id)?.symbol || '';
+    // The Settings currency may carry no symbol field; the cell then printed a bare number.
+    // Fall back to the shared glyph ($ / € / the code), never to nothing.
+    const curSym = (id) => {
+        const c = currencies.find(x => x.id === id);
+        return c?.symbol || curSymbol(c?.cur || id) || '$';
+    };
 
     const load = async () => {
         setLoading(true);
@@ -141,11 +147,11 @@ const SharedStock = () => {
         { accessorKey: 'stockName', header: getTtl('warehouse', ln) || 'Warehouse', cell: p => <NameCell name={p.getValue()} /> },
         {
             accessorKey: 'unitPrc', header: getTtl('UnitPrice', ln) || 'Unit Price',
-            cell: p => <NumericFormat value={p.getValue()} displayType='text' thousandSeparator prefix={curSym(p.row.original.cur)} decimalScale={2} />,
+            cell: p => <NumericFormat value={p.getValue()} displayType='text' thousandSeparator prefix={curSym(p.row.original.cur)} decimalScale={2} fixedDecimalScale />,
         },
         {
             accessorKey: 'total', header: getTtl('Total', ln) || 'Total',
-            cell: p => <NumericFormat value={p.getValue()} displayType='text' thousandSeparator prefix={curSym(p.row.original.cur)} decimalScale={2} />,
+            cell: p => <NumericFormat value={p.getValue()} displayType='text' thousandSeparator prefix={curSym(p.row.original.cur)} decimalScale={2} fixedDecimalScale />,
         },
         { accessorKey: 'supplierName', header: getTtl('Supplier', ln) || 'Supplier', cell: p => <NameCell name={p.getValue()} /> },
         { accessorKey: 'status', header: 'Shipment', cell: p => p.getValue() || '—' },

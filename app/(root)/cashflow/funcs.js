@@ -1,4 +1,4 @@
-import { useState, useContext } from 'react';
+import { useState, useContext, Children, cloneElement, isValidElement } from 'react';
 import { SettingsContext } from "../../../contexts/useSettingsContext";
 import { settledInQty, settlementReduction } from "../../../utils/finance";
 
@@ -16,7 +16,6 @@ import DoalogModal from "./dialogSupplier";
 import DoalogModalClient from "./dialogClient";
 import { SortTh, sortRows, useSortState } from "@components/table/sorting";
 import { BtnIcon } from "../../../components/buttonIcons";
-import { Popover, PopoverContent, PopoverTrigger } from "@components/ui/popover";
 
 
 
@@ -1412,11 +1411,20 @@ export const getTotals = (arr) => {
         // to the raw shipData flag on the first pass over per-invoice rows.
         const incTotal = item._finTotal != null ? item._finTotal : 1;
         const incFinal = item._finTotal != null ? (item._finCount || 0) : ((item.shipData?.fnlzing === '4568' || isFN(item.invType)) ? 1 : 0);
+        // Pending receivables stay out of the active figure — same rule, and same
+        // carried-forward split, as getTotalsSupPayments (see pendingSplit).
+        const split = pendingSplit(item, Number(item.debtBlnc) || 0);
         if (!acc.has(ent)) {
-            acc.set(ent, { ...item, _finCount: incFinal, _finTotal: incTotal });
+            acc.set(ent, {
+                ...item, pending: false, debtBlnc: split.active,
+                _pendingBlnc: split.pending, _pendingCount: split.count,
+                _finCount: incFinal, _finTotal: incTotal,
+            });
         } else {
             const existing = acc.get(ent);
-            existing.debtBlnc += item.debtBlnc;
+            existing.debtBlnc += split.active;
+            existing._pendingBlnc += split.pending;
+            existing._pendingCount += split.count;
             existing._finCount += incFinal;
             existing._finTotal += incTotal;
             acc.set(ent, existing); // not strictly necessary, but clear
@@ -1456,7 +1464,7 @@ const getprefixInv = (q) => {
 export const ClientDetails = ({ client, data, type, uidCollection, setDateSelect,
     setValueCon, setIsOpenCon, blankInvoice, router, toggleCheckClient, toggleCheckClientAll,
     toggleClientPartial, toggleClientFull, savePmntClient, clientPartialPayment, openInvModal,
-    sumSel = {}, toggleSum }) => {
+    onPending, sumSel = {}, toggleSum }) => {
     const { sortKey, sortDir, handleSort } = useSortState();
     const { setToast } = useContext(SettingsContext);
 
@@ -1482,6 +1490,15 @@ export const ClientDetails = ({ client, data, type, uidCollection, setDateSelect
         .sort(byNewestEtd);
     const filteredArr = sortKey ? sortRows(rawPartPaid, sortKey, sortDir) : rawPartPaid;
     const filteredArr1 = sortKey ? sortRows(rawInDebt, sortKey, sortDir) : rawInDebt;
+    // Pending (on hold) rows are listed, faded, but kept out of the Total line — see
+    // PendingToggle. Select-all leaves them out too (page.js toggleCheckClientAll).
+    const active = (rows) => rows.filter(z => !z.pending);
+    const onHold = (rows) => rows.filter(z => z.pending);
+    const statusCell = (z) => (
+        <td className="text-center !py-1 cf-status-cell">
+            <PendingToggle pending={!!z.pending} onChange={onPending ? (flag) => onPending(z, flag) : null} />
+        </td>
+    );
 
     return (
         <div className="w-full border border-[var(--line)] rounded-2xl overflow-hidden bg-[var(--bg-card)]">
@@ -1497,6 +1514,7 @@ export const ClientDetails = ({ client, data, type, uidCollection, setDateSelect
                                 <SortTh colKey="totalAmount" label="Amount" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-right" />
                                 <SortTh colKey="_pmntTotal" label="Payment" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-right" />
                                 <SortTh colKey="debtBlnc" label="Balance" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-right" />
+                                <SortTh colKey="pending" label="Status" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-center" />
                                 <FinalTh />
                                 <th className="text-center">ETD</th>
                                 <th className="text-center">ETA</th>
@@ -1504,7 +1522,7 @@ export const ClientDetails = ({ client, data, type, uidCollection, setDateSelect
                                 <th className="text-center px-2 py-0">
                                     <Tltip direction='right' tltpText='Select all'>
                                         <div className='flex items-center justify-center'>
-                                            {filteredArr.length > 0 && <CheckBox size='size-3' checked={!!toggleClientPartial[filteredArr[0]?.client]}
+                                            {active(filteredArr).length > 0 && <CheckBox size='size-3' checked={!!toggleClientPartial[filteredArr[0]?.client]}
                                                 onChange={() => toggleCheckClientAll('PartPaid', filteredArr)}
                                             />
                                             }
@@ -1516,7 +1534,7 @@ export const ClientDetails = ({ client, data, type, uidCollection, setDateSelect
                         <tbody>
                             {filteredArr.map((z, i) => {
                                 return (
-                                    <tr key={i}>
+                                    <tr key={i} className={z.pending ? 'cf-pending-row' : undefined}>
                                         <td className="sum-col !py-1">
                                             <SumToggle active={!!sumSel[sumKey('client', z.id)]} onToggle={() => toggleSum && toggleSum(buildSumItem(z))} />
                                         </td>
@@ -1560,9 +1578,10 @@ export const ClientDetails = ({ client, data, type, uidCollection, setDateSelect
                                                 fixedDecimalScale
                                             />
                                         }</td>
+                                        {statusCell(z)}
                                         <td className="text-center"><FinalBadge fnlzing={z.shipData?.fnlzing} invType={z.invType} /></td>
-                                        <td className="text-center">{dateFormat(z.shipData?.etd?.startDate, 'dd.mm.yy')}</td>
-                                        <td className="text-center">{dateFormat(z.shipData?.eta?.startDate, 'dd.mm.yy')}</td>
+                                        <td className="text-center"><span>{dateFormat(z.shipData?.etd?.startDate, 'dd.mm.yy')}</span></td>
+                                        <td className="text-center"><span>{dateFormat(z.shipData?.eta?.startDate, 'dd.mm.yy')}</span></td>
                                         <td className="text-center !py-1">
                                             <Tltip direction='right' tltpText='Partial Payment'>
                                                 <div className='flex items-center justify-center'>
@@ -1586,35 +1605,42 @@ export const ClientDetails = ({ client, data, type, uidCollection, setDateSelect
 
                         </tbody>
                         <tfoot className="sticky-foot">
-                            <tr className="bg-[var(--bg-subtle)]">
-                                <th></th>
-                                <th className="text-left">Total</th>
-                                <th></th>
-                                <th className="text-right">
-                                    {showAmount(filteredArr.reduce((sum, item) => sum + item.totalAmount, 0), 'usd')}
-                                </th>
-                                <th className="text-right">
-                                    {showAmount(filteredArr
-                                        .flatMap(item => item.payments || [])
-                                        .reduce((sum, payment) => sum + (parseFloat(payment.pmnt) || 0), 0), 'usd')}
-                                </th>
-                                <th className="text-right">
-                                    {showAmount(filteredArr.reduce((sum, item) => sum + item.debtBlnc, 0), 'usd')}
-                                </th>
-                                <th></th>
-                                <th></th>
-                                <th></th>
-                                <th></th>
-                                <th className="text-center">
-                                    <div className='flex items-center justify-center'>
-                                        <button className='p-0 bg-transparent border-0 outline-none leading-none text-[var(--endeavour)] hover:opacity-70'
-                                            onClick={() => savePmntClient(filteredArr[0]?.client)}
-                                            disabled={filteredArr.length === 0}>
-                                            <Save className="w-3 h-3" />
-                                        </button>
-                                    </div>
-                                </th>
-                            </tr>
+                            {/* Twelve cells, like the header: Σ, PO#, Invoice, Amount, Payment,
+                                Balance, Status, Final, ETD, ETA, Pmn, select. */}
+                            <FooterRows pendingRows={onHold(filteredArr)} activeRows={active(filteredArr)} cells={(rows, label, isPending) => (
+                                <>
+                                    <th></th>
+                                    <th className="text-left whitespace-nowrap">{label}</th>
+                                    <th></th>
+                                    <th className="text-right">
+                                        {showAmount(rows.reduce((sum, item) => sum + item.totalAmount, 0), 'usd')}
+                                    </th>
+                                    <th className="text-right">
+                                        {showAmount(rows
+                                            .flatMap(item => item.payments || [])
+                                            .reduce((sum, payment) => sum + (parseFloat(payment.pmnt) || 0), 0), 'usd')}
+                                    </th>
+                                    <th className="text-right">
+                                        {showAmount(rows.reduce((sum, item) => sum + item.debtBlnc, 0), 'usd')}
+                                    </th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th className="text-center">
+                                        {!isPending && (
+                                            <div className='flex items-center justify-center'>
+                                                <button className='p-0 bg-transparent border-0 outline-none leading-none text-[var(--endeavour)] hover:opacity-70'
+                                                    onClick={() => savePmntClient(filteredArr[0]?.client)}
+                                                    disabled={filteredArr.length === 0}>
+                                                    <Save className="w-3 h-3" />
+                                                </button>
+                                            </div>
+                                        )}
+                                    </th>
+                                </>
+                            )} />
                         </tfoot>
                     </table>
                 </div>
@@ -1631,13 +1657,14 @@ export const ClientDetails = ({ client, data, type, uidCollection, setDateSelect
                                 <SortTh colKey="totalAmount" label="Amount" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-right" />
                                 <SortTh colKey="percentage" label="Payment" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left" />
                                 <th className="text-right">Prep. Amount</th>
+                                <SortTh colKey="pending" label="Status" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-center" />
                                 <FinalTh />
                                 <th className="text-center">ETD</th>
                                 <th className="text-center">Pmn</th>
                                 <th className="text-center p-1 2xl:p-1 py-0">
                                     <Tltip direction='right' tltpText='Select all'>
                                         <div className='flex items-center justify-center'>
-                                            {filteredArr1.length > 0 && <CheckBox size='size-3' checked={!!toggleClientFull[filteredArr1[0]?.client]}
+                                            {active(filteredArr1).length > 0 && <CheckBox size='size-3' checked={!!toggleClientFull[filteredArr1[0]?.client]}
                                                 onChange={() => toggleCheckClientAll('InDebt', filteredArr1)} />
                                             }
                                         </div>
@@ -1648,7 +1675,7 @@ export const ClientDetails = ({ client, data, type, uidCollection, setDateSelect
                         <tbody>
                             {filteredArr1.map((z, i) => {
                                 return (
-                                    <tr key={i}>
+                                    <tr key={i} className={z.pending ? 'cf-pending-row' : undefined}>
                                         <td className="sum-col !py-1">
                                             <SumToggle active={!!sumSel[sumKey('client', z.id)]} onToggle={() => toggleSum && toggleSum(buildSumItem(z))} />
                                         </td>
@@ -1668,9 +1695,9 @@ export const ClientDetails = ({ client, data, type, uidCollection, setDateSelect
                                                 fixedDecimalScale
                                             />
                                         }</td>
-                                        <td className="text-left">{
+                                        <td className="text-left"><span>{
                                             z.percentage + '%'
-                                        }</td>
+                                        }</span></td>
                                         <td className="text-right">{
                                             <NumericFormat
                                                 value={z.totalAmount * (z.percentage / 100) || 0}
@@ -1682,8 +1709,9 @@ export const ClientDetails = ({ client, data, type, uidCollection, setDateSelect
                                                 fixedDecimalScale
                                             />
                                         }</td>
+                                        {statusCell(z)}
                                         <td className="text-center"><FinalBadge fnlzing={z.shipData?.fnlzing} invType={z.invType} /></td>
-                                        <td className="text-center">{dateFormat(z.shipData?.etd?.startDate, 'dd.mm.yy')}</td>
+                                        <td className="text-center"><span>{dateFormat(z.shipData?.etd?.startDate, 'dd.mm.yy')}</span></td>
                                         <td className="text-center !py-1">
                                             <Tltip direction='right' tltpText='Partial Payment'>
                                                 <div className='flex items-center justify-center'>
@@ -1708,30 +1736,37 @@ export const ClientDetails = ({ client, data, type, uidCollection, setDateSelect
 
                         </tbody>
                         <tfoot className="sticky-foot">
-                            <tr className="bg-[var(--bg-subtle)]">
-                                <th></th>
-                                <th className="text-left">Total</th>
-                                <th></th>
-                                <th className="text-right">
-                                    {showAmount(filteredArr1.reduce((sum, item) => sum + item.totalAmount, 0), 'usd')}
-                                </th>
-                                <th></th>
-                                <th className="text-right">
-                                    {showAmount(filteredArr1.reduce((sum, item) => sum + item.totalAmount * (item.percentage / 100), 0), 'usd')}
-                                </th>
-                                <th></th>
-                                <th></th>
-                                <th></th>
-                                <th className="text-center">
-                                    <div className='flex items-center justify-center'>
-                                        <button className='p-0 bg-transparent border-0 outline-none leading-none text-[var(--endeavour)] hover:opacity-70'
-                                            onClick={() => savePmntClient(filteredArr1[0]?.client)}
-                                            disabled={filteredArr1.length === 0}>
-                                            <Save className="w-3 h-3" />
-                                        </button>
-                                    </div>
-                                </th>
-                            </tr>
+                            {/* Eleven cells, like the header: Σ, PO#, Invoice, Amount, Payment,
+                                Prep. Amount, Status, Final, ETD, Pmn, select. */}
+                            <FooterRows pendingRows={onHold(filteredArr1)} activeRows={active(filteredArr1)} cells={(rows, label, isPending) => (
+                                <>
+                                    <th></th>
+                                    <th className="text-left whitespace-nowrap">{label}</th>
+                                    <th></th>
+                                    <th className="text-right">
+                                        {showAmount(rows.reduce((sum, item) => sum + item.totalAmount, 0), 'usd')}
+                                    </th>
+                                    <th></th>
+                                    <th className="text-right">
+                                        {showAmount(rows.reduce((sum, item) => sum + item.totalAmount * (item.percentage / 100), 0), 'usd')}
+                                    </th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th className="text-center">
+                                        {!isPending && (
+                                            <div className='flex items-center justify-center'>
+                                                <button className='p-0 bg-transparent border-0 outline-none leading-none text-[var(--endeavour)] hover:opacity-70'
+                                                    onClick={() => savePmntClient(filteredArr1[0]?.client)}
+                                                    disabled={filteredArr1.length === 0}>
+                                                    <Save className="w-3 h-3" />
+                                                </button>
+                                            </div>
+                                        )}
+                                    </th>
+                                </>
+                            )} />
                         </tfoot>
                     </table>
                 </div>
@@ -1865,6 +1900,10 @@ export const runSupPayments = async (uidCollection, settings, yr, contractsData 
                 // that older spelling, still read as a fallback so rows set under it keep
                 // showing what they showed until each is next set.
                 cargoStatus: inv.cargoStatus || contract.cargoStatus || '',
+                // Payment on hold — see PendingToggle. Kept as a map on the contract,
+                // keyed by purchase-invoice id, so setting it is one field write and
+                // never a rewrite of the poInvoices array its payments live in.
+                pending: !!contract.pendingInvoices?.[inv.id],
                 contractData: {
                     productsData: contract.productsData || [],
                     shpType: contract.shpType, origin: contract.origin,
@@ -1901,11 +1940,28 @@ export const runSupPayments = async (uidCollection, settings, yr, contractsData 
 }
 
 
+/* Pending invoices (payment on hold) stay OUT of every active total — the supplier
+   header, the section total, the Suppliers-due card, the left/right balance — and are
+   carried beside it as _pendingBlnc / _pendingCount so each place can still say how
+   much is on hold (client, 2026-09-24). Everything on the page is summed from what
+   these two functions return, so this is the one place the rule has to live.
+   A raw row reads its own `pending` flag; an already-aggregated row (the sort handlers
+   re-run these on their own output) carries its split forward unchanged. */
+const pendingSplit = (item, value) => {
+    if (item._finTotal != null) {
+        return { active: value, pending: Number(item._pendingBlnc) || 0, count: item._pendingCount || 0 };
+    }
+    return item.pending
+        ? { active: 0, pending: value, count: 1 }
+        : { active: value, pending: 0, count: 0 };
+};
+
 export const getTotalsSupPayments = (arr) => {
 
     let totalBySupplier = Object.values(arr.reduce((acc, item) => {
         const supplier = item.supplier;
         const blncValue = item.cur === 'us' ? parseFloat(item.blnc) : parseFloat(item.blnc * item.euroToUSD);
+        const split = pendingSplit(item, blncValue);
         // Idempotent under re-aggregation (sort handlers re-run this on its own
         // output): carry forward existing counts, else derive from the raw flag.
         const incTotal = item._finTotal != null ? item._finTotal : 1;
@@ -1916,9 +1972,15 @@ export const getTotalsSupPayments = (arr) => {
             // AI-imported purchase invoices store blnc as a string, and seeding the
             // raw value made later `+=` STRING-CONCATENATE (a $31,500 + $12,345 pair
             // displayed as $31,50012,345…) and skipped the EUR→USD conversion.
-            acc[supplier] = { ...item, blnc: blncValue, _finCount: incFinal, _finTotal: incTotal };
+            acc[supplier] = {
+                ...item, pending: false, blnc: split.active,
+                _pendingBlnc: split.pending, _pendingCount: split.count,
+                _finCount: incFinal, _finTotal: incTotal,
+            };
         } else {
-            acc[supplier].blnc += blncValue;
+            acc[supplier].blnc += split.active;
+            acc[supplier]._pendingBlnc += split.pending;
+            acc[supplier]._pendingCount += split.count;
             acc[supplier]._finCount += incFinal;
             acc[supplier]._finTotal += incTotal;
         }
@@ -1931,108 +1993,80 @@ export const getTotalsSupPayments = (arr) => {
 }
 
 
-/* Cargo status for a supplier PO: RDY (ready to be shipped) or TRN (in transit).
+/* Pending — a payment on hold (client, 2026-09-24).
 
-   Replaces the ETD / ETA columns in the supplier payment tables (client request,
-   2026-09-14). Those were planned sailing dates, borrowed from the contract or from
-   the client invoice, so they never said where the cargo actually was — and on this
-   side of the business that is the question: have we paid for goods that are still
-   sitting at the supplier, or are they on the way to our warehouse?
+   An invoice marked pending stays in its table, faded, but is left out of every active
+   total and due figure: the header beside the supplier or client name, the section
+   total, the top Clients due / Suppliers due cards and the left/right balance (see
+   pendingSplit). Each table closes with a faded "Pending (n)" line above its "Total (n)".
 
-   Two toggles rather than a dropdown: one click sets a status, clicking the lit one
-   clears it, and the current state is readable at a glance down the column.
-   Lifecycle order (ready, then moving). Amber for waiting, the brand family for
-   on-the-move — both are statuses, so status tokens are the right family. */
-const CARGO_STATUSES = [
-    { code: 'RDY', label: 'Ready to be shipped', tone: TONES.amber },
-    { code: 'TRN', label: 'In transit', tone: TONES.blue },
-];
+   It took over the Status column from the RDY / TRN cargo status, which the client
+   dropped for now ("at this stage we don't need the status Ready/Transit"). What was
+   saved under RDY / TRN is still on the purchase invoices; only the control is gone.
 
-/* One status at a time. The cell used to show RDY and TRN side by side with the chosen
-   one lit, and the client read two statuses on every row ("it shows both regardless"
-   — 2026-09-17). Now an unset row shows a single "Set status" button, a set row shows
-   only its own chip, and either opens a small menu to choose, switch or clear. */
-const CargoStatus = ({ value, onChange }) => {
-    const [open, setOpen] = useState(false);
-    const current = CARGO_STATUSES.find((c) => c.code === value);
-    const choose = (code) => {
-        setOpen(false);
-        if (onChange && code !== (value || '')) onChange(code);
-    };
-
-    // Read-only (no handler): the chip alone, or nothing.
+   One click marks it, one click releases it. Deliberately no warning colour — the
+   client asked for the existing palette at reduced strength, not another yellow. */
+const PendingToggle = ({ pending, onChange }) => {
     if (!onChange) {
-        return current
-            ? <span title={current.label} className="inline-flex items-center h-5 px-1.5 rounded-lg responsiveTextTable font-semibold leading-none" style={toneChipStyle(current.tone)}>{current.code}</span>
+        return pending
+            ? <span className="inline-flex items-center gap-1 h-5 px-1.5 rounded-lg responsiveTextTable font-medium leading-none text-[var(--ink-secondary)] bg-[var(--bg-subtle)] border border-[var(--line-strong)]">Pending</span>
             : null;
     }
-
-    return (
-        <Popover open={open} onOpenChange={setOpen}>
-            <PopoverTrigger asChild>
-                {current ? (
-                    <button
-                        type="button"
-                        aria-label={`Cargo status: ${current.label} — change`}
-                        title={`${current.label} — click to change`}
-                        className="inline-flex items-center h-5 px-1.5 rounded-lg responsiveTextTable font-semibold leading-none transition-opacity hover:opacity-80"
-                        style={toneChipStyle(current.tone)}
-                    >
-                        {current.code}
-                    </button>
-                ) : (
-                    <button
-                        type="button"
-                        aria-label="Set cargo status"
-                        className="inline-flex items-center gap-0.5 h-5 px-1.5 rounded-lg responsiveTextTable leading-none text-[var(--ink-muted)] border border-dashed border-[var(--line-strong)] hover:text-[var(--brand)] hover:border-[var(--brand)] transition-colors whitespace-nowrap"
-                    >
-                        Set status
-                    </button>
-                )}
-            </PopoverTrigger>
-            <PopoverContent
-                align="center"
-                sideOffset={4}
-                className="z-popover w-52 p-1 rounded-2xl border-[var(--line)] bg-[var(--bg-card)] shadow-pop"
+    return pending ? (
+        <Tltip direction='top' tltpText='On hold — left out of the totals. Click to release.'>
+            <button
+                type="button"
+                aria-pressed="true"
+                aria-label="Pending — click to release"
+                onClick={() => onChange(false)}
+                className="inline-flex items-center gap-1 h-5 px-1.5 rounded-lg responsiveTextTable font-medium leading-none text-[var(--ink-secondary)] bg-[var(--bg-subtle)] border border-[var(--line-strong)] hover:border-[var(--brand)] transition-colors whitespace-nowrap"
             >
-                <div role="menu" aria-label="Cargo status" className="flex flex-col">
-                    {CARGO_STATUSES.map((c) => {
-                        const on = value === c.code;
-                        return (
-                            <button
-                                key={c.code}
-                                type="button"
-                                role="menuitemradio"
-                                aria-checked={on}
-                                onClick={() => choose(c.code)}
-                                className={`flex items-center gap-2 px-2 py-1.5 rounded-lg text-left responsiveTextTable hover:bg-[var(--bg-subtle)] ${on ? 'bg-[var(--bg-subtle)]' : ''}`}
-                            >
-                                <span className="inline-flex items-center justify-center h-5 w-9 rounded-lg font-semibold leading-none shrink-0" style={toneChipStyle(c.tone)}>{c.code}</span>
-                                <span className="flex-1 text-[var(--ink)]">{c.label}</span>
-                                {on && <BtnIcon action="confirm" className="text-[var(--brand)]" />}
-                            </button>
-                        );
-                    })}
-                    {current && (
-                        <button
-                            type="button"
-                            role="menuitem"
-                            onClick={() => choose('')}
-                            className="mt-0.5 flex items-center gap-2 px-2 py-1.5 rounded-lg text-left responsiveTextTable text-[var(--ink-muted)] hover:bg-[var(--bg-subtle)] border-t border-[var(--line)]"
-                        >
-                            <BtnIcon action="clear" /> Clear status
-                        </button>
-                    )}
-                </div>
-            </PopoverContent>
-        </Popover>
+                <span className="inline-block w-1.5 h-1.5 rounded-full bg-[var(--ink-muted)]" aria-hidden="true" />
+                Pending
+            </button>
+        </Tltip>
+    ) : (
+        <Tltip direction='top' tltpText='Put this invoice on hold — it stays listed but leaves the totals.'>
+            <button
+                type="button"
+                aria-pressed="false"
+                aria-label="Mark as pending"
+                onClick={() => onChange(true)}
+                className="inline-flex items-center h-5 px-1.5 rounded-lg responsiveTextTable leading-none text-[var(--ink-muted)] border border-dashed border-[var(--line-strong)] hover:text-[var(--brand)] hover:border-[var(--brand)] transition-colors whitespace-nowrap"
+            >
+                Set pending
+            </button>
+        </Tltip>
     );
 };
+
+/* A table's closing lines: the pending invoices (faded, only when there are any), then
+   the active total. `cells` is the full row — one entry per column, so the footer can
+   never again drift out of step with the header (2026-09-23). */
+// The fade (globals.css .cf-pending-row) applies to a cell's child ELEMENTS, and these
+// cells hold bare text, so each one's content is wrapped in a span first.
+const wrapCells = (fragment) => Children.map(fragment.props.children, (cell) =>
+    isValidElement(cell) && cell.props.children != null && cell.props.children !== false
+        ? cloneElement(cell, {}, <span>{cell.props.children}</span>)
+        : cell);
+
+const FooterRows = ({ pendingRows, activeRows, cells }) => (
+    <>
+        {pendingRows.length > 0 && (
+            <tr className="bg-[var(--bg-subtle)] cf-pending-row">
+                {wrapCells(cells(pendingRows, `Pending (${pendingRows.length})`, true))}
+            </tr>
+        )}
+        <tr className="bg-[var(--bg-subtle)]">
+            {cells(activeRows, `Total (${activeRows.length})`, false)}
+        </tr>
+    </>
+);
 
 export const SupplierDetails = ({ supplier, data, uidCollection, setDateSelect,
     setValueCon, setIsOpenCon, blankInvoice, router, toggleCheckSupplier, toggleCheckSupplierAll,
     toggleSupplier, savePmntSupplier, supplierPartialPayment, supplierCloseBalance, openInvModal,
-    onCargoStatus, sumSel = {}, toggleSum }) => {
+    onPending, sumSel = {}, toggleSum }) => {
     const { sortKey, sortDir, handleSort } = useSortState();
     const { setToast } = useContext(SettingsContext);
 
@@ -2042,6 +2076,9 @@ export const SupplierDetails = ({ supplier, data, uidCollection, setDateSelect,
         .sort((a, b) => (new Date(b.orderData?.date).getTime() || 0) - (new Date(a.orderData?.date).getTime() || 0));
     const filteredArr = sortKey ? sortRows(base, sortKey, sortDir) : base;
     const type = filteredArr[0]?.pmnt !== '0' ? 'PartPaid' : 'fullDebt';
+    // Select-all pays the ACTIVE invoices only — ticking it must not settle one on hold.
+    const activeArr = filteredArr.filter(z => !z.pending);
+    const pendingArr = filteredArr.filter(z => z.pending);
 
     const buildSumItem = (z) => ({
         key: sumKey('supplier', z.id), id: z.id, kind: 'supplier',
@@ -2068,14 +2105,14 @@ export const SupplierDetails = ({ supplier, data, uidCollection, setDateSelect,
                         <SortTh colKey="invValue" label="Value" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-right" />
                         <SortTh colKey="pmnt" label="Payment" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-right" />
                         <SortTh colKey="blnc" label="Balance" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-right" />
-                        <SortTh colKey="cargoStatus" label="Status" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-center" />
+                        <SortTh colKey="pending" label="Status" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-center" />
                         <FinalTh />
                         <th className="text-center">Pmn</th>
                         <th className="text-center py-0">
-                            <Tltip direction='right' tltpText='Select all'>
+                            <Tltip direction='right' tltpText='Select all (pending invoices are left out)'>
                                 <div className='flex items-center justify-center'>
-                                    {filteredArr.length > 0 && <CheckBox size='size-3' checked={!!toggleSupplier[filteredArr[0]?.supplier + '-' + type]}
-                                        onChange={() => toggleCheckSupplierAll(filteredArr)}
+                                    {activeArr.length > 0 && <CheckBox size='size-3' checked={!!toggleSupplier[activeArr[0]?.supplier + '-' + type]}
+                                        onChange={() => toggleCheckSupplierAll(activeArr)}
                                     />
                                     }
                                 </div>
@@ -2086,7 +2123,7 @@ export const SupplierDetails = ({ supplier, data, uidCollection, setDateSelect,
                 <tbody>
                     {filteredArr.map((z, i) => {
                         return (
-                            <tr key={i}>
+                            <tr key={i} className={z.pending ? 'cf-pending-row' : undefined}>
                                 <td className="sum-col !py-1">
                                     <SumToggle active={!!sumSel[sumKey('supplier', z.id)]} onToggle={() => toggleSum && toggleSum(buildSumItem(z))} />
                                 </td>
@@ -2136,8 +2173,8 @@ export const SupplierDetails = ({ supplier, data, uidCollection, setDateSelect,
                                         )}
                                     </span>
                                 </td>
-                                <td className="text-center !py-1">
-                                    <CargoStatus value={z.cargoStatus} onChange={onCargoStatus ? (code) => onCargoStatus(z, code) : null} />
+                                <td className="text-center !py-1 cf-status-cell">
+                                    <PendingToggle pending={!!z.pending} onChange={onPending ? (flag) => onPending(z, flag) : null} />
                                 </td>
                                 <td className="text-center"><FinalBadge fnlzing={z.fnlzing} invoiceNo={z.invoice} /></td>
                                 <td className="text-center !py-1">
@@ -2160,37 +2197,40 @@ export const SupplierDetails = ({ supplier, data, uidCollection, setDateSelect,
                     })}
                 </tbody>
                 <tfoot className="sticky-foot">
-                    <tr className="bg-[var(--bg-subtle)]">
-                        <th></th>
-                        <th className="text-left">Total</th>
-                        <th></th>
-                        <th className="text-right">
-                            {showAmount(filteredArr.reduce((sum, item) => sum + item.invValue * 1, 0), 'usd')}
-                        </th>
-                        <th className="text-right">
-                            {showAmount(filteredArr.reduce((sum, item) => sum + item.pmnt * 1, 0), 'usd')}
-                        </th>
-                        <th className="text-right">
-                            {showAmount(filteredArr.reduce((sum, item) => sum + item.blnc * 1, 0), 'usd')}
-                        </th>
-                        {/* Status, Final, Pmn — one cell each, like the header. This row kept
-                            both of the old ETD/ETA cells when Status replaced them, and the
-                            spare cell pushed Save into a column of its own at the far right
-                            (client, 2026-09-23: "where is this field gone missing"). Save
-                            sits under the select-all checkbox it acts on. */}
-                        <th></th>
-                        <th></th>
-                        <th></th>
-                        <th className="text-center">
-                            <div className='flex items-center justify-center'>
-                                <button className='p-0 bg-transparent border-0 outline-none leading-none text-[var(--endeavour)] hover:opacity-70'
-                                    onClick={() => savePmntSupplier(filteredArr)}
-                                    disabled={filteredArr.length === 0}>
-                                    <Save className="w-3 h-3" />
-                                </button>
-                            </div>
-                        </th>
-                    </tr>
+                    {/* Ten cells a row, like the header: Σ, PO#, Invoice, Value, Payment,
+                        Balance, Status, Final, Pmn, select. A spare cell once pushed Save
+                        into a column of its own (client, 2026-09-23). Save sits under the
+                        select-all checkbox it acts on, on the Total line only. */}
+                    <FooterRows pendingRows={pendingArr} activeRows={activeArr} cells={(rows, label, isPending) => (
+                        <>
+                            <th></th>
+                            <th className="text-left whitespace-nowrap">{label}</th>
+                            <th></th>
+                            <th className="text-right">
+                                {showAmount(rows.reduce((sum, item) => sum + item.invValue * 1, 0), 'usd')}
+                            </th>
+                            <th className="text-right">
+                                {showAmount(rows.reduce((sum, item) => sum + item.pmnt * 1, 0), 'usd')}
+                            </th>
+                            <th className="text-right">
+                                {showAmount(rows.reduce((sum, item) => sum + item.blnc * 1, 0), 'usd')}
+                            </th>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                            <th className="text-center">
+                                {!isPending && (
+                                    <div className='flex items-center justify-center'>
+                                        <button className='p-0 bg-transparent border-0 outline-none leading-none text-[var(--endeavour)] hover:opacity-70'
+                                            onClick={() => savePmntSupplier(filteredArr)}
+                                            disabled={filteredArr.length === 0}>
+                                            <Save className="w-3 h-3" />
+                                        </button>
+                                    </div>
+                                )}
+                            </th>
+                        </>
+                    )} />
                 </tfoot>
             </table>
             </div>

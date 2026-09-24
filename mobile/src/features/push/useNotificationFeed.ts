@@ -8,6 +8,8 @@ import {
   snoozeNotification,
 } from '@/data/writes';
 import { sortByPriority, priorityOf } from '@shared/notificationPriority';
+import { isNotificationEnabled } from '@shared/notificationPrefs';
+import { useNotificationPrefsStore } from './notificationPrefs';
 import { useShallow } from 'zustand/react/shallow';
 
 export type Priority = 'high' | 'medium' | 'low';
@@ -63,7 +65,11 @@ export function useNotificationFeed() {
     return () => clearTimeout(t);
   }, [all, uid, snoozeTick]);
 
-  const notifications: NotificationRow[] = useMemo(() => {
+  // This person's notification settings (shared with the web). A category they switched off
+  // is left out of the list and the count; hiddenCount says how many that is.
+  const prefs = useNotificationPrefsStore((s) => s.prefs);
+
+  const { notifications, hiddenCount } = useMemo(() => {
     const now = Date.now();
     const mine = all.filter((n) => {
       if (Array.isArray(n.audience) && uid && !n.audience.includes(uid)) return false;
@@ -71,10 +77,11 @@ export function useNotificationFeed() {
       if (until && until > now) return false;
       return true;
     });
-    return sortByPriority(mine);
+    const wanted = mine.filter((n) => isNotificationEnabled(prefs, n));
+    return { notifications: sortByPriority(wanted) as NotificationRow[], hiddenCount: mine.length - wanted.length };
     // snoozeTick re-evaluates the Date.now() comparison when a snooze lapses.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [all, uid, snoozeTick]);
+  }, [all, uid, snoozeTick, prefs]);
 
   const unread = useMemo(
     () => notifications.filter((n) => !(n.readBy || []).includes(uid)),
@@ -103,6 +110,7 @@ export function useNotificationFeed() {
 
   return {
     notifications,
+    hiddenCount,
     unread,
     unreadCount: unread.length,
     priorityOf: (n: NotificationRow): Priority => priorityOf(n),

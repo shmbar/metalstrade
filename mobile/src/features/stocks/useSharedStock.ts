@@ -11,6 +11,7 @@ import { loadSharedStock } from '@/data/firestore';
 import { useAllStockLots, STOCK_LOTS_KEY } from './useAllStockLots';
 import { saveSharedStock, deleteSharedStock, newId } from '@/data/writes';
 import { useShallow } from 'zustand/react/shallow';
+import { curSymbol } from '@/lib/format';
 
 export const OWNERS = ['IMS', 'GIS'] as const;
 // financedBy = who PAID for the lot ('IMS' | 'GIS' | 'BOTH') — distinct from owners
@@ -107,7 +108,12 @@ export function useSharedStock() {
     return w?.stock || w?.nname || '—';
   };
   const supName = (id: string) => suppliers.find((s: any) => s.id === id)?.nname || '—';
-  const curSym = (id: string) => currencies.find((c: any) => c.id === id)?.symbol || '';
+  // A Settings currency with no symbol field used to come back empty, and the screen then
+  // printed a dollar sign even on a euro lot. Resolve the currency itself (lib/format).
+  const curSym = (id: string) => {
+    const c: any = currencies.find((x: any) => x.id === id);
+    return c?.symbol || curSymbol(c?.cur || id);
+  };
 
   // The joint pool has its own namespace; the account's OWN ledger (used only to
   // build the "pick from my current stock" list) comes from the shared query.

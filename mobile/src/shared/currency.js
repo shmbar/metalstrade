@@ -55,3 +55,44 @@ export function curTone(cur) {
     if (k === 'eur') return 'blue';
     return 'gray';
 }
+
+// ── Money amounts ─────────────────────────────────────────────────────────────────────
+//
+// One money format for web AND mobile (client, 2026-09-24: "some cells are missing
+// decimals and/or the $ symbol"). Pages had grown their own formatters — "$-1,234.00" on
+// one, "$1,234.5" on another, no symbol at all for a third currency, 1 decimal in one
+// dashboard card and 2 in the next. Every amount printed as text goes through these two:
+//   - the amount's own currency symbol ($ / €), or its code for any other currency;
+//   - exactly two decimals unless the caller asks otherwise, with thousands separators;
+//   - the minus sign in front of the symbol: -$1,234.50 (as react-number-format prints it).
+// The caller passes the currency of THIS amount; nothing here converts or mixes currencies.
+// An amount with no currency recorded is in the base currency, USD (finance.js fx base 'us').
+
+const toAmount = (value) => {
+    const n = typeof value === 'string' ? Number(value.replace(/[^0-9.-]+/g, '')) : Number(value);
+    return Number.isFinite(n) ? n : 0;
+};
+
+const digits = (n, decimals) =>
+    n.toLocaleString('en-US', { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
+
+// A negative that rounds to zero shows as $0.00, not -$0.00.
+const signed = (v, body) => (v < 0 && /[1-9]/.test(body) ? '-' : '');
+
+const moneySymbol = (cur) => curSymbol(cur) || '$';
+
+// Full amount: "$1,234.50", "€0.05", "-$12.00", "GBP 1,234.50".
+export function moneyFull(cur, value, decimals = 2) {
+    const v = toAmount(value);
+    const body = digits(Math.abs(v), decimals);
+    return `${signed(v, body)}${moneySymbol(cur)}${body}`;
+}
+
+// Tiles and totals: "$1.23M", "€45.60K", "-$980.00".
+export function moneyCompact(cur, value, decimals = 2) {
+    const v = toAmount(value);
+    const a = Math.abs(v);
+    const [n, unit] = a >= 1e6 ? [a / 1e6, 'M'] : a >= 1e3 ? [a / 1e3, 'K'] : [a, ''];
+    const body = digits(n, decimals) + unit;
+    return `${signed(v, body)}${moneySymbol(cur)}${body}`;
+}

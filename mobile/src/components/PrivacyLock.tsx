@@ -1,85 +1,85 @@
-import { useEffect, useRef, useState } from 'react';
-import { View, AppState, AppStateStatus } from 'react-native';
+import { useEffect, useRef } from 'react';
+import { View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Text, Button } from '@/components/ui';
 import { useTheme } from '@/theme/ThemeProvider';
 import { useAuth } from '@/store/auth';
-import { isBiometricEnabled } from '@/lib/secureStore';
-import { isBiometricAvailable, authenticateBiometric } from '@/lib/biometric';
+import { layout, spacing } from '@/theme/tokens';
 
-const RELOCK_AFTER_MS = 45_000; // background longer than this → require unlock
-
-// Finance-app privacy screen: covers content the moment the app leaves the
-// foreground (so the iOS/Android app switcher shows no figures) and requires
-// Face ID / fingerprint to resume after a longer absence — only when the user
-// has biometric sign-in enabled.
+/*
+ * The privacy cover and the Face ID lock.
+ *
+ * Whether to cover or lock is decided in ONE place — the session rule in store/auth.ts
+ * (lib/sessionPolicy decideSession). This component only draws it:
+ *   - covered: the app is in the switcher or backgrounded — figures hidden;
+ *   - locked:  the session is kept, but Face ID must confirm the owner before anything
+ *              shows. That is what replaced being signed out after a day away.
+ *
+ * It used to run its own 45-second timer on app-switch events only, so an app that had
+ * been fully closed and reopened skipped the lock entirely.
+ */
 export function PrivacyLock() {
   const { colors } = useTheme();
   const user = useAuth((s) => s.user);
-  const [covered, setCovered] = useState(false);
-  const [needsAuth, setNeedsAuth] = useState(false);
-  const leftAt = useRef<number | null>(null);
-  const enabled = useRef(false);
+  const covered = useAuth((s) => s.covered);
+  const locked = useAuth((s) => s.locked);
+  const unlock = useAuth((s) => s.unlock);
+  const signOut = useAuth((s) => s.signOut);
+  const prompted = useRef(false);
 
+  // Ask for Face ID as soon as the lock appears — once; after that the button asks.
   useEffect(() => {
-    (async () => {
-      enabled.current = (await isBiometricAvailable()) && (await isBiometricEnabled());
-    })();
-  }, [user]);
-
-  const unlock = async () => {
-    const ok = await authenticateBiometric('Unlock IMS');
-    if (ok) {
-      setNeedsAuth(false);
-      setCovered(false);
+    if (locked && !prompted.current) {
+      prompted.current = true;
+      unlock();
     }
-  };
+    if (!locked) prompted.current = false;
+  }, [locked, unlock]);
 
-  useEffect(() => {
-    const sub = AppState.addEventListener('change', (next: AppStateStatus) => {
-      if (!user || !enabled.current) return;
-      if (next === 'background' || next === 'inactive') {
-        leftAt.current = leftAt.current ?? Date.now();
-        setCovered(true);
-      } else if (next === 'active') {
-        const away = leftAt.current ? Date.now() - leftAt.current : 0;
-        leftAt.current = null;
-        if (away > RELOCK_AFTER_MS) {
-          setNeedsAuth(true);
-          unlock(); // prompt immediately; the cover stays until it succeeds
-        } else {
-          setCovered(false);
-        }
-      }
-    });
-    return () => sub.remove();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user]);
-
-  if (!covered) return null;
+  if (!user || (!covered && !locked)) return null;
   return (
     <View
       style={{
         position: 'absolute',
-        top: 0, left: 0, right: 0, bottom: 0,
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
         zIndex: 999,
         backgroundColor: colors.bg,
         alignItems: 'center',
         justifyContent: 'center',
-        gap: 14,
-        padding: 32,
+        gap: spacing.md,
+        padding: spacing.xl,
       }}
     >
-      <View style={{ width: 64, height: 64, borderRadius: 20, backgroundColor: colors.primary, alignItems: 'center', justifyContent: 'center' }}>
-        <Ionicons name="cube" size={34} color={colors.primaryText} />
+      <View
+        style={{
+          width: 56,
+          height: 56,
+          borderRadius: 16,
+          backgroundColor: colors.primary,
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
+        <Ionicons name={locked ? 'lock-closed' : 'cube'} size={26} color={colors.primaryText} />
       </View>
       <Text variant="h2">IMS</Text>
-      {needsAuth && (
+      {locked && (
         <>
           <Text variant="body" tone="muted" style={{ textAlign: 'center' }}>
-            Unlock to continue
+            Locked. Your session is kept — unlock to continue.
           </Text>
-          <Button title="Unlock" fullWidth={false} leftIcon={<Ionicons name="finger-print" size={18} color={colors.primaryText} />} onPress={unlock} />
+          <Button
+            title="Unlock"
+            fullWidth={false}
+            leftIcon={<Ionicons name="scan-outline" size={16} color={colors.primaryText} />}
+            onPress={unlock}
+            style={{ minWidth: 160 }}
+          />
+          {/* A way out that is not Face ID: sign in with the password instead. */}
+          <Button title="Use password instead" variant="ghost" fullWidth={false} onPress={signOut} style={{ minWidth: 160, minHeight: layout.controlHeight }} />
         </>
       )}
     </View>

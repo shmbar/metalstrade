@@ -478,6 +478,34 @@ export const subscribeNotifications = (uidCollection, cb) => {
   }
 }
 
+// Notification preferences — one document per person, read live by the web bell, the
+// mobile app and the push sender (utils/notificationPrefs.js explains the model).
+export const subscribeNotificationPrefs = (uidCollection, userUid, cb) => {
+  if (!uidCollection || !userUid) { cb(null); return () => {}; }
+  try {
+    return onSnapshot(doc(db, uidCollection, 'data', 'notificationPrefs', userUid),
+      (snap) => cb(snap.exists() ? snap.data() : null),
+      (err) => { console.warn('subscribeNotificationPrefs error:', err?.message || err); cb(null); }
+    );
+  } catch (e) {
+    console.warn('subscribeNotificationPrefs failed:', e?.message || e);
+    return () => {};
+  }
+}
+
+export const saveNotificationPrefs = async (uidCollection, userUid, categories, userEmail = '') => {
+  if (!uidCollection || !userUid) return false;
+  try {
+    await setDoc(doc(db, uidCollection, 'data', 'notificationPrefs', userUid), {
+      categories, userUid, userEmail: userEmail || '', updatedAt: new Date().toISOString(), updatedFrom: 'web',
+    }, { merge: true });
+    return true;
+  } catch (e) {
+    console.warn('saveNotificationPrefs failed:', e?.message || e);
+    return false;
+  }
+}
+
 // Idempotent system/derived notification for time-derived alerts (e.g. overdue
 // settlements) that a scan may re-detect on every load. Create-if-absent keeps a
 // stable id from duplicating AND preserves the user's read/snooze state across scans.

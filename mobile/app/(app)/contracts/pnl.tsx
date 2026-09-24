@@ -9,7 +9,6 @@ import { useTheme } from '@/theme/ThemeProvider';
 import { useContracts } from '@/features/contracts/useContracts';
 import { usePnl, useSetContractStatus, useSaveShipmentRow, CONTRACT_STATUSES, ShipmentRow } from '@/features/contracts/usePnl';
 import { curSymbol, fmtMoney, dateLabel } from '@/lib/format';
-import { haptics } from '@/lib/haptics';
 import { layout } from '@/theme/tokens';
 
 const FINALIZED_FLAG = '4568';
@@ -171,7 +170,8 @@ export default function ContractPnl() {
 
               {/* Finalizing — '4568' means the final invoice has been issued. */}
               <Pressable
-                onPress={() => { haptics.selection(); setRow(i, { fnlzing: r.fnlzing === FINALIZED_FLAG ? '' : FINALIZED_FLAG }); }}
+                haptic="selection"
+                onPress={() => setRow(i, { fnlzing: r.fnlzing === FINALIZED_FLAG ? '' : FINALIZED_FLAG })}
                 style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}
               >
                 <Ionicons

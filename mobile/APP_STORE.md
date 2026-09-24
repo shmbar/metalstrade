@@ -175,6 +175,54 @@ the edges instead of padding.
 Suggested order: Dashboard → Contracts list → Cashflow → Stock → Invoice detail.
 Sign in as a demo account first so no real customer names are visible.
 
+### Before re-capturing (audit 2026-09-24)
+
+The five files in `store-assets/shots/` are **out of date and not presentable**: they
+predate the density pass, and they show "Welcome back **Test**", "**Test User** ·
+imstest@test.test", and a quick action named "**Sharon Admin**" (a real person's name).
+Re-capture them; do not upload the current set again.
+
+1. **Build.** Capture from a build that contains the 2026-09-24 changes (plain "Margins"
+   label on non-live workspaces, no "web CRM"/"Firestore" footers). Build 42 does not.
+2. **Data — the demo workspace also holds real identifiers.** The dry run found the
+   client's own company profile (name, VAT, EORI, email, website) and supplier/client
+   entries with real company names, VAT numbers and street addresses. Clean it with the
+   guarded script, which renames settings entries only (records follow by id, and no
+   transaction, PO number or invoice number changes) and takes a JSON backup first:
+   ```bash
+   # dry run — prints every change, writes nothing
+   DIAG_EMAIL=… DIAG_PASSWORD=… npx vitest run --config vitest.smoke.config.js --disableConsoleIntercept mobile/__tests__/smoke/presentation-cleanup.smoke.ts
+   # apply — only with the owner's go; this is also App Review's account
+   PRESENTATION_APPLY=1 DIAG_EMAIL=… DIAG_PASSWORD=… npx vitest run …(same)
+   ```
+   It refuses any workspace other than `1wD74Rzav1PZ40MxXStjn9WgtJm2`. Live IMS/GIS data is
+   never touched. The review login (email + password) is unchanged; only its display
+   name becomes "Alex Morgan".
+3. **Thin data.** The current year has ~6 contracts and ~9 invoices, so the Dashboard
+   hero reads "$180.00 · 1 contract". Pick a period with volume (the year stepper) or
+   add a few realistic records in the demo workspace before capturing.
+4. **Status bar.** Full battery or charging, Wi-Fi, no Focus/snowflake icon, 9:41 if
+   possible.
+5. **Avoid these screens:** More (the account card shows the review email), Settings →
+   Users (shows `is@is.is` and the review email), and anything with an open keyboard.
+
+### Shot list — Light and Dark
+
+Light is the default. Switch with **More → Appearance → Dark** and keep the same five
+frames, so the two sets match one for one.
+
+| # | Screen | State | Caption idea |
+|---|---|---|---|
+| 1 | Dashboard | period with volume, balances visible (eye open) | Your whole trading book at a glance |
+| 2 | Contracts | list with status chips, one row swiped or filtered | Every PO from agreement to delivery |
+| 3 | Cashflow | an expanded section with incoming/outgoing | Cash in, cash out, one screen |
+| 4 | Stocks | grade summary + lots by warehouse | Stock by grade and warehouse |
+| 5 | Invoice detail | a paid or partly-paid invoice | Invoices, payments and balances |
+
+Upload Light as the primary set. App Store Connect shows one set per device size, so
+use the Dark frames for the listing only if the owner prefers them. Keep them on file
+either way.
+
 ## 4. Listing copy
 
 **Name** (30): `IMS` — already set

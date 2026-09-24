@@ -83,8 +83,9 @@ export function deriveContract(c: Contract, settings: any): ContractView {
   const mtLabel =
     own.length === 0
       ? '-'
-      : new Intl.NumberFormat('en-US', { minimumFractionDigits: 1 }).format(
-          own.reduce((s, p: any) => s + parseInt(p.qnty, 10), 0)
+      : // parseInt dropped the decimals (20.525 MT showed as 20.0) — web had the same bug; both fixed.
+        new Intl.NumberFormat('en-US', { minimumFractionDigits: 1, maximumFractionDigits: 3 }).format(
+          own.reduce((s, p: any) => s + (parseFloat(p.qnty) || 0), 0)
         ) + (qLabel ? ` ${qLabel}` : '');
   const productNames = [...new Set(own.map((p) => p.description).filter(Boolean))] as string[];
   const invoiceCount = (c.invoicesData || []).length;

@@ -106,6 +106,7 @@ const IDENTICAL_PAIRS: Array<[mobile: string, web: string]> = [
   ['mobile/src/shared/soldStatus.js', 'app/(root)/contractsstatement/soldStatus.js'],
   ['mobile/src/shared/notificationPriority.js', 'utils/notificationPriority.js'],
   ['mobile/src/shared/notificationRouting.js', 'utils/notificationRouting.js'],
+  ['mobile/src/shared/notificationPrefs.js', 'utils/notificationPrefs.js'],
   ['mobile/src/shared/fxRates.js', 'utils/fxRates.js'],
   ['mobile/src/shared/languages.js', 'utils/languages.js'],
   ['mobile/src/shared/salesLink.js', 'utils/salesLink.js'],

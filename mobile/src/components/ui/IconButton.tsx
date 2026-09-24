@@ -14,6 +14,8 @@ export interface IconButtonProps {
   tone?: 'primary' | 'danger' | 'muted';
   size?: number;
   disabled?: boolean;
+  /** Touch-down feedback — for toggles (show/hide figures, sort order). */
+  haptic?: 'selection' | 'impact';
 }
 
 /**
@@ -29,6 +31,7 @@ export function IconButton({
   tone = 'primary',
   size = layout.iconButton,
   disabled,
+  haptic,
 }: IconButtonProps) {
   const { colors } = useTheme();
   const primary = variant === 'primary';
@@ -42,6 +45,7 @@ export function IconButton({
   return (
     <Pressable
       onPress={onPress}
+      haptic={haptic}
       hitSlop={8}
       disabled={disabled}
       accessibilityRole="button"

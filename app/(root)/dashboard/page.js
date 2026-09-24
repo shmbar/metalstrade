@@ -32,6 +32,7 @@ import { Gauge, Receipt, Percent, Truck, Warehouse, TrendingUp, FileWarning, Shi
 import { HorizontalBar } from './charts';
 import useExchangeRates from '@hooks/useExchangeRates';
 import { matchesAllWords } from '@utils/search';
+import { moneyCompact } from '@utils/currency';
 
 // chart.js + react-chartjs-2 are loaded on demand (not in the first-load bundle).
 
@@ -50,26 +51,9 @@ const fmtMoney = (n, decimals = 2) => {
   });
 };
 
-const fmtK = (n, decimals = 2) => {
-  const num = Number(n);
-  if (!Number.isFinite(num)) return `$0.00K`;
-  return `$${fmtMoney(num / 1000, decimals)}K`;
-};
-
-const fmtAutoKM = (n, decimals = 2) => {
-  const num = Number(n);
-  if (!Number.isFinite(num)) return "$0";
-
-  if (Math.abs(num) >= 1_000_000) {
-    return `$${fmtMoney(num / 1_000_000, decimals)}M`;
-  }
-
-  if (Math.abs(num) >= 1_000) {
-    return `$${fmtMoney(num / 1_000, decimals)}K`;
-  }
-
-  return `$${fmtMoney(num, decimals)}`;
-};
+// Compact USD amounts ("$1.23M", "-$980.00"): the shared money format (utils/currency.js),
+// which mobile uses too. This used to print negatives as "$-1.23K".
+const fmtAutoKM = (n, decimals = 2) => moneyCompact('us', n, decimals);
 
 const sumObj = (obj) => Object.values(obj || {}).reduce((a, v) => a + (Number(v) || 0), 0);
 
@@ -192,16 +176,9 @@ function SummaryTile({ label, value, note, tone, icon: Icon, toneKey = 'gray', p
 // final invoice has been issued (shipData.fnlzing === '4568'); "Provisional" =
 // balances still before the final invoice. Lets the team see, at a glance, how
 // much of what's owed is locked-in vs still subject to final-invoice changes.
-function ReceivablesSplitCard({ byCur = {}, onOpen, onOpenSplit }) {
+function ReceivablesSplitCard({ byCur = {}, pendingByCur = {}, onOpen, onOpenSplit }) {
   // Currency-aware compact formatter — never sums across currencies.
-  const fmtCurKM = (cur, n) => {
-    const s = cur === 'us' ? '$' : cur === 'eu' ? '€' : '';
-    const num = Number(n) || 0;
-    const a = Math.abs(num);
-    if (a >= 1e6) return `${s}${(num / 1e6).toFixed(2)}M`;
-    if (a >= 1e3) return `${s}${(num / 1e3).toFixed(2)}K`;
-    return `${s}${num.toFixed(2)}`;
-  };
+  const fmtCurKM = (cur, n) => moneyCompact(cur, n);
 
   const curs = Object.keys(byCur).filter(c => {
     const d = byCur[c];
@@ -246,6 +223,13 @@ function ReceivablesSplitCard({ byCur = {}, onOpen, onOpenSplit }) {
             {totalsLine.map((t, i) => (
               <div key={i} className="font-semibold text-[var(--port-gore)] leading-tight" style={{ fontSize: 'var(--fs-substat)', fontFamily: 'var(--font-jakarta), Manrope, sans-serif', fontVariantNumeric: 'tabular-nums' }}>{t}</div>
             ))}
+            {/* Invoices on hold in Cashflow — outside the figure above, not forgotten. */}
+            {Object.keys(pendingByCur).length > 0 && (
+              <div className="responsiveTextTable text-[var(--ink-muted)] leading-tight mt-0.5 tabular-nums"
+                title="On hold in Cashflow — not included in the outstanding total">
+                Pending {Object.entries(pendingByCur).map(([c, v]) => fmtCurKM(c, v)).join(' · ')}
+              </div>
+            )}
           </div>
         </div>
 
@@ -1280,13 +1264,8 @@ function AgingCard({ buckets = [], onOpen }) {
     'var(--danger-text)',
     'var(--danger-strong)',
   ];
-  const fmtCurKM = (cur, n) => {
-    const s = cur === 'us' ? '$' : cur === 'eu' ? '€' : '';
-    const v = Number(n) || 0, a = Math.abs(v);
-    if (a >= 1e6) return `${s}${(v / 1e6).toFixed(2)}M`;
-    if (a >= 1e3) return `${s}${(v / 1e3).toFixed(1)}K`;
-    return `${s}${v.toFixed(0)}`;
-  };
+  // Was 1 decimal for K and none below 1K — the card next door showed 2. Shared format now.
+  const fmtCurKM = (cur, n) => moneyCompact(cur, n);
   const bTot = (b) => Object.values(b.byCur || {}).reduce((s, v) => s + v, 0);
   const max = Math.max(...buckets.map(bTot), 1);
   const anyData = buckets.some(b => b.count > 0);
@@ -1825,25 +1804,40 @@ const Dash = () => {
   // Outstanding receivables split by shipment finalization (shipData.fnlzing === '4568'
   // = Yes). Same issued/unpaid rule as the alerts bar + Cashflow. Responds to the Client
   // filter (suppliers/materials don't map cleanly onto a sales invoice).
+  /* Invoices put on hold in Cashflow ("Pending", client 2026-09-24) are not active
+     receivables: they leave every due figure here — the card, the Unpaid Invoices tile,
+     the aging buckets — and the card says how much is held instead. The flag sits on
+     the document Cashflow shows for the invoice, so a hold covers its whole invoice
+     number (an invoice and its Credit/Final note are one receivable). */
+  const recvLists = useMemo(() => {
+    const list = fClient
+      ? rawRecvInvoices.filter(inv => resolveClientName(inv.client) === fClient)
+      : rawRecvInvoices;
+    const held = new Set(list.filter(inv => inv?.paymentPending).map(inv => String(inv.invoice)));
+    return {
+      active: list.filter(inv => !held.has(String(inv.invoice))),
+      pending: list.filter(inv => held.has(String(inv.invoice))),
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [rawRecvInvoices, fClient, settings]);
+
   const receivables = useMemo(() => {
     // Canonical receivables (utils/finance.js) — deduped (an invoice + its Credit/Final
     // note count ONCE, payments combined), balance = total − payments (same rule the
     // Cashflow page uses), per-currency, draft/canceled excluded, finalized/provisional split.
-    const list = fClient
-      ? rawRecvInvoices.filter(inv => resolveClientName(inv.client) === fClient)
-      : rawRecvInvoices;
-    return financeReceivables(list, { asOf: new Date(), termDays });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [rawRecvInvoices, fClient, settings, termDays]);
+    return financeReceivables(recvLists.active, { asOf: new Date(), termDays });
+  }, [recvLists, termDays]);
+
+  // The held amount per currency, for the card's "Pending" line.
+  const pendingRecv = useMemo(() => {
+    const byCur = financeReceivables(recvLists.pending, { asOf: new Date(), termDays }).byCur || {};
+    return Object.fromEntries(Object.entries(byCur)
+      .map(([c, d]) => [c, (d.finalized || 0) + (d.provisional || 0)])
+      .filter(([, v]) => v > 0.005));
+  }, [recvLists, termDays]);
 
   // Receivables aging buckets (0–30 / 31–60 / 61–90 / 90+), same source as receivables.
-  const aging = useMemo(() => {
-    const list = fClient
-      ? rawRecvInvoices.filter(inv => resolveClientName(inv.client) === fClient)
-      : rawRecvInvoices;
-    return agingBuckets(list, { asOf: new Date() });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [rawRecvInvoices, fClient, settings]);
+  const aging = useMemo(() => agingBuckets(recvLists.active, { asOf: new Date() }), [recvLists]);
 
   // P1 misc invoices total by currency (annual summary — independent of the contract filters),
   // plus a breakdown by the manual category tag (Personal / Random / Shipments / Uncategorized).
@@ -2191,7 +2185,11 @@ const Dash = () => {
           { label: `Provisional (${cur.toUpperCase()})`, value: f(d.provisional), note: `${d.provisionalCount} invoice${d.provisionalCount === 1 ? '' : 's'} · before the final invoice` },
           { label: `Total outstanding (${cur.toUpperCase()})`, value: f(d.finalized + d.provisional), result: true },
         ];
-      }),
+      }).concat(Object.entries(pendingRecv).map(([cur, v]) => ({
+        label: `Pending — on hold (${cur.toUpperCase()})`,
+        value: `${cur === 'us' ? '$' : cur === 'eu' ? '€' : ''}${new Intl.NumberFormat('en-US', { maximumFractionDigits: 2 }).format(v)}`,
+        note: 'set in Cashflow · not included above',
+      }))),
     },
     aging: {
       title: 'Receivables Aging', subtitle: 'Outstanding balances by invoice age, as of today',
@@ -2613,7 +2611,7 @@ const Dash = () => {
           />
           {!collapsed.position && (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-5">
-            <ReceivablesSplitCard byCur={receivables.byCur} onOpen={() => setTileDrill('receivables')} onOpenSplit={(k) => setTileDrill('recv:' + k)} />
+            <ReceivablesSplitCard byCur={receivables.byCur} pendingByCur={pendingRecv} onOpen={() => setTileDrill('receivables')} onOpenSplit={(k) => setTileDrill('recv:' + k)} />
             <AgingCard buckets={aging} onOpen={() => setTileDrill('aging')} />
           </div>
           )}

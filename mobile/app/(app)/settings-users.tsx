@@ -9,11 +9,10 @@ import { StackHeader } from '@/components/StackHeader';
 import { useTheme } from '@/theme/ThemeProvider';
 import { useAuth } from '@/store/auth';
 import { toast } from '@/store/toast';
-import { apiConfigured, getJson, sendJson } from '@/lib/api';
+import { SERVICE_UNAVAILABLE, apiConfigured, getJson, sendJson } from '@/lib/api';
 import { PAGE_GROUPS, PAGE_KEYS, assignableRoles, canManageRole, defaultPagesForRole, roleLabel, roleMeta } from '@shared/permissions';
 import { matchesAllWords } from '@shared/search';
 import { radius, spacing, layout } from '@/theme/tokens';
-import { haptics } from '@/lib/haptics';
 import { useShallow } from 'zustand/react/shallow';
 
 /*
@@ -68,7 +67,7 @@ function CheckRow({ label, checked, onPress, disabled }: { label: string; checke
   const { colors } = useTheme();
   return (
     <Pressable
-      onPress={() => { haptics.selection(); onPress(); }}
+      haptic="selection" onPress={() => { onPress(); }}
       disabled={disabled}
       accessibilityRole="checkbox"
       accessibilityState={{ checked, disabled }}
@@ -103,7 +102,7 @@ function PagePermissions({ role, pages, setPages }: { role: string; pages: strin
   const dflt = defaultPagesForRole(role);
   const isDefault = dflt.length === selected.size && dflt.every((k) => selected.has(k));
   const link = (title: string, onPress: () => void) => (
-    <Pressable onPress={() => { haptics.selection(); onPress(); }} hitSlop={6} accessibilityRole="button">
+    <Pressable haptic="selection" onPress={() => { onPress(); }} hitSlop={6} accessibilityRole="button">
       <Text variant="captionStrong" style={{ color: colors.primary }}>{title}</Text>
     </Pressable>
   );
@@ -132,7 +131,7 @@ function PagePermissions({ role, pages, setPages }: { role: string; pages: strin
           const keys = group.pages.map((p) => p.key);
           return (
             <View key={group.ttl}>
-              <Pressable onPress={() => { haptics.selection(); toggleGroup(keys); }} disabled={locked} accessibilityRole="button" accessibilityLabel={`Toggle ${group.ttl}`} style={{ alignSelf: 'flex-start', paddingVertical: 2 }}>
+              <Pressable haptic="selection" onPress={() => { toggleGroup(keys); }} disabled={locked} accessibilityRole="button" accessibilityLabel={`Toggle ${group.ttl}`} style={{ alignSelf: 'flex-start', paddingVertical: 2 }}>
                 <Text variant="overline" tone="muted">{group.ttl}</Text>
               </Pressable>
               <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
@@ -275,8 +274,8 @@ export default function SettingsUsers() {
     />
   ) : !apiConfigured() ? (
     <EmptyState
-      title="Backend not configured"
-      message="Set EXPO_PUBLIC_API_BASE_URL to your deployed web app URL to manage users."
+      title="Users unavailable"
+      message={SERVICE_UNAVAILABLE}
       icon={<Ionicons name="cloud-offline-outline" size={24} color={colors.textFaint} />}
     />
   ) : usersQuery.isLoading ? (
@@ -285,7 +284,7 @@ export default function SettingsUsers() {
     <ErrorState
       message={
         /\(404\)/.test(String((usersQuery.error as any)?.message))
-          ? 'The web app this phone talks to does not have user management yet — deploy the latest web version, then retry.'
+          ? 'User management is not available right now. Please try again later.'
           : (usersQuery.error as any)?.message || 'Could not load users.'
       }
       onRetry={() => usersQuery.refetch()}
@@ -379,8 +378,8 @@ export default function SettingsUsers() {
             error={errors.email ? MUST_FILL : undefined}
           />
           <Pressable
+            haptic="selection"
             onPress={() => {
-              haptics.selection();
               setSetPassword((v) => !v);
               setErrors((e) => ({ ...e, password: false, password1: false }));
             }}
@@ -422,7 +421,7 @@ export default function SettingsUsers() {
               return (
                 <Pressable
                   key={r.key}
-                  onPress={() => { if (!selected) haptics.selection(); changeRole(r.key); }}
+                  haptic={selected ? undefined : 'selection'} onPress={() => { changeRole(r.key); }}
                   accessibilityRole="radio"
                   accessibilityState={{ selected }}
                   style={{ borderRadius: radius.md, borderWidth: 1, paddingHorizontal: 12, paddingVertical: 10, borderColor: selected ? colors.primary : colors.border, backgroundColor: selected ? colors.primary + '14' : colors.card }}

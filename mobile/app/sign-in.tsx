@@ -294,7 +294,7 @@ export default function SignIn() {
           </View>
 
           <Text variant="caption" tone="faint" style={{ textAlign: 'center', marginTop: spacing.lg }}>
-            🔒 Secure access · same account as the web CRM
+            🔒 Secure sign-in · same account as IMS on the web
           </Text>
         </View>
       </ScrollView>

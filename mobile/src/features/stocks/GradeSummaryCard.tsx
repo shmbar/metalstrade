@@ -8,14 +8,12 @@ import { useSettings } from '@/store/settings';
 import { computeGradeSummary } from './gradeSummary';
 import { useGrades } from './useGrades';
 import { layout } from '@/theme/tokens';
+import { moneyFull } from '@/lib/format';
 
 const fmtQ = (v: number) =>
   new Intl.NumberFormat('en-US', { maximumFractionDigits: 3 }).format(v || 0);
-const fmtM = (v: number, iso: string) =>
-  `${iso === 'EUR' ? '€' : '$'}${new Intl.NumberFormat('en-US', {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  }).format(v || 0)}`;
+// Any currency other than EUR used to print "$" — the wrong symbol. Shared format now.
+const fmtM = (v: number, iso: string) => moneyFull(iso, v);
 
 // "Avg Cost Price per Grade" — web parity (stocks/sumtables/gradeTable.js).
 // Rows are folded to the grade (declared registry first, then the assay key), biggest

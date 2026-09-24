@@ -300,20 +300,23 @@ const ContractsMerged = () => {
 
             dt = setCurFilterDataStatement(dt)
 
-            const groupedTotals = dt.reduce((acc, { supplier, poWeight, shiipedWeight, cur, remaining }) => {
+            const groupedTotals = dt.reduce((acc, { supplier, poWeight, shiipedWeight, cur, helper }) => {
 
                 let key = cur === "us" ? "totalsUs" : "totalsEU";
 
                 acc[key] ??= [];
                 let existing = acc[key].find(z => z.supplier === supplier);
+                // A helper line's weight is already counted on the line it repeats.
+                const qty = helper ? 0 : (Number(poWeight) || 0);
 
                 if (existing) {
-                    existing.poWeight = (Number(existing.poWeight) || 0) + (Number(poWeight) || 0);
+                    existing.poWeight = (Number(existing.poWeight) || 0) + qty;
                     existing.shiipedWeight = (Number(existing.shiipedWeight) || 0) + (Number(shiipedWeight) || 0);
                     existing.remaining = existing.poWeight - existing.shiipedWeight
 
                 } else {
-                    acc[key].push({ supplier, poWeight, shiipedWeight, remaining, cur });
+                    const shipped = Number(shiipedWeight) || 0;
+                    acc[key].push({ supplier, poWeight: qty, shiipedWeight: shipped, remaining: qty - shipped, cur });
                 }
 
                 return acc;
@@ -456,6 +459,12 @@ const ContractsMerged = () => {
                 const soldRollup = computeLineSold({ contractQty: total, shippedQty: totalShipped, lots })
 
                 newObj = {
+                    // A helper line — split off an existing line in the Materials Breakdown
+                    // ("rename-split") or brought in from another PO — repeats weight that
+                    // already sits on a line of its own. It is listed like any line, but
+                    // never added into the PO's Quantity or Remaining (see
+                    // groupedArrayInvoiceStatement and the supplier totals).
+                    helper: !!obj.productsData.find(z => z.id === x)?.import,
                     supplier: obj.supplier, date: obj.date, order: obj.order, poWeight: total,
                     comments: obj.comments, description: obj.productsData.find(z => z.id === x).description,
                     unitPrc: obj.productsData.find(z => z.id === x).unitPrc, cur: obj.cur,
@@ -665,7 +674,12 @@ const ContractsMerged = () => {
             },
             filterFn: oneOf,
         },
+        { accessorKey: 'poWeight', header: getTtl('Quantity', ln), cell: (props) => <p>{showWeight(props.getValue())}</p> },
+        { accessorKey: 'description', header: getTtl('Description', ln), cell: (props) => <p className='text-wrap w-20  md:w-64'>{props.getValue()}</p> },
+        { accessorKey: 'unitPrc', header: getTtl('purchaseValue', ln), cell: (props) => <p>{showAmountStatement(props)}</p> },
         {
+            // Between Purchase Value and Shipped Weight (client, 2026-09-24): who the
+            // material went to reads next to how much of it went.
             accessorKey: 'client', header: getTtl('Consignee', ln),
             // The cell stacks one client per line; the checklist lists each of them
             // once and a line passes when any of its clients is ticked.
@@ -673,9 +687,6 @@ const ContractsMerged = () => {
             filterFn: oneOf,
             cell: (props) => <StackCell value={props.getValue()} avatar />,
         },
-        { accessorKey: 'poWeight', header: getTtl('Quantity', ln), cell: (props) => <p>{showWeight(props.getValue())}</p> },
-        { accessorKey: 'description', header: getTtl('Description', ln), cell: (props) => <p className='text-wrap w-20  md:w-64'>{props.getValue()}</p> },
-        { accessorKey: 'unitPrc', header: getTtl('purchaseValue', ln), cell: (props) => <p>{showAmountStatement(props)}</p> },
         { accessorKey: 'shiipedWeight', header: getTtl('Shipped Weight', ln) + ' MT', cell: (props) => <ProgressBar shipped={props.getValue()} total={props.row.original.poWeight} /> },
         {
             accessorKey: 'remaining', header: getTtl('Remaining Weight', ln) + ' MT', cell: (props) => <p className={`${props.getValue() < 0 ? 'text-red-400 font-semibold' : ''}`}>
@@ -796,19 +807,23 @@ const ContractsMerged = () => {
 
             const aggRollup = aggregateRollups(i.map(o => o.soldRollup))
 
+            // The PO's quantity is its OWN lines only. Adding the helper lines counted a
+            // split material twice — PO 210426-1 read 150.838 MT against a real 102.216,
+            // so the bar said 40% shipped when it was 60% (client, 2026-09-24: "where does
+            // it show the shipped / remaining weight? I don't understand"). What shipped
+            // counts in full whichever line the invoice named, so Remaining is the one
+            // minus the other rather than a sum of per-line remainders.
+            const poWeight = i.reduce((total, obj) => total + (obj.helper ? 0 : (Number(obj.poWeight) || 0)), 0);
+            const shiipedWeight = i.reduce((total, obj) => total + (Number(obj.shiipedWeight) || 0), 0);
+
             newArr.push({
                 ...i[0],
-                poWeight: i.reduce((total, obj) => {
-                    return total + obj.poWeight * 1;
-                }, 0),
+                helper: false,
+                poWeight,
                 unitPrc: '',
                 description: '',
-                shiipedWeight: i.reduce((total, obj) => {
-                    return total + (Number(obj.shiipedWeight) || 0);
-                }, 0),
-                remaining: i.reduce((total, obj) => {
-                    return total + (Number(obj.remaining) || 0);
-                }, 0),
+                shiipedWeight,
+                remaining: poWeight - shiipedWeight,
                 qntyReceived: '',
                 client: '',
                 totalPo: '',

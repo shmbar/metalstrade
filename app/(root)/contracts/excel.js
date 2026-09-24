@@ -54,9 +54,10 @@ export const EXD = (dataTable, settings, name, ln) => {
         const showQTY = (x) => {
             // import-flagged products are breakdown/merge helpers, not PO lines.
             const own = x.productsData.filter(p => !p.import)
+            // parseInt dropped the decimals: a 20.525 MT line was totalled and shown as 20.0.
             return own.length !== 0 ? new Intl.NumberFormat('en-US', {
-                minimumFractionDigits: 1
-            }).format(own.reduce((sum, item) => sum + parseInt(item.qnty, 10), 0)) +
+                minimumFractionDigits: 1, maximumFractionDigits: 3
+            }).format(own.reduce((sum, item) => sum + (parseFloat(item.qnty) || 0), 0)) +
                 ' ' + (x.qTypeTable ? settings.Quantity.Quantity.find(q => q.id === x.qTypeTable)?.qTypeTable : '')
                 : '-'
         }

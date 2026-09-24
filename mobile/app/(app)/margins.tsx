@@ -12,7 +12,6 @@ import { useMargins } from '@/features/margins/useMargins';
 import { gisPurchasedDecimals, GIS_OUTSTANDING_DECIMALS } from '@/features/margins/derive';
 import { streamSse, apiConfigured } from '@/lib/api';
 import { fmtAutoKM, fmtMoney } from '@/lib/format';
-import { haptics } from '@/lib/haptics';
 import { useShallow } from 'zustand/react/shallow';
 import { layout, spacing } from '@/theme/tokens';
 
@@ -21,7 +20,7 @@ const mt = (n: number) => `${fmtMoney(n, 0)} MT`;
 export default function Margins() {
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
-  const { gisAccount, canRoute } = useAuth(useShallow((s) => ({ gisAccount: s.gisAccount, canRoute: s.canRoute })));
+  const { gisAccount, marginsLabel, canRoute } = useAuth(useShallow((s) => ({ gisAccount: s.gisAccount, marginsLabel: s.marginsLabel, canRoute: s.canRoute })));
   const allowed = canRoute('margins');
   const hideBalances = usePrivacyStore((s) => s.hidden);
   const togglePrivacy = usePrivacyStore((s) => s.toggle);
@@ -60,14 +59,14 @@ export default function Margins() {
           on the GIS workspace (components/const.js:69). Mobile said 'Margins',
           which is what the page does but not what anyone calls it. */}
       <StackHeader
-        title={gisAccount ? 'Gis Admin' : 'Sharon Admin'}
+        title={marginsLabel}
         subtitle="Margins — monthly profit, quantity & shipped"
         right={
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
             <IconButton
               icon={hideBalances ? 'eye-off-outline' : 'eye-outline'}
               accessibilityLabel={hideBalances ? 'Show balances' : 'Hide balances'}
-              onPress={() => { haptics.selection(); togglePrivacy(); }}
+              haptic="selection" onPress={() => { togglePrivacy(); }}
             />
             <PeriodSelector />
           </View>

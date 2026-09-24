@@ -64,6 +64,7 @@ import {
   sumManualEntries,
 } from '@/features/cashflow/useCashflow';
 import { curSymbol, fmtMoney, fmtAutoKM, fmtCurKM, fmtMT, dateLabel, initials } from '@/lib/format';
+import { moneyCompact as sharedMoneyCompact } from '@shared/currency';
 import {
   extractData,
   calc,
@@ -1190,8 +1191,11 @@ describe('cashflow — web drift alarms', () => {
     expectRegionUnchanged(CF, 'Balance\n', 'value={totalLeft - totalRight}', '216c77e07d22');
   });
 
+  // 2026-09-24: invoices on hold ("Pending") leave the active balance and are carried as
+  // _pendingBlnc (funcs.js pendingSplit). The EUR conversion itself is unchanged. Mobile
+  // matches: useCashflow.ts addToMap / payablesUsd / receivablesByCur skip pending items.
   it("web's supplier-balance currency conversion has not drifted", () =>
-    expectWebUnchanged('app/(root)/cashflow/funcs.js', 'getTotalsSupPayments', 'b2d86479b057'));
+    expectWebUnchanged('app/(root)/cashflow/funcs.js', 'getTotalsSupPayments', 'c4a89d7af3ec'));
 });
 
 describe('cashflow — the running-balance windows', () => {
@@ -1773,24 +1777,14 @@ const webFmtMoney = (n: any, decimals = 2) => {
   return num.toLocaleString('en-US', { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
 };
 
-/** Mirror of app/(root)/dashboard/page.js:52-65 fmtAutoKM. */
-const webFmtAutoKM = (n: any, decimals = 2) => {
-  const num = Number(n);
-  if (!Number.isFinite(num)) return '$0';
-  if (Math.abs(num) >= 1_000_000) return `$${webFmtMoney(num / 1_000_000, decimals)}M`;
-  if (Math.abs(num) >= 1_000) return `$${webFmtMoney(num / 1_000, decimals)}K`;
-  return `$${webFmtMoney(num, decimals)}`;
-};
-
-/** Mirror of app/(root)/dashboard/page.js:234-241 fmtCurKM (ReceivablesSplitCard). */
-const webFmtCurKM = (cur: string, n: any) => {
-  const s = cur === 'us' ? '$' : cur === 'eu' ? '€' : '';
-  const num = Number(n) || 0;
-  const a = Math.abs(num);
-  if (a >= 1e6) return `${s}${(num / 1e6).toFixed(2)}M`;
-  if (a >= 1e3) return `${s}${(num / 1e3).toFixed(2)}K`;
-  return `${s}${num.toFixed(2)}`;
-};
+/*
+ * Mirrors of app/(root)/dashboard/page.js fmtAutoKM and fmtCurKM (both copies). Since
+ * 2026-09-24 web holds no formula of its own here: both delegate to the SHARED money format
+ * (utils/currency.js moneyCompact, byte-identical to mobile/src/shared/currency.js — see
+ * shared-modules.test.ts). The drift alarms below still fire if web stops delegating.
+ */
+const webFmtAutoKM = (n: any, decimals = 2) => sharedMoneyCompact('us', n, decimals);
+const webFmtCurKM = (cur: string, n: any) => sharedMoneyCompact(cur, n);
 
 /** Mirror of app/(root)/dashboard/page.js:576 fmtMT. */
 const webFmtMT = (n: any) => `${new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 }).format(n || 0)} MT`;
@@ -1808,8 +1802,8 @@ const webInitials = (name = '') =>
 describe('formatters — web drift alarms', () => {
   const DASH = 'app/(root)/dashboard/page.js';
   it("web's fmtMoney has not drifted", () => expectWebUnchanged(DASH, 'fmtMoney', 'dccf57912629'));
-  it("web's fmtAutoKM has not drifted", () => expectWebUnchanged(DASH, 'fmtAutoKM', '7c8827acfaf0'));
-  it("web's fmtCurKM has not drifted", () => expectWebUnchanged(DASH, 'fmtCurKM', '7a19beb4ac39'));
+  it("web's fmtAutoKM has not drifted", () => expectWebUnchanged(DASH, 'fmtAutoKM', '6423dba44086'));
+  it("web's fmtCurKM has not drifted", () => expectWebUnchanged(DASH, 'fmtCurKM', '935943185522'));
   it("web's fmtMT has not drifted", () => expectWebUnchanged(DASH, 'fmtMT', 'dd4799e102e0'));
   it("web's initials has not drifted", () =>
     expectWebUnchanged('components/CommentThread.js', 'initials', 'afecc7496c2a'));
@@ -1850,15 +1844,16 @@ describe('formatters — compact $K / $M', () => {
       expect(fmtAutoKM(n)).toBe(webFmtAutoKM(n));
     }
     expect(fmtAutoKM(1_500_000)).toBe('$1.50M');
-    expect(fmtAutoKM(-1500)).toBe('$-1.50K');
+    // The minus sign goes before the symbol — web printed "$-1.50K" until 2026-09-24.
+    expect(fmtAutoKM(-1500)).toBe('-$1.50K');
     expect(fmtAutoKM(999.99)).toBe('$999.99');
   });
 
-  it('a non-finite amount collapses to $0, not to $NaN', () => {
+  it('a non-finite amount collapses to $0.00, not to $NaN', () => {
     for (const bad of [NaN, Infinity, 'abc', undefined]) {
       expect(fmtAutoKM(bad as any)).toBe(webFmtAutoKM(bad));
     }
-    expect(fmtAutoKM(NaN)).toBe('$0');
+    expect(fmtAutoKM(NaN)).toBe('$0.00');
   });
 
   it('the default symbol is the dollar web hardcodes', () => {
@@ -2323,20 +2318,19 @@ describe('weight analysis — the whole report', () => {
 // TIER 4 — the intentional divergence register for this domain
 // ═════════════════════════════════════════════════════════════════════════════
 describe('TIER 4 — intentional divergences', () => {
-  it('mobile fmtCurKM labels an UNKNOWN currency; web drops the symbol entirely', () => {
-    // web dashboard page.js:235 — `cur === 'us' ? '$' : cur === 'eu' ? '€' : ''`, so an
-    // unrecognised currency renders a bare number that reads as dollars. Mobile's
-    // curSymbol emits `'<code> '` instead, because a mobile row can be scrolled far
-    // from any currency heading. Deliberate; the 'us'/'eu' cases are identical.
-    expect(webFmtCurKM('gbp', 1500)).toBe('1.50K');
-    expect(fmtCurKM('gbp', 1500)).toBe('gbp 1.50K');
+  // RETIRED 2026-09-24 — two former divergences, closed by the shared money format: web
+  // printed a bare number (that read as dollars) for an unknown or empty currency, mobile
+  // labelled it. Both now print the code, and an empty currency is the base currency, USD.
+  it('an UNKNOWN currency is labelled with its code on both apps', () => {
+    expect(webFmtCurKM('gbp', 1500)).toBe('gbp 1.50K');
+    expect(fmtCurKM('gbp', 1500)).toBe(webFmtCurKM('gbp', 1500));
     expect(fmtCurKM('us', 1500)).toBe(webFmtCurKM('us', 1500));
     expect(fmtCurKM('eu', 1500)).toBe(webFmtCurKM('eu', 1500));
   });
 
-  it('mobile fmtCurKM defaults an EMPTY currency to $; web prints no symbol', () => {
-    expect(webFmtCurKM('', 1500)).toBe('1.50K');
-    expect(fmtCurKM('', 1500)).toBe('$1.50K');
+  it('an EMPTY currency is the base currency, $, on both apps', () => {
+    expect(webFmtCurKM('', 1500)).toBe('$1.50K');
+    expect(fmtCurKM('', 1500)).toBe(webFmtCurKM('', 1500));
   });
 
   it('mobile calc() is finite-guarded where web\'s mathjs isNumber is not', () => {

@@ -65,7 +65,7 @@ export function SectionCard({
     <Card padded={false} style={{ overflow: 'hidden' }}>
       <Header
         {...(collapsible
-          ? { onPress: onToggle, accessibilityRole: 'button', accessibilityState: { expanded: open }, accessibilityLabel: `${title}${open ? ' — collapse' : ' — expand'}` }
+          ? { onPress: onToggle, haptic: 'selection', accessibilityRole: 'button', accessibilityState: { expanded: open }, accessibilityLabel: `${title}${open ? ' — collapse' : ' — expand'}` }
           : {})}
         style={{
           flexDirection: 'row',

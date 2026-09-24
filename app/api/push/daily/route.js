@@ -6,6 +6,7 @@
 // Money math reuses utils/finance.js — the same canonical module the dashboard
 // and mobile app compute receivables with, so the numbers in the notification
 // match what the user sees when they open the app.
+import { PUSH_CATEGORIES, shouldDeliverPush } from '../../../../utils/notificationPrefs';
 import { groupInvoices, isIssued, invoiceBalance, invoicePaid, effectiveDueDate, resolveCur, num } from '../../../../utils/finance';
 
 export const dynamic = 'force-dynamic';
@@ -98,24 +99,31 @@ export async function GET(request) {
         const tokensSnap = await db.collectionGroup('pushTokens').get();
         const byAccount = new Map();
         tokensSnap.forEach((d) => {
-            const { token, uidCollection } = d.data() || {};
+            const { token, uidCollection, userUid, userEmail } = d.data() || {};
             if (!token || !uidCollection) return;
             if (!byAccount.has(uidCollection)) byAccount.set(uidCollection, []);
-            byAccount.get(uidCollection).push({ token, ref: d.ref });
+            byAccount.get(uidCollection).push({ token, ref: d.ref, userUid, userEmail });
         });
 
         const messages = [];
         const results = {};
         for (const [uidCollection, devices] of byAccount) {
             const { count, totalLine } = await overdueFor(db, uidCollection);
-            results[uidCollection] = { devices: devices.length, overdue: count };
+            // Each person's notification settings (utils/notificationPrefs.js) — the same
+            // document the web bell and the app read. Someone who switched Invoices off
+            // gets no overdue push.
+            const prefsSnap = await db.collection(uidCollection).doc('data').collection('notificationPrefs').get().catch(() => null);
+            const prefsByUser = prefsSnap ? prefsSnap.docs.map((p) => ({ userUid: p.id, ...p.data() })) : [];
+            const category = PUSH_CATEGORIES.overdueReceivables;
+            const wanted = devices.filter((dv) => shouldDeliverPush(prefsByUser, dv, category));
+            results[uidCollection] = { devices: devices.length, optedOut: devices.length - wanted.length, overdue: count };
             if (count === 0) continue;
-            for (const { token } of devices) {
+            for (const { token } of wanted) {
                 messages.push({
                     to: token,
                     title: 'Overdue receivables',
                     body: `${count} invoice${count === 1 ? '' : 's'} past due — ${totalLine} outstanding`,
-                    data: { screen: '/invoices', filter: 'Unpaid' },
+                    data: { screen: '/invoices', filter: 'Unpaid', category },
                 });
             }
         }

@@ -22,6 +22,9 @@ export interface Counterparty {
   usd: number;
   count: number;
   items: any[];
+  /** Invoices on hold (web Cashflow "Pending") — listed in items, not in the figures above. */
+  pendingByCur?: Record<string, number>;
+  pendingCount?: number;
 }
 
 /** One lot behind a warehouse row — web StoclToolTip columns: PO#, Supplier, Description, Quantity, Unit Price, Total. */
@@ -493,11 +496,18 @@ export function computeCashflow(input: CashflowInputs): CashflowData {
     input;
 
   /** Add one row's amount into a Counterparty map, creating the entry on first sight. */
+  // An item on hold (web Cashflow "Pending", 2026-09-24) is listed but kept out of the
+  // counterparty's figures — web funcs.js pendingSplit, same rule — and tallied beside them.
   const addToMap = (map: Map<string, Counterparty>, name: string, cur: string, bal: number, usd: number, item: any) => {
-    const c = map.get(name) || { name, byCur: {}, usd: 0, count: 0, items: [] };
-    addCur(c.byCur, cur, bal);
-    c.usd += usd;
-    c.count += 1;
+    const c = map.get(name) || { name, byCur: {}, usd: 0, count: 0, items: [], pendingByCur: {}, pendingCount: 0 };
+    if (item?.pending) {
+      addCur(c.pendingByCur!, cur, bal);
+      c.pendingCount = (c.pendingCount || 0) + 1;
+    } else {
+      addCur(c.byCur, cur, bal);
+      c.usd += usd;
+      c.count += 1;
+    }
     c.items.push(item);
     map.set(name, c);
   };
@@ -522,7 +532,9 @@ export function computeCashflow(input: CashflowInputs): CashflowData {
     if (!hasClient) return;
     const bal = inv.debtBlnc;
     const cur = inv.cur === 'eu' ? 'eu' : 'us';
-    addCur(receivablesByCur, cur, bal);
+    // On hold in web Cashflow ("Pending"): not an active receivable.
+    const pending = !!inv.paymentPending;
+    if (!pending) addCur(receivablesByCur, cur, bal);
     const name = resolveClientName(inv.client, settings) || '—';
     const usd = cur === 'us' ? bal : bal * (num(inv.euroToUSD) || EXP_EUR_USD);
     const item = {
@@ -542,6 +554,7 @@ export function computeCashflow(input: CashflowInputs): CashflowData {
       percentage: Number(inv.percentage) || 0,
       etd: inv.shipData?.etd?.startDate || '',
       eta: inv.shipData?.eta?.startDate || '',
+      pending,
     };
     addToMap(clientMap, name, cur, bal, usd, item);
     // web: payments.length === 0 -> "Payment" (nothing paid); > 0 -> "Balances".
@@ -567,7 +580,10 @@ export function computeCashflow(input: CashflowInputs): CashflowData {
       const blnc = num(inv.blnc);
       if (Math.abs(blnc) <= 0.011) return; // web: ≤1¢ residues are settled
       const usd = cur === 'us' ? blnc : blnc * rate;
-      payablesUsd += usd;
+      // On hold in web Cashflow ("Pending") — a map on the contract, keyed by
+      // purchase-invoice id (web funcs.js runSupPayments). Not an active payable.
+      const pending = !!(con as any).pendingInvoices?.[inv.id];
+      if (!pending) payablesUsd += usd;
       const name = settings?.Supplier?.Supplier?.find((s: any) => s.id === con.supplier)?.nname || '—';
       const item = {
         kind: 'poInvoice',
@@ -588,6 +604,7 @@ export function computeCashflow(input: CashflowInputs): CashflowData {
         isFinal: inv.fnlzing === '4568' || /fns*$/i.test(String(inv.inv || '').trim()),
         balance: blnc,
         cur,
+        pending,
       };
       addToMap(supMap, name, cur, blnc, usd, item);
       // web: parseFloat(pmnt) === 0 -> "Payment" (nothing paid); > 0 -> "Balances".

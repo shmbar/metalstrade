@@ -32,7 +32,6 @@ import { useCashflow, Counterparty, StockWarehouseRow, UnsoldSupplierRow } from 
 import { useCashflowActions } from '@/features/cashflow/useCashflowActions';
 import { useSharedStock } from '@/features/stocks/useSharedStock';
 import { fmtAutoKM, fmtCurKM, curSymbol, fmtMoney, dateLabel } from '@/lib/format';
-import { haptics } from '@/lib/haptics';
 import { radius, spacing, layout } from '@/theme/tokens';
 import { matchesAllWords, searchWords } from '@shared/search';
 import { entityName } from '@/lib/entityName';
@@ -419,8 +418,8 @@ export default function Cashflow() {
           <IconButton
             icon={hideBalances ? 'eye-off-outline' : 'eye-outline'}
             accessibilityLabel={hideBalances ? 'Show balances' : 'Hide balances'}
+            haptic="selection"
             onPress={() => {
-              haptics.selection();
               togglePrivacy();
             }}
           />
@@ -444,8 +443,8 @@ export default function Cashflow() {
           style={{ flex: 1 }}
         />
         <Pressable
+          haptic="selection"
           onPress={() => {
-            haptics.selection();
             setSort((s) => (s === 'amount' ? 'name' : 'amount'));
           }}
           accessibilityRole="button"
@@ -752,7 +751,7 @@ export default function Cashflow() {
                         return (
                           <Pressable
                             key={c.code}
-                            onPress={() => { haptics.selection(); setCargoStatus(item, on ? '' : c.code); }}
+                            haptic="selection" onPress={() => { setCargoStatus(item, on ? '' : c.code); }}
                             hitSlop={6}
                             accessibilityRole="radio"
                             accessibilityState={{ checked: on }}

@@ -7,7 +7,6 @@ import { Sheet } from './Sheet';
 import { SearchField } from './SearchField';
 import { useTheme } from '@/theme/ThemeProvider';
 import { layout, radius, spacing } from '@/theme/tokens';
-import { haptics } from '@/lib/haptics';
 import { matchesAllWords, searchWords } from '@shared/search';
 import { keyboardScrollProps } from '@/lib/keyboard';
 
@@ -89,7 +88,7 @@ export function Select({
           {selected ? selected.label : placeholder}
         </Text>
         {clearable && selected ? (
-          <Pressable onPress={() => { haptics.selection(); onChange(''); }} hitSlop={10} accessibilityRole="button" accessibilityLabel="Clear filter">
+          <Pressable haptic="selection" onPress={() => onChange('')} hitSlop={10} accessibilityRole="button" accessibilityLabel="Clear filter">
             <Ionicons name="close" size={15} color={colors.primary} />
           </Pressable>
         ) : (
@@ -117,7 +116,7 @@ export function Select({
           {selected ? selected.label : placeholder}
         </Text>
         {clearable && selected ? (
-          <Pressable onPress={() => { haptics.selection(); onChange(''); }} hitSlop={8} accessibilityRole="button" accessibilityLabel="Clear">
+          <Pressable haptic="selection" onPress={() => onChange('')} hitSlop={8} accessibilityRole="button" accessibilityLabel="Clear">
             <Ionicons name="close-circle" size={18} color={colors.textFaint} />
           </Pressable>
         ) : (
@@ -161,8 +160,8 @@ export function Select({
             const active = item.value === value;
             return (
               <Pressable
+                haptic={active ? undefined : 'selection'}
                 onPress={() => {
-                  if (!active) haptics.selection();
                   onChange(item.value);
                   setOpen(false);
                 }}

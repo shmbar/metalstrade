@@ -3,6 +3,7 @@
 // (React Native's global fetch doesn't expose a readable-stream reader).
 import { fetch as expoFetch } from 'expo/fetch';
 import { auth } from '@/lib/firebase';
+import { SERVICE_UNAVAILABLE } from '@/lib/api';
 
 export interface ChatMessage {
   role: 'user' | 'assistant';
@@ -50,7 +51,7 @@ export const isAssistantConfigured = () => !!apiBaseUrl();
 // web client's SSE parsing (data: {text|error}\n\n, terminated by [DONE]).
 export async function streamAssistant({ messages, currentData, currentPage, dateRange, onText, onSources, onStructure, signal }: StreamArgs): Promise<void> {
   const base = apiBaseUrl();
-  if (!base) throw new Error('Set EXPO_PUBLIC_API_BASE_URL to your deployed web app to use the Assistant.');
+  if (!base) throw new Error(SERVICE_UNAVAILABLE);
 
   const token = await auth.currentUser?.getIdToken().catch(() => null);
 

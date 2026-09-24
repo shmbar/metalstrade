@@ -1,5 +1,5 @@
-import { useMemo, useState } from 'react';
-import { View, Alert } from 'react-native';
+import { useMemo, useState, useEffect } from 'react';
+import { View, Alert, Switch } from 'react-native';
 import { Pressable } from '@/components/ui/Pressable';
 import { router } from 'expo-router';
 import Constants from 'expo-constants';
@@ -8,7 +8,9 @@ import { Screen, Card, Text, Badge, Button, SectionHeader, EmptyState, SearchFie
 import { ScreenHeader } from '@/components/ScreenHeader';
 import { useTheme } from '@/theme/ThemeProvider';
 import { useAuth } from '@/store/auth';
-import { clearBiometricCredentials } from '@/lib/secureStore';
+import { isBiometricEnabled, setLockPreference } from '@/lib/secureStore';
+import { haptics } from '@/lib/haptics';
+import { authenticateBiometric, biometricLabel, isBiometricAvailable } from '@/lib/biometric';
 import { radius, layout } from '@/theme/tokens';
 import { matchesAllWords, searchWords } from '@shared/search';
 import { routeKeyOf } from '@/lib/access';
@@ -59,7 +61,7 @@ const GROUPS: { group: string; items: NavItem[] }[] = [
       /* Web calls this 'Sharon Admin', or 'Gis Admin' on the GIS workspace
          (components/const.js:69) — the label is the account, not the page. Mobile
          called it 'Margins', so it did not match what users say out loud. The
-         resolved label is applied in the memo below, where gisAccount is known. */
+         resolved label (auth store marginsLabel) is applied in the memo below. */
       { label: 'Margins', sub: 'Margins — monthly profit, quantity & shipped', icon: 'stats-chart-outline', href: '/(app)/margins', admin: true },
       { label: 'Formulas Calc', sub: 'FeNiCr / Stainless / SuperAlloys pricing', icon: 'calculator-outline', href: '/(app)/formulas', admin: true },
     ],
@@ -101,7 +103,7 @@ export default function More() {
   // capitalisation, say), used to fall through this page's OWN ad-hoc
   // `userTitle === 'Admin'` check and lose the Margins/Formulas group and its
   // badge — the auth store's isAdmin is the one place this is now derived.
-  const { currentUser, gisAccount, isAdmin, signOut, canRoute } = useAuth(useShallow((s) => ({ currentUser: s.currentUser, gisAccount: s.gisAccount, isAdmin: s.isAdmin, signOut: s.signOut, canRoute: s.canRoute })));
+  const { currentUser, gisAccount, marginsLabel, isAdmin, signOut, canRoute } = useAuth(useShallow((s) => ({ currentUser: s.currentUser, gisAccount: s.gisAccount, marginsLabel: s.marginsLabel, isAdmin: s.isAdmin, signOut: s.signOut, canRoute: s.canRoute })));
   const [query, setQuery] = useState('');
 
   const themeOptions: { key: 'light' | 'dark' | 'system'; icon: keyof typeof Ionicons.glyphMap }[] = [
@@ -114,7 +116,7 @@ export default function More() {
   const groups = useMemo(() => {
     const words = searchWords(query);
     const label = (it: NavItem) =>
-      it.href === '/(app)/margins' ? (gisAccount ? 'Gis Admin' : 'Sharon Admin') : it.label;
+      it.href === '/(app)/margins' ? marginsLabel : it.label;
     return GROUPS.map((g) => ({
       group: g.group,
       items: g.items
@@ -123,20 +125,48 @@ export default function More() {
         // hides a page the user cannot open (was: admin-flag only).
         .filter((it) => canRoute(routeKeyOf(it.href)) && matchesAllWords([it.label, it.sub, g.group], words)),
     })).filter((g) => g.items.length > 0);
-  }, [query, gisAccount, canRoute]);
+  }, [query, marginsLabel, canRoute]);
+
+  // Face ID: "lock" keeps the session and asks for Face ID to open the app; "sign out"
+  // ends the session. They used to be one thing — and signing out also deleted the Face ID
+  // sign-in while its own message promised you could sign back in with it.
+  const lockEnabled = useAuth((s) => s.lockEnabled);
+  const refreshLockEnabled = useAuth((s) => s.refreshLockEnabled);
+  const [bio, setBio] = useState<{ available: boolean; label: string; signIn: boolean }>({ available: false, label: 'Face ID', signIn: false });
+  useEffect(() => {
+    let live = true;
+    (async () => {
+      const available = await isBiometricAvailable().catch(() => false);
+      const label = available ? await biometricLabel().catch(() => 'Face ID') : 'Face ID';
+      const signIn = await isBiometricEnabled().catch(() => false);
+      if (live) setBio({ available, label, signIn });
+      refreshLockEnabled();
+    })();
+    return () => {
+      live = false;
+    };
+  }, [refreshLockEnabled]);
+
+  const toggleLock = async (on: boolean) => {
+    haptics.selection();
+    // Turning the lock ON is proven with the biometric itself, so nobody can enable a lock
+    // they cannot open.
+    if (on && !(await authenticateBiometric(`Turn on ${bio.label} lock`).catch(() => false))) return;
+    await setLockPreference(on);
+    await refreshLockEnabled();
+  };
 
   const onSignOut = () => {
-    Alert.alert('Sign out?', 'You can sign back in with your password or biometrics.', [
-      { text: 'Cancel', style: 'cancel' },
-      {
-        text: 'Sign out',
-        style: 'destructive',
-        onPress: async () => {
-          await clearBiometricCredentials();
-          await signOut();
-        },
-      },
-    ]);
+    Alert.alert(
+      'Sign out?',
+      bio.signIn
+        ? `You can sign back in with ${bio.label} or your password.`
+        : 'You will need your password to sign in again.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { text: 'Sign out', style: 'destructive', onPress: () => signOut() },
+      ]
+    );
   };
 
   return (
@@ -148,18 +178,30 @@ export default function More() {
           profile) as well as at the foot of the page. */}
       <Card style={{ marginBottom: layout.stack }} padded={false}>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, padding: layout.cardInset }}>
-          <View style={{ width: 48, height: 48, borderRadius: 24, backgroundColor: colors.primary, alignItems: 'center', justifyContent: 'center' }}>
-            <Text variant="h2" color={colors.primaryText}>{currentUser.name.charAt(0).toUpperCase()}</Text>
+          <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: colors.primary, alignItems: 'center', justifyContent: 'center' }}>
+            <Text variant="h3" color={colors.primaryText}>{currentUser.name.charAt(0).toUpperCase()}</Text>
           </View>
           <View style={{ flex: 1, minWidth: 0 }}>
             <Text variant="h3" numberOfLines={1}>{currentUser.name}</Text>
             <Text variant="caption" tone="muted" numberOfLines={1}>{currentUser.email}</Text>
-            <View style={{ flexDirection: 'row', gap: 6, marginTop: 6 }}>
+            <View style={{ flexDirection: 'row', gap: 6, marginTop: 4 }}>
               <Badge label={gisAccount ? 'GIS workspace' : 'IMS workspace'} tone="neutral" />
               {isAdmin && <Badge label="Admin" tone="info" />}
             </View>
           </View>
         </View>
+        {bio.available && (
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingHorizontal: layout.cardInset, paddingVertical: layout.rowPad, borderTopWidth: 1, borderTopColor: colors.border }}>
+            <Ionicons name="lock-closed-outline" size={16} color={colors.primary} />
+            <View style={{ flex: 1, minWidth: 0 }}>
+              <Text variant="bodyMedium">{bio.label} lock</Text>
+              <Text variant="caption" tone="muted" numberOfLines={2}>
+                Stay signed in — {bio.label} opens the app after you have been away.
+              </Text>
+            </View>
+            <Switch value={lockEnabled} onValueChange={toggleLock} accessibilityLabel={`${bio.label} lock`} />
+          </View>
+        )}
         <View style={{ flexDirection: 'row', borderTopWidth: 1, borderTopColor: colors.border }}>
           {canRoute('settings') && (
             <>
@@ -255,7 +297,7 @@ export default function More() {
             onPress={onSignOut}
           />
           <Text variant="caption" tone="faint" style={{ textAlign: 'center', marginTop: 12 }}>
-            IMS Tech · v{Constants.expoConfig?.version || '1.0'} · same account as the web CRM
+            IMS Tech · v{Constants.expoConfig?.version || '1.0'}
           </Text>
         </>
       )}

@@ -335,20 +335,21 @@ const webGQ = (settings: any, z: any, y: string, x: string) => settings[y][y].fi
 const webShowQTYFull = (c: any, settings: any) => {
   const own = c.productsData.filter((p: any) => !p.import);
   return own.length !== 0
-    ? new Intl.NumberFormat('en-US', { minimumFractionDigits: 1 }).format(
-        own.reduce((sum: number, item: any) => sum + parseInt(item.qnty, 10), 0)
+    ? new Intl.NumberFormat('en-US', { minimumFractionDigits: 1, maximumFractionDigits: 3 }).format(
+        own.reduce((sum: number, item: any) => sum + (parseFloat(item.qnty) || 0), 0)
       ) +
         ' ' +
         webGQ(settings, c.qTypeTable, 'Quantity', 'qTypeTable')
     : '-';
 };
 
-/** Mirror of contracts/page.js:154 showQTY (the QTY column). Verbatim — parseInt truncation and all. */
+/** Mirror of contracts/page.js:163 showQTY (the QTY column). Verbatim. Summed with parseInt until
+ *  2026-09-24, which cut 20.525 MT to 20.0 on web, in the Excel export and on mobile. */
 const webShowQTY = (c: any, qLabel: string) => {
   const own = c.productsData.filter((p: any) => !p.import);
   return own.length !== 0
-    ? new Intl.NumberFormat('en-US', { minimumFractionDigits: 1 }).format(
-        own.reduce((sum: number, item: any) => sum + parseInt(item.qnty, 10), 0)
+    ? new Intl.NumberFormat('en-US', { minimumFractionDigits: 1, maximumFractionDigits: 3 }).format(
+        own.reduce((sum: number, item: any) => sum + (parseFloat(item.qnty) || 0), 0)
       ) +
         ' ' +
         qLabel
@@ -444,7 +445,7 @@ describe('web drift alarms for every mirrored formula', () => {
        for the same no-drill-modal reason as above. */
     [DASH_FUNCS, 'calContracts', 'd22f8e0bb312'],
     [DASH_FUNCS, 'setMonthsInvoices', '14a676c70ca8'],
-    [CONTRACTS_PAGE, 'showQTY', 'ce8934870ea0'],
+    [CONTRACTS_PAGE, 'showQTY', '53a0556cc2dc'],
     [CONTRACTS_PAGE, 'gQ', '7d3d74cf3746'],
   ])('%s :: %s is unchanged', (file, symbol, hash) => {
     expectWebUnchanged(file as string, symbol as string, hash as string);
@@ -1232,20 +1233,24 @@ describe('Tier 4 — pnlChain reproduces web\'s two shipped-MT traps on purpose'
 // ═════════════════════════════════════════════════════════════════════════════
 
 describe('deriveContract — the quantity label mirrors web\'s QTY column', () => {
-  it('mtLabel reproduces web showQTY, parseInt truncation included (contracts/page.js:154)', () => {
+  it('mtLabel reproduces web showQTY, decimals kept (contracts/page.js:163)', () => {
     const c = makeContract({ productsData: [makeProduct({ qnty: '12.5' })] });
     expect(deriveContract(c as any, SETTINGS).mtLabel).toBe(webShowQTY(c, 'MT'));
-    expect(deriveContract(c as any, SETTINGS).mtLabel).toBe('12.0 MT');
+    expect(deriveContract(c as any, SETTINGS).mtLabel).toBe('12.5 MT');
   });
 
-  it('TIER 4 — mtLabel TRUNCATES like web while totalMT stays accurate', () => {
-    // The truncation is a genuine web defect (12.5 reads "12.0"). mtLabel reproduces
-    // it so the two screens agree; totalMT is what sorting and the exports use.
+  it('the label and totalMT agree — no truncation on either app (was "15.0" for 15.9)', () => {
     const c = makeContract({ productsData: [makeProduct({ qnty: '12.5' }), makeProduct({ id: 'prd-2', qnty: '3.4' })] });
     const view = deriveContract(c as any, SETTINGS);
-    expect(view.mtLabel).toBe(webShowQTY(c, 'MT')); // '15.0' — 12 + 3
-    expect(view.mtLabel).toBe('15.0 MT');
-    expect(view.totalMT).toBeCloseTo(15.9, 9); // NOT truncated
+    expect(view.mtLabel).toBe(webShowQTY(c, 'MT'));
+    expect(view.mtLabel).toBe('15.9 MT');
+    expect(view.totalMT).toBeCloseTo(15.9, 9);
+  });
+
+  it('tonnage keeps three decimals, as entered (20.525 MT, not 20.0)', () => {
+    const c = makeContract({ productsData: [makeProduct({ qnty: '20.525' })] });
+    expect(deriveContract(c as any, SETTINGS).mtLabel).toBe(webShowQTY(c, 'MT'));
+    expect(deriveContract(c as any, SETTINGS).mtLabel).toBe('20.525 MT');
   });
 
   it('import-flagged breakdown rows are excluded from both label and tonnage', () => {
@@ -1270,10 +1275,10 @@ describe('deriveContract — the quantity label mirrors web\'s QTY column', () =
     expect(deriveContract(c as any, SETTINGS).mtLabel).toBe('-');
   });
 
-  it('TIER 4 — a blank quantity makes web\'s label "NaN"; mobile reproduces it so the screens agree', () => {
+  it('a blank quantity counts as 0 on both apps (web printed "NaN MT" until 2026-09-24)', () => {
     const c = makeContract({ productsData: [makeProduct({ qnty: '' })] });
     expect(deriveContract(c as any, SETTINGS).mtLabel).toBe(webShowQTY(c, 'MT'));
-    expect(deriveContract(c as any, SETTINGS).mtLabel).toBe('NaN MT');
+    expect(deriveContract(c as any, SETTINGS).mtLabel).toBe('0.0 MT');
     expect(deriveContract(c as any, SETTINGS).totalMT).toBe(0); // the number stays usable
   });
 });

@@ -1744,6 +1744,15 @@ input::-webkit-inner-spin-button {
   font-size: var(--fs-table);
 }
 
+/* A Pending invoice (payment on hold) and its "Pending (n)" footer line, faded to the
+   ~72% the client asked for, in the existing colours — no extra tint (2026-09-24).
+   The fade goes on each cell's CONTENT, not the cell: opacity on a <td> takes its
+   borders with it and leaves a washed-out gap in the grid. The status cell stays
+   full strength, because it holds the control that releases the hold. */
+.cashflow-detail-table .cf-pending-row > :not(.cf-status-cell) > * {
+  opacity: 0.72;
+}
+
 /* Leading ∑ / sum-toggle column. One rule for the header and the body cells so
    they share a width and a centre line: they were previously two independent
    left-aligned cells whose only sizing came from the header, which is why the

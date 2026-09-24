@@ -9,7 +9,6 @@ import { useMarginsEditor } from './useMargins';
 import { monthPurchase, monthMargin } from './derive';
 import { fmtMoney } from '@/lib/format';
 import { useRevealOnFocus } from '@/lib/keyboard';
-import { haptics } from '@/lib/haptics';
 import { typography } from '@/theme/tokens';
 
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
@@ -113,7 +112,7 @@ export function MonthEditor() {
                           <Calc w={W.openShip} value={it.openShip} />
                           <Calc w={W.remaining} value={it.remaining} gis={!!it.gis} />
                           <Pressable
-                            onPress={() => { haptics.selection(); toggleGis(m.month, it.id, !it.gis); }}
+                            haptic="selection" onPress={() => { toggleGis(m.month, it.id, !it.gis); }}
                             hitSlop={6}
                             accessibilityRole="checkbox"
                             accessibilityState={{ checked: !!it.gis }}

@@ -7,6 +7,7 @@ import { useQuickSum } from './useQuickSum';
 import { BtnIcon } from '../../buttonIcons';
 import SumPanel, { SumPanelAction, SumStat } from '../../SumPanel';
 import { exportQuickSum } from './exportQuickSum';
+import { moneyFull } from '@utils/currency';
 
 /**
  * QuickSumButton — toggle + columns picker, sits inline in the icons row
@@ -255,8 +256,8 @@ export function QuickSumTotals({
 
     if (t.byCurrency && Object.keys(t.byCurrency).length > 0) {
       const out = [];
-      if (t.byCurrency.USD != null) out.push({ key: `${t.id}-usd`, label, badge: '$', text: `$${fmt(t.byCurrency.USD)}` });
-      if (t.byCurrency.EUR != null) out.push({ key: `${t.id}-eur`, label, badge: '€', text: `€${fmt(t.byCurrency.EUR)}` });
+      if (t.byCurrency.USD != null) out.push({ key: `${t.id}-usd`, label, badge: '$', text: moneyFull('us', t.byCurrency.USD) });
+      if (t.byCurrency.EUR != null) out.push({ key: `${t.id}-eur`, label, badge: '€', text: moneyFull('eu', t.byCurrency.EUR) });
       if (t.byCurrency.plain != null) out.push({ key: `${t.id}-plain`, label, text: fmt(t.byCurrency.plain) });
       return out;
     }

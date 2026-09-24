@@ -1,6 +1,9 @@
 import React from 'react';
 import { Pressable as RNPressable, PressableProps, StyleProp, ViewStyle } from 'react-native';
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
+import { haptics } from '@/lib/haptics';
+
+export type PressHaptic = 'selection' | 'impact';
 
 const AnimatedPressable = Animated.createAnimatedComponent(RNPressable);
 
@@ -32,16 +35,38 @@ export function Pressable({
   style,
   children,
   pressedOpacity = 0.6,
+  haptic,
   onPressIn,
   onPressOut,
   ...rest
-}: PressableProps & { pressedOpacity?: number }) {
+}: PressableProps & {
+  pressedOpacity?: number;
+  /**
+   * Feedback felt the instant the finger touches — iOS's own controls tick on touch-down.
+   * Firing it from onPress meant waiting for the finger to LIFT and for the JS thread to
+   * finish whatever the tap started (client, 2026-09-24: "haptics feel slow").
+   */
+  haptic?: PressHaptic;
+}) {
   const opacity = useSharedValue(1);
   const dim = useAnimatedStyle(() => ({ opacity: opacity.get() }));
+  const buzz = () => {
+    if (!haptic || rest.disabled) return;
+    if (haptic === 'selection') haptics.selection();
+    else haptics.impact();
+  };
 
   if (typeof style === 'function' || children == null || pressedOpacity >= 1) {
     return (
-      <RNPressable style={style} onPressIn={onPressIn} onPressOut={onPressOut} {...rest}>
+      <RNPressable
+        style={style}
+        onPressIn={(e) => {
+          buzz();
+          onPressIn?.(e);
+        }}
+        onPressOut={onPressOut}
+        {...rest}
+      >
         {children}
       </RNPressable>
     );
@@ -50,6 +75,7 @@ export function Pressable({
     <AnimatedPressable
       style={[style as StyleProp<ViewStyle>, dim]}
       onPressIn={(e) => {
+        buzz();
         if (!rest.disabled) opacity.set(withTiming(pressedOpacity, { duration: 60 }));
         onPressIn?.(e);
       }}

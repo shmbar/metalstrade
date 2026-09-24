@@ -16,7 +16,16 @@ import { stopLotsLedger } from '@/features/stocks/stockLedger';
 // @ts-ignore — plain JS module shared verbatim with the web
 import { isSuperAdmin, normalizeRole, resolvePages } from '@shared/permissions';
 import { canOpenRoute, landingHrefFor } from '@/lib/access';
-import { decideOnResume, parseLastSeen, IDLE_SIGNED_OUT_MESSAGE } from '@/lib/sessionPolicy';
+import {
+  decideSession,
+  parseLastSeen,
+  isRevokedAuthError,
+  IDLE_SIGNED_OUT_MESSAGE,
+  BIOMETRIC_EXPIRED_MESSAGE,
+  REVOKED_MESSAGE,
+} from '@/lib/sessionPolicy';
+import { isLockEnabled } from '@/lib/secureStore';
+import { isBiometricAvailable, authenticateBiometric } from '@/lib/biometric';
 
 // Idle expiry — the rule and its reasons live in lib/sessionPolicy.ts (24 hours,
 // the web's "Keep me signed in" window). The stamp below is "when the app was last
@@ -32,6 +41,14 @@ const readLastSeen = async () => parseLastSeen(await AsyncStorage.getItem(LAST_S
 // The GIS account's uidCollection — same sentinel the web app uses to flip
 // "Sharon Admin" ↔ "Gis Admin" and a handful of GIS-specific behaviors.
 const GIS_UID_COLLECTION = 'aB3dE7FgHi9JkLmNoPqRsTuVwGIS';
+const IMS_UID_COLLECTION = 'DQ9gNTpvXqh6K9BqMTPTgCfxD2Z2';
+
+// The Margins page is named after the account on the two live workspaces (web
+// components/const.js:69 — 'Sharon Admin' / 'Gis Admin'). Any other workspace, i.e. the
+// App Review / screenshot account, gets the page's plain name: a person's name has no
+// place in public store screenshots.
+export const marginsLabelFor = (uidCollection: string | null | undefined): string =>
+  uidCollection === GIS_UID_COLLECTION ? 'Gis Admin' : uidCollection === IMS_UID_COLLECTION ? 'Sharon Admin' : 'Margins';
 
 // Username → email, ported VERBATIM from the web app (actions/validations.js
 // completeUserEmail) so the same login works on both. Users type a bare username
@@ -61,6 +78,8 @@ interface AuthState {
   uidCollection: string | null;
   userTitle: string | null; // 'Admin' | 'accounting' | other
   gisAccount: boolean;
+  /** What this workspace calls the Margins page — see marginsLabelFor. */
+  marginsLabel: string;
   // Web parity (utils/permissions.js): superAdmin is the workspace owner or the
   // `role` claim; isAdmin also covers a plain 'admin' role. Gates the same
   // admin-only figures web hides from regular staff (Cashflow's Financing /
@@ -79,6 +98,16 @@ interface AuthState {
   error: string | null;
   /** why the last session ended without the user signing out (shown on sign-in) */
   signedOutReason: string | null;
+  /** Face ID lock is on for this device (and biometrics are enrolled). */
+  lockEnabled: boolean;
+  /** The session is kept but the app is locked until Face ID succeeds. */
+  locked: boolean;
+  /** Content is hidden (app switcher / backgrounded) — shown again on return. */
+  covered: boolean;
+  /** Ask for Face ID; unlocks on success. */
+  unlock: () => Promise<boolean>;
+  /** Re-read whether the Face ID lock is on (after the user changes it). */
+  refreshLockEnabled: () => Promise<void>;
   signIn: (email: string, password: string) => Promise<boolean>;
   signOut: () => Promise<void>;
   resetPassword: (email: string) => Promise<{ ok: boolean; message: string }>;
@@ -109,6 +138,7 @@ export const useAuth = create<AuthState>((set, get) => ({
   uidCollection: null,
   userTitle: null,
   gisAccount: false,
+  marginsLabel: 'Margins',
   isAdmin: false,
   superAdmin: false,
   claims: null,
@@ -117,6 +147,25 @@ export const useAuth = create<AuthState>((set, get) => ({
   currentUser: buildCurrentUser(null),
   error: null,
   signedOutReason: null,
+  lockEnabled: false,
+  locked: false,
+  covered: false,
+
+  unlock: async () => {
+    const ok = await authenticateBiometric('Unlock IMS').catch(() => false);
+    if (ok) {
+      // Stamp BEFORE lifting the lock: the Face ID sheet itself sends the app through
+      // 'inactive', and a resume check reading the old stamp must not re-lock it.
+      bumpLastSeen();
+      set({ locked: false, covered: false });
+    }
+    return ok;
+  },
+
+  refreshLockEnabled: async () => {
+    const on = (await isLockEnabled().catch(() => false)) && (await isBiometricAvailable().catch(() => false));
+    set({ lockEnabled: on });
+  },
 
   signIn: async (email, password) => {
     set({ error: null });
@@ -150,6 +199,7 @@ export const useAuth = create<AuthState>((set, get) => ({
     if (uc && cu?.uid) await endPresence(uc, cu.uid).catch(() => {});
     await AsyncStorage.removeItem(LAST_SEEN_KEY).catch(() => {});
     stopLotsLedger();
+    set({ locked: false, covered: false });
     await fbSignOut(auth).catch(() => {});
   },
 
@@ -193,38 +243,77 @@ export const useAuth = create<AuthState>((set, get) => ({
       if (auth.currentUser && uc && cu?.uid) touchPresence(uc, cu).catch(() => {});
     };
     const beatId = setInterval(beat, PRESENCE_HEARTBEAT_MS);
-    // Expire this session if it has sat unused past the window; true if it did.
-    // Signing out lands in onAuthStateChanged(null), which clears the device copy
-    // of the company's data along with the session.
-    const expireIfIdle = async () => {
-      if (decideOnResume(await readLastSeen(), Date.now()) === 'resume') return false;
-      set({ signedOutReason: IDLE_SIGNED_OUT_MESSAGE });
-      await get().signOut();
-      return true;
+    // The session rule (lib/sessionPolicy decideSession): resume, LOCK with Face ID, or
+    // sign out. Returns the decision. Signing out lands in onAuthStateChanged(null),
+    // which clears the device copy of the company's data along with the session; a
+    // lock keeps both and only asks who is holding the phone.
+    const applySessionPolicy = async () => {
+      await get().refreshLockEnabled();
+      const biometricLock = get().lockEnabled;
+      const decision = decideSession(await readLastSeen(), Date.now(), { biometricLock });
+      if (decision === 'expire') {
+        set({ signedOutReason: biometricLock ? BIOMETRIC_EXPIRED_MESSAGE : IDLE_SIGNED_OUT_MESSAGE });
+        await get().signOut();
+      } else if (decision === 'lock') {
+        set({ locked: true, covered: true });
+      } else {
+        set({ covered: false });
+      }
+      return decision;
     };
+    // An account disabled or a session revoked on the server ends the session here too —
+    // but only on a definite answer from Firebase. A phone with no signal stays usable.
+    const signOutIfRevoked = async () => {
+      try {
+        await auth.currentUser?.getIdToken(true);
+      } catch (e: any) {
+        if (isRevokedAuthError(e?.code)) {
+          set({ signedOutReason: REVOKED_MESSAGE });
+          await get().signOut();
+        }
+      }
+    };
+    // iOS reports 'inactive' for the app switcher, Control Center, and the Face ID sheet
+    // itself. Only a return from the BACKGROUND is a real resume; judging the Face ID
+    // sheet's own round-trip as one would lock the app again the moment it unlocked.
+    let wasInBackground = false;
     const appStateSub = AppState.addEventListener('change', async (next) => {
       if (!auth.currentUser) return;
+      if (next === 'inactive' || next === 'background') {
+        // Hide figures before iOS takes the app-switcher snapshot.
+        if (get().lockEnabled && !get().covered) set({ covered: true });
+      }
       if (next === 'background') {
-        // Leaving the app is the last moment it was in use. Not 'inactive': iOS passes
-        // through it on the way BACK from the background too, and a stamp written
-        // there would let the check below pass every time.
-        bumpLastSeen();
+        wasInBackground = true;
+        // Leaving the app is the last moment it was in use — unless it is locked, in
+        // which case it has not been "in use" since the lock and the clock keeps running.
+        if (!get().locked) bumpLastSeen();
         return;
       }
       if (next === 'active') {
-        // Check FIRST. Stamping here before checking is what let an app left in the
-        // background for two days come straight back signed in.
-        if (await expireIfIdle()) return;
-        bumpLastSeen();
+        if (!wasInBackground) {
+          if (!get().locked) set({ covered: false });
+          return;
+        }
+        wasInBackground = false;
+        // Check FIRST, stamp after. Stamping here before checking is what let an app left
+        // in the background for two days come straight back open.
+        const decision = await applySessionPolicy();
+        if (decision === 'expire') return;
+        if (decision === 'resume') bumpLastSeen();
         // Coming back to the app is the moment the dot is most likely stale.
         beat();
+        signOutIfRevoked();
       }
     });
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      // The same check on a cold start with a saved session.
+      // The same rule on a cold start with a saved session: an app that was closed is
+      // locked (or signed out) exactly as one that was only backgrounded.
       if (user) {
-        if (await expireIfIdle()) return; // fires again with null and resets state
-        bumpLastSeen();
+        const decision = await applySessionPolicy();
+        if (decision === 'expire') return; // fires again with null and resets state
+        if (decision === 'resume') bumpLastSeen();
+        signOutIfRevoked();
       }
       if (!user) {
         // The query cache is PERSISTED (≈10 MB of contracts, stocks and invoices in
@@ -242,6 +331,7 @@ export const useAuth = create<AuthState>((set, get) => ({
           uidCollection: null,
           userTitle: null,
           gisAccount: false,
+          marginsLabel: 'Margins',
           isAdmin: false,
           superAdmin: false,
           claims: null,
@@ -264,6 +354,7 @@ export const useAuth = create<AuthState>((set, get) => ({
           uidCollection,
           userTitle,
           gisAccount: uidCollection === GIS_UID_COLLECTION,
+          marginsLabel: marginsLabelFor(uidCollection),
           superAdmin,
           isAdmin: superAdmin || normalizeRole(claims.role || claims.title) === 'admin',
           // Per-page permissions (web b783925b): an explicit `pages` claim picked in
@@ -288,6 +379,7 @@ export const useAuth = create<AuthState>((set, get) => ({
           uidCollection: null,
           userTitle: null,
           gisAccount: false,
+          marginsLabel: 'Margins',
           isAdmin: false,
           superAdmin: false,
           claims: null,

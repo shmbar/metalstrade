@@ -516,7 +516,10 @@ const webCostTotal = (row: any, elements: any[], prices: any, niMult: number, un
 describe('material table footer', () => {
   it("web's fmt / footerVal / cost columns have not drifted", () => {
     expectWebUnchanged('app/(root)/materialtables/newTable.js', 'fmt', '68aede0d2941');
-    expectWebUnchanged('app/(root)/materialtables/newTable.js', 'footerVal', '29b9b76b6a38');
+    // Re-recorded 2026-09-24: the costAvg/costTotal cells' `'$' + Intl…` became the shared
+    // moneyFull('us', …) (utils/currency.js), which is what mobile tableMath.money calls.
+    // Same output for positives; negatives now read -$1.00, not $-1.00. No formula moved.
+    expectWebUnchanged('app/(root)/materialtables/newTable.js', 'footerVal', '522bb8babec8');
     // Re-recorded 2026-08-17: the ONLY change was a colour literal,
     // var(--chathams-blue) -> TONES.green.text. fmt, footerVal, hasPrices and niMult
     // were confirmed byte-identical, so no cost/footer formula moved.

@@ -8,7 +8,7 @@ import { useTheme } from '@/theme/ThemeProvider';
 import { useSettings } from '@/store/settings';
 import { useSettingsEdit } from '@/features/settings/useSettingsEdit';
 import { toast } from '@/store/toast';
-import { getJson, apiConfigured } from '@/lib/api';
+import { SERVICE_UNAVAILABLE, getJson, apiConfigured } from '@/lib/api';
 
 /*
  * Settings → Email Setup — web settings/tabs/emailSetup.js: whether the server can send
@@ -42,7 +42,7 @@ export default function SettingsEmail() {
     setLoading(true);
     setError(null);
     try {
-      if (!apiConfigured()) throw new Error('Backend not configured (set EXPO_PUBLIC_API_BASE_URL).');
+      if (!apiConfigured()) throw new Error(SERVICE_UNAVAILABLE);
       setStatus(await getJson<Status>('/api/ai/email-status'));
     } catch (e: any) {
       setError(e?.message || 'Failed to check email config');

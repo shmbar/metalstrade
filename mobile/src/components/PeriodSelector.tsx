@@ -35,7 +35,8 @@ export function PeriodSelector() {
           minimum, so a thumb often missed it. The slop grows outward (not toward
           the year label) so the two arrows still can't be confused. */}
       <Pressable
-        onPress={() => { haptics.selection(); setYear(year - 1); }}
+        haptic="selection"
+        onPress={() => setYear(year - 1)}
         hitSlop={{ top: 12, bottom: 12, left: 12, right: 4 }}
         style={{ padding: 8 }}
         accessibilityRole="button"
@@ -47,7 +48,8 @@ export function PeriodSelector() {
         {year}
       </Text>
       <Pressable
-        onPress={() => { haptics.selection(); setYear(year + 1); }}
+        haptic="selection"
+        onPress={() => setYear(year + 1)}
         hitSlop={{ top: 12, bottom: 12, left: 4, right: 12 }}
         style={{ padding: 8 }}
         accessibilityRole="button"

@@ -477,9 +477,6 @@ export default function ContractEdit() {
               style={{ borderColor: colors.negative }}
             />
           )}
-          <Text variant="caption" tone="faint" style={{ textAlign: 'center', marginTop: 4 }}>
-            Saves to Firestore (contracts_{(value.dateRange?.startDate || '').substring(0, 4) || 'YYYY'}) — same data as the web CRM.
-          </Text>
         </View>
       </Screen>
 

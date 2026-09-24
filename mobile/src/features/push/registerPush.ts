@@ -6,18 +6,25 @@ import { Platform } from 'react-native';
 import * as Notifications from 'expo-notifications';
 import { router } from 'expo-router';
 import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
+import Constants from 'expo-constants';
 import { db } from '@/lib/firebase';
+import { isCategoryEnabled } from '@shared/notificationPrefs';
+import { currentNotificationPrefs } from './notificationPrefs';
 
-const EAS_PROJECT_ID = '201cc15d-6ae4-4040-9fbf-30197e1db5fe';
+// The Expo project this BUILD belongs to. It was hard-coded to the project the app was first
+// built under; builds now come from a different project, and a push token issued for the
+// wrong project is rejected when the server sends to it. Read from the build itself.
+const easProjectId = (): string | undefined =>
+  (Constants as any)?.expoConfig?.extra?.eas?.projectId ?? (Constants as any)?.easConfig?.projectId;
 
-// Show alerts when a push arrives while the app is open.
+// A push that arrives while the app is open is shown — unless its category is switched off
+// in this person's notification settings (the same settings the web uses).
 Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldShowBanner: true,
-    shouldShowList: true,
-    shouldPlaySound: false,
-    shouldSetBadge: false,
-  }),
+  handleNotification: async (n) => {
+    const category = (n?.request?.content?.data as any)?.category as string | undefined;
+    const wanted = !category || isCategoryEnabled(currentNotificationPrefs(), category);
+    return { shouldShowBanner: wanted, shouldShowList: wanted, shouldPlaySound: false, shouldSetBadge: false };
+  },
 });
 
 // Tapping a push opens the screen it points at (e.g. unpaid invoices).
@@ -32,7 +39,7 @@ export function listenPushTaps(): () => void {
   return () => sub.remove();
 }
 
-export async function registerPush(uidCollection: string, userEmail: string): Promise<void> {
+export async function registerPush(uidCollection: string, userEmail: string, userUid = ''): Promise<void> {
   try {
     if (Platform.OS === 'android') {
       await Notifications.setNotificationChannelAsync('default', {
@@ -48,7 +55,8 @@ export async function registerPush(uidCollection: string, userEmail: string): Pr
     }
     if (status !== 'granted') return;
 
-    const token = (await Notifications.getExpoPushTokenAsync({ projectId: EAS_PROJECT_ID })).data;
+    const projectId = easProjectId();
+    const token = (await Notifications.getExpoPushTokenAsync(projectId ? { projectId } : undefined)).data;
     if (!token) return;
 
     // One doc per device token; id derived from the token so re-registration
@@ -56,7 +64,8 @@ export async function registerPush(uidCollection: string, userEmail: string): Pr
     const id = token.replace(/[^a-zA-Z0-9]/g, '').slice(-40);
     await setDoc(
       doc(db, uidCollection, 'data', 'pushTokens', id),
-      { token, uidCollection, userEmail, platform: Platform.OS, updatedAt: serverTimestamp() },
+      // userUid lets the server match this device to its owner's notification settings.
+      { token, uidCollection, userEmail, userUid, platform: Platform.OS, updatedAt: serverTimestamp() },
       { merge: true }
     );
   } catch {

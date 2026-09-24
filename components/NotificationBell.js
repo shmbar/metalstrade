@@ -1,4 +1,5 @@
 'use client';
+import { CATEGORY_KEYS, categoryLabel, categoryOf, isCategoryEnabled } from '../utils/notificationPrefs';
 import { useState, useRef, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { useNotifications } from '../contexts/useNotificationContext';
@@ -22,21 +23,10 @@ const metaFor = (t) => ENTITY[t] || FALLBACK;
 
 const SEVERITY_DOT = { success: TONES.green.text, warning: TONES.amber.text, error: TONES.red.text, info: 'var(--brand)' };
 
-// Group notifications by subject so the stream stays organized rather than mixed.
-const CATEGORIES = [
-    // Must precede 'invoices'/'contracts' — 'invoice.splitPending' would otherwise be
-    // grabbed by the startsWith('invoice') rule. First match wins in categoryOf().
-    { key: 'splits', label: 'IMS/GIS Split', match: (n) => /\.splitPending$/.test(n.type || '') },
-    { key: 'warehouse', label: 'Warehouse', match: (n) => (n.type || '').startsWith('stock') || n.entityType === 'stock' },
-    { key: 'payments', label: 'Payments', match: (n) => /^(payment|settlement)/.test(n.type || '') },
-    { key: 'shipments', label: 'Shipments', match: (n) => (n.type || '').startsWith('shipment') },
-    { key: 'contracts', label: 'Contracts', match: (n) => (n.type || '').startsWith('contract') },
-    { key: 'invoices', label: 'Invoices', match: (n) => (n.type || '').startsWith('invoice') },
-    { key: 'comments', label: 'Comments', match: (n) => (n.type || '').startsWith('comment') },
-];
-const categoryOf = (n) => CATEGORIES.find(c => c.match(n))?.key || 'other';
-const categoryLabel = (key) => CATEGORIES.find(c => c.key === key)?.label || 'Other';
-const CATEGORY_ORDER = [...CATEGORIES.map(c => c.key), 'other'];
+// Group notifications by subject so the stream stays organized rather than mixed. The
+// categories are the SAME list the notification settings (web + mobile) and the push
+// sender use — utils/notificationPrefs.js — so a chip here is a switch there.
+const CATEGORY_ORDER = CATEGORY_KEYS;
 
 function relativeTime(ms) {
     if (!ms) return '';
@@ -111,23 +101,19 @@ function Chip({ active, onClick, label, count, unread, muted, onToggleMute }) {
 const NotificationBell = () => {
     const router = useRouter();
     const ctx = useNotifications() || {};
-    const { notifications = [], unread = [], unreadCount = 0, markRead, markAllRead, markManyRead, snooze, muted, toggleMute } = ctx;
+    const { notifications = [], unread = [], unreadCount = 0, markRead, markAllRead, markManyRead, snooze, muted, toggleMute, prefs, setCategoryEnabled } = ctx;
     const unreadIds = useMemo(() => new Set(unread.map(n => n.id)), [unread]);
     const [open, setOpen] = useState(false);
     const [snoozeFor, setSnoozeFor] = useState(null);
     const [catFilter, setCatFilter] = useState('all');
-    // Per-category mute: muted categories are hidden from the "All" feed and the
-    // badge count, but stay reachable via their (dimmed) chip. Persisted locally.
-    const [mutedCats, setMutedCats] = useState(() => {
-        if (typeof window === 'undefined') return new Set();
-        try { return new Set(JSON.parse(localStorage.getItem('ims:mutedNotifCats') || '[]')); } catch { return new Set(); }
-    });
-    const toggleCatMute = (key) => setMutedCats(prev => {
-        const next = new Set(prev);
-        if (next.has(key)) next.delete(key); else next.add(key);
-        try { localStorage.setItem('ims:mutedNotifCats', JSON.stringify([...next])); } catch { }
-        return next;
-    });
+    // A muted chip is a category switched OFF in the person's notification settings — the
+    // same setting the phone reads (utils/notificationPrefs.js). Muted categories are left
+    // out of the "All" feed and the badge, but stay reachable via their (dimmed) chip.
+    const mutedCats = useMemo(
+        () => new Set(CATEGORY_KEYS.filter((k) => prefs && !isCategoryEnabled(prefs, k))),
+        [prefs]
+    );
+    const toggleCatMute = (key) => setCategoryEnabled?.(key, mutedCats.has(key));
     // WhatsApp-style selection mode + the in-panel detail view for a clicked item.
     const [selectMode, setSelectMode] = useState(false);
     const [selected, setSelected] = useState(() => new Set());

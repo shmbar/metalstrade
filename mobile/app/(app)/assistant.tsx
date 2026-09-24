@@ -13,6 +13,7 @@ import { streamAssistant, isAssistantConfigured, ChatMessage, AssistantSource, A
 import { useAssistantContext } from '@/features/assistant/useAssistantContext';
 import { MAX_FONT_SCALE, radius, spacing, typography } from '@/theme/tokens';
 import { keyboardScrollProps } from '@/lib/keyboard';
+import { SERVICE_UNAVAILABLE } from '@/lib/api';
 
 /*
  * The Assistant — web app/(root)/apps/Assistant/page.js, feature for feature: the header's
@@ -277,8 +278,8 @@ export default function Assistant() {
       {!configured ? (
         <View style={{ padding: spacing.lg }}>
           <EmptyState
-            title="Backend not configured"
-            message="Set EXPO_PUBLIC_API_BASE_URL to your deployed web app URL (which hosts /api/assistant) to enable the AI Assistant."
+            title="Assistant unavailable"
+            message={SERVICE_UNAVAILABLE}
             icon={<Ionicons name="cloud-offline-outline" size={24} color={colors.textFaint} />}
           />
         </View>

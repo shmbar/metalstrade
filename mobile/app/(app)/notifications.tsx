@@ -56,7 +56,7 @@ export default function Notifications() {
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
   const {
-    notifications, unread, unreadCount, priorityOf, isUnread,
+    notifications, hiddenCount, unread, unreadCount, priorityOf, isUnread,
     readOne, readMany, snooze, isLoading, isError, error, refetch,
   } = useNotificationFeed();
 
@@ -119,13 +119,20 @@ export default function Notifications() {
         backLabel={selectMode ? 'Cancel selection' : 'Back'}
         onBack={selectMode ? exitSelect : undefined}
         right={
-          notifications.length > 0 ? (
-            <IconButton
-              icon={selectMode ? 'close' : 'checkmark-circle-outline'}
-              accessibilityLabel={selectMode ? 'Cancel selection' : 'Select notifications'}
-              onPress={() => (selectMode ? exitSelect() : setSelectMode(true))}
-            />
-          ) : undefined
+          <View style={{ flexDirection: 'row', gap: 8 }}>
+            {notifications.length > 0 ? (
+              <IconButton
+                icon={selectMode ? 'close' : 'checkmark-circle-outline'}
+                accessibilityLabel={selectMode ? 'Cancel selection' : 'Select notifications'}
+                onPress={() => (selectMode ? exitSelect() : setSelectMode(true))}
+              />
+            ) : null}
+            {/* Everyone can choose what they are notified about — not only people with
+                access to Settings. */}
+            {!selectMode && (
+              <IconButton icon="options-outline" accessibilityLabel="Notification settings" onPress={() => router.push('/(app)/settings-notifications' as any)} />
+            )}
+          </View>
         }
       />
 
@@ -165,6 +172,15 @@ export default function Notifications() {
           keyExtractor={(it, i) => (it.kind === 'header' ? `h:${it.priority}` : it.row.id || String(i))}
           showsVerticalScrollIndicator={false}
           contentContainerStyle={{ paddingBottom: LIST_END_PADDING }}
+          ListFooterComponent={
+            hiddenCount > 0 ? (
+              <Pressable onPress={() => router.push('/(app)/settings-notifications' as any)} accessibilityRole="button" style={{ paddingVertical: 12, alignItems: 'center' }}>
+                <Text variant="caption" tone="faint">
+                  {hiddenCount} hidden by your notification settings · <Text variant="captionStrong" tone="primary">Change</Text>
+                </Text>
+              </Pressable>
+            ) : null
+          }
           onRefresh={refetch}
           refreshing={isLoading}
           renderItem={({ item, index }) => {

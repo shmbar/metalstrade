@@ -29,8 +29,9 @@ import { NameCell } from '../../../components/Avatar';
 import { SortTh, sortRows, useSortState } from '@components/table/sorting';
 import ExpenseModal from '../expenses/modals/dataModal.js';
 import { matchesAllWords } from '@utils/search';
+import { moneyFull } from '@utils/currency';
 
-const fmtUsd = (v) => `$${new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(v || 0)}`;
+const fmtUsd = (v) => moneyFull('us', v); // shared money format (utils/currency.js)
 const fmtMt = (v) => new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 }).format(v || 0);
 
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];

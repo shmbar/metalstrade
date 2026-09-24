@@ -16,6 +16,7 @@ import { UNIT_LABELS, UNIT_TO_MT } from './constants'
 import SortIcon from "@components/table/SortIcon";
 import { useTablePrefs, useTablePagination } from '@components/table/useTablePrefs';
 import { labelAwareGlobalFilter } from '@components/table/filters/labelAwareGlobalFilter';
+import { moneyFull } from '@utils/currency';
 
 // Standard elements — cannot be removed (only user-added custom elements have the × button)
 const STANDARD_KEYS = new Set(['ni', 'cr', 'mo', 'co', 'w', 'nb', 'fe'])
@@ -420,7 +421,7 @@ const Customtable = ({
                 }, 0)
                 return s + cPmt * kgs
             }, 0) / totalW
-            return '$' + new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(wAvg)
+            return moneyFull('us', wAvg)
         }
         if (colId === 'costTotal') {
             if (!hasPrices) return ''
@@ -434,7 +435,7 @@ const Customtable = ({
                 }, 0)
                 return s + cPmt * wMT
             }, 0)
-            return '$' + new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(tot)
+            return moneyFull('us', tot)
         }
         const wSum = rows.reduce((s, r) => {
             const kgs = parseFloat(r.getValue('kgs')) || 0

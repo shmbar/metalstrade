@@ -27,8 +27,7 @@ import {
 } from '@/features/dashboard/webCards';
 import { palette, layout } from '@/theme/tokens';
 import { MarketsTicker } from '@/features/prices/MarketsTicker';
-import { fmtCurKM, fmtMT, fmtAutoKM, curSymbol } from '@/lib/format';
-import { haptics } from '@/lib/haptics';
+import { fmtCurKM, fmtMT, fmtAutoKM, curSymbol, moneyFull } from '@/lib/format';
 import { spacing, radius, LIST_END_PADDING } from '@/theme/tokens';
 import { routeKeyOf } from '@/lib/access';
 import { useShallow } from 'zustand/react/shallow';
@@ -37,7 +36,7 @@ import { keyboardScrollProps } from '@/lib/keyboard';
 export default function Dashboard() {
   const { colors, scheme } = useTheme();
   const insets = useSafeAreaInsets();
-  const { currentUser, gisAccount, canRoute } = useAuth(useShallow((s) => ({ currentUser: s.currentUser, gisAccount: s.gisAccount, canRoute: s.canRoute })));
+  const { currentUser, marginsLabel, canRoute } = useAuth(useShallow((s) => ({ currentUser: s.currentUser, marginsLabel: s.marginsLabel, canRoute: s.canRoute })));
   const hideBalances = usePrivacyStore((s) => s.hidden);
   const togglePrivacy = usePrivacyStore((s) => s.toggle);
   // Scroll position drives the status-bar backdrop (fades in once the hero has
@@ -51,7 +50,7 @@ export default function Dashboard() {
     { label: 'Invoices', icon: 'receipt', href: '/(app)/invoices' },
     { label: 'Cashflow', icon: 'cash', href: '/(app)/cashflow' },
     ...(canRoute('margins')
-      ? [{ label: gisAccount ? 'Gis Admin' : 'Sharon Admin', icon: 'stats-chart', href: '/(app)/margins' } as const]
+      ? [{ label: marginsLabel, icon: 'stats-chart', href: '/(app)/margins' } as const]
       : []),
     { label: 'Assistant', icon: 'sparkles', href: '/(app)/assistant' },
   ] as const;
@@ -135,8 +134,9 @@ export default function Dashboard() {
   const [detail, setDetail] = useState<DashDetail | null>(null);
   const okFigure = scheme === 'dark' ? '#74B896' : palette.okFigure;
   const profitColor = (v: number) => (v < 0 ? colors.negative : okFigure);
-  const money = (c: string, v: number) =>
-    `${c === 'us' ? '$' : '€'}${new Intl.NumberFormat('en-US', { maximumFractionDigits: 2 }).format(v || 0)}`;
+  // Always the currency's symbol and two decimals (lib/format moneyFull) — this used to
+  // print $1,234.5, and € for any currency that was not $.
+  const money = (c: string, v: number) => moneyFull(c, v);
   const tonnes1 = (v: number) => `${new Intl.NumberFormat('en-US', { maximumFractionDigits: 1 }).format(v || 0)} MT`;
   const sumOf = <T,>(rows: T[], f: (r: T) => number) => rows.reduce((a, r) => a + (Number(f(r)) || 0), 0);
   const supName = (id: string) => settings?.Supplier?.Supplier?.find((x: any) => x.id === id)?.nname || 'GIS';
@@ -388,7 +388,7 @@ export default function Dashboard() {
             title: 'Outstanding Receivables',
             subtitle: 'Open balances as of today — every period, not just this one',
             formula: Object.entries(d.receivables || {}).flatMap(([cur, r]) => {
-              const f = (v: number) => `${cur === 'us' ? '$' : cur === 'eu' ? '€' : ''}${new Intl.NumberFormat('en-US', { maximumFractionDigits: 2 }).format(v || 0)}`;
+              const f = (v: number) => moneyFull(cur, v);
               return [
                 { label: `Finalized (${cur.toUpperCase()})`, value: f(r.finalized), note: `${r.finalizedCount} invoice${r.finalizedCount === 1 ? '' : 's'} · after the final invoice` },
                 { label: `Provisional (${cur.toUpperCase()})`, value: f(r.provisional), note: `${r.provisionalCount} invoice${r.provisionalCount === 1 ? '' : 's'} · before the final invoice` },
@@ -405,7 +405,7 @@ export default function Dashboard() {
               note: `${b.count} invoice${b.count === 1 ? '' : 's'}`,
               value:
                 Object.entries(b.byCur || {})
-                  .map(([c, v]) => `${c === 'us' ? '$' : '€'}${new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 }).format(v || 0)}`)
+                  .map(([c, v]) => moneyFull(c, v))
                   .join(' · ') || '—',
             })),
           };
@@ -457,7 +457,7 @@ export default function Dashboard() {
                   per-screen one, so turning it on before you hand over your
                   phone actually covers the whole app. */}
               <Pressable
-                onPress={() => { haptics.selection(); togglePrivacy(); }}
+                haptic="selection" onPress={() => { togglePrivacy(); }}
                 hitSlop={12}
                 accessibilityRole="button"
                 accessibilityLabel={hideBalances ? 'Show balances' : 'Hide balances'}

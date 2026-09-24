@@ -6,6 +6,10 @@ import { auth } from '@/lib/firebase';
 export const apiBase = () => (process.env.EXPO_PUBLIC_API_BASE_URL || '').replace(/\/$/, '');
 export const apiConfigured = () => !!apiBase();
 
+// What a user sees when this build has no API base (EXPO_PUBLIC_API_BASE_URL unset — a
+// build-config problem). Never show the variable name or "backend" to a user.
+export const SERVICE_UNAVAILABLE = 'This feature is not available right now. Please try again later.';
+
 async function authHeaders(): Promise<Record<string, string>> {
   const token = await auth.currentUser?.getIdToken().catch(() => null);
   return { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) };
@@ -18,7 +22,7 @@ export async function postJson<T = any>(path: string, body: any, signal?: AbortS
 /** A JSON write with any verb (PATCH, DELETE…); throws the server's `error` text on failure. */
 export async function sendJson<T = any>(method: 'POST' | 'PATCH' | 'PUT' | 'DELETE', path: string, body: any, signal?: AbortSignal): Promise<T> {
   const base = apiBase();
-  if (!base) throw new Error('Backend not configured (set EXPO_PUBLIC_API_BASE_URL).');
+  if (!base) throw new Error(SERVICE_UNAVAILABLE);
   const res = await fetch(`${base}${path}`, { method, headers: await authHeaders(), body: JSON.stringify(body), signal });
   const text = await res.text();
   let data: any;
@@ -33,7 +37,7 @@ export async function sendJson<T = any>(method: 'POST' | 'PATCH' | 'PUT' | 'DELE
 
 export async function getJson<T = any>(path: string, signal?: AbortSignal): Promise<T> {
   const base = apiBase();
-  if (!base) throw new Error('Backend not configured (set EXPO_PUBLIC_API_BASE_URL).');
+  if (!base) throw new Error(SERVICE_UNAVAILABLE);
   const res = await fetch(`${base}${path}`, { method: 'GET', headers: await authHeaders(), signal });
   if (!res.ok) throw new Error(`Request failed (${res.status}).`);
   return (await res.json()) as T;
@@ -43,7 +47,7 @@ export async function getJson<T = any>(path: string, signal?: AbortSignal): Prom
 // Uses expo/fetch for real streaming. Invokes onText with each text delta.
 export async function streamSse(path: string, body: any, onText: (delta: string) => void): Promise<void> {
   const base = apiBase();
-  if (!base) throw new Error('Backend not configured (set EXPO_PUBLIC_API_BASE_URL).');
+  if (!base) throw new Error(SERVICE_UNAVAILABLE);
   const res = await expoFetch(`${base}${path}`, { method: 'POST', headers: await authHeaders(), body: JSON.stringify(body) });
   if (!res.ok) {
     let msg = `Request failed (${res.status}).`;

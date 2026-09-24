@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { haptics } from '@/lib/haptics';
 
 /*
  * Remembered open/closed state for a section.
@@ -34,7 +33,6 @@ export function useCollapsible(id: string, defaultOpen: boolean): [boolean, () =
   }, [id]);
 
   const toggle = useCallback(() => {
-    haptics.selection();
     setOpen((prev) => {
       const next = !prev;
       cache.set(id, next);

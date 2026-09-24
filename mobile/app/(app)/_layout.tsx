@@ -8,12 +8,13 @@ import { useAuth } from '@/store/auth';
 import { useSettings } from '@/store/settings';
 import { OfflineBanner } from '@/components/OfflineBanner';
 import { registerPush, listenPushTaps } from '@/features/push/registerPush';
+import { useFollowNotificationPrefs } from '@/features/push/notificationPrefs';
 import { useLiveSync } from '@/features/live/useLiveSync';
 import { useFreshOnFocus } from '@/features/live/useFreshOnFocus';
 import { useWarmLedger } from '@/features/stocks/useWarmLedger';
 import { useTheme } from '@/theme/ThemeProvider';
 import { getShadow, typography } from '@/theme/tokens';
-import { haptics } from '@/lib/haptics';
+import { Pressable } from '@/components/ui/Pressable';
 import { useShallow } from 'zustand/react/shallow';
 
 export { AppErrorBoundary as ErrorBoundary } from '@/components/AppErrorBoundary';
@@ -28,6 +29,9 @@ function tabIcon(base: string) {
     <Ionicons name={(focused ? base : `${base}-outline`) as any} size={size ?? 22} color={color} />
   );
 }
+
+// A tab button that gives its haptic tick on touch-down.
+const HapticTab = (props: any) => <Pressable {...props} pressedOpacity={1} haptic="selection" />;
 
 export default function AppLayout() {
   const { user, initializing, uidCollection, currentUser, canRoute, landingHref, allowedPages } = useAuth(useShallow((s) => ({ user: s.user, initializing: s.initializing, uidCollection: s.uidCollection, currentUser: s.currentUser, canRoute: s.canRoute, landingHref: s.landingHref, allowedPages: s.allowedPages })));
@@ -64,8 +68,11 @@ export default function AppLayout() {
   // Register this device for push alerts (overdue-invoice digest). Silent no-op
   // if the user declines or the device can't receive push.
   useEffect(() => {
-    if (uidCollection) registerPush(uidCollection, currentUser.email);
-  }, [uidCollection, currentUser.email]);
+    if (uidCollection) registerPush(uidCollection, currentUser.email, currentUser.uid);
+  }, [uidCollection, currentUser.email, currentUser.uid]);
+
+  // This person's notification settings, followed live (shared with the web).
+  useFollowNotificationPrefs();
 
   // Tapping a push deep-links into the relevant screen.
   useEffect(() => listenPushTaps(), []);
@@ -96,8 +103,10 @@ export default function AppLayout() {
     <View style={{ flex: 1 }}>
     <OfflineBanner />
     <Tabs
-      screenListeners={{ tabPress: () => haptics.selection() }}
       screenOptions={{
+        // Tabs tick on touch-down, like iOS's own tab bar — a tabPress listener only fires
+        // when the finger lifts.
+        tabBarButton: HapticTab,
         headerShown: false,
         // A visited tab stays mounted, and without this it keeps re-rendering in
         // the background: one live-sync event from a teammate re-ran Cashflow's
@@ -181,6 +190,7 @@ export default function AppLayout() {
       <Tabs.Screen name="settings-grades" options={{ href: null }} />
       <Tabs.Screen name="settings-email" options={{ href: null }} />
       <Tabs.Screen name="settings-users" options={{ href: null }} />
+      <Tabs.Screen name="settings-notifications" options={{ href: null }} />
       <Tabs.Screen name="config-editor" options={{ href: null }} />
       <Tabs.Screen name="analysis" options={{ href: null }} />
       <Tabs.Screen name="stock-audit" options={{ href: null }} />
