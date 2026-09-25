@@ -246,12 +246,18 @@ declare module '@shared/grades' {
     spec?: string;
     aliases?: string[];
     lineIds?: string[];
+    /** PO lines cleared of this grade ("No grade") although their spelling means it. */
+    excludeLineIds?: string[];
+    /** Spellings picked for this grade on a PO line — offered as a suggestion, never applied. */
+    learned?: string[];
     deleted?: boolean;
   }
   export interface GradeIndex {
     byAlias: Map<string, Grade>;
     byLine: Map<string, Grade>;
     byId: Map<string, Grade>;
+    /** lineId → ids of the grades that line was cleared of. */
+    excluded: Map<string, Set<string>>;
   }
   export const ELEMENTS: string[];
   export function deCyrillic(s: string): string;
@@ -267,6 +273,8 @@ declare module '@shared/grades' {
     index: GradeIndex | null | undefined,
     args?: { description?: string; lineId?: string }
   ): Grade | null;
+  /** Was this PO line cleared of this grade? */
+  export function isExcluded(index: GradeIndex | null | undefined, lineId?: string, gradeId?: string): boolean;
   export function findGradeByName(grades: Grade[], name: string): Grade | null;
   export function makeGrade(id: string, args: { name: string; spec?: string }): Grade;
   /** Put spellings on one grade, taking each off any other grade that held it; returns the grades that changed. */

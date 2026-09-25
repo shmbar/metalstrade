@@ -277,7 +277,7 @@ export default function SettingsGrades() {
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, borderRadius: 10, padding: 10, backgroundColor: colors.surfaceAlt, borderWidth: 1, borderColor: colors.border }}>
               <Text variant="caption" style={{ flex: 1 }}>
                 {form.lineIds.length} PO line{form.lineIds.length === 1 ? ' is' : 's are'} set to this grade individually
-                <Text variant="caption" tone="faint"> — spelled like another grade, but really this one.</Text>
+                <Text variant="caption" tone="faint"> — picked in the line&apos;s own Grade cell, whatever it is spelled.</Text>
               </Text>
               <Button title="Clear" variant="ghost" onPress={() => setForm((f) => ({ ...f, lineIds: [] }))} />
             </View>

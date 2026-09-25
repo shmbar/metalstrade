@@ -11,7 +11,9 @@
 //
 //   { id, name: '40Ni', spec: '42Ni 12Cr 3Mo 3Nb 6Co 2Ti',
 //     aliases: ['40Ni Refinery Turnings', …],   spellings that mean this grade
-//     lineIds: ['<po line id>', …] }             one-off exceptions, see resolveGrade
+//     lineIds: ['<po line id>', …],             lines set to it from their Grade cell
+//     excludeLineIds: ['<po line id>', …],      lines cleared of it ("No grade")
+//     learned: ['Ta Bars', …] }                 spellings picked for it — OFFERED only
 //
 // Nothing about a grade is written onto contracts or stock lots. A lot carries a
 // SNAPSHOT of its contract's product lines, so a grade stored there would go stale the
@@ -147,28 +149,45 @@ export const aliasKey = (description) =>
     deCyrillic(description).toLowerCase().replace(/,/g, '.').replace(/\s+/g, '');
 
 export const buildGradeIndex = (grades = []) => {
-    const byAlias = new Map(), byLine = new Map(), byId = new Map();
+    const byAlias = new Map(), byLine = new Map(), byId = new Map(), excluded = new Map();
     for (const g of grades) {
         if (!g || g.deleted) continue;
         byId.set(g.id, g);
         (g.aliases || []).forEach(a => { const k = aliasKey(a); if (k) byAlias.set(k, g); });
         (g.lineIds || []).forEach(id => byLine.set(id, g));
+        (g.excludeLineIds || []).forEach(id => {
+            if (!excluded.has(id)) excluded.set(id, new Set());
+            excluded.get(id).add(g.id);
+        });
     }
-    return { byAlias, byLine, byId };
+    return { byAlias, byLine, byId, excluded };
 };
 
+/** Was this PO line cleared of this grade (its Grade cell set to "No grade")? */
+export const isExcluded = (index, lineId, gradeId) =>
+    !!(lineId && gradeId && index?.excluded?.get(lineId)?.has(gradeId));
+
 /**
- * The grade a piece of material belongs to. An explicit PO-line assignment wins over
- * the spelling, because it exists precisely for the line that is spelled like one
- * grade and is really another. No match is a valid answer — unclassified material stays
- * exactly as it was.
+ * The grade a piece of material belongs to. A grade set on the PO line itself wins over
+ * the spelling, and a line cleared of the grade its spelling means has none. No match
+ * is a valid answer — unclassified material stays exactly as it was.
  */
 export const resolveGrade = (index, { description, lineId } = {}) => {
     if (!index) return null;
-    return (lineId && index.byLine.get(lineId)) || (description && index.byAlias.get(aliasKey(description))) || null;
+    const set = lineId && index.byLine.get(lineId);
+    if (set) return set;
+    const bySpelling = description ? index.byAlias.get(aliasKey(description)) : null;
+    if (!bySpelling || isExcluded(index, lineId, bySpelling.id)) return null;
+    return bySpelling;
 };
 
-const copy = (g) => ({ ...g, aliases: [...(g.aliases || [])], lineIds: [...(g.lineIds || [])] });
+const copy = (g) => ({
+    ...g,
+    aliases: [...(g.aliases || [])],
+    lineIds: [...(g.lineIds || [])],
+    excludeLineIds: [...(g.excludeLineIds || [])],
+    learned: [...(g.learned || [])],
+});
 
 export const findGradeByName = (grades, name) => {
     const k = String(name ?? '').trim().toLowerCase();
@@ -187,13 +206,19 @@ export const assignAliases = (grades, targetId, spellings = []) => {
     const keys = new Set(spellings.map(aliasKey).filter(Boolean));
     const changed = new Map();
     for (const g of grades) {
-        if (g.deleted || g.id === targetId) continue;
-        const kept = (g.aliases || []).filter(a => !keys.has(aliasKey(a)));
-        if (kept.length !== (g.aliases || []).length) changed.set(g.id, { ...copy(g), aliases: kept });
+        if (g.deleted) continue;
+        const kept = g.id === targetId ? (g.aliases || []) : (g.aliases || []).filter(a => !keys.has(aliasKey(a)));
+        // A spelling declared now means that grade outright; any grade it was only
+        // being OFFERED for (learned from a PO pick) stops offering it.
+        const learned = (g.learned || []).filter(s => !keys.has(aliasKey(s)));
+        if (kept.length !== (g.aliases || []).length || learned.length !== (g.learned || []).length) {
+            changed.set(g.id, { ...copy(g), aliases: kept, learned });
+        }
     }
     const target = grades.find(g => g.id === targetId);
     if (target) {
-        const have = new Set((target.aliases || []).map(aliasKey));
+        const base = changed.get(target.id) || copy(target);
+        const have = new Set(base.aliases.map(aliasKey));
         const add = [];
         for (const s of spellings) {
             const k = aliasKey(s);
@@ -201,43 +226,70 @@ export const assignAliases = (grades, targetId, spellings = []) => {
             have.add(k);
             add.push(String(s).trim());
         }
-        if (add.length) changed.set(target.id, { ...copy(target), aliases: [...(target.aliases || []), ...add] });
+        if (add.length) changed.set(target.id, { ...base, aliases: [...base.aliases, ...add] });
     }
     return [...changed.values()];
 };
 
+const sameIds = (a = [], b = []) => a.length === b.length && a.every((x, i) => x === b[i]);
+
 /**
- * Set the grade of one PO line from its dropdown.
+ * Set the grade of ONE PO line from its Grade cell — that line, and nothing else.
  *
- *   spelling unclaimed          → it becomes an alias, so next month's line fills itself
- *   spelling already this grade → nothing to store; it resolves already
- *   spelling means another grade→ this line is recorded as the exception (lineIds)
- *   targetId null               → the line's explicit assignment is cleared
+ * A pick used to teach the registry the line's SPELLING: 40Ni picked on a line spelled
+ * "Ti - 6Al-4V Powder" made that spelling a 40Ni alias, so every other line spelled so —
+ * on this PO and on every other — turned 40Ni with it, and the cell's × could not take
+ * it back (client, 2026-09-25: "I mistakenly clicked 40Ni and now I can't remove it; if
+ * I choose a different grade it slides onto the other row"). A spelling is now declared
+ * only on purpose — Settings, or merging on the Stocks page.
  *
- * Returns only the grades that changed.
+ *   targetId = a grade → the line is that grade: set on the line (lineIds), unless its
+ *                        spelling already means that grade. An undeclared spelling is
+ *                        remembered (`learned`) only so the next line spelled the same
+ *                        way is OFFERED the grade (suggestGrade) — never given it.
+ *   targetId = null    → the line has no grade: set on none, and cleared of the grade
+ *                        its spelling means (excludeLineIds), so the cell stays empty and
+ *                        is not offered that grade back.
+ *
+ * Returns only the grades that changed; an unknown or deleted target changes nothing.
  */
 export const assignGradeToLine = (grades, targetId, { lineId, description } = {}) => {
     if (!lineId) return [];
-    const changed = new Map();
-    const latest = (id) => changed.get(id) || grades.find(g => g.id === id);
+    const live = (grades || []).filter(g => g && !g.deleted);
+    if (targetId && !live.some(g => g.id === targetId)) return [];
+    const index = buildGradeIndex(live);
+    const key = aliasKey(description);
+    const owner = key ? index.byAlias.get(key) || null : null;    // the grade the spelling means
+    const shown = resolveGrade(index, { lineId, description });     // what the cell shows now
 
-    for (const g of grades) {
-        if (!g.deleted && (g.lineIds || []).includes(lineId)) {
-            changed.set(g.id, { ...copy(g), lineIds: g.lineIds.filter(x => x !== lineId) });
+    const next = new Map(live.map(g => [g.id, copy(g)]));
+    // A clean slate for this line: set on no grade, cleared of none.
+    for (const g of next.values()) {
+        g.lineIds = g.lineIds.filter(x => x !== lineId);
+        g.excludeLineIds = g.excludeLineIds.filter(x => x !== lineId);
+    }
+    const forget = (keepId) => {
+        if (key) for (const g of next.values()) if (g.id !== keepId) g.learned = g.learned.filter(s => aliasKey(s) !== key);
+    };
+
+    if (!targetId) {
+        for (const g of [owner, shown]) {
+            const n = g && next.get(g.id);
+            if (n && !n.excludeLineIds.includes(lineId)) n.excludeLineIds.push(lineId);
+        }
+        forget(null);
+    } else {
+        const target = next.get(targetId);
+        if (!owner || owner.id !== targetId) target.lineIds.push(lineId);
+        if (key && !owner) {
+            forget(targetId);
+            if (!target.learned.some(s => aliasKey(s) === key)) target.learned.push(String(description).trim());
         }
     }
-    if (!targetId) return [...changed.values()];
-
-    const target = latest(targetId);
-    if (!target || target.deleted) return [...changed.values()];
-    const owner = aliasKey(description) ? buildGradeIndex(grades).byAlias.get(aliasKey(description)) : null;
-
-    if (!owner && aliasKey(description)) {
-        changed.set(target.id, { ...copy(target), aliases: [...(target.aliases || []), String(description).trim()] });
-    } else if (!owner || owner.id !== targetId) {
-        changed.set(target.id, { ...copy(target), lineIds: [...(target.lineIds || []).filter(x => x !== lineId), lineId] });
-    }
-    return [...changed.values()];
+    return live.filter(g => {
+        const n = next.get(g.id);
+        return !sameIds(n.lineIds, g.lineIds) || !sameIds(n.excludeLineIds, g.excludeLineIds) || !sameIds(n.learned, g.learned);
+    }).map(g => next.get(g.id));
 };
 
 // ── Suggesting a grade for a spelling nobody has declared yet ────────────────
@@ -246,8 +298,8 @@ export const assignGradeToLine = (grades, targetId, { lineId, description } = {}
 // "IN 718 Chips (51Ni 21Cr 3Mo)" when the registry holds "IN 718 Chips", or as
 // "41.6Ni 12.2Cr 3.1Mo 2.8Nb 5.9Co 2.1Ti" for a grade declared as 42Ni 12Cr 3Mo 3Nb 6Co
 // 2Ti — and the Grade box sits empty. A suggestion closes that gap. It is only ever
-// offered, never applied: one click takes it, and taking it teaches the registry the new
-// spelling, so the same text resolves by itself from then on.
+// offered, never applied: one click takes it for that line, and the spelling is then
+// offered the same grade on the next line that carries it (`learned`).
 
 // A name with its bracket note set aside: "(51Ni 21Cr 3Mo)", "(300824-1)".
 const nameFold = (s) => aliasKey(String(s ?? '').replace(/\([^)]*\)/g, ' '));
@@ -266,7 +318,10 @@ export const buildGradeProfiles = (grades) => (grades || []).filter(g => !g.dele
     const range = assayRange(assays);
     return {
         grade: g,
-        names: new Set([g.name, ...(g.aliases || [])].map(nameFold).filter(Boolean)),
+        /* A spelling picked for this grade on a PO line (`learned`) is offered by name on
+           the next line spelled the same way. It stays out of the chemistry envelope: one
+           mistaken pick — Ti powder into 40Ni — would otherwise widen the grade to fit it. */
+        names: new Set([g.name, ...(g.aliases || []), ...(g.learned || [])].map(nameFold).filter(Boolean)),
         range,
         majors: Object.keys(range).filter(e => range[e].max >= MAJOR),
         // Present at 5%+ in EVERY assay of the grade: what the grade is made of.

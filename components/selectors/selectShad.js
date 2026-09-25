@@ -37,8 +37,12 @@ import { matchesAllWords } from '@utils/search';
    result does the same. For lists the user grows while using them — a grade that does
    not exist yet is typed straight into the dropdown instead of a detour to Settings.
    The open state is held here so the list can close itself after creating. */
+/* clearLabel: optional. With `clear`, a set value can also be emptied from INSIDE the
+   open list — "<clearLabel>" at its top — not only by the × on the closed trigger, which
+   shows on hover alone and so is easy to never find. First use: the PO line's Grade
+   ("No grade"), where a mistaken pick had no visible way back. */
 export function Selector({ arr, value, onChange, name, clear, disabled, secondaryName, classes, row,
-    sizeVar, hint, onCreate, createLabel = 'Create' }) {
+    sizeVar, hint, onCreate, createLabel = 'Create', clearLabel }) {
 
     // Type-to-filter for long lists (client request: every list gets a search box).
     const [query, setQuery] = useState('')
@@ -80,6 +84,12 @@ export function Selector({ arr, value, onChange, name, clear, disabled, secondar
         setOpen(false)
         setQuery('')
         onCreate(typed)
+    }
+    const canClearInList = !!clear && !!clearLabel && selectedId != null && selectedId !== '' && typed === ''
+    const clearFromList = () => {
+        setOpen(false)
+        setQuery('')
+        clear(name, row)
     }
     // Enter in the box with something typed takes the first match — type, Enter, done.
     const pickFirst = () => {
@@ -162,9 +172,12 @@ export function Selector({ arr, value, onChange, name, clear, disabled, secondar
             </SelectTrigger>
             <SelectContent style={sizeVar ? { fontSize: sizeVar } : undefined}
                 className="z-dropdown responsiveTextInput min-w-[var(--radix-select-trigger-width)] max-h-72 overflow-auto">
-                {searchable && (
-                    <div className="sticky top-0 z-sticky bg-[var(--surface-card)] p-1.5 border-b border-[var(--selago)]">
-                        <input
+                {/* -top-1 is the list viewport's own p-1: stuck at top-0 the header stopped
+                    4px short of the edge, and options scrolling by showed through that strip
+                    above the search box whenever the list opened scrolled. */}
+                {(searchable || canClearInList) && (
+                    <div className="sticky -top-1 z-sticky bg-[var(--surface-card)] p-1.5 border-b border-[var(--selago)]">
+                        {searchable && <input
                             ref={searchRef}
                             value={query}
                             onChange={(e) => setQuery(e.target.value)}
@@ -185,7 +198,20 @@ export function Selector({ arr, value, onChange, name, clear, disabled, secondar
                             onPointerDown={(e) => e.stopPropagation()}
                             placeholder={onCreate ? 'Search or type a new name…' : 'Search…'}
                             className="w-full h-7 px-2 rounded-lg border border-[var(--line-strong)] bg-[var(--bg-subtle)] responsiveTextInput text-[var(--chathams-blue)] focus:outline-none focus:border-[var(--endeavour)]"
-                        />
+                        />}
+                        {/* Pinned with the search box, not first in the list: the list opens
+                            scrolled to the selected option, and on a long list the top of
+                            it — where this used to sit — was scrolled out of sight. */}
+                        {canClearInList && (
+                            <button type="button"
+                                onPointerDown={(e) => e.stopPropagation()}
+                                onClick={clearFromList}
+                                className={`w-full flex items-center gap-1.5 px-2 py-1 rounded-lg text-left text-[var(--ink-secondary)] hover:bg-[var(--bg-subtle)] focus:bg-[var(--bg-subtle)] outline-none${searchable ? ' mt-1' : ''}`}
+                                style={{ fontSize: 'inherit' }}>
+                                <BtnIcon action="close" />
+                                <span className="truncate">{clearLabel}</span>
+                            </button>
+                        )}
                     </div>
                 )}
                 {canCreate && (

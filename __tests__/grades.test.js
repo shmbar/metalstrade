@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import {
     parseAssay, formatAssay, assayOf, assayRange, formatRange, aliasKey, buildGradeIndex,
-    resolveGrade, assignAliases, assignGradeToLine, parseSpecQuery, assayMatches, describeSpec,
+    resolveGrade, isExcluded, assignAliases, assignGradeToLine, parseSpecQuery, assayMatches, describeSpec,
     findGradeByName, makeGrade, buildGradeProfiles, suggestGrade,
     specFromAssay, lotSpec, splitBySpec, specBreakdown,
 } from '../utils/grades.js';
@@ -114,11 +114,77 @@ describe('the registry — spellings, exceptions, and what resolves', () => {
     });
 
     describe('assignGradeToLine', () => {
-        it('an unclaimed spelling becomes an alias, so next month fills itself', () => {
+        // Apply a change set to a registry, the way a save + snapshot does.
+        const apply = (list, changed) => list.map(g => changed.find(c => c.id === g.id) || g);
+
+        it('an unclaimed spelling is set on the LINE — the spelling is only learned, to offer', () => {
             const changed = assignGradeToLine(grades(), 'g40', { lineId: 'L1', description: '42Ni 12Cr 3Mo Turnings' });
             expect(changed).toHaveLength(1);
-            expect(changed[0].aliases).toContain('42Ni 12Cr 3Mo Turnings');
-            expect(changed[0].lineIds).toEqual([]);
+            expect(changed[0].lineIds).toEqual(['L1']);
+            expect(changed[0].aliases).toEqual(['40Ni Refinery Turnings']);   // not declared
+            expect(changed[0].learned).toEqual(['42Ni 12Cr 3Mo Turnings']);
+        });
+
+        it('a pick never re-grades another line spelled the same (client, 2026-09-25)', () => {
+            const after = apply(grades(), assignGradeToLine(grades(), 'g30', { lineId: 'L1', description: 'Ta Bars' }));
+            const idx = buildGradeIndex(after);
+            expect(resolveGrade(idx, { lineId: 'L1', description: 'Ta Bars' })?.id).toBe('g30');
+            expect(resolveGrade(idx, { lineId: 'L2', description: 'Ta Bars' })).toBeNull();
+            // …the next line spelled so is OFFERED it instead
+            expect(suggestGrade(buildGradeProfiles(after), 'Ta Bars')?.grade.id).toBe('g30');
+        });
+
+        it('"No grade" empties a line whose grade came from its spelling — and only that line', () => {
+            const changed = assignGradeToLine(grades(), null, { lineId: 'L1', description: '40Ni Refinery Turnings' });
+            expect(changed.map(g => g.id)).toEqual(['g40']);
+            expect(changed[0].excludeLineIds).toEqual(['L1']);
+            expect(changed[0].aliases).toEqual(['40Ni Refinery Turnings']);   // the spelling still means 40Ni
+            const idx = buildGradeIndex(apply(grades(), changed));
+            expect(resolveGrade(idx, { lineId: 'L1', description: '40Ni Refinery Turnings' })).toBeNull();
+            expect(resolveGrade(idx, { lineId: 'L2', description: '40Ni Refinery Turnings' })?.id).toBe('g40');
+            expect(isExcluded(idx, 'L1', 'g40')).toBe(true);
+            expect(isExcluded(idx, 'L2', 'g40')).toBe(false);
+        });
+
+        it('"No grade" on a line set to one grade but spelled like another leaves it empty in one step', () => {
+            const g = grades();
+            g[1].lineIds = ['L1'];                                   // set to 30Ni, spelled like 40Ni
+            const after = apply(g, assignGradeToLine(g, null, { lineId: 'L1', description: '40Ni Refinery Turnings' }));
+            expect(resolveGrade(buildGradeIndex(after), { lineId: 'L1', description: '40Ni Refinery Turnings' })).toBeNull();
+        });
+
+        it('picking again after "No grade" gives the line its grade back', () => {
+            const cleared = apply(grades(), assignGradeToLine(grades(), null, { lineId: 'L1', description: '40Ni Refinery Turnings' }));
+            const back = apply(cleared, assignGradeToLine(cleared, 'g40', { lineId: 'L1', description: '40Ni Refinery Turnings' }));
+            const idx = buildGradeIndex(back);
+            expect(resolveGrade(idx, { lineId: 'L1', description: '40Ni Refinery Turnings' })?.id).toBe('g40');
+            expect(back.find(x => x.id === 'g40').lineIds).toEqual([]);   // by its spelling again, nothing stored
+        });
+
+        it('the learned spelling follows the latest pick, and "No grade" forgets it', () => {
+            const one = apply(grades(), assignGradeToLine(grades(), 'g30', { lineId: 'L1', description: 'Ta Bars' }));
+            const two = apply(one, assignGradeToLine(one, 'g40', { lineId: 'L2', description: 'Ta Bars' }));
+            expect(two.find(x => x.id === 'g30').learned).toEqual([]);
+            expect(two.find(x => x.id === 'g40').learned).toEqual(['Ta Bars']);
+            expect(resolveGrade(buildGradeIndex(two), { lineId: 'L1', description: 'Ta Bars' })?.id).toBe('g30');   // L1 untouched
+            const gone = apply(two, assignGradeToLine(two, null, { lineId: 'L2', description: 'Ta Bars' }));
+            expect(gone.find(x => x.id === 'g40').learned).toEqual([]);
+            expect(suggestGrade(buildGradeProfiles(gone), 'Ta Bars')).toBeNull();
+        });
+
+        it('a deleted or unknown grade changes nothing', () => {
+            const g = grades();
+            g[1].lineIds = ['L1'];
+            expect(assignGradeToLine(g, 'gx', { lineId: 'L1', description: 'x' })).toEqual([]);
+            expect(assignGradeToLine(g, 'nope', { lineId: 'L1', description: 'x' })).toEqual([]);
+        });
+
+        it('declaring a spelling stops any grade merely offering it', () => {
+            const g = grades();
+            g[1].learned = ['Ta Bars'];
+            const changed = assignAliases(g, 'g40', ['Ta Bars']);
+            expect(changed.find(x => x.id === 'g30').learned).toEqual([]);
+            expect(changed.find(x => x.id === 'g40').aliases).toEqual(['40Ni Refinery Turnings', 'Ta Bars']);
         });
 
         it('a spelling already meaning this grade stores nothing', () => {
