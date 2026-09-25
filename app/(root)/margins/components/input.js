@@ -132,7 +132,9 @@ export const Input = function Input({ props, handleChange, month, name, styles, 
       /* Passed as JSX, not a string: Tltip title-cases plain-text tooltips, and
          an alloy spec has to read back exactly as it was typed. */
       tltpText={
-        <span className="block max-w-[420px] break-words bg-[var(--tooltip-bg)] text-[var(--tooltip-ink)] border border-[var(--tooltip-border)] shadow-pop rounded-lg px-2 py-1 responsiveTextTable font-normal">
+        /* The pill itself (colours, type, corners) is the tooltip's own .tooltip-pill;
+           a JSX body only brings back its padding, which Tltip drops for JSX. */
+        <span className="block max-w-[420px] break-words px-3 py-1.5">
           {value}
         </span>
       }

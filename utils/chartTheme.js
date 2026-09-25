@@ -18,6 +18,46 @@ export const cssVarRgba = (name, alpha, fallback) => {
   return trip ? `rgba(${trip}, ${alpha})` : fallback;
 };
 
+// A length token (e.g. --fs-table: '0.75rem') in canvas pixels. Read, never measured:
+// chart configs are built during render (the dashboard builds one on every render), so
+// this must not touch the DOM or force a style pass.
+const cssPx = (name, fallback) => {
+  if (typeof window === 'undefined') return fallback;
+  const v = cssVar(name, '');
+  const n = parseFloat(v);
+  if (!Number.isFinite(n) || n <= 0) return fallback;
+  if (/rem$/.test(v)) return n * (parseFloat(getComputedStyle(document.documentElement).fontSize) || 16);
+  if (/px$/.test(v)) return n;
+  return fallback;
+};
+
+/* The chart tooltip, in the app's ONE tooltip style: the --tooltip-* pill that
+   components/ui/tooltip.tsx and components/GlobalTooltip.js draw — same colours, same
+   type rung, weight 600 for the heading and 400 for the figures, 10px corners. The
+   dashboard charts used to draw a white card on six charts and chart.js's default
+   black box on three (client, 2026-09-25: "one consistent tooltip style"). No
+   animation, like the rest. Spread it into `plugins.tooltip` and add callbacks. */
+export const chartTooltip = () => {
+  // The body's resolved family: next/font sets --font-jakarta on <body>, not on :root.
+  const family = (typeof window !== 'undefined' && document.body && getComputedStyle(document.body).fontFamily)
+    || 'Plus Jakarta Sans, sans-serif';
+  const size = cssPx('--fs-table', 12);
+  return {
+    backgroundColor: cssVar('--tooltip-bg', '#1E1B39'),
+    titleColor: cssVar('--tooltip-ink', '#FFFFFF'),
+    bodyColor: cssVar('--tooltip-ink', '#FFFFFF'),
+    borderColor: cssVar('--tooltip-border', 'transparent'),
+    borderWidth: 1,
+    cornerRadius: 10,
+    padding: { x: 10, y: 6 },
+    boxPadding: 4,
+    caretSize: 5,
+    titleFont: { family, size, weight: 600 },
+    bodyFont: { family, size, weight: 400 },
+    animation: false,
+  };
+};
+
 /* ── Chart series palettes ────────────────────────────────────────────────────
  * Design-audit note: these are the ONE place in the app where colour is
  * deliberately NOT themed. A series palette has to keep its own hue spacing to

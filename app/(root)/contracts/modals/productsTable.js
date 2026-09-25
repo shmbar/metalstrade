@@ -403,8 +403,7 @@ const ProductsTable = ({ value, setValue, currency, quantityTable, setShowPoInvM
                                                                     </span>
                                                                 )}
                                                                 <span className={`absolute hidden ${key === 'unitPrc' && String(value1).substr(0, 1) === "=" ? 'group-hover:flex' : ''}
-                                                                 bottom-[30px] w-fit p-1  bg-[var(--tooltip-bg)] border border-[var(--tooltip-border)] shadow-pop rounded-lg text-center
-                                                                  text-[var(--tooltip-ink)] responsiveTextTable z-tooltip whitespace-nowrap -left-0.5`}>
+                                                                 bottom-[30px] w-fit tooltip-pill text-center z-tooltip whitespace-nowrap -left-0.5`}>
                                                                     {value1}</span>
                                                             </div>
                                                         ) : key === 'unitPrc' ?

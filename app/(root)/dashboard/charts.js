@@ -1,4 +1,4 @@
-import { cssVar, cssVarRgba } from '../../../utils/chartTheme';
+import { chartTooltip, cssVar, cssVarRgba } from '../../../utils/chartTheme';
 function addCommas(x) {
     var parts = Math.round(x).toString().split('.');
     return parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
@@ -61,20 +61,12 @@ export const LineChart = (data1, data2) => {
                 display: false,
             },
             tooltip: {
-                backgroundColor: cssVarRgba('--surface-card-rgb', 0.95, 'rgba(255,255,255,0.95)'),
-                titleColor: cssVar('--port-gore', '#28264f'), // port-gore
-                bodyColor: cssVar('--regent-gray', '#838ca7'), // regent-gray
-                borderColor: cssVar('--selago', '#ebf2fc'), // selago
-                borderWidth: 1,
-                cornerRadius: 8,
-                padding: 12,
+                ...chartTooltip(),
                 callbacks: {
                     label: function (context) {
                         return context.dataset.label + ': $' + addCommas(context.parsed.y.toString())
                     }
                 },
-                titleFont: { weight: 'bold' },
-                bodyFont: {},
             },
         },
         maintainAspectRatio: false,
@@ -158,20 +150,12 @@ export const GroupedBarChart = (data1, data2) => {
                 display: false,
             },
             tooltip: {
-                backgroundColor: cssVarRgba('--surface-card-rgb', 0.95, 'rgba(255,255,255,0.95)'),
-                titleColor: cssVar('--port-gore', '#28264f'), // port-gore
-                bodyColor: cssVar('--regent-gray', '#838ca7'), // regent-gray
-                borderColor: cssVar('--selago', '#ebf2fc'), // selago
-                borderWidth: 1,
-                cornerRadius: 8,
-                padding: 12,
+                ...chartTooltip(),
                 callbacks: {
                     label: function (context) {
                         return context.dataset.label + ': $' + addCommas(context.parsed.y.toString())
                     }
                 },
-                titleFont: { weight: 'bold' },
-                bodyFont: {},
             },
         },
         maintainAspectRatio: false,
@@ -249,20 +233,12 @@ export const LineChartSmall = (data, color) => {
                 display: false,
             },
             tooltip: {
-                backgroundColor: cssVarRgba('--surface-card-rgb', 0.95, 'rgba(255,255,255,0.95)'),
-                titleColor: cssVar('--port-gore', '#28264f'),
-                bodyColor: cssVar('--port-gore', '#28264f'),
-                borderColor: cssVar('--selago', '#ebf2fc'),
-                borderWidth: 1,
-                cornerRadius: 8,
-                padding: 10,
+                ...chartTooltip(),
                 callbacks: {
                     label: function (context) {
                         return '$' + addCommas(context.parsed.y.toString())
                     }
                 },
-                titleFont: { weight: 'bold' },
-                bodyFont: {},
             },
         },
         maintainAspectRatio: false,
@@ -316,20 +292,12 @@ export const BarChart = (data, color) => {
                 display: false,
             },
             tooltip: {
-                backgroundColor: cssVarRgba('--surface-card-rgb', 0.95, 'rgba(255,255,255,0.95)'),
-                titleColor: cssVar('--port-gore', '#28264f'),
-                bodyColor: cssVar('--port-gore', '#28264f'),
-                borderColor: cssVar('--selago', '#ebf2fc'),
-                borderWidth: 1,
-                cornerRadius: 8,
-                padding: 10,
+                ...chartTooltip(),
                 callbacks: {
                     label: function (context) {
                         return '$' + addCommas(context.parsed.y.toString())
                     }
                 },
-                titleFont: { weight: 'bold' },
-                bodyFont: {},
             },
         },
         maintainAspectRatio: false,
@@ -408,20 +376,12 @@ export const BarChartContracts = (data, data1, color, color1) => {
                 display: false,
             },
             tooltip: {
-                backgroundColor: cssVarRgba('--surface-card-rgb', 0.95, 'rgba(255,255,255,0.95)'),
-                titleColor: cssVar('--port-gore', '#28264f'),
-                bodyColor: cssVar('--port-gore', '#28264f'),
-                borderColor: cssVar('--selago', '#ebf2fc'),
-                borderWidth: 1,
-                cornerRadius: 8,
-                padding: 10,
+                ...chartTooltip(),
                 callbacks: {
                     label: function (context) {
                         return '$' + addCommas(context.parsed.y.toString())
                     }
                 },
-                titleFont: { weight: 'bold' },
-                bodyFont: {},
             },
         },
         maintainAspectRatio: false,
@@ -511,20 +471,12 @@ export const HorizontalBar = (arr, text) => {
                 display: false,
             },
             tooltip: {
-                backgroundColor: cssVarRgba('--surface-card-rgb', 0.95, 'rgba(255,255,255,0.95)'),
-                titleColor: cssVar('--port-gore', '#28264f'),
-                bodyColor: cssVar('--regent-gray', '#838ca7'),
-                borderColor: cssVar('--selago', '#ebf2fc'),
-                borderWidth: 1,
-                cornerRadius: 10,
-                padding: 12,
+                ...chartTooltip(),
                 callbacks: {
                     label: function (context) {
                         return context.label + ': $' + addCommas(context.parsed.x.toString())
                     },
                 },
-                titleFont: { weight: 'bold' },
-                bodyFont: {},
             }
         },
         maintainAspectRatio: false,
@@ -606,13 +558,12 @@ export const ExpCompare = (dtCrnt, dtCrntPrev, date, cur) => {
                 //	labels: {font: {family: 'Plus Jakarta Sans'}},
             },
             tooltip: {
+                ...chartTooltip(),
                 callbacks: {
                     label: function (context) {
                         return addCommas(context.parsed.y.toString())
                     }
                 },
-                titleFont: {},
-                bodyFont: {},
             },
         },
         maintainAspectRatio: false,
@@ -707,13 +658,12 @@ export const RevenueCompare = (dtCrnt, dtPrev, dtCrnt1, dtPrev1, date, cur) => {
                 //	labels: {font: {family: 'Plus Jakarta Sans'}},
             },
             tooltip: {
+                ...chartTooltip(),
                 callbacks: {
                     label: function (context) {
                         return addCommas(context.parsed.y.toString())
                     },
                 },
-                titleFont: {},
-                bodyFont: {},
             }
         },
         maintainAspectRatio: false,
@@ -789,13 +739,12 @@ export const PLCompare = (dtCrnt, dtPrev, date, cur) => {
                 //	labels: {font: {family: 'Plus Jakarta Sans'}},
             },
             tooltip: {
+                ...chartTooltip(),
                 callbacks: {
                     label: function (context) {
                         return addCommas(context.parsed.y.toString())
                     }
                 },
-                titleFont: {},
-                bodyFont: {},
             },
         },
         maintainAspectRatio: false,
@@ -866,6 +815,7 @@ export const ExpenseGroup = (expensesTitles, ExpGroup, lblType, cur) => {
                 labels: { font: {} },
             },
             tooltip: {
+                ...chartTooltip(),
                 callbacks: {
                     title: function (context) {
                         return expensesTitles[context[0].dataIndex]; //d.labels[t[0].index];
@@ -875,8 +825,6 @@ export const ExpenseGroup = (expensesTitles, ExpGroup, lblType, cur) => {
                     },
 
                 },
-                titleFont: {},
-                bodyFont: {},
             },
         },
         maintainAspectRatio: false,
@@ -945,13 +893,12 @@ export const OccupPrcnt = (dtCrnt, dtCrntPrev, date) => {
                 labels: { font: {} },
             },
             tooltip: {
+                ...chartTooltip(),
                 callbacks: {
                     label: function (context) {
                         return context.parsed.y.toString() + '%'
                     }
                 },
-                titleFont: {},
-                bodyFont: {},
             },
         },
         maintainAspectRatio: false,

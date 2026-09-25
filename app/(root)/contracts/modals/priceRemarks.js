@@ -65,8 +65,7 @@ const PriceRemarks = ({ value, setValue }) => {
                         onClick={() => addItem()}>
                         <CirclePlus size={10}/> {getTtl('Add', ln)}
                     </Button>
-                    <span className="absolute hidden group-hover:flex top-8 w-fit p-1
-    bg-[var(--tooltip-bg)] border border-[var(--tooltip-border)] shadow-pop rounded-lg text-center text-[var(--tooltip-ink)] responsiveTextTable z-10 whitespace-nowrap -left-1.5">
+                    <span className="absolute hidden group-hover:flex top-8 w-fit tooltip-pill text-center z-10 whitespace-nowrap -left-1.5">
                         {getTtl('AddFormula', ln)}</span>
                 </div>
 

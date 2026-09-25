@@ -1080,6 +1080,25 @@ thead th {
 }
 
 @layer components {
+  /* THE tooltip — one definition for every hover label in the app: the Radix <Tltip>
+     (components/ui/tooltip.tsx), every native `title` (components/GlobalTooltip.js),
+     and the in-flow CSS-hover hints. They were one colour pair already but drifted
+     on the rest: p-1 on some, px-3 py-1.5 on others, and three sizes of type
+     (client, 2026-09-25: "one consistent tooltip style across the whole app").
+     In the components layer so a call site's utilities still win — the table-bodied
+     tooltips pass p-0 / rounded-2xl. Colours from the --tooltip-* pair only. */
+  .tooltip-pill {
+    @apply px-3 py-1.5;
+    border: 1px solid var(--tooltip-border);
+    border-radius: var(--radius-control);
+    background: var(--tooltip-bg);
+    color: var(--tooltip-ink);
+    font-size: var(--fs-table);
+    font-weight: 400;
+    line-height: 1.375;
+    box-shadow: var(--shadow-md);
+  }
+
   /* px-6 py-3 was 24/12px of padding on a cell holding 11px text — the single
      biggest source of "everything is too big" inside a table. The spacing rescale
      alone would have taken it to 20/10; this takes it to the density the rest of

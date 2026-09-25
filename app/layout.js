@@ -3,6 +3,7 @@ import { Plus_Jakarta_Sans } from 'next/font/google';
 import Provider from './providers'
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { GlobalSearchProvider } from '../contexts/useGlobalSearchContext';
+import GlobalTooltip from '../components/GlobalTooltip';
 
 /* ONE family: Plus Jakarta Sans, everywhere.
    Client revision 2026-08-08: "one font family across the whole app".
@@ -68,6 +69,8 @@ export default function RootLayout({ children }) {
 						<div>{children}</div>
 					</GlobalSearchProvider>
 				</Provider>
+				{/* Every native `title` in the app, drawn as the app's own tooltip, instantly. */}
+				<GlobalTooltip />
 				<SpeedInsights />
 			</body>
 		</html>

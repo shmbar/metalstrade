@@ -35,7 +35,12 @@ const TooltipContent = React.forwardRef<
            report. Off, the tooltip is purely visual and vanishes the moment the
            pointer leaves its trigger. The rare tooltip whose body is genuinely
            clickable passes pointer-events-auto back in via className. */
-        "pointer-events-none z-tooltip overflow-hidden max-w-[28rem] w-auto min-w-0 max-h-[60vh] rounded-lg border border-[var(--tooltip-border)] bg-[var(--tooltip-bg)] px-3 py-1.5 responsiveTextTable text-[var(--tooltip-ink)] shadow-pop animate-in fade-in-0 zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 origin-[--radix-tooltip-content-transform-origin]",
+        /* No enter/exit animation: a tooltip is read at a glance, and the 150ms fade +
+           zoom made every one feel late — and left the last one fading out over the
+           next (client, 2026-09-25: "instant, no noticeable delay"). Same pill, same
+           metrics as the global one that draws every native `title`
+           (components/GlobalTooltip.js), so the two cannot be told apart. */
+        "tooltip-pill pointer-events-none z-tooltip overflow-hidden max-w-[28rem] w-auto min-w-0 max-h-[60vh]",
         className
       )}
       {...props}

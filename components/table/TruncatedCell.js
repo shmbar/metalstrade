@@ -59,7 +59,7 @@ export default function TruncatedCell({ value, className = '', style, direction 
             show={clipped}
             interactive
             tltpText={
-                <span className="inline-flex items-center gap-2 bg-[var(--tooltip-bg)] text-[var(--tooltip-ink)] border border-[var(--tooltip-border)] shadow-pop rounded-lg px-2 py-1 responsiveTextTable font-normal">
+                <span className="inline-flex items-center gap-2 px-3 py-1.5">
                     {/* select-text because the surrounding chrome sets user-select: none,
                         and picking the value out by hand has to keep working if the
                         clipboard API is unavailable. */}
