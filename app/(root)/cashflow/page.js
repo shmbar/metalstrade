@@ -69,16 +69,38 @@ const SectionHeader = ({ icon: Icon, title, className = '', children }) => (
 );
 
 
-/* Pending (payment on hold) beside a supplier or client name: how much of theirs is on
-   hold, muted, next to the active figure it is NOT part of. Nothing when there is none. */
-// Either sign: a held OVERPAID invoice (a credit, e.g. −$631.00) is a hold too.
-const PendingNote = ({ amount, prefix = '$' }) => Math.abs(Number(amount) || 0) > 0.005 ? (
-    <span className="inline-flex items-center gap-1 mr-2 responsiveTextTable text-[var(--ink-muted)] tabular-nums whitespace-nowrap"
-        title="On hold — not included in the total">
-        <Clock size={11} aria-hidden="true" />
-        <NumericFormat value={amount} displayType="text" thousandSeparator allowNegative={true} prefix={prefix} decimalScale={2} fixedDecimalScale />
-    </span>
+/* Pending (payment on hold) on a supplier or client row. The amount column shows ONE
+   figure — the held amount used to sit beside the active one ("⏱ $138,220.79  $0.00"),
+   two totals side by side (client review 2026-09-25):
+   - all of it on hold → the held amount, with the clock, and the row faded — the same
+     look as the section's "Pending (n)" line and as a held invoice inside the row;
+   - part of it on hold → the active figure as usual, the held part a Pending chip
+     beside the name.
+   Either sign: a held OVERPAID invoice (a credit, e.g. −$631.00) is a hold too. */
+const isHeld = (row) => Math.abs(Number(row?._pendingBlnc) || 0) > 0.005;
+const allHeld = (row, field) => isHeld(row) && Math.abs(parseFloat(row?.[field]) || 0) < 0.005;
+const heldRowClass = (row, field) => (allHeld(row, field) ? 'opacity-[0.72]' : '');
+
+const PendingChip = ({ row, field, prefix = '$' }) => isHeld(row) && !allHeld(row, field) ? (
+    <Tltip direction='top' tltpText='On hold — not included in the total'>
+        <span className="inline-flex items-center gap-1 h-5 px-1.5 rounded-lg shrink-0 responsiveTextTable font-medium leading-none text-[var(--ink-secondary)] bg-[var(--bg-subtle)] border border-[var(--line-strong)] tabular-nums whitespace-nowrap cursor-default">
+            <Clock size={11} aria-hidden="true" />
+            <NumericFormat value={row._pendingBlnc} displayType="text" thousandSeparator allowNegative={true} prefix={prefix} decimalScale={2} fixedDecimalScale />
+        </span>
+    </Tltip>
 ) : null;
+
+const RowAmount = ({ row, field, prefix = '$' }) => {
+    const held = allHeld(row, field);
+    return (
+        <span className={`inline-flex items-center gap-1 responsiveText tabular-nums ${held ? 'text-[var(--ink-secondary)]' : 'text-[var(--ink)]'}`}
+            title={held ? 'On hold — not included in the total' : undefined}>
+            {held && <Clock size={13} aria-hidden="true" />}
+            <NumericFormat value={held ? row._pendingBlnc : row[field]} displayType="text" thousandSeparator allowNegative={true}
+                prefix={prefix} decimalScale={2} fixedDecimalScale />
+        </span>
+    );
+};
 
 /* A section's closing lines: the pending holds (faded, only when there are any), then
    the active total, labelled for what it is — "Total (Payable)" / "Total (Receivable)".
@@ -1765,27 +1787,17 @@ const Cashflow = () => {
                                                         return (
                                                             <div className="bg-[var(--surface-card)] py-0.5 px-0 hover:bg-[var(--surface-header)] transition-colors" key={i}>
                                                                 <MyAccordion title={
-                                                                    <div className="flex w-full justify-between">
+                                                                    <div className={`flex w-full justify-between ${heldRowClass(x, 'debtBlnc')}`}>
                                                                         <div className="flex items-center gap-1.5 min-w-0">
                                                                             <div className="responsiveText text-[var(--ink)] font-medium items-center flex gap-1.5 outline-none whitespace-normal break-words min-w-0">
                                                                                 <Avatar name={cliName(x.client)} size={18} />
                                                                                 {cliName(x.client)}
                                                                             </div>
                                                                             <FinalSummaryBadge finalized={x._finCount} total={x._finTotal} />
+                                                                            <PendingChip row={x} field="debtBlnc" prefix={x.cur === 'us' ? '$' : '€'} />
                                                                         </div>
                                                                         <div className='leading-4 2xl:leading-6 '>
-                                                                            <PendingNote amount={x._pendingBlnc} prefix={x.cur === 'us' ? '$' : '€'} />
-                                                                            <NumericFormat
-                                                                                value={x.debtBlnc}
-                                                                                displayType="text"
-                                                                                thousandSeparator
-                                                                                allowNegative={true}
-                                                                                prefix={x.cur === 'us' ? '$' : '€'}
-                                                                                decimalScale='2'
-                                                                                fixedDecimalScale
-                                                                                className='responsiveText text-[var(--ink)] tabular-nums'
-                                                                            />
-
+                                                                            <RowAmount row={x} field="debtBlnc" prefix={x.cur === 'us' ? '$' : '€'} />
                                                                         </div>
                                                                     </div>}>
                                                                     <ClientDetails client={x.client} data={clientsData} type="InDebt" uidCollection={uidCollection} setDateSelect={setDateSelect} setValueCon={setValueCon} setIsOpenCon={setIsOpenCon} blankInvoice={blankInvoice} router={router} toggleCheckClient={toggleCheckClient} toggleCheckClientAll={toggleCheckClientAll} toggleClientPartial={toggleClientPartial} toggleClientFull={toggleClientFull} savePmntClient={savePmntClient} clientPartialPayment={clientPartialPayment} openInvModal={openInvModal} onPending={saveClientPending} sumSel={sumSel} toggleSum={toggleSum} />
@@ -1807,27 +1819,17 @@ const Cashflow = () => {
                                                         return (
                                                             <div className="bg-[var(--bg-card)] py-0.5 px-0 rounded-2xl hover:bg-[var(--bg-subtle)] transition-colors" key={i}>
                                                                 <MyAccordion title={
-                                                                    <div className="flex w-full justify-between">
+                                                                    <div className={`flex w-full justify-between ${heldRowClass(x, 'debtBlnc')}`}>
                                                                         <div className="flex items-center gap-1.5 min-w-0">
                                                                             <div className="responsiveText font-medium text-[var(--ink)] items-center flex gap-1.5 outline-none whitespace-normal break-words min-w-0">
                                                                                 <Avatar name={cliName(x.client)} size={18} />
                                                                                 {cliName(x.client)}
                                                                             </div>
                                                                             <FinalSummaryBadge finalized={x._finCount} total={x._finTotal} />
+                                                                            <PendingChip row={x} field="debtBlnc" prefix={x.cur === 'us' ? '$' : '€'} />
                                                                         </div>
                                                                         <div className='leading-4 2xl:leading-6'>
-                                                                            <PendingNote amount={x._pendingBlnc} prefix={x.cur === 'us' ? '$' : '€'} />
-                                                                            <NumericFormat
-                                                                                value={x.debtBlnc}
-                                                                                displayType="text"
-                                                                                thousandSeparator
-                                                                                allowNegative={true}
-                                                                                prefix={x.cur === 'us' ? '$' : '€'}
-                                                                                decimalScale='2'
-                                                                                fixedDecimalScale
-                                                                                className='responsiveText text-[var(--ink)] tabular-nums'
-                                                                            />
-
+                                                                            <RowAmount row={x} field="debtBlnc" prefix={x.cur === 'us' ? '$' : '€'} />
                                                                         </div>
                                                                     </div>}>
                                                                     <ClientDetails client={x.client} data={clientsData} type="PartPaid" uidCollection={uidCollection} setDateSelect={setDateSelect} setValueCon={setValueCon} setIsOpenCon={setIsOpenCon} blankInvoice={blankInvoice} router={router} toggleCheckClient={toggleCheckClient} toggleCheckClientAll={toggleCheckClientAll} toggleClientPartial={toggleClientPartial} toggleClientFull={toggleClientFull} savePmntClient={savePmntClient} clientPartialPayment={clientPartialPayment} openInvModal={openInvModal} onPending={saveClientPending} sumSel={sumSel} toggleSum={toggleSum} />
@@ -1931,26 +1933,17 @@ const Cashflow = () => {
                                                         return (
                                                             <div className="bg-[var(--bg-card)] py-0.5 px-0 rounded-2xl hover:bg-[var(--bg-subtle)] transition-colors" key={i}>
                                                                 <MyAccordion title={
-                                                                    <div className="flex w-full justify-between leading-4 2xl:leading-6">
+                                                                    <div className={`flex w-full justify-between leading-4 2xl:leading-6 ${heldRowClass(x, 'blnc')}`}>
                                                                         <div className="flex items-center gap-1.5 w-full min-w-0">
                                                                             <span className="responsiveText font-medium text-[var(--ink)] items-center flex gap-1.5 outline-none whitespace-normal break-words min-w-0">
                                                                                 <Avatar name={supName(x.supplier)} size={18} />
                                                                                 {supName(x.supplier)}
                                                                             </span>
                                                                             <FinalSummaryBadge finalized={x._finCount} total={x._finTotal} />
+                                                                            <PendingChip row={x} field="blnc" />
                                                                         </div>
                                                                         <div className="w-full text-right">
-                                                                            <PendingNote amount={x._pendingBlnc} />
-                                                                            <NumericFormat
-                                                                                value={x.blnc}
-                                                                                displayType="text"
-                                                                                thousandSeparator
-                                                                                allowNegative={true}
-                                                                                prefix={'$'}
-                                                                                decimalScale='2'
-                                                                                fixedDecimalScale
-                                                                                className='responsiveText text-[var(--ink)] tabular-nums'
-                                                                            />
+                                                                            <RowAmount row={x} field="blnc" />
                                                                         </div>
                                                                     </div>
                                                                 }>
@@ -1976,26 +1969,17 @@ const Cashflow = () => {
                                                         return (
                                                             <div className="bg-[var(--bg-card)] py-0.5 px-0 rounded-2xl hover:bg-[var(--bg-subtle)] transition-colors" key={i}>
                                                                 <MyAccordion title={
-                                                                    <div className="flex w-full justify-between leading-4 2xl:leading-6">
+                                                                    <div className={`flex w-full justify-between leading-4 2xl:leading-6 ${heldRowClass(x, 'blnc')}`}>
                                                                         <div className="flex items-center gap-1.5 w-full min-w-0">
                                                                             <span className="responsiveText items-center font-medium text-[var(--ink)] flex gap-1.5 outline-none whitespace-normal break-words min-w-0">
                                                                                 <Avatar name={supName(x.supplier)} size={18} />
                                                                                 {supName(x.supplier)}
                                                                             </span>
                                                                             <FinalSummaryBadge finalized={x._finCount} total={x._finTotal} />
+                                                                            <PendingChip row={x} field="blnc" />
                                                                         </div>
                                                                         <div className="w-full text-right">
-                                                                            <PendingNote amount={x._pendingBlnc} />
-                                                                            <NumericFormat
-                                                                                value={x.blnc}
-                                                                                displayType="text"
-                                                                                thousandSeparator
-                                                                                allowNegative={true}
-                                                                                prefix={'$'}
-                                                                                decimalScale='2'
-                                                                                fixedDecimalScale
-                                                                                className='responsiveText text-[var(--ink)] tabular-nums'
-                                                                            />
+                                                                            <RowAmount row={x} field="blnc" />
                                                                         </div>
                                                                     </div>
                                                                 }>
