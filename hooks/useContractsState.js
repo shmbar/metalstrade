@@ -284,7 +284,10 @@ const useContractsState = (props) => {
             let success = await updateDocumentContract(uidCollection, 'contracts', 'poInvoices', newValCon, newValCon.poInvoices)
             success && setToast({ show: true, text: getTtl('Payments successfully saved!', ln), clr: 'success' })
         },
-        saveData_stocks: async (uidCollection, data, poInvoicesOverride = null) => {
+        // productsDataOverride: the contract's product entries as the breakdown means to save
+        // them — passed when a duplicate hidden entry was folded into its PO line in this save
+        // (whModal.js), because valueCon here still holds the list from before the fold.
+        saveData_stocks: async (uidCollection, data, poInvoicesOverride = null, productsDataOverride = null) => {
             if (data.length === 0 && valueCon.stock.length === 0) return;
 
             // A confirmed final settlement passes recomputed supplier-invoice values
@@ -296,7 +299,7 @@ const useContractsState = (props) => {
             // their casing) on every breakdown save, so legacy imports self-correct with
             // a single Save — no re-import needed. Idempotent; PO's own lines untouched.
             const softenCaps = (s) => String(s || '').replace(/\b[A-Z]{4,}\b/g, w => w[0] + w.slice(1).toLowerCase());
-            const productsData = (valueCon.productsData || []).map(p =>
+            const productsData = (productsDataOverride || valueCon.productsData || []).map(p =>
                 p.import ? { ...p, description: softenCaps(p.description) } : p);
 
             //check if item deleted

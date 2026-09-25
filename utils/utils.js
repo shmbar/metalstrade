@@ -1319,6 +1319,27 @@ export const loadSalesMovementsByLine = async (uidCollection, lineIds = []) => {
 };
 
 /**
+ * EVERY stock-ledger row that names one of these line ids — drafts, superseded invoice
+ * rows and zero totals included. For a safety check, not a stock figure: before the
+ * Materials Breakdown folds a duplicate hidden entry into its PO line
+ * (utils/productEntries.js), anything at all still pointing at that entry must be seen.
+ */
+export const loadLedgerRowsReferencing = async (uidCollection, lineIds = []) => {
+  const ids = [...new Set(lineIds.filter(Boolean))];
+  if (!ids.length) return [];
+  const rows = new Map();
+  for (let i = 0; i < ids.length; i += 30) {                 // Firestore `in` cap
+    const chunk = ids.slice(i, i + 30);
+    for (const field of ['description', 'descriptionId']) {
+      const snap = await getDocs(query(collection(db, uidCollection, 'data', 'stocks'), where(field, 'in', chunk)));
+      // A lot's own `id` field is what the breakdown's rows carry (loadStockData by 'id').
+      snap.docs.forEach(d => rows.set(d.id, { id: d.id, ...d.data() }));
+    }
+  }
+  return [...rows.values()];
+};
+
+/**
  * Which of these sales-invoice numbers still exist in this workspace → Map of number (as
  * a string) → the PO number of the contract that invoice is on. A purchase invoice keeps its link to a sales invoice as the bare number
  * (poInvoices[].invRef), so the link outlives the invoice when that is deleted. And "not

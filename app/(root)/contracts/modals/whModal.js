@@ -8,7 +8,8 @@ import { UserAuth } from "@contexts/useAuthContext";
 
 import ChkBox from '@components/checkbox';
 import { v4 as uuidv4 } from 'uuid';
-import { getD, loadSalesMovementsByLine, loadStockData, validate } from '@utils/utils'
+import { getD, loadLedgerRowsReferencing, loadSalesMovementsByLine, loadStockData, validate } from '@utils/utils'
+import { duplicateEntries, entryNameKey, foldEntries, safeMerges } from '@utils/productEntries'
 import { allocateSalesToLots, lotSalesCellText, lotSalesTooltip } from '@utils/salesUsage'
 import { getTtl } from '@utils/languages';
 import Tltip from '@components/tlTip';
@@ -337,8 +338,33 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowPoInvModal }) => {
             }
         }
 
-        saveData_stocks(uidCollection, data)
+        /* A hidden entry that now carries the same name as the PO line it came from is a
+           duplicate (utils/productEntries.js) — PO 110926-1 listed "CpTi Powder" twice,
+           the PO line empty and the copy holding the lot. It is folded back into its line
+           in this same save: lots re-pointed, entry dropped. Anything else in the ledger
+           still naming it (a sale, a transfer, another contract's lot) leaves it alone. */
+        let rows = data
+        let productsOverride = null
+        let folded = []
+        const merges = duplicateEntries(valueCon.productsData)
+        if (merges.length) {
+            const refs = await loadLedgerRowsReferencing(uidCollection, merges.map(m => m.from)).catch(() => null)
+            folded = refs ? safeMerges(merges, refs, data.map(r => r.id)) : []
+            if (folded.length) {
+                const next = foldEntries(valueCon.productsData, data, folded)
+                rows = next.rows
+                productsOverride = next.productsData
+                setData(rows)
+            }
+        }
 
+        await saveData_stocks(uidCollection, rows, null, productsOverride)
+
+        if (folded.length) {
+            const names = [...new Set(folded.map(m => (valueCon.productsData || []).find(p => p.id === m.to)?.description)
+                .filter(n => entryNameKey(n)))]
+            setToast({ show: true, text: `Saved — ${names.map(n => `"${n}"`).join(', ')} was listed twice; its lots are now on the PO line.`, clr: 'success' })
+        }
     }
 
     const handleDateChange = (e, i) => {
