@@ -32,7 +32,7 @@ import { Gauge, Receipt, Percent, Truck, Warehouse, TrendingUp, FileWarning, Shi
 import { HorizontalBar } from './charts';
 import useExchangeRates from '@hooks/useExchangeRates';
 import { matchesAllWords } from '@utils/search';
-import { moneyCompact } from '@utils/currency';
+import { moneyCompact, moneyFull } from '@utils/currency';
 
 // chart.js + react-chartjs-2 are loaded on demand (not in the first-load bundle).
 
@@ -1136,7 +1136,7 @@ function TonnageCard({ purchased = 0, shipped = 0, pending = 0, unsoldValue = 0,
 
 // Annual total of P1 "Misc Invoices" — standalone sales not tied to a contract.
 function MiscInvoicesCard({ byCur = {}, byCat = {}, count = 0, onOpen, onOpenCategory }) {
-  const fmtCur = (cur, v) => `${cur === 'us' ? '$' : cur === 'eu' ? '€' : ''}${new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(v || 0)}`;
+  const fmtCur = (cur, v) => moneyFull(cur, v); // shared money format (utils/currency.js)
   const entries = Object.entries(byCur).filter(([, v]) => Math.abs(v) > 0.005);
 
   const CAT_META = [
@@ -1988,7 +1988,8 @@ const Dash = () => {
       comments: r?.comments || '',
     };
   }).sort((a, b) => b.usd - a.usd), [rawCompanyExpenses, companyRate, liveEurUsd]);
-  const money = (c, v) => `${c === 'us' ? '$' : '€'}${new Intl.NumberFormat('en-US', { maximumFractionDigits: 2 }).format(v || 0)}`;
+  // Was "$1,234.5", and € for any currency that was not $ — the shared format now, as on mobile.
+  const money = (c, v) => moneyFull(c, v);
 
   /* The contracts behind one supplier NAME. Matched by resolved name, exactly as funcs.js
      re-keys the card — two settings ids sharing an nname are one tile, so they have to be
@@ -2187,7 +2188,7 @@ const Dash = () => {
         ];
       }).concat(Object.entries(pendingRecv).map(([cur, v]) => ({
         label: `Pending — on hold (${cur.toUpperCase()})`,
-        value: `${cur === 'us' ? '$' : cur === 'eu' ? '€' : ''}${new Intl.NumberFormat('en-US', { maximumFractionDigits: 2 }).format(v)}`,
+        value: moneyFull(cur, v),
         note: 'set in Cashflow · not included above',
       }))),
     },
@@ -2196,8 +2197,7 @@ const Dash = () => {
       formula: (aging || []).map(b => ({
         label: `${b.label} days`,
         note: `${b.count} invoice${b.count === 1 ? '' : 's'}`,
-        value: Object.entries(b.byCur || {}).map(([c, v]) =>
-          `${c === 'us' ? '$' : '€'}${new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 }).format(v || 0)}`).join(' · ') || '—',
+        value: Object.entries(b.byCur || {}).map(([c, v]) => moneyFull(c, v)).join(' · ') || '—',
       })),
     },
     miscInvoices: {
@@ -2675,13 +2675,13 @@ const Dash = () => {
               { key: 'order', label: 'PO', render: (r) => r.order || '—' },
               { key: 'date', label: 'Date' },
               { key: 'comments', label: 'Notes', render: (r) => r.comments || '—' },
-              { key: 'amount', label: 'As entered', right: true, render: (r) => `${r.cur === 'us' ? '$' : '€'}${new Intl.NumberFormat('en-US', { maximumFractionDigits: 2 }).format(r.amount || 0)}` },
+              { key: 'amount', label: 'As entered', right: true, render: (r) => moneyFull(r.cur, r.amount) },
               { key: 'usd', label: 'USD', right: true, render: (r) => fmtAutoKM(r.usd) },
             ]
             : [
               { key: 'invoice', label: 'Invoice' },
               { key: 'date', label: 'Date' },
-              { key: 'amount', label: 'As entered', right: true, render: (r) => `${r.cur === 'us' ? '$' : '€'}${new Intl.NumberFormat('en-US', { maximumFractionDigits: 2 }).format(r.amount || 0)}` },
+              { key: 'amount', label: 'As entered', right: true, render: (r) => moneyFull(r.cur, r.amount) },
               { key: 'usd', label: 'USD', right: true, render: (r) => fmtAutoKM(r.usd) },
             ]}
       />

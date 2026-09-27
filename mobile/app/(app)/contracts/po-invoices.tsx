@@ -8,10 +8,11 @@ import { Screen, Card, Text, TextField, DateField, Button, SectionHeader, EmptyS
 import { useTheme } from '@/theme/ThemeProvider';
 import { useContracts } from '@/features/contracts/useContracts';
 import {
-  PoInvoice, addInvoice, deleteInvoice, addPayment, deletePayment,
+  PoInvoice, addInvoice, deleteInvoice, addPayment, deletePayment, linkedInvoiceBlock,
   setInvoiceField, setPaymentAmount, setPaymentPerc, setPaymentDate, toggleDraft,
 } from '@/features/contracts/poInvoiceModel';
 import { updateContractField, newId } from '@/data/writes';
+import { existingSalesInvoiceNumbers } from '@/data/firestore';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/store/auth';
 import { curSymbol, fmtMoney, dateLabel } from '@/lib/format';
@@ -36,6 +37,37 @@ export default function PoInvoices() {
   const apply = (next: PoInvoice[] | null) => {
     if (!next) return; // rejected keystroke (>2 decimals)
     setList(next);
+  };
+
+  /* Web poInvModal deleteItems (66b06dd7): a purchase invoice linked to a sales invoice
+     (invRef) can't be deleted while that sales invoice still EXISTS — anywhere in the
+     workspace, since material imported from this PO can be sold on another. A link left
+     behind by a deleted sales invoice no longer blocks. Mobile used to delete with no
+     check at all. */
+  const [checkingId, setCheckingId] = useState<string | null>(null);
+  const confirmDelete = async (inv: PoInvoice) => {
+    const refs = [...new Set(((inv as any).invRef || []).map(String).filter(Boolean))] as string[];
+    if (refs.length && uidCollection) {
+      let live: Map<string, string>;
+      setCheckingId(inv.id);
+      try {
+        live = await existingSalesInvoiceNumbers(uidCollection, refs);
+      } catch (e: any) {
+        Alert.alert('Could not check', `Could not check the linked sales invoices (${e?.code || e?.message || e}) — nothing was removed.`);
+        return;
+      } finally {
+        setCheckingId(null);
+      }
+      const block = linkedInvoiceBlock(refs, live, String(contract?.order || ''));
+      if (block) {
+        Alert.alert('Linked to a sales invoice', block);
+        return;
+      }
+    }
+    Alert.alert('Delete invoice?', inv.inv || 'This purchase invoice', [
+      { text: 'Cancel', style: 'cancel' },
+      { text: 'Delete', style: 'destructive', onPress: () => apply(deleteInvoice(rows, inv.id)) },
+    ]);
   };
 
   const save = useMutation({
@@ -213,16 +245,8 @@ export default function PoInvoices() {
                 <Text variant="caption" tone="muted">Draft (hide from Cashflow)</Text>
               </Pressable>
               <View style={{ flex: 1 }} />
-              <Pressable
-                onPress={() =>
-                  Alert.alert('Delete invoice?', inv.inv || 'This purchase invoice', [
-                    { text: 'Cancel', style: 'cancel' },
-                    { text: 'Delete', style: 'destructive', onPress: () => apply(deleteInvoice(rows, inv.id)) },
-                  ])
-                }
-                hitSlop={8}
-              >
-                <Text variant="caption" style={{ color: colors.negative }}>Delete</Text>
+              <Pressable onPress={() => confirmDelete(inv)} disabled={checkingId === inv.id} hitSlop={8}>
+                <Text variant="caption" style={{ color: colors.negative }}>{checkingId === inv.id ? 'Checking…' : 'Delete'}</Text>
               </Pressable>
             </View>
           </Card>

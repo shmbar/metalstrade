@@ -175,6 +175,17 @@ export default function ExpenseEdit() {
       </Card>
 
       <Button title="Save" loading={save.isPending} onPress={onSave} style={{ marginTop: 14 }} />
+      {/* The expense's invoice and other files — web's Files button (dad56d7a). A new
+          expense already has its id (seeded above), so a file added before the first
+          save lands in the folder the expense is saved under, as on web. */}
+      {!!v.id && (
+        <Button
+          title="Attachments"
+          variant="secondary"
+          style={{ marginTop: 10 }}
+          onPress={() => router.push(`/(app)/attachments?id=${v.id}`)}
+        />
+      )}
       {isCompany && !isNew && (
         <Button
           title="Copy to misc invoices"

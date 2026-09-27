@@ -5,7 +5,7 @@ import { loadData, buildInvoiceIndex, contractInvoicesFromIndex } from '@/data/f
 import { Contract, Invoice } from '@/data/types';
 import { qk } from '@/query/client';
 import { contractPurchaseValue, toMT, num } from '@shared/finance';
-import { curSymbol, fmtMoney } from '@/lib/format';
+import { moneyFull } from '@/lib/format';
 import { arr } from '@/lib/guard';
 import { useShallow } from 'zustand/react/shallow';
 
@@ -94,7 +94,7 @@ export function deriveContract(c: Contract, settings: any): ContractView {
     supplierName,
     currency: cur,
     totalValue,
-    valueLabel: `${curSymbol(cur)}${fmtMoney(totalValue)}`,
+    valueLabel: `${moneyFull(cur, totalValue)}`,
     invoicedValue,
     totalMT,
     mtLabel,

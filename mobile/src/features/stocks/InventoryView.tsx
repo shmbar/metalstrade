@@ -7,7 +7,8 @@ import { useTheme } from '@/theme/ThemeProvider';
 import { useStocks } from './useStocks';
 import { GradeSummaryCard } from './GradeSummaryCard';
 import { LotSheet } from './LotSheet';
-import { curSymbol, fmtMoney } from '@/lib/format';
+import { moneyFull } from '@/lib/format';
+import { specCellText } from './specs';
 import { filterInventoryRows, warehouseTotalCell } from './display';
 import { LIST_END_PADDING, layout } from '@/theme/tokens';
 import { keyboardScrollProps } from '@/lib/keyboard';
@@ -88,7 +89,7 @@ export function InventoryView() {
                         {fmtQty(quantity)}
                       </Text>
                       <Text variant="bodyMedium" tone="primary" style={{ fontVariant: ['tabular-nums'] }}>
-                        {iso === 'EUR' ? '€' : '$'}{fmtMoney(total)}
+                        {moneyFull(iso, total)}
                       </Text>
                     </View>
                   );
@@ -176,6 +177,16 @@ export function InventoryView() {
                   <Text variant="caption" tone="muted" numberOfLines={1} style={{ marginTop: 2 }}>
                     {item.warehouseName || '—'} · {item.supplierName}
                   </Text>
+                  {/* Web's Spec column (c99657c4): what the lots actually are — a typed spec
+                      or their chemistry — with what is left of each when there are several. */}
+                  {(() => {
+                    const spec = specCellText(item);
+                    return spec ? (
+                      <Text variant="caption" tone="faint" numberOfLines={1} style={{ marginTop: 2 }}>
+                        Spec {spec}
+                      </Text>
+                    ) : null;
+                  })()}
                 </View>
                 <View style={{ alignItems: 'flex-end' }}>
                   <Text variant="figure">
@@ -197,11 +208,11 @@ export function InventoryView() {
                     it, so the total could not be checked against a price. */}
                 {Number(item.unitPrc) > 0 && (
                   <Text variant="caption" tone="faint" style={{ marginRight: 8 }}>
-                    {curSymbol(item.cur)}{fmtMoney(item.unitPrc as number)}/unit
+                    {moneyFull(item.cur, item.unitPrc as number)}/unit
                   </Text>
                 )}
                 <Text variant="bodyMedium" tone="primary">
-                  {item.total === '-' ? '—' : `${curSymbol(item.cur)}${fmtMoney(item.total as number)}`}
+                  {item.total === '-' ? '—' : moneyFull(item.cur, item.total as number)}
                 </Text>
               </View>
             </Card>

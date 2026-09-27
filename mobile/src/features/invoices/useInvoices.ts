@@ -13,7 +13,7 @@ import {
   resolveInvoiceDate,
   num,
 } from '@shared/finance';
-import { curSymbol, fmtMoney } from '@/lib/format';
+import { moneyFull } from '@/lib/format';
 import { useShallow } from 'zustand/react/shallow';
 
 // Resolve a client display name from either an id (draft invoices) or an object
@@ -58,7 +58,7 @@ export function deriveInvoice(inv: Invoice, settings: any): InvoiceView {
   const prepayBalance = (inv as any).balanceDue != null ? num((inv as any).balanceDue) : null;
   return {
     prepayBalance,
-    prepayBalanceLabel: prepayBalance == null ? null : `${curSymbol(cur)}${fmtMoney(prepayBalance)}`,
+    prepayBalanceLabel: prepayBalance == null ? null : `${moneyFull(cur, prepayBalance)}`,
     id: inv.id,
     year: String((inv as any).__yr || (resolveInvoiceDate(inv) || '').substring(0, 4) || ''),
     number: inv.invoice,
@@ -67,8 +67,8 @@ export function deriveInvoice(inv: Invoice, settings: any): InvoiceView {
     total,
     paid,
     balance,
-    totalLabel: `${curSymbol(cur)}${fmtMoney(total)}`,
-    balanceLabel: `${curSymbol(cur)}${fmtMoney(balance)}`,
+    totalLabel: `${moneyFull(cur, total)}`,
+    balanceLabel: `${moneyFull(cur, balance)}`,
     dateIso: resolveInvoiceDate(inv),
     finalized: isFinalized(inv),
     issued: isIssued(inv),

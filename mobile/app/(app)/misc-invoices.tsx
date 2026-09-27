@@ -9,7 +9,7 @@ import { useTheme } from '@/theme/ThemeProvider';
 import { useSettings } from '@/store/settings';
 import { useMiscInvoices, useSetMiscCategory, MISC_CATS, MiscRow, MiscCat } from '@/features/misc/useMiscInvoices';
 import { apiConfigured, postJson } from '@/lib/api';
-import { curSymbol, fmtMoney } from '@/lib/format';
+import { curSymbol, fmtMoney, moneyFull } from '@/lib/format';
 import { StackHeader } from '@/components/StackHeader';
 import { LIST_END_PADDING, layout, spacing } from '@/theme/tokens';
 import { keyboardScrollProps } from '@/lib/keyboard';
@@ -228,7 +228,7 @@ function SupplierSummary({
   const line = (byCur: Record<string, number>) =>
     Object.entries(byCur)
       .filter(([, v]) => Math.abs(v) > 0.005)
-      .map(([c, v]) => `${curSymbol(c)}${fmtMoney(v)}`)
+      .map(([c, v]) => `${moneyFull(c, v)}`)
       .join('  ') || '$0.00';
   return (
     <Card style={{ marginBottom: layout.stack }}>

@@ -7,7 +7,7 @@ import { Screen, Card, Text, Badge, SegmentedControl, ProgressBar, SkeletonList,
 import { PeriodSelector } from '@/components/PeriodSelector';
 import { useTheme } from '@/theme/ThemeProvider';
 import { useContractsReview, statusTone } from '@/features/review/useContractsReview';
-import { fmtMoney, curSymbol } from '@/lib/format';
+import { fmtMoney, moneyFull } from '@/lib/format';
 import { sumReviewFinancials } from '@/features/review/reviewFinance';
 import { StackHeader } from '@/components/StackHeader';
 import { matchesAllWords, searchWords } from '@shared/search';
@@ -248,7 +248,7 @@ function Money({
         variant={strong ? 'bodyMedium' : 'body'}
         style={{ fontVariant: ['tabular-nums'], ...(color ? { color } : {}) }}
       >
-        {curSymbol(cur)}{fmtMoney(v)}
+        {moneyFull(cur, v)}
       </Text>
     </View>
   );

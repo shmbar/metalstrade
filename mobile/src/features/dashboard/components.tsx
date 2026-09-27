@@ -7,7 +7,7 @@ import { fmtCurKM, fmtAutoKM, initials } from '@/lib/format';
 import { ReceivablesSlot, AgingBucket } from '@shared/finance';
 
 // Outstanding receivables split finalized vs provisional — per currency.
-export function ReceivablesCard({ byCur, onPress }: { byCur: Record<string, ReceivablesSlot>; onPress?: () => void }) {
+export function ReceivablesCard({ byCur, pendingByCur = {}, onPress }: { byCur: Record<string, ReceivablesSlot>; pendingByCur?: Record<string, number>; onPress?: () => void }) {
   const { colors } = useTheme();
   const curs = Object.keys(byCur).filter((c) => {
     const d = byCur[c];
@@ -38,6 +38,12 @@ export function ReceivablesCard({ byCur, onPress }: { byCur: Record<string, Rece
               {t}
             </Text>
           ))}
+          {/* Invoices on hold in Cashflow — outside the figure above, not forgotten (web). */}
+          {Object.keys(pendingByCur).length > 0 && (
+            <Text variant="caption" tone="muted" accessibilityLabel="On hold in Cashflow, not included in the outstanding total">
+              Pending {Object.entries(pendingByCur).map(([c, v]) => fmtCurKM(c, v)).join(" · ")}
+            </Text>
+          )}
         </View>
       </View>
 

@@ -8,7 +8,7 @@ import { PeriodSelector } from '@/components/PeriodSelector';
 import { useTheme } from '@/theme/ThemeProvider';
 import { useAccounting, AccountingGroup } from '@/features/accounting/useAccounting';
 import { useAccountingEdit } from '@/features/accounting/useAccountingEdit';
-import { curSymbol, fmtMoney, dateLabel } from '@/lib/format';
+import { curSymbol, fmtMoney, dateLabel, moneyFull } from '@/lib/format';
 import { exportCsv } from '@/lib/export';
 import { useSettings } from '@/store/settings';
 import { matchesAllWords, searchWords } from '@shared/search';
@@ -146,7 +146,7 @@ export default function Accounting() {
                             {[l.expType, l.expInvoice, l.dateExp].filter(Boolean).join(' · ')}
                           </Text>
                         </View>
-                        <Text variant="caption" tone="negative">−{curSymbol(l.curEX)}{fmtMoney(l.amountExp)}</Text>
+                        <Text variant="caption" tone="negative">{moneyFull(l.curEX, -(Number(l.amountExp) || 0))}</Text>
                         {l.expType !== 'Purchase' && (
                           <Ionicons name="create-outline" size={13} color={colors.textFaint} style={{ marginLeft: 6 }} />
                         )}

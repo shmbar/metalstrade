@@ -7,7 +7,7 @@ import { Screen, Card, Text, SearchField, Avatar, SegmentedControl, SkeletonList
 import { PeriodSelector } from '@/components/PeriodSelector';
 import { useTheme } from '@/theme/ThemeProvider';
 import { useInvoicesReview, PartyStatement } from '@/features/review/useInvoicesReview';
-import { curSymbol, fmtMoney } from '@/lib/format';
+import { moneyFull } from '@/lib/format';
 import { StackHeader } from '@/components/StackHeader';
 import { matchesAllWords, searchWords } from '@shared/search';
 import { LIST_END_PADDING, layout } from '@/theme/tokens';
@@ -124,8 +124,7 @@ export default function Balances() {
                       {cur === 'eu' ? 'EUR' : 'USD'}
                     </Text>
                     <Text variant="figure" style={{ color: accent }}>
-                      {curSymbol(cur)}
-                      {fmtMoney(v)}
+                      {moneyFull(cur, v)}
                     </Text>
                   </View>
                 ))
@@ -169,8 +168,7 @@ export default function Balances() {
                           fontVariant: ['tabular-nums'],
                         }}
                       >
-                        {curSymbol(cur)}
-                        {fmtMoney(v)}
+                        {moneyFull(cur, v)}
                       </Text>
                     ))}
                 </View>

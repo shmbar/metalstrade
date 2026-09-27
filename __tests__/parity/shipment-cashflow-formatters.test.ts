@@ -2455,3 +2455,59 @@ describe('fixtures sanity', () => {
     expect(p).toHaveProperty('qnty');
   });
 });
+
+// ═════════════════════════════════════════════════════════════════════════════
+// Pending — a payment on hold (web Cashflow, client 2026-09-24; funcs.js pendingSplit)
+// ═════════════════════════════════════════════════════════════════════════════
+describe('cashflow — Pending (a payment on hold)', () => {
+  const settings = makeSettings();
+  const world = (over?: Partial<Parameters<typeof computeCashflow>[0]>) =>
+    computeCashflow({
+      invoices: [], contracts4y: [], contracts2y: [], expenses: [], companyExpenses: [],
+      margins: [], cashflowDoc: {}, stocks: [], settings, ...(over || {}),
+    });
+
+  it('a held sales invoice stays listed but leaves the receivables, the client figure and Total (Left)', () => {
+    const invoices = [
+      makeInvoice({ id: 'i1', invoice: 1001, totalAmount: 12000, payments: [] }),
+      makeInvoice({ id: 'i2', invoice: 1002, totalAmount: 4000, payments: [], paymentPending: true }),
+    ];
+    const d = world({ invoices });
+    expect(d.receivablesByCur.us).toBeCloseTo(12000, 6);
+    expect(d.kpi.clientsDue).toBeCloseTo(12000, 6);
+    expect(d.totalLeft).toBeCloseTo(12000, 6);
+    const c = d.receivableClients[0];
+    expect(c.items).toHaveLength(2);                 // still listed
+    expect(c.byCur.us).toBeCloseTo(12000, 6);         // active only
+    expect(c.count).toBe(1);
+    expect(c.pendingByCur?.us).toBeCloseTo(4000, 6);  // tallied beside it
+    expect(c.pendingCount).toBe(1);
+    expect(c.items.find((x: any) => x.number === 1002)?.pending).toBe(true);
+  });
+
+  it('a held purchase invoice (contract.pendingInvoices[id]) leaves the payables', () => {
+    const contract = makeContract({
+      poInvoices: [
+        makePoInvoice({ id: 'po-a', inv: 'A', invValue: '10000', pmnt: '0', blnc: '10000', payments: [] }),
+        makePoInvoice({ id: 'po-b', inv: 'B', invValue: '3000', pmnt: '0', blnc: '3000', payments: [] }),
+      ],
+      pendingInvoices: { 'po-b': true },
+    });
+    const d = world({ contracts4y: [contract] });
+    expect(d.payablesUsd).toBeCloseTo(10000, 6);
+    expect(d.kpi.suppliersDue).toBeCloseTo(10000, 6);
+    const s = d.payableSuppliers[0];
+    expect(s.items).toHaveLength(2);
+    expect(s.byCur.us).toBeCloseTo(10000, 6);
+    expect(s.pendingByCur?.us).toBeCloseTo(3000, 6);
+    expect(s.items.find((x: any) => x.poInvoiceId === 'po-b')?.pending).toBe(true);
+  });
+
+  it('a released hold (false) counts again — only true holds', () => {
+    const contract = makeContract({
+      poInvoices: [makePoInvoice({ id: 'po-b', inv: 'B', invValue: '3000', pmnt: '0', blnc: '3000', payments: [] })],
+      pendingInvoices: { 'po-b': false },
+    });
+    expect(world({ contracts4y: [contract] }).payablesUsd).toBeCloseTo(3000, 6);
+  });
+});

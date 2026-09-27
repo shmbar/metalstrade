@@ -94,6 +94,19 @@ describe('no hand-rolled money formatting on web', () => {
     }
     expect(offenders).toEqual([]);
   });
+
+  it('a currency glyph next to Intl.NumberFormat is a private formatter too — use utils/currency', () => {
+    // The form the rule above missed: `${c === 'us' ? '$' : '€'}${new Intl.NumberFormat(…)}` —
+    // six of them on the Dashboard printed "$1,234.5", and € for any currency that was not $.
+    const offenders: string[] = [];
+    for (const f of files) {
+      const rel = path.relative(ROOT, f).split(path.sep).join('/');
+      fs.readFileSync(f, 'utf8').split(/\r?\n/).forEach((line, i) => {
+        if (/['"`][$€]['"`]/.test(line) && /Intl\.NumberFormat/.test(line)) offenders.push(`${rel}:${i + 1}`);
+      });
+    }
+    expect(offenders).toEqual([]);
+  });
 });
 
 describe('no hand-rolled money formatting in screens', () => {
@@ -118,6 +131,36 @@ describe('no hand-rolled money formatting in screens', () => {
       fs.readFileSync(f, 'utf8').split(/\r?\n/).forEach((line, i) => {
         if (/['"`][$€]['"`]/.test(line) && /Intl\.NumberFormat/.test(line)) offenders.push(`${rel}:${i + 1}`);
       });
+    }
+    expect(offenders).toEqual([]);
+  });
+});
+
+describe('no symbol-then-number money on mobile', () => {
+  const ROOT = path.resolve(__dirname, '../mobile');
+  const files: string[] = [];
+  const walk = (d: string) => {
+    for (const e of fs.readdirSync(d, { withFileTypes: true })) {
+      const p = path.join(d, e.name);
+      if (e.isDirectory()) walk(p);
+      else if (/\.tsx?$/.test(e.name)) files.push(p);
+    }
+  };
+  walk(path.join(ROOT, 'app'));
+  walk(path.join(ROOT, 'src'));
+
+  it('curSymbol() glued to fmtMoney() puts a negative sign after the symbol — use moneyFull', () => {
+    // `${curSymbol(c)}${fmtMoney(n)}` printed a credit as "$-500.00" (17 places, 2026-09-27),
+    // including JSX split over two lines: {curSymbol(c)} / {fmtMoney(n)}.
+    const offenders: string[] = [];
+    for (const f of files) {
+      const rel = path.relative(ROOT, f).split(path.sep).join('/');
+      if (rel === 'src/lib/format.ts') continue;
+      const src = fs.readFileSync(f, 'utf8');
+      src.split(/\r?\n/).forEach((line, i) => {
+        if (/curSymbol\(/.test(line) && /fmtMoney\(/.test(line)) offenders.push(`${rel}:${i + 1}`);
+      });
+      if (/\{curSymbol\([^)]*\)\}\s*\r?\n\s*\{fmtMoney\(/.test(src)) offenders.push(`${rel} (split over two lines)`);
     }
     expect(offenders).toEqual([]);
   });

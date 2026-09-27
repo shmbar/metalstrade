@@ -12,7 +12,7 @@ import { useContracts, deriveContract, ownProducts } from '@/features/contracts/
 import { useDuplicateContract } from '@/features/contracts/useDuplicateContract';
 import { Invoice } from '@/data/types';
 import { groupInvoices, invoiceBalance, num, resolveCur, isFinalized } from '@shared/finance';
-import { curSymbol, fmtMoney, fmtCurKM } from '@/lib/format';
+import { curSymbol, fmtMoney, fmtCurKM, moneyFull } from '@/lib/format';
 import { exportPdf } from '@/lib/export';
 import { contractPoHtml } from '@/lib/pdfTemplates';
 import { annexViiHtml, isfHtml } from '@/lib/customsDocs';
@@ -193,13 +193,11 @@ export default function ContractDetail() {
                   {p.description || '—'}
                 </Text>
                 <Text variant="caption" tone="faint">
-                  {fmtMoney(num(p.qnty), 3)} × {curSymbol(v.currency)}
-                  {fmtMoney(num(p.unitPrc))}
+                  {fmtMoney(num(p.qnty), 3)} × {moneyFull(v.currency, num(p.unitPrc))}
                 </Text>
               </View>
               <Text variant="bodyMedium" tone="primary">
-                {curSymbol(v.currency)}
-                {fmtMoney(num(p.qnty) * num(p.unitPrc))}
+                {moneyFull(v.currency, num(p.qnty) * num(p.unitPrc))}
               </Text>
             </View>
           ))
@@ -231,7 +229,7 @@ export default function ContractDetail() {
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 10 }}>
           <Text variant="body" tone="muted">Total paid to supplier</Text>
           <Text variant="figure" tone="positive">
-            {curSymbol(v.currency)}{fmtMoney(poPaid)}
+            {moneyFull(v.currency, poPaid)}
           </Text>
         </View>
         {(() => {
@@ -247,10 +245,10 @@ export default function ContractDetail() {
               <ProgressBar pct={pct} color={pct >= 99.9 ? colors.positive : colors.primary} height={8} />
               <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 6 }}>
                 <Text variant="caption" tone="faint">
-                  {pct.toFixed(0)}% paid of {curSymbol(v.currency)}{fmtMoney(billed)}
+                  {pct.toFixed(0)}% paid of {moneyFull(v.currency, billed)}
                 </Text>
                 <Text variant="caption" tone={outstanding > 0.01 ? 'warn' : 'positive'}>
-                  {outstanding > 0.01 ? `${curSymbol(v.currency)}${fmtMoney(outstanding)} left` : 'Settled'}
+                  {outstanding > 0.01 ? `${moneyFull(v.currency, outstanding)} left` : 'Settled'}
                 </Text>
               </View>
             </>
@@ -284,11 +282,10 @@ export default function ContractDetail() {
               </View>
               <View style={{ alignItems: 'flex-end' }}>
                 <Text variant="bodyMedium">
-                  {curSymbol(r.cur)}
-                  {fmtMoney(r.total)}
+                  {moneyFull(r.cur, r.total)}
                 </Text>
                 <Text variant="caption" tone={r.balance > 0.01 ? 'negative' : 'positive'}>
-                  {r.balance > 0.01 ? `${curSymbol(r.cur)}${fmtMoney(r.balance)} due` : 'Paid'}
+                  {r.balance > 0.01 ? `${moneyFull(r.cur, r.balance)} due` : 'Paid'}
                 </Text>
               </View>
             </View>

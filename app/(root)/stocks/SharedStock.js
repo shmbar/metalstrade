@@ -13,7 +13,7 @@
 
 import { useContext, useEffect, useMemo, useState } from 'react';
 import { NumericFormat } from 'react-number-format';
-import { curSymbol } from '@utils/currency';
+import { curSymbol, moneyFull } from '@utils/currency';
 import { v4 as uuidv4 } from 'uuid';
 import dateFormat from 'dateformat';
 import { Share2, Save, Trash2 } from 'lucide-react';
@@ -259,8 +259,9 @@ const SharedStock = () => {
 
     const fmtMoney = (obj) => {
         const parts = Object.entries(obj)
-            .map(([cur, v]) => (curSym(cur) || '$') + new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(v));
-        return parts.length ? parts.join(' · ') : (curSym('us') || '$') + '0.00';
+            // moneyFull reads the glyph curSym resolves ($, €), so the sign lands before it.
+            .map(([cur, v]) => moneyFull(curSym(cur) || '$', v));
+        return parts.length ? parts.join(' · ') : moneyFull(curSym('us') || '$', 0);
     };
     const inputCls = 'w-full rounded-lg bg-[var(--surface-pill)] border border-[var(--border-cell)] px-2 h-8 responsiveTextInput text-[var(--chathams-blue)] focus:outline-none focus:border-[var(--endeavour)]';
     // Same stacked caption every form in the app uses: 11px, uppercase, muted,

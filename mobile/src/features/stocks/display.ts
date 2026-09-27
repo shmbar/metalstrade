@@ -1,7 +1,7 @@
 // Pure display rules for the Stocks screens. Extracted out of the views so the
 // parity suite can compare them against web's table/formatting behaviour without
 // rendering anything (no React, no react-native imports here).
-import { curSymbol, fmtMoney } from '@/lib/format';
+import { moneyFull } from '@/lib/format';
 import { matchesAllWords, searchWords } from '@shared/search';
 
 /**
@@ -71,9 +71,8 @@ export const filterInventoryRows = <T,>(rows: T[], search: string): T[] => {
  */
 export const warehouseTotalCell = (total: any, cur: any): string => {
   const n = Number(total);
-  // Intl currency puts the minus BEFORE the symbol ('-$1,234.50'); building the
-  // string as symbol + signed number produced '$-1,234.50' on mobile.
-  return n ? `${n < 0 ? '-' : ''}${curSymbol(cur)}${fmtMoney(Math.abs(n))}` : String(total ?? '');
+  // The shared money format puts the minus before the symbol ('-$1,234.50').
+  return n ? moneyFull(cur, n) : String(total ?? '');
 };
 
 /**

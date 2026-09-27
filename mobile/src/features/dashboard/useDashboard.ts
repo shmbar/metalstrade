@@ -34,6 +34,8 @@ export interface DashboardData {
   revenueUsd: number;
   revenueByMonth: number[]; // 12 months, converted to a USD basis (web's companyRate rule)
   receivables: Record<string, ReceivablesSlot>;
+  /** Held in Cashflow ("Pending") — outstanding per currency, left out of receivables/aging. */
+  pendingReceivables: Record<string, number>;
   aging: AgingBucket[];
   miscByCur: Record<string, number>;
   miscCount: number;
@@ -298,8 +300,22 @@ export function useDashboard(filters: DashboardFilters = { supplier: '', client:
       );
     }
 
-    const recv = financeReceivables(recvInvoices, { asOf: new Date(), termDays });
-    const aging = agingBuckets(recvInvoices, { asOf: new Date() });
+    /* Invoices put on hold in Cashflow ("Pending", client 2026-09-24) are not active
+       receivables: they leave the card, the due counts and the aging buckets, and the card
+       says how much is held instead (web dashboard page.js recvLists). The flag sits on the
+       document Cashflow shows for the invoice, so a hold covers its whole number — an
+       invoice and its Credit/Final note are one receivable. */
+    const heldNos = new Set(recvInvoices.filter((inv: any) => inv?.paymentPending).map((inv: any) => String(inv.invoice)));
+    const recvActive = recvInvoices.filter((inv: any) => !heldNos.has(String(inv.invoice)));
+    const recvHeld = recvInvoices.filter((inv: any) => heldNos.has(String(inv.invoice)));
+    const recv = financeReceivables(recvActive, { asOf: new Date(), termDays });
+    const aging = agingBuckets(recvActive, { asOf: new Date() });
+    // |amount| — an overpaid invoice held as a credit is still held (web 7e147a81).
+    const pendingReceivables = Object.fromEntries(
+      Object.entries(financeReceivables(recvHeld, { asOf: new Date(), termDays }).byCur || {})
+        .map(([c, d]: [string, any]) => [c, (d.finalized || 0) + (d.provisional || 0)] as [string, number])
+        .filter(([, v]) => Math.abs(v) > 0.005)
+    );
 
     // Misc invoices by CATEGORY — web shows shipments/personal/random/uncategorized
     // amounts, counts and share.
@@ -440,6 +456,7 @@ export function useDashboard(filters: DashboardFilters = { supplier: '', client:
       revenueUsd,
       revenueByMonth,
       receivables: recv.byCur,
+      pendingReceivables,
       aging,
       miscByCur,
       miscCount: misc.length,

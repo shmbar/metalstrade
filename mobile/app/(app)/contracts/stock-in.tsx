@@ -4,14 +4,15 @@ import { Pressable } from '@/components/ui/Pressable';
 import { useLocalSearchParams, router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Screen, Card, Text, TextField, Select, DateField, Button, LoadingState, EmptyState, StackHeader, IconButton } from '@/components/ui';
+import { Screen, Card, Text, TextField, Select, DateField, Button, LoadingState, EmptyState, StackHeader, IconButton, Badge } from '@/components/ui';
 import { useTheme } from '@/theme/ThemeProvider';
 import { useSettings } from '@/store/settings';
 import { useContracts } from '@/features/contracts/useContracts';
-import { useStockInLots, useSaveStockIn, blankLot } from '@/features/stockin/useStockIn';
+import { useStockInLots, useSaveStockIn, useLotSales, blankLot } from '@/features/stockin/useStockIn';
+import { allocateSalesToLots, lotSalesCellText, lotSalesTooltip } from '@shared/salesUsage';
 import { newId } from '@/data/writes';
 import { num } from '@shared/finance';
-import { curSymbol, fmtMoney } from '@/lib/format';
+import { moneyFull } from '@/lib/format';
 import { haptics } from '@/lib/haptics';
 import { layout } from '@/theme/tokens';
 
@@ -35,7 +36,11 @@ export default function StockIn() {
     }
   }, [loaded, seeded]);
 
-  const sym = curSymbol(contract?.cur);
+  // Sales invoices each lot has gone out on (web "Sales Inv#"), allocated over the rows as
+  // they stand on screen, as web does.
+  const lotSales = useLotSales(contract);
+  const allocation = useMemo(() => allocateSalesToLots(lots, lotSales), [lots, lotSales]);
+  const unit = settings?.Quantity?.Quantity?.find((q: any) => q.id === contract?.qTypeTable)?.qTypeTable || 'MT';
   const productOptions = useMemo(
     () => (contract?.productsData || []).map((p: any) => ({ value: p.id, label: p.description || '—' })),
     [contract]
@@ -130,7 +135,24 @@ export default function StockIn() {
           {lots.map((l, i) => (
             <Card key={l.id} style={{ gap: 12 }}>
               <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                <Text variant="label" tone="muted">Lot {i + 1}</Text>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, flexShrink: 1 }}>
+                  <Text variant="label" tone="muted">Lot {i + 1}</Text>
+                  {(() => {
+                    const sale = allocation[l.id];
+                    if (!sale || sale.state === 'none') return null;
+                    return (
+                      <Pressable
+                        onPress={() => Alert.alert(sale.state === 'full' ? 'Sold' : 'Part sold', lotSalesTooltip(sale, unit))}
+                        hitSlop={6}
+                        accessibilityRole="button"
+                        accessibilityLabel={`Sold on invoice ${lotSalesCellText(sale)}`}
+                        style={{ flexShrink: 1 }}
+                      >
+                        <Badge label={`Inv ${lotSalesCellText(sale)}`} tone={sale.state === 'full' ? 'info' : 'neutral'} />
+                      </Pressable>
+                    );
+                  })()}
+                </View>
                 <IconButton icon="trash-outline" tone="danger" size={36} accessibilityLabel="Remove line" onPress={() => remove(i)} />
               </View>
 
@@ -147,7 +169,7 @@ export default function StockIn() {
 
               <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
                 <Text variant="body" tone="muted">Total</Text>
-                <Text variant="bodyMedium" tone="primary">{sym}{fmtMoney(num(l.total))}</Text>
+                <Text variant="bodyMedium" tone="primary">{moneyFull(contract?.cur, num(l.total))}</Text>
               </View>
 
               <Select label="PO Invoice" value={l.poInvoice} options={poOptions} onChange={(v) => update(i, { poInvoice: v })} required />

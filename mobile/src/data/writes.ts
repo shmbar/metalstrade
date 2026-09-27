@@ -11,6 +11,7 @@ import { db } from '@/lib/firebase';
 import { loadStockDataByIds } from './firestore';
 import { splitNotifId } from '@shared/splitUtils';
 import { priorityOf } from '@shared/notificationPriority';
+import { resolveInvoiceDate } from '@shared/pureHelpers';
 import { Contract, Invoice, Payment } from './types';
 
 // RN-safe id generator — mirrors utils.js newId() (crypto.randomUUID when present,
@@ -756,6 +757,29 @@ export async function updateInvoiceField(
   await updateDoc(doc(db, uidCollection, 'data', `invoices_${year}`, invoiceId), patch);
 }
 
+/* Pending — a payment on hold (web Cashflow, client 2026-09-24). Written exactly where web
+   writes it (cashflow/page.js saveSupplierPending / saveClientPending):
+     - purchase invoice → ONE dotted field on the contract, pendingInvoices.<poInvoice id>,
+       so it can never race a payment that rewrites the poInvoices array (updateDoc reads
+       the dot as a path — a setDoc would store a field literally named "pendingInvoices.x");
+     - sales invoice → paymentPending on the document Cashflow shows for that number (the
+       Credit/Final note when there is one), in that document's own year bucket. */
+export async function setPaymentPending(
+  uidCollection: string,
+  item: { kind: string; contractId?: string; contractDate?: string; poInvoiceId?: string; raw?: any },
+  flag: boolean
+): Promise<void> {
+  if (item.kind === 'poInvoice') {
+    if (!item.contractId || !item.contractDate || !item.poInvoiceId) throw new Error('This purchase invoice has no contract date.');
+    await updateContractField(uidCollection, item.contractId, item.contractDate, { [`pendingInvoices.${item.poInvoiceId}`]: flag });
+    return;
+  }
+  const inv = item.raw || {};
+  const date = resolveInvoiceDate(inv);
+  if (!inv.id || !date) throw new Error('This invoice has no date.');
+  await updateInvoiceField(uidCollection, inv.id, date, { paymentPending: flag });
+}
+
 // ── client partial payment (cashflow) ────────────────────────────────────────
 // Port of cashflow/page.js clientPartialPayment. Appends a payment to the invoice
 // and, when the row is a FINAL NOTE ('3333'), strips any payment it inherited from
@@ -1213,6 +1237,18 @@ export async function saveContractStocks(
 ): Promise<Contract> {
   if (data.length === 0 && (valueCon.stock?.length || 0) === 0) return valueCon;
 
+  // A confirmed final settlement passes recomputed supplier-invoice values; any other save
+  // keeps the contract's own. The lots are stamped with the SAME list the contract gets —
+  // they used to keep the pre-settlement one (web useContractsState finalPoInvoices).
+  const finalPoInvoices = poInvoicesOverride ?? valueCon.poInvoices;
+
+  // DMT-style ALL-CAPS names on invoice-imported entries are softened on every save
+  // (4+ capitals → Title Case; alloy codes like IN/SS/NIM keep their casing), so legacy
+  // imports self-correct with one Save. Idempotent; the PO's own lines are untouched.
+  // Web has done this since 2026-07-23 (useContractsState saveData_stocks); mobile never did.
+  const softenCaps = (s: string) => String(s || '').replace(/\b[A-Z]{4,}\b/g, (w) => w[0] + w.slice(1).toLowerCase());
+  const productsData = (valueCon.productsData || []).map((p: any) => (p.import ? { ...p, description: softenCaps(p.description) } : p));
+
   // Remove lots that are no longer part of the contract.
   const keepIds = data.map((x) => x.id);
   const delItems = (valueCon.stock || []).filter((id) => !keepIds.includes(id));
@@ -1223,10 +1259,10 @@ export async function saveContractStocks(
   const tmpdata = data.map((x) => ({
     ...x,
     supplier: valueCon.supplier,
-    productsData: valueCon.productsData,
+    productsData,
     order: valueCon.order,
     cur: valueCon.cur,
-    poInvoices: valueCon.poInvoices,
+    poInvoices: finalPoInvoices,
     qTypeTable: valueCon.qTypeTable,
     contractData: { id: valueCon.id, date: valueCon.dateRange?.startDate },
     type: 'in',
@@ -1237,8 +1273,9 @@ export async function saveContractStocks(
 
   const tmp: Contract = {
     ...valueCon,
+    productsData,
     stock: keepIds,
-    ...(poInvoicesOverride ? { poInvoices: poInvoicesOverride } : {}),
+    poInvoices: finalPoInvoices,
   };
   await writeContractDoc(uidCollection, tmp);
 

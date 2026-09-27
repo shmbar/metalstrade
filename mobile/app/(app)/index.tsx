@@ -394,7 +394,11 @@ export default function Dashboard() {
                 { label: `Provisional (${cur.toUpperCase()})`, value: f(r.provisional), note: `${r.provisionalCount} invoice${r.provisionalCount === 1 ? '' : 's'} · before the final invoice` },
                 { label: `Total outstanding (${cur.toUpperCase()})`, value: f(r.finalized + r.provisional), result: true },
               ];
-            }),
+            }).concat(Object.entries(d.pendingReceivables || {}).map(([cur, v]) => ({
+              label: `Pending — on hold (${cur.toUpperCase()})`,
+              value: moneyFull(cur, v),
+              note: 'set in Cashflow · not included above',
+            }))),
           };
         case 'aging':
           return {
@@ -667,7 +671,7 @@ export default function Dashboard() {
               />
               {open.position && (
                 <>
-                  <ReceivablesCard byCur={data.receivables} onPress={() => openDetail('receivables')} />
+                  <ReceivablesCard byCur={data.receivables} pendingByCur={data.pendingReceivables} onPress={() => openDetail('receivables')} />
                   <AgingCard buckets={data.aging} onPress={() => openDetail('aging')} />
                 </>
               )}

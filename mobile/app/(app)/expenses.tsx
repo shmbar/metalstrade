@@ -8,7 +8,9 @@ import { PeriodSelector } from '@/components/PeriodSelector';
 import { useTheme } from '@/theme/ThemeProvider';
 import { useExpenses, useSaveExpenseSplit, ExpenseRow } from '@/features/expenses/useExpenses';
 import { SplitControl } from '@/components/SplitControl';
-import { curSymbol, fmtMoney, dateLabel } from '@/lib/format';
+import { dateLabel, moneyFull } from '@/lib/format';
+import { Pressable } from '@/components/ui/Pressable';
+import { useHasAttachment } from '@/features/expenses/useAttachment';
 import { StackHeader } from '@/components/StackHeader';
 import { keyboardScrollProps } from '@/lib/keyboard';
 import { layout } from '@/theme/tokens';
@@ -18,19 +20,12 @@ import { layout } from '@/theme/tokens';
 // dropped near-zero lines, so a currency whose expenses netted out disappeared
 // entirely, and it emitted a line for any third currency web silently ignores.
 // Amounts print at FULL precision here — never the compact $K/$M form.
+// The shared money format: minus before the symbol ('-$1,234.56'). This printed
+// '$-1,234.56' — the sign after the symbol — for a negative total.
 const curLine = (byCur: Record<string, number>) =>
-  [
-    ['us', '$'],
-    ['eu', '€'],
-  ]
-    .map(([id, sym]) => `${sym}${money(byCur[id] || 0)}`)
-    .join('  ');
+  ['us', 'eu'].map((id) => moneyFull(id, byCur[id] || 0)).join('  ');
 
-// en-US Intl puts the minus OUTSIDE the symbol ('-$1,234.56'); fmtMoney alone
-// yields '$-1,234.56'. Web renders every expense amount through Intl.
-const money = (v: number) => `${v < 0 ? '-' : ''}${fmtMoney(Math.abs(v))}`;
-const signedCur = (cur: string | undefined, v: number) =>
-  `${v < 0 ? '-' : ''}${curSymbol(cur)}${fmtMoney(Math.abs(v))}`;
+const signedCur = (cur: string | undefined, v: number) => moneyFull(cur, v);
 
 // Per-vendor subtotal — only the currencies that vendor actually billed in. Web's
 // always-render-both rule belongs to the FOOTER totals, not to these rows.
@@ -136,6 +131,7 @@ export default function Expenses() {
                   <Text variant="caption" tone="muted" numberOfLines={1}>
                     {[item.expTypeLabel, item.invoice, item.order, dateLabel(item.date)].filter(Boolean).join(' · ') || '—'}
                   </Text>
+                  <AttachmentClip id={item.id} />
                   {!!item.comments && (
                     <Text variant="caption" tone="faint" numberOfLines={2} style={{ marginTop: 2 }}>
                       {item.comments}
@@ -209,5 +205,28 @@ function VendorSummary({
         <Text variant="bodyMedium" tone="primary" style={{ fontVariant: ['tabular-nums'] }}>{curLine(totals)}</Text>
       </View>
     </Card>
+  );
+}
+
+/* Whether the expense's invoice is attached, before anything is opened — web
+   ExpenseInvoiceCell (0b32af41). A duplicate expense with no PDF sat unnoticed next to the
+   real one because nothing on the list said so. Shown only once the folder has actually
+   been checked; tap to open (or add to) the expense's attachments. */
+function AttachmentClip({ id }: { id: string }) {
+  const { colors } = useTheme();
+  const attached = useHasAttachment(id);
+  if (attached === undefined) return null;
+  const tint = attached ? colors.primary : colors.textFaint;
+  return (
+    <Pressable
+      onPress={() => router.push(`/(app)/attachments?id=${id}`)}
+      hitSlop={8}
+      accessibilityRole="button"
+      accessibilityLabel={attached ? 'Open the attached invoice' : 'No invoice attached — add one'}
+      style={{ flexDirection: 'row', alignItems: 'center', gap: 3, marginTop: 3, alignSelf: 'flex-start' }}
+    >
+      <Ionicons name="attach" size={14} color={tint} />
+      <Text variant="caption" style={{ color: tint }}>{attached ? 'Invoice attached' : 'No invoice attached'}</Text>
+    </Pressable>
   );
 }

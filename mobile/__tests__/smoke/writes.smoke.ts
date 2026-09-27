@@ -41,6 +41,7 @@ import {
   updateInvoiceDoc,
   nextInvoiceNumber,
   newId,
+  setPaymentPending,
 } from '@/data/writes';
 import { addComment } from '@/features/comments/useComments';
 import { loadStockRowsByLine } from '@/features/stocks/onHand';
@@ -324,6 +325,25 @@ describe.skipIf(!enabled)('write smoke — test workspace only', () => {
       packing: 'zz-packing',
       comments: 'edited by smoke test',
     });
+  });
+
+  it('Pending holds land where web reads them, and release', async () => {
+    // Purchase invoice: a NESTED map on the contract, never a literal "pendingInvoices.x" field.
+    const before = await readContract();
+    await setPaymentPending(uid, { kind: 'poInvoice', contractId, contractDate: today, poInvoiceId: P1 }, true);
+    let c = await readContract();
+    expect(c.pendingInvoices?.[P1]).toBe(true);
+    expect(Object.keys(c).some((k) => k.startsWith('pendingInvoices.'))).toBe(false);
+    expect(c.poInvoices).toEqual(before.poInvoices); // the array a payment rewrites is untouched
+    // Sales invoice: paymentPending on the invoice's own document.
+    await setPaymentPending(uid, { kind: 'invoice', raw: issued }, true);
+    expect((await readInv(issued.id)).paymentPending).toBe(true);
+    // One tap releases.
+    await setPaymentPending(uid, { kind: 'poInvoice', contractId, contractDate: today, poInvoiceId: P1 }, false);
+    await setPaymentPending(uid, { kind: 'invoice', raw: issued }, false);
+    c = await readContract();
+    expect(c.pendingInvoices?.[P1]).toBe(false);
+    expect((await readInv(issued.id)).paymentPending).toBe(false);
   });
 
   it('a credit note reuses the original number, takes no new one, and links back', async () => {

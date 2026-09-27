@@ -186,3 +186,19 @@ export function deleteInvoice(list: PoInvoice[], id: string): PoInvoice[] {
 export function toggleDraft(list: PoInvoice[], id: string, value: boolean): PoInvoice[] {
   return list.map((x) => (x.id === id ? { ...x, draft: value } : x));
 }
+
+/**
+ * Why a purchase invoice can't be deleted yet, or null when it can — web poInvModal
+ * deleteItems (66b06dd7). Only a link to a sales invoice that still EXISTS blocks (a link
+ * left by a deleted invoice doesn't); `live` is existingSalesInvoiceNumbers' map of number →
+ * the PO that invoice is on. A link to an invoice on another PO is real (material imported
+ * from this PO, sold on that one) and is unticked from THAT PO's Shipments Tracking tab.
+ */
+export const linkedInvoiceBlock = (refs: string[], live: Map<string, string>, ownOrder: string): string | null => {
+  const blocking = refs.filter((r) => live.has(r));
+  if (!blocking.length) return null;
+  const own = String(ownOrder || '');
+  const where = blocking.map((r) => (live.get(r) && live.get(r) !== own ? `${r} (on PO ${live.get(r)})` : r));
+  const elsewhere = blocking.some((r) => live.get(r) && live.get(r) !== own);
+  return `Linked to sales invoice ${where.join(', ')} — unlink it first in the Shipments Tracking tab of ${elsewhere ? 'that PO' : 'this PO'} on the web app.`;
+};

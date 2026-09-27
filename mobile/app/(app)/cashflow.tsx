@@ -31,7 +31,7 @@ import { usePrivacyStore, maskIfHidden } from '@/store/privacy';
 import { useCashflow, Counterparty, StockWarehouseRow, UnsoldSupplierRow } from '@/features/cashflow/useCashflow';
 import { useCashflowActions } from '@/features/cashflow/useCashflowActions';
 import { useSharedStock } from '@/features/stocks/useSharedStock';
-import { fmtAutoKM, fmtCurKM, curSymbol, fmtMoney, dateLabel } from '@/lib/format';
+import { fmtAutoKM, fmtCurKM, curSymbol, fmtMoney, dateLabel, moneyFull } from '@/lib/format';
 import { radius, spacing, layout } from '@/theme/tokens';
 import { matchesAllWords, searchWords } from '@shared/search';
 import { entityName } from '@/lib/entityName';
@@ -75,14 +75,16 @@ const sumCur = (rows: Counterparty[]): Record<string, number> => {
 };
 
 const qty = (n: number) => fmtMoney(n, 3);
-const full = (cur: string, n: number) => `${curSymbol(cur)}${fmtMoney(n)}`;
+// A credit (negative balance) reads -$500.00, not $-500.00 — the shared money format.
+const full = (cur: string, n: number) => moneyFull(cur, n);
 
-/* Cargo status for a supplier PO, in lifecycle order — web cashflow funcs.js
-   CARGO_STATUSES. Amber for waiting at the supplier, brand for on the move. */
-const CARGO_STATUSES = [
-  { code: 'RDY' as const, label: 'Ready to ship' },
-  { code: 'TRN' as const, label: 'In transit' },
-];
+/** Per-currency sum of one field over a sheet's items — a sheet can hold $ and € rows, and
+    one sum across both would print euros as dollars. */
+const itemsByCur = (items: any[], key: string): Record<string, number> => {
+  const out: Record<string, number> = {};
+  items.forEach((x) => (out[x.cur || 'us'] = (out[x.cur || 'us'] || 0) + (Number(x[key]) || 0)));
+  return out;
+};
 
 const FIELD_LABEL: Record<ManualField, string> = {
   initial: 'Opening balances',
@@ -99,7 +101,7 @@ export default function Cashflow() {
   const hideBalances = usePrivacyStore((s) => s.hidden);
   const togglePrivacy = usePrivacyStore((s) => s.toggle);
   const money = (s: string) => maskIfHidden(hideBalances, s);
-  const { paySupplier, payExpense, partialPay, payClient, saveManualRows, saveYearTotal, saveCargoStatus, closeBalance } = useCashflowActions();
+  const { paySupplier, payExpense, partialPay, payClient, saveManualRows, saveYearTotal, savePending, closeBalance } = useCashflowActions();
   const shared = useSharedStock();
 
   const [tab, setTab] = useState<Tab>('general');
@@ -109,7 +111,8 @@ export default function Cashflow() {
   const [detail, setDetail] = useState<{ kind: Kind; cp: Counterparty } | null>(null);
   // Cargo status taps show at once, keyed by contract (every purchase invoice of a PO
   // shares it); the refetch after the write replaces this, a failure reverts it.
-  const [cargo, setCargo] = useState<Record<string, string>>({});
+  // Pending holds flipped on this screen, by row — shown at once, before the refetch lands.
+  const [held, setHeld] = useState<Record<string, boolean>>({});
   // Web supplierCloseBalance: book the residual as a settlement adjustment instead of
   // a payment. It moves money on the ledger, so it asks first — web's button does not,
   // but a mis-tap on a phone is far easier than a mis-click on a table.
@@ -130,13 +133,15 @@ export default function Cashflow() {
         },
       ]
     );
-  const setCargoStatus = (item: any, code: '' | 'RDY' | 'TRN') => {
-    const before = cargo[item.contractId] ?? item.cargoStatus ?? '';
-    setCargo((p) => ({ ...p, [item.contractId]: code }));
-    saveCargoStatus.mutate(
-      { contractId: item.contractId, contractDate: item.contractDate, code },
-      { onError: () => setCargo((p) => ({ ...p, [item.contractId]: before })) }
-    );
+  /* Pending — a payment on hold (web Cashflow PendingToggle, client 2026-09-24). A held
+     invoice stays listed, faded, and leaves every active total; one tap holds it, one tap
+     releases it. Replaces the RDY / TRN cargo status, as on web. */
+  const holdKey = (item: any) => (item.kind === 'poInvoice' ? `po:${item.poInvoiceId}` : `inv:${item.raw?.id || item.id}`);
+  const isHeld = (item: any) => held[holdKey(item)] ?? !!item.pending;
+  const setPending = (item: any, flag: boolean) => {
+    const key = holdKey(item);
+    setHeld((p) => ({ ...p, [key]: flag }));
+    savePending.mutate({ item, flag }, { onError: () => setHeld((p) => ({ ...p, [key]: !flag })) });
   };
   const [stockSheet, setStockSheet] = useState<{ name: string; row: StockWarehouseRow } | null>(null);
   const [unsoldSheet, setUnsoldSheet] = useState<UnsoldSupplierRow | null>(null);
@@ -349,7 +354,7 @@ export default function Cashflow() {
             key={r.name}
             first={i === 0}
             name={r.name}
-            subtitle={`${r.count} ${noun}${r.count === 1 ? '' : 's'}`}
+            subtitle={`${r.count} ${noun}${r.count === 1 ? '' : 's'}${r.pendingCount ? ` · ${r.pendingCount} pending` : ''}`}
             value={money(valueOf(r))}
             onPress={() => setDetail({ kind, cp: r })}
           />
@@ -683,19 +688,37 @@ export default function Cashflow() {
         visible={!!detail}
         onClose={() => setDetail(null)}
         title={detail?.cp.name}
-        subtitle={detail ? `${money(curLine(detail.cp.byCur))} · ${detail.cp.items.length} item${detail.cp.items.length === 1 ? '' : 's'}` : undefined}
+        subtitle={detail ? (() => {
+          const active = detail.cp.items.filter((x: any) => !isHeld(x));
+          const bal = detail.kind === 'expense' ? itemsByCur(active, 'amount') : itemsByCur(active, 'balance');
+          const nHeld = detail.cp.items.length - active.length;
+          return `${money(curLine(bal))} · ${active.length} item${active.length === 1 ? '' : 's'}${nHeld ? ` · ${nHeld} pending` : ''}`;
+        })() : undefined}
         footer={
           detail?.cp.items?.length ? (
             <View style={{ gap: 4 }}>
               {(() => {
                 const items = detail.cp.items;
-                const sum = (k: string) => items.reduce((t: number, x: any) => t + (Number(x[k]) || 0), 0);
-                if (detail.kind === 'expense') return <SheetTotal label="Total amount" v={money(fmtAutoKM(sum('amount')))} strong />;
+                if (detail.kind === 'expense') return <SheetTotal label="Total amount" v={money(curLine(itemsByCur(items, 'amount')))} strong />;
+                // Web FooterRows: the held invoices on a faded "Pending (n)" line, then the
+                // active total — the only one that counts.
+                const active = items.filter((x: any) => !isHeld(x));
+                const pending = items.filter((x: any) => isHeld(x));
+                const value = (xs: any[]) => {
+                  const a = itemsByCur(xs, 'invValue');
+                  Object.entries(itemsByCur(xs, 'amount')).forEach(([c, v]) => (a[c] = (a[c] || 0) + v));
+                  return a;
+                };
                 return (
                   <>
-                    <SheetTotal label="Total value" v={money(fmtAutoKM(sum('invValue') + sum('amount')))} />
-                    <SheetTotal label="Total paid" v={money(fmtAutoKM(sum('paid')))} />
-                    <SheetTotal label="Total balance" v={money(fmtAutoKM(sum('balance')))} strong />
+                    {pending.length > 0 && (
+                      <View style={{ opacity: 0.72 }}>
+                        <SheetTotal label={`Pending (${pending.length})`} v={money(curLine(itemsByCur(pending, 'balance')))} />
+                      </View>
+                    )}
+                    <SheetTotal label="Total value" v={money(curLine(value(active)))} />
+                    <SheetTotal label="Total paid" v={money(curLine(itemsByCur(active, 'paid')))} />
+                    <SheetTotal label={`Total balance (${active.length})`} v={money(curLine(itemsByCur(active, 'balance')))} strong />
                   </>
                 );
               })()}
@@ -711,21 +734,23 @@ export default function Cashflow() {
               ? `Purchase inv ${item.inv ?? ''}`
               : item.expense || 'Expense';
           const prepay = item.kind === 'invoice' && !item.paid && item.percentage > 0
-            ? `Prepayment ${item.percentage}% · ${full(item.cur, (item.amount * item.percentage) / 100)}`
+            // Web relabelled this column "Payment" (2fe7bccb): it tracks what the client has
+            // PAID, not necessarily paid early.
+            ? `Payment ${item.percentage}% · ${full(item.cur, (item.amount * item.percentage) / 100)}`
             : '';
-          // Supplier purchase invoices show WHERE THE CARGO IS (RDY / TRN) instead of
-          // planned ETD/ETA — web 3eb1cdae, client request. Client invoices keep theirs.
+          // Supplier purchase invoices don't show planned ETD/ETA (web 3eb1cdae); client
+          // invoices keep theirs.
           const isPo = item.kind === 'poInvoice';
           const dates = [
             !isPo && item.etd ? `ETD ${dateLabel(item.etd)}` : '',
             !isPo && item.eta ? `ETA ${dateLabel(item.eta)}` : '',
             isExp && item.date ? dateLabel(item.date) : '',
           ].filter(Boolean).join(' · ');
-          const cargoNow = isPo ? (cargo[item.contractId] ?? item.cargoStatus ?? '') : '';
+          const onHold = !isExp && isHeld(item);
           return (
             <View
               key={`${item.id || item.poInvoiceId || i}`}
-              style={{ paddingVertical: 10, borderTopWidth: i ? StyleSheet.hairlineWidth : 0, borderTopColor: colors.borderStrong }}
+              style={{ paddingVertical: 10, borderTopWidth: i ? StyleSheet.hairlineWidth : 0, borderTopColor: colors.borderStrong, opacity: onHold ? 0.72 : 1 }}
             >
               <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 12 }}>
                 <View style={{ flex: 1, minWidth: 0, gap: 2 }}>
@@ -743,41 +768,34 @@ export default function Cashflow() {
                       {`${item.kind === 'poInvoice' ? 'Value' : 'Amount'} ${money(full(item.cur, item.invValue ?? item.amount ?? 0))} · Paid ${money(full(item.cur, item.paid ?? 0))}`}
                     </Text>
                   )}
-                  {isPo && (
-                    <View style={{ flexDirection: 'row', gap: 6, marginTop: 6 }} accessibilityRole="radiogroup" accessibilityLabel="Cargo status">
-                      {CARGO_STATUSES.map((c) => {
-                        const on = cargoNow === c.code;
-                        const tint = c.code === 'RDY' ? colors.warn : colors.primary;
-                        return (
-                          <Pressable
-                            key={c.code}
-                            haptic="selection" onPress={() => { setCargoStatus(item, on ? '' : c.code); }}
-                            hitSlop={6}
-                            accessibilityRole="radio"
-                            accessibilityState={{ checked: on }}
-                            accessibilityLabel={on ? `${c.label} — tap to clear` : `Mark as ${c.label.toLowerCase()}`}
-                            style={{
-                              flexDirection: 'row',
-                              alignItems: 'center',
-                              gap: 5,
-                              height: 30,
-                              paddingHorizontal: 10,
-                              borderRadius: 999,
-                              borderWidth: 1,
-                              borderColor: on ? tint : colors.border,
-                              backgroundColor: on ? tint + '1F' : 'transparent',
-                            }}
-                          >
-                            <Text variant="captionStrong" style={{ color: on ? tint : colors.textMuted }}>
-                              {c.code}
-                            </Text>
-                            <Text variant="caption" style={{ color: on ? tint : colors.textFaint }}>
-                              {c.label}
-                            </Text>
-                          </Pressable>
-                        );
-                      })}
-                    </View>
+                  {!isExp && (
+                    <Pressable
+                      haptic="selection"
+                      onPress={() => setPending(item, !onHold)}
+                      hitSlop={6}
+                      accessibilityRole="switch"
+                      accessibilityState={{ checked: onHold }}
+                      accessibilityLabel={onHold ? 'Pending — tap to release' : 'Put this invoice on hold'}
+                      style={{
+                        alignSelf: 'flex-start',
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        gap: 5,
+                        height: 26,
+                        paddingHorizontal: 9,
+                        marginTop: 6,
+                        borderRadius: 999,
+                        borderWidth: 1,
+                        borderStyle: onHold ? 'solid' : 'dashed',
+                        borderColor: colors.borderStrong,
+                        backgroundColor: onHold ? colors.surfaceAlt : 'transparent',
+                      }}
+                    >
+                      {onHold && <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: colors.textMuted }} />}
+                      <Text variant={onHold ? 'captionStrong' : 'caption'} style={{ color: onHold ? colors.textMuted : colors.textFaint }}>
+                        {onHold ? 'Pending' : 'Set pending'}
+                      </Text>
+                    </Pressable>
                   )}
                   {prepay ? (
                     <Text variant="caption" tone="primary" numberOfLines={1}>

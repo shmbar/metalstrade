@@ -230,6 +230,57 @@ export async function loadStockDataByIds(uidCollection: string, ids: string[]): 
   return out;
 }
 
+/**
+ * Which of these sales-invoice numbers still exist → Map of number (string) → the PO
+ * number its invoice is on. Port of web utils.js existingSalesInvoiceNumbers (66b06dd7).
+ * A purchase invoice keeps its link to a sales invoice as the bare number (invRef), so the
+ * link outlives a deleted invoice — and a link to an invoice on ANOTHER PO is real
+ * (material imported from one PO and sold on another). Every invoice year from 2015 to next
+ * year, `in`-chunked at 30, the number tried both as string and as number.
+ */
+export async function existingSalesInvoiceNumbers(uidCollection: string, numbers: unknown[] = []): Promise<Map<string, string>> {
+  const uniq = [...new Set(numbers.map((n) => String(n ?? '').trim()).filter(Boolean))];
+  if (!uniq.length) return new Map();
+  const forms: (string | number)[] = uniq.flatMap((n) => (Number.isFinite(Number(n)) ? [n, Number(n)] : [n]));
+  const chunks: (string | number)[][] = [];
+  for (let i = 0; i < forms.length; i += 30) chunks.push(forms.slice(i, i + 30));
+  const years: number[] = [];
+  for (let y = 2015; y <= new Date().getFullYear() + 1; y++) years.push(y);
+  const snaps = await Promise.all(
+    years.flatMap((y) =>
+      chunks.map((c) => getDocs(query(collection(db, uidCollection, 'data', `invoices_${y}`), where('invoice', 'in', c))))
+    )
+  );
+  const found = new Map<string, string>();
+  snaps.forEach((s) =>
+    s.docs.forEach((d) => {
+      const inv: any = d.data();
+      found.set(String(inv.invoice), found.get(String(inv.invoice)) || String(inv.poSupplier?.order || ''));
+    })
+  );
+  return found;
+}
+
+/**
+ * EVERY stock-ledger row naming one of these line ids — drafts, superseded rows and zero
+ * totals included. A safety check, not a stock figure: before Stock-in folds a duplicate
+ * hidden entry into its PO line (@shared/productEntries), anything at all still pointing at
+ * that entry must be seen. Port of web utils.js loadLedgerRowsReferencing (8f7d81d2).
+ */
+export async function loadLedgerRowsReferencing(uidCollection: string, lineIds: string[] = []): Promise<any[]> {
+  const ids = [...new Set(lineIds.filter(Boolean))];
+  if (!ids.length) return [];
+  const rows = new Map<string, any>();
+  for (let i = 0; i < ids.length; i += 30) {
+    const chunk = ids.slice(i, i + 30);
+    for (const field of ['description', 'descriptionId']) {
+      const snap = await getDocs(query(collection(db, uidCollection, 'data', 'stocks'), where(field, 'in', chunk)));
+      snap.docs.forEach((d) => rows.set(d.id, { id: d.id, ...d.data() }));
+    }
+  }
+  return [...rows.values()];
+}
+
 // Read one invoice doc from a known year bucket (no date-string parsing).
 export async function loadInvoiceDocByYear(
   uidCollection: string,

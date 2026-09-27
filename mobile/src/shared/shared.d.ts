@@ -356,3 +356,42 @@ declare module '@shared/currency' {
   /** "$1.23M", "-€45.60K", "$980.00". */
   export function moneyCompact(cur: string | undefined | null, value: number | string, decimals?: number): string;
 }
+
+declare module '@shared/productEntries' {
+  export type EntryMerge = { from: string; to: string };
+  export function entryNameKey(s: unknown): string;
+  export function duplicateEntries(productsData?: any[]): EntryMerge[];
+  export function safeMerges(merges?: EntryMerge[], ledgerRows?: any[], savingLotIds?: string[]): EntryMerge[];
+  export function foldEntries<R extends { description?: string }>(productsData?: any[], rows?: R[], merges?: EntryMerge[]): { productsData: any[]; rows: R[] };
+}
+
+declare module '@shared/grades' {
+  export type SpecPart = {
+    key: string;
+    label: string;
+    /** 'spec' typed by hand · 'assay' read from the analysis · 'description' from the name's figures · 'name' the name itself */
+    source: 'spec' | 'assay' | 'description' | 'name' | string;
+    qnty: number;
+    value: number;
+    avg: number;
+    /** part of the line sold, lot unknown — the share is proportional */
+    estimated: boolean;
+    suppliers: string[];
+    spellings: string[];
+    lots: any[];
+  };
+  export function specBreakdown(entries?: { qnty: number; value: number; lots: any[]; description?: string; supplier?: string }[]): SpecPart[];
+}
+
+declare module '@shared/salesUsage' {
+  export type LotSale = {
+    invoices: { label: string; qnty: number; date?: string; clients: string[] }[];
+    allocated: number;
+    qty: number;
+    state: 'full' | 'part' | 'none';
+  };
+  export function groupSalesByLine(lots?: any[]): Record<string, any[]>;
+  export function allocateSalesToLots(lots?: any[], salesByLine?: Record<string, any[]>): Record<string, LotSale>;
+  export function lotSalesCellText(a: LotSale | undefined, max?: number): string;
+  export function lotSalesTooltip(a: LotSale | undefined, unit?: string): string;
+}

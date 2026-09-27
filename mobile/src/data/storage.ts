@@ -25,3 +25,27 @@ export async function uploadFile(entityId: string, uri: string, name: string): P
 export async function deleteFile(entityId: string, name: string): Promise<void> {
   await deleteObject(ref(storage, `${entityId}/${name}`));
 }
+
+/* Whether a folder holds anything — for the paperclip on expense rows (web
+   components/ExpenseInvoiceCell.js, 0b32af41). One listing per row, at most six at a time,
+   so a long list never fires dozens of listings at once. */
+let running = 0;
+const waiting: (() => void)[] = [];
+const limited = <T,>(task: () => Promise<T>): Promise<T> =>
+  new Promise((resolve, reject) => {
+    const run = () => {
+      running++;
+      task().then(resolve, reject).finally(() => {
+        running--;
+        waiting.shift()?.();
+      });
+    };
+    if (running < 6) run();
+    else waiting.push(run);
+  });
+
+export async function hasFiles(entityId: string): Promise<boolean> {
+  if (!entityId) return false;
+  const res = await limited(() => listAll(ref(storage, `${entityId}/`)));
+  return res.items.length > 0;
+}

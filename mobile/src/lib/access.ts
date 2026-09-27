@@ -22,6 +22,7 @@ export const ROUTE_PAGES: Record<string, string[]> = {
   shipment: ['shipment'],
   expenses: ['expenses', 'companyexpenses'],
   'expense-edit': ['expenses', 'companyexpenses'],
+  attachments: ['expenses', 'companyexpenses'],
   accounting: ['accounting'],
   'contracts-review': ['ContractsReview&Statement'],
   'invoices-review': ['InvoicesReview&Statement'],

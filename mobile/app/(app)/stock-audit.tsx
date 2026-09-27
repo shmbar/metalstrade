@@ -10,7 +10,7 @@ import { useSettings } from '@/store/settings';
 import { saveStockIn, newId } from '@/data/writes';
 import { buildAudit, buildWriteOffRows, leftoverKey, LeftoverGroup } from '@/features/stocks/audit';
 import { useAllStockLots, STOCK_LOTS_KEY } from '@/features/stocks/useAllStockLots';
-import { curSymbol, fmtMoney } from '@/lib/format';
+import { moneyFull } from '@/lib/format';
 import { StackHeader } from '@/components/StackHeader';
 import { LIST_END_PADDING, layout } from '@/theme/tokens';
 import { keyboardScrollProps } from '@/lib/keyboard';
@@ -151,7 +151,7 @@ export default function StockAudit() {
 
                     {tab === 'left' && (
                       <Row1
-                        label={`Net ${fmtQ(r.net)} · ${curSymbol(r.rep?.cur)}${fmtMoney(r.value)}`}
+                        label={`Net ${fmtQ(r.net)} · ${moneyFull(r.rep?.cur, r.value)}`}
                         sub={`IN ${fmtQ(r.inQty)} − OUT ${fmtQ(r.outQty)}${
                           r.rep?.supplierNm ? ` · ${r.rep.supplierNm}` : ''
                         }${r.rep?.order ? ` · ${r.rep.order}` : ''}${
@@ -161,7 +161,7 @@ export default function StockAudit() {
                     )}
                     {tab === 'dupes' && (
                       <Row1
-                        label={`Qty ${fmtQ(r.qnty)} · ${curSymbol(r.cur)}${fmtMoney(r.unitPrc)}`}
+                        label={`Qty ${fmtQ(r.qnty)} · ${moneyFull(r.cur, r.unitPrc)}`}
                         sub={`${r.invoice ? `Inv ${r.invoice} · ` : ''}${(r.date || '').substring(0, 10)} · #${(r.id || '').slice(0, 8)}`}
                       />
                     )}
@@ -181,7 +181,7 @@ export default function StockAudit() {
                     )}
                     {tab === 'zeroIn' && (
                       <Row1
-                        label={`Zero qty, price ${curSymbol(r.cur)}${fmtMoney(r.unitPrc)}`}
+                        label={`Zero qty, price ${moneyFull(r.cur, r.unitPrc)}`}
                         sub={`${[r.supplier, r.order, (r.date || '').substring(0, 10)].filter(Boolean).join(' · ')} · #${(r.id || '').slice(0, 8)}`}
                         danger
                       />

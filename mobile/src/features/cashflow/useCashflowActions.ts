@@ -8,7 +8,7 @@ import {
   clientPartialPayment,
   saveCashflowManualRows,
   saveCashflowYearTotal,
-  updateContractField,
+  setPaymentPending,
 } from '@/data/writes';
 import { toast } from '@/store/toast';
 
@@ -114,25 +114,25 @@ export function useCashflowActions() {
     onError,
   });
 
-  // Cargo status on a supplier PO: RDY (ready to be shipped) or TRN (in transit), ''
-  // to clear. Replaces the planned ETD/ETA in the supplier tables (client request,
-  // web 3eb1cdae) — the question on this side is whether goods already paid for are
-  // still at the supplier or on the way. A property of the CONTRACT, so every
-  // purchase invoice of the PO changes together. Confirms like every other save; a
-  // failure says so and the screen puts the old value back.
-  const saveCargoStatus = useMutation({
-    mutationFn: async (args: { contractId: string; contractDate: string; code: '' | 'RDY' | 'TRN' }) => {
+  /* Pending — a payment on hold (web Cashflow, client 2026-09-24). A held invoice stays
+     listed but leaves every active total. It took over the Status column from the RDY /
+     TRN cargo status, which the client dropped ("at this stage we don't need it"); what was
+     saved as cargoStatus stays on the contract, only the control is gone. Where it is
+     written: writes.ts setPaymentPending. The screen flips the row first and puts it back
+     if the write fails. */
+  const savePending = useMutation({
+    mutationFn: async (args: { item: any; flag: boolean }) => {
       if (!uidCollection) throw new Error('Not authenticated');
-      if (!args.contractId || !args.contractDate) throw new Error('This purchase invoice has no contract date.');
-      await updateContractField(uidCollection, args.contractId, args.contractDate, { cargoStatus: args.code });
+      await setPaymentPending(uidCollection, args.item, args.flag);
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['cashflow'] });
       qc.invalidateQueries({ queryKey: ['contracts'] });
-      toast.success('Data successfully saved!');
+      qc.invalidateQueries({ queryKey: ['invoices'] });
+      qc.invalidateQueries({ queryKey: ['dashboard'] });
     },
     onError: () => {
-      toast.error('Could not save the cargo status — please try again.');
+      toast.error('Could not save the pending status — please try again.');
     },
   });
 
@@ -150,5 +150,5 @@ export function useCashflowActions() {
     onError,
   });
 
-  return { paySupplier, payExpense, partialPay, payClient, saveManualRows, saveYearTotal, saveCargoStatus, closeBalance };
+  return { paySupplier, payExpense, partialPay, payClient, saveManualRows, saveYearTotal, savePending, closeBalance };
 }
