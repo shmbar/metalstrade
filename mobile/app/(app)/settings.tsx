@@ -64,7 +64,9 @@ export default function SettingsScreen() {
   // Web shows the Users tab only to someone who can manage users (canManageUsers).
   const isAdmin = useAuth((s) => s.isAdmin);
   const { settings, compData } = useSettings(useShallow((s) => ({ settings: s.settings, compData: s.compData })));
-  const { data: grades = [] } = useQuery({ queryKey: ['grades'], queryFn: loadGrades, staleTime: 5 * 60_000 });
+  // The grade registry is shared by IMS and GIS only (SHARED_STOCK) — hidden elsewhere.
+  const trading = useAuth((s) => s.tradingAccount);
+  const { data: grades = [] } = useQuery({ enabled: trading, queryKey: ['grades'], queryFn: loadGrades, staleTime: 5 * 60_000 });
 
   const count = (key: string) => ((settings as any)?.[key]?.[key] || []).filter((x: any) => !x?.deleted).length;
   const setupLists = Object.keys(settings || {}).filter((key) => {
@@ -85,7 +87,9 @@ export default function SettingsScreen() {
         <NavRow title="Clients" sub="Who you sell to" count={count('Client')} icon="people-outline" onPress={() => router.push('/(app)/settings-entity?type=Client')} />
         <NavRow title="Bank Account" sub="Printed on invoices" count={count('Bank Account')} icon="card-outline" onPress={() => router.push('/(app)/settings-entity?type=Bank%20Account')} />
         <NavRow title="Stocks" sub="Warehouses and virtual stocks" count={count('Stocks')} icon="cube-outline" onPress={() => router.push('/(app)/settings-entity?type=Stocks')} />
-        <NavRow title="Grades" sub="Material grades, shared by IMS and GIS" count={grades.filter((g: any) => !g.deleted).length} icon="pricetags-outline" onPress={() => router.push('/(app)/settings-grades')} />
+        {trading && (
+          <NavRow title="Grades" sub="Material grades, shared by IMS and GIS" count={grades.filter((g: any) => !g.deleted).length} icon="pricetags-outline" onPress={() => router.push('/(app)/settings-grades')} />
+        )}
         <NavRow title="Documents" sub="Annex VII / ISF templates and carriers" count={docCount} icon="document-text-outline" onPress={() => router.push('/(app)/settings-entity?type=Annex%20VII')} />
         <NavRow title="Email Setup" sub="Payment reminder emails and cadence" icon="mail-outline" onPress={() => router.push('/(app)/settings-email')} />
         <NavRow title="Notifications" sub="Choose what you are notified about" icon="notifications-outline" onPress={() => router.push('/(app)/settings-notifications')} />

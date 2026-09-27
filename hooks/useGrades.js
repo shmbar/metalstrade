@@ -2,6 +2,8 @@
 import { useCallback, useEffect, useState } from 'react';
 import { saveGrades, subscribeGrades } from '@utils/gradesStore';
 import { buildGradeIndex, buildGradeProfiles } from '@utils/grades';
+import { UserAuth } from '@contexts/useAuthContext';
+import { isTradingAccount } from '@utils/activeAccount';
 
 /* One live subscription for the whole app, however many components ask for grades.
    The grade card, the chemistry cell on every Stocks row, each PO-line dropdown and the
@@ -48,14 +50,22 @@ const stop = () => {
 };
 
 export default function useGrades() {
+    // The registry lives in SHARED_STOCK: IMS / GIS only. Anyone else gets an empty
+    // registry and no listener at all.
+    const { uidCollection } = UserAuth();
+    const trading = isTradingAccount(uidCollection);
     const [snap, setSnap] = useState(snapshot);
 
     useEffect(() => {
+        if (!trading) {
+            setSnap({ ...EMPTY, ready: true });
+            return undefined;
+        }
         listeners.add(setSnap);
         start();
         setSnap(snapshot);
         return () => { listeners.delete(setSnap); stop(); };
-    }, []);
+    }, [trading]);
 
     const save = useCallback((changed, by) => saveGrades(changed, by), []);
     return { grades: snap.grades, all: snap.all, index: snap.index, profiles: snap.profiles, ready: snap.ready, save };

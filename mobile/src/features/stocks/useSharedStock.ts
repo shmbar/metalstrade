@@ -95,7 +95,7 @@ const filteredArray = <T extends { invoice?: any; invType?: any }>(arr: T[]): T[
 };
 
 export function useSharedStock() {
-  const { uidCollection, gisAccount } = useAuth(useShallow((s) => ({ uidCollection: s.uidCollection, gisAccount: s.gisAccount })));
+  const { uidCollection, gisAccount, tradingAccount } = useAuth(useShallow((s) => ({ uidCollection: s.uidCollection, gisAccount: s.gisAccount, tradingAccount: s.tradingAccount })));
   const { settings, loaded } = useSettings(useShallow((s) => ({ settings: s.settings, loaded: s.loaded })));
   const qc = useQueryClient();
   const accountName = gisAccount ? 'GIS' : 'IMS';
@@ -118,7 +118,8 @@ export function useSharedStock() {
   // The joint pool has its own namespace; the account's OWN ledger (used only to
   // build the "pick from my current stock" list) comes from the shared query.
   const query = useQuery({
-    enabled: loaded,
+    // IMS / GIS only — anyone else is refused by firestore.rules, and must not see it.
+    enabled: loaded && tradingAccount,
     queryKey: ['shared-stock', uidCollection],
     queryFn: async () => ({ shared: (await loadSharedStock()).filter(Boolean) }),
   });

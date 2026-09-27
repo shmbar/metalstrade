@@ -14,6 +14,7 @@ import Spinner from '../../../components/spinner';
 import VideoLoader from '../../../components/videoLoader';
 import { TableSkeleton } from "../../../components/skeletons";
 import { UserAuth } from "../../../contexts/useAuthContext"
+import { isTradingAccount } from '@utils/activeAccount'
 import { loadStockData, filteredArray, loadAllStockData } from '../../../utils/utils'
 import { settledInQty, settlementReduction } from '../../../utils/finance'
 import { Selector } from '../../../components/selectors/selectShad.js'
@@ -119,6 +120,8 @@ const Stocks = () => {
   const { uidCollection } = UserAuth();
   const [selectedStock, setSelectedStock] = useState({ stock: 'allStocks', id: 'allStocks', nname: '..All Stocks' })
   const [activeTab, setActiveTab] = useState('mine') // 'mine' = this account's stock, 'shared' = IMS+GIS shared pool
+  // The shared pool is IMS / GIS only (utils/activeAccount isTradingAccount).
+  const trading = isTradingAccount(uidCollection)
   // const [selectedOpt, setSelectOpt] = useState({ opt: 4 })
   const [data, setData] = useState([])
   const [sumData, setSumData] = useState([])
@@ -614,7 +617,7 @@ const Stocks = () => {
               {/* Tabs: this account's stock vs the IMS+GIS shared pool */}
               <div className='mt-3 flex flex-wrap items-start gap-y-2'>
                 <div className='flex items-center bg-[var(--bg-subtle)] border border-[var(--line)] rounded-lg p-0.5'>
-                  {[['mine', 'My Stock'], ['shared', 'Shared (IMS + GIS)']].map(([key, label]) => (
+                  {[['mine', 'My Stock'], ...(trading ? [['shared', 'Shared (IMS + GIS)']] : [])].map(([key, label]) => (
                     <button key={key} type='button' onClick={() => setActiveTab(key)}
                       className={`rounded-lg transition-colors ${activeTab === key
                         ? 'bg-[var(--bg-card)] text-[var(--ink)] font-medium shadow-card'
@@ -663,7 +666,7 @@ const Stocks = () => {
                 )}
               </div>
 
-              {activeTab === 'shared' ? (
+              {activeTab === 'shared' && trading ? (
                 <div className='mt-3'><SharedStock /></div>
               ) : (
                 <>

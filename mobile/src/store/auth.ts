@@ -47,6 +47,13 @@ const IMS_UID_COLLECTION = 'DQ9gNTpvXqh6K9BqMTPTgCfxD2Z2';
 // components/const.js:69 — 'Sharon Admin' / 'Gis Admin'). Any other workspace, i.e. the
 // App Review / screenshot account, gets the page's plain name: a person's name has no
 // place in public store screenshots.
+/* IMS or GIS — the two trading companies. The shared area (SHARED_STOCK: the jointly held
+   stock and the grade registry) belongs to them alone, and the hardened firestore.rules
+   refuse it to anyone else. The App Review / demo workspace is not a trading company: it
+   must neither see the companies' real shared stock nor hit a permissions error trying. */
+export const isTradingWorkspace = (uidCollection: string | null | undefined): boolean =>
+  uidCollection === IMS_UID_COLLECTION || uidCollection === GIS_UID_COLLECTION;
+
 export const marginsLabelFor = (uidCollection: string | null | undefined): string =>
   uidCollection === GIS_UID_COLLECTION ? 'Gis Admin' : uidCollection === IMS_UID_COLLECTION ? 'Sharon Admin' : 'Margins';
 
@@ -80,6 +87,8 @@ interface AuthState {
   gisAccount: boolean;
   /** What this workspace calls the Margins page — see marginsLabelFor. */
   marginsLabel: string;
+  /** IMS or GIS — may use the shared stock pool and grade registry (isTradingWorkspace). */
+  tradingAccount: boolean;
   // Web parity (utils/permissions.js): superAdmin is the workspace owner or the
   // `role` claim; isAdmin also covers a plain 'admin' role. Gates the same
   // admin-only figures web hides from regular staff (Cashflow's Financing /
@@ -139,6 +148,7 @@ export const useAuth = create<AuthState>((set, get) => ({
   userTitle: null,
   gisAccount: false,
   marginsLabel: 'Margins',
+  tradingAccount: false,
   isAdmin: false,
   superAdmin: false,
   claims: null,
@@ -332,6 +342,7 @@ export const useAuth = create<AuthState>((set, get) => ({
           userTitle: null,
           gisAccount: false,
           marginsLabel: 'Margins',
+          tradingAccount: false,
           isAdmin: false,
           superAdmin: false,
           claims: null,
@@ -355,6 +366,7 @@ export const useAuth = create<AuthState>((set, get) => ({
           userTitle,
           gisAccount: uidCollection === GIS_UID_COLLECTION,
           marginsLabel: marginsLabelFor(uidCollection),
+          tradingAccount: isTradingWorkspace(uidCollection),
           superAdmin,
           isAdmin: superAdmin || normalizeRole(claims.role || claims.title) === 'admin',
           // Per-page permissions (web b783925b): an explicit `pages` claim picked in
@@ -380,6 +392,7 @@ export const useAuth = create<AuthState>((set, get) => ({
           userTitle: null,
           gisAccount: false,
           marginsLabel: 'Margins',
+          tradingAccount: false,
           isAdmin: false,
           superAdmin: false,
           claims: null,

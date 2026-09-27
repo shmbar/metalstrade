@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { buildGradeIndex, GradeIndex } from '@shared/grades';
 import { loadGrades } from '@/data/firestore';
+import { useAuth } from '@/store/auth';
 
 const EMPTY = buildGradeIndex([]);
 
@@ -18,7 +19,10 @@ const EMPTY = buildGradeIndex([]);
  * simply falls back to folding by spelling.
  */
 export function useGrades(): { index: GradeIndex; ready: boolean } {
+  // The registry lives in the SHARED_STOCK namespace: IMS / GIS only.
+  const trading = useAuth((s) => s.tradingAccount);
   const { data, isSuccess } = useQuery({
+    enabled: trading,
     queryKey: ['grades'],
     queryFn: loadGrades,
     staleTime: 5 * 60_000,

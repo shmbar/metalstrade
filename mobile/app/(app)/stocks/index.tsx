@@ -9,6 +9,7 @@ import { StorageView } from '@/features/stocks/StorageView';
 import { AgingView } from '@/features/stocks/AgingView';
 import { SharedStockView } from '@/features/stocks/SharedStockView';
 import { layout } from '@/theme/tokens';
+import { useAuth } from '@/store/auth';
 
 type Tab = 'inventory' | 'shared' | 'storage' | 'aging';
 
@@ -24,8 +25,12 @@ export default function StocksScreen() {
   // Deep-linkable ("/(app)/stocks?tab=shared") so other screens — the Cashflow
   // Shared Stock card — can jump straight to a tab instead of landing on Inventory.
   const { tab: tabParam } = useLocalSearchParams<{ tab?: string }>();
-  const initialTab = TABS.includes(tabParam as Tab) ? (tabParam as Tab) : 'inventory';
-  const [tab, setTab] = useState<Tab>(initialTab);
+  // Shared stock belongs to IMS and GIS only (store/auth isTradingWorkspace).
+  const trading = useAuth((s) => s.tradingAccount);
+  const tabs = trading ? TABS : TABS.filter((t) => t !== 'shared');
+  const initialTab = tabs.includes(tabParam as Tab) ? (tabParam as Tab) : 'inventory';
+  const [picked, setTab] = useState<Tab>(initialTab);
+  const tab: Tab = tabs.includes(picked) ? picked : 'inventory';
 
   return (
     <Screen scroll={false} flush>
@@ -40,11 +45,11 @@ export default function StocksScreen() {
           value={tab}
           onChange={setTab}
           options={[
-            { value: 'inventory', label: 'Inventory' },
-            { value: 'shared', label: 'Shared' },
-            { value: 'storage', label: 'Storage' },
-            { value: 'aging', label: 'Aging' },
-          ]}
+            { value: 'inventory' as Tab, label: 'Inventory' },
+            { value: 'shared' as Tab, label: 'Shared' },
+            { value: 'storage' as Tab, label: 'Storage' },
+            { value: 'aging' as Tab, label: 'Aging' },
+          ].filter((o) => tabs.includes(o.value))}
         />
       </View>
 

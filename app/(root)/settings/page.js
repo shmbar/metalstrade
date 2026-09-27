@@ -16,6 +16,7 @@ import Documents from './tabs/documents'
 import EmailSetup from './tabs/emailSetup'
 import NotificationSettings from './tabs/notifications'
 import { UserAuth } from '../../../contexts/useAuthContext'
+import { isTradingAccount } from '@utils/activeAccount'
 import Spin from '../../../components/spinTable';
 import VideoLoader from '../../../components/videoLoader';
 
@@ -46,9 +47,11 @@ const Page = () => {
 
   const { compData, loading } = useContext(SettingsContext);
   const ln = compData?.lng || 'English';
-  const { canManageUsers } = UserAuth();
+  const { canManageUsers, uidCollection } = UserAuth();
 
   let tabs = ['Company Details', 'Setup', 'Suppliers', 'Clients', 'Bank Account', 'Stocks', 'Grades', 'Documents', 'Email Setup', 'Notifications']
+  // The grade registry is shared by IMS and GIS only (SHARED_STOCK) — hidden elsewhere.
+  if (!isTradingAccount(uidCollection)) tabs = tabs.filter(t => t !== 'Grades');
   // Super Admins and Admins both manage people; the role hierarchy inside the
   // tab decides who each of them is allowed to touch.
   if (canManageUsers) tabs.push('Users');

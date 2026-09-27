@@ -12,6 +12,7 @@ import { CardsSkeleton } from "../../../components/skeletons";
 import { loadData, loadDataSettings, loadInvoice, loadMargins, loadSharedStock, loadStockData, loadAllStockData, saveCashflow, saveCashflowFinanced, saveDataSettings, saveMultipleData, saveStockIn, syncSpecialInvoicesPaidStatus, updateClientPayment, updateExpPayments, updateContractField, updateInvoiceField } from "../../../utils/utils";
 import { resolveInvoiceDate } from "../../../utils/pureHelpers";
 import { UserAuth } from "../../../contexts/useAuthContext";
+import { isTradingAccount } from '@utils/activeAccount';
 import { NumericFormat } from "react-number-format";
 import { addComma, ClientDetails, clientToolTip, entityName, ExpensesToolTip, FinalSummaryBadge, getTotals, getTotalsSupPayments, runExpenses, runInvoices, runStocks, runSupPayments, SharedStockDetails, StocksUnSold, StoclToolTip, SupplierDetails, supplierToolTip } from "./funcs";
 import Tltip from "../../../components/tlTip";
@@ -1062,7 +1063,8 @@ const Cashflow = () => {
     // paid/unpaid totals; the card shows value + who finances it.
     const [sharedStock, setSharedStock] = useState([]);
     useEffect(() => {
-        if (!uidCollection) return;
+        // IMS / GIS only — the pool is theirs, and firestore.rules refuses anyone else.
+        if (!uidCollection || !isTradingAccount(uidCollection)) { setSharedStock([]); return; }
         loadSharedStock()
             .then(d => setSharedStock((d || []).filter(Boolean)))
             .catch(() => setSharedStock([]));

@@ -32,7 +32,8 @@ export default function SettingsGrades() {
   const insets = useSafeAreaInsets();
   const currentUser = useAuth((s) => s.currentUser);
   const qc = useQueryClient();
-  const { data: all = [], isLoading } = useQuery({ queryKey: ['grades'], queryFn: loadGrades, staleTime: 60_000 });
+  const trading = useAuth((s) => s.tradingAccount);
+  const { data: all = [], isLoading } = useQuery({ enabled: trading, queryKey: ['grades'], queryFn: loadGrades, staleTime: 60_000 });
 
   const grades = useMemo(() => all.filter((g: any) => !g.deleted), [all]);
   const [filter, setFilter] = useState('');

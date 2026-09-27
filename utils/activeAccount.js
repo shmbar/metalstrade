@@ -24,6 +24,12 @@ const KEY = 'ims:activeAccount';
 
 export const accountName = (uid) => ACCOUNTS.find(a => a.id === uid)?.name || '';
 
+// IMS or GIS. The shared area (SHARED_STOCK: the jointly held stock and the grade registry)
+// belongs to the two trading companies alone — firestore.rules refuses it to anyone else —
+// so a test / demo workspace neither sees the companies' real shared stock nor hits a
+// permissions error trying. Mobile: store/auth isTradingWorkspace.
+export const isTradingAccount = (uid) => ACCOUNTS.some(a => a.id === uid);
+
 // An id that isn't one of ours is treated as no choice at all — storage is
 // writable by anything running on the page and must not steer where data lands.
 export const readActiveAccount = () => {
