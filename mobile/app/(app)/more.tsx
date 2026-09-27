@@ -4,10 +4,10 @@ import { Pressable } from '@/components/ui/Pressable';
 import { router } from 'expo-router';
 import Constants from 'expo-constants';
 import { Ionicons } from '@expo/vector-icons';
-import { Screen, Card, Text, Badge, Button, SectionHeader, EmptyState, SearchField, Chip } from '@/components/ui';
+import { Screen, Card, Text, Badge, Button, SectionHeader, EmptyState, SearchField, Chip, SegmentedControl } from '@/components/ui';
 import { ScreenHeader } from '@/components/ScreenHeader';
 import { useTheme } from '@/theme/ThemeProvider';
-import { useAuth } from '@/store/auth';
+import { useAuth, isTradingWorkspace, TRADING_WORKSPACES, workspaceName } from '@/store/auth';
 import { isBiometricEnabled, setLockPreference } from '@/lib/secureStore';
 import { haptics } from '@/lib/haptics';
 import { authenticateBiometric, biometricLabel, isBiometricAvailable } from '@/lib/biometric';
@@ -103,7 +103,10 @@ export default function More() {
   // capitalisation, say), used to fall through this page's OWN ad-hoc
   // `userTitle === 'Admin'` check and lose the Margins/Formulas group and its
   // badge — the auth store's isAdmin is the one place this is now derived.
-  const { currentUser, gisAccount, marginsLabel, isAdmin, signOut, canRoute } = useAuth(useShallow((s) => ({ currentUser: s.currentUser, gisAccount: s.gisAccount, marginsLabel: s.marginsLabel, isAdmin: s.isAdmin, signOut: s.signOut, canRoute: s.canRoute })));
+  const { currentUser, marginsLabel, isAdmin, signOut, canRoute, uidCollection, homeWorkspace, switchWorkspace } = useAuth(useShallow((s) => ({ currentUser: s.currentUser, marginsLabel: s.marginsLabel, isAdmin: s.isAdmin, signOut: s.signOut, canRoute: s.canRoute, uidCollection: s.uidCollection, homeWorkspace: s.homeWorkspace, switchWorkspace: s.switchWorkspace })));
+  // IMS ↔ GIS — web's header switcher. Only for a member of one of the two companies; the
+  // review / demo account has nothing to switch to (store/auth switchWorkspace).
+  const canSwitch = isTradingWorkspace(homeWorkspace);
   const [query, setQuery] = useState('');
 
   const themeOptions: { key: 'light' | 'dark' | 'system'; icon: keyof typeof Ionicons.glyphMap }[] = [
@@ -184,12 +187,31 @@ export default function More() {
           <View style={{ flex: 1, minWidth: 0 }}>
             <Text variant="h3" numberOfLines={1}>{currentUser.name}</Text>
             <Text variant="caption" tone="muted" numberOfLines={1}>{currentUser.email}</Text>
-            <View style={{ flexDirection: 'row', gap: 6, marginTop: 4 }}>
-              <Badge label={gisAccount ? 'GIS workspace' : 'IMS workspace'} tone="neutral" />
-              {isAdmin && <Badge label="Admin" tone="info" />}
-            </View>
+            {isAdmin && (
+              <View style={{ flexDirection: 'row', gap: 6, marginTop: 4 }}>
+                <Badge label="Admin" tone="info" />
+              </View>
+            )}
           </View>
         </View>
+        {canSwitch && (
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingHorizontal: layout.cardInset, paddingVertical: layout.rowPad, borderTopWidth: 1, borderTopColor: colors.border }}>
+            <Ionicons name="business-outline" size={16} color={colors.primary} />
+            <View style={{ flex: 1, minWidth: 0 }}>
+              <Text variant="body">Company</Text>
+              <Text variant="caption" tone="muted" numberOfLines={1}>
+                {uidCollection === homeWorkspace ? 'Your company' : `Viewing ${workspaceName(uidCollection)} · home is ${workspaceName(homeWorkspace)}`}
+              </Text>
+            </View>
+            <View style={{ width: 140 }}>
+              <SegmentedControl
+                value={uidCollection || ''}
+                onChange={(ws) => { switchWorkspace(ws); }}
+                options={TRADING_WORKSPACES.map((w) => ({ value: w.id as string, label: w.name }))}
+              />
+            </View>
+          </View>
+        )}
         {bio.available && (
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingHorizontal: layout.cardInset, paddingVertical: layout.rowPad, borderTopWidth: 1, borderTopColor: colors.border }}>
             <Ionicons name="lock-closed-outline" size={16} color={colors.primary} />

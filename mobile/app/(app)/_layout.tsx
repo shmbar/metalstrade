@@ -1,10 +1,11 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { AppState, Keyboard, View } from 'react-native';
 import { onlineManager } from '@tanstack/react-query';
-import { Tabs, Redirect, useSegments } from 'expo-router';
+import { Tabs, Redirect, useSegments, useNavigationContainerRef } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useAuth } from '@/store/auth';
+import { useAuth, workspaceName } from '@/store/auth';
+import { toast } from '@/store/toast';
 import { useSettings } from '@/store/settings';
 import { OfflineBanner } from '@/components/OfflineBanner';
 import { registerPush, listenPushTaps } from '@/features/push/registerPush';
@@ -34,7 +35,7 @@ function tabIcon(base: string) {
 const HapticTab = (props: any) => <Pressable {...props} pressedOpacity={1} haptic="selection" />;
 
 export default function AppLayout() {
-  const { user, initializing, uidCollection, currentUser, canRoute, landingHref, allowedPages } = useAuth(useShallow((s) => ({ user: s.user, initializing: s.initializing, uidCollection: s.uidCollection, currentUser: s.currentUser, canRoute: s.canRoute, landingHref: s.landingHref, allowedPages: s.allowedPages })));
+  const { user, initializing, uidCollection, homeWorkspace, currentUser, canRoute, landingHref, allowedPages } = useAuth(useShallow((s) => ({ user: s.user, initializing: s.initializing, uidCollection: s.uidCollection, homeWorkspace: s.homeWorkspace, currentUser: s.currentUser, canRoute: s.canRoute, landingHref: s.landingHref, allowedPages: s.allowedPages })));
   const loadSettings = useSettings((s) => s.load);
   const startSettings = useSettings((s) => s.start);
   const { colors, scheme } = useTheme();
@@ -66,10 +67,12 @@ export default function AppLayout() {
   }, [uidCollection, loadSettings, startSettings]);
 
   // Register this device for push alerts (overdue-invoice digest). Silent no-op
-  // if the user declines or the device can't receive push.
+  // if the user declines or the device can't receive push. On the HOME company: a
+  // look at the other one (IMS ↔ GIS switch) must not subscribe the phone to its
+  // alerts for good.
   useEffect(() => {
-    if (uidCollection) registerPush(uidCollection, currentUser.email, currentUser.uid);
-  }, [uidCollection, currentUser.email, currentUser.uid]);
+    if (homeWorkspace) registerPush(homeWorkspace, currentUser.email, currentUser.uid);
+  }, [homeWorkspace, currentUser.email, currentUser.uid]);
 
   // This person's notification settings, followed live (shared with the web).
   useFollowNotificationPrefs();
@@ -83,6 +86,23 @@ export default function AppLayout() {
   useWarmLedger(uidCollection);
   // Switching tab (or returning to the app) refreshes what is on screen and stale.
   useFreshOnFocus(route, !!uidCollection);
+
+  /* IMS ↔ GIS switch (store/auth switchWorkspace) — web AccountSwitchGuard. Every read and
+     write now addresses the other company, but what is already on screen does not move: a
+     contract open in one company, saved after the switch, would be written into the other
+     (how a contract came to exist twice on web). So a CHANGE of company resets the whole
+     navigation tree to a fresh app — every open record closes, every tab starts over — and
+     says plainly which company this is now. The first company of a session is not a switch;
+     the reset remounts this layout, so the guard starts over with the new one. */
+  const navRef = useNavigationContainerRef();
+  const lastCompany = useRef(uidCollection);
+  useEffect(() => {
+    const from = lastCompany.current;
+    lastCompany.current = uidCollection;
+    if (!from || !uidCollection || from === uidCollection) return;
+    navRef.reset({ index: 0, routes: [{ name: '(app)' as never }] });
+    toast.success(`Now in ${workspaceName(uidCollection) || 'the other company'} — open records were closed so nothing is saved to the wrong company`);
+  }, [uidCollection, navRef]);
 
   // Moving to another screen ends editing on the one being left. Otherwise a keyboard opened
   // by a search box stays up over the next screen — an Add/Edit form opens with its fields

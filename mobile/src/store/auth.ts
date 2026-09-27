@@ -54,6 +54,14 @@ const IMS_UID_COLLECTION = 'DQ9gNTpvXqh6K9BqMTPTgCfxD2Z2';
 export const isTradingWorkspace = (uidCollection: string | null | undefined): boolean =>
   uidCollection === IMS_UID_COLLECTION || uidCollection === GIS_UID_COLLECTION;
 
+/** The two companies an IMS / GIS member can switch between (web utils/activeAccount ACCOUNTS). */
+export const TRADING_WORKSPACES = [
+  { id: IMS_UID_COLLECTION, name: 'IMS' },
+  { id: GIS_UID_COLLECTION, name: 'GIS' },
+] as const;
+export const workspaceName = (ws: string | null | undefined): string =>
+  TRADING_WORKSPACES.find((w) => w.id === ws)?.name || '';
+
 export const marginsLabelFor = (uidCollection: string | null | undefined): string =>
   uidCollection === GIS_UID_COLLECTION ? 'Gis Admin' : uidCollection === IMS_UID_COLLECTION ? 'Sharon Admin' : 'Margins';
 
@@ -89,6 +97,11 @@ interface AuthState {
   marginsLabel: string;
   /** IMS or GIS — may use the shared stock pool and grade registry (isTradingWorkspace). */
   tradingAccount: boolean;
+  /** The workspace from the login's claim. uidCollection is the one being LOOKED AT, which an
+   *  IMS / GIS member can switch to the other company (switchWorkspace); push stays here. */
+  homeWorkspace: string | null;
+  /** IMS ↔ GIS, for members of either — web's header switcher. Returns false when not allowed. */
+  switchWorkspace: (ws: string) => boolean;
   // Web parity (utils/permissions.js): superAdmin is the workspace owner or the
   // `role` claim; isAdmin also covers a plain 'admin' role. Gates the same
   // admin-only figures web hides from regular staff (Cashflow's Financing /
@@ -149,6 +162,7 @@ export const useAuth = create<AuthState>((set, get) => ({
   gisAccount: false,
   marginsLabel: 'Margins',
   tradingAccount: false,
+  homeWorkspace: null,
   isAdmin: false,
   superAdmin: false,
   claims: null,
@@ -199,6 +213,26 @@ export const useAuth = create<AuthState>((set, get) => ({
       set({ error: msg });
       return false;
     }
+  },
+
+  /* Switch the company being looked at — web's header switcher (MainNav + AccountSwitchGuard).
+     Only between IMS and GIS, only for a member of one of them (firestore.rules allows exactly
+     that). Held for this session: signing in again, or a cold start, returns to the home
+     company — the same per-session choice web makes. Presence moves with the user. The app
+     layout re-creates the navigator on this change, which closes every open record so nothing
+     half-edited in one company can be saved into the other. */
+  switchWorkspace: (ws) => {
+    const { homeWorkspace, uidCollection: from, currentUser: cu } = get();
+    if (!ws || ws === from || !isTradingWorkspace(homeWorkspace) || !isTradingWorkspace(ws)) return false;
+    if (from && cu?.uid) endPresence(from, cu.uid).catch(() => {});
+    set({
+      uidCollection: ws,
+      gisAccount: ws === GIS_UID_COLLECTION,
+      marginsLabel: marginsLabelFor(ws),
+      tradingAccount: true,
+    });
+    if (cu?.uid) touchPresence(ws, cu, { loginAtMs: Date.now() }).catch(() => {});
+    return true;
   },
 
   signOut: async () => {
@@ -343,6 +377,7 @@ export const useAuth = create<AuthState>((set, get) => ({
           gisAccount: false,
           marginsLabel: 'Margins',
           tradingAccount: false,
+          homeWorkspace: null,
           isAdmin: false,
           superAdmin: false,
           claims: null,
@@ -367,6 +402,7 @@ export const useAuth = create<AuthState>((set, get) => ({
           gisAccount: uidCollection === GIS_UID_COLLECTION,
           marginsLabel: marginsLabelFor(uidCollection),
           tradingAccount: isTradingWorkspace(uidCollection),
+          homeWorkspace: uidCollection,
           superAdmin,
           isAdmin: superAdmin || normalizeRole(claims.role || claims.title) === 'admin',
           // Per-page permissions (web b783925b): an explicit `pages` claim picked in
@@ -393,6 +429,7 @@ export const useAuth = create<AuthState>((set, get) => ({
           gisAccount: false,
           marginsLabel: 'Margins',
           tradingAccount: false,
+          homeWorkspace: null,
           isAdmin: false,
           superAdmin: false,
           claims: null,

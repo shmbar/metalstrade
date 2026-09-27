@@ -8,7 +8,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Text, Select, SkeletonList, ErrorState } from '@/components/ui';
 import { PeriodSelector } from '@/components/PeriodSelector';
 import { useTheme } from '@/theme/ThemeProvider';
-import { useAuth } from '@/store/auth';
+import { useAuth, workspaceName } from '@/store/auth';
 import { useCollapsible } from '@/lib/collapse';
 import { useSettings } from '@/store/settings';
 import { usePrivacyStore, maskIfHidden } from '@/store/privacy';
@@ -36,7 +36,9 @@ import { keyboardScrollProps } from '@/lib/keyboard';
 export default function Dashboard() {
   const { colors, scheme } = useTheme();
   const insets = useSafeAreaInsets();
-  const { currentUser, marginsLabel, canRoute } = useAuth(useShallow((s) => ({ currentUser: s.currentUser, marginsLabel: s.marginsLabel, canRoute: s.canRoute })));
+  const { currentUser, marginsLabel, canRoute, uidCollection } = useAuth(useShallow((s) => ({ currentUser: s.currentUser, marginsLabel: s.marginsLabel, canRoute: s.canRoute, uidCollection: s.uidCollection })));
+  // Which company is on screen (IMS / GIS; empty elsewhere) — switched from More.
+  const company = workspaceName(uidCollection);
   const hideBalances = usePrivacyStore((s) => s.hidden);
   const togglePrivacy = usePrivacyStore((s) => s.toggle);
   // Scroll position drives the status-bar backdrop (fades in once the hero has
@@ -450,7 +452,7 @@ export default function Dashboard() {
         >
           <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
             <View>
-              <Text variant="caption" color="rgba(255,255,255,0.7)">Welcome back</Text>
+              <Text variant="caption" color="rgba(255,255,255,0.7)">{company ? `Welcome back · ${company}` : 'Welcome back'}</Text>
               <Text variant="h2" color="#ffffff">{firstName}</Text>
             </View>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
