@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { duplicateLineTrap, contractLedger, onHandByLine } from '../utils/stockGuards.js';
+import { duplicateLineTrap, contractLedger, onHandByLine, wrongWarehouseTrap } from '../utils/stockGuards.js';
 
 // a purchase lot as the ledger holds it: names its line in `description`, its contract in contractData
 const lot = (line, qnty, stock, con) => ({ type: 'in', description: line, qnty, stock, contractData: { id: con } });
@@ -166,5 +166,66 @@ describe('contractLedger', () => {
         const scoped = contractLedger(rows, { id: 'mine', invoices: [] }, '');
         expect(onHandByLine(scoped.filter(r => r.stock === A), ['L1']).L1).toBe(6);
         expect(onHandByLine(scoped.filter(r => r.stock === B), ['L1']).L1).toBe(4);
+    });
+});
+
+/* IMS PO 280426-2 as it stood on 28 Sep 2026: one line, 698 Turnings. Triart held the
+   19.994 lot (sold on invoice 1457) and the 20.495 lot; Seagull held the unsold 10.192.
+   Invoice 1464 took its 20.495 from Seagull — Seagull went to -10.303, Triart kept a
+   sold 20.495, and Cashflow showed it under Stocks - Paid. */
+describe('wrongWarehouseTrap — a sale taken from a warehouse that does not hold it', () => {
+    const LINE = 'dc4b6859';
+    const TRIART = '6cef5ad6', SEAGULL = 'b6f14654';
+    const PO280426 = { id: 'po-280426-2', productsData: [{ id: LINE, description: '698 Turnings' }], invoices: [{ invoice: 1457 }, { invoice: 1464 }] };
+    const rows = [
+        lot(LINE, 0, TRIART, PO280426.id),                 // the zero-weight freight lot
+        lot(LINE, 19.994, TRIART, PO280426.id),
+        lot(LINE, 20.495, TRIART, PO280426.id),
+        lot(LINE, 10.192, SEAGULL, PO280426.id),
+        sale(LINE, 19.994, TRIART, 1457, '3333'),
+    ];
+    const names = (id) => ({ [TRIART]: 'Triart', [SEAGULL]: 'Seagull' }[id] || id);
+    const inv1464 = (stock, extra = {}) => ({ draft: false, invoice: 1464, ...extra, productsDataInvoice: [{ descriptionId: LINE, qnty: '20.495', stock }] });
+
+    it('blocks invoice 1464 as it was written, and says where the material is', async () => {
+        const msg = await wrongWarehouseTrap(inv1464(SEAGULL), PO280426, rowsOf(rows), names);
+        expect(msg).toMatch(/698 Turnings/);
+        expect(msg).toMatch(/Seagull holds 10\.192 MT/);
+        expect(msg).toMatch(/takes 20\.495 MT/);
+        expect(msg).toMatch(/Triart holds 20\.495 MT/);
+    });
+
+    it('lets it through from the warehouse that holds the lot — also on a re-save, when 1464\'s own rows are in the ledger', async () => {
+        expect(await wrongWarehouseTrap(inv1464(TRIART), PO280426, rowsOf(rows), names)).toBeNull();
+        const resaved = [...rows, sale(LINE, 20.495, TRIART, 1464)];
+        expect(await wrongWarehouseTrap(inv1464(TRIART), PO280426, rowsOf(resaved), names)).toBeNull();
+    });
+
+    it('lets through the 10.192 sold from Seagull, where it is', async () => {
+        const inv = { draft: false, invoice: 1500, productsDataInvoice: [{ descriptionId: LINE, qnty: '10.192', stock: SEAGULL }] };
+        expect(await wrongWarehouseTrap(inv, PO280426, rowsOf(rows), names)).toBeNull();
+    });
+
+    it('allows what no warehouse can explain: nothing received yet, or more than any one holds', async () => {
+        expect(await wrongWarehouseTrap(inv1464(SEAGULL), PO280426, rowsOf([]), names)).toBeNull();
+        const heavy = { draft: false, invoice: 1500, productsDataInvoice: [{ descriptionId: LINE, qnty: '25', stock: SEAGULL }] };
+        expect(await wrongWarehouseTrap(heavy, PO280426, rowsOf(rows), names)).toBeNull();
+    });
+
+    it('counts what this invoice already takes from the other warehouse', async () => {
+        // 20.495 from Triart AND another 20.495 from Seagull: Triart has nothing left to offer
+        const split = { draft: false, invoice: 1500, productsDataInvoice: [
+            { descriptionId: LINE, qnty: '20.495', stock: TRIART },
+            { descriptionId: LINE, qnty: '20.495', stock: SEAGULL },
+        ] };
+        expect(await wrongWarehouseTrap(split, PO280426, rowsOf(rows), names)).toBeNull();
+    });
+
+    it('never stops a draft, a service line, or a line from another contract', async () => {
+        expect(await wrongWarehouseTrap(inv1464(SEAGULL, { draft: true }), PO280426, rowsOf(rows), names)).toBeNull();
+        const service = { draft: false, invoice: 1500, productsDataInvoice: [{ descriptionId: LINE, qnty: 's', stock: SEAGULL }] };
+        expect(await wrongWarehouseTrap(service, PO280426, rowsOf(rows), names)).toBeNull();
+        const foreign = { draft: false, invoice: 1500, productsDataInvoice: [{ descriptionId: 'other-po-line', qnty: '20.495', stock: SEAGULL }] };
+        expect(await wrongWarehouseTrap(foreign, PO280426, rowsOf(rows), names)).toBeNull();
     });
 });

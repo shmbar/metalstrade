@@ -4,7 +4,7 @@ import dateFormat from "dateformat";
 import { v4 as uuidv4 } from 'uuid';
 import { getD, setNewInvoiceNum, loadDataSettings, updatePnl, updateDocument, delField, loadInvoice } from '@utils/utils.js';
 import { validate, saveData, delDoc, saveDataFinalCancel, saveStockIn, delStock, loadStockRowsByLine } from '@utils/utils'
-import { duplicateLineTrap as trapGuard } from '@utils/stockGuards'
+import { duplicateLineTrap as trapGuard, wrongWarehouseTrap as warehouseGuard } from '@utils/stockGuards'
 import { SettingsContext } from '@contexts/useSettingsContext'
 import { getTtl } from '@utils/languages';
 
@@ -55,10 +55,19 @@ const newInvoice = {
 //
 // Symmetric on purpose. Ticking Draft on an invoice that already shipped removes
 // its movements and gives the weight back; clearing the tick writes them again.
-// The duplicate-line trap lives in utils/stockGuards.js (pure, tested); this just
-// hands it the real ledger read. See that file for what it catches and why.
-const duplicateLineTrap = (uidCollection, invoice, contract) =>
-    trapGuard(invoice, contract, (ids) => loadStockRowsByLine(uidCollection, ids));
+// The duplicate-line and wrong-warehouse traps live in utils/stockGuards.js (pure,
+// tested); this just hands them the real ledger read — once, shared by both — and
+// the warehouse names for the message. See that file for what they catch and why.
+const duplicateLineTrap = async (uidCollection, invoice, contract, settings) => {
+    let rows = null;
+    const load = (ids) => (rows ||= loadStockRowsByLine(uidCollection, ids));
+    const whName = (id) => {
+        const s = settings?.Stocks?.Stocks?.find(x => x.id === id);
+        return s?.nname || s?.stock || 'the chosen warehouse';
+    };
+    return await trapGuard(invoice, contract, load)
+        || await warehouseGuard(invoice, contract, load, whName);
+};
 
 const writeInvoiceStockMovements = async (uidCollection, invoice, rows) => {
     if (!rows.length) return;
@@ -182,7 +191,7 @@ const useInvoiceState = () => {
                 return false;
             }
 
-            const trap = await duplicateLineTrap(uidCollection, valueInv, valueCon);
+            const trap = await duplicateLineTrap(uidCollection, valueInv, valueCon, settings);
             if (trap) { setToast({ show: true, text: trap, clr: 'fail' }); return false; }
 
             const NetWTKgsTmp = (valueInv.productsDataInvoice.filter(q => q.qnty !== 's').map(x => x.qnty)
@@ -332,7 +341,7 @@ const useInvoiceState = () => {
 
             // The contract is only fetched further down; the guard needs its lines now.
             const conForTrap = valueInv.poSupplier ? await loadInvoice(uidCollection, 'contracts', valueInv.poSupplier).catch(() => null) : null;
-            const trap = await duplicateLineTrap(uidCollection, valueInv, conForTrap);
+            const trap = await duplicateLineTrap(uidCollection, valueInv, conForTrap, settings);
             if (trap) { setToast({ show: true, text: trap, clr: 'fail' }); return false; }
 
             const NetWTKgsTmp = (valueInv.productsDataInvoice.filter(q => q.qnty !== 's').map(x => x.qnty)

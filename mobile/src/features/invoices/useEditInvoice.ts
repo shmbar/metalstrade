@@ -3,9 +3,10 @@ import { useAuth } from '@/store/auth';
 import { useSettings } from '@/store/settings';
 import { updateInvoiceDoc, saveStockIn, delStock, saveSplit } from '@/data/writes';
 import { STOCK_LOTS_KEY } from '@/features/stocks/useAllStockLots';
-import { duplicateLineTrap } from '@shared/stockGuards';
+import { duplicateLineTrap, wrongWarehouseTrap } from '@shared/stockGuards';
 import { loadStockRowsByLine } from '@/features/stocks/onHand';
 import { loadDocByIdDate } from '@/data/firestore';
+import { entityName } from '@/lib/entityName';
 
 // Persist an IMS/GIS split on an invoice — the third page web renders SplitControl on.
 export function useSaveInvoiceSplit() {
@@ -64,9 +65,13 @@ export function useEditInvoice() {
           id: raw.poSupplier.id,
           date: raw.poSupplier.date,
         });
-        const trap = await duplicateLineTrap({ ...raw, ...patch }, con, (ids) =>
-          loadStockRowsByLine(uidCollection, ids)
-        );
+        // …and the wrong-warehouse trap (IMS invoice 1464), on the same ledger read.
+        let rows: Promise<any[]> | null = null;
+        const load = (ids: string[]) => (rows ||= loadStockRowsByLine(uidCollection, ids));
+        const edited = { ...raw, ...patch };
+        const trap = await duplicateLineTrap(edited, con, load)
+          || await wrongWarehouseTrap(edited, con, load,
+            (sid: string) => entityName((settings as any)?.Stocks?.Stocks, sid, 'warehouse'));
         if (trap) throw new Error(trap);
       }
 

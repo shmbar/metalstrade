@@ -101,3 +101,56 @@ export const duplicateLineTrap = async (invoice, contract, loadRows) => {
     }
     return null;
 };
+
+/**
+ * The wrong-warehouse trap.
+ *
+ * A sale is written off the warehouse chosen on its invoice line, and a wrong choice went
+ * unnoticed: the warehouse that really holds the lot keeps it, and the chosen one goes
+ * negative. IMS invoice 1464 (PO 280426-2) took its 20.495 MT of 698 Turnings from
+ * Seagull, which held only the unsold 10.192; the 20.495 lot sat in Triart. Cashflow then
+ * listed the sold 20.495 under Stocks - Paid, and the unpaid 10.192 vanished from
+ * Stocks - UnPaid behind Seagull's -10.303 (client, 2026-09-28).
+ *
+ * Caught at the same moment as the duplicate-line trap, and as narrowly: a non-draft save
+ * that takes more of a line from a warehouse than that warehouse holds of it, while
+ * ANOTHER warehouse holds enough of the same line on the same contract. When no warehouse
+ * holds enough — invoicing before the lot arrives, a final weight a little over the lot —
+ * it is let through, as before.
+ *
+ * @param whName  (warehouseId) => its display name, for the message
+ * @returns null when fine, else the message to show the user
+ */
+export const wrongWarehouseTrap = async (invoice, contract, loadRows, whName = (id) => id) => {
+    if (invoice?.draft) return null;
+    const contractProducts = contract?.productsData || [];
+    const ids = contractProducts.map(p => p.id).filter(Boolean);
+    const lines = (invoice?.productsDataInvoice || [])
+        .filter(l => l.qnty !== 's' && parseFloat(l.qnty) > 0 && ids.includes(l.descriptionId) && l.stock);
+    if (!lines.length) return null;
+
+    const ledger = contractLedger(await loadRows(ids), contract, invoice.invoice);
+    const warehouses = [...new Set(ledger.map(r => r.stock).filter(Boolean))];
+    const onHand = Object.fromEntries(warehouses.map(wh => [wh, onHandByLine(ledger.filter(r => r.stock === wh), ids)]));
+    const held = (wh, id) => onHand[wh]?.[id] || 0;
+    // What this invoice takes of each line from each warehouse.
+    const takes = new Map();
+    lines.forEach(l => {
+        const k = `${l.stock}\u0000${l.descriptionId}`;
+        takes.set(k, (takes.get(k) || 0) + parseFloat(l.qnty));
+    });
+    const taken = (wh, id) => takes.get(`${wh}\u0000${id}`) || 0;
+
+    for (const [k, need] of takes) {
+        const [wh, id] = k.split('\u0000');
+        if (held(wh, id) >= need - EPS) continue;                          // enough here: fine
+        // Somewhere else holds it all — after what this invoice already takes from there.
+        const alt = warehouses.find(w => w !== wh && held(w, id) - taken(w, id) >= need - EPS);
+        if (!alt) continue;                                                // nowhere holds it: allowed
+        const name = contractProducts.find(p => p.id === id)?.description || 'This material';
+        return `"${name}": ${whName(wh)} holds ${Math.max(0, held(wh, id)).toFixed(3)} MT of it, but this invoice takes `
+            + `${need.toFixed(3)} MT from there — ${whName(alt)} holds ${held(alt, id).toFixed(3)} MT. `
+            + `Choose the warehouse the material is in, or record the transfer first.`;
+    }
+    return null;
+};

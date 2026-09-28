@@ -316,6 +316,13 @@ declare module '@shared/stockGuards' {
     contract: { id?: string; productsData?: { id: string; description?: string }[]; invoices?: { invoice?: unknown }[] } | null | undefined,
     loadRows: (lineIds: string[]) => Promise<any[]>
   ): Promise<string | null>;
+  /** A sale taken from a warehouse that does not hold it while another warehouse of the contract does (IMS invoice 1464). */
+  export function wrongWarehouseTrap(
+    invoice: any,
+    contract: { id?: string; productsData?: { id: string; description?: string }[]; invoices?: { invoice?: unknown }[] } | null | undefined,
+    loadRows: (lineIds: string[]) => Promise<any[]>,
+    whName?: (warehouseId: string) => string
+  ): Promise<string | null>;
   /** The ledger rows that belong to one contract, the invoice being saved left out. */
   export function contractLedger(rows: any[], contract: any, invoiceNum?: unknown): any[];
   /** Net quantity per line over a set of ledger rows. */
