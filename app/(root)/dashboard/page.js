@@ -2021,14 +2021,20 @@ const Dash = () => {
       footer: (rs) => fmtAutoKM(sumBy(rs, r => r.value - r.paid)) },
   ];
 
-  /* Misc invoice rows, shared by the card-level popup and the per-category ones. */
-  const miscRows = useMemo(() => (rawMiscInvoices || []).map(r => ({
-    date: r?.date || '', category: r?.category || 'uncategorized',
-    cur: r?.cur || 'us', amount: parseFloat(r?.total) || 0,
-    invoice: r?.invoice || '', company: r?.compName || '',
-    description: r?.description || '', order: r?.order || '',
-    paid: r?.paidNotPaid || '',
-  })).sort((a, b) => b.amount - a.amount), [rawMiscInvoices]);
+  /* Misc invoice rows, shared by the card-level popup and the per-category ones.
+     Newest first (client, 2026-09-29) — they are looked up by when, not by size; the
+     larger amount first between two of the same day. A row with no readable date sorts
+     last. */
+  const miscRows = useMemo(() => {
+    const time = (d) => { const t = new Date(d || '').getTime(); return Number.isFinite(t) ? t : -Infinity; };
+    return (rawMiscInvoices || []).map(r => ({
+      date: r?.date || '', category: r?.category || 'uncategorized',
+      cur: r?.cur || 'us', amount: parseFloat(r?.total) || 0,
+      invoice: r?.invoice || '', company: r?.compName || '',
+      description: r?.description || '', order: r?.order || '',
+      paid: r?.paidNotPaid || '',
+    })).sort((a, b) => (time(b.date) - time(a.date)) || (b.amount - a.amount));
+  }, [rawMiscInvoices]);
   const MISC_COLS = [
     { key: 'invoice', label: 'Invoice', render: (r) => r.invoice || '—' },
     { key: 'company', label: 'Company', render: (r) => r.company || '—' },

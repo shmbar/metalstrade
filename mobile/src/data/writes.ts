@@ -1130,10 +1130,14 @@ export async function moveCompanyExpenseToShipment(
   await deleteDoc(doc(db, uidCollection, 'data', 'companyExpenses', expense.id));
 }
 
-// "Copy to misc invoices" — writes (or overwrites) the Misc row for this expense.
-export async function copyExpenseToMisc(uidCollection: string, expense: any, settings: any): Promise<void> {
+// "Move to misc invoices" — web's moveToMisc (useExpensesState.js, 2026-09-29). It was a
+// copy, which left the expense on both lists. The Misc row is written first, under the
+// expense's own id (its files stay with that id); only once it has landed is the
+// company expense removed, so a failed write leaves it where it was.
+export async function moveExpenseToMisc(uidCollection: string, expense: any, settings: any): Promise<void> {
   if (!expense?.id) return;
   await speciaInvoices(uidCollection, [buildMiscFromExpense(expense, settings)]);
+  await deleteDoc(doc(db, uidCollection, 'data', 'companyExpenses', expense.id));
 }
 
 export async function deleteCompanyExpense(uidCollection: string, id: string): Promise<void> {

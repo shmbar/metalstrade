@@ -40,6 +40,7 @@ import {
   FileUp,
   Files,
   FlaskConical,
+  FolderInput,
   History,
   Import,
   Info,
@@ -123,6 +124,8 @@ export const ACTION_ICONS = {
   expenses: PanelTopOpen,
   stocks: Warehouse,
   shipment: Truck,
+  // A record handed over to another page's list (Company Expenses → Misc Invoices).
+  move: FolderInput,
   certs: ShieldCheck,
   settlement: SendToBack,
   paste: ClipboardCheck,

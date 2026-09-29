@@ -4,7 +4,7 @@ import { useAuth } from '@/store/auth';
 import { useSettings } from '@/store/settings';
 import { loadData, loadFlatByDate } from '@/data/firestore';
 import {
-  saveSplit, saveExpense, deleteExpense, saveCompanyExpense, deleteCompanyExpense, copyExpenseToMisc,
+  saveSplit, saveExpense, deleteExpense, saveCompanyExpense, deleteCompanyExpense, moveExpenseToMisc,
   moveCompanyExpenseToShipment,
 } from '@/data/writes';
 import { num } from '@shared/finance';
@@ -147,18 +147,23 @@ export function useSaveExpense() {
   });
 }
 
-// "Copy to misc invoices" — web action on the company-expense modal.
-export function useCopyExpenseToMisc() {
+// "Move to misc invoices" — web action on the company-expense modal: the expense leaves
+// Company Expenses and is listed on Misc Invoices instead.
+export function useMoveExpenseToMisc() {
   const uidCollection = useAuth((s) => s.uidCollection);
   const settings = useSettings((s) => s.settings);
   const qc = useQueryClient();
   return useMutation({
-    meta: { success: 'Expense is successfully copied!' },
+    meta: { success: 'Moved to Misc Invoices' },
     mutationFn: async (expense: any) => {
       if (!uidCollection) throw new Error('Not authenticated');
-      await copyExpenseToMisc(uidCollection, expense, settings);
+      await moveExpenseToMisc(uidCollection, expense, settings);
     },
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['misc-invoices'] }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['misc-invoices'] });
+      qc.invalidateQueries({ queryKey: ['expenses-screen'] });
+      qc.invalidateQueries({ queryKey: ['cashflow'] });
+    },
   });
 }
 

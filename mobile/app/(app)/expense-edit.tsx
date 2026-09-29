@@ -7,7 +7,7 @@ import { Screen, Card, Text, Select, TextField, DateField, Button, EmptyState , 
 import { useTheme } from '@/theme/ThemeProvider';
 import { useSettings } from '@/store/settings';
 import {
-  useExpenses, useSaveExpense, useDeleteExpense, useCopyExpenseToMisc, useMoveExpenseToShipment,
+  useExpenses, useSaveExpense, useDeleteExpense, useMoveExpenseToMisc, useMoveExpenseToShipment,
   missingExpenseFields,
 } from '@/features/expenses/useExpenses';
 import { useAuth } from '@/store/auth';
@@ -28,7 +28,7 @@ export default function ExpenseEdit() {
   const { data, isLoading } = useExpenses();
   const save = useSaveExpense();
   const del = useDeleteExpense();
-  const copyMisc = useCopyExpenseToMisc();
+  const moveMisc = useMoveExpenseToMisc();
   const moveShip = useMoveExpenseToShipment();
   const uidCollection = useAuth((s) => s.uidCollection);
   const [findOpen, setFindOpen] = useState(false);
@@ -188,14 +188,28 @@ export default function ExpenseEdit() {
       )}
       {isCompany && !isNew && (
         <Button
-          title="Copy to misc invoices"
+          title="Move to misc invoices"
           variant="secondary"
-          loading={copyMisc.isPending}
+          loading={moveMisc.isPending}
           style={{ marginTop: 10 }}
           onPress={() =>
-            copyMisc.mutate(v, {
-              onError: (e: any) => Alert.alert('Copy failed', e?.message || 'Could not copy.'),
-            })
+            Alert.alert(
+              'Move to Misc Invoices?',
+              'It leaves Company Expenses and is listed on Misc Invoices instead.' + (v?.paid === '222'
+                ? ' It is unpaid: Cashflow lists unpaid company expenses but not Misc Invoices, so it will no longer show in Cashflow\u2019s Expenses.'
+                : ''),
+              [
+                { text: 'Cancel', style: 'cancel' },
+                {
+                  text: 'Move',
+                  onPress: () =>
+                    moveMisc.mutate(v, {
+                      onSuccess: () => router.back(),
+                      onError: (e: any) => Alert.alert('Move failed', e?.message || 'Could not move the expense.'),
+                    }),
+                },
+              ]
+            )
           }
         />
       )}

@@ -414,11 +414,34 @@ const useSettingsState = (props) => {
            "Autofill from PDF" — nowhere at all, so an invoice loaded while entering an
            expense was never attached to it (2026-09-24). */
         expenseFolderId: () => settledId(),
-        copyTomisc: async (uidCollection) => {
-            if (valueExp.id === '') return;
-
-            await speciaInvoices(uidCollection, [buildMiscFromExpense(valueExp, settings)])
-            setToast({ show: true, text: 'Expense is successfully copied!', clr: 'success' })
+        /* Company Expenses → Misc Invoices as a MOVE (client, 2026-09-29). It was a copy,
+           which left the same expense on both pages. The misc invoice is written first,
+           under the expense's own id — its stored files (folder <id>/) stay with that id —
+           and the company expense is deleted only once that write has landed: a failed
+           write leaves the expense where it was. Built from the form as it stands, so an
+           edit made before the click goes with it. */
+        moveToMisc: async (uidCollection) => {
+            if (valueExp.id === '') return false;
+            try {
+                await speciaInvoices(uidCollection, [buildMiscFromExpense(valueExp, settings)])
+            } catch (e) {
+                setToast({ show: true, text: `Not moved: ${e?.code || e?.message || e}`, clr: 'fail' })
+                return false
+            }
+            const removed = await delCompExp(uidCollection, 'companyExpenses', valueExp)
+            if (!removed) {
+                setToast({ show: true, text: 'It is on Misc Invoices now, but could not be removed from Company Expenses — delete it there.', clr: 'fail' })
+                return false
+            }
+            setExpensesData(expensesData.filter((k) => k.id !== valueExp.id))
+            setValueExp({
+                id: '', lstSaved: '', supplier: '', dateRange: { startDate: null, endDate: null },
+                cur: '', amount: '', date: '',
+                expense: '', expType: '', paid: '', comments: ''
+            });
+            setIsOpen(false)
+            setToast({ show: true, text: 'Moved to Misc Invoices', clr: 'success' })
+            return true
         }
     // runSave/settledId close over setters and refs only; listing them would rebuild
     // the memo every render for nothing.

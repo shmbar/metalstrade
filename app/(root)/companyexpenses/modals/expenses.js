@@ -12,15 +12,17 @@ import { Save, Copy } from 'lucide-react';
 import FindInvoiceModal from './findInvoiceModal';
 import DocumentImportOverlay from '@components/DocumentImportOverlay';
 import { BtnIcon } from '@components/buttonIcons';
+import ModalToDelete from '@components/modalToProceed';
 
 const Expenses = ({setIsOpen}) => {
 
     const { valueExp, setValueExp, blankExpense, saveData_CompanyExpenses, saving,
-        errorsExp, setErrorsExp, deleteCompExp, copyTomisc, expenseFolderId } = useContext(ExpensesContext);
+        errorsExp, setErrorsExp, deleteCompExp, moveToMisc, expenseFolderId } = useContext(ExpensesContext);
     const { settings, ln, setToast } = useContext(SettingsContext);
     const { uidCollection } = UserAuth();
     const sups = settings.Supplier.Supplier;
     const [opendialogShipment, setDialogShipment] = useState(false)
+    const [confirmMove, setConfirmMove] = useState(false)
     const [showDocImport, setShowDocImport] = useState(false)
     const [showFiles, setShowFiles] = useState(false)
     const [filesFolder, setFilesFolder] = useState(null)
@@ -234,16 +236,22 @@ const Expenses = ({setIsOpen}) => {
                     </button>
                 </Tltip>
                 {valueExp.id !== '' &&
-                    <Tltip direction='top' tltpText='Copy to misc invoices'>
+                    <Tltip direction='top' tltpText='Move this expense from Company Expenses to Misc Invoices'>
                         <button
                             className="whiteButton"
-                            onClick={() => copyTomisc(uidCollection)}
+                            onClick={() => setConfirmMove(true)}
                         >
-                            <BtnIcon action="copy" />
-                            Copy to misc invoices
+                            <BtnIcon action="move" />
+                            Move to misc invoices
                         </button>
                     </Tltip>
                 }
+                <ModalToDelete isDeleteOpen={confirmMove} setIsDeleteOpen={setConfirmMove}
+                    ttl='Move to Misc Invoices?'
+                    txt={`It leaves Company Expenses and is listed on Misc Invoices instead.${valueExp.paid === '222'
+                        ? ' It is unpaid: Cashflow lists unpaid company expenses but not Misc Invoices, so it will no longer show in Cashflow’s Expenses.'
+                        : ''}`}
+                    doAction={() => moveToMisc(uidCollection)} />
 
                 <Tltip direction='top' tltpText='Move expense to shipment invoice'>
                     <button
