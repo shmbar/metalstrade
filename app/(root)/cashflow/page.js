@@ -14,7 +14,7 @@ import { resolveInvoiceDate } from "../../../utils/pureHelpers";
 import { UserAuth } from "../../../contexts/useAuthContext";
 import { isTradingAccount } from '@utils/activeAccount';
 import { NumericFormat } from "react-number-format";
-import { addComma, ClientDetails, clientToolTip, entityName, ExpensesToolTip, FinalSummaryBadge, getTotals, getTotalsSupPayments, runExpenses, runInvoices, runStocks, runSupPayments, SharedStockDetails, StocksUnSold, StoclToolTip, SupplierDetails, supplierToolTip } from "./funcs";
+import { addComma, ClientDetails, clientToolTip, entityName, ExpensesToolTip, FinalSummaryBadge, getTotals, getTotalsSupPayments, runExpenses, runInvoices, runStocks, runSupPayments, SharedStockDetails, stockHoldInvoices, StocksUnSold, StoclToolTip, sumUnpaidStocksByWarehouse, SupplierDetails, supplierToolTip } from "./funcs";
 import Tltip from "../../../components/tlTip";
 import { FaSortAmountDown } from "react-icons/fa";
 import { FaSortAmountUpAlt } from "react-icons/fa";
@@ -179,23 +179,39 @@ const Cashflow = () => {
     // Latest rows, read through refs rather than a setState updater: re-summing from
     // inside an updater would schedule updates from an update function, which React
     // forbids. The refs are written below where the states are declared.
-    const saveSupplierPending = async (row, flag) => {
-        const contractId = row.orderData?.id;
-        const contractDate = row.orderData?.date;
-        if (!contractId || !contractDate || !row.id) return;
-        const apply = (value) => {
+    // Takes one supplier row or several: a Stocks – UnPaid row holds every purchase
+    // invoice it is waiting on (funcs.js stockHoldInvoices), and those can span POs.
+    // Rows are matched on contract AND invoice id — a duplicated PO keeps its invoice ids.
+    const saveSupplierPending = async (rowOrRows, flag) => {
+        const rows = (Array.isArray(rowOrRows) ? rowOrRows : [rowOrRows])
+            .filter(r => r?.id && r.orderData?.id && r.orderData?.date);
+        if (!rows.length) return;
+        const keyOf = (x) => `${x.orderData?.id}|${x.id}`;
+        const before = new Map(supRowsRef.current.filter(x => rows.some(r => keyOf(r) === keyOf(x))).map(x => [keyOf(x), !!x.pending]));
+        const apply = (valueOf) => {
             // A pending invoice is never left ticked for payment.
-            const next = supRowsRef.current.map((x) => (x.id === row.id ? { ...x, pending: value, checked: value ? false : x.checked } : x));
+            const next = supRowsRef.current.map((x) => {
+                const value = valueOf(keyOf(x));
+                return value === undefined ? x : { ...x, pending: value, checked: value ? false : x.checked };
+            });
             supRowsRef.current = next;
             setsupPaymentsData(next);
             regroupSuppliers(next);
         };
-        apply(flag);
-        try {
-            await updateContractField(uidCollection, contractId, contractDate, { [`pendingInvoices.${row.id}`]: flag });
-        } catch (e) {
-            console.error('pending save failed', e);
-            apply(!flag);
+        apply((k) => (before.has(k) ? flag : undefined));
+        // One write per contract, each a dotted-field update of pendingInvoices only.
+        const byContract = {};
+        rows.forEach((r) => {
+            const c = (byContract[r.orderData.id] ||= { date: r.orderData.date, patch: {}, keys: [] });
+            c.patch[`pendingInvoices.${r.id}`] = flag;
+            c.keys.push(keyOf(r));
+        });
+        const results = await Promise.allSettled(Object.entries(byContract).map(([id, c]) =>
+            updateContractField(uidCollection, id, c.date, c.patch)));
+        const failed = new Set(Object.values(byContract).filter((c, i) => results[i].status === 'rejected').flatMap(c => c.keys));
+        if (failed.size) {
+            console.error('pending save failed', results.filter(r => r.status === 'rejected').map(r => r.reason));
+            apply((k) => (failed.has(k) ? before.get(k) : undefined));
             setToast({ show: true, text: 'Could not save the pending status — please try again', clr: 'fail' });
         }
     };
@@ -230,7 +246,6 @@ const Cashflow = () => {
     const { uidCollection, userTitle, gisAccount, isAdmin } = UserAuth();
     const [initialData, setInitialData] = useState([]);
     const [stockData1, setStockData1] = useState([])
-    const [stockData2, setStockData2] = useState([])
     const [stockDataAll, setStockDataAll] = useState([])
     const [stockDataNoPayment, setStockDataNoPayment] = useState([])
     const [stockDataNoSold, setStockDataNoSold] = useState([])
@@ -298,6 +313,30 @@ const Cashflow = () => {
     // after an await (saveSupplierPending).
     const supRowsRef = useRef(supPaymentsData);
     supRowsRef.current = supPaymentsData;
+
+    /* Stocks – UnPaid, with Pending (client, 2026-09-29). A stock row's hold is its
+       unpaid purchase invoices' hold (funcs.js stockHoldInvoices), read straight off the
+       supplier rows, so holding either side moves both at once. The per-warehouse
+       figures are re-summed here rather than taken from runStocks' result1, which could
+       not see a hold set after the load. Sort order comes from the section's two sort
+       toggles (sortStocks1 / sortStocksName1). */
+    const [stockUnpaidOrder, setStockUnpaidOrder] = useState({ by: 'total', desc: true });
+    const stockUnpaidRows = useMemo(() => {
+        const supRowByKey = new Map(supPaymentsData.map(r => [`${r.orderData?.id}|${r.id}`, r]));
+        return stockDataNoPayment.map((r) => {
+            const invs = stockHoldInvoices(r, supRowByKey);
+            return { ...r, _holdInvoices: invs, pending: invs.length > 0 && invs.every(v => v.pending) };
+        });
+    }, [stockDataNoPayment, supPaymentsData]);
+    const stockData2 = useMemo(() => {
+        const rows = sumUnpaidStocksByWarehouse(stockUnpaidRows)
+            .map(z => ({ ...z, stockName: settings?.Stocks?.Stocks?.find(k => k.id === z.stock)?.stock }));
+        const { by, desc } = stockUnpaidOrder;
+        const cmp = by === 'name'
+            ? (a, b) => (a.stockName || '').localeCompare(b.stockName || '')
+            : (a, b) => a.total - b.total;
+        return rows.sort((a, b) => (desc ? -cmp(a, b) : cmp(a, b)));
+    }, [stockUnpaidRows, stockUnpaidOrder, settings]);
     const [supPmntssSort, setSupPmntssSort] = useState(true)
     const [supPmntssSort1, setSupPmntssSort1] = useState(true)
     const [supPmntssSortName, setSupPmntssSortName] = useState(false)
@@ -424,9 +463,8 @@ const Cashflow = () => {
             //load stocks
             let dataStock = await stocksPromise
             dataStock.result = dataStock.result.map(z => ({ ...z, stockName: settings.Stocks.Stocks.find(k => k.id === z.stock)?.stock }))
-            dataStock.result1 = dataStock.result1.map(z => ({ ...z, stockName: settings.Stocks.Stocks.find(k => k.id === z.stock)?.stock }))
             setStockData1(dataStock.result.sort((a, b) => b.total - a.total))
-            setStockData2(dataStock.result1.sort((a, b) => b.total - a.total))
+            // Stocks – UnPaid (result1) is re-summed on the page — see stockData2.
             setStockDataAll(dataStock.stocksArrWithPayment)
             setStockDataNoPayment(dataStock.stocksArrNoPayment)
             setStockDataNoSold(dataStock.unSoldArrTitles)
@@ -634,26 +672,19 @@ const Cashflow = () => {
         }
     }
 
+    // Stocks – UnPaid is derived (stockData2 memo), so these set its order rather than
+    // sorting the array in place. Same toggling as before: total ascending first, name
+    // descending first.
     const sortStocks1 = () => {
-        if (stocksSort1) { //true
-            //sort from to bottmom
-            setStockData2(stockData2.sort((a, b) => a.total - b.total))
-            setStocksSort1(false)
-        } else {
-            setStockData2(stockData2.sort((a, b) => b.total - a.total))
-            setStocksSort1(true)
-        }
+        const desc = !stocksSort1
+        setStockUnpaidOrder({ by: 'total', desc })
+        setStocksSort1(desc)
     }
 
     const sortStocksName1 = () => {
-        if (stocksSortName1) { //true
-            //sort from to bottmom
-            setStockData2(stockData2.sort((a, b) => a.stockName.localeCompare(b.stockName)))
-            setStocksSortName1(false)
-        } else {
-            setStockData2(stockData2.sort((a, b) => b.stockName.localeCompare(a.stockName)))
-            setStocksSortName1(true)
-        }
+        const desc = !stocksSortName1
+        setStockUnpaidOrder({ by: 'name', desc })
+        setStocksSortName1(desc)
     }
 
     const sortStocks2 = () => {
@@ -1703,51 +1734,28 @@ const Cashflow = () => {
                                                         return (
                                                             <div className="bg-[var(--bg-card)] py-0.5 px-0 rounded-2xl hover:bg-[var(--bg-subtle)] transition-colors" key={i}>
                                                                 <MyAccordion title={
-                                                                    <div className="flex w-full justify-between">
-                                                                        <div className="responsiveText font-medium text-[var(--ink)] items-center flex gap-1.5 outline-none whitespace-normal break-words min-w-0"
-                                                                        >
-                                                                            <Avatar name={whName(x.stock)} size={18} />
-                                                                            {whName(x.stock)}
+                                                                    <div className={`flex w-full justify-between ${heldRowClass(x, 'total')}`}>
+                                                                        <div className="flex items-center gap-1.5 w-full min-w-0">
+                                                                            <span className="responsiveText font-medium text-[var(--ink)] items-center flex gap-1.5 outline-none whitespace-normal break-words min-w-0">
+                                                                                <Avatar name={whName(x.stock)} size={18} />
+                                                                                {whName(x.stock)}
+                                                                            </span>
+                                                                            <PendingChip row={x} field="total" prefix={x.cur === 'us' ? '$' : '€'} />
                                                                         </div>
 
-                                                                        <div className="leading-4 2xl:leading-6">
-                                                                            <NumericFormat
-                                                                                value={x.total}
-                                                                                displayType="text"
-                                                                                thousandSeparator
-                                                                                allowNegative={true}
-                                                                                prefix={x.cur === 'us' ? '$' : '€'}
-                                                                                decimalScale='2'
-                                                                                fixedDecimalScale
-                                                                                className='responsiveText text-[var(--ink)] tabular-nums'
-                                                                            />
+                                                                        <div className="leading-4 2xl:leading-6 shrink-0 text-right">
+                                                                            <RowAmount row={x} field="total" prefix={x.cur === 'us' ? '$' : '€'} />
                                                                         </div>
                                                                     </div>
                                                                 }>
 
-                                                                    <StoclToolTip stock={x.stock} stockDataAll={stockDataNoPayment} settings={settings} uidCollection={uidCollection} setDateSelect={setDateSelect} setValueCon={setValueCon} setIsOpenCon={setIsOpenCon} blankInvoice={blankInvoice} router={router} sumSel={sumSel} toggleSum={toggleSum} draftMaterials={draftMaterials} />
+                                                                    <StoclToolTip stock={x.stock} stockDataAll={stockUnpaidRows} settings={settings} uidCollection={uidCollection} setDateSelect={setDateSelect} setValueCon={setValueCon} setIsOpenCon={setIsOpenCon} blankInvoice={blankInvoice} router={router} sumSel={sumSel} toggleSum={toggleSum} draftMaterials={draftMaterials} onPending={saveSupplierPending} />
                                                                 </MyAccordion>
                                                             </div>
 
                                                         )
                                                     })}
-                                                    <div className="rounded-lg py-1 px-0 mt-1 flex items-center justify-between">
-                                                        <div className="responsiveTextTotal text-[var(--ink)] font-medium border-t border-[var(--line-strong)] pt-0.5">
-                                                            Total
-                                                        </div>
-                                                        <NumericFormat
-                                                            value={stockData2.reduce((total, obj) => {
-                                                                return total + (parseFloat(obj.total) || 0);
-                                                            }, 0)}
-                                                            displayType="text"
-                                                            thousandSeparator
-                                                            allowNegative={true}
-                                                            prefix='$'
-                                                            decimalScale='2'
-                                                            fixedDecimalScale
-                                                            className='responsiveTextTotal text-[var(--ink)] font-medium border-t border-[var(--line-strong)] pt-0.5'
-                                                        />
-                                                    </div>
+                                                    <SectionTotals rows={stockData2} field="total" label="Total" />
                                                 </div>}
 
 

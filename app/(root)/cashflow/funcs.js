@@ -689,13 +689,71 @@ const supplierLabel = (z, settings) => {
     return names.length > 1 ? `Mixed (${names.length})` : (names[0] || '');
 };
 
+/* Pending on Stocks – UnPaid (client, 2026-09-29). Stock is unpaid because its purchase
+   invoice is, and that invoice is the one listed under Supplier - Payment. So a stock row
+   has no hold of its own: holding it holds those purchase invoices (the contract's
+   pendingInvoices, the flag the supplier tables set), and holding an invoice there holds its
+   stock here. One invoice, one status — and the goods we hold and the money we owe for
+   them leave the totals together, so the balance does not tilt.
+
+   `supRowByKey`: the page's Supplier rows keyed `${contractId}|${invoiceId}`. Only the
+   invoices with nothing paid count — they are what put the row under UnPaid (runStocks);
+   a partly-paid row's settled lots are not waiting on anything. */
+export const stockHoldInvoices = (row, supRowByKey) => {
+    const found = new Map();
+    for (const lot of (row.data || [])) {
+        if (lot.type === 'out' || !lot.poInvoice) continue;
+        const key = `${lot.contractData?.id}|${lot.poInvoice}`;
+        const inv = supRowByKey.get(key);
+        if (inv && (parseFloat(inv.pmnt) || 0) === 0) found.set(key, inv);
+    }
+    return [...found.values()];
+};
+
+/* Stocks – UnPaid per warehouse — runStocks' result1, re-summed on the page so a hold
+   moves it at once. Held rows are carried beside the active total as _pendingBlnc /
+   _pendingCount, the names the section helpers already read for suppliers and clients.
+   A warehouse whose every row is held stays listed (its total reads 0, its hold does not). */
+export const sumUnpaidStocksByWarehouse = (rows) => {
+    const byStock = {};
+    for (const r of rows) {
+        const w = (byStock[r.stock || 'no_stock'] ||= {
+            stock: r.stock, cur: r.cur, qTypeTable: r.qTypeTable, qnty: 0, total: 0, _pendingBlnc: 0, _pendingCount: 0,
+        });
+        const value = r.total === '-' ? 0 : parseFloat(r.total) || 0;
+        if (r.pending) { w._pendingBlnc += value; w._pendingCount += 1; }
+        else { w.qnty += parseFloat(r.qnty) || 0; w.total += value; }
+    }
+    return Object.values(byStock).filter(w => w.total !== 0 || w._pendingBlnc !== 0);
+};
+
 export const StoclToolTip = ({ stock, stockDataAll, settings, uidCollection, setDateSelect,
     setValueCon, setIsOpenCon, blankInvoice, router, sumSel = {}, toggleSum,
-    draftMaterials = {} }) => {
+    draftMaterials = {}, onPending }) => {
     const { sortKey, sortDir, handleSort } = useSortState();
     const { setToast } = useContext(SettingsContext);
     // Per-alloy rows of a PO collapse under one summary line, same as Unsold Stocks.
     const [openPOs, setOpenPOs] = useState({});
+
+    // Stocks – UnPaid only (onPending passed): a Pending column, held rows faded and
+    // totalled apart. A row's hold is its purchase invoices' hold (stockHoldInvoices),
+    // so the tooltip names them and says where else they show.
+    const holdHint = (invs) => {
+        const nums = [...new Set(invs.map(v => v.invoice).filter(Boolean))];
+        return `${nums.length > 1 ? 'Invoices' : 'Invoice'} ${nums.join(', ') || '—'} — Supplier - Payment shows the same status.`;
+    };
+    const statusCell = (rows) => {
+        if (!onPending) return null;
+        const invs = [...new Map(rows.flatMap(r => r._holdInvoices || [])
+            .map(v => [`${v.orderData?.id}|${v.id}`, v])).values()];
+        const held = invs.length > 0 && invs.every(v => v.pending);
+        return (
+            <td className="text-center !py-0 cf-status-cell" onClick={(e) => e.stopPropagation()}>
+                {invs.length > 0 && <PendingToggle pending={held} partial={!held && invs.some(v => v.pending)}
+                    hint={holdHint(invs)} onChange={(flag) => onPending(invs, flag)} />}
+            </td>
+        );
+    };
 
     // A row belongs to a fold group when its material is an invoice-imported
     // (import-flagged) product of a single-line PO — the PO's own description
@@ -743,12 +801,13 @@ export const StoclToolTip = ({ stock, stockDataAll, settings, uidCollection, set
                         <SortTh colKey="qnty" label="Quantity" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-center w-14" />
                         <SortTh colKey="unitPrc" label="Unit Price" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-right w-16" />
                         <SortTh colKey="total" label="Total" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-right w-20" />
+                        {onPending && <PendingTh sortKey={sortKey} sortDir={sortDir} onSort={handleSort} />}
                     </tr>
                 </thead>
                 <tbody>
                     {(() => {
                         const renderRow = (z, key, indent = false) => (
-                            <tr key={key}>
+                            <tr key={key} className={z.pending ? 'cf-pending-row' : undefined}>
                                 <td className="sum-col !py-1">
                                     <SumToggle active={!!sumSel[sumKey('stock', z.id)]} onToggle={() => toggleSum && toggleSum(buildSumItem(z))} />
                                 </td>
@@ -804,6 +863,7 @@ export const StoclToolTip = ({ stock, stockDataAll, settings, uidCollection, set
                                         fixedDecimalScale
                                     />
                                 }</td>
+                                {statusCell([z])}
                             </tr>
                         );
 
@@ -820,7 +880,7 @@ export const StoclToolTip = ({ stock, stockDataAll, settings, uidCollection, set
                                 const qSum = grp.reduce((s, r) => s + (parseFloat(r.qnty) || 0), 0);
                                 const tSum = grp.reduce((s, r) => s + (r.total === '-' ? 0 : parseFloat(r.total) || 0), 0);
                                 out.push(
-                                    <tr key={`grp-${z.order}`} className="cursor-pointer hover:bg-[var(--surface-pill)]"
+                                    <tr key={`grp-${z.order}`} className={`cursor-pointer hover:bg-[var(--surface-pill)]${onPending && grp.every(q => q.pending) ? ' cf-pending-row' : ''}`}
                                         onClick={() => setOpenPOs(prev => ({ ...prev, [z.order]: !prev[z.order] }))}>
                                         {/* Σ column = quick-sum selection, same as normal rows: toggles
                                             ALL the group's alloy rows in/out of the selected total. */}
@@ -859,6 +919,7 @@ export const StoclToolTip = ({ stock, stockDataAll, settings, uidCollection, set
                                             <NumericFormat value={tSum} displayType="text" thousandSeparator
                                                 prefix={z.cur === 'us' ? '$' : '€'} decimalScale='2' fixedDecimalScale />
                                         }</td>
+                                        {statusCell(grp)}
                                     </tr>
                                 );
                                 if (isOpen) grp.forEach((r, k) => out.push(renderRow(r, `grp-${z.order}-${k}`, true)));
@@ -871,44 +932,33 @@ export const StoclToolTip = ({ stock, stockDataAll, settings, uidCollection, set
 
                 </tbody>
                 <tfoot className="sticky-foot">
-                    <tr className="bg-[var(--bg-subtle)]">
-                        <th></th>
-                        <th className="text-left">
-                            Total
-                        </th>
-                        <th>
-                        </th>
-                        <th>
-                        </th>
-                        <th className="text-center">
-                            {
-                                <NumericFormat
-                                    value={filteredArr.reduce((sum, item) => sum + (item.qnty * 1 || 0), 0)}
-                                    displayType="text"
-                                    thousandSeparator
-                                    allowNegative={true}
-                                    decimalScale='3'
-                                    fixedDecimalScale
-                                />
-                            }
-                        </th>
-                        {/* Unit prices are per-MT rates for DIFFERENT materials, so adding them
-                            up produces a number that is neither money nor a price — $2,075/MT of
-                            Fines Mix plus $8,590/MT of Ta Ingots is not $10,665 of anything. It
-                            sat next to a real total, so it read as if it meant something. The
-                            honest figure for this column is the weighted average: what the whole
-                            pile cost per unit, which is total value over total weight. */}
-                        <th className="text-right">
-                            {(() => {
-                                const q = filteredArr.reduce((s, item) => s + (item.qnty * 1 || 0), 0);
-                                const v = filteredArr.reduce((s, item) => s + (item.total * 1 || 0), 0);
-                                return q ? showAmount(v / q, 'usd') : '';
-                            })()}
-                        </th>
-                        <th className="text-right">
-                            {showAmount(filteredArr.reduce((sum, item) => sum + item.total * 1, 0), 'usd')}
-                        </th>
-                    </tr>
+                    <FooterRows
+                        pendingRows={filteredArr.filter(z => z.pending)}
+                        activeRows={filteredArr.filter(z => !z.pending)}
+                        cells={(rows, label) => {
+                            const q = rows.reduce((sum, item) => sum + (item.qnty * 1 || 0), 0);
+                            const v = rows.reduce((sum, item) => sum + (item.total * 1 || 0), 0);
+                            return (<>
+                                <th></th>
+                                <th className="text-left">{label}</th>
+                                <th></th>
+                                <th></th>
+                                <th className="text-center">
+                                    <NumericFormat value={q} displayType="text" thousandSeparator allowNegative={true}
+                                        decimalScale='3' fixedDecimalScale />
+                                </th>
+                                {/* Unit prices are per-MT rates for DIFFERENT materials, so adding them
+                                    up produces a number that is neither money nor a price — $2,075/MT of
+                                    Fines Mix plus $8,590/MT of Ta Ingots is not $10,665 of anything. It
+                                    sat next to a real total, so it read as if it meant something. The
+                                    honest figure for this column is the weighted average: what the whole
+                                    pile cost per unit, which is total value over total weight. */}
+                                <th className="text-right">{q ? showAmount(v / q, 'usd') : ''}</th>
+                                <th className="text-right">{showAmount(v, 'usd')}</th>
+                                {onPending && <th></th>}
+                            </>);
+                        }}
+                    />
                 </tfoot>
             </table>
             </div>
@@ -1495,7 +1545,7 @@ export const ClientDetails = ({ client, data, type, uidCollection, setDateSelect
     const active = (rows) => rows.filter(z => !z.pending);
     const onHold = (rows) => rows.filter(z => z.pending);
     const statusCell = (z) => (
-        <td className="text-center !py-1 cf-status-cell">
+        <td className="text-center !py-0 cf-status-cell">
             <PendingToggle pending={!!z.pending} onChange={onPending ? (flag) => onPending(z, flag) : null} />
         </td>
     );
@@ -1514,7 +1564,7 @@ export const ClientDetails = ({ client, data, type, uidCollection, setDateSelect
                                 <SortTh colKey="totalAmount" label="Amount" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-right" />
                                 <SortTh colKey="_pmntTotal" label="Payment" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-right" />
                                 <SortTh colKey="debtBlnc" label="Balance" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-right" />
-                                <SortTh colKey="pending" label="Status" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-center" />
+                                <PendingTh sortKey={sortKey} sortDir={sortDir} onSort={handleSort} />
                                 <FinalTh />
                                 <th className="text-center">ETD</th>
                                 <th className="text-center">ETA</th>
@@ -1657,7 +1707,7 @@ export const ClientDetails = ({ client, data, type, uidCollection, setDateSelect
                                 <SortTh colKey="totalAmount" label="Amount" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-right" />
                                 <SortTh colKey="percentage" label="Payment" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left" />
                                 <th className="text-right">Prep. Amount</th>
-                                <SortTh colKey="pending" label="Status" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-center" />
+                                <PendingTh sortKey={sortKey} sortDir={sortDir} onSort={handleSort} />
                                 <FinalTh />
                                 <th className="text-center">ETD</th>
                                 <th className="text-center">Pmn</th>
@@ -2005,40 +2055,51 @@ export const getTotalsSupPayments = (arr) => {
    saved under RDY / TRN is still on the purchase invoices; only the control is gone.
 
    One click marks it, one click releases it. Deliberately no warning colour — the
-   client asked for the existing palette at reduced strength, not another yellow. */
-const PendingToggle = ({ pending, onChange }) => {
+   client asked for the existing palette at reduced strength, not another yellow.
+
+   Icon only (client, 2026-09-29: a "Set pending" button on every row was too much).
+   The clock is the one Pending mark on this page — the same glyph sits on the
+   "Pending (n)" lines, the held amounts and the top cards — so a row reads as held
+   without a word. Resting, it is a faint clock that firms up when the row is
+   hovered; held, it sits in a grey chip. The words live in the tooltip. Styling is
+   .cf-hold in globals.css.
+
+   `partial`: a stock row waiting on several purchase invoices, only some held.
+   `hint`: what else the click touches (a stock row's hold is its invoices' hold). */
+const PendingToggle = ({ pending, onChange, partial = false, hint = '' }) => {
     if (!onChange) {
         return pending
-            ? <span className="inline-flex items-center gap-1 h-5 px-1.5 rounded-lg responsiveTextTable font-medium leading-none text-[var(--ink-secondary)] bg-[var(--bg-subtle)] border border-[var(--line-strong)]">Pending</span>
+            ? <Tltip direction='top' tltpText='Pending — left out of the totals'><span className="cf-hold is-on" role="img" aria-label="Pending"><BtnIcon action="pending" /></span></Tltip>
             : null;
     }
-    return pending ? (
-        <Tltip direction='top' tltpText='On hold — left out of the totals. Click to release.'>
+    const tip = pending ? 'Pending — left out of the totals. Click to release.'
+        : partial ? 'Partly pending — click to put all of it on hold.'
+            : 'Set pending — stays listed, leaves the totals.';
+    return (
+        <Tltip direction='top' tltpText={hint ? `${tip} ${hint}` : tip}>
             <button
                 type="button"
-                aria-pressed="true"
-                aria-label="Pending — click to release"
-                onClick={() => onChange(false)}
-                className="inline-flex items-center gap-1 h-5 px-1.5 rounded-lg responsiveTextTable font-medium leading-none text-[var(--ink-secondary)] bg-[var(--bg-subtle)] border border-[var(--line-strong)] hover:border-[var(--brand)] transition-colors whitespace-nowrap"
+                aria-pressed={pending}
+                aria-label={pending ? 'Pending — click to release' : 'Mark as pending'}
+                onClick={() => onChange(!pending)}
+                className={`cf-hold${pending ? ' is-on' : partial ? ' is-part' : ''}`}
             >
-                <span className="inline-block w-1.5 h-1.5 rounded-full bg-[var(--ink-muted)]" aria-hidden="true" />
-                Pending
-            </button>
-        </Tltip>
-    ) : (
-        <Tltip direction='top' tltpText='Put this invoice on hold — it stays listed but leaves the totals.'>
-            <button
-                type="button"
-                aria-pressed="false"
-                aria-label="Mark as pending"
-                onClick={() => onChange(true)}
-                className="inline-flex items-center h-5 px-1.5 rounded-lg responsiveTextTable leading-none text-[var(--ink-muted)] border border-dashed border-[var(--line-strong)] hover:text-[var(--brand)] hover:border-[var(--brand)] transition-colors whitespace-nowrap"
-            >
-                Set pending
+                <BtnIcon action="pending" />
             </button>
         </Tltip>
     );
 };
+
+/* The Status column's header: the clock again, sortable (held rows together), with the
+   explanation the old "Status" label never gave. */
+const pendingLabel = (
+    <Tltip direction='top' tltpText='Pending — invoices on hold are listed but left out of the totals'>
+        <span className="inline-flex items-center" role="img" aria-label="Pending"><BtnIcon action="pending" /></span>
+    </Tltip>
+);
+const PendingTh = ({ sortKey, sortDir, onSort }) => (
+    <SortTh colKey="pending" label={pendingLabel} sortKey={sortKey} sortDir={sortDir} onSort={onSort} className="text-center cf-status-col" />
+);
 
 /* A table's closing lines: the pending invoices (faded, only when there are any), then
    the active total. `cells` is the full row — one entry per column, so the footer can
@@ -2105,7 +2166,7 @@ export const SupplierDetails = ({ supplier, data, uidCollection, setDateSelect,
                         <SortTh colKey="invValue" label="Value" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-right" />
                         <SortTh colKey="pmnt" label="Payment" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-right" />
                         <SortTh colKey="blnc" label="Balance" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-right" />
-                        <SortTh colKey="pending" label="Status" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-center" />
+                        <PendingTh sortKey={sortKey} sortDir={sortDir} onSort={handleSort} />
                         <FinalTh />
                         <th className="text-center">Pmn</th>
                         <th className="text-center py-0">
@@ -2173,7 +2234,7 @@ export const SupplierDetails = ({ supplier, data, uidCollection, setDateSelect,
                                         )}
                                     </span>
                                 </td>
-                                <td className="text-center !py-1 cf-status-cell">
+                                <td className="text-center !py-0 cf-status-cell">
                                     <PendingToggle pending={!!z.pending} onChange={onPending ? (flag) => onPending(z, flag) : null} />
                                 </td>
                                 <td className="text-center"><FinalBadge fnlzing={z.fnlzing} invoiceNo={z.invoice} /></td>

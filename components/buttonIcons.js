@@ -29,6 +29,7 @@ import {
   ChevronUp,
   ClipboardCheck,
   ClipboardList,
+  Clock,
   Copy,
   Database,
   Download,
@@ -144,6 +145,9 @@ export const ACTION_ICONS = {
   info: Info,
   comments: MessageSquare,
   newRecord: LayoutGrid,
+  // Cashflow Pending — an invoice (or the stock bought on it) on hold, out of the
+  // totals. The same clock marks every held figure on that page.
+  pending: Clock,
   shared: Boxes,
 };
 

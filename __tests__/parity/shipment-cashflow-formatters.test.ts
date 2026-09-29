@@ -1436,6 +1436,41 @@ describe('cashflow — the bottom line', () => {
     expect(d2.totalLeft).toBeCloseTo(11_000, 6); // the SUM is unchanged — only the block moves
   });
 
+  it('a held purchase invoice takes its stock out of Stocks - UnPaid (Pending, 2026-09-29)', () => {
+    // web funcs.js stockHoldInvoices / sumUnpaidStocksByWarehouse: an unpaid stock row is
+    // on hold when every unpaid purchase invoice behind it is — the contract's
+    // pendingInvoices map, the same flag as Supplier - Payment, read off the 4-year
+    // supplier rows (drafts and ≤1¢ balances excluded). Held rows stay listed, apart.
+    const { stocks, contracts2y } = stockWorld();
+    const withHold = (held: boolean) => [
+      makeContract({
+        id: 'con-1',
+        productsData: [],
+        stock: [],
+        pendingInvoices: { 'po-unpaid': held },
+        poInvoices: [
+          makePoInvoice({ id: 'po-paid', pmnt: '10000' }),
+          makePoInvoice({ id: 'po-unpaid', pmnt: '0', blnc: '1000' }),
+        ],
+      }),
+    ];
+
+    const held = world({ stocks, contracts2y, contracts4y: withHold(true) });
+    expect(held.stocksUnpaidTotal).toBeCloseTo(0, 6);
+    expect(held.stocksUnpaid).toHaveLength(1); // the warehouse stays listed
+    expect(held.stocksUnpaid[0].total).toBeCloseTo(0, 6);
+    expect(held.stocksUnpaid[0].pendingTotal).toBeCloseTo(1_000, 6);
+    expect(held.stocksUnpaid[0].pendingCount).toBe(1);
+    expect(held.stocksUnpaid[0].items[0].pending).toBe(true);
+    expect(held.stocksPaidTotal).toBeCloseTo(10_000, 6); // paid stock is never held
+    expect(held.totalLeft).toBeCloseTo(10_000, 6);
+
+    const released = world({ stocks, contracts2y, contracts4y: withHold(false) });
+    expect(released.stocksUnpaidTotal).toBeCloseTo(1_000, 6);
+    expect(released.stocksUnpaid[0].pendingCount).toBe(0);
+    expect(released.totalLeft).toBeCloseTo(11_000, 6);
+  });
+
   it('a client credit balance REDUCES Total (Left) — a receivable is never clamped at zero', () => {
     // web funcs.js runInvoices keeps every row with |debtBlnc| > 0.011 REGARDLESS of
     // sign, and page.js:295-301 adds `parseFloat(obj.debtBlnc)` straight in. An

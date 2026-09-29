@@ -39,12 +39,18 @@ export interface StockLotRow {
   cur: string;
   /** Keys into CashflowData.draftMaterials, in web's lookup order. */
   draftKeys: string[];
+  /** Stocks - UnPaid only: every unpaid purchase invoice behind it is on hold (web Pending). */
+  pending?: boolean;
 }
 
 export interface StockWarehouseRow {
   stock: string;
+  /** Active value — held (Pending) rows are left out, as on web. */
   total: number;
   count: number;
+  /** Value and number of rows on hold (web _pendingBlnc / _pendingCount). */
+  pendingTotal: number;
+  pendingCount: number;
   items: StockLotRow[];
 }
 
@@ -217,10 +223,34 @@ function computeReceivablesWeb(invoices: Invoice[]): any[] {
 // The poInvoice is resolved from the LIVE contract first: lots carry a snapshot of
 // poInvoices taken at breakdown-save time, and payments recorded later never
 // refreshed it — that snapshot is what kept paid stock showing as unpaid (ELG 010726).
-function splitStocksPaidUnpaid(inventoryRows: any[], contractsData: any[], settings: any) {
+//
+// Pending (web 2026-09-29): an unpaid row is on hold when every purchase invoice it is
+// waiting on is — the contract's pendingInvoices map, the same flag Supplier - Payment
+// uses (web funcs.js stockHoldInvoices). Web reads those invoices off its supplier
+// rows, so they are resolved the same way here: the 4-year contract load, drafts and
+// ≤1¢ balances left out, nothing paid. A held row stays listed but leaves the totals.
+function splitStocksPaidUnpaid(inventoryRows: any[], contractsData: any[], settings: any, holdContracts: any[] = []) {
   const supName = (id: string) => settings?.Supplier?.Supplier?.find((x: any) => x.id === id)?.nname || '';
   const paid: any[] = [];
   const unpaid: any[] = [];
+
+  const holdable = new Map<string, boolean>();
+  holdContracts.forEach((con: any) => {
+    (con.poInvoices || []).forEach((inv: any) => {
+      if (inv.draft || Math.abs(parseFloat(inv.blnc) || 0) <= 0.011) return;
+      if ((parseFloat(inv.pmnt) || 0) !== 0) return;
+      holdable.set(`${con.id}|${inv.id}`, !!con.pendingInvoices?.[inv.id]);
+    });
+  });
+  const isHeld = (row: any) => {
+    const keys = new Set<string>();
+    for (const lot of row.data || []) {
+      if (lot.type === 'out' || !lot.poInvoice) continue;
+      const key = `${lot.contractData?.id}|${lot.poInvoice}`;
+      if (holdable.has(key)) keys.add(key);
+    }
+    return keys.size > 0 && [...keys].every((k) => holdable.get(k));
+  };
 
   inventoryRows.forEach((row) => {
     let unpaidQty = 0;
@@ -249,11 +279,12 @@ function splitStocksPaidUnpaid(inventoryRows: any[], contractsData: any[], setti
     }
     // A row can hold paid and unpaid lots of the same alloy; carry the unpaid share
     // so its total is not read as all owed (web UnpaidShareBadge).
-    unpaid.push(paidQty > 0 ? { ...row, _unpaidVal: unpaidVal, _partlyPaid: true } : row);
+    const base = paidQty > 0 ? { ...row, _unpaidVal: unpaidVal, _partlyPaid: true } : row;
+    unpaid.push(isHeld(row) ? { ...base, _held: true } : base);
   });
 
   const sumTotal = (rows: any[]) =>
-    rows.reduce((s, r) => s + (r.total === '-' ? 0 : parseFloat(r.total) || 0), 0);
+    rows.filter((r) => !r._held).reduce((s, r) => s + (r.total === '-' ? 0 : parseFloat(r.total) || 0), 0);
 
   // Per-warehouse roll-up; each row keeps its lots so a warehouse can open onto
   // them (web's StoclToolTip). Web orders warehouses by total, descending.
@@ -261,11 +292,17 @@ function splitStocksPaidUnpaid(inventoryRows: any[], contractsData: any[], setti
     const m: Record<string, StockWarehouseRow> = {};
     rows.forEach((r) => {
       const k = r.stock || '—';
-      (m[k] ||= { stock: k, total: 0, count: 0, items: [] });
+      (m[k] ||= { stock: k, total: 0, count: 0, pendingTotal: 0, pendingCount: 0, items: [] });
       const total = r.total === '-' ? 0 : parseFloat(r.total) || 0;
-      m[k].total += total;
+      if (r._held) {
+        m[k].pendingTotal += total;
+        m[k].pendingCount += 1;
+      } else {
+        m[k].total += total;
+      }
       m[k].count += 1;
       m[k].items.push({
+        ...(r._held ? { pending: true } : {}),
         id: String(r.id ?? ''),
         order: r.order || '',
         supplierName: r.supplier && r.supplier !== '-' ? supName(r.supplier) : '',
@@ -673,7 +710,7 @@ export function computeCashflow(input: CashflowInputs): CashflowData {
   // The predicate itself lives beside computeInventory (cashflowStockLots) so the
   // parity suite can check it against web's runStocks directly.
   const inventoryRows = computeInventory(cashflowStockLots(stocks), settings, { minQnty: 0, cashflow: true }).rows;
-  const stockSplit = splitStocksPaidUnpaid(inventoryRows, contracts2y || [], settings);
+  const stockSplit = splitStocksPaidUnpaid(inventoryRows, contracts2y || [], settings, contracts4y || []);
 
   const incoming = sumMarginsRemaining(margins);
 

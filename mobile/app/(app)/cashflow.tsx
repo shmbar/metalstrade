@@ -368,7 +368,7 @@ export default function Cashflow() {
             key={w.stock}
             first={i === 0}
             name={whName(w.stock)}
-            subtitle={`${w.count} lot${w.count === 1 ? '' : 's'}`}
+            subtitle={`${w.count} lot${w.count === 1 ? '' : 's'}${w.pendingCount ? ` · ${w.pendingCount} pending` : ''}`}
             value={money(fmtAutoKM(w.total))}
             onPress={() => setStockSheet({ name: whName(w.stock), row: w })}
           />
@@ -852,17 +852,31 @@ export default function Cashflow() {
         onClose={() => setStockSheet(null)}
         title={stockSheet?.name}
         subtitle={stockSheet ? `${stockSheet.row.count} lot${stockSheet.row.count === 1 ? '' : 's'}` : undefined}
-        footer={stockSheet ? <SheetTotal label="Total" v={money(fmtAutoKM(stockSheet.row.total))} strong /> : undefined}
+        footer={
+          stockSheet ? (
+            <View style={{ gap: 4 }}>
+              {/* Stocks - UnPaid: rows whose purchase invoices are all on hold (web Pending),
+                  on a faded line of their own above the total that counts. */}
+              {stockSheet.row.pendingCount > 0 && (
+                <View style={{ opacity: 0.72 }}>
+                  <SheetTotal label={`Pending (${stockSheet.row.pendingCount})`} v={money(fmtAutoKM(stockSheet.row.pendingTotal))} />
+                </View>
+              )}
+              <SheetTotal label="Total" v={money(fmtAutoKM(stockSheet.row.total))} strong />
+            </View>
+          ) : undefined
+        }
       >
         {(stockSheet?.row.items || []).map((l, i) => (
-          <DetailLine
-            key={`${l.id}-${i}`}
-            first={i === 0}
-            title={`PO ${l.order || '—'}`}
-            lines={[l.description, l.supplierName, `${qty(l.qnty)} × ${full(l.cur, l.unitPrc)}`]}
-            draft={draftChipFor(data?.draftMaterials, l.draftKeys)}
-            value={money(full(l.cur, l.total))}
-          />
+          <View key={`${l.id}-${i}`} style={{ opacity: l.pending ? 0.72 : 1 }}>
+            <DetailLine
+              first={i === 0}
+              title={`PO ${l.order || '—'}`}
+              lines={[l.description, l.supplierName, `${qty(l.qnty)} × ${full(l.cur, l.unitPrc)}`, l.pending ? 'Pending — invoice on hold' : ''].filter(Boolean)}
+              draft={draftChipFor(data?.draftMaterials, l.draftKeys)}
+              value={money(full(l.cur, l.total))}
+            />
+          </View>
         ))}
       </Sheet>
 
