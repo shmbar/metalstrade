@@ -29,7 +29,10 @@ const sortDates = (arr) => {
 
 }
 
-const Customtable = ({ data, item }) => {
+/* renderSpec: optional (lotId) => the spec editor for one received lot. Given, the table
+   gains a Spec column — the lot's spec and chemistry, edited from the Stocks page's own
+   window (whModal.js) — filled on the rows that ARE lots and blank on sales and moves. */
+const Customtable = ({ data, item, renderSpec }) => {
 
 	const [tableData, setTableData] = useState([])
 	const { settings, ln } = useContext(SettingsContext);
@@ -38,6 +41,7 @@ const Customtable = ({ data, item }) => {
 		{ field: 'date', header: getTtl('Date', ln), width: '70px' },
 		{ field: 'supplier', header: getTtl('Supplier/Consignee', ln), arr: settings.Supplier.Supplier, width: '150px' },
 		{ field: 'description', header: getTtl('Description', ln), width: '150px' },
+		...(renderSpec ? [{ field: 'spec', header: 'Spec', width: '170px' }] : []),
 		{ field: 'invoice', header: getTtl('Invoice', ln) + ' #', },
 		{ field: 'qnty', header: getTtl('Weight', ln) },
 		{ field: 'type', header: getTtl('Transaction', ln), },
@@ -67,7 +71,9 @@ const Customtable = ({ data, item }) => {
 				description: obj.descriptionName,
 				moveType: obj.moveType,
 				newStock: obj.newStock ?? '',
-				oldStock: obj.oldStock ?? ''
+				oldStock: obj.oldStock ?? '',
+				// a received lot (a purchase, or the arriving half of a move) carries a spec
+				lotId: obj.type === 'in' && obj.description ? obj.id : null,
 			}
 
 			arr.push(fstItem)
@@ -122,6 +128,7 @@ const Customtable = ({ data, item }) => {
 	const showDetail = (obj, x) => {
 		const tmp = cols.find(y => y.field === x);
 
+		if (x === 'spec') return obj.lotId && renderSpec ? renderSpec(obj.lotId) : '';
 		return x === 'supplier' ? obj.client ?? tmp.arr.find(z => z.id === obj.supplier)['nname'] :
 			(x === 'type' && obj[x] === 'Purchase') ?
 				<div className='flex items-center justify-center gap-1'><HiArrowDownTray className='font-semibold scale-110' style={{ color: MOVEMENT.in }} /> <span >{obj[x]}</span> </div> :

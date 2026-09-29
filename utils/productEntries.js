@@ -57,3 +57,50 @@ export const foldEntries = (productsData = [], rows = [], merges = []) => {
         rows: rows.map(r => (to.has(r.description) ? { ...r, description: to.get(r.description) } : r)),
     };
 };
+
+/**
+ * Give some of a contract's lots a new material name — the rule of the Materials
+ * Breakdown's ✎ (contracts/modals/whModal.js renameRowMaterial), applied to a set of lots
+ * so the Stocks page can rename a whole stock row from its own window (client,
+ * 2026-09-29). "Each row keeps its own name — other rows are never affected":
+ *   · the lots sit on a hidden entry nothing else uses → that entry is renamed;
+ *   · otherwise (the PO's own line, or an entry other lots share) → the lots move to an
+ *     entry of their own, and the PO line and every other lot keep their name;
+ *   · a name that brings a hidden entry back to the name of the line it came from folds
+ *     it into that line — one line again (duplicateEntries), unless `canFold` says
+ *     something else still depends on the entry.
+ * `lots`: the contract's purchase lots (their `description` is the entry id).
+ * @returns { productsData, lots, entryId, mode: 'none' | 'renamed' | 'split' | 'folded' }
+ */
+export const renameLots = ({ productsData = [], lots = [], lotIds = [], name, newId, canFold = true }) => {
+    const ids = new Set(lotIds);
+    const lineIds = [...new Set(lots.filter(l => ids.has(l.id)).map(l => l.description))];
+    const entry = lineIds.length === 1 ? productsData.find(p => p?.id === lineIds[0]) : null;
+    const nm = String(name ?? '').trim();
+    if (!entry || !nm || nm === String(entry.description ?? '').trim()) {
+        return { productsData, lots, entryId: entry?.id || null, mode: 'none' };
+    }
+    const shared = lots.some(l => !ids.has(l.id) && l.description === entry.id);
+    let pd, ls, entryId, mode;
+    if (entry.import && !shared) {
+        pd = productsData.map(p => (p.id === entry.id ? { ...p, description: nm } : p));
+        ls = lots;
+        entryId = entry.id;
+        mode = 'renamed';
+    } else {
+        const own = {
+            ...entry, id: newId, description: nm, import: true,
+            importedFrom: entry.importedFrom || { doc: 'rename-split', sourceProduct: entry.id },
+        };
+        pd = [...productsData, own];
+        ls = lots.map(l => (ids.has(l.id) ? { ...l, description: newId } : l));
+        entryId = newId;
+        mode = 'split';
+    }
+    const fold = canFold ? duplicateEntries(pd).filter(m => m.from === entryId) : [];
+    if (fold.length) {
+        const f = foldEntries(pd, ls, fold);
+        return { productsData: f.productsData, lots: f.rows, entryId: fold[0].to, mode: 'folded' };
+    }
+    return { productsData: pd, lots: ls, entryId, mode };
+};

@@ -1319,6 +1319,21 @@ export const loadSalesMovementsByLine = async (uidCollection, lineIds = []) => {
 };
 
 /**
+ * Change named fields on ledger lots — nothing else on them. For edits that belong to
+ * the lot alone (its spec and analysis, from the Stocks page's window): a whole-document
+ * write would put back whatever the page loaded, over anything saved since.
+ * `patches`: [{ id, patch: { field: value } }]. One atomic batch.
+ */
+export const patchStockLots = async (uidCollection, patches = []) => {
+  const list = patches.filter(p => p?.id && p.patch && Object.keys(p.patch).length);
+  if (!list.length) return true;
+  const batch = writeBatch(db);
+  list.forEach(({ id, patch }) => batch.update(doc(db, uidCollection, 'data', 'stocks', id), patch));
+  await batch.commit();
+  return true;
+};
+
+/**
  * EVERY stock-ledger row that names one of these line ids — drafts, superseded invoice
  * rows and zero totals included. For a safety check, not a stock figure: before the
  * Materials Breakdown folds a duplicate hidden entry into its PO line

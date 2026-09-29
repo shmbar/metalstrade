@@ -7,7 +7,10 @@ import { UserAuth } from "@contexts/useAuthContext";
 import dateFormat from "dateformat";
 
 import { v4 as uuidv4 } from 'uuid';
-import { getD, loadInvoice, saveStockIn } from '@utils/utils'
+import { getD, loadInvoice, saveStockIn, loadStockData, loadLedgerRowsReferencing, patchStockLots, updateContractField } from '@utils/utils'
+import { renameLots, safeMerges } from '@utils/productEntries'
+import AssayEditor from '@components/AssayEditor';
+import { BtnIcon } from '@components/buttonIcons';
 import ShipTable from './shipmentsTable'
 import { getTtl } from '@utils/languages';
 import { useRouter } from 'next/navigation.js';
@@ -200,6 +203,120 @@ const WHvModal = ({ isOpen, setIsOpen, item, setItem, data, setData }) => {
 
     }
 
+    /* ── Description and spec, edited here (client, 2026-09-29) ────────────────────
+       Before, this window showed both read-only and a spec could only be entered from
+       the contract's Materials Breakdown. The same two editors now work from the stock
+       row itself, on the same rules:
+         · spec and chemistry belong to each received lot — written onto the lot, those
+           two fields only (patchStockLots);
+         · the name follows the Breakdown's ✎: this row's lots get the new name, the PO
+           line and every other lot keep theirs, and a name back to the PO line's own
+           folds the row into it again (utils/productEntries.js renameLots). */
+    const lots = (item?.data || []).filter(l => l.type === 'in' && l.description)
+    const [nameDraft, setNameDraft] = useState(item?.descriptionName || '')
+    const [drafts, setDrafts] = useState({})               // lotId → { spec?, analysis? }
+    const [saving, setSaving] = useState(false)
+    const valueOf = (lot, field) => drafts[lot.id]?.[field] ?? lot[field] ?? ''
+    const setLotField = (lotId, field, value) =>
+        setDrafts(prev => ({ ...prev, [lotId]: { ...(prev[lotId] || {}), [field]: value } }))
+    const lotPatch = (lot) => Object.fromEntries(Object.entries(drafts[lot.id] || {})
+        .filter(([k, v]) => String(v ?? '') !== String(lot[k] ?? '')))
+    const renaming = nameDraft.trim() !== '' && nameDraft.trim() !== String(item?.descriptionName || '').trim()
+    const specsChanged = lots.some(l => Object.keys(lotPatch(l)).length)
+    const dirty = renaming || specsChanged
+    const specSummary = [...new Set(lots.map(l => String(valueOf(l, 'spec')).trim()).filter(Boolean))].join(' · ')
+
+    const specEditor = (lot) => (
+        <div className='flex items-center gap-1.5 min-w-0'>
+            <AssayEditor
+                value={valueOf(lot, 'analysis')}
+                onChange={(v) => setLotField(lot.id, 'analysis', v)}
+                spec={valueOf(lot, 'spec')}
+                onSpecChange={(v) => setLotField(lot.id, 'spec', v)}
+                knownSpecs={lots.filter(l => l.id !== lot.id).map(l => valueOf(l, 'spec'))} />
+            <span className='truncate responsiveTextTable font-medium text-[var(--brand-strong)]'>{String(valueOf(lot, 'spec')).trim()}</span>
+        </div>
+    )
+
+    // A contract by its { id, date } — tried a day earlier too, as Contract below does.
+    const loadContractOf = async (ref) => {
+        let c = await loadInvoice(uidCollection, 'contracts', ref)
+        if (Object.keys(c || {}).length) return { contract: c, date: ref.date }
+        const d = new Date(ref.date); d.setDate(d.getDate() - 1)
+        const date = d.toISOString().split('T')[0]
+        c = await loadInvoice(uidCollection, 'contracts', { ...ref, date })
+        return Object.keys(c || {}).length ? { contract: c, date } : null
+    }
+
+    const saveEdits = async () => {
+        if (!dirty || saving) return
+        setSaving(true)
+        try {
+            let written = []                                  // lots already saved whole below
+            let newName = item.descriptionName
+            let renamed = null                                // lotId → the lot as saved
+
+            if (renaming) {
+                const refs = [...new Set(lots.map(l => l.contractData?.id).filter(Boolean))]
+                if (refs.length !== 1) throw new Error('This row holds material from more than one PO — rename it on each PO\'s Materials Breakdown.')
+                const found = await loadContractOf(lots.find(l => l.contractData).contractData)
+                if (!found) throw new Error('The contract can not be accessed.')
+                const { contract, date } = found
+                const lineId = lots[0].description
+                const conLots = await loadStockData(uidCollection, 'id', contract.stock || [])
+                const lotIds = lots.filter(l => l.description === lineId && conLots.some(c => c.id === l.id)).map(l => l.id)
+                const args = { productsData: contract.productsData || [], lots: conLots, lotIds, name: nameDraft, newId: uuidv4() }
+                let r = renameLots(args)
+                if (r.mode === 'none') throw new Error('This material\'s line was not found on its contract.')
+                // Folding back into the PO line moves the lots off their entry: only when
+                // nothing else in the ledger — a sale, a move — still names it.
+                if (r.mode === 'folded') {
+                    const ledger = await loadLedgerRowsReferencing(uidCollection, [lineId])
+                    if (!safeMerges([{ from: lineId, to: r.entryId }], ledger, lotIds).length) r = renameLots({ ...args, canFold: false })
+                }
+                // A row with sales or moves can't hand only its remaining lots a new line:
+                // the sales keep the old name and the stock splits in two.
+                if (r.mode === 'split' && (item.data.some(l => l.type === 'out') || lots.some(l => l.moveType === 'in'))) {
+                    throw new Error('Part of this row has already been sold or moved, and those records keep the current name — renaming only the rest would split the stock in two.')
+                }
+                // Lots that arrived here by a move are not on the contract's own list, but
+                // carry its names too: re-snapshot them with the rest.
+                const arrivals = r.mode === 'renamed'
+                    ? (await loadLedgerRowsReferencing(uidCollection, [r.entryId])).filter(x => x.type === 'in'
+                        && x.contractData?.id === contract.id && !conLots.some(c => c.id === x.id))
+                    : []
+                const toWrite = [...r.lots, ...arrivals].map(l => ({ ...l, productsData: r.productsData, ...lotPatch(l) }))
+                await updateContractField(uidCollection, contract.id, date, { productsData: r.productsData })
+                await saveStockIn(uidCollection, toWrite)
+                written = toWrite.map(l => l.id)
+                renamed = new Map(toWrite.map(l => [l.id, l]))
+                newName = r.productsData.find(p => p.id === r.entryId)?.description || nameDraft.trim()
+            }
+
+            const rest = lots.filter(l => !written.includes(l.id))
+                .map(l => ({ id: l.id, patch: lotPatch(l) })).filter(p => Object.keys(p.patch).length)
+            if (rest.length) await patchStockLots(uidCollection, rest)
+
+            // The row as it now stands, without waiting for a reload.
+            const nextData = item.data.map(l => {
+                const saved = renamed?.get(l.id)
+                if (saved) return { ...l, description: saved.description, productsData: saved.productsData, spec: saved.spec, analysis: saved.analysis, descriptionName: newName }
+                const p = l.type === 'in' && l.description ? lotPatch(l) : {}
+                return Object.keys(p).length ? { ...l, ...p } : l
+            })
+            const next = { ...item, descriptionName: newName, data: nextData }
+            setItem(next)
+            setData(data.map(x => (x.id === item.id ? next : x)))
+            setDrafts({})
+            setNameDraft(newName)
+            setToast({ show: true, text: 'Saved', clr: 'success' })
+        } catch (e) {
+            setToast({ show: true, text: e?.message || String(e), clr: 'fail' })
+        } finally {
+            setSaving(false)
+        }
+    }
+
     const handleChange = (e, name) => {
         setNewItemStock(prev => {
             return { ...prev, [name]: e }
@@ -226,7 +343,12 @@ const WHvModal = ({ isOpen, setIsOpen, item, setItem, data, setData }) => {
             <div className='grid grid-cols-12 gap-3 p-3 m-3 rounded-2xl border border-[var(--line)]' style={{ background: 'var(--bg-subtle)' }}>
                 <div className='col-span-12 md:col-span-4 flex flex-col'>
                     <p className={labelCls}>{getTtl('Description', ln)}:</p>
-                    <input type='text' disabled value={item.descriptionName} name='descriptionName' className={inputCls} />
+                    <Tltip direction='top' tltpText="Rename this row's material — this stock row only; the PO line and other rows keep their name. Save to apply.">
+                        <input type='text' value={nameDraft} name='descriptionName' className={inputCls}
+                            disabled={!lots.length || saving}
+                            onChange={e => setNameDraft(e.target.value)}
+                            onKeyDown={e => { if (e.key === 'Enter') saveEdits(); if (e.key === 'Escape') { e.stopPropagation(); setNameDraft(item.descriptionName || ''); } }} />
+                    </Tltip>
                 </div>
                 <div className='col-span-6 md:col-span-1 flex flex-col'>
                     <p className={labelCls}>{getTtl('Weight', ln)}</p>
@@ -244,6 +366,19 @@ const WHvModal = ({ isOpen, setIsOpen, item, setItem, data, setData }) => {
                     <p className={labelCls}>{getTtl('Stock', ln)}:</p>
                     <input type='text' disabled value={getD(settings.Stocks.Stocks, item, 'stock')} className={inputCls + ' truncate'} />
                 </div>
+                {/* Spec: the lot's own when the row is one lot, else what its lots add up to,
+                    each edited on its line in the table below. */}
+                {lots.length > 0 && (
+                    <div className='col-span-12 flex items-center gap-2 min-w-0'>
+                        <p className={labelCls + ' mb-0'}>Spec:</p>
+                        {lots.length === 1 ? specEditor(lots[0]) : (
+                            <>
+                                <span className='truncate responsiveText font-medium text-[var(--brand-strong)]'>{specSummary || '—'}</span>
+                                <span className='responsiveTextTable text-[var(--ink-muted)] shrink-0'>· each lot&apos;s spec is set on its line below</span>
+                            </>
+                        )}
+                    </div>
+                )}
             </div>
 
             {/* Change Stock section */}
@@ -266,6 +401,12 @@ const WHvModal = ({ isOpen, setIsOpen, item, setItem, data, setData }) => {
 
             {/* Action buttons */}
             <div className='flex gap-3 px-3 py-2 border-t border-[var(--line)]'>
+                <Tltip direction='top' tltpText='Save the name and spec changes'>
+                    <Button className="h-8 responsiveTextInput rounded-lg" onClick={saveEdits} disabled={!dirty || saving}>
+                        <BtnIcon action="save" />
+                        {saving ? getTtl('saving', ln) : getTtl('save', ln)}
+                    </Button>
+                </Tltip>
                 <Tltip direction='top' tltpText='Move item to a different stock'>
                     <Button className="h-8 responsiveTextInput rounded-lg" onClick={moveItems}>
                         <Archive />
@@ -286,7 +427,8 @@ const WHvModal = ({ isOpen, setIsOpen, item, setItem, data, setData }) => {
                 <Switch enabled={enabledSwitch} setEnabled={setEnabledSwitch} />
             </div>
 
-            {enabledSwitch && <ShipTable item={item} data={[]} />}
+            {enabledSwitch && <ShipTable item={item} data={[]}
+                renderSpec={(lotId) => { const lot = lots.find(l => l.id === lotId); return lot ? specEditor(lot) : ''; }} />}
 
         </Modal>
     )

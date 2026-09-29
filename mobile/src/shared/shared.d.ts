@@ -370,6 +370,10 @@ declare module '@shared/productEntries' {
   export function duplicateEntries(productsData?: any[]): EntryMerge[];
   export function safeMerges(merges?: EntryMerge[], ledgerRows?: any[], savingLotIds?: string[]): EntryMerge[];
   export function foldEntries<R extends { description?: string }>(productsData?: any[], rows?: R[], merges?: EntryMerge[]): { productsData: any[]; rows: R[] };
+  /** Give some of a contract's lots a new material name — the Materials Breakdown ✎ rule. */
+  export function renameLots(args: {
+    productsData?: any[]; lots?: any[]; lotIds?: string[]; name: string; newId: string; canFold?: boolean;
+  }): { productsData: any[]; lots: any[]; entryId: string | null; mode: 'none' | 'renamed' | 'split' | 'folded' };
 }
 
 declare module '@shared/grades' {
