@@ -35,6 +35,7 @@ import {
   Download,
   Eraser,
   Eye,
+  FileChartColumn,
   FileSpreadsheet,
   FileText,
   FileUp,
@@ -131,6 +132,8 @@ export const ACTION_ICONS = {
   paste: ClipboardCheck,
   audit: ClipboardList,
   analysis: TrendingUp,
+  // A page's situation report (Cashflow → Report): a document with a chart on it.
+  report: FileChartColumn,
   sum: Sigma,
   // Grades & chemistry (utils/grades.js). One flask for a lot's assay — the popup on
   // Stocks and the editor in Materials Breakdown are the same idea. Merge folds several

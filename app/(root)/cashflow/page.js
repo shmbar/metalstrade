@@ -12,7 +12,7 @@ import { CardsSkeleton } from "../../../components/skeletons";
 import { loadData, loadDataSettings, loadInvoice, loadMargins, loadSharedStock, loadStockData, loadAllStockData, saveCashflow, saveCashflowFinanced, saveDataSettings, saveMultipleData, saveStockIn, syncSpecialInvoicesPaidStatus, updateClientPayment, updateExpPayments, updateContractField, updateInvoiceField } from "../../../utils/utils";
 import { resolveInvoiceDate } from "../../../utils/pureHelpers";
 import { UserAuth } from "../../../contexts/useAuthContext";
-import { isTradingAccount } from '@utils/activeAccount';
+import { accountName, isTradingAccount } from '@utils/activeAccount';
 import { NumericFormat } from "react-number-format";
 import { addComma, ClientDetails, clientToolTip, entityName, ExpensesToolTip, FinalSummaryBadge, getTotals, getTotalsSupPayments, runExpenses, runInvoices, runStocks, runSupPayments, SharedStockDetails, stockHoldInvoices, StocksUnSold, StoclToolTip, sumUnpaidStocksByWarehouse, SupplierDetails, supplierToolTip } from "./funcs";
 import Tltip from "../../../components/tlTip";
@@ -31,7 +31,9 @@ import ExpenseModal from "../expenses/modals/dataModal";
 import InvPopup from "./invPopup";
 import ForecastPanel from "./ForecastPanel";
 import SumBasket from "./sumBasket";
-import { exportCashflowToExcel } from "./excel";
+import { exportCashflowReport } from "./excel";
+import { buildCashflowReport } from "./report";
+import CashflowReportModal from "./reportModal";
 import KpiStrip from "../../../components/KpiStrip";
 import { BtnIcon, SearchAdornment } from "../../../components/buttonIcons";
 import Avatar from "../../../components/Avatar";
@@ -1384,45 +1386,47 @@ const Cashflow = () => {
     }
     // ...existing code...
 
-    // Export the current cashflow view to Excel (one worksheet per section). Builds
-    // rows from the same state arrays the page renders, resolving entity names via
-    // settings so the file reads like the on-screen lists.
-    const handleExportCashflow = () => {
-        const stocksS = settings.Stocks?.Stocks || [];
-        const clientsS = settings.Client?.Client || [];
-        const suppliersS = settings.Supplier?.Supplier || [];
-        // Same labelling as the on-screen rows — an export row with a blank name
-        // and a real amount is worse than one that names what could not be resolved.
-        const nameOf = (arr, id) => entityName(arr, id, arr === stocksS ? 'warehouse' : arr === clientsS ? 'client' : 'supplier');
-        const curOf = (cur) => cur === 'us' ? 'USD' : cur === 'eu' ? 'EUR' : (cur || '');
-
-        if (activeTab === 'unsold') {
-            exportCashflowToExcel({
-                fileName: `cashflow-unsold-stocks-${yr}.xlsx`,
-                sections: [{
-                    name: 'Unsold Stocks',
-                    rows: stockDataNoSold.map(x => ({
-                        name: x.supplierName || nameOf(suppliersS, x.supplier),
-                        currency: curOf(x.cur), amount: x.total,
-                    })),
-                }],
-            });
-            return;
+    /* Report + Export (client, 2026-09-29: the export "just shows totals for each
+       customer/supplier"). Both come from one report object (report.js) built from the
+       same state the page renders, so the dialog, the file and the screen agree:
+       - Report opens it on the page (reportModal.js);
+       - Export, and Download in the dialog, write it as a workbook — a Summary sheet,
+         then every section with each party's invoices grouped under it (excel.js).
+       Built on click, never kept, so it is always the page as it stands right now. */
+    const [reportOpen, setReportOpen] = useState(false);
+    const [report, setReport] = useState(null);
+    const [reportBusy, setReportBusy] = useState(false);
+    const buildReport = () => buildCashflowReport({
+        names: {
+            client: cliName, supplier: supName, warehouse: whName,
+            expType: (id) => settings?.Expenses?.Expenses?.find(q => q.id === id)?.expType || '',
+        },
+        isAdmin,
+        account: accountName(uidCollection),
+        years: yr,
+        incoming, initialData, financedLeft, financedRight,
+        stockPaid: stockData1, stockPaidRows: stockDataAll,
+        stockUnpaid: stockData2, stockUnpaidRows,
+        clientRows: clientsData, clientsPayment: clientInvoices2, clientsBalances: clientInvoices1,
+        supplierRows: supPaymentsData, suppliersPayment: supPayments2, suppliersBalances: supPayments1,
+        expenses, expenseRows: expensesAll,
+        unsold: stockDataNoSold, unsoldRows: stockDataAllArray,
+    });
+    const downloadReport = async (rep = buildReport()) => {
+        if (reportBusy) return;
+        setReportBusy(true);
+        try {
+            const day = new Date().toISOString().slice(0, 10);
+            await exportCashflowReport(rep, `cashflow-${(rep.account || 'report').toLowerCase()}-${day}.xlsx`);
+        } catch (e) {
+            console.error('Cashflow export failed', e);
+            setToast({ show: true, text: 'Could not build the Excel file — please try again', clr: 'fail' });
+        } finally {
+            setReportBusy(false);
         }
-
-        exportCashflowToExcel({
-            fileName: `cashflow-${yr}.xlsx`,
-            sections: [
-                { name: 'Stocks - Paid', rows: stockData1.map(x => ({ name: nameOf(stocksS, x.stock), currency: curOf(x.cur), amount: x.total })) },
-                { name: 'Stocks - UnPaid', rows: stockData2.map(x => ({ name: nameOf(stocksS, x.stock), currency: curOf(x.cur), amount: x.total })) },
-                { name: 'Clients - Payment', rows: clientInvoices2.map(x => ({ name: nameOf(clientsS, x.client), currency: curOf(x.cur), amount: x.debtBlnc })) },
-                { name: 'Clients - Balances', rows: clientInvoices1.map(x => ({ name: nameOf(clientsS, x.client), currency: curOf(x.cur), amount: x.debtBlnc })) },
-                { name: 'Supplier - Payment', rows: supPayments2.map(x => ({ name: nameOf(suppliersS, x.supplier), currency: curOf(x.cur), amount: x.blnc })) },
-                { name: 'Supplier - Balances', rows: supPayments1.map(x => ({ name: nameOf(suppliersS, x.supplier), currency: curOf(x.cur), amount: x.blnc })) },
-                { name: 'Expenses', rows: expenses.map(x => ({ name: nameOf(suppliersS, x.supplier), currency: curOf(x.cur), amount: x.amount })) },
-            ],
-        });
     };
+    const handleExportCashflow = () => downloadReport();
+    const openReport = () => { setReport(buildReport()); setReportOpen(true); };
 
     // KPI summary — pure reuse of the same aggregates the section totals below
     // already render (no new computation beyond re-running the identical reduces).
@@ -1483,13 +1487,24 @@ const Cashflow = () => {
                                     <p className="responsiveTextInput text-[var(--ink-muted)] mt-0.5">Cash position across stocks, clients, suppliers & expenses</p>
                                 </div>
                                 <div className="flex items-center gap-2 group">
-                                    <Tltip direction='bottom' tltpText='Export the current cashflow tables to Excel'>
+                                    <Tltip direction='bottom' tltpText='The current situation on one screen — position, receivables, payables, stock and what is on hold'>
+                                        <button
+                                            type="button"
+                                            onClick={openReport}
+                                            disabled={loading}
+                                            className="whiteButton"
+                                        >
+                                            <BtnIcon action="report" /> Report
+                                        </button>
+                                    </Tltip>
+                                    <Tltip direction='bottom' tltpText='Excel: a summary sheet, then every section with its invoices under each client, supplier or warehouse (click + to open a row)'>
                                         <button
                                             type="button"
                                             onClick={handleExportCashflow}
+                                            disabled={loading || reportBusy}
                                             className="whiteButton"
                                         >
-                                            <BtnIcon action="export" /> Export
+                                            <BtnIcon action={reportBusy ? 'saving' : 'export'} spin={reportBusy} /> Export
                                         </button>
                                     </Tltip>
                                     <YearSelect yr={yr} setYr={setYr} />
@@ -2231,6 +2246,10 @@ const Cashflow = () => {
 
                         {/* Running-sum basket — floats bottom-left so it clears the FloatingChat */}
                         <SumBasket items={Object.values(sumSel)} onRemove={removeSum} onClear={clearSum} />
+
+                        {/* Report — the current situation, from the same object Export writes */}
+                        <CashflowReportModal isOpen={reportOpen} setIsOpen={setReportOpen} report={report}
+                            onDownload={() => downloadReport(report)} downloading={reportBusy} />
 
                     </>
                 }
