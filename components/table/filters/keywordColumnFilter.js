@@ -1,5 +1,6 @@
 import { filterFns } from '@tanstack/react-table';
 import { matchesAllWords, searchWords } from '../../../utils/search';
+import { cellSearchParts } from './labelAwareGlobalFilter';
 
 /* The default filter for a column's own "Search..." box: every keyword must be
    in the cell. Set through `defaultColumn` on each table, so a column that names
@@ -23,12 +24,10 @@ export const keywordColumnFilter = (row, columnId, value, addMeta) => {
   const words = value?.words ?? searchWords(value);
   if (!words.length) return true;
   const raw = row.getValue(columnId);
-  const options = row.getAllCells().find((c) => c.column.id === columnId)?.column.columnDef.meta?.options;
-  const vals = Array.isArray(raw) ? raw : [raw];
-  const labels = vals.map((v) => (Array.isArray(options)
-    ? options.find((o) => String(o.value) === String(v))?.label ?? v
-    : v));
-  return matchesAllWords(labels, words);
+  const column = row.getAllCells().find((c) => c.column.id === columnId)?.column;
+  // What the cell says on the screen — the same reading the search box uses
+  // (labelAwareGlobalFilter cellSearchParts: labels, dates and figures as shown, flags).
+  return matchesAllWords(column ? cellSearchParts(column, raw, row.original) : [raw], words);
 };
 
 // A range resolves as inNumberRange does (strings → numbers, blanks → ±Infinity);

@@ -2,7 +2,8 @@
 // parity suite can compare them against web's table/formatting behaviour without
 // rendering anything (no React, no react-native imports here).
 import { moneyFull } from '@/lib/format';
-import { matchesAllWords, searchWords } from '@shared/search';
+import { matchesAllWords, searchWords, shownAs } from '@shared/search';
+import { specText } from './specs';
 
 /**
  * Every column the web Stocks table feeds its GLOBAL filter, in web's own column
@@ -29,8 +30,10 @@ export const INVENTORY_FILTER_COLUMNS = [
 
 /**
  * The values a formatted mobile row exposes for each of those 11 columns, in the
- * same order. `qnty` is rendered by page.js:112 showWeight at 3 decimals, so the
- * searchable text is the rendered figure, not the raw one.
+ * same order — then the row's Spec, which web's search box reads too (its Spec column
+ * sits outside propDefaults; web 2026-09-29: every word on the screen is searchable, so
+ * "CHP" or "43Ni" finds the lot). `qnty` is rendered by page.js:112 showWeight at 3
+ * decimals, so the searchable text is the rendered figure, not the raw one.
  */
 export const inventoryFilterValues = (r: any): string[] => [
   r.order,
@@ -44,6 +47,7 @@ export const inventoryFilterValues = (r: any): string[] => [
   String(r.unitPrc ?? ''),
   r.total === '-' ? '-' : String(r.total ?? ''),
   r.sType,
+  specText(r),
 ];
 
 /**
@@ -60,7 +64,9 @@ export const inventoryFilterValues = (r: any): string[] => [
 export const filterInventoryRows = <T,>(rows: T[], search: string): T[] => {
   const words = searchWords(search);
   if (!words.length) return rows;
-  return rows.filter((r) => matchesAllWords(inventoryFilterValues(r), words));
+  // Each value as it is AND as the screens write it (dates, figures) — web's search box
+  // reads the same through labelAwareGlobalFilter cellSearchParts.
+  return rows.filter((r) => matchesAllWords(inventoryFilterValues(r).flatMap((v) => shownAs(v)), words));
 };
 
 /**

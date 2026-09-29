@@ -7,7 +7,7 @@ import { updateContractField, updateInvoiceField, logEvent } from '@/data/writes
 import { toIsoDate } from '@shared/pureHelpers';
 import { Contract, Invoice } from '@/data/types';
 import { normalizeStatus } from '@shared/shipmentStatus';
-import { matchesAllWords, searchWords } from '@shared/search';
+import { matchesAllWords, searchWords, shownAs } from '@shared/search';
 import { useShallow } from 'zustand/react/shallow';
 
 // web page.js:476 — the ids are stored, the labels are not.
@@ -339,11 +339,17 @@ export function filterShipmentRows(all: ShipmentRow[], filters: ShipmentFilters 
       if (client && r.clientName !== client) return false;
       if (shipType && r.shpType !== shipType) return false;
       if (urgency && r.urgency !== urgency) return false;
-      // Web's predicate, field for field (page.js:1054-1063): the PO, both party
-      // names, the main invoice, and EVERY shipment's invoice — searching for the
-      // second shipment's number used to return nothing.
+      // Web's predicate, field for field (page.js filtered): the PO, both party
+      // names, the main invoice, EVERY shipment's invoice — and, since 2026-09-29
+      // ("search by any word"), every column the row shows: ports, ship type, status,
+      // the PO's materials, and its dates and tonnages as the screen writes them.
       return matchesAllWords(
-        [r.order, r.supplierName, r.clientName, r.invoiceNo, r.shipments.map((s) => s.invoice)],
+        [
+          r.order, r.supplierName, r.clientName, r.invoiceNo, r.shipments.map((s) => s.invoice),
+          r.pol, r.pod, r.shpType, r.status,
+          (((r.raw as any)?.productsData || []) as any[]).filter((p) => p && !p.import).map((p) => p.description),
+          [r.etd, r.eta, r.poQty, r.shippedQty, r.remainingQty].flatMap((v) => shownAs(v)),
+        ],
         words
       );
     })

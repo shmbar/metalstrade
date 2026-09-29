@@ -1,4 +1,4 @@
-import { matchesAllWords, searchWords } from '../../../utils/search';
+import { matchesAllWords, searchWords, shownAs } from '../../../utils/search';
 
 /* The tables' search box: every keyword must be found somewhere in the ROW.
  *
@@ -24,6 +24,45 @@ const cache = new WeakMap(); // row → { sig, text }
    column is in unless it opts out with enableGlobalFilter: false. */
 const searchable = (c) => c.column.accessorFn && c.column.columnDef.enableGlobalFilter !== false;
 
+/* A flag a column draws as its OWN words rather than Yes/No. Every table's `completed`
+   column reads Completed / Incompleted (contracts, invoices, expenses, misc invoices…);
+   a column elsewhere can say what it writes with meta.boolLabels: [ifTrue, ifFalse]. */
+const BOOL_LABELS = { completed: ['Completed', 'Incompleted'] };
+const boolLabelsOf = (column) => column.columnDef.meta?.boolLabels || BOOL_LABELS[column.id] || null;
+const boolWords = (column, v) => {
+  const labels = boolLabelsOf(column);
+  return labels ? [v ? labels[0] : labels[1]] : [];
+};
+
+/* Everything one cell says on the screen: its value as stored, as the screens write it
+   (utils/search.js shownAs — dates, figures, flags), and whatever its column draws
+   around it (meta.searchText(value, rowOriginal) — an invoice number's CN/FN, say). */
+export const cellSearchParts = (column, raw, original) => {
+  const parts = [];
+  if (raw == null || raw === '') {
+    // Never set is not "nothing on the screen": a flag column draws its false word
+    // ("Incompleted" on a contract nobody has completed yet).
+    if (boolLabelsOf(column)) parts.push(...boolWords(column, false));
+  } else {
+    const options = column.columnDef.meta?.options;
+    const vals = Array.isArray(raw) ? raw : [raw];
+    for (const v of vals) {
+      const label = Array.isArray(options)
+        ? options.find((o) => String(o.value) === String(v))?.label ?? v
+        : v;
+      if (label == null || typeof label === 'object') continue;
+      parts.push(...shownAs(label));
+      if (typeof label === 'boolean') parts.push(...boolWords(column, label));
+    }
+  }
+  const extra = column.columnDef.meta?.searchText;
+  if (typeof extra === 'function') {
+    const t = extra(raw, original);
+    if (t != null && t !== '') parts.push(String(t));
+  }
+  return parts;
+};
+
 const rowSearchText = (row) => {
   const cells = row.getAllCells().filter(searchable);
   const sig = cells.map((c) => c.column.id).join('|');
@@ -32,17 +71,17 @@ const rowSearchText = (row) => {
 
   const parts = [];
   for (const cell of cells) {
-    const raw = row.getValue(cell.column.id);
-    if (raw == null || raw === '') continue;
-    const options = cell.column.columnDef.meta?.options;
-    const vals = Array.isArray(raw) ? raw : [raw];
-    for (const v of vals) {
-      const label = Array.isArray(options)
-        ? options.find((o) => String(o.value) === String(v))?.label ?? v
-        : v;
-      if (label != null && typeof label !== 'object') parts.push(String(label));
-    }
+    parts.push(...cellSearchParts(cell.column, row.getValue(cell.column.id), row.original));
   }
+  /* A row that stands for others — the Stocks page's "By grade" rows fold the stock lines
+     of a grade — is searched by what it holds as well as by its own cells: typing "Ta
+     Bars" on By grade found nothing, because the grade rows read "CHP", "UMZ", "Silmet"
+     and the words were only on the lines inside them (client, 2026-09-29). So a row also
+     reads its sub-rows, and any `_searchText` its builder gives it (a single-line grade has
+     no sub-rows to read). A sub-row is still filtered on its own when the row expands. */
+  const extra = row.original && typeof row.original._searchText === 'string' ? row.original._searchText : '';
+  if (extra) parts.push(extra);
+  (row.subRows || []).forEach((sub) => parts.push(rowSearchText(sub)));
   const text = parts.join(' ');
   cache.set(row, { sig, text });
   return text;

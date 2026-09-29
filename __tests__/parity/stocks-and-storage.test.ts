@@ -85,6 +85,7 @@ import { computeGradeSummary as mobileGradeSummary } from '@/features/stocks/gra
 // mirror transcribing them again would add rot, not coverage.
 import { gradeKeyOf as webGradeKeyOf, niRangeLabel as webNiRangeLabel, gradeLabel as webGradeLabel } from '../../app/(root)/stocks/sumtables/gradeKey.js';
 import { resolveGrade as webResolveGrade, buildGradeIndex } from '../../utils/grades.js';
+import { specText as webSpecText } from '../../app/(root)/stocks/specs.js';
 import {
   DAY as MOBILE_DAY,
   STALE_DAYS as MOBILE_STALE_DAYS,
@@ -804,11 +805,17 @@ const webPerYear = (allExpenses: any[], lots: any[], whName: (id: string) => str
  * everything, which silently turned the web half of every comparison below into an
  * empty list.
  */
+// The 11 propDefaults columns plus the Spec column page.js adds after them, which the
+// search box reads as well since 2026-09-29 (every word on the screen is searchable).
 const webGlobalFilterKeeps = (formattedRow: any, term: string): boolean => {
-  const cells = WEB_STOCK_COLUMNS.map((id) => ({
-    column: { id, accessorFn: (r: any) => r[id], columnDef: { meta: undefined } },
-  }));
-  const row = { getValue: (id: string) => formattedRow[id], getAllCells: () => cells };
+  const cells = [
+    ...WEB_STOCK_COLUMNS.map((id) => ({
+      column: { id, accessorFn: (r: any) => r[id], columnDef: { meta: undefined } },
+    })),
+    { column: { id: 'spec', accessorFn: (r: any) => webSpecText(r, SETTINGS), columnDef: { meta: undefined } } },
+  ];
+  const value = (id: string) => (id === 'spec' ? webSpecText(formattedRow, SETTINGS) : formattedRow[id]);
+  const row = { getValue: value, getAllCells: () => cells };
   return WEB_STOCK_COLUMNS.some((id) => labelAwareGlobalFilter(row as any, id, term));
 };
 
@@ -1302,11 +1309,21 @@ describe('Tier 2 — the search box matches every column web searches', () => {
     }
   });
 
+  it('a lot\'s spec is searchable, and both apps find the same row by it (2026-09-29)', () => {
+    const withSpec = () => ledger().map((l: any) => (l.id === 'lot-2' ? { ...l, spec: 'UMZ' } : l));
+    const mob = computeInventory(withSpec(), SETTINGS).rows.map((r) => formatInventoryRow(r, SETTINGS));
+    const web = webGetFormatted(webLoadStocks(withSpec(), SETTINGS), SETTINGS);
+    const mobileIds = filterInventoryRows(mob, 'umz').map((r: any) => r.id).sort();
+    const webIds = web.filter((r) => webGlobalFilterKeeps(r, 'umz')).map((r) => r.id).sort();
+    expect(mobileIds).toHaveLength(1);
+    expect(mobileIds).toEqual(webIds);
+  });
+
   it('the two columns hidden by default are still searchable', () => {
     // page.js:307 hides `date` and `originSupplier`, but column VISIBILITY does not
     // remove a column from TanStack's filter model — web finds them, so mobile must.
     const rows = formatted();
-    expect(inventoryFilterValues(rows[0])).toHaveLength(WEB_STOCK_COLUMNS.length);
+    expect(inventoryFilterValues(rows[0])).toHaveLength(WEB_STOCK_COLUMNS.length + 1);   // + Spec
     const byOriginSupplier = filterInventoryRows(rows, 'Bravo Alloys');
     expect(byOriginSupplier.map((r: any) => r.id)).toEqual(['lot-3']);
     expect(webRows().filter((r) => webGlobalFilterKeeps(r, 'Bravo Alloys')).map((r) => r.id)).toEqual(['lot-3']);

@@ -224,14 +224,14 @@ const Stocks = () => {
   /* The Spec column is added HERE, not in propDefaults: that list also drives
      loadtStocks' aggregation (its accessor keys are the fields it sums) and is pinned
      by the mobile parity suite. This column only reads what a row already carries.
-     It stays out of the search box so web search matches the columns mobile searches;
-     its own column filter still finds a spec. */
+     The search box reads it too — "CHP", "UMZ", "43Ni" are words on the screen, and
+     every word on the screen is searchable (client, 2026-09-29) — and so does mobile's
+     (display.ts inventoryFilterValues), so the two still find the same rows. */
   const tableColumns = useMemo(() => {
     const specColumn = {
       accessorKey: 'spec', header: 'Spec',
       accessorFn: (row) => specText(row, settings),
       cell: (props) => <SpecCell row={props.row.original} />,
-      enableGlobalFilter: false,
     }
     const at = propDefaults.findIndex(c => c.accessorKey === 'descriptionName')
     return [...propDefaults.slice(0, at + 1), specColumn, ...propDefaults.slice(at + 1)]
@@ -538,6 +538,12 @@ const Stocks = () => {
            Avg Cost per Grade card, the Excel export — has to expand through this.
            Without it, switching to By grade emptied all three. */
         _lineIds: g.lines.map(l => l.id),
+        /* What the search box also reads on this row (labelAwareGlobalFilter): every word
+           of every line inside it. The grade row's own cells carry the grade's name and
+           joined figures ("060826-1 +3"), so "Ta Bars", or the PO behind the "+3", found
+           nothing on By grade while Lines found it (client, 2026-09-29). */
+        _searchText: g.lines.map(l => [l.order, l.supplier, l.originSupplier, l.stock, l.descriptionName,
+          l.sType, l.qTypeTable, specText(l, settings)].filter(v => v != null && v !== '').join(' ')).join(' '),
       };
     }).sort((a, b) => b.total - a.total);
   };

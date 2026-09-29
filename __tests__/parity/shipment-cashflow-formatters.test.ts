@@ -23,7 +23,7 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { createHash } from 'node:crypto';
 
 import { expectWebUnchanged, webFnSource, repoFileText } from './_helpers/webSource';
-import { matchesAllWords as webMatchesAllWords } from '../../utils/search.js';
+import { matchesAllWords as webMatchesAllWords, shownAs as webShownAs } from '../../utils/search.js';
 import {
   FIXED_NOW,
   makeSettings,
@@ -274,12 +274,29 @@ const NO_FILTERS: WebFilterState = {
  * proves mobile's copy is byte-identical). The old rule tested one substring against
  * four fields separately, so a two-word query matched nothing and the second
  * shipment's number could not be found at all. */
+/* Web's getPoQty (page.js), for the search mirror below — the same transcription the
+   quantities describe further down uses. */
+const webSearchPoQty = (contract: any, settings: any) => {
+  const W_PER_MT: Record<string, number> = { mt: 1, kg: 1000, lb: 2204.6226218 };
+  const label = settings?.Quantity?.Quantity?.find((q: any) => q.id === contract.qTypeTable)?.qTypeTable || '';
+  const l = String(label).toLowerCase();
+  const unit = l.includes('kg') ? 'kg' : l.includes('lb') || l.includes('pound') ? 'lb' : 'mt';
+  const factor = W_PER_MT[unit] || 1;
+  const raw = (contract.productsData || [])
+    .filter((p: any) => p && !p.import)
+    .reduce((sum: number, p: any) => sum + (parseFloat(p.qnty) || 0), 0);
+  return raw / factor;
+};
+
+/* Re-transcribed 2026-09-29: the search also reads every column the row shows — POL,
+   POD, ship type, status, the PO's materials, and ETD / ETA / PO / shipped / remaining
+   as the screen writes them (utils/search.js shownAs, imported like the matcher). */
 const webFiltered = (
   contracts: any[],
   settings: any,
   invoiceMap: any,
   f: WebFilterState,
-  shipMap: Record<string, { shipments: { invoice: any }[] }> = {}
+  shipMap: Record<string, { shipments: { invoice: any }[]; shipped?: number }> = {}
 ) =>
   contracts.filter((c) => {
     const matchStatus = f.statusFilter === '' || (c.shipmentStatus || '') === f.statusFilter;
@@ -295,6 +312,9 @@ const webFiltered = (
     if (!f.search.trim()) return true;
     const q = f.search.toLowerCase();
     const inv = webGetMainInvoice(c);
+    const poQty = webSearchPoQty(c, settings);
+    const shipped = shipMap[c.id]?.shipped || 0;
+    const remaining = poQty ? poQty - shipped : null;
     return webMatchesAllWords(
       [
         c.order,
@@ -302,6 +322,9 @@ const webFiltered = (
         webGetClientName(c.id, settings, invoiceMap),
         inv?.invoice,
         (shipMap[c.id]?.shipments || []).map((x) => x.invoice),
+        webGetPOL(c, settings, invoiceMap), webGetPOD(c, settings, invoiceMap), webGetShpType(c, invoiceMap), c.shipmentStatus,
+        (c.productsData || []).filter((p: any) => p && !p.import).map((p: any) => p.description),
+        [webGetRawETD(c, invoiceMap), webGetRawETA(c, invoiceMap), poQty, shipped, remaining].flatMap((v) => webShownAs(v)),
       ],
       q
     );
@@ -390,7 +413,12 @@ describe('shipment — web drift alarms for every mirrored formula', () => {
      shipment's invoice searchable, not just the main one. Both are now in
      useShipment.ts (poQtyOf, buildShipmentQtyMap, the ShipmentRow quantity fields and
      the search predicate) and asserted below; the mirror above was re-transcribed. */
-  it("web's filter predicate has not drifted", () => expectWebUnchanged(SHIP, 'filtered', '73e05fa64706'));
+  /* Re-recorded 2026-09-29 after PORTING, not to silence it: web's search now also reads
+     POL, POD, ship type, status, the PO's materials and the dates / tonnages as shown
+     ("search by any word"). useShipment.ts filterShipmentRows reads the same fields, the
+     webFiltered mirror above was re-transcribed, and the 'every column the row shows'
+     test below compares the two. */
+  it("web's filter predicate has not drifted", () => expectWebUnchanged(SHIP, 'filtered', '6b1e87b20646'));
   it("web's getSortValue has not drifted", () => expectWebUnchanged(SHIP, 'getSortValue', 'c766a1a98b24'));
   it("web's handleStatusChange has not drifted", () =>
     expectWebUnchanged(SHIP, 'handleStatusChange', '816e11397406'));
@@ -847,6 +875,14 @@ describe('shipment — filtering', () => {
     expect(ids(filterShipmentRows(rows(), { search: 'southgate' }))).toEqual(webIds({ search: 'southgate' }));
     expect(ids(filterShipmentRows(rows(), { search: '5003' }))).toEqual(webIds({ search: '5003' }));
     expect(ids(filterShipmentRows(rows(), { search: '5003' }))).toEqual(['c3']);
+  });
+
+  it('search also finds every column the row shows — ship type, status, a date as written (2026-09-29)', () => {
+    for (const term of ['truck', 'container', 'in transit', 'completed', '01.08.26', '01-aug-2026', 'truck 01.08.26']) {
+      expect(ids(filterShipmentRows(rows(), { search: term })), `term "${term}"`).toEqual(webIds({ search: term }));
+    }
+    expect(ids(filterShipmentRows(rows(), { search: 'truck' }))).toEqual(['c2', 'c3']);
+    expect(ids(filterShipmentRows(rows(), { search: '01.08.26' }))).toEqual(['c3']);   // c3's ETA, 2026-08-01
   });
 
   it('a whitespace-only search is treated as no search', () => {

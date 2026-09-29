@@ -228,6 +228,8 @@ declare module '@shared/search' {
   export function searchWords(query: string | null | undefined): string[];
   /** Every keyword in `query` appears somewhere in `fields`. Blank query = match. */
   export function matchesAllWords(fields: any, query: string | string[] | null | undefined): boolean;
+  /** The ways a stored value is shown (dates, figures, flags), so a search finds what is on screen. */
+  export function shownAs(value: unknown): string[];
   const _default: typeof matchesAllWords;
   export default _default;
 }

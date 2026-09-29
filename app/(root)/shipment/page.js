@@ -29,7 +29,7 @@ import { Fragment } from 'react';
 import { SHIPMENT_STATUSES, SHIPMENT_STATUS_STYLES, normalizeStatus } from '../contractsstatement/shipmentStatus';
 import SortIcon from "@components/table/SortIcon";
 import { useTablePrefs } from '@components/table/useTablePrefs';
-import { matchesAllWords } from '@utils/search';
+import { matchesAllWords, shownAs } from '@utils/search';
 
 // Shipment lifecycle vocabulary/colors live in a shared module so the Contracts Statement
 // follows the exact same statuses (see ../contractsstatement/shipmentStatus).
@@ -1055,10 +1055,16 @@ const ShipmentPage = () => {
         const q = search.toLowerCase();
         const inv = getMainInvoice(c);
         // Every invoice under the contract, not just the first — searching for the
-        // second shipment's number used to return nothing.
+        // second shipment's number used to return nothing. And every column the row
+        // shows, as it shows it: the search read only the PO, the parties and the
+        // invoices, so "Truck", "In Transit", a port, a date or a tonnage found nothing
+        // (client, 2026-09-29: "search by any word").
         return matchesAllWords([
             c.order, getSupplierName(c), getClientName(c.id), inv?.invoice,
             getShipments(c).map(s => s.invoice),
+            getPOL(c), getPOD(c), getShpType(c), c.shipmentStatus,
+            (c.productsData || []).filter(p => p && !p.import).map(p => p.description),
+            [getRawETD(c), getRawETA(c), getPoQty(c), getShippedQty(c), getRemainingQty(c)].flatMap(v => shownAs(v)),
         ], q);
     });
 

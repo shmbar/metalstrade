@@ -229,7 +229,11 @@ const Invoices = () => {
 			accessorKey: 'invoice',
 			header: getTtl('Invoice', ln),
 			cell: (props) => <span className="whitespace-nowrap">{(String(props.getValue()).toString()).padStart(4, "0") + getprefixInv(props)}</span>,
-			meta: { excludeFromQuickSum: true },
+			// The number as the cell writes it ("1354FN", "0098CN"), so the search finds that too.
+			meta: {
+				excludeFromQuickSum: true,
+				searchText: (v, r) => String(v ?? '').padStart(4, '0') + getprefixInv({ row: { original: r || {} } }),
+			},
 			size: 100
 		},
 		{
@@ -480,7 +484,8 @@ const Invoices = () => {
 				);
 			},
 			enableColumnFilter: false,
-			meta: { excludeFromQuickSum: true },
+			// The cell writes Yes / No, not the stored code, so that is what the search reads.
+			meta: { excludeFromQuickSum: true, searchText: (v) => (v === '4568' ? 'Yes' : 'No') },
 			size: 110
 		},
 		{
