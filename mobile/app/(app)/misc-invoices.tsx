@@ -174,6 +174,7 @@ export default function MiscInvoices() {
             <Pressable
               key={c.id || 'none'}
               haptic="selection"
+              disabled={setCat.isPending}
               onPress={async () => {
                 if (editing) await setCat.mutateAsync({ id: editing.id, category: c.id });
                 setEditing(null);

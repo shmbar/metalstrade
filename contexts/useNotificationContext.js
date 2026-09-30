@@ -5,7 +5,7 @@ import {
     subscribeNotifications, markNotificationRead, markAllNotificationsRead, snoozeNotification,
     subscribeNotificationPrefs, saveNotificationPrefs,
 } from '../utils/utils';
-import { CATEGORY_KEYS, isNotificationEnabled, normalizeNotificationPrefs } from '../utils/notificationPrefs';
+import { CATEGORY_KEYS, allCategories, isNotificationEnabled, normalizeNotificationPrefs } from '../utils/notificationPrefs';
 import { sortByPriority } from '../utils/notificationPriority';
 import NotificationPopups from '../components/NotificationPopups';
 
@@ -69,11 +69,20 @@ const NotificationProvider = ({ children }) => {
         });
     }, [uidCollection, uid, email]);
 
-    const setCategoryEnabled = useCallback((key, on) => {
-        const categories = { ...prefsRef.current.categories, [key]: !!on };
-        setPrefsDoc({ categories }); // show the change at once; the snapshot confirms it
-        return saveNotificationPrefs(uidCollection, uid, categories, email);
+    /* One write path for every switch: the change shows at once and the snapshot confirms it;
+       a failed write puts the previous choices back, so the switch never shows a setting that
+       was not saved (it used to stay flipped). Same rule as the mobile app. */
+    const writeCategories = useCallback(async (categories) => {
+        const before = prefsRef.current.categories;
+        setPrefsDoc({ categories });
+        const ok = await saveNotificationPrefs(uidCollection, uid, categories, email);
+        if (!ok) setPrefsDoc({ categories: before });
+        return ok;
     }, [uidCollection, uid, email]);
+    const setCategoryEnabled = useCallback((key, on) =>
+        writeCategories({ ...prefsRef.current.categories, [key]: !!on }), [writeCategories]);
+    // The "All notifications" switch — every category at once (utils/notificationPrefs).
+    const setAllEnabled = useCallback((on) => writeCategories(allCategories(on)), [writeCategories]);
 
     const [all, setAll] = useState([]);
     const [muted, setMuted] = useState(false);
@@ -196,8 +205,8 @@ const NotificationProvider = ({ children }) => {
     // Memoized: consumers (the bell) only re-render when the notification data or
     // callbacks actually change.
     const value = useMemo(
-        () => ({ notifications, unread, unreadCount, markRead, markAllRead, markManyRead, snooze, muted, toggleMute, popups, dismissPopup, _setPopupHostMounted, prefs, setCategoryEnabled }),
-        [notifications, unread, unreadCount, markRead, markAllRead, markManyRead, snooze, muted, toggleMute, popups, dismissPopup, _setPopupHostMounted, prefs, setCategoryEnabled]
+        () => ({ notifications, unread, unreadCount, markRead, markAllRead, markManyRead, snooze, muted, toggleMute, popups, dismissPopup, _setPopupHostMounted, prefs, setCategoryEnabled, setAllEnabled }),
+        [notifications, unread, unreadCount, markRead, markAllRead, markManyRead, snooze, muted, toggleMute, popups, dismissPopup, _setPopupHostMounted, prefs, setCategoryEnabled, setAllEnabled]
     );
 
     return (

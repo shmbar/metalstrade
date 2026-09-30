@@ -136,6 +136,25 @@ export function useCashflowActions() {
     },
   });
 
+  /* Stocks - UnPaid: hold (or release) a stock line — every unpaid purchase invoice behind it,
+     written exactly as the supplier toggle writes one (web saveSupplierPending(invs[]),
+     a074b342). So the same invoices show as held under Supplier - Payment too: one invoice,
+     one status, whichever side it was set from. */
+  const saveStockPending = useMutation({
+    mutationFn: async (args: { holds: { contractId: string; contractDate: string; poInvoiceId: string }[]; flag: boolean }) => {
+      if (!uidCollection) throw new Error('Not authenticated');
+      for (const h of args.holds) await setPaymentPending(uidCollection, { kind: 'poInvoice', ...h }, args.flag);
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['cashflow'] });
+      qc.invalidateQueries({ queryKey: ['contracts'] });
+      qc.invalidateQueries({ queryKey: ['dashboard'] });
+    },
+    onError: () => {
+      toast.error('Could not save the pending status — please try again.');
+    },
+  });
+
   // Settle a purchase invoice's residual as an adjustment, not a payment — web's
   // supplierCloseBalance, for the few cents or the rounding a supplier writes off.
   const closeBalance = useMutation({
@@ -150,5 +169,5 @@ export function useCashflowActions() {
     onError,
   });
 
-  return { paySupplier, payExpense, partialPay, payClient, saveManualRows, saveYearTotal, savePending, closeBalance };
+  return { paySupplier, payExpense, partialPay, payClient, saveManualRows, saveYearTotal, savePending, saveStockPending, closeBalance };
 }

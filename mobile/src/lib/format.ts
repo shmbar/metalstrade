@@ -76,5 +76,17 @@ export const initials = (name = ''): string =>
 export const moneyFull = (cur: string | undefined, value: number | string, decimals = 2): string =>
   sharedMoneyFull(cur, value, decimals);
 
+/**
+ * Exact amounts per currency, one currency per line: "$1,331,234.56\n€240,112.33".
+ * For totals and balances — client, 2026-09-30: "bottom totals are abbreviated ($375.59K);
+ * show the full exact amount". Web shows these in full; the compact form is for dashboard
+ * tiles and charts only. Components that show a value (SectionCard total, EntityRow value,
+ * sheet totals) lay out one line per currency.
+ */
+export const moneyLines = (byCur: Record<string, number>): string => {
+  const ents = Object.entries(byCur || {}).filter(([, v]) => Math.abs(Number(v) || 0) > 0.005);
+  return ents.length ? ents.map(([c, v]) => moneyFull(c, v)).join('\n') : moneyFull('us', 0);
+};
+
 /** Compact amount for tiles and totals: "$1.23M", "€45.60K", "-$980.00". */
 export const moneyCompact = (cur: string | undefined, value: number | string): string => sharedMoneyCompact(cur, value);

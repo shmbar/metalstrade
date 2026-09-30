@@ -8,7 +8,8 @@ import { useAuth, workspaceName } from '@/store/auth';
 import { toast } from '@/store/toast';
 import { useSettings } from '@/store/settings';
 import { OfflineBanner } from '@/components/OfflineBanner';
-import { registerPush, listenPushTaps } from '@/features/push/registerPush';
+import { registerPush, listenPushTaps, setAppBadge } from '@/features/push/registerPush';
+import { useUnreadNotificationCount } from '@/features/push/useNotificationFeed';
 import { useFollowNotificationPrefs } from '@/features/push/notificationPrefs';
 import { useLiveSync } from '@/features/live/useLiveSync';
 import { useFreshOnFocus } from '@/features/live/useFreshOnFocus';
@@ -79,6 +80,13 @@ export default function AppLayout() {
 
   // Tapping a push deep-links into the relevant screen.
   useEffect(() => listenPushTaps(), []);
+
+  // Unread notifications — the More tab badge and the number on the app icon (0 clears it,
+  // including on sign-out, when there is no workspace to count in).
+  const unread = useUnreadNotificationCount();
+  useEffect(() => {
+    setAppBadge(uidCollection ? unread : 0);
+  }, [unread, uidCollection]);
 
   // Live multi-user sync: teammate writes refresh this device in real time.
   useLiveSync(uidCollection);
@@ -221,6 +229,9 @@ export default function AppLayout() {
           // The hub stays unless Accounting is literally the only page this user has.
           href: homeIsAccounting && allowedPages.length <= 1 ? null : undefined,
           title: 'More',
+          // Notifications live under More, so that is where the unread count shows.
+          tabBarBadge: unread > 0 ? (unread > 99 ? '99+' : unread) : undefined,
+          tabBarBadgeStyle: { backgroundColor: colors.primary, color: colors.primaryText, fontSize: typography.captionStrong.fontSize },
           tabBarIcon: ({ focused, color, size }) => (
             <View style={{ alignItems: 'center', justifyContent: 'center', width: 44 }}>
               <Ionicons name={focused ? 'ellipsis-horizontal-circle' : 'ellipsis-horizontal'} size={size ?? 22} color={color} />

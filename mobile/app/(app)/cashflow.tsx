@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { View, Alert, StyleSheet } from 'react-native';
 import { Pressable } from '@/components/ui/Pressable';
 import { router } from 'expo-router';
@@ -25,13 +25,15 @@ import {
 import type { KpiItem } from '@/components/ui';
 import { ScreenHeader } from '@/components/ScreenHeader';
 import { useTheme } from '@/theme/ThemeProvider';
+import { buildCashflowReport } from '@/features/cashflow/cashflowReport';
+import { CashflowReportSheet } from '@/features/cashflow/CashflowReportSheet';
 import { useAuth } from '@/store/auth';
 import { useSettings } from '@/store/settings';
 import { usePrivacyStore, maskIfHidden } from '@/store/privacy';
-import { useCashflow, Counterparty, StockWarehouseRow, UnsoldSupplierRow } from '@/features/cashflow/useCashflow';
+import { useCashflow, Counterparty, StockLotRow, StockWarehouseRow, UnsoldSupplierRow } from '@/features/cashflow/useCashflow';
 import { useCashflowActions } from '@/features/cashflow/useCashflowActions';
 import { useSharedStock } from '@/features/stocks/useSharedStock';
-import { fmtAutoKM, fmtCurKM, curSymbol, fmtMoney, dateLabel, moneyFull } from '@/lib/format';
+import { curSymbol, fmtMoney, dateLabel, moneyFull, moneyLines } from '@/lib/format';
 import { radius, spacing, layout } from '@/theme/tokens';
 import { matchesAllWords, searchWords } from '@shared/search';
 import { entityName } from '@/lib/entityName';
@@ -61,10 +63,14 @@ type Kind = 'client' | 'supplier' | 'expense';
 type ManualField = 'initial' | 'financedLeft' | 'financedRight';
 
 
+/* Every amount on Cashflow is exact, as web shows it (funcs.js showAmount) — client,
+   2026-09-30: an abbreviated balance ($375.59K) is not the balance anyone pays against.
+   curLine is for running text (one line); moneyLines stacks a currency per line for totals. */
+const usd = (n: number) => moneyFull('us', n);
 const curLine = (byCur: Record<string, number>) => {
   const ents = Object.entries(byCur).filter(([, v]) => Math.abs(v) > 0.005);
-  if (!ents.length) return '$0';
-  return ents.map(([c, v]) => fmtCurKM(c, v)).join('  ');
+  if (!ents.length) return moneyFull('us', 0);
+  return ents.map(([c, v]) => moneyFull(c, v)).join('  ');
 };
 
 /** Per-currency total across a section's rows — re-derived over exactly the rows shown. */
@@ -97,11 +103,11 @@ export default function Cashflow() {
   const insets = useSafeAreaInsets();
   const { data, isLoading, isError, error, refetch } = useCashflow();
   const isAdmin = useAuth((s) => s.isAdmin);
-  const { settings, settingsLoaded } = useSettings(useShallow((s) => ({ settings: s.settings, settingsLoaded: s.loaded })));
+  const { settings, settingsLoaded, compData } = useSettings(useShallow((s) => ({ settings: s.settings, settingsLoaded: s.loaded, compData: s.compData })));
   const hideBalances = usePrivacyStore((s) => s.hidden);
   const togglePrivacy = usePrivacyStore((s) => s.toggle);
   const money = (s: string) => maskIfHidden(hideBalances, s);
-  const { paySupplier, payExpense, partialPay, payClient, saveManualRows, saveYearTotal, savePending, closeBalance } = useCashflowActions();
+  const { paySupplier, payExpense, partialPay, payClient, saveManualRows, saveYearTotal, savePending, saveStockPending, closeBalance } = useCashflowActions();
   const shared = useSharedStock();
 
   const [tab, setTab] = useState<Tab>('general');
@@ -143,6 +149,14 @@ export default function Cashflow() {
     setHeld((p) => ({ ...p, [key]: flag }));
     savePending.mutate({ item, flag }, { onError: () => setHeld((p) => ({ ...p, [key]: !flag })) });
   };
+  const [reportOpen, setReportOpen] = useState(false);
+  // Stock lines flipped on this screen, by lot id — shown at once, put back if the write fails.
+  const [stockHeld, setStockHeld] = useState<Record<string, boolean>>({});
+  const setStockPending = (l: StockLotRow, flag: boolean) => {
+    if (!l.holds?.length) return;
+    setStockHeld((p) => ({ ...p, [l.id]: flag }));
+    saveStockPending.mutate({ holds: l.holds, flag }, { onError: () => setStockHeld((p) => ({ ...p, [l.id]: !flag })) });
+  };
   const [stockSheet, setStockSheet] = useState<{ name: string; row: StockWarehouseRow } | null>(null);
   const [unsoldSheet, setUnsoldSheet] = useState<UnsoldSupplierRow | null>(null);
   const [payItem, setPayItem] = useState<any | null>(null);
@@ -152,6 +166,12 @@ export default function Cashflow() {
   const [yearDraft, setYearDraft] = useState<Record<number, string>>({});
 
   const whName = (id: string) => entityName(settings?.Stocks?.Stocks, id, 'warehouse', settingsLoaded);
+  // Built only while the Report sheet is open (after whName, which it uses).
+  const report = useMemo(
+    () => (reportOpen && data ? buildCashflowReport(data, { isAdmin, warehouseName: (id) => whName(id) }) : null),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [reportOpen, data, isAdmin]
+  );
 
   // Web's find box filters ROWS by name; section totals keep covering the full
   // period (web says so next to the box, and so does this screen).
@@ -328,16 +348,16 @@ export default function Cashflow() {
               {
                 key: 'balance',
                 label: 'Total Balance',
-                value: money(fmtAutoKM(data.balance)),
+                value: money(usd(data.balance)),
                 icon: 'wallet' as const,
                 tone: data.balance >= 0 ? ('positive' as const) : ('negative' as const),
                 sub: 'Left − right totals',
               },
             ]
           : []),
-        { key: 'clients', label: 'Clients due', value: money(fmtAutoKM(data.kpi.clientsDue)), icon: 'people' as const, tone: 'primary' as const },
-        { key: 'suppliers', label: 'Suppliers due', value: money(fmtAutoKM(data.kpi.suppliersDue)), icon: 'business' as const, tone: 'warn' as const },
-        { key: 'expenses', label: 'Expenses', value: money(fmtAutoKM(data.kpi.expenses)), icon: 'receipt' as const, tone: 'negative' as const },
+        { key: 'clients', label: 'Clients due', value: money(usd(data.kpi.clientsDue)), icon: 'people' as const, tone: 'primary' as const },
+        { key: 'suppliers', label: 'Suppliers due', value: money(usd(data.kpi.suppliersDue)), icon: 'business' as const, tone: 'warn' as const },
+        { key: 'expenses', label: 'Expenses', value: money(usd(data.kpi.expenses)), icon: 'receipt' as const, tone: 'negative' as const },
       ]
     : [];
 
@@ -369,7 +389,7 @@ export default function Cashflow() {
             first={i === 0}
             name={whName(w.stock)}
             subtitle={`${w.count} lot${w.count === 1 ? '' : 's'}${w.pendingCount ? ` · ${w.pendingCount} pending` : ''}`}
-            value={money(fmtAutoKM(w.total))}
+            value={money(usd(w.total))}
             onPress={() => setStockSheet({ name: whName(w.stock), row: w })}
           />
         ))
@@ -379,15 +399,15 @@ export default function Cashflow() {
     const rows = manualRowsOf(field) || [];
     const total = rows.reduce((s, r) => s + r.num, 0) + (fixed?.value || 0);
     return (
-      <FoldSection id={`cashflow.manual.${field}`} defaultOpen icon={icon} title={FIELD_LABEL[field]} subtitle="Admin only" total={money(fmtAutoKM(total))}>
-        {fixed ? <EntityRow first avatar={false} name={fixed.label} subtitle={fixed.hint} value={money(fmtAutoKM(fixed.value))} /> : null}
+      <FoldSection id={`cashflow.manual.${field}`} defaultOpen icon={icon} title={FIELD_LABEL[field]} subtitle="Admin only" total={money(usd(total))}>
+        {fixed ? <EntityRow first avatar={false} name={fixed.label} subtitle={fixed.hint} value={money(usd(fixed.value))} /> : null}
         {rows.map((r, i) => (
           <EntityRow
             key={`${field}-${i}`}
             first={!fixed && i === 0}
             avatar={false}
             name={r.title}
-            value={money(fmtAutoKM(r.num))}
+            value={money(usd(r.num))}
             onPress={() => openEntryEditor(field, i)}
           />
         ))}
@@ -420,14 +440,18 @@ export default function Cashflow() {
         subtitle="Stocks, clients, suppliers & expenses"
         title="Cashflow"
         right={
-          <IconButton
-            icon={hideBalances ? 'eye-off-outline' : 'eye-outline'}
-            accessibilityLabel={hideBalances ? 'Show balances' : 'Hide balances'}
-            haptic="selection"
-            onPress={() => {
-              togglePrivacy();
-            }}
-          />
+          <View style={{ flexDirection: 'row', gap: 8 }}>
+            {/* The page as one report — web's Report button (eb201c9f). */}
+            <IconButton icon="document-text-outline" accessibilityLabel="Cashflow report" disabled={!data} onPress={() => setReportOpen(true)} />
+            <IconButton
+              icon={hideBalances ? 'eye-off-outline' : 'eye-outline'}
+              accessibilityLabel={hideBalances ? 'Show balances' : 'Hide balances'}
+              haptic="selection"
+              onPress={() => {
+                togglePrivacy();
+              }}
+            />
+          </View>
         }
       />
 
@@ -492,7 +516,7 @@ export default function Cashflow() {
           icon="cube-outline"
           title="Unsold Stocks"
           subtitle={`${data.unsoldBySupplier.length} supplier${data.unsoldBySupplier.length === 1 ? '' : 's'}`}
-          total={money(fmtAutoKM(data.unsoldTotal))}
+          total={money(usd(data.unsoldTotal))}
           totalTone="warn"
         >
           {unsold.length
@@ -502,7 +526,7 @@ export default function Cashflow() {
                   first={i === 0}
                   name={r.name}
                   subtitle={`${r.items.length} line${r.items.length === 1 ? '' : 's'}`}
-                  value={money(fmtCurKM(r.cur, r.total))}
+                  value={money(moneyFull(r.cur, r.total))}
                   onPress={() => setUnsoldSheet(r)}
                 />
               ))
@@ -520,12 +544,12 @@ export default function Cashflow() {
               value: data.incoming,
             })}
 
-          <FoldSection id="cashflow.stocksPaid" icon="cube-outline" title="Stocks - Paid" subtitle={`${stocksPaid.length} warehouse${stocksPaid.length === 1 ? '' : 's'}`} total={money(fmtAutoKM(data.stocksPaidTotal))}>
+          <FoldSection id="cashflow.stocksPaid" icon="cube-outline" title="Stocks - Paid" subtitle={`${stocksPaid.length} warehouse${stocksPaid.length === 1 ? '' : 's'}`} total={money(usd(data.stocksPaidTotal))}>
             {warehouseRows(stocksPaid)}
           </FoldSection>
 
           {data.stocksUnpaid.length > 0 && (
-            <FoldSection id="cashflow.stocksUnpaid" icon="cube-outline" title="Stocks - UnPaid" subtitle={`${stocksUnpaid.length} warehouse${stocksUnpaid.length === 1 ? '' : 's'}`} total={money(fmtAutoKM(data.stocksUnpaidTotal))} totalTone="warn">
+            <FoldSection id="cashflow.stocksUnpaid" icon="cube-outline" title="Stocks - UnPaid" subtitle={`${stocksUnpaid.length} warehouse${stocksUnpaid.length === 1 ? '' : 's'}`} total={money(usd(data.stocksUnpaidTotal))} totalTone="warn">
               {warehouseRows(stocksUnpaid)}
             </FoldSection>
           )}
@@ -533,7 +557,7 @@ export default function Cashflow() {
           {/* Web page.js:1604 — informational: the joint pool has no purchase
               invoices, so it joins none of the totals. Opens the Shared tab. */}
           {shared.rows.length > 0 && sharedMatches && (
-            <FoldSection id="cashflow.shared" defaultOpen icon="layers-outline" title="Shared Stock (IMS + GIS)" total={money(curLine(shared.money.totals))}>
+            <FoldSection id="cashflow.shared" defaultOpen icon="layers-outline" title="Shared Stock (IMS + GIS)" total={money(moneyLines(shared.money.totals))}>
               <EntityRow
                 first
                 avatar={false}
@@ -549,10 +573,10 @@ export default function Cashflow() {
             icon="people-outline"
             title="Clients - Payment"
             subtitle="No payment recorded yet"
-            total={money(curLine(sumCur(data.clientsNoPayment)))}
+            total={money(moneyLines(sumCur(data.clientsNoPayment)))}
             totalTone="positive"
           >
-            {counterpartyRows(clientsNoPay, 'client', (r) => curLine(r.byCur), 'invoice')}
+            {counterpartyRows(clientsNoPay, 'client', (r) => moneyLines(r.byCur), 'invoice')}
           </FoldSection>
 
           <FoldSection
@@ -560,10 +584,10 @@ export default function Cashflow() {
             icon="people-outline"
             title="Clients - Balances"
             subtitle="Partly paid — balance remaining"
-            total={money(curLine(sumCur(data.clientsWithBalance)))}
+            total={money(moneyLines(sumCur(data.clientsWithBalance)))}
             totalTone="positive"
           >
-            {counterpartyRows(clientsBal, 'client', (r) => curLine(r.byCur), 'invoice')}
+            {counterpartyRows(clientsBal, 'client', (r) => moneyLines(r.byCur), 'invoice')}
           </FoldSection>
 
           {isAdmin && manualSection('financedLeft', 'cash-outline')}
@@ -573,10 +597,10 @@ export default function Cashflow() {
             icon="business-outline"
             title="Supplier - Payment"
             subtitle="Nothing paid yet"
-            total={money(fmtAutoKM(data.suppliersNoPayment.reduce((s, r) => s + r.usd, 0)))}
+            total={money(usd(data.suppliersNoPayment.reduce((s, r) => s + r.usd, 0)))}
             totalTone="negative"
           >
-            {counterpartyRows(suppliersNoPay, 'supplier', (r) => fmtAutoKM(r.usd), 'invoice')}
+            {counterpartyRows(suppliersNoPay, 'supplier', (r) => usd(r.usd), 'invoice')}
           </FoldSection>
 
           <FoldSection
@@ -584,14 +608,14 @@ export default function Cashflow() {
             icon="business-outline"
             title="Supplier - Balances"
             subtitle="Partly paid — balance remaining"
-            total={money(fmtAutoKM(data.suppliersWithBalance.reduce((s, r) => s + r.usd, 0)))}
+            total={money(usd(data.suppliersWithBalance.reduce((s, r) => s + r.usd, 0)))}
             totalTone="negative"
           >
-            {counterpartyRows(suppliersBal, 'supplier', (r) => fmtAutoKM(r.usd), 'invoice')}
+            {counterpartyRows(suppliersBal, 'supplier', (r) => usd(r.usd), 'invoice')}
           </FoldSection>
 
-          <FoldSection id="cashflow.expenses" icon="receipt-outline" title="Expenses" subtitle="Unpaid" total={money(fmtAutoKM(data.expensesUsd))} totalTone="negative">
-            {counterpartyRows(expenses, 'expense', (r) => fmtAutoKM(r.usd), 'expense')}
+          <FoldSection id="cashflow.expenses" icon="receipt-outline" title="Expenses" subtitle="Unpaid" total={money(usd(data.expensesUsd))} totalTone="negative">
+            {counterpartyRows(expenses, 'expense', (r) => usd(r.usd), 'expense')}
           </FoldSection>
 
           {isAdmin && manualSection('financedRight', 'cash-outline')}
@@ -625,7 +649,7 @@ export default function Cashflow() {
                       color={t.filled ? colors.primaryText : colors.text}
                       style={{ marginTop: 3 }}
                     >
-                      {money(fmtAutoKM(t.value))}
+                      {money(usd(t.value))}
                     </Text>
                   </View>
                 ))}
@@ -644,18 +668,18 @@ export default function Cashflow() {
 
               {showBreakdown && (
                 <View style={{ marginTop: 8 }}>
-                  <Line label="Future (margins)" v={money(fmtAutoKM(data.incoming))} />
-                  <Line label="Opening entries" v={money(fmtAutoKM(data.manual.initial))} />
-                  <Line label="Stocks paid" v={money(fmtAutoKM(data.stocksPaidTotal))} />
-                  <Line label="Stocks unpaid" v={money(fmtAutoKM(data.stocksUnpaidTotal))} />
-                  <Line label="Client receivables" v={money(fmtAutoKM(data.kpi.clientsDue))} />
-                  <Line label="Financing (left)" v={money(fmtAutoKM(data.manual.financedLeft))} />
-                  <Line label="Total (Left)" v={money(fmtAutoKM(data.totalLeft))} strong />
+                  <Line label="Future (margins)" v={money(usd(data.incoming))} />
+                  <Line label="Opening entries" v={money(usd(data.manual.initial))} />
+                  <Line label="Stocks paid" v={money(usd(data.stocksPaidTotal))} />
+                  <Line label="Stocks unpaid" v={money(usd(data.stocksUnpaidTotal))} />
+                  <Line label="Client receivables" v={money(usd(data.kpi.clientsDue))} />
+                  <Line label="Financing (left)" v={money(usd(data.manual.financedLeft))} />
+                  <Line label="Total (Left)" v={money(usd(data.totalLeft))} strong />
                   <View style={{ height: 8 }} />
-                  <Line label="Supplier payables" v={money(fmtAutoKM(data.payablesUsd))} />
-                  <Line label="Unpaid expenses" v={money(fmtAutoKM(data.expensesUsd))} />
-                  <Line label="Financing (right)" v={money(fmtAutoKM(data.manual.financedRight))} />
-                  <Line label="Total (Right)" v={money(fmtAutoKM(data.totalRight))} strong />
+                  <Line label="Supplier payables" v={money(usd(data.payablesUsd))} />
+                  <Line label="Unpaid expenses" v={money(usd(data.expensesUsd))} />
+                  <Line label="Financing (right)" v={money(usd(data.manual.financedRight))} />
+                  <Line label="Total (Right)" v={money(usd(data.totalRight))} strong />
                 </View>
               )}
 
@@ -699,7 +723,7 @@ export default function Cashflow() {
             <View style={{ gap: 4 }}>
               {(() => {
                 const items = detail.cp.items;
-                if (detail.kind === 'expense') return <SheetTotal label="Total amount" v={money(curLine(itemsByCur(items, 'amount')))} strong />;
+                if (detail.kind === 'expense') return <SheetTotal label="Total amount" v={money(moneyLines(itemsByCur(items, 'amount')))} strong />;
                 // Web FooterRows: the held invoices on a faded "Pending (n)" line, then the
                 // active total — the only one that counts.
                 const active = items.filter((x: any) => !isHeld(x));
@@ -713,12 +737,12 @@ export default function Cashflow() {
                   <>
                     {pending.length > 0 && (
                       <View style={{ opacity: 0.72 }}>
-                        <SheetTotal label={`Pending (${pending.length})`} v={money(curLine(itemsByCur(pending, 'balance')))} />
+                        <SheetTotal label={`Pending (${pending.length})`} v={money(moneyLines(itemsByCur(pending, 'balance')))} />
                       </View>
                     )}
-                    <SheetTotal label="Total value" v={money(curLine(value(active)))} />
-                    <SheetTotal label="Total paid" v={money(curLine(itemsByCur(active, 'paid')))} />
-                    <SheetTotal label={`Total balance (${active.length})`} v={money(curLine(itemsByCur(active, 'balance')))} strong />
+                    <SheetTotal label="Total value" v={money(moneyLines(value(active)))} />
+                    <SheetTotal label="Total paid" v={money(moneyLines(itemsByCur(active, 'paid')))} />
+                    <SheetTotal label={`Total balance (${active.length})`} v={money(moneyLines(itemsByCur(active, 'balance')))} strong />
                   </>
                 );
               })()}
@@ -769,33 +793,7 @@ export default function Cashflow() {
                     </Text>
                   )}
                   {!isExp && (
-                    <Pressable
-                      haptic="selection"
-                      onPress={() => setPending(item, !onHold)}
-                      hitSlop={6}
-                      accessibilityRole="switch"
-                      accessibilityState={{ checked: onHold }}
-                      accessibilityLabel={onHold ? 'Pending — tap to release' : 'Put this invoice on hold'}
-                      style={{
-                        alignSelf: 'flex-start',
-                        flexDirection: 'row',
-                        alignItems: 'center',
-                        gap: 5,
-                        height: 26,
-                        paddingHorizontal: 9,
-                        marginTop: 6,
-                        borderRadius: 999,
-                        borderWidth: 1,
-                        borderStyle: onHold ? 'solid' : 'dashed',
-                        borderColor: colors.borderStrong,
-                        backgroundColor: onHold ? colors.surfaceAlt : 'transparent',
-                      }}
-                    >
-                      {onHold && <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: colors.textMuted }} />}
-                      <Text variant={onHold ? 'captionStrong' : 'caption'} style={{ color: onHold ? colors.textMuted : colors.textFaint }}>
-                        {onHold ? 'Pending' : 'Set pending'}
-                      </Text>
-                    </Pressable>
+                    <PendingToggle on={onHold} onPress={() => setPending(item, !onHold)} what="invoice" />
                   )}
                   {prepay ? (
                     <Text variant="caption" tone="primary" numberOfLines={1}>
@@ -859,26 +857,43 @@ export default function Cashflow() {
                   on a faded line of their own above the total that counts. */}
               {stockSheet.row.pendingCount > 0 && (
                 <View style={{ opacity: 0.72 }}>
-                  <SheetTotal label={`Pending (${stockSheet.row.pendingCount})`} v={money(fmtAutoKM(stockSheet.row.pendingTotal))} />
+                  <SheetTotal label={`Pending (${stockSheet.row.pendingCount})`} v={money(usd(stockSheet.row.pendingTotal))} />
                 </View>
               )}
-              <SheetTotal label="Total" v={money(fmtAutoKM(stockSheet.row.total))} strong />
+              <SheetTotal label="Total" v={money(usd(stockSheet.row.total))} strong />
             </View>
           ) : undefined
         }
       >
-        {(stockSheet?.row.items || []).map((l, i) => (
-          <View key={`${l.id}-${i}`} style={{ opacity: l.pending ? 0.72 : 1 }}>
-            <DetailLine
-              first={i === 0}
-              title={`PO ${l.order || '—'}`}
-              lines={[l.description, l.supplierName, `${qty(l.qnty)} × ${full(l.cur, l.unitPrc)}`, l.pending ? 'Pending — invoice on hold' : ''].filter(Boolean)}
-              draft={draftChipFor(data?.draftMaterials, l.draftKeys)}
-              value={money(full(l.cur, l.total))}
-            />
-          </View>
-        ))}
+        {(stockSheet?.row.items || []).map((l, i) => {
+          const held = stockHeld[l.id] ?? !!l.pending;
+          return (
+            <View key={`${l.id}-${i}`} style={{ opacity: held ? 0.72 : 1 }}>
+              <DetailLine
+                first={i === 0}
+                title={`PO ${l.order || '—'}`}
+                lines={[l.description, l.supplierName, `${qty(l.qnty)} × ${full(l.cur, l.unitPrc)}`, held ? 'Pending — invoice on hold' : ''].filter(Boolean)}
+                draft={draftChipFor(data?.draftMaterials, l.draftKeys)}
+                value={money(full(l.cur, l.total))}
+              />
+              {/* Web a074b342: hold a stock line from Stocks - UnPaid itself. */}
+              {l.holds?.length ? (
+                <View style={{ paddingBottom: 8 }}>
+                  <PendingToggle on={held} onPress={() => setStockPending(l, !held)} what="stock line" />
+                </View>
+              ) : null}
+            </View>
+          );
+        })}
       </Sheet>
+
+      <CashflowReportSheet
+        visible={reportOpen}
+        onClose={() => setReportOpen(false)}
+        report={report}
+        company={String((compData as any)?.name || '')}
+        money={money}
+      />
 
       {/* ── Unsold supplier sheet (web StocksUnSold) ── */}
       <Sheet
@@ -886,7 +901,7 @@ export default function Cashflow() {
         onClose={() => setUnsoldSheet(null)}
         title={unsoldSheet?.name}
         subtitle={unsoldSheet ? `${unsoldSheet.items.length} line${unsoldSheet.items.length === 1 ? '' : 's'} unsold` : undefined}
-        footer={unsoldSheet ? <SheetTotal label="Total" v={money(fmtCurKM(unsoldSheet.cur, unsoldSheet.total))} strong /> : undefined}
+        footer={unsoldSheet ? <SheetTotal label="Total" v={money(moneyFull(unsoldSheet.cur, unsoldSheet.total))} strong /> : undefined}
       >
         {(unsoldSheet?.items || []).map((l, i) => (
           <DetailLine
@@ -1003,6 +1018,41 @@ function Line({ label, v, strong }: { label: string; v: string; strong?: boolean
   );
 }
 
+/* Pending — a payment on hold (web PendingToggle). One tap holds, one releases. Deliberately
+   no warning colour — the client asked for the existing palette at reduced strength. */
+function PendingToggle({ on, onPress, what }: { on: boolean; onPress: () => void; what: string }) {
+  const { colors } = useTheme();
+  return (
+    <Pressable
+      haptic="selection"
+      onPress={onPress}
+      hitSlop={6}
+      accessibilityRole="switch"
+      accessibilityState={{ checked: on }}
+      accessibilityLabel={on ? 'Pending — tap to release' : `Put this ${what} on hold`}
+      style={{
+        alignSelf: 'flex-start',
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 5,
+        height: 26,
+        paddingHorizontal: 9,
+        marginTop: 6,
+        borderRadius: 999,
+        borderWidth: 1,
+        borderStyle: on ? 'solid' : 'dashed',
+        borderColor: colors.borderStrong,
+        backgroundColor: on ? colors.surfaceAlt : 'transparent',
+      }}
+    >
+      {on && <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: colors.textMuted }} />}
+      <Text variant={on ? 'captionStrong' : 'caption'} style={{ color: on ? colors.textMuted : colors.textFaint }}>
+        {on ? 'Pending' : 'Set pending'}
+      </Text>
+    </Pressable>
+  );
+}
+
 /** A total line pinned in a sheet's footer. */
 function SheetTotal({ label, v, strong }: { label: string; v: string; strong?: boolean }) {
   return (
@@ -1010,7 +1060,8 @@ function SheetTotal({ label, v, strong }: { label: string; v: string; strong?: b
       <Text variant={strong ? 'bodyStrong' : 'body'} tone={strong ? 'default' : 'muted'}>
         {label}
       </Text>
-      <Text variant={strong ? 'bodyStrong' : 'bodyMedium'}>
+      {/* One line per currency when a total spans several (lib/format moneyLines). */}
+      <Text variant={strong ? 'bodyStrong' : 'bodyMedium'} style={{ textAlign: 'right' }}>
         {v}
       </Text>
     </View>

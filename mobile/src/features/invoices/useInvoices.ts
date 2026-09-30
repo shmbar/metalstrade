@@ -41,6 +41,9 @@ export interface InvoiceView {
   finalized: boolean;
   issued: boolean;
   status: 'Paid' | 'Partial' | 'Unpaid';
+  /** Everything the list shows, as it shows it — web label-aware search (3cfd4e78): the
+   *  number as written ("0098CN", "1354FN"), the PO, amounts, status and both date forms. */
+  searchText: string;
   raw: Invoice;
 }
 
@@ -73,6 +76,16 @@ export function deriveInvoice(inv: Invoice, settings: any): InvoiceView {
     finalized: isFinalized(inv),
     issued: isIssued(inv),
     status,
+    searchText: [
+      String(inv.invoice ?? '').padStart(4, '0') + (inv.invType === '3333' ? 'FN' : inv.invType === '2222' ? 'CN' : ''),
+      (inv as any).poSupplier?.order,
+      moneyFull(cur, total),
+      moneyFull(cur, balance),
+      status,
+      isFinalized(inv) ? 'Final' : '',
+      resolveInvoiceDate(inv),
+      (resolveInvoiceDate(inv) || '').split('-').reverse().join('.'),
+    ].filter(Boolean).join(' '),
     raw: inv,
   };
 }

@@ -50,11 +50,13 @@ describe('mobile design guard', () => {
     expect(direct).toEqual([]);
   });
 
-  it('primary and danger buttons tick on touch-down; secondary buttons stay silent', () => {
-    // Client, 2026-09-24: "haptic feels slow". A Save's only feedback used to be the success
-    // pulse after the server answered. The press itself is now acknowledged at once.
+  it('every button ticks on touch-down — firmer for primary/danger, light for the rest', () => {
+    // Client, 2026-09-24: "haptic feels slow" (a Save only buzzed when the server answered);
+    // 2026-09-30: "buttons sometimes have no haptic". Both live in the components, not screens.
     const button = fs.readFileSync(path.join(ROOT, 'src/components/ui/Button.tsx'), 'utf8');
-    expect(button).toContain("haptic={variant === 'primary' || variant === 'danger' ? 'impact' : undefined}");
+    expect(button).toContain("haptic={variant === 'primary' || variant === 'danger' ? 'impact' : 'selection'}");
+    const iconButton = fs.readFileSync(path.join(ROOT, 'src/components/ui/IconButton.tsx'), 'utf8');
+    expect(iconButton).toMatch(/haptic = 'selection'/);
   });
 
   it('selection haptics fire on touch-down, never from a tap-release handler', () => {

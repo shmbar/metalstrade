@@ -31,7 +31,8 @@ export function IconButton({
   tone = 'primary',
   size = layout.iconButton,
   disabled,
-  haptic,
+  // A light tick on touch-down, like every Button (pass 'impact' for a committing action).
+  haptic = 'selection',
 }: IconButtonProps) {
   const { colors } = useTheme();
   const primary = variant === 'primary';

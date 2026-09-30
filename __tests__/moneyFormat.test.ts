@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import fs from 'node:fs';
 import path from 'node:path';
-import { fmtAutoKM, fmtCurKM, moneyCompact, moneyFull } from '@/lib/format';
+import { fmtAutoKM, fmtCurKM, moneyCompact, moneyFull, moneyLines } from '@/lib/format';
 import * as webCurrency from '../utils/currency.js';
 
 // Client, 2026-09-24: "some cells are missing decimals and/or the $ symbol". One money format
@@ -163,5 +163,43 @@ describe('no symbol-then-number money on mobile', () => {
       if (/\{curSymbol\([^)]*\)\}\s*\r?\n\s*\{fmtMoney\(/.test(src)) offenders.push(`${rel} (split over two lines)`);
     }
     expect(offenders).toEqual([]);
+  });
+});
+
+describe('exact totals (client, 2026-09-30)', () => {
+  const ROOT = path.resolve(__dirname, '../mobile');
+  const files: string[] = [];
+  const walk = (d: string) => {
+    for (const e of fs.readdirSync(d, { withFileTypes: true })) {
+      const p = path.join(d, e.name);
+      if (e.isDirectory()) walk(p);
+      else if (/\.tsx?$/.test(e.name)) files.push(p);
+    }
+  };
+  walk(path.join(ROOT, 'app'));
+  walk(path.join(ROOT, 'src'));
+  // Where the compact form ($375.59K) is allowed: the Dashboard, whose web twin uses it on its
+  // tiles, and the briefing's running text. Everywhere else a total is a balance someone pays
+  // against, and web shows it in full.
+  const COMPACT_OK = (rel: string) =>
+    rel === 'app/(app)/index.tsx' || rel.startsWith('src/features/dashboard/') || rel.startsWith('src/features/briefing/') ||
+    rel === 'src/lib/format.ts' || rel.startsWith('src/shared/');
+
+  it('no compact money outside the Dashboard', () => {
+    const offenders: string[] = [];
+    for (const f of files) {
+      const rel = path.relative(ROOT, f).split(path.sep).join('/');
+      if (COMPACT_OK(rel)) continue;
+      fs.readFileSync(f, 'utf8').split(/\r?\n/).forEach((line, i) => {
+        if (/\b(fmtAutoKM|fmtCurKM|moneyCompact)\(/.test(line)) offenders.push(`${rel}:${i + 1}`);
+      });
+    }
+    expect(offenders).toEqual([]);
+  });
+
+  it('moneyLines gives one exact line per currency', () => {
+    expect(moneyLines({ us: 375590.12, eu: 240112.3 })).toBe('$375,590.12\n€240,112.30');
+    expect(moneyLines({ us: 0.001 })).toBe('$0.00');
+    expect(moneyLines({ eu: -12 })).toBe('-€12.00');
   });
 });

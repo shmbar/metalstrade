@@ -9,7 +9,7 @@ import { useTheme } from '@/theme/ThemeProvider';
 import { useSettings } from '@/store/settings';
 import { useInvoices, deriveInvoice, InvoiceView } from '@/features/invoices/useInvoices';
 import { InvoiceCard } from '@/features/invoices/InvoiceCard';
-import { fmtCurKM } from '@/lib/format';
+import { moneyFull } from '@/lib/format';
 import { LIST_END_PADDING } from '@/theme/tokens';
 import { exportCsv } from '@/lib/export';
 import { SwipeRow } from '@/components/SwipeRow';
@@ -52,7 +52,7 @@ export default function InvoicesList() {
       if (filter === 'Unpaid' && v.status !== 'Unpaid') return false;
       if (filter === 'Partial' && v.status !== 'Partial') return false;
       if (filter === 'Paid' && v.status !== 'Paid') return false;
-      return matchesAllWords([v.number, v.clientName, v.status, v.dateIso, v.totalLabel], words);
+      return matchesAllWords([v.number, v.clientName, v.searchText], words);
     });
     if (sort === 'total') return [...list].sort((a, b) => b.total - a.total);
     if (sort === 'balance') return [...list].sort((a, b) => b.balance - a.balance);
@@ -119,7 +119,7 @@ export default function InvoicesList() {
         {Object.keys(outstanding).length > 0 && (
           <Text variant="captionStrong" tone="negative" style={{ flexShrink: 1 }} numberOfLines={1}>
             {Object.entries(outstanding)
-              .map(([c, v]) => fmtCurKM(c, v))
+              .map(([c, v]) => moneyFull(c, v))
               .join('  ')}{' '}
             due
           </Text>

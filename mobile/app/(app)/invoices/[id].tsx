@@ -18,7 +18,7 @@ import { apiConfigured } from '@/lib/api';
 import { exportPdf } from '@/lib/export';
 import { invoiceHtml } from '@/lib/pdfTemplates';
 import { num } from '@shared/finance';
-import { curSymbol, fmtMoney, fmtCurKM, dateLabel } from '@/lib/format';
+import { curSymbol, fmtMoney, dateLabel, moneyFull } from '@/lib/format';
 import { spacing, layout } from '@/theme/tokens';
 import { toast } from '@/store/toast';
 import { CommentsSheet } from '@/components/CommentsSheet';
@@ -203,7 +203,7 @@ export default function InvoiceDetail() {
         <Card style={{ flex: 1 }}>
           <Text variant="label" tone="muted">Total</Text>
           <Text variant="stat" style={{ marginTop: 4 }} numberOfLines={1} adjustsFontSizeToFit>
-            {fmtCurKM(view.cur, view.total)}
+            {moneyFull(view.cur, view.total)}
           </Text>
           <Text variant="caption" tone="faint" numberOfLines={1} style={{ fontVariant: ['tabular-nums'] }}>
             {view.totalLabel}
@@ -212,7 +212,7 @@ export default function InvoiceDetail() {
         <Card style={{ flex: 1 }}>
           <Text variant="label" tone="muted">Paid</Text>
           <Text variant="stat" tone="positive" style={{ marginTop: 4 }} numberOfLines={1} adjustsFontSizeToFit>
-            {fmtCurKM(view.cur, view.paid)}
+            {moneyFull(view.cur, view.paid)}
           </Text>
           <Text variant="caption" tone="faint" numberOfLines={1} style={{ fontVariant: ['tabular-nums'] }}>
             {sym}{fmtMoney(view.paid)}
@@ -224,7 +224,7 @@ export default function InvoiceDetail() {
               shown separately below so the two are never confused. */}
           <Text variant="label" tone="muted">Outstanding</Text>
           <Text variant="stat" tone={view.balance > 0.01 ? 'negative' : 'positive'} style={{ marginTop: 6 }} adjustsFontSizeToFit numberOfLines={1}>
-            {fmtCurKM(view.cur, view.balance)}
+            {moneyFull(view.cur, view.balance)}
           </Text>
           <Text variant="caption" tone="faint" numberOfLines={1} style={{ fontVariant: ['tabular-nums'] }}>
             {view.balanceLabel}

@@ -90,6 +90,7 @@ export default function ContractFiles() {
                     tone="danger"
                     size={36}
                     accessibilityLabel={`Delete ${f.name}`}
+                    disabled={del.isPending}
                     onPress={() => Alert.alert('Delete file?', f.name, [{ text: 'Cancel', style: 'cancel' }, { text: 'Delete', style: 'destructive', onPress: () => del.mutate(f.name) }])}
                   />
                 )}

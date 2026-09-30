@@ -41,6 +41,9 @@ export interface StockLotRow {
   draftKeys: string[];
   /** Stocks - UnPaid only: every unpaid purchase invoice behind it is on hold (web Pending). */
   pending?: boolean;
+  /** Stocks - UnPaid only: the unpaid purchase invoices behind the row — what a hold from the
+   *  stock line writes (web saveSupplierPending(invs[]), a074b342). */
+  holds?: { contractId: string; contractDate: string; poInvoiceId: string }[];
 }
 
 export interface StockWarehouseRow {
@@ -235,21 +238,27 @@ function splitStocksPaidUnpaid(inventoryRows: any[], contractsData: any[], setti
   const unpaid: any[] = [];
 
   const holdable = new Map<string, boolean>();
+  const holdMeta = new Map<string, { contractId: string; contractDate: string; poInvoiceId: string }>();
   holdContracts.forEach((con: any) => {
     (con.poInvoices || []).forEach((inv: any) => {
       if (inv.draft || Math.abs(parseFloat(inv.blnc) || 0) <= 0.011) return;
       if ((parseFloat(inv.pmnt) || 0) !== 0) return;
       holdable.set(`${con.id}|${inv.id}`, !!con.pendingInvoices?.[inv.id]);
+      holdMeta.set(`${con.id}|${inv.id}`, { contractId: con.id, contractDate: con.dateRange?.startDate || con.date || '', poInvoiceId: inv.id });
     });
   });
-  const isHeld = (row: any) => {
+  const holdKeysOf = (row: any): string[] => {
     const keys = new Set<string>();
     for (const lot of row.data || []) {
       if (lot.type === 'out' || !lot.poInvoice) continue;
       const key = `${lot.contractData?.id}|${lot.poInvoice}`;
       if (holdable.has(key)) keys.add(key);
     }
-    return keys.size > 0 && [...keys].every((k) => holdable.get(k));
+    return [...keys];
+  };
+  const isHeld = (row: any) => {
+    const keys = holdKeysOf(row);
+    return keys.length > 0 && keys.every((k) => holdable.get(k));
   };
 
   inventoryRows.forEach((row) => {
@@ -279,7 +288,7 @@ function splitStocksPaidUnpaid(inventoryRows: any[], contractsData: any[], setti
     }
     // A row can hold paid and unpaid lots of the same alloy; carry the unpaid share
     // so its total is not read as all owed (web UnpaidShareBadge).
-    const base = paidQty > 0 ? { ...row, _unpaidVal: unpaidVal, _partlyPaid: true } : row;
+    const base = { ...(paidQty > 0 ? { ...row, _unpaidVal: unpaidVal, _partlyPaid: true } : row), _holdKeys: holdKeysOf(row) };
     unpaid.push(isHeld(row) ? { ...base, _held: true } : base);
   });
 
@@ -303,6 +312,7 @@ function splitStocksPaidUnpaid(inventoryRows: any[], contractsData: any[], setti
       m[k].count += 1;
       m[k].items.push({
         ...(r._held ? { pending: true } : {}),
+        ...(r._holdKeys?.length ? { holds: r._holdKeys.map((k: string) => holdMeta.get(k)).filter(Boolean) } : {}),
         id: String(r.id ?? ''),
         order: r.order || '',
         supplierName: r.supplier && r.supplier !== '-' ? supName(r.supplier) : '',
@@ -628,6 +638,8 @@ export function computeCashflow(input: CashflowInputs): CashflowData {
         contractDate: con.dateRange?.startDate || con.date || '',
         poInvoiceId: inv.id,
         inv: inv.inv,
+        // The balance in USD (contract rate) — the report sums held payables with it.
+        usd,
         order: con.order || '',
         invValue: num(inv.invValue),
         paid: num(inv.pmnt),

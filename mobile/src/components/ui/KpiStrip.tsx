@@ -18,7 +18,9 @@ export interface KpiItem {
   onPress?: () => void;
 }
 
-const TILE_W = 148;
+// Wide enough for an exact figure ("$32,481,234.12") at a readable size; two tiles and a
+// peek of the third still fit a phone.
+const TILE_W = 176;
 const GAP = 8;
 
 /**

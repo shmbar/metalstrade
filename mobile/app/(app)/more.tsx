@@ -4,7 +4,8 @@ import { Pressable } from '@/components/ui/Pressable';
 import { router } from 'expo-router';
 import Constants from 'expo-constants';
 import { Ionicons } from '@expo/vector-icons';
-import { Screen, Card, Text, Badge, Button, SectionHeader, EmptyState, SearchField, Chip, SegmentedControl } from '@/components/ui';
+import { Screen, Card, Text, Badge, Button, SectionHeader, EmptyState, SearchField, Chip, SegmentedControl, CountBadge } from '@/components/ui';
+import { useUnreadNotificationCount } from '@/features/push/useNotificationFeed';
 import { ScreenHeader } from '@/components/ScreenHeader';
 import { useTheme } from '@/theme/ThemeProvider';
 import { useAuth, isTradingWorkspace, TRADING_WORKSPACES, workspaceName } from '@/store/auth';
@@ -76,7 +77,7 @@ const GROUPS: { group: string; items: NavItem[] }[] = [
   },
 ];
 
-function NavRow({ item, first, isAdmin }: { item: NavItem; first: boolean; isAdmin: boolean }) {
+function NavRow({ item, first, isAdmin, count }: { item: NavItem; first: boolean; isAdmin: boolean; count?: number }) {
   const { colors } = useTheme();
   return (
     <Pressable
@@ -91,6 +92,7 @@ function NavRow({ item, first, isAdmin }: { item: NavItem; first: boolean; isAdm
         <Text variant="caption" tone="muted" numberOfLines={1}>{item.sub}</Text>
       </View>
       {item.admin && isAdmin && <Badge label="Admin" tone="info" />}
+      <CountBadge count={count || 0} />
       <Ionicons name="chevron-forward" size={16} color={colors.textFaint} style={item.admin ? { marginLeft: 8 } : undefined} />
     </Pressable>
   );
@@ -107,6 +109,7 @@ export default function More() {
   // IMS ↔ GIS — web's header switcher. Only for a member of one of the two companies; the
   // review / demo account has nothing to switch to (store/auth switchWorkspace).
   const canSwitch = isTradingWorkspace(homeWorkspace);
+  const unreadCount = useUnreadNotificationCount();
   const [query, setQuery] = useState('');
 
   const themeOptions: { key: 'light' | 'dark' | 'system'; icon: keyof typeof Ionicons.glyphMap }[] = [
@@ -284,7 +287,7 @@ export default function More() {
             </Text>
             <Card padded={false}>
               {g.items.map((it, i) => (
-                <NavRow key={it.href} item={it} first={i === 0} isAdmin={isAdmin} />
+                <NavRow key={it.href} item={it} first={i === 0} isAdmin={isAdmin} count={it.href === '/(app)/notifications' ? unreadCount : undefined} />
               ))}
             </Card>
           </View>

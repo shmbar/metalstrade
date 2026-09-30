@@ -12,7 +12,7 @@ import { useContracts, deriveContract, ownProducts } from '@/features/contracts/
 import { useDuplicateContract } from '@/features/contracts/useDuplicateContract';
 import { Invoice } from '@/data/types';
 import { groupInvoices, invoiceBalance, num, resolveCur, isFinalized } from '@shared/finance';
-import { curSymbol, fmtMoney, fmtCurKM, moneyFull } from '@/lib/format';
+import { curSymbol, fmtMoney, moneyFull } from '@/lib/format';
 import { exportPdf } from '@/lib/export';
 import { contractPoHtml } from '@/lib/pdfTemplates';
 import { annexViiHtml, isfHtml } from '@/lib/customsDocs';
@@ -152,7 +152,7 @@ export default function ContractDetail() {
             Purchase Value
           </Text>
           <Text variant="stat" tone="primary" style={{ marginTop: 4 }} numberOfLines={1} adjustsFontSizeToFit>
-            {fmtCurKM(v.currency, v.totalValue)}
+            {moneyFull(v.currency, v.totalValue)}
           </Text>
           <Text variant="caption" tone="faint" numberOfLines={1} style={{ fontVariant: ['tabular-nums'] }}>
             {v.valueLabel}

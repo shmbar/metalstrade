@@ -100,7 +100,9 @@ export function SectionCard({
         </View>
         {right}
         {total != null ? (
-          <Text variant="h3" numberOfLines={1} style={{ color: toneColor(totalTone) }}>
+          // Exact amounts (lib/format moneyLines): never cut off with "…" — the title gives
+          // way instead — and one line per currency.
+          <Text variant="h3" numberOfLines={String(total).split('\n').length} style={{ color: toneColor(totalTone), textAlign: 'right', flexShrink: 0 }}>
             {total}
           </Text>
         ) : null}
@@ -173,8 +175,8 @@ export function EntityRow({
       {value != null ? (
         <Text
           variant="bodyMedium"
-          numberOfLines={1}
-          style={{ color: toneColor(valueTone), fontVariant: ['tabular-nums'] }}
+          numberOfLines={String(value).split('\n').length}
+          style={{ color: toneColor(valueTone), fontVariant: ['tabular-nums'], textAlign: 'right', flexShrink: 0 }}
         >
           {value}
         </Text>

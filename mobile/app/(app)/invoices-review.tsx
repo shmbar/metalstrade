@@ -8,7 +8,7 @@ import { PeriodSelector } from '@/components/PeriodSelector';
 import { useTheme } from '@/theme/ThemeProvider';
 import { InvoiceCard } from '@/features/invoices/InvoiceCard';
 import { useInvoicesReview, PartyStatement } from '@/features/review/useInvoicesReview';
-import { fmtCurKM } from '@/lib/format';
+import { moneyFull } from '@/lib/format';
 import { StackHeader } from '@/components/StackHeader';
 import { matchesAllWords, searchWords } from '@shared/search';
 import { LIST_END_PADDING, layout } from '@/theme/tokens';
@@ -16,7 +16,8 @@ import { keyboardScrollProps } from '@/lib/keyboard';
 
 const curLine = (byCur: Record<string, number>) => {
   const ents = Object.entries(byCur).filter(([, v]) => Math.abs(v) > 0.005);
-  return ents.length ? ents.map(([c, v]) => fmtCurKM(c, v)).join('  ') : '$0';
+  // Exact, as web's Invoices Review shows them.
+  return ents.length ? ents.map(([c, v]) => moneyFull(c, v)).join('  ') : moneyFull('us', 0);
 };
 
 function PartyList({ rows, accent }: { rows: PartyStatement[]; accent: string }) {

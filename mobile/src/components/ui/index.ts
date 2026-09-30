@@ -31,3 +31,4 @@ export { ActionGrid } from './ActionGrid';
 export type { GridAction } from './ActionGrid';
 export { ChipRow, ChipDivider } from './ChipRow';
 export { KeyboardFooter } from './KeyboardFooter';
+export { CountBadge } from './CountBadge';

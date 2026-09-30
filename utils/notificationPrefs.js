@@ -120,3 +120,24 @@ export const shouldDeliverPush = (prefsByUser, device, category) => {
     );
     return isCategoryEnabled(mine, category);
 };
+
+/** Every category on or off at once — the "All notifications" switch (web and mobile). */
+export const allCategories = (on) => Object.fromEntries(CATEGORY_KEYS.map((k) => [k, !!on]));
+
+/** How many categories are on — "7 of 9 on". */
+export const enabledCategoryCount = (prefs) => CATEGORY_KEYS.filter((k) => isCategoryEnabled(prefs, k)).length;
+
+/**
+ * The unread notifications this person would actually see — the badge count. Same filters
+ * as the list: meant for them (audience), not snoozed right now, in a category they left on,
+ * and not yet read by them.
+ */
+export const unreadCountFor = (list, uid, prefs, now = Date.now()) =>
+    (list || []).filter((n) => {
+        if (!n) return false;
+        if (Array.isArray(n.audience) && uid && !n.audience.includes(uid)) return false;
+        const until = n.snoozedBy?.[uid];
+        if (until && until > now) return false;
+        if (!isNotificationEnabled(prefs, n)) return false;
+        return !(n.readBy || []).includes(uid);
+    }).length;

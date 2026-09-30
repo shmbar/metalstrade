@@ -7,6 +7,7 @@ import {
   normalizeNotificationPrefs,
   notificationPrefsPath,
   NotificationPrefs,
+  allCategories,
 } from '@shared/notificationPrefs';
 
 /*
@@ -59,13 +60,15 @@ export function useNotificationPrefs() {
   const loaded = useNotificationPrefsStore((s) => s.loaded);
   const [saving, setSaving] = useState<string | null>(null);
 
-  const setCategoryEnabled = useCallback(
-    async (key: string, on: boolean) => {
+  /* One write path for every switch. The change shows at once and the live snapshot confirms
+     it; a failed write puts the previous choices back, so the screen never shows a setting
+     that was not saved (it used to keep the flipped switch). */
+  const write = useCallback(
+    async (categories: Record<string, boolean>, savingKey: string) => {
       if (!uidCollection || !user?.uid) return false;
-      const categories = { ...useNotificationPrefsStore.getState().prefs.categories, [key]: on };
-      // Show the change at once; the live snapshot confirms it.
+      const before = useNotificationPrefsStore.getState().prefs.categories;
       useNotificationPrefsStore.getState().set({ categories });
-      setSaving(key);
+      setSaving(savingKey);
       try {
         const [a, b, c, d] = notificationPrefsPath(uidCollection, user.uid);
         await setDoc(
@@ -75,6 +78,7 @@ export function useNotificationPrefs() {
         );
         return true;
       } catch {
+        useNotificationPrefsStore.getState().set({ categories: before });
         return false;
       } finally {
         setSaving(null);
@@ -83,5 +87,12 @@ export function useNotificationPrefs() {
     [uidCollection, user]
   );
 
-  return useMemo(() => ({ prefs, loaded, saving, setCategoryEnabled }), [prefs, loaded, saving, setCategoryEnabled]);
+  const setCategoryEnabled = useCallback(
+    (key: string, on: boolean) => write({ ...useNotificationPrefsStore.getState().prefs.categories, [key]: on }, key),
+    [write]
+  );
+  /** The "All notifications" switch — every category at once (@shared/notificationPrefs). */
+  const setAllEnabled = useCallback((on: boolean) => write(allCategories(on), '*'), [write]);
+
+  return useMemo(() => ({ prefs, loaded, saving, setCategoryEnabled, setAllEnabled }), [prefs, loaded, saving, setCategoryEnabled, setAllEnabled]);
 }

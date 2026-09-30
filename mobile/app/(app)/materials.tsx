@@ -228,8 +228,9 @@ export default function Materials() {
                     <Pressable
                       onPress={() => Alert.alert('Delete table?', table.name || 'This table', [ { text: 'Cancel', style: 'cancel' }, { text: 'Delete', style: 'destructive', onPress: () => removeTable.mutate(table.id) } ])}
                       hitSlop={8}
+                      disabled={removeTable.isPending}
                     >
-                      <Text variant="caption" style={{ color: colors.negative }}>Delete table</Text>
+                      <Text variant="caption" style={{ color: colors.negative }}>{removeTable.isPending ? 'Deleting…' : 'Delete table'}</Text>
                     </Pressable>
                   </View>
                 )}

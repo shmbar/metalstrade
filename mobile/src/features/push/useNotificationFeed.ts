@@ -8,7 +8,7 @@ import {
   snoozeNotification,
 } from '@/data/writes';
 import { sortByPriority, priorityOf } from '@shared/notificationPriority';
-import { isNotificationEnabled } from '@shared/notificationPrefs';
+import { isNotificationEnabled, unreadCountFor } from '@shared/notificationPrefs';
 import { useNotificationPrefsStore } from './notificationPrefs';
 import { useShallow } from 'zustand/react/shallow';
 
@@ -123,4 +123,21 @@ export function useNotificationFeed() {
     error: query.error,
     refetch: query.refetch,
   };
+}
+
+/**
+ * Unread notifications this person would see — for the More tab badge, the Dashboard bell and
+ * the app icon. Reads the same cached list as the Notifications screen (same query key), and
+ * counts with the shared rule (@shared/notificationPrefs unreadCountFor) so the badge and the
+ * list can never disagree.
+ */
+export function useUnreadNotificationCount(): number {
+  const { uidCollection, uid } = useAuth(useShallow((s) => ({ uidCollection: s.uidCollection, uid: s.currentUser.uid })));
+  const prefs = useNotificationPrefsStore((s) => s.prefs);
+  const { data } = useQuery({
+    enabled: !!uidCollection,
+    queryKey: ['notifications', uidCollection],
+    queryFn: () => loadNotifications(uidCollection as string),
+  });
+  return useMemo(() => unreadCountFor(data || [], uid, prefs), [data, uid, prefs]);
 }

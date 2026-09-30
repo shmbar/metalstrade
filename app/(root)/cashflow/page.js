@@ -798,23 +798,6 @@ const Cashflow = () => {
 
 
 
-    const FinancedRight = (e) => {
-        setFinancedRight(removeNonNumeric(e.target.value))
-
-        let total1 = supPayments.reduce((total, obj) => {
-            return total + (parseFloat(obj.blnc) || 0);
-        }, 0) +
-            expenses.reduce((total, obj) => {
-                return total + (parseFloat(obj.amount) || 0);
-            }, 0) + removeNonNumeric(e.target.value) * 1;
-
-        setTotalRight(total1)
-
-        setToast({ show: true, text: 'Save Data!', clr: 'fail' })
-    }
-
-
-
     const handleChange = (e, year) => {
         const key = `total${year}`;
 

@@ -4,7 +4,7 @@ import { Switch } from '@headlessui/react';
 import { Bell } from 'lucide-react';
 import { useNotifications } from '@contexts/useNotificationContext';
 import { SettingsContext } from '@contexts/useSettingsContext';
-import { NOTIFICATION_CATEGORIES, OTHER_CATEGORY, isCategoryEnabled } from '@utils/notificationPrefs';
+import { CATEGORY_KEYS, NOTIFICATION_CATEGORIES, OTHER_CATEGORY, enabledCategoryCount, isCategoryEnabled } from '@utils/notificationPrefs';
 
 /*
  * Settings → Notifications. Each person chooses which kinds of notification they receive.
@@ -33,13 +33,15 @@ function Toggle({ checked, onChange, label }) {
 }
 
 const NotificationSettings = () => {
-    const { prefs, setCategoryEnabled } = useNotifications() || {};
+    const { prefs, setCategoryEnabled, setAllEnabled } = useNotifications() || {};
     const { setToast } = useContext(SettingsContext);
 
-    const change = async (key, on) => {
-        const ok = await setCategoryEnabled?.(key, on);
-        setToast?.({ show: true, text: ok === false ? 'Failed to save' : 'Data successfully saved', clr: ok === false ? 'fail' : 'success' });
-    };
+    const saved = (ok) => setToast?.({ show: true, text: ok === false ? 'Failed to save' : 'Data successfully saved', clr: ok === false ? 'fail' : 'success' });
+    const change = async (key, on) => saved(await setCategoryEnabled?.(key, on));
+    // One switch for everything, like a messaging app's settings (and the mobile screen).
+    const onCount = enabledCategoryCount(prefs);
+    const allOn = onCount === CATEGORY_KEYS.length;
+    const changeAll = async (on) => saved(await setAllEnabled?.(on));
 
     return (
         <div className='p-2 w-full max-w-2xl'>
@@ -53,6 +55,15 @@ const NotificationSettings = () => {
                 </div>
             </div>
             <div className='rounded-[var(--radius-card)] border border-[var(--line)] bg-[var(--bg-card)] shadow-card divide-y divide-[var(--line)]'>
+                <div className='flex items-center gap-3 px-3 py-2 bg-[var(--bg-subtle)]'>
+                    <div className='flex-1 min-w-0'>
+                        <p className='responsiveTextInput font-semibold text-[var(--ink)]'>All notifications</p>
+                        <p className='responsiveText text-[var(--ink-muted)]'>
+                            {allOn ? 'Every kind is on' : onCount === 0 ? 'Everything is off' : `${onCount} of ${CATEGORY_KEYS.length} kinds on`}
+                        </p>
+                    </div>
+                    <Toggle checked={allOn} onChange={changeAll} label='All notifications' />
+                </div>
                 {ROWS.map((c) => {
                     const on = isCategoryEnabled(prefs, c.key);
                     return (

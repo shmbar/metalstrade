@@ -54,7 +54,10 @@ export function Button({
   return (
     <Pressable
       onPress={onPress}
-      haptic={variant === 'primary' || variant === 'danger' ? 'impact' : undefined}
+      // Every button answers the finger on touch-down (client, 2026-09-30: "buttons sometimes
+      // have no haptic"): a firmer tap for the ones that commit something, a light tick for
+      // the rest. Rows and cards that only navigate stay silent, as in iOS itself.
+      haptic={variant === 'primary' || variant === 'danger' ? 'impact' : 'selection'}
       disabled={isDisabled}
       style={[
         {

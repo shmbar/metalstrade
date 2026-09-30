@@ -11,7 +11,7 @@ import { MonthEditor } from '@/features/margins/MonthEditor';
 import { useMargins } from '@/features/margins/useMargins';
 import { gisPurchasedDecimals, GIS_OUTSTANDING_DECIMALS } from '@/features/margins/derive';
 import { streamSse, apiConfigured } from '@/lib/api';
-import { fmtAutoKM, fmtMoney } from '@/lib/format';
+import { fmtMoney, moneyFull } from '@/lib/format';
 import { useShallow } from 'zustand/react/shallow';
 import { layout, spacing } from '@/theme/tokens';
 
@@ -85,10 +85,10 @@ export default function Margins() {
               computed it (totals.incoming, = margins remaining). */}
           <View style={{ flexDirection: 'row', gap: spacing.md }}>
             <View style={{ flex: 1 }}>
-              <StatCard label="Incoming" value={maskIfHidden(hideBalances, fmtAutoKM(totals.incoming))} accent={colors.info} sub="margins remaining" icon={<Ionicons name="arrow-down-circle" size={16} color={colors.info} />} />
+              <StatCard label="Incoming" value={maskIfHidden(hideBalances, moneyFull('us', totals.incoming))} accent={colors.info} sub="margins remaining" icon={<Ionicons name="arrow-down-circle" size={16} color={colors.info} />} />
             </View>
             <View style={{ flex: 1 }}>
-              <StatCard label="Profit" value={maskIfHidden(hideBalances, fmtAutoKM(totals.profit))} accent={colors.positive} sub="total margin $" icon={<Ionicons name="trending-up" size={16} color={colors.positive} />} />
+              <StatCard label="Profit" value={maskIfHidden(hideBalances, moneyFull('us', totals.profit))} accent={colors.positive} sub="total margin $" icon={<Ionicons name="trending-up" size={16} color={colors.positive} />} />
             </View>
           </View>
           <View style={{ flexDirection: 'row', gap: spacing.md }}>
@@ -109,7 +109,7 @@ export default function Margins() {
           {gisAccount && (
             <Card style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
               <Text variant="label" tone="muted">GIS profit</Text>
-              <Text variant="figure" tone="positive">{maskIfHidden(hideBalances, fmtAutoKM(totals.profitGIS))}</Text>
+              <Text variant="figure" tone="positive">{maskIfHidden(hideBalances, moneyFull('us', totals.profitGIS))}</Text>
               <View style={{ flexDirection: 'row', gap: spacing.md, marginTop: 8 }}>
                 <View style={{ flex: 1 }}>
                   <Text variant="caption" tone="muted">Purchased</Text>
@@ -123,7 +123,7 @@ export default function Margins() {
                 </View>
                 <View style={{ flex: 1 }}>
                   <Text variant="caption" tone="muted">Remaining</Text>
-                  <Text variant="bodyMedium" style={{ fontVariant: ['tabular-nums'] }}>{maskIfHidden(hideBalances, fmtAutoKM(totals.remainingGIS))}</Text>
+                  <Text variant="bodyMedium" style={{ fontVariant: ['tabular-nums'] }}>{maskIfHidden(hideBalances, moneyFull('us', totals.remainingGIS))}</Text>
                 </View>
               </View>
             </Card>

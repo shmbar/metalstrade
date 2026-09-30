@@ -222,8 +222,8 @@ export default function ExpenseEdit() {
         />
       )}
       {!isNew && (
-        <Pressable onPress={onDelete} style={{ alignSelf: 'center', paddingVertical: 10 }}>
-          <Text variant="bodyMedium" style={{ color: colors.negative }}>Delete expense</Text>
+        <Pressable onPress={onDelete} disabled={del.isPending} style={{ alignSelf: 'center', paddingVertical: 10 }}>
+          <Text variant="bodyMedium" style={{ color: colors.negative }}>{del.isPending ? 'Deleting…' : 'Delete expense'}</Text>
         </Pressable>
       )}
 

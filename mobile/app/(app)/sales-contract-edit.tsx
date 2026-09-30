@@ -266,8 +266,8 @@ export default function SalesContractEdit() {
 
       <Button title="Save" loading={save.isPending} onPress={onSave} />
       {!isNew && (
-        <Pressable onPress={onDelete} style={{ alignSelf: 'center', paddingVertical: 10 }}>
-          <Text variant="bodyMedium" style={{ color: colors.negative }}>Delete sales contract</Text>
+        <Pressable onPress={onDelete} disabled={del.isPending} style={{ alignSelf: 'center', paddingVertical: 10 }}>
+          <Text variant="bodyMedium" style={{ color: colors.negative }}>{del.isPending ? 'Deleting…' : 'Delete sales contract'}</Text>
         </Pressable>
       )}
     </Screen>

@@ -5,10 +5,11 @@ import { router, Redirect } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Text, Select, SkeletonList, ErrorState } from '@/components/ui';
+import { Text, Select, SkeletonList, ErrorState, CountBadge } from '@/components/ui';
 import { PeriodSelector } from '@/components/PeriodSelector';
 import { useTheme } from '@/theme/ThemeProvider';
 import { useAuth, workspaceName } from '@/store/auth';
+import { useUnreadNotificationCount } from '@/features/push/useNotificationFeed';
 import { useCollapsible } from '@/lib/collapse';
 import { useSettings } from '@/store/settings';
 import { usePrivacyStore, maskIfHidden } from '@/store/privacy';
@@ -39,6 +40,7 @@ export default function Dashboard() {
   const { currentUser, marginsLabel, canRoute, uidCollection } = useAuth(useShallow((s) => ({ currentUser: s.currentUser, marginsLabel: s.marginsLabel, canRoute: s.canRoute, uidCollection: s.uidCollection })));
   // Which company is on screen (IMS / GIS; empty elsewhere) — switched from More.
   const company = workspaceName(uidCollection);
+  const unread = useUnreadNotificationCount();
   const hideBalances = usePrivacyStore((s) => s.hidden);
   const togglePrivacy = usePrivacyStore((s) => s.toggle);
   // Scroll position drives the status-bar backdrop (fades in once the hero has
@@ -456,6 +458,17 @@ export default function Dashboard() {
               <Text variant="h2" color="#ffffff">{firstName}</Text>
             </View>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+              {/* Notifications, with the unread count — the bell every app keeps up here. */}
+              <Pressable
+                onPress={() => router.push('/(app)/notifications' as any)}
+                hitSlop={12}
+                accessibilityRole="button"
+                accessibilityLabel={unread ? `Notifications, ${unread} unread` : 'Notifications'}
+                style={{ width: layout.iconButton, height: layout.iconButton, borderRadius: layout.iconButton / 2, backgroundColor: 'rgba(255,255,255,0.16)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.22)', alignItems: 'center', justifyContent: 'center' }}
+              >
+                <Ionicons name={unread ? 'notifications' : 'notifications-outline'} size={17} color="#ffffff" />
+                <CountBadge count={unread} overlay />
+              </Pressable>
               {/* Privacy toggle — masks headline figures across the app (this
                   hero, Cashflow's Incoming/Outgoing, Margins' Profit/Incoming)
                   for a screen shared over someone's shoulder, the way every

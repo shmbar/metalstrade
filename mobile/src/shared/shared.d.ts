@@ -357,6 +357,9 @@ declare module '@shared/notificationPrefs' {
   export function notificationPrefsPath(uidCollection: string, userUid: string): [string, string, string, string];
   export const PUSH_CATEGORIES: { overdueReceivables: string };
   export function shouldDeliverPush(prefsByUser: any[], device: { userUid?: string; userEmail?: string }, category: string): boolean;
+  export function allCategories(on: boolean): Record<string, boolean>;
+  export function enabledCategoryCount(prefs: any): number;
+  export function unreadCountFor(list: any[], uid: string, prefs: any, now?: number): number;
 }
 
 declare module '@shared/currency' {

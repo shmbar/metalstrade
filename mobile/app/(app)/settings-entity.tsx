@@ -272,12 +272,19 @@ export default function SettingsEntity() {
     if (ok) setOpen(false);
   };
 
+  // Which row is being deleted — its trash button stays disabled until the write lands.
+  const [deletingId, setDeletingId] = useState<string | null>(null);
   const onDelete = (e: any) => {
     const raw = ((settings as any)?.[cfg.cat]?.[cfg.cat] || []) as any[];
     const run = async () => {
-      const next = cfg.hardDelete ? raw.filter((x) => x.id !== e.id) : raw.map((x) => (x.id === e.id ? { ...x, deleted: true } : x));
-      const ok = await persist(next);
-      if (ok && form.id === e.id) setOpen(false);
+      setDeletingId(e.id);
+      try {
+        const next = cfg.hardDelete ? raw.filter((x) => x.id !== e.id) : raw.map((x) => (x.id === e.id ? { ...x, deleted: true } : x));
+        const ok = await persist(next);
+        if (ok && form.id === e.id) setOpen(false);
+      } finally {
+        setDeletingId(null);
+      }
     };
     if (!cfg.confirm) {
       run();
@@ -367,7 +374,7 @@ export default function SettingsEntity() {
                 <Text variant="bodyMedium" numberOfLines={1}>{cfg.primary(e)}</Text>
                 {cfg.secondary(e) ? <Text variant="caption" tone="muted" numberOfLines={1}>{cfg.secondary(e)}</Text> : null}
               </View>
-              <IconButton icon="trash-outline" tone="danger" size={36} accessibilityLabel={`Delete ${cfg.primary(e)}`} onPress={() => onDelete(e)} />
+              <IconButton icon="trash-outline" tone="danger" size={36} accessibilityLabel={`Delete ${cfg.primary(e)}`} disabled={deletingId === e.id} onPress={() => onDelete(e)} />
               <Ionicons name="chevron-forward" size={16} color={colors.textFaint} />
             </Pressable>
           ))}

@@ -72,3 +72,28 @@ export async function registerPush(uidCollection: string, userEmail: string, use
     // Simulators, denied permissions, or missing Play services — never block the app.
   }
 }
+
+/** Whether this phone lets the app show alerts: 'granted', 'denied' (only iOS Settings can
+ *  change it) or 'undetermined' (never asked). */
+export async function pushPermission(): Promise<'granted' | 'denied' | 'undetermined'> {
+  try {
+    const p = await Notifications.getPermissionsAsync();
+    return p.status === 'granted' ? 'granted' : p.status === 'denied' ? 'denied' : 'undetermined';
+  } catch {
+    return 'undetermined';
+  }
+}
+
+/** Ask once (iOS shows its own prompt); true when alerts are now allowed. */
+export async function askPushPermission(): Promise<boolean> {
+  try {
+    return (await Notifications.requestPermissionsAsync()).status === 'granted';
+  } catch {
+    return false;
+  }
+}
+
+/** The number on the app icon — unread notifications, 0 clears it. Never fatal. */
+export function setAppBadge(count: number): void {
+  Notifications.setBadgeCountAsync(Math.max(0, count | 0)).catch(() => {});
+}
