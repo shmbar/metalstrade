@@ -303,6 +303,20 @@ export const assignGradeToLine = (grades, targetId, { lineId, description } = {}
 
 // A name with its bracket note set aside: "(51Ni 21Cr 3Mo)", "(300824-1)".
 const nameFold = (s) => aliasKey(String(s ?? '').replace(/\([^)]*\)/g, ' '));
+
+/* The alloy a text NAMES, by its number: "R88" · "REN88" · "R 88" → 88, "IN100" · "IN 100"
+   → 100. Letters then a 2–4 digit figure, the letters not an element symbol — "Ni 51" and
+   "56Ni" are chemistry, not a name. The name on a line outranks its chemistry: PO 050626's
+   "R88 Turnings off grade" was offered IN 100 because the registry held the R88 assay
+   under IN 100 (2026-09-30). */
+const alloyNumbers = (s) => {
+    const out = new Set();
+    const t = deCyrillic(String(s ?? '')).toLowerCase().replace(/\([^)]*\)/g, ' ');
+    for (const m of t.matchAll(/(?:^|[^a-z0-9])([a-z]{1,3})[\s-]?(\d{2,4})(?![a-z0-9.,])/g)) {
+        if (!EL.has(m[1])) out.add(m[2]);
+    }
+    return out;
+};
 const MAJOR = 1;      // below 1% an element is a trace and does not decide a grade
 const DEFINING = 5;   // at 5% or more, an element the other side lacks means another alloy
 const tolFor = (v) => Math.max(1.5, v * 0.1);
@@ -322,6 +336,9 @@ export const buildGradeProfiles = (grades) => (grades || []).filter(g => !g.dele
            the next line spelled the same way. It stays out of the chemistry envelope: one
            mistaken pick — Ti powder into 40Ni — would otherwise widen the grade to fit it. */
         names: new Set([g.name, ...(g.aliases || []), ...(g.learned || [])].map(nameFold).filter(Boolean)),
+        // From the grade's NAME only: a spelling filed under the wrong grade must not
+        // lend it another alloy's name.
+        alloys: alloyNumbers(g.name),
         range,
         majors: Object.keys(range).filter(e => range[e].max >= MAJOR),
         // Present at 5%+ in EVERY assay of the grade: what the grade is made of.
@@ -333,9 +350,10 @@ export const buildGradeProfiles = (grades) => (grades || []).filter(g => !g.dele
 /**
  * The grade a new spelling most likely is → { grade, reason: 'name' | 'chemistry' }, or
  * null when nothing fits well enough to offer. Name first (the same material with a
- * different note), then chemistry: at least two major elements in common, every one of
- * them within tolerance of the grade's envelope, nothing major on either side that the
- * other lacks. Of the grades that fit, the closest.
+ * different note), then the alloy the line names (R88 → a grade named R 88), then
+ * chemistry: at least two major elements in common, every one of them within tolerance
+ * of the grade's envelope, nothing major on either side that the other lacks. Of the
+ * grades that fit, the closest — never one named for a different alloy than the line.
  */
 export const suggestGrade = (profiles, description) => {
     if (!profiles?.length || !String(description ?? '').trim()) return null;
@@ -344,6 +362,13 @@ export const suggestGrade = (profiles, description) => {
     const byName = fold ? profiles.find(p => p.names.has(fold)) : null;
     if (byName) return { grade: byName.grade, reason: 'name' };
 
+    const named = alloyNumbers(description);
+    const sameAlloy = (p) => [...p.alloys].some(n => named.has(n));
+    if (named.size) {
+        const byAlloy = profiles.find(sameAlloy);
+        if (byAlloy) return { grade: byAlloy.grade, reason: 'name' };
+    }
+
     const a = parseAssay(description);
     const aMajors = Object.keys(a).filter(e => a[e] >= MAJOR);
     if (aMajors.length < 2) return null;
@@ -351,6 +376,8 @@ export const suggestGrade = (profiles, description) => {
     let best = null;
     for (const p of profiles) {
         if (!p.majors.length) continue;
+        // "R88 …" is not IN 100, whatever the chemistry on file says.
+        if (named.size && p.alloys.size && !sameAlloy(p)) continue;
         if (aMajors.some(e => a[e] >= DEFINING && !p.range[e])) continue;
         if (p.defining.some(e => !Number.isFinite(a[e]))) continue;
         const shared = p.majors.filter(e => Number.isFinite(a[e]));

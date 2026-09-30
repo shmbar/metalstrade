@@ -43,7 +43,8 @@ export interface Contract {
   invoices?: InvoiceRef[];
   stock?: string[];
   conStatus?: string;
-  euroToUSD?: number;
+  // null when no rate could be fetched for a new PO — as web stores it (exchangeApi getCur).
+  euroToUSD?: number | null;
   remarks?: any[];
   comments?: string;
   // Enriched client-side: grouped invoice docs linked to this contract.

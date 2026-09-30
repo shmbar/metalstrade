@@ -610,6 +610,8 @@ const useInvoiceState = () => {
             let success = await updatePnl(uidCollection, 'invoices', 'shipData', shipData)
 
             success && setToast({ show: true, text: getTtl('Data successfully saved!', ln), clr: 'success' })
+            // The P&L tab logs the change only once it is saved.
+            return success
         }
     }), [valueInv, invoicesData, invoicesAccData, isOpen, errors,
         copyInvoice, copyInvValue, invNum, isInvCreationCNFL, deleteProdcuts,

@@ -255,6 +255,35 @@ describe('suggestGrade — next month\'s spelling of a grade already declared', 
     });
 });
 
+/* PO 050626, 2026-09-30: the registry held each alloy's chemistry under the other's grade
+   (set up 2026-09-28), so every line was offered the opposite one by chemistry. */
+describe('suggestGrade — the alloy a line names outranks its chemistry', () => {
+    const r88 = { ...makeGrade('r88', { name: 'R 88 off spec' }), aliases: ['51Ni 18Co 12Cr 3.5Mo Turnings'] };
+    const in100 = { ...makeGrade('in100', { name: 'IN 100 off spec turnings' }), aliases: ['56Ni 14Cr 13Co 4Mo 4W Turnings'] };
+    const crossed = buildGradeProfiles([r88, in100]);
+
+    it('a line named R88 / IN100 is offered the grade of that name, even with crossed chemistry', () => {
+        expect(suggestGrade(crossed, 'R88 Turnings off grade (56Ni 14Cr 13Co 4Mo 4W)')).toEqual({ grade: r88, reason: 'name' });
+        expect(suggestGrade(crossed, 'IN100 modified Turnings (51Ni 18Co 12Cr 3.5Mo)')).toEqual({ grade: in100, reason: 'name' });
+        expect(suggestGrade(crossed, 'REN88 Turnings (56Ni 14CR 13Co 4Mo 4W)')?.grade).toBe(r88);
+        expect(suggestGrade(crossed, 'R 88  Turnings')?.grade).toBe(r88);
+    });
+
+    it('never offers a grade named for a different alloy, whatever the chemistry', () => {
+        const onlyIn100 = buildGradeProfiles([in100]);
+        expect(suggestGrade(onlyIn100, 'R88 Turnings off grade (56Ni 14Cr 13Co 4Mo 4W)')).toBeNull();
+        // an unnamed line still goes by chemistry
+        expect(suggestGrade(onlyIn100, 'Turnings (56Ni 14Cr 13Co 4Mo 4W)')).toEqual({ grade: in100, reason: 'chemistry' });
+    });
+
+    it('chemistry and element figures are not alloy names', () => {
+        const g40 = makeGrade('40', { name: '40Ni', spec: '42Ni 12Cr 3Mo 3Nb 6Co 2Ti' });
+        const p = buildGradeProfiles([g40, r88]);
+        expect(suggestGrade(p, 'Ni 42% Cr 12% Mo 3% Nb 3% Co 6% Ti 2% Turnings')?.grade).toBe(g40);
+        expect(suggestGrade(p, '41.6Ni 12.2Cr 3.1Mo 2.8Nb 5.9Co 2.1Ti Turnings')?.grade).toBe(g40);
+    });
+});
+
 describe('specs — what each lot is, under its grade', () => {
     it('names a spec the way a lot is spoken of', () => {
         expect(specFromAssay(parseAssay('43.2Ni 15.1Cr 3Mo 2Nb'))).toBe('43Ni 15Cr');

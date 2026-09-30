@@ -8,6 +8,7 @@ import {
   arrayUnion, increment, collection, query, where, deleteField,
 } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
+import { tidyRefs } from '@/lib/contractRefs';
 import { loadStockDataByIds } from './firestore';
 import { splitNotifId } from '@shared/splitUtils';
 import { priorityOf } from '@shared/notificationPriority';
@@ -39,6 +40,29 @@ export async function getCur(date: string | null | undefined): Promise<number> {
     return +(1 / eurRate).toFixed(4);
   } catch {
     return 1;
+  }
+}
+
+// The PO save's rate lookup, matching web's PO save (2026-09-30): it gives up after 10s,
+// and a failure means "no rate" — the PO then keeps the rate it already carries instead of
+// having an invented 1 (or 1.05) written over a real one. Without the timeout a stalled
+// request left Save spinning for good, the same symptom as web PO 050626. getCur above
+// keeps its old fallbacks for the Dashboard and Formulas, which read it directly.
+async function poRate(date: string): Promise<number | null> {
+  if (!date) return null;
+  const appId = process.env.EXPO_PUBLIC_OPENEXCHANGERATES_APP_ID || '';
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), 10000);
+  try {
+    const response = await fetch(`https://openexchangerates.org/api/historical/${date}.json?app_id=${appId}`, { signal: ctrl.signal });
+    if (!response.ok) return null;
+    const data = await response.json();
+    const eur = Number(data?.rates?.EUR);
+    return Number.isFinite(eur) && eur > 0 ? +(1 / eur).toFixed(4) : null;
+  } catch {
+    return null;
+  } finally {
+    clearTimeout(timer);
   }
 }
 
@@ -136,15 +160,20 @@ export async function saveContract(
   existing: Contract | undefined
 ): Promise<SaveContractResult> {
   const startDate = value.dateRange?.startDate || value.date || '';
-  const euroToUSD = await getCur(startDate);
+  // No rate → keep the one the PO carries (web: `(await getCur(...)) ?? valueCon.euroToUSD ?? null`).
+  const euroToUSD = (await poRate(startDate)) ?? value.euroToUSD ?? null;
   const isNew = !value.id;
+
+  // The PO tidies its own invoices / expenses lists on save, as web does (tidyRefs):
+  // no id-less entries, each id once — a duplicate no longer counts twice in its totals.
+  const lists = { invoices: tidyRefs(value.invoices), expenses: tidyRefs(value.expenses) };
 
   let tmp: Contract;
   if (!isNew && existing) {
-    tmp = { ...value, lstSaved: nowStamp(), euroToUSD };
-    // Keep linked invoices/expenses pointing at this contract.
-    await updatePoSupplierInv(uidCollection, value);
-    await updatePoSupplierExp(uidCollection, value);
+    tmp = { ...value, ...lists, lstSaved: nowStamp(), euroToUSD };
+    // Keep linked invoices/expenses pointing at this contract — the tidied lists, as web.
+    await updatePoSupplierInv(uidCollection, { ...value, ...lists });
+    await updatePoSupplierExp(uidCollection, { ...value, ...lists });
     // If the contract's year changed, remove the stale doc in the old bucket.
     const prevYear = (existing.dateRange?.startDate || existing.date || '').substring(0, 4);
     const newYear = startDate.substring(0, 4);
@@ -152,7 +181,7 @@ export async function saveContract(
       await deleteContractDoc(uidCollection, existing.id, prevYear);
     }
   } else {
-    tmp = { ...value, id: newId(), lstSaved: nowStamp(), euroToUSD };
+    tmp = { ...value, ...lists, id: newId(), lstSaved: nowStamp(), euroToUSD };
   }
 
   const ok = await writeContractDoc(uidCollection, tmp);

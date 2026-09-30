@@ -23,7 +23,10 @@ const PnlTables = ({ data, setPnlData, val, mult }) => {
 
     const [runData, setRunData] = useState(false)
     const { saveData_shipPnl } = useContext(InvoiceContext);
-    const { uidCollection } = UserAuth();
+    // logActivity was called below but never taken from the context, so the ReferenceError
+    // it threw ended SaveData right after the write — the save landed, the activity-log
+    // entry never did (client, 2026-09-30).
+    const { uidCollection, logActivity } = UserAuth();
 
     let propDefaults = [
         { field: 'client', header: getTtl('Consignee', ln), arr: settings.Client.Client },
@@ -62,7 +65,7 @@ const PnlTables = ({ data, setPnlData, val, mult }) => {
         setRunData(true)
     }, [])
 
-    const SaveData = (i) => {
+    const SaveData = async (i) => {
 
         let pnlDataTmp = [...data]
         let invTmp = pnlDataTmp[i].find(k => k.id === dataValue[i].id && (k.invType === '1111' || k.invType === 'Invoice'))
@@ -70,8 +73,9 @@ const PnlTables = ({ data, setPnlData, val, mult }) => {
         pnlDataTmp[i] = pnlDataTmp[i].map(z => z.id === invTmp.id ? invTmp : z)
 
         setPnlData(pnlDataTmp)
-        saveData_shipPnl(uidCollection, dataValue[i])
-        logActivity?.({
+        const saved = await saveData_shipPnl(uidCollection, dataValue[i])
+        // Logged once the write has succeeded, like the other contract-window saves.
+        if (saved) logActivity?.({
             type: 'shipment.updated', entityType: 'invoice', entityId: dataValue[i].id || '',
             entityLabel: `Invoice #${invTmp?.invoice ?? ''}`, action: 'updated',
             message: `Shipment details updated for Invoice #${invTmp?.invoice ?? ''} (ETD ${dataValue[i]?.etd?.startDate || dataValue[i]?.etd || '—'}, ETA ${dataValue[i]?.eta?.startDate || dataValue[i]?.eta || '—'})`,
