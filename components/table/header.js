@@ -5,12 +5,9 @@ import ColFilter from "./ColumnsFilter";
 import { getTtl } from '../../utils/languages';
 import { SettingsContext } from "../../contexts/useSettingsContext";
 import { usePathname } from 'next/navigation';
-import { GrAddCircle } from "react-icons/gr";
 import Image from 'next/image';
 import Tltip from "../../components/tlTip";
 import { BtnIcon, SearchAdornment } from "../buttonIcons";
-import { MdDeleteOutline } from "react-icons/md";
-import { GrDocumentPdf } from "react-icons/gr";
 import { QuickSumButton, QuickSumTotals } from './quicksum/QuickSumControl';
 import DateRangePicker from '../../components/dateRangePicker';
 import { Pencil, MessageSquare } from "lucide-react";
@@ -105,7 +102,7 @@ const Header = ({
                 onClick={() => delTable(table1)}
                 className="w-8 h-8 hover:bg-red-50 text-red-500 inline-flex items-center justify-center rounded-full focus:outline-none transition-colors"
               >
-                <MdDeleteOutline style={{ fontSize: 18 }} />
+                <BtnIcon action="delete" className="w-5 h-5" />
               </button>
             </Tltip>
             <Tltip direction='bottom' tltpText='Add new material'>
@@ -113,7 +110,7 @@ const Header = ({
                 onClick={addMaterial}
                 className="w-8 h-8 hover:bg-[var(--selago)] text-[var(--endeavour)] inline-flex items-center justify-center rounded focus:outline-none transition-colors"
               >
-                <GrAddCircle style={{ fontSize: 16 }} />
+                <BtnIcon action="add" className="w-5 h-5" />
               </button>
             </Tltip>
             <Tltip direction="bottom" tltpText={getTtl('Ask question', ln) || 'Ask question'}>
@@ -137,7 +134,7 @@ const Header = ({
                 onClick={() => runPdf(table1)}
                 className="w-8 h-8 hover:bg-[var(--selago)] text-[var(--endeavour)] inline-flex items-center justify-center rounded focus:outline-none transition-colors"
               >
-                <GrDocumentPdf style={{ fontSize: 16 }} />
+                <BtnIcon action="pdf" className="w-5 h-5" />
               </button>
             </Tltip>
           </div>

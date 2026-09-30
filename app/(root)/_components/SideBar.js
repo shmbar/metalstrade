@@ -232,7 +232,7 @@ export default function Sidebar() {
               style={{ fontSize: 'inherit', color: 'var(--ink)' }}
             />
             {searchQuery && (
-              <button
+              <button aria-label="Clear search"
                 onClick={() => setSearchQuery('')}
                 className="absolute right-3 top-1/2 -translate-y-1/2 transition-colors hover:text-[var(--ink)]"
                 style={{ color: 'var(--ink-muted)' }}
@@ -480,7 +480,7 @@ export default function Sidebar() {
                   </span>
                 )}
                 {!collapsed && (!can || can("settings")) && (
-                  <Link href="/settings" style={{ display: "flex", alignItems: "center", justifyContent: "center", color: "var(--ink-muted)" }}>
+                  <Link href="/settings" aria-label="Settings" style={{ display: "flex", alignItems: "center", justifyContent: "center", color: "var(--ink-muted)" }}>
                     <Settings size={16} strokeWidth={1.75} style={{ marginLeft: 4, cursor: "pointer" }} />
                   </Link>
                 )}

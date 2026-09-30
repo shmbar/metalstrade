@@ -1681,7 +1681,7 @@ export const ClientDetails = ({ client, data, type, uidCollection, setDateSelect
                                     <th className="text-center">
                                         {!isPending && (
                                             <div className='flex items-center justify-center'>
-                                                <button className='p-0 bg-transparent border-0 outline-none leading-none text-[var(--endeavour)] hover:opacity-70'
+                                                <button aria-label="Save the ticked payments" className='p-0 bg-transparent border-0 outline-none leading-none text-[var(--endeavour)] hover:opacity-70'
                                                     onClick={() => savePmntClient(filteredArr[0]?.client)}
                                                     disabled={filteredArr.length === 0}>
                                                     <Save className="w-3 h-3" />
@@ -1807,7 +1807,7 @@ export const ClientDetails = ({ client, data, type, uidCollection, setDateSelect
                                     <th className="text-center">
                                         {!isPending && (
                                             <div className='flex items-center justify-center'>
-                                                <button className='p-0 bg-transparent border-0 outline-none leading-none text-[var(--endeavour)] hover:opacity-70'
+                                                <button aria-label="Save the ticked payments" className='p-0 bg-transparent border-0 outline-none leading-none text-[var(--endeavour)] hover:opacity-70'
                                                     onClick={() => savePmntClient(filteredArr1[0]?.client)}
                                                     disabled={filteredArr1.length === 0}>
                                                     <Save className="w-3 h-3" />
@@ -2282,7 +2282,7 @@ export const SupplierDetails = ({ supplier, data, uidCollection, setDateSelect,
                             <th className="text-center">
                                 {!isPending && (
                                     <div className='flex items-center justify-center'>
-                                        <button className='p-0 bg-transparent border-0 outline-none leading-none text-[var(--endeavour)] hover:opacity-70'
+                                        <button aria-label="Save the ticked payments" className='p-0 bg-transparent border-0 outline-none leading-none text-[var(--endeavour)] hover:opacity-70'
                                             onClick={() => savePmntSupplier(filteredArr)}
                                             disabled={filteredArr.length === 0}>
                                             <Save className="w-3 h-3" />
@@ -2487,7 +2487,7 @@ export const ExpensesToolTip = ({ supplier, expensesAll, settings, uidCollection
                         <th></th>
                         <th className="text-center">
                             <div className='flex items-center justify-center'>
-                                <button className='p-0 bg-transparent border-0 outline-none leading-none text-[var(--endeavour)] hover:opacity-70'
+                                <button aria-label="Save the ticked payments" className='p-0 bg-transparent border-0 outline-none leading-none text-[var(--endeavour)] hover:opacity-70'
                                     onClick={() => savePmntExp(filteredArr)}
                                     disabled={filteredArr.length === 0}>
                                     <Save className="w-3 h-3" />

@@ -152,7 +152,7 @@ const CertChecker = () => {
                             <span className='font-semibold'>{s.element}</span>
                             {(s.min !== '' || s.max !== '') && <span>{s.min || '—'}–{s.max || '—'}%</span>}
                             {s.tolerance && parseFloat(s.tolerance) > 0 && <span>±{s.tolerance}</span>}
-                            <button onClick={() => removeSpec(i)}><X className='w-2.5 h-2.5' /></button>
+                            <button aria-label="Remove this spec line" onClick={() => removeSpec(i)}><X className='w-2.5 h-2.5' /></button>
                         </div>
                     ))}
                 </div>
@@ -209,7 +209,7 @@ const CertChecker = () => {
                     <div className='flex items-center gap-2'>
                         <FileText className='w-4 h-4' style={{ color: 'var(--endeavour)' }} />
                         <span style={{ fontSize: 'var(--fs-body)', color: 'var(--chathams-blue)' }}>{file.name}</span>
-                        <button onClick={e => { e.stopPropagation(); setFile(null); setResult(null); }} className='ml-1'>
+                        <button aria-label="Remove file" onClick={e => { e.stopPropagation(); setFile(null); setResult(null); }} className='ml-1'>
                             <X className='w-3 h-3' style={{ color: 'var(--bad-text)' }} />
                         </button>
                     </div>

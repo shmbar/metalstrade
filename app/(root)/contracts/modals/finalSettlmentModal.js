@@ -10,7 +10,7 @@ import { getD, loadStockData, validate, reOrderTableFinal } from '@utils/utils'
 import { getTtl } from '@utils/languages';
 import FinalSetRemarks from './finalSettlmentRemarks.js';
 import Tltip from '@components/tlTip.js';
-import { Save, FileText, X } from 'lucide-react';
+import { Save, X } from 'lucide-react';
 import { Button } from '@components/ui/button';
 import { BtnIcon } from '@components/buttonIcons';
 
@@ -306,7 +306,7 @@ const FinalSettlmentModal = ({ isOpen, setIsOpen, setShowPoInvModal }) => {
                                 </Tltip>
                                 <input type='text' placeholder='Amount' value={c.amount} onChange={e => updateCalc(c.id, 'amount', e.target.value)}
                                     className='input h-7 responsiveTextTable border-slate-300 w-28 text-right shadow-sm' style={{ fontFamily: 'inherit' }} />
-                                <button type='button' onClick={() => removeCalc(c.id)} className='text-[var(--regent-gray)] hover:text-red-500'><X className='w-3.5 h-3.5' /></button>
+                                <button aria-label="Remove this line" type='button' onClick={() => removeCalc(c.id)} className='text-[var(--regent-gray)] hover:text-red-500'><X className='w-3.5 h-3.5' /></button>
                             </div>
                         ))}
                         <div className='flex items-center justify-between border-t border-[var(--bg-subtle)] pt-2 mt-1'>
@@ -383,7 +383,7 @@ const FinalSettlmentModal = ({ isOpen, setIsOpen, setShowPoInvModal }) => {
                                 , settings, compData, data.filter(z => checkedItems.includes(z.id)), gisAccount)
                             }
                         >
-                            <FileText />
+                            <BtnIcon action="pdf" />
                             PDF
                         </Button>
                     </Tltip>

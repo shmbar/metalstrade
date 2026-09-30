@@ -15,15 +15,34 @@
  *
  *   matchesAllWords(['708 Solids', 'Triart', '2026-09-01'], '708 triart')  → true
  *   matchesAllWords('Triart', '708 triart')                                → false
+ *
+ * A comma means EITHER (client, 2026-09-30: "tried searching 2 grades together,
+ * didn't allow"). "708, 202" lists the 708 rows and the 202 rows; the words on each
+ * side of a comma still narrow as above ("708 triart, 202" = the 708 line from
+ * Triart, or anything 202). A comma BETWEEN TWO DIGITS stays a thousands separator,
+ * so "144,131.40" and "3,343" still find their figure. ; and | work as a comma does.
+ *
+ *   matchesAllWords('202 Turnings', '708, 202')                            → true
  */
 
 const fold = (s) => String(s ?? '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
 
-/** The query as keywords: lower-cased, accent-stripped, empty when blank. */
-export const searchWords = (query) => fold(query).split(/\s+/).filter(Boolean);
+// The break between two alternatives inside a word list. A NUL: never typed, never in a field.
+const EITHER = '\u0000';
+
+/** The query as keywords: lower-cased, accent-stripped, empty when blank. A query with
+ *  alternatives ("708, 202") comes back as one list with EITHER between them, so every
+ *  caller keeps passing a plain string[] to matchesAllWords. */
+export const searchWords = (query) => fold(query)
+  .replace(/(\d),(?=\d)/g, '$1\u0002')            // a figure's own commas are not breaks
+  .split(/[,;|]/)
+  .map((alt) => alt.replace(/\u0002/g, ',').split(/\s+/).filter(Boolean))
+  .filter((alt) => alt.length)
+  .flatMap((alt, i) => (i ? [EITHER, ...alt] : alt));
 
 /** Every keyword in `query` appears somewhere in `fields` (a string, or a list
- *  of strings — nested lists are flattened, blanks ignored). Blank query = match.
+ *  of strings — nested lists are flattened, blanks ignored) — or, with commas, every
+ *  keyword of ANY one alternative does. Blank query = match.
  *  Figures are compared without their separators and currency signs, so an amount
  *  typed the way the table shows it ("$144,131.40") finds it. */
 export const matchesAllWords = (fields, query) => {
@@ -34,7 +53,29 @@ export const matchesAllWords = (fields, query) => {
   // Separators come out of each field on its own; the fields stay apart, so the end of
   // one figure and the start of the next can never read as a third ("…131.4" + "1…").
   const bare = list.map((f) => fold(f).replace(/[\s,$€£]/g, '')).join('\u0001');
-  return words.every((w) => hay.includes(w) || bare.includes(w.replace(/[\s,$€£]/g, '')));
+  const has = (w) => hay.includes(w) || bare.includes(w.replace(/[\s,$€£]/g, ''));
+  let all = true;                       // the alternative being read has matched so far
+  for (const w of words) {
+    if (w === EITHER) {
+      if (all) return true;
+      all = true;
+    } else if (all && !has(w)) all = false;
+  }
+  return all;
+};
+
+/** What an empty table says under a search that found nothing because its words were
+ *  all required ("708 202" — no row is both). Null when that is not the reason. */
+export const searchHint = (query) => {
+  const words = searchWords(query);
+  if (!words.length || words.includes(EITHER)) return null;
+  const typed = String(query ?? '').trim().split(/\s+/);
+  // "708,202" is read as the figure 708,202 — say how to ask for 708 or 202 instead
+  if (typed.length === 1 && /^\d+(?:,\d+)+$/.test(typed[0])) {
+    return `Nothing shows ${typed[0]}. To list ${typed[0].split(',').join(' or ')}, type ${typed[0].split(',').join(', ')}`;
+  }
+  if (typed.length < 2) return null;
+  return `No row has all of ${typed.join(' + ')}. To list either, separate them with a comma: ${typed.join(', ')}`;
 };
 
 const MONTHS = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'];

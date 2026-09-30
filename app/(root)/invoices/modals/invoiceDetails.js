@@ -2,7 +2,7 @@
 import { SettingsContext } from "../../../../contexts/useSettingsContext";
 import { InvoiceContext } from "../../../../contexts/useInvoiceContext";
 import { getD, reOrderTableInv, loadData } from '../../../../utils/utils.js';
-import Datepicker from "react-tailwindcss-datepicker";
+import Datepicker from "@components/DatePicker"; // the library, with a tooltip on its icon button
 import { Pdf } from '../../contracts/modals/pdf/pdfInvoice.js';
 import { PdfFnlCncl } from '../../contracts/modals/pdfInvoiceFnlCncl.js';
 import ProductsTable from '../../contracts/modals/productsTableInvoice.js';

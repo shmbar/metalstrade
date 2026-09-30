@@ -95,7 +95,7 @@ const Customtable = ({
           <div className="w-7 h-7 inline-flex items-center justify-center rounded hover:bg-[var(--selago)] cursor-pointer text-[var(--endeavour)]">
             <ColFilter table={table} iconClassName="text-[var(--endeavour)]" iconSize={16} />
           </div>
-          <div
+          <div role="button" aria-label={filterOn ? 'Hide filters' : 'Show filters'}
             className={`w-7 h-7 inline-flex items-center justify-center rounded hover:bg-[var(--selago)] cursor-pointer transition-colors ${filterOn ? 'bg-[var(--selago)] text-[var(--endeavour)]' : 'text-[var(--endeavour)]'}`}
             onClick={() => setFilterOn(!filterOn)}
           >

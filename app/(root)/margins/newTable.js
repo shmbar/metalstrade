@@ -303,7 +303,7 @@ const DraggableRow = memo(function DraggableRow({ row, props, cName }) {
               </div>
             ) : cell.column.id === "del" ? (
               <div className="flex items-center justify-center">
-                <button
+                <button aria-label="Delete row"
                   className="p-0 bg-transparent border-0 outline-none text-[var(--ink-muted)] hover:text-[var(--bad-text)] transition-colors"
                   onClick={(e) => deleteRow(e, cell.row.original.id, month)}
                 >
@@ -542,7 +542,7 @@ const Customtable = (props) => {
                                                 <TableCell colSpan={columns.length}>
                                                     <EmptyState
                                                         message={getTtl('No data available', ln)}
-                                                        hint="Try adjusting your filters or date range"
+                                                        hint="Try adjusting your filters or date range" search={globalFilter}
                                                     />
                                                 </TableCell>
                                             </TableRow>
@@ -626,7 +626,7 @@ const Customtable = (props) => {
                                         >
                                             Entry #{rowIdx + 1}
                                         </span>
-                                        <button
+                                        <button aria-label="Delete row"
                                             className="text-[var(--ink-muted)] hover:text-[var(--bad-text)] transition-colors flex items-center justify-center"
                                             onClick={e => props.deleteRow(e, row.id, row.month)}
                                             style={{ width: '20px', height: '20px' }}

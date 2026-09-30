@@ -3,7 +3,7 @@ import { useNumericCaret } from '@utils/numericCaret';
 import Customtable from '@components/tablePnl';
 import { useContext } from 'react';
 import { SettingsContext } from "@contexts/useSettingsContext";
-import Datepicker from "react-tailwindcss-datepicker";
+import Datepicker from "@components/DatePicker"; // the library, with a tooltip on its icon button
 import { InvoiceContext } from "@contexts/useInvoiceContext";
 import { UserAuth } from "@contexts/useAuthContext";
 import { OutTurn, Finalizing, relStts } from '@components/const'

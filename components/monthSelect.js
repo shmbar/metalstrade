@@ -89,11 +89,11 @@ export default function MonthSelect(props) {
 
     return (
         <div className='flex relative'>
-            <button disabled={isEmpty || isManyMonths} onClick={() => handleClickYr('prev')} className={`h-7 w-7 border border-[var(--endeavour)] rounded-l-2xl justify-center flex items-center hover:bg-[var(--selago)] transition-colors
+            <button aria-label="Previous year" disabled={isEmpty || isManyMonths} onClick={() => handleClickYr('prev')} className={`h-7 w-7 border border-[var(--endeavour)] rounded-l-2xl justify-center flex items-center hover:bg-[var(--selago)] transition-colors
             ${isEmpty || isManyMonths ? 'opacity-40 cursor-not-allowed' : ''}`}>
                 <HiChevronDoubleLeft className={`scale-75 text-[var(--endeavour)]`} />
             </button>
-            <button disabled={isEmpty || isManyMonths} onClick={() => handleClickMnth('prev')}
+            <button aria-label="Previous month" disabled={isEmpty || isManyMonths} onClick={() => handleClickMnth('prev')}
                 className={`h-7 w-7 border border-[var(--endeavour)] border-l-0 justify-center flex items-center hover:bg-[var(--selago)] transition-colors
                 ${isEmpty || isManyMonths ? 'opacity-40 cursor-not-allowed' : ''}`}>
                 <HiChevronLeft className={`scale-75 text-[var(--endeavour)]`} />
@@ -142,11 +142,11 @@ export default function MonthSelect(props) {
 
             {openMonth ? (<div className='fixed top-0 right-0 bottom-0 left-0' onClick={() => setOpenMonth(false)} />) : null}
 
-            <button disabled={isEmpty || isManyMonths} onClick={() => handleClickMnth('next')} className={`h-7 w-7 border border-[var(--endeavour)] border-l-0 justify-center flex items-center hover:bg-[var(--selago)] transition-colors
+            <button aria-label="Next month" disabled={isEmpty || isManyMonths} onClick={() => handleClickMnth('next')} className={`h-7 w-7 border border-[var(--endeavour)] border-l-0 justify-center flex items-center hover:bg-[var(--selago)] transition-colors
              ${isEmpty || isManyMonths ? 'opacity-40 cursor-not-allowed' : ''}`}>
                 <HiChevronRight className={`scale-75 text-[var(--endeavour)]`} />
             </button>
-            <button disabled={isEmpty || isManyMonths} onClick={() => handleClickYr('next')} className={`h-7 w-7 border border-[var(--endeavour)] border-l-0 rounded-r-2xl justify-center flex items-center hover:bg-[var(--selago)] transition-colors
+            <button aria-label="Next year" disabled={isEmpty || isManyMonths} onClick={() => handleClickYr('next')} className={`h-7 w-7 border border-[var(--endeavour)] border-l-0 rounded-r-2xl justify-center flex items-center hover:bg-[var(--selago)] transition-colors
              ${isEmpty || isManyMonths ? 'opacity-40 cursor-not-allowed' : ''}`}>
                 <HiChevronDoubleRight className={`scale-75 text-[var(--endeavour)]`} />
             </button>

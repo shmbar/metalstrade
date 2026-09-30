@@ -1504,7 +1504,7 @@ const Cashflow = () => {
                                             disabled={loading || reportBusy}
                                             className="whiteButton"
                                         >
-                                            <BtnIcon action={reportBusy ? 'saving' : 'export'} spin={reportBusy} /> Export
+                                            <BtnIcon action={reportBusy ? 'saving' : 'excel'} spin={reportBusy} /> Export
                                         </button>
                                     </Tltip>
                                     <YearSelect yr={yr} setYr={setYr} />
@@ -1561,13 +1561,13 @@ const Cashflow = () => {
                                 <div className="w-full max-w-2xl border border-[var(--line)] rounded-2xl overflow-hidden bg-[var(--bg-card)] p-4">
                                     <SectionHeader icon={Boxes} title="Unsold Stocks" className="mb-2">
                                         {stocksSortName2 ?
-                                            <FaSortAmountDown className="scale-[0.9] text-[var(--ink-muted)] hover:text-[var(--ink)] cursor-pointer" onClick={() => sortStocksName2()} />
+                                            <FaSortAmountDown role="button" aria-label="Sort by name" className="scale-[0.9] text-[var(--ink-muted)] hover:text-[var(--ink)] cursor-pointer" onClick={() => sortStocksName2()} />
                                             :
-                                            <FaSortAmountUpAlt className="scale-[0.9] text-[var(--ink-muted)] hover:text-[var(--ink)] cursor-pointer" onClick={() => sortStocksName2()} />}
+                                            <FaSortAmountUpAlt role="button" aria-label="Sort by name" className="scale-[0.9] text-[var(--ink-muted)] hover:text-[var(--ink)] cursor-pointer" onClick={() => sortStocksName2()} />}
                                         {stocksSort2 ?
-                                            <FaSortAmountDown className="scale-[0.9] text-[var(--ink-muted)] hover:text-[var(--ink)] cursor-pointer" onClick={() => sortStocks2()} />
+                                            <FaSortAmountDown role="button" aria-label="Sort by amount" className="scale-[0.9] text-[var(--ink-muted)] hover:text-[var(--ink)] cursor-pointer" onClick={() => sortStocks2()} />
                                             :
-                                            <FaSortAmountUpAlt className="scale-[0.9] text-[var(--ink-muted)] hover:text-[var(--ink)] cursor-pointer" onClick={() => sortStocks2()} />}
+                                            <FaSortAmountUpAlt role="button" aria-label="Sort by amount" className="scale-[0.9] text-[var(--ink-muted)] hover:text-[var(--ink)] cursor-pointer" onClick={() => sortStocks2()} />}
                                     </SectionHeader>
                                     {stockDataNoSold.length === 0 ? (
                                         <div className="text-[var(--ink-muted)] responsiveText py-4 text-center">No unsold stocks</div>
@@ -1680,8 +1680,8 @@ const Cashflow = () => {
                                             <div className="w-full">
                                                 <div className="p-2 bg-[var(--bg-card)] mb-3 flex flex-col cf-card">
                                                     <SectionHeader icon={Boxes} title="Stocks - Paid">
-                                                        {stocksSortName ? <FaSortAmountDown className="scale-[0.9] text-[var(--ink-muted)] hover:text-[var(--ink)] cursor-pointer" onClick={() => sortStocksName()} /> : <FaSortAmountUpAlt className="scale-[0.9] text-[var(--ink-muted)] hover:text-[var(--ink)] cursor-pointer" onClick={() => sortStocksName()} />}
-                                                        {stocksSort ? <FaSortAmountDown className="scale-[0.9] text-[var(--ink-muted)] hover:text-[var(--ink)] cursor-pointer" onClick={() => sortStocks()} /> : <FaSortAmountUpAlt className="scale-[0.9] text-[var(--ink-muted)] hover:text-[var(--ink)] cursor-pointer" onClick={() => sortStocks()} />}
+                                                        {stocksSortName ? <FaSortAmountDown role="button" aria-label="Sort by name" className="scale-[0.9] text-[var(--ink-muted)] hover:text-[var(--ink)] cursor-pointer" onClick={() => sortStocksName()} /> : <FaSortAmountUpAlt role="button" aria-label="Sort by name" className="scale-[0.9] text-[var(--ink-muted)] hover:text-[var(--ink)] cursor-pointer" onClick={() => sortStocksName()} />}
+                                                        {stocksSort ? <FaSortAmountDown role="button" aria-label="Sort by amount" className="scale-[0.9] text-[var(--ink-muted)] hover:text-[var(--ink)] cursor-pointer" onClick={() => sortStocks()} /> : <FaSortAmountUpAlt role="button" aria-label="Sort by amount" className="scale-[0.9] text-[var(--ink-muted)] hover:text-[var(--ink)] cursor-pointer" onClick={() => sortStocks()} />}
                                                     </SectionHeader>
                                                     {byName(stockData1).map((x, i) => {
                                                         return (
@@ -1741,8 +1741,8 @@ const Cashflow = () => {
 
                                                 {stockData2.length > 0 && <div className="p-2 bg-[var(--bg-card)] mb-3 flex flex-col cf-card">
                                                     <SectionHeader icon={Boxes} title="Stocks - UnPaid">
-                                                        {stocksSortName1 ? <FaSortAmountDown className="scale-[0.9] text-[var(--ink-muted)] hover:text-[var(--ink)] cursor-pointer" onClick={() => sortStocksName1()} /> : <FaSortAmountUpAlt className="scale-[0.9] text-[var(--ink-muted)] hover:text-[var(--ink)] cursor-pointer" onClick={() => sortStocksName1()} />}
-                                                        {stocksSort1 ? <FaSortAmountDown className="scale-[0.9] text-[var(--ink-muted)] hover:text-[var(--ink)] cursor-pointer" onClick={() => sortStocks1()} /> : <FaSortAmountUpAlt className="scale-[0.9] text-[var(--ink-muted)] hover:text-[var(--ink)] cursor-pointer" onClick={() => sortStocks1()} />}
+                                                        {stocksSortName1 ? <FaSortAmountDown role="button" aria-label="Sort by name" className="scale-[0.9] text-[var(--ink-muted)] hover:text-[var(--ink)] cursor-pointer" onClick={() => sortStocksName1()} /> : <FaSortAmountUpAlt role="button" aria-label="Sort by name" className="scale-[0.9] text-[var(--ink-muted)] hover:text-[var(--ink)] cursor-pointer" onClick={() => sortStocksName1()} />}
+                                                        {stocksSort1 ? <FaSortAmountDown role="button" aria-label="Sort by amount" className="scale-[0.9] text-[var(--ink-muted)] hover:text-[var(--ink)] cursor-pointer" onClick={() => sortStocks1()} /> : <FaSortAmountUpAlt role="button" aria-label="Sort by amount" className="scale-[0.9] text-[var(--ink-muted)] hover:text-[var(--ink)] cursor-pointer" onClick={() => sortStocks1()} />}
                                                     </SectionHeader>
 
                                                     {byName(stockData2).map((x, i) => {
@@ -1804,8 +1804,8 @@ const Cashflow = () => {
 
                                                 <div className="p-2 bg-[var(--surface-card)] mb-3 flex flex-col cf-card">
                                                     <SectionHeader icon={Users} title="Clients - Payment">
-                                                        {clientSortName1 ? <FaSortAmountDown className="scale-[0.9] text-[var(--ink-muted)] hover:text-[var(--ink)] cursor-pointer" onClick={() => sortClientsName(1)} /> : <FaSortAmountUpAlt className="scale-[0.9] text-[var(--ink-muted)] hover:text-[var(--ink)] cursor-pointer" onClick={() => sortClientsName(1)} />}
-                                                        {clientSort1 ? <FaSortAmountDown className="scale-[0.9] text-[var(--ink-muted)] hover:text-[var(--ink)] cursor-pointer" onClick={() => sortClients(1)} /> : <FaSortAmountUpAlt className="scale-[0.9] text-[var(--ink-muted)] hover:text-[var(--ink)] cursor-pointer" onClick={() => sortClients(1)} />}
+                                                        {clientSortName1 ? <FaSortAmountDown role="button" aria-label="Sort by name" className="scale-[0.9] text-[var(--ink-muted)] hover:text-[var(--ink)] cursor-pointer" onClick={() => sortClientsName(1)} /> : <FaSortAmountUpAlt role="button" aria-label="Sort by name" className="scale-[0.9] text-[var(--ink-muted)] hover:text-[var(--ink)] cursor-pointer" onClick={() => sortClientsName(1)} />}
+                                                        {clientSort1 ? <FaSortAmountDown role="button" aria-label="Sort by amount" className="scale-[0.9] text-[var(--ink-muted)] hover:text-[var(--ink)] cursor-pointer" onClick={() => sortClients(1)} /> : <FaSortAmountUpAlt role="button" aria-label="Sort by amount" className="scale-[0.9] text-[var(--ink-muted)] hover:text-[var(--ink)] cursor-pointer" onClick={() => sortClients(1)} />}
                                                     </SectionHeader>
 
                                                     {byName(clientInvoices2).map((x, i) => {
@@ -1836,8 +1836,8 @@ const Cashflow = () => {
 
                                                 <div className="p-2 bg-[var(--bg-card)] mb-3 flex flex-col cf-card">
                                                     <SectionHeader icon={Users} title="Clients - Balances">
-                                                        {clientSortName ? <FaSortAmountDown className="scale-[0.9] text-[var(--ink-muted)] hover:text-[var(--ink)] cursor-pointer" onClick={() => sortClientsName(0)} /> : <FaSortAmountUpAlt className="scale-[0.9] text-[var(--ink-muted)] hover:text-[var(--ink)] cursor-pointer" onClick={() => sortClientsName(0)} />}
-                                                        {clientSort ? <FaSortAmountDown className="scale-[0.9] text-[var(--ink-muted)] hover:text-[var(--ink)] cursor-pointer" onClick={() => sortClients(0)} /> : <FaSortAmountUpAlt className="scale-[0.9] text-[var(--ink-muted)] hover:text-[var(--ink)] cursor-pointer" onClick={() => sortClients(0)} />}
+                                                        {clientSortName ? <FaSortAmountDown role="button" aria-label="Sort by name" className="scale-[0.9] text-[var(--ink-muted)] hover:text-[var(--ink)] cursor-pointer" onClick={() => sortClientsName(0)} /> : <FaSortAmountUpAlt role="button" aria-label="Sort by name" className="scale-[0.9] text-[var(--ink-muted)] hover:text-[var(--ink)] cursor-pointer" onClick={() => sortClientsName(0)} />}
+                                                        {clientSort ? <FaSortAmountDown role="button" aria-label="Sort by amount" className="scale-[0.9] text-[var(--ink-muted)] hover:text-[var(--ink)] cursor-pointer" onClick={() => sortClients(0)} /> : <FaSortAmountUpAlt role="button" aria-label="Sort by amount" className="scale-[0.9] text-[var(--ink-muted)] hover:text-[var(--ink)] cursor-pointer" onClick={() => sortClients(0)} />}
                                                     </SectionHeader>
 
                                                     {byName(clientInvoices1).map((x, i) => {
@@ -1948,8 +1948,8 @@ const Cashflow = () => {
 
                                                 <div className="p-2 bg-[var(--bg-card)] mb-3 flex flex-col cf-card">
                                                     <SectionHeader icon={Factory} title="Supplier - Payment">
-                                                        {supPmntssSortName1 ? <FaSortAmountDown className="scale-[0.9] text-[var(--ink-muted)] hover:text-[var(--ink)] cursor-pointer" onClick={() => sortSupPmntsName(1)} /> : <FaSortAmountUpAlt className="scale-[0.9] text-[var(--ink-muted)] hover:text-[var(--ink)] cursor-pointer" onClick={() => sortSupPmntsName(1)} />}
-                                                        {supPmntssSort1 ? <FaSortAmountDown className="scale-[0.9] text-[var(--ink-muted)] hover:text-[var(--ink)] cursor-pointer" onClick={() => sortSupPmnts(1)} /> : <FaSortAmountUpAlt className="scale-[0.9] text-[var(--ink-muted)] hover:text-[var(--ink)] cursor-pointer" onClick={() => sortSupPmnts(1)} />}
+                                                        {supPmntssSortName1 ? <FaSortAmountDown role="button" aria-label="Sort by name" className="scale-[0.9] text-[var(--ink-muted)] hover:text-[var(--ink)] cursor-pointer" onClick={() => sortSupPmntsName(1)} /> : <FaSortAmountUpAlt role="button" aria-label="Sort by name" className="scale-[0.9] text-[var(--ink-muted)] hover:text-[var(--ink)] cursor-pointer" onClick={() => sortSupPmntsName(1)} />}
+                                                        {supPmntssSort1 ? <FaSortAmountDown role="button" aria-label="Sort by amount" className="scale-[0.9] text-[var(--ink-muted)] hover:text-[var(--ink)] cursor-pointer" onClick={() => sortSupPmnts(1)} /> : <FaSortAmountUpAlt role="button" aria-label="Sort by amount" className="scale-[0.9] text-[var(--ink-muted)] hover:text-[var(--ink)] cursor-pointer" onClick={() => sortSupPmnts(1)} />}
                                                     </SectionHeader>
 
 
@@ -1984,8 +1984,8 @@ const Cashflow = () => {
 
                                                 <div className="p-2 bg-[var(--bg-card)] mb-3 flex flex-col cf-card">
                                                     <SectionHeader icon={Factory} title="Supplier - Balances">
-                                                        {supPmntssSortName ? <FaSortAmountDown className="scale-[0.9] text-[var(--ink-muted)] hover:text-[var(--ink)] cursor-pointer" onClick={() => sortSupPmntsName(0)} /> : <FaSortAmountUpAlt className="scale-[0.9] text-[var(--ink-muted)] hover:text-[var(--ink)] cursor-pointer" onClick={() => sortSupPmntsName(0)} />}
-                                                        {supPmntssSort ? <FaSortAmountDown className="scale-[0.9] text-[var(--ink-muted)] hover:text-[var(--ink)] cursor-pointer" onClick={() => sortSupPmnts(0)} /> : <FaSortAmountUpAlt className="scale-[0.9] text-[var(--ink-muted)] hover:text-[var(--ink)] cursor-pointer" onClick={() => sortSupPmnts(0)} />}
+                                                        {supPmntssSortName ? <FaSortAmountDown role="button" aria-label="Sort by name" className="scale-[0.9] text-[var(--ink-muted)] hover:text-[var(--ink)] cursor-pointer" onClick={() => sortSupPmntsName(0)} /> : <FaSortAmountUpAlt role="button" aria-label="Sort by name" className="scale-[0.9] text-[var(--ink-muted)] hover:text-[var(--ink)] cursor-pointer" onClick={() => sortSupPmntsName(0)} />}
+                                                        {supPmntssSort ? <FaSortAmountDown role="button" aria-label="Sort by amount" className="scale-[0.9] text-[var(--ink-muted)] hover:text-[var(--ink)] cursor-pointer" onClick={() => sortSupPmnts(0)} /> : <FaSortAmountUpAlt role="button" aria-label="Sort by amount" className="scale-[0.9] text-[var(--ink-muted)] hover:text-[var(--ink)] cursor-pointer" onClick={() => sortSupPmnts(0)} />}
                                                     </SectionHeader>
 
 
@@ -2019,8 +2019,8 @@ const Cashflow = () => {
 
                                                 <div className="p-2 bg-[var(--bg-card)] mb-3 flex flex-col cf-card">
                                                     <SectionHeader icon={Wallet} title="Expenses">
-                                                        {expensesSortName ? <FaSortAmountDown className="scale-[0.9] text-[var(--ink-muted)] hover:text-[var(--ink)] cursor-pointer" onClick={() => sortExpensesName()} /> : <FaSortAmountUpAlt className="scale-[0.9] text-[var(--ink-muted)] hover:text-[var(--ink)] cursor-pointer" onClick={() => sortExpensesName()} />}
-                                                        {expensesSort ? <FaSortAmountDown className="scale-[0.9] text-[var(--ink-muted)] hover:text-[var(--ink)] cursor-pointer" onClick={() => sortExpenses()} /> : <FaSortAmountUpAlt className="scale-[0.9] text-[var(--ink-muted)] hover:text-[var(--ink)] cursor-pointer" onClick={() => sortExpenses()} />}
+                                                        {expensesSortName ? <FaSortAmountDown role="button" aria-label="Sort by name" className="scale-[0.9] text-[var(--ink-muted)] hover:text-[var(--ink)] cursor-pointer" onClick={() => sortExpensesName()} /> : <FaSortAmountUpAlt role="button" aria-label="Sort by name" className="scale-[0.9] text-[var(--ink-muted)] hover:text-[var(--ink)] cursor-pointer" onClick={() => sortExpensesName()} />}
+                                                        {expensesSort ? <FaSortAmountDown role="button" aria-label="Sort by amount" className="scale-[0.9] text-[var(--ink-muted)] hover:text-[var(--ink)] cursor-pointer" onClick={() => sortExpenses()} /> : <FaSortAmountUpAlt role="button" aria-label="Sort by amount" className="scale-[0.9] text-[var(--ink-muted)] hover:text-[var(--ink)] cursor-pointer" onClick={() => sortExpenses()} />}
                                                     </SectionHeader>
 
                                                     {byName(expenses).map((x, i) => {

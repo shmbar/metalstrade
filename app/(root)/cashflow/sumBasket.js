@@ -181,7 +181,7 @@ export default function SumBasket({ items = [], onRemove, onClear }) {
             actions={<>
                 <SumPanelAction action="excel" onClick={exportExcel} disabled={exporting} pulse={exporting} danger={exportErr}
                     title={exportErr ? 'Export failed — see the browser console' : 'Export selection to Excel'} />
-                <SumPanelAction action={copiedNos ? 'confirm' : 'invoices'} onClick={copyInvoiceNos}
+                <SumPanelAction action={copiedNos ? 'confirm' : 'numbers'} onClick={copyInvoiceNos}
                     disabled={!invoiceNos.length}
                     title={copiedNos ? 'Invoice numbers copied' : `Copy invoice numbers only (${invoiceNos.length}) — for the bank payment reference`} />
                 <SumPanelAction action={copied ? 'confirm' : 'copy'} onClick={copySummary} title="Copy summary" />

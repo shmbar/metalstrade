@@ -15,7 +15,8 @@ import { getTtl } from '@utils/languages';
 import Tltip from '@components/tlTip';
 import { Selector } from '@components/selectors/selectShad.js';
 import { Button } from '@components/ui/button.jsx';
-import { Save, CirclePlus, ScrollText, Trash, FileText, Copy, Pencil } from "lucide-react";
+import { Save, CirclePlus, ScrollText, Trash, Copy, Pencil } from "lucide-react";
+import { BtnIcon } from "@components/buttonIcons";
 import DocumentImportOverlay from '@components/DocumentImportOverlay';
 import AssayEditor from '@components/AssayEditor';
 
@@ -637,13 +638,13 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowPoInvModal }) => {
                                 row={i}
                             />
 
-                            <Tltip direction='left' tltpText='Draft'>
+                            <Tltip direction='left' tltpText='Draft — this line is left out of the stock figures until unticked'>
                                 <div className='flex justify-center'>
                                     <ChkBox checked={x.draft ?? false} size='h-4 w-4' onChange={() => checkItemDrft(x.id)} />
                                 </div>
                             </Tltip>
 
-                            <Tltip direction='left' tltpText='Misc Inv'>
+                            <Tltip direction='left' tltpText='Misc invoice line — a charge, not material; needs its purchase invoice #'>
                                 <div className='flex justify-center'>
                                     <ChkBox checked={x.spInv ?? false} size='h-4 w-4' onChange={() => checkItemSP(x.id)} />
                                 </div>
@@ -687,7 +688,7 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowPoInvModal }) => {
                     onClick={() => setShowDocImport(true)}
                     title='Read the supplier invoice PDF — fills the material and actual weight.'
                 >
-                    <FileText />
+                    <BtnIcon action="autofill" />
                     Autofill from PDF
                 </Button>
 

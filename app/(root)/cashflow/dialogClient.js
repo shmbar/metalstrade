@@ -6,7 +6,7 @@ import { Button } from "../../../components/ui/button"
 import { useContext, useEffect, useState } from "react";
 import { MdClose } from "react-icons/md";
 
-import Datepicker from "react-tailwindcss-datepicker";
+import Datepicker from "@components/DatePicker"; // the library, with a tooltip on its icon button
 import { SettingsContext } from "../../../contexts/useSettingsContext";
 import { TbCoins } from "react-icons/tb";
 import { useNumericCaret } from "@utils/numericCaret";
@@ -70,7 +70,7 @@ const DoalogModalClient = ({ obj, clientPartialPayment }) => {
     return (
         <Popover open={open} onOpenChange={setOpen}>
             <PopoverTrigger asChild>
-                <button className="p-0 bg-transparent border-0 outline-none leading-none">
+                <button aria-label="Record a partial payment" className="p-0 bg-transparent border-0 outline-none leading-none">
                     <TbCoins className="w-3.5 h-3.5 text-[var(--endeavour)]"/>
                 </button>
             </PopoverTrigger>
@@ -81,7 +81,7 @@ const DoalogModalClient = ({ obj, clientPartialPayment }) => {
 ">
                 <div className="grid gap-2">
                     <div className="responsiveText justify-end flex">
-                        <MdClose
+                        <MdClose role="button" aria-label="Close"
                             className="scale-[1.5] cursor-pointer"
                             onClick={() => setOpen(false)}
                         />

@@ -26,13 +26,22 @@ import { useEffect } from 'react';
        on Escape, and on activation (click / Enter / Space);
      · closed when the pointer leaves the element, on pointer-down, and on scroll;
      · screen readers: the element is aria-describedby the tooltip while it shows;
-     · text as Radix rendered it: wrapped normally, not line-by-line. */
+     · text as Radix rendered it: wrapped normally, not line-by-line.
+
+   An ICON-ONLY control is also explained by its accessible name (client, 2026-09-30:
+   "fast, consistent tooltips explaining what each icon does"). A button, link or
+   role="button" with an aria-label and no text of its own shows that label — the name a
+   screen reader already speaks is exactly what the eye needs, so one attribute serves
+   both, and a new icon button gets its tooltip by being labelled. A control with
+   visible words shows nothing extra (the words are the explanation), and these tips do
+   not set aria-describedby: it would read the name out twice. */
 
 const GAP = 8;          // between the element and the tooltip, as sideOffset in ui/tooltip
 const EDGE = 8;         // kept clear of the viewport edge, as collisionPadding
 const TALL = 120;       // a TITLED element taller than this is a panel: anchor at the pointer
 const SKIP = 'iframe, object, embed, [data-native-title]';
-const TIPPED = '[data-tip], [title]';
+const NAMED = 'button[aria-label], a[aria-label], [role="button"][aria-label]';
+const TIPPED = `[data-tip], [title], ${NAMED}`;
 const BOX_ID = 'ims-tooltip';
 // .tooltip-pill (globals.css) is the one tooltip definition, shared with ui/tooltip.tsx.
 const CLASS = 'tooltip-pill pointer-events-none break-words';
@@ -59,7 +68,17 @@ export default function GlobalTooltip() {
             const tip = el.getAttribute('data-tip');
             if (tip != null && tip.trim()) return { tip: true, text: tip };
             const title = el.getAttribute('title');
-            return title && title.trim() ? { tip: false, text: title } : null;
+            if (title && title.trim()) return { tip: false, text: title };
+            const name = el.matches(NAMED) && !el.textContent.trim() ? el.getAttribute('aria-label') : null;
+            return name && name.trim() ? { tip: false, named: true, text: name } : null;
+        };
+        // The nearest element with something to show. A labelled control that has words of
+        // its own shows nothing, so the search goes on past it to whatever holds it — a
+        // titled card around a labelled "Save" button still shows the card's title.
+        const tippedFrom = (target) => {
+            let el = target.closest(TIPPED);
+            while (el && !textOf(el)) el = el.parentElement?.closest(TIPPED) || null;
+            return el;
         };
         const sideOf = (el) => {
             const s = el.getAttribute('data-tip-side');
@@ -119,7 +138,7 @@ export default function GlobalTooltip() {
             const title = el.getAttribute('title');
             if (title != null) el.removeAttribute('title');   // no grey box, whichever text shows
             const describedBy = el.getAttribute('aria-describedby');
-            el.setAttribute('aria-describedby', describedBy ? `${describedBy} ${BOX_ID}` : BOX_ID);
+            if (!t.named) el.setAttribute('aria-describedby', describedBy ? `${describedBy} ${BOX_ID}` : BOX_ID);
             /* The element re-rendering while it shows: a new title is taken again at once,
                before the browser can show it; a Tltip whose text changes follows it, and one
                whose `show` turns false (data-tip removed) closes. */
@@ -137,10 +156,16 @@ export default function GlobalTooltip() {
                     cur.text = nd;
                     cur.side = sideOf(el);
                 }
+                // A label that changes while it shows ("Copy" → "Copied") is followed too.
+                if (cur.named) {
+                    const nl = el.getAttribute('aria-label');
+                    if (nl == null || !nl.trim()) { hide(); return; }
+                    cur.text = nl;
+                }
                 if (box.style.display !== 'none' && cur.text.trim()) place(cur);
             });
-            observer.observe(el, { attributes: true, attributeFilter: ['title', 'data-tip', 'data-tip-side'] });
-            cur = { el, tip: t.tip, text: t.text, side: t.tip ? sideOf(el) : 'top', anchor: anchorOf(el, t.tip, e), via, title, describedBy, observer };
+            observer.observe(el, { attributes: true, attributeFilter: ['title', 'data-tip', 'data-tip-side', 'aria-label'] });
+            cur = { el, tip: t.tip, named: !!t.named, text: t.text, side: t.tip ? sideOf(el) : 'top', anchor: anchorOf(el, t.tip, e), via, title, describedBy, observer };
             place(cur);
             return true;
         };
@@ -154,14 +179,14 @@ export default function GlobalTooltip() {
                 // Inside the element already shown. Its own title is lifted, so closest() finds
                 // either an element INSIDE it — which wins, as the innermost title does in a
                 // browser — or the element itself / one above it, which change nothing.
-                const inner = target.closest(TIPPED);
+                const inner = tippedFrom(target);
                 if (inner && inner !== cur.el && cur.el.contains(inner) && !inner.closest(SKIP)) {
                     release();
                     if (!take(inner, 'pointer', e)) quiet();
                 }
                 return;
             }
-            const el = target.closest(TIPPED);
+            const el = tippedFrom(target);
             if (!el || el.closest(SKIP)) {
                 // Nothing to show here. A tooltip opened by keyboard focus stays, as in Radix.
                 if (cur && cur.via === 'pointer') hide();
@@ -179,12 +204,13 @@ export default function GlobalTooltip() {
         };
 
         // ── keyboard ───────────────────────────────────────────────────────────
-        // Tltip only: a native title never showed on focus, and still doesn't.
+        // Tltips and labelled icon-only controls: a native title never showed on focus, and
+        // still doesn't.
         const focusIn = (e) => {
             if (pointerIsDown) return;                         // focus from a click, as Radix
             const target = e.target instanceof Element ? e.target : null;
-            const el = target && target.closest('[data-tip]');
-            if (!el || el.closest(SKIP) || (cur && cur.el === el)) return;
+            const el = target && target.closest(`[data-tip], ${NAMED}`);
+            if (!el || el.closest(SKIP) || (cur && cur.el === el) || !textOf(el)) return;
             release();
             if (!take(el, 'focus', null)) quiet();
         };

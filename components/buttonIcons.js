@@ -36,12 +36,12 @@ import {
   Eraser,
   Eye,
   FileChartColumn,
-  FileSpreadsheet,
   FileText,
   FileUp,
   Files,
   FlaskConical,
   FolderInput,
+  Hash,
   History,
   Import,
   Info,
@@ -70,7 +70,24 @@ import {
   Undo2,
   Warehouse,
   X,
+  createLucideIcon,
 } from 'lucide-react';
+
+/* Excel — the Excel logo's shape (an X tile in front of a sheet), drawn in lucide's own
+   line style so it sits with every other glyph here. Chosen 2026-09-30 from three options
+   (a plain grid, a grid with a down arrow, this): the plain grid read as the Columns
+   button beside it on every table toolbar, and FileSpreadsheet before it read as any
+   document at 14px. This one reads as Excel without its tooltip. Built with lucide's
+   createLucideIcon, so size / strokeWidth / className behave exactly like the rest. */
+const ExcelMark = createLucideIcon('ExcelMark', [
+  ['path', { d: 'M13 6V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2v-1', key: 'sheet' }],
+  ['path', { d: 'M16 8h5', key: 'row1' }],
+  ['path', { d: 'M16 12h5', key: 'row2' }],
+  ['path', { d: 'M16 16h5', key: 'row3' }],
+  ['rect', { x: '3', y: '6', width: '10', height: '12', rx: '2', key: 'tile' }],
+  ['path', { d: 'm6 9 4 6', key: 'x1' }],
+  ['path', { d: 'm10 9-4 6', key: 'x2' }],
+]);
 
 /**
  * action name → glyph. Keys are lowercase and hyphen-free so a call site can
@@ -107,7 +124,7 @@ export const ACTION_ICONS = {
 
   // ── Documents & output ─────────────────────────────────────────────────
   pdf: FileText,
-  excel: FileSpreadsheet,
+  excel: ExcelMark,
   export: Download,
   preview: Eye,
   import: Import,
@@ -121,6 +138,10 @@ export const ACTION_ICONS = {
   contracts: Files,
   invoice: Files,
   invoices: ScrollText,
+  // Invoice NUMBERS (not invoices): the selection panel's "copy invoice numbers only",
+  // for a bank payment reference. A # says numbers; the scroll it wore read as a
+  // second document next to the Excel button.
+  numbers: Hash,
   payments: Banknote,
   expenses: PanelTopOpen,
   stocks: Warehouse,

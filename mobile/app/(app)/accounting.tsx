@@ -68,7 +68,7 @@ export default function Accounting() {
         title="Accounting"
         right={
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-            <IconButton icon="download-outline" accessibilityLabel="Export" onPress={onExport} />
+            <IconButton icon="download-outline" accessibilityLabel="Export CSV" onPress={onExport} />
             <PeriodSelector />
           </View>
         }

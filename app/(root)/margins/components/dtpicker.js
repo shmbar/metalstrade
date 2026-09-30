@@ -1,5 +1,5 @@
 'use client'
-import Datepicker from "react-tailwindcss-datepicker";
+import Datepicker from "@components/DatePicker"; // the library, with a tooltip on its icon button
 import Tltip from "../../../../components/tlTip";
 
 const getDateValue = (props) =>

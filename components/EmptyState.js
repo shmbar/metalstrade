@@ -1,6 +1,7 @@
 'use client';
 import { Inbox } from 'lucide-react';
 import { BtnIcon } from './buttonIcons';
+import { searchHint } from '@utils/search';
 
 // One empty-state look app-wide: muted lucide icon in a subtle circle + caption.
 // Usage: <EmptyState message="No contracts found" icon={FileText}
@@ -9,7 +10,11 @@ import { BtnIcon } from './buttonIcons';
 // The call-to-action is a real button in the band, so it leads with a glyph like
 // every other one. `action` names the verb (see buttonIcons.js) and defaults to
 // 'add' — an empty state's button is almost always "create the first one".
-export default function EmptyState({ message = 'No data available', hint, icon: Icon = Inbox, actionLabel, onAction, action = 'add', className = '' }) {
+//
+// `search` is the table's search text. When several words found nothing because no row
+// holds them all ("708 202"), the hint says how to list either one (utils/search.js).
+export default function EmptyState({ message = 'No data available', hint, search, icon: Icon = Inbox, actionLabel, onAction, action = 'add', className = '' }) {
+    hint = (search && searchHint(search)) || hint;
     return (
         <div className={`flex flex-col items-center justify-center gap-3 py-16 text-center ${className}`}>
             <div className="w-12 h-12 rounded-full bg-[var(--bg-subtle)] flex items-center justify-center">

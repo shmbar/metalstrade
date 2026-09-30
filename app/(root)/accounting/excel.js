@@ -1,7 +1,7 @@
 import { saveAs } from 'file-saver';
 // exceljs is dynamically imported inside exportExcel to keep it off the first-load bundle.
 // import removed: SiMicrosoft not available
-import { FileSpreadsheet } from 'lucide-react';
+import { BtnIcon } from '../../../components/buttonIcons';
 import dateFormat from "dateformat";
 import { getTtl } from '../../../utils/languages';
 import Tltip from '../../../components/tlTip';
@@ -188,11 +188,11 @@ export const EXD = (dataTable, settings, name, ln) => {
 
     return (
         <div className='relative'>
-            <Tltip direction='bottom' tltpText={getTtl('Excel', ln)}>
+            <Tltip direction='bottom' tltpText={getTtl('Export to Excel', ln)}>
                 <div onClick={() => exportExcel()}
                     className="justify-center w-8 h-8 inline-flex items-center responsiveText rounded-full focus:outline-none relative hover:drop-shadow-md hover:bg-[var(--selago)]"
                 >
-                    <FileSpreadsheet className="w-5 h-5" style={{ color: 'var(--endeavour)' }} strokeWidth={2} />
+                    <BtnIcon action="excel" className="w-5 h-5" style={{ color: 'var(--endeavour)' }} />
                 </div>
             </Tltip>
         </div>

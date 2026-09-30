@@ -406,7 +406,7 @@ const Customtable = ({
                       <td colSpan={columnsWithSelection.length}>
                         <EmptyState
                           message={getTtl('No data available', ln)}
-                          hint="Try adjusting your filters or date range"
+                          hint="Try adjusting your filters or date range" search={globalFilter}
                         />
                       </td>
                     </tr>
@@ -475,7 +475,7 @@ const Customtable = ({
               {table.getRowModel().rows.length === 0 && (
                 <EmptyState
                   message={getTtl('No data available', ln)}
-                  hint="Try adjusting your filters or date range"
+                  hint="Try adjusting your filters or date range" search={globalFilter}
                 />
               )}
             </div>

@@ -6,7 +6,7 @@ import dateFormat from 'dateformat';
 import { getD, reOrderTableInv, getAllfiles, uploadFile } from '../../../utils/utils';
 import { pickInvoiceFile, nameForInvoice } from '../../../utils/invoiceFiles';
 import { Pdf as InvoicePdf } from '../contracts/modals/pdf/pdfInvoice';
-import { FaFilePdf } from 'react-icons/fa';
+import { BtnIcon } from '@components/buttonIcons';
 import { FileUploader } from 'react-drag-drop-files';
 import PdfPagesView from '../../../components/PdfPagesView';
 
@@ -226,7 +226,7 @@ function SupplierDocPreview({ inv, onClose, settings, gisAccount }) {
                                     {files.map((f, i) => (
                                         <a key={i} href={f.url} target="_blank" rel="noreferrer"
                                             style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: 'var(--fs-table)', color: 'var(--endeavour)' }}>
-                                            <FaFilePdf size={11} /> {f.name}{f === primaryFile ? ' (shown above)' : ''}
+                                            <BtnIcon action="pdf" className="w-3 h-3" /> {f.name}{f === primaryFile ? ' (shown above)' : ''}
                                         </a>
                                     ))}
                                 </div>
@@ -271,7 +271,7 @@ function SupplierDocPreview({ inv, onClose, settings, gisAccount }) {
                                         {files.map((f, i) => (
                                             <a key={i} href={f.url} target="_blank" rel="noreferrer"
                                                 style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: 'var(--fs-table)', color: 'var(--endeavour)' }}>
-                                                <FaFilePdf size={11} /> {f.name}
+                                                <BtnIcon action="pdf" className="w-3 h-3" /> {f.name}
                                             </a>
                                         ))}
                                     </div>
@@ -422,7 +422,7 @@ function ClientDocPreview({ inv, onClose, settings, compData, gisAccount }) {
                                 border: 'none', letterSpacing: '0.3px',
                             }}
                         >
-                            <FaFilePdf size={11} /> Download PDF
+                            <BtnIcon action="pdf" className="w-3 h-3" /> Download PDF
                         </button>
                         <span style={{
                             padding: '3px 10px', borderRadius: '12px',
@@ -770,7 +770,7 @@ function ExpenseDocPreview({ inv, onClose, settings, gisAccount }) {
                                         {files.map((f, i) => (
                                             <a key={i} href={f.url} target="_blank" rel="noreferrer"
                                                 style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: 'var(--fs-table)', color: 'var(--endeavour)' }}>
-                                                <FaFilePdf size={11} /> {f.name}{f === primaryFile ? ' (shown above)' : ''}
+                                                <BtnIcon action="pdf" className="w-3 h-3" /> {f.name}{f === primaryFile ? ' (shown above)' : ''}
                                             </a>
                                         ))}
                                     </div>

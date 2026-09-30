@@ -146,8 +146,8 @@ const Documents = () => {
                                     ${editId === t.id ? 'bg-[var(--bg-card)] font-semibold' : ''}`}>
                                 <span onClick={() => edit(t)} className="flex-1 truncate">{t.nickname || t.name || '(unnamed)'}</span>
                                 <div className="flex gap-2 ml-2">
-                                    <PenLine size={14} className="opacity-50 hover:opacity-100 cursor-pointer" onClick={() => edit(t)} />
-                                    <Trash size={14} className="opacity-50 hover:opacity-100 cursor-pointer text-red-500" onClick={() => del(t.id)} />
+                                    <PenLine role="button" aria-label="Edit" size={14} className="opacity-50 hover:opacity-100 cursor-pointer" onClick={() => edit(t)} />
+                                    <Trash role="button" aria-label="Delete" size={14} className="opacity-50 hover:opacity-100 cursor-pointer text-red-500" onClick={() => del(t.id)} />
                                 </div>
                             </li>
                         ))}

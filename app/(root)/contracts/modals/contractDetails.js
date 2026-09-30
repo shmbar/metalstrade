@@ -3,7 +3,7 @@ import { useContext, useEffect, useState } from 'react'
 import { SettingsContext } from "@contexts/useSettingsContext";
 import { ContractsContext } from "@contexts/useContractsContext";
 import { InvoiceContext } from "@contexts/useInvoiceContext";
-import Datepicker from "react-tailwindcss-datepicker";
+import Datepicker from "@components/DatePicker"; // the library, with a tooltip on its icon button
 import { Pdf } from './pdf/pdfContract.js';
 import ProductsTable from './productsTable.js';
 import { convertWeight, convertPrice, convertCurrency, UNIT_LABEL } from '@utils/units';
@@ -682,7 +682,7 @@ const ContractModal = () => {
 							<div className='relative w-full responsiveText'>
 								<input type='text' className="input pr-7" style={{ fontFamily: 'inherit' }} name='deltime'
 									value={valueCon.deltime} onChange={handleValue} />
-								<button className='absolute right-2 top-1/2 -translate-y-1/2'>
+								<button aria-label="Clear — pick from the list instead" className='absolute right-2 top-1/2 -translate-y-1/2'>
 									<X className="size-4 text-[var(--ink-muted)]" onClick={caneclEditText} />
 								</button>
 							</div>
@@ -704,7 +704,7 @@ const ContractModal = () => {
 						<div className='flex relative w-full responsiveText'>
 							<textarea rows="2" className="input p-1 !rounded-lg resize-none w-full pr-7" style={{ fontFamily: 'inherit' }} name='termPmnt'
 								value={valueCon.termPmnt} onChange={handleValue} />
-							<button type='button' className='absolute right-2 top-2' onClick={caneclEditTextPmnt}>
+							<button aria-label="Clear — pick from the list instead" type='button' className='absolute right-2 top-2' onClick={caneclEditTextPmnt}>
 								<X className="size-4 text-[var(--ink-muted)]" />
 							</button>
 						</div>

@@ -431,7 +431,7 @@ const Customtable = ({ data, columns, invisible, excellReport, onCellUpdate, und
                         colSpan={columnsWithSelection.length}
                         className="py-24 text-center"
                       >
-                        <EmptyState message={getTtl('No data available', ln)} hint="Try adjusting your filters or date range" />
+                        <EmptyState message={getTtl('No data available', ln)} hint="Try adjusting your filters or date range" search={globalFilter} />
                       </td>
                     </tr>
                   )}

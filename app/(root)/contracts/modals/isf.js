@@ -1,6 +1,6 @@
 import { Selector } from '@components/selectors/selectShad';
 import { PdfISF } from './pdf/pdfISF';
-import { FileText } from 'lucide-react';
+import { BtnIcon } from '@components/buttonIcons';
 
 /* Mirrors annexVII.js — the two render in the same accordion, so they share a layout
    vocabulary: four columns, a span for the fields that hold prose, and the app’s own
@@ -75,7 +75,7 @@ const ISF = ({ valueInv, setValueInv, compData, settings, valueCon }) => {
                     className="flex items-center gap-1.5 px-3 py-1 rounded-lg responsiveTextInput font-medium
                         bg-[var(--brand)] text-[var(--on-brand)] hover:bg-[var(--brand-strong)] transition-colors"
                 >
-                    <FileText size={13} /> ISF PDF
+                    <BtnIcon action="pdf" /> ISF PDF
                 </button>
             </div>
 

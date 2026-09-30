@@ -10,9 +10,9 @@ import ChkBox from '@components/checkbox';
 import { v4 as uuidv4 } from 'uuid';
 import { getTtl } from '@utils/languages';
 import { existingSalesInvoiceNumbers, loadData } from '@utils/utils';
-import Datepicker from "react-tailwindcss-datepicker";
+import Datepicker from "@components/DatePicker"; // the library, with a tooltip on its icon button
 import { Button } from '@components/ui/button';
-import { CirclePlus, CircleMinus, Trash, ArrowBigRight, FileText, Download, X } from "lucide-react";
+import { CirclePlus, CircleMinus, Trash, ArrowBigRight, Download, X } from "lucide-react";
 import { BtnIcon } from "@components/buttonIcons";
 import DocumentImportOverlay from '@components/DocumentImportOverlay';
 import { matchesAllWords } from '@utils/search';
@@ -443,9 +443,9 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowStockModal }) => {
                                         <ChkBox checked={checkedItems.includes(x.id)} size='size-5' onChange={() => checkItem(x.id)} />
                                     </div>
                                     {expand !== x.id ?
-                                        <CirclePlus className='mt-3 text-[var(--regent-gray)] mr-2 cursor-pointer' onClick={() => expandDiv(x.id)} />
+                                        <CirclePlus role="button" aria-label="Show details" className='mt-3 text-[var(--regent-gray)] mr-2 cursor-pointer' onClick={() => expandDiv(x.id)} />
                                         :
-                                        <CircleMinus className='mt-3 text-[var(--regent-gray)] mr-2 cursor-pointer' onClick={() => expandDiv(x.id)} />
+                                        <CircleMinus role="button" aria-label="Hide details" className='mt-3 text-[var(--regent-gray)] mr-2 cursor-pointer' onClick={() => expandDiv(x.id)} />
                                     }
                                     <div className='gap-3 flex'>
                                         <div className=''>
@@ -472,9 +472,7 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowStockModal }) => {
                                                     style={{ color: Number(x.blnc) > 0 ? 'var(--bad-text)' : undefined }}
                                                     value={addComma(x.blnc, true, 'total')} />
                                                 <div className='group relative'>
-                                                    <ArrowBigRight className='text-[var(--regent-gray)] ml-3 cursor-pointer' onClick={switchToStocks} />
-                                                    <span className="absolute hidden group-hover:flex top-[30px] w-fit tooltip-pill text-center z-10 whitespace-nowrap -left-2">
-                                                        {getTtl('Stocks', ln)}</span>
+                                                    <ArrowBigRight role="button" aria-label="Open the Materials Breakdown" className='text-[var(--regent-gray)] ml-3 cursor-pointer' onClick={switchToStocks} />
                                                 </div>
                                             </div>
                                         </div>
@@ -586,7 +584,7 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowStockModal }) => {
                     onClick={() => setShowDocImport(true)}
                     title='Drop a supplier invoice/proforma PDF — AI reads the invoice number and value.'
                 >
-                    <FileText />
+                    <BtnIcon action="autofill" />
                     Autofill from PDF
                 </Button>
 
@@ -621,7 +619,7 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowStockModal }) => {
                             <p className='responsiveText font-semibold text-[var(--chathams-blue)]'>
                                 Invoices issued on {counterpartName}
                             </p>
-                            <X className='w-4 h-4 cursor-pointer text-[var(--regent-gray)]' onClick={() => setShowMirror(false)} />
+                            <X role="button" aria-label="Close" className='w-4 h-4 cursor-pointer text-[var(--regent-gray)]' onClick={() => setShowMirror(false)} />
                         </div>
                         <p className='responsiveTextTable text-[var(--regent-gray)]'>
                             Pick the {counterpartName} invoice for this contract — its exact figure is copied here, so both accounts match to the cent. Last 2 years shown.

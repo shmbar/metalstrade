@@ -155,7 +155,7 @@ export function Selector({ arr, value, onChange, name, clear, disabled, secondar
                 <SelectValue placeholder="Select" />
 
                 {clear &&
-                    <div
+                    <div role="button" aria-label="Clear selection"
                         type="button"
                         onClick={clearSelection}
                         onPointerDown={(e) => {

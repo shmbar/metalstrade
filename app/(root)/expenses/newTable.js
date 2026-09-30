@@ -1232,7 +1232,7 @@ const Customtable = ({
                     <tr>
                       <td colSpan={totalCols} className="py-24 text-center"
                         style={{ border: 'none' }}>
-                        <EmptyState message={getTtl('No data available', ln)} hint="Try adjusting your filters or date range" />
+                        <EmptyState message={getTtl('No data available', ln)} hint="Try adjusting your filters or date range" search={globalFilter} />
                       </td>
                     </tr>
                   )}

@@ -807,7 +807,7 @@ const FloatingChat = () => {
                                 </span>
                             </button>
                             ) : (
-                            <button
+                            <button aria-label="Send message"
                                 onClick={() => handleSendMessage()}
                                 disabled={!newMessage.trim() || isLoading || dataLoading}
                                 className="p-1.5 bg-[var(--brand)] text-[var(--on-brand)] rounded-lg hover:bg-[var(--brand-strong)] transition-colors disabled:opacity-40 disabled:cursor-not-allowed flex-shrink-0"

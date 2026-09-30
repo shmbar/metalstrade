@@ -1,7 +1,7 @@
 import { useContext, useEffect, useState } from 'react'
 import { ExpensesContext } from "../../../../contexts/useExpensesContext";
 import { ContractsContext } from "../../../../contexts/useContractsContext";
-import Datepicker from "react-tailwindcss-datepicker";
+import Datepicker from "@components/DatePicker"; // the library, with a tooltip on its icon button
 import { Selector } from '../../../../components/selectors/selectShad.js'
 import { SettingsContext } from "../../../../contexts/useSettingsContext";
 import { InvoiceContext } from "../../../../contexts/useInvoiceContext";

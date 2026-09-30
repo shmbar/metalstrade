@@ -40,7 +40,7 @@ export default function Example({ isSelection, selectOrEdit, indx, ln }) {
 
     return (
         <div>
-            <button ref={btnRef} onClick={handleOpen} type="button">
+            <button aria-label="More options" ref={btnRef} onClick={handleOpen} type="button">
                 <BsThreeDotsVertical className='scale-125 font-medium' />
             </button>
 

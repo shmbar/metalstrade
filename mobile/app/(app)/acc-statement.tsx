@@ -103,7 +103,7 @@ export default function AccStatement() {
         {!!rows?.length && (
           <View style={{ flexDirection: 'row', gap: 10 }}>
             <Button title="PDF" variant="secondary" fullWidth={false} style={{ flex: 1 }} onPress={onExportPdf} leftIcon={<Ionicons name="document-text-outline" size={16} color={colors.primary} />} />
-            <Button title="Excel (CSV)" variant="secondary" fullWidth={false} style={{ flex: 1 }} onPress={onExportCsv} leftIcon={<Ionicons name="grid-outline" size={16} color={colors.primary} />} />
+            <Button title="Excel (CSV)" variant="secondary" fullWidth={false} style={{ flex: 1 }} onPress={onExportCsv} leftIcon={<Ionicons name="download-outline" size={16} color={colors.primary} />} />
           </View>
         )}
       </Card>

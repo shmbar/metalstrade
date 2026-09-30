@@ -53,7 +53,7 @@ const RowDragHandleCell = ({ rowId }) => {
     });
     return (
         // Alternatively, you could set these attributes on the rows themselves
-        <button {...attributes} {...listeners} className='cursor-grabbing'>
+        <button aria-label="Drag to reorder" {...attributes} {...listeners} className='cursor-grabbing'>
             <GripVertical size={14} style={{ color: 'var(--ink-muted)' }} />
         </button>
     );

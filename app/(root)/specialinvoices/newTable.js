@@ -442,7 +442,7 @@ const Customtable = ({
   {table.getRowModel().rows.length === 0 && (
     <tr>
       <td colSpan={columnsWithSelection.length} className="py-24 text-center">
-        <EmptyState message={getTtl('No data available', ln)} hint="Try adjusting your filters or date range" />
+        <EmptyState message={getTtl('No data available', ln)} hint="Try adjusting your filters or date range" search={globalFilter} />
       </td>
     </tr>
   )}

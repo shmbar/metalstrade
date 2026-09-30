@@ -19,7 +19,7 @@ import { PdfAccountStatement } from '../contracts/modals/pdf/pdfAccountStatement
 import Tooltip from '../../../components/tooltip';
 import Tltip from '../../../components/tlTip';
 
-import Datepicker from "react-tailwindcss-datepicker";
+import Datepicker from "@components/DatePicker"; // the library, with a tooltip on its icon button
 
 import { disabledDates } from './disabledDates';
 import { TableSkeleton } from "../../../components/skeletons";

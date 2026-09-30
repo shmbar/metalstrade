@@ -87,9 +87,9 @@ function MonthPickerPill({ value, onChange }) {
                     <div className="fixed inset-0 z-page-popover" onClick={() => setOpen(false)} />
                     <div className="fixed z-dropdown rounded-2xl shadow-xl bg-[var(--bg-card)] border border-[var(--bg-subtle)] overflow-hidden" style={{ top: pos.top, bottom: pos.bottom, left: pos.left, width: 224 }}>
                         <div className="flex items-center justify-between py-1.5 px-2" style={{ background: 'var(--bg-subtle)' }}>
-                            <button type="button" onClick={() => setViewYear(y => y - 1)} className="p-1 rounded hover:bg-[var(--bg-subtle)]"><ChevronLeft className="w-4 h-4 text-[var(--endeavour)]" /></button>
+                            <button aria-label="Previous year" type="button" onClick={() => setViewYear(y => y - 1)} className="p-1 rounded hover:bg-[var(--bg-subtle)]"><ChevronLeft className="w-4 h-4 text-[var(--endeavour)]" /></button>
                             <span className="font-semibold" style={{ fontSize: 'var(--fs-title)', color: 'var(--chathams-blue)' }}>{viewYear}</span>
-                            <button type="button" onClick={() => setViewYear(y => y + 1)} className="p-1 rounded hover:bg-[var(--bg-subtle)]"><ChevronRight className="w-4 h-4 text-[var(--endeavour)]" /></button>
+                            <button aria-label="Next year" type="button" onClick={() => setViewYear(y => y + 1)} className="p-1 rounded hover:bg-[var(--bg-subtle)]"><ChevronRight className="w-4 h-4 text-[var(--endeavour)]" /></button>
                         </div>
                         <div className="grid grid-cols-3 gap-1 p-2">
                             {MONTHS.map((m, i) => {

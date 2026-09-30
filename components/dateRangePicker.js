@@ -188,8 +188,8 @@ const DateRangePicker = ({ displayLabel }) => {
 
             <div className="relative w-full header-datepicker">
                 <Datepicker
-                    toggleIcon={() => (
-                        <FaRegCalendarAlt className="responsiveTextInput" style={{ color: 'var(--chathams-blue)' }} />
+                    toggleIcon={(isEmpty) => (
+                        <FaRegCalendarAlt data-tip={isEmpty ? 'Pick a date range' : 'Clear the dates and pick again'} className="responsiveTextInput" style={{ color: 'var(--chathams-blue)' }} />
                     )}
                     inputClassName="
                         responsiveText font-medium h-7 py-0 pl-7 pr-4

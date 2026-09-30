@@ -1,6 +1,6 @@
 import { useContext, useState } from 'react'
 import { useNumericCaret } from '@utils/numericCaret';
-import Datepicker from "react-tailwindcss-datepicker";
+import Datepicker from "@components/DatePicker"; // the library, with a tooltip on its icon button
 import { SettingsContext } from "@contexts/useSettingsContext";
 import { InvoiceContext } from "@contexts/useInvoiceContext";
 import { ContractsContext } from "@contexts/useContractsContext";
@@ -175,7 +175,7 @@ const Payments = ({ showPayments }) => {
                                     <div className='flex'>
                                         <input type='text' className="number-separator input shadow-lg h-7 -mt-[0.03rem] responsiveTextInput" style={{ fontFamily: 'inherit' }} name='pmnt'
                                             value={addComma(x.pmnt)} onChange={e => { rememberCaret(e); handleValue(e, i); }} />
-                                        {i === 0 && <button className='relative right-6 '>
+                                        {i === 0 && <button aria-label="Fill in the amount due" className='relative right-6 '>
                                             <BtnIcon action="payments" className='text-[var(--ink-muted)]' onClick={setPrepPayment} />
                                         </button>}
                                     </div>

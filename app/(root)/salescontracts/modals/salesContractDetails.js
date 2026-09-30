@@ -1,6 +1,6 @@
 'use client'
 import { useContext, useEffect, useMemo, useState } from 'react'
-import Datepicker from "react-tailwindcss-datepicker";
+import Datepicker from "@components/DatePicker"; // the library, with a tooltip on its icon button
 import dateFormat from 'dateformat';
 import { Link2 } from 'lucide-react';
 import { SettingsContext } from "@contexts/useSettingsContext";

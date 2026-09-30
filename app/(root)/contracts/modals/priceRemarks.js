@@ -92,8 +92,8 @@ focus:outline-0 focus:border-slate-600 indent-1.5 responsiveTextTable text-[var(
                             }
 
                             {edit.id !== x.id && <div className='flex gap-4'>
-                                <Pencil size={16} className='opacity-50 cursor-pointer' onClick={() => editItem(x)} />
-                                <Trash size={16} className='opacity-50 cursor-pointer' onClick={() => deleteItem(x)} />
+                                <Pencil role="button" aria-label="Edit remark" size={16} className='opacity-50 cursor-pointer' onClick={() => editItem(x)} />
+                                <Trash role="button" aria-label="Delete remark" size={16} className='opacity-50 cursor-pointer' onClick={() => deleteItem(x)} />
                             </div>}
                         </li>
 

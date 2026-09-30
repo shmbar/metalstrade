@@ -56,6 +56,15 @@ describe('labelAwareGlobalFilter — a row that stands for others is searched by
         expect(keeps(makeRow({ order: '1' }), 'incompleted')).toBe(false);   // no such column: nothing added
     });
 
+    it('a comma in the search box lists either side (Stocks, "708, 202")', () => {
+        const r708 = makeRow({ order: '310826', descriptionName: '708 Solids' });
+        const r202 = makeRow({ order: '290126', descriptionName: '202 Turnings' });
+        expect(keeps(r708, '708, 202')).toBe(true);
+        expect(keeps(r202, '708, 202')).toBe(true);
+        expect(keeps(r202, '708 202')).toBe(false);
+        expect(labelAwareGlobalFilter.autoRemove(' , ')).toBe(true);   // commas alone = no search
+    });
+
     it('a plain row still matches only its own cells', () => {
         const row = makeRow({ order: '110926', descriptionName: 'MoW Oxide' });
         expect(keeps(row, 'mow 110926')).toBe(true);

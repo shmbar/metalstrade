@@ -118,7 +118,7 @@ const Users = () => {
           );
         }
         return (
-          <button
+          <button aria-label="Delete user"
             onClick={() => Delete(props)}
             className="flex items-center justify-center w-full"
           >

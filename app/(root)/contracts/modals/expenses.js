@@ -2,7 +2,7 @@
 
 import { useContext, useState, useEffect } from 'react'
 import { ExpensesContext } from "@contexts/useExpensesContext";
-import Datepicker from "react-tailwindcss-datepicker";
+import Datepicker from "@components/DatePicker"; // the library, with a tooltip on its icon button
 import { SettingsContext } from "@contexts/useSettingsContext";
 import { InvoiceContext } from "@contexts/useInvoiceContext";
 import ModalToDelete from '@components/modalToProceed';
@@ -13,7 +13,7 @@ import { usePathname } from 'next/navigation'
 import { getTtl } from '@utils/languages';
 import Tltip from '@components/tlTip';
 import { Selector } from '@components/selectors/selectShad';
-import { Eraser, Trash, FileText } from "lucide-react"
+import { Eraser, Trash } from "lucide-react"
 import { BtnIcon } from '@components/buttonIcons';
 import { Button } from '@components/ui/button';
 import DocumentImportOverlay from '@components/DocumentImportOverlay';
@@ -243,7 +243,7 @@ const Expenses = ({ showExpenses }) => {
                                         variant='outline'
                                         onClick={() => setShowDocImport(true)}
                                     >
-                                        <FileText />
+                                        <BtnIcon action="autofill" />
                                         Autofill from PDF
                                     </Button>
                                 </Tltip>

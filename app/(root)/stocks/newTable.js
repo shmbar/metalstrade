@@ -361,7 +361,7 @@ const Customtable = ({
                                   <span className="shrink-0" style={{ color: 'var(--brand)' }} aria-hidden>&#8627;</span>
                                 )}
                                 {isDesc && row.getCanExpand() && (
-                                  <button type="button" onClick={(e) => { e.stopPropagation(); row.toggleExpanded(); }}
+                                  <button aria-label={row.getIsExpanded() ? 'Hide lines' : 'Show lines'} type="button" onClick={(e) => { e.stopPropagation(); row.toggleExpanded(); }}
                                     className="shrink-0 inline-flex">
                                     <ChevronRight className="w-3 h-3 transition-transform"
                                       style={{ transform: row.getIsExpanded() ? 'rotate(90deg)' : 'none', color: 'var(--endeavour)' }} />
@@ -390,7 +390,7 @@ const Customtable = ({
                       <td colSpan={columnsWithSelection.length}>
                         <EmptyState
                           message={getTtl('No data available', ln)}
-                          hint="Try adjusting your filters or date range"
+                          hint="Try adjusting your filters or date range" search={globalFilter}
                         />
                       </td>
                     </tr>
@@ -481,7 +481,7 @@ const Customtable = ({
 
               {/* Empty state for mobile */}
               {table.getRowModel().rows.length === 0 && (
-                <EmptyState message="No stock data" hint="Try adjusting your filters or date range" />
+                <EmptyState message="No stock data" hint="Try adjusting your filters or date range" search={globalFilter} />
               )}
             </div>
           </div>

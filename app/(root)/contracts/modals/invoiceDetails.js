@@ -4,7 +4,7 @@ import { SettingsContext } from "@contexts/useSettingsContext";
 import { InvoiceContext } from "@contexts/useInvoiceContext";
 import { ContractsContext } from "@contexts/useContractsContext";
 import { ExpensesContext } from "@contexts/useExpensesContext";
-import Datepicker from "react-tailwindcss-datepicker";
+import Datepicker from "@components/DatePicker"; // the library, with a tooltip on its icon button
 import { Pdf } from './pdf/pdfInvoice.js';
 import { PdfFnlCncl } from './pdfInvoiceFnlCncl.js';
 import ProductsTable from './productsTableInvoice.js';

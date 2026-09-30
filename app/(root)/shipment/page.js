@@ -8,7 +8,7 @@ import VideoLoader from '../../../components/videoLoader';
 import { TableSkeleton } from "../../../components/skeletons";
 import Toast from '../../../components/toast.js';
 import DateRangePicker from '../../../components/dateRangePicker';
-import Datepicker from "react-tailwindcss-datepicker";
+import Datepicker from "@components/DatePicker"; // the library, with a tooltip on its icon button
 import { useRouter } from 'next/navigation';
 import { HiMiniChevronUpDown } from 'react-icons/hi2';
 import Image from 'next/image';
@@ -17,7 +17,7 @@ import Tltip from '../../../components/tlTip';
    inherit currentColor, so a file-based icon keeps one baked-in colour and stops
    following the theme — which is exactly how the chat and filter icons here
    ended up off-theme while the PDF icon beside them was fine. */
-import { FileSpreadsheet, MessageSquare, Filter, Check } from 'lucide-react';
+import { MessageSquare, Filter, Check } from 'lucide-react';
 import BtnIcon, { SearchAdornment } from '../../../components/buttonIcons';
 import ProgressBar from '../../../components/ProgressBar';
 import Avatar from '../../../components/Avatar';
@@ -29,7 +29,7 @@ import { Fragment } from 'react';
 import { SHIPMENT_STATUSES, SHIPMENT_STATUS_STYLES, normalizeStatus } from '../contractsstatement/shipmentStatus';
 import SortIcon from "@components/table/SortIcon";
 import { useTablePrefs } from '@components/table/useTablePrefs';
-import { matchesAllWords, shownAs } from '@utils/search';
+import { matchesAllWords, shownAs, searchHint } from '@utils/search';
 
 // Shipment lifecycle vocabulary/colors live in a shared module so the Contracts Statement
 // follows the exact same statuses (see ../contractsstatement/shipmentStatus).
@@ -1379,12 +1379,12 @@ const ShipmentPage = () => {
                                     onClick={exportExcel}
                                     className="w-8 h-8 inline-flex items-center justify-center rounded hover:bg-[var(--selago)] cursor-pointer text-[var(--endeavour)] transition-colors"
                                 >
-                                    <FileSpreadsheet size={16} />
+                                    <BtnIcon action="excel" className="w-4 h-4" />
                                 </div>
                             </Tltip>
 
                             {/* Filter icon — toggles status chips */}
-                            <Tltip direction="bottom" tltpText="Filters">
+                            <Tltip direction="bottom" tltpText="Filter by status">
                                 <button
                                     onClick={() => setShowFilters(p => !p)}
                                     className={`w-8 h-8 inline-flex items-center justify-center rounded hover:bg-[var(--selago)] cursor-pointer text-[var(--endeavour)] transition-colors ${showFilters ? 'bg-[var(--selago)]' : ''}`}
@@ -1584,6 +1584,7 @@ const ShipmentPage = () => {
                                     <tr>
                                         <td colSpan={15} style={{ textAlign: 'center', padding: '32px', color: 'var(--regent-gray)' }}>
                                             No shipments found.
+                                            {searchHint(search) && <div className='mt-1 text-[var(--ink-muted)]'>{searchHint(search)}</div>}
                                         </td>
                                     </tr>
                                 )}
@@ -1913,7 +1914,10 @@ const ShipmentPage = () => {
                     {/* Cards — Mobile */}
                     <div className="block md:hidden px-2 py-2 space-y-3">
                         {filtered.length === 0 && !loading && (
-                            <div className="text-center py-8 text-[var(--regent-gray)] responsiveTextTitle">No shipments found.</div>
+                            <div className="text-center py-8 text-[var(--regent-gray)] responsiveTextTitle">
+                                No shipments found.
+                                {searchHint(search) && <div className='mt-1 text-[var(--ink-muted)]'>{searchHint(search)}</div>}
+                            </div>
                         )}
                         {paginated.map((contract) => {
                             const mainInv = getMainInvoice(contract);

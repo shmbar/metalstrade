@@ -5,7 +5,7 @@ import { saveAs } from 'file-saver';
 import dateFormat from "dateformat";
 import { getTtl } from '../../../utils/languages';
 import Tltip from '../../../components/tlTip';
-import { FileSpreadsheet } from 'lucide-react';
+import { BtnIcon } from '../../../components/buttonIcons';
 
 
 const styles = { alignment: { horizontal: 'center', vertical: 'middle' } }
@@ -111,12 +111,12 @@ export const EXD = (dataTable, settings, name, ln) => {
 
     return (
         <div>
-            <Tltip direction='bottom' tltpText={getTtl('Excel', ln)}>
+            <Tltip direction='bottom' tltpText={getTtl('Export to Excel', ln)}>
                 <div onClick={() => exportExcel()}
                     className="hover:bg-[var(--selago)] justify-center w-8 h-8 inline-flex
      items-center responsiveTextTitle rounded-lg  hover:drop-shadow-md focus:outline-none cursor-pointer"
                 >
-                    <FileSpreadsheet className="w-5 h-5" style={{ color: 'var(--endeavour)' }} strokeWidth={2} />
+                    <BtnIcon action="excel" className="w-5 h-5" style={{ color: 'var(--endeavour)' }} />
                 </div>
             </Tltip>
         </div>

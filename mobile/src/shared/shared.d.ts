@@ -224,12 +224,16 @@ declare module '@shared/activityStats' {
 }
 
 declare module '@shared/search' {
-  /** The query as keywords: lower-cased, accent-stripped, empty when blank. */
+  /** The query as keywords: lower-cased, accent-stripped, empty when blank. Alternatives
+   *  ("708, 202") are kept in the one list with a break marker between them. */
   export function searchWords(query: string | null | undefined): string[];
-  /** Every keyword in `query` appears somewhere in `fields`. Blank query = match. */
+  /** Every keyword in `query` appears somewhere in `fields` — or, with commas, every keyword
+   *  of any one alternative does. Blank query = match. */
   export function matchesAllWords(fields: any, query: string | string[] | null | undefined): boolean;
   /** The ways a stored value is shown (dates, figures, flags), so a search finds what is on screen. */
   export function shownAs(value: unknown): string[];
+  /** An empty list's hint when a several-word search found nothing ("708 202" → type 708, 202). */
+  export function searchHint(query: string | null | undefined): string | null;
   const _default: typeof matchesAllWords;
   export default _default;
 }

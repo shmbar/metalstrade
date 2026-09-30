@@ -78,7 +78,7 @@ const Remraks = ({ value, setValue, settings }) => {
                                         onChange={(e) => handleChange(e, 'rmrk', i)}
                                         name='rmrk'
                                      />
-                                    <Trash size={16} className='opacity-50 cursor-pointer' onClick={() => deleteItem(i)} />
+                                    <Trash role="button" aria-label="Delete remark" size={16} className='opacity-50 cursor-pointer' onClick={() => deleteItem(i)} />
                                 </div>
                                 :
                                 <div className='flex pt-1 items-center w-full gap-x-3'>
@@ -86,10 +86,10 @@ const Remraks = ({ value, setValue, settings }) => {
                                     truncate pr-10" name='rmrk'
                                         value={x.rmrk} onChange={(e) => handleValue(e, i)} />
                                     <div className='absolute right-12 '>
-                                        <X className="size-5 text-[var(--regent-gray)]  hover:text-[var(--regent-gray)] cursor-pointer"
+                                        <X role="button" aria-label="Cancel editing" className="size-5 text-[var(--regent-gray)]  hover:text-[var(--regent-gray)] cursor-pointer"
                                             onClick={() => caneclEditText(i)} />
                                     </div>
-                                    <Trash size={16} className='opacity-50 cursor-pointer' onClick={() => deleteItem(i)} />
+                                    <Trash role="button" aria-label="Delete remark" size={16} className='opacity-50 cursor-pointer' onClick={() => deleteItem(i)} />
                                 </div>
                             }
                         </li>

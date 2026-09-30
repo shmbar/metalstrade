@@ -241,7 +241,7 @@ const GlobalSearch = () => {
                     className='w-full pl-10 pr-10 py-2.5 rounded-lg bg-[var(--bg-card)] border border-gray-300 focus:border-[var(--rock-blue)] focus:outline-none responsiveText text-[var(--port-gore)] placeholder-gray-500 transition-all'
                 />
                 {searchQuery && (
-                    <button
+                    <button aria-label="Clear search"
                         onClick={() => setSearchQuery('')}
                         className='absolute right-3 top-1/2 -translate-y-1/2 text-[var(--regent-gray)] hover:text-[var(--port-gore)]'
                     >

@@ -114,6 +114,7 @@ const TitlesArr = [
     ///****Table */
     { Columns: ['Columns', 'Столбцы'] },
     { Excel: ['Excel', 'Эксель'] },
+    { 'Export to Excel': ['Export to Excel', 'Экспорт в Excel'] },
     { Search: ['Search', 'Поиск'] },
     { Showing: ['Showing', 'Показаны'] },
     { 'Rows per page': ['Rows per page', 'Строк на странице'] },

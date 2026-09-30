@@ -1,6 +1,6 @@
 import { useContext, useState, useEffect } from 'react'
 import { ExpensesContext } from "@contexts/useExpensesContext";
-import Datepicker from "react-tailwindcss-datepicker";
+import Datepicker from "@components/DatePicker"; // the library, with a tooltip on its icon button
 import { SettingsContext } from "@contexts/useSettingsContext";
 import { validate, ErrDiv, uploadFile } from '@utils/utils'
 import ExpenseFilesModal from '../../expenses/modals/filesModal'

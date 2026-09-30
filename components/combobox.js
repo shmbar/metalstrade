@@ -101,10 +101,10 @@ const MyCombobox = ({ data, setValue, value, name, classes, disabled, classes1, 
                             displayValue={(value) => (data.find(y => y.id === value[name]) || {})[name] || value[name]}
                             onChange={(event) => setQuery(event.target.value)}
                         />
-                        <ComboboxButton className="absolute inset-y-0 right-0 flex items-center pr-2">
+                        <ComboboxButton aria-label="Show options" className="absolute inset-y-0 right-0 flex items-center pr-2">
                             {({ open }) => (
                                 <>
-                                    {!dis && <MdClear
+                                    {!dis && <MdClear data-tip="Clear"
                                         className="size-5 text-[var(--endeavour)] hover:text-[var(--port-gore)]"
                                         aria-hidden="true"
                                         onClick={Cncl}

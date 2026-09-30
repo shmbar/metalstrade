@@ -108,8 +108,8 @@ focus:outline-0 focus:border-[var(--endeavour)] indent-1.5 text-[var(--endeavour
                                     one" — it is not a positive status. Muted ink, and
                                     delete keeps the danger token because destructive
                                     actions are the one thing worth colouring. */}
-                                <PenLine size={14} className='text-[var(--ink-muted)] cursor-pointer hover:text-[var(--brand)] transition-colors' onClick={() => editItem(x)} />
-                                <Trash size={14} className='text-[var(--ink-muted)] cursor-pointer hover:text-[var(--danger-text)] transition-colors' onClick={() => deleteItem(x)} />
+                                <PenLine role="button" aria-label="Edit" size={14} className='text-[var(--ink-muted)] cursor-pointer hover:text-[var(--brand)] transition-colors' onClick={() => editItem(x)} />
+                                <Trash role="button" aria-label="Delete" size={14} className='text-[var(--ink-muted)] cursor-pointer hover:text-[var(--danger-text)] transition-colors' onClick={() => deleteItem(x)} />
                             </div>}
                         </li>
                     )

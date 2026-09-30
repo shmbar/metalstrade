@@ -100,7 +100,7 @@ const SideBarMini = () => {
             />
           </div>
           <div className='relative' ref={searchRef}>
-            <Search
+            <Search role="button" aria-label="Search"
               size={20} strokeWidth={1.75}
               className="text-[var(--ink-secondary)] cursor-pointer ml-4"
               onClick={() => {

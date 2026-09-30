@@ -1,7 +1,8 @@
 'use client';
 import { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
-import { X, Download, Printer, Loader2 } from 'lucide-react';
+import { X, Printer, Loader2 } from 'lucide-react';
+import { BtnIcon } from './buttonIcons';
 
 /**
  * In-app PDF viewer. Renders a jsPDF-produced Blob in an iframe so users can
@@ -83,7 +84,7 @@ const PdfPreview = ({ blob, filename = 'document.pdf', title, onClose }) => {
                             className='flex items-center gap-1 px-2.5 py-1 rounded-lg border transition-colors hover:border-[var(--endeavour)]'
                             style={{ fontSize: 'var(--fs-table)', borderColor: 'var(--line)', color: 'var(--chathams-blue)', background: 'var(--bg-card)' }}
                         >
-                            <Download className='w-3 h-3' /> Download
+                            <BtnIcon action="export" className="w-3 h-3" /> Download
                         </button>
                         <button
                             onClick={print}
