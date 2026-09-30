@@ -595,7 +595,8 @@ const ProductsTable = ({ value, setValue, currency, settings, uidCollection, set
                                                                     style={{ fontSize: 'inherit', fontFamily: 'inherit' }}
                                                                     onKeyDown={handleKeyPress3}
                                                                     value={valueDesc}
-                                                                    maxLength={80}
+                                                                    // the PO's description length (productsTable.js DESC_MAX)
+                                                                    maxLength={150}
                                                                     name='description'
                                                                     onChange={(e) => setValueDesc(e.target.value)}
                                                                     ref={inputRef}

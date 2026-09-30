@@ -85,7 +85,8 @@ export function ProductsEditor({ products, currency, onChange, priceMode = 'unit
             <View style={{ flex: 1 }}>
               <TextField
                 value={String(p.qnty ?? '')}
-                onChangeText={(t) => update(p.id, { qnty: t })}
+                // A figure typed here replaces any "=…" formula the web stored for it.
+                onChangeText={(t) => update(p.id, { qnty: t, eqQnty: null })}
                 placeholder="Qty"
                 keyboardType="decimal-pad"
               />
@@ -104,7 +105,7 @@ export function ProductsEditor({ products, currency, onChange, priceMode = 'unit
                 <View style={{ flex: 1 }}>
                   <TextField
                     value={String(p.unitPrc ?? '')}
-                    onChangeText={(t) => update(p.id, { unitPrc: t })}
+                    onChangeText={(t) => update(p.id, { unitPrc: t, eq: null })}
                     placeholder="Unit price"
                     keyboardType="decimal-pad"
                   />
