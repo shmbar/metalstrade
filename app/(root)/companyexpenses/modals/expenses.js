@@ -253,15 +253,20 @@ const Expenses = ({setIsOpen}) => {
                         : ''}`}
                     doAction={() => moveToMisc(uidCollection)} />
 
-                <Tltip direction='top' tltpText='Move expense to shipment invoice'>
-                    <button
-                        className="whiteButton"
-                        onClick={() => setDialogShipment(true)}
-                    >
-                        <BtnIcon action="shipment" />
-                        Move to shipment
-                    </button>
-                </Tltip>
+                {/* A saved expense only, like Move to misc invoices above. Offered on a new,
+                    empty form, the move wrote a blank expense onto the chosen invoice and its
+                    PO — and a PO carrying one could not be saved (PO 050626, 2026-09-30). */}
+                {valueExp.id !== '' &&
+                    <Tltip direction='top' tltpText='Move expense to shipment invoice'>
+                        <button
+                            className="whiteButton"
+                            onClick={() => setDialogShipment(true)}
+                        >
+                            <BtnIcon action="shipment" />
+                            Move to shipment
+                        </button>
+                    </Tltip>
+                }
 
 
 

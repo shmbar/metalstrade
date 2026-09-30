@@ -66,33 +66,47 @@ async function writeContractDoc(uidCollection: string, obj: Contract): Promise<b
   return true;
 }
 
-// Sync the poSupplier stamp onto a contract's linked sales invoices (utils.js
-// updatePoSupplierInv). Each ref carries its own year (date) + id.
-async function updatePoSupplierInv(uidCollection: string, con: Contract): Promise<void> {
-  const invcs = con.invoices || [];
-  if (!invcs.length) return;
+// Sync the poSupplier stamp onto the records a contract lists (utils.js stampPoSupplier).
+// Each ref carries its own year (date) + id; entries without either are skipped. A listed
+// record deleted since fails a batch as a whole ("No document to update") and with it the
+// whole contract save — four IMS POs point at such records (2026-09-30) — so on that
+// failure each record is stamped on its own and the missing ones are passed over.
+async function stampPoSupplier(
+  uidCollection: string,
+  prefix: 'invoices_' | 'expenses_',
+  con: Contract,
+  refs: { id?: string; date?: string }[]
+): Promise<void> {
+  const stamp = { poSupplier: { id: con.id, order: con.order, date: con.dateRange?.startDate } };
+  const targets = (refs || [])
+    .filter((r) => r?.id && (r.date || '').length >= 4)
+    .map((r) => doc(db, uidCollection, 'data', `${prefix}${(r.date as string).substring(0, 4)}`, r.id as string));
+  if (!targets.length) return;
   const batch = writeBatch(db);
-  invcs.forEach((inv) => {
-    const y = (inv.date || '').substring(0, 4);
-    if (!y || !inv.id) return;
-    const ref = doc(db, uidCollection, 'data', `invoices_${y}`, inv.id as string);
-    batch.update(ref, { poSupplier: { id: con.id, order: con.order, date: con.dateRange?.startDate } });
-  });
-  await batch.commit();
+  targets.forEach((ref) => batch.update(ref, stamp));
+  try {
+    await batch.commit();
+    return;
+  } catch (err: any) {
+    if (err?.code !== 'not-found') throw err;
+  }
+  for (const ref of targets) {
+    try {
+      await updateDoc(ref, stamp);
+    } catch (err: any) {
+      if (err?.code !== 'not-found') throw err;
+    }
+  }
 }
 
-// Sync the poSupplier stamp onto a contract's linked expenses (utils.js updatePoSupplierExp).
+// utils.js updatePoSupplierInv
+async function updatePoSupplierInv(uidCollection: string, con: Contract): Promise<void> {
+  await stampPoSupplier(uidCollection, 'invoices_', con, (con.invoices as { id?: string; date?: string }[]) || []);
+}
+
+// utils.js updatePoSupplierExp
 async function updatePoSupplierExp(uidCollection: string, con: Contract): Promise<void> {
-  const exps = (con.expenses as { id?: string; date?: string }[]) || [];
-  if (!exps.length) return;
-  const batch = writeBatch(db);
-  exps.forEach((exp) => {
-    const y = (exp.date || '').substring(0, 4);
-    if (!y || !exp.id) return;
-    const ref = doc(db, uidCollection, 'data', `expenses_${y}`, exp.id);
-    batch.update(ref, { poSupplier: { id: con.id, order: con.order, date: con.dateRange?.startDate } });
-  });
-  await batch.commit();
+  await stampPoSupplier(uidCollection, 'expenses_', con, (con.expenses as { id?: string; date?: string }[]) || []);
 }
 
 async function deleteContractDoc(uidCollection: string, id: string, dateYear: string): Promise<void> {
@@ -1098,18 +1112,20 @@ export async function moveCompanyExpenseToShipment(
     expType: expense.expType,
   };
 
-  // Append to the invoice's and the contract's expense arrays.
+  // Append to the invoice's and the contract's expense arrays — once: a repeated move
+  // listed the same expense twice and counted it twice in the PO's totals (web parity).
+  const others = (list: any[] | undefined) => (list || []).filter((e: any) => e?.id !== ref.id);
   const invYear = String(invoice.__yr || (invoice.dateRange?.startDate || invoice.date || '').substring(0, 4));
   if (!invYear) throw new Error('Invoice is missing a date.');
   await updateDoc(doc(db, uidCollection, 'data', `invoices_${invYear}`, invoice.id), {
-    expenses: [...(invoice.expenses || []), ref],
+    expenses: [...others(invoice.expenses), ref],
   });
 
   const con = await loadByRef<any>(uidCollection, 'contracts', invoice.poSupplier);
   if (con?.id) {
     const conYear = (invoice.poSupplier?.date || '').substring(0, 4);
     await updateDoc(doc(db, uidCollection, 'data', `contracts_${conYear}`, con.id), {
-      expenses: [...(con.expenses || []), ref],
+      expenses: [...others(con.expenses), ref],
     });
   }
 

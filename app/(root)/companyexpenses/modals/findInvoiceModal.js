@@ -11,64 +11,84 @@ const FindInvoiceModal = ({ open, setOpen, uidCollection, value, setValue }) => 
     const [invoice, setInvoice] = useState('')
     const [year, setYear] = useState('')
     const [foundInvoice, setFoundInvoice] = useState(true)
+    const [busy, setBusy] = useState(false)
     const { setToast, } = useContext(SettingsContext);
     const { expensesData, setExpensesData, setIsOpen } = useContext(ExpensesContext);
 
     const findInvoice = async () => {
-
-        //Find Invoice
-        let inv = await getInvoices(uidCollection, 'invoices', [{ arrInv: [Number(invoice)], yr: year }])
-        inv = inv[0]
-        if (inv == null) {
-            setFoundInvoice(false)
+        // Enter in either box and the Find button all start a move; one at a time.
+        if (busy) return;
+        // Only a saved expense can move. A blank one was written onto invoice 1447 and
+        // PO 050626 as an entry with no id, and that PO could no longer be saved.
+        if (!value?.id || !value?.date) {
+            setToast({ show: true, text: 'Save the expense first, then move it to a shipment.', clr: 'fail' })
             return;
-        } else {
-            setFoundInvoice(true)
         }
+        setBusy(true)
+        try {
 
-        //Find Contract
-        let con = await loadInvoice(uidCollection, 'contracts', inv.poSupplier)
+            //Find Invoice
+            let inv = await getInvoices(uidCollection, 'invoices', [{ arrInv: [Number(invoice)], yr: year }])
+            inv = inv[0]
+            if (inv == null) {
+                setFoundInvoice(false)
+                return;
+            } else {
+                setFoundInvoice(true)
+            }
 
-        //Prepare data for saving
-        inv.expenses = [...inv.expenses, {
-            amount: value.amount,
-            cur: value.cur, date: value.date, expense: value.expense, id: value.id, expType: value.expType
-        }]
+            //Find Contract
+            let con = await loadInvoice(uidCollection, 'contracts', inv.poSupplier)
+            if (!con?.id) {
+                setToast({ show: true, text: `Invoice ${invoice} has no PO to move this expense onto.`, clr: 'fail' })
+                return;
+            }
 
-        con.expenses = [...con.expenses, {
-            amount: value.amount,
-            cur: value.cur, date: value.date, expense: value.expense, id: value.id, expType: value.expType
-        }]
+            //Prepare data for saving — listed once, however many times the move is run
+            const ref = {
+                amount: value.amount,
+                cur: value.cur, date: value.date, expense: value.expense, id: value.id, expType: value.expType
+            }
+            inv.expenses = [...(inv.expenses || []).filter(e => e?.id !== value.id), ref]
+
+            con.expenses = [...(con.expenses || []).filter(e => e?.id !== value.id), ref]
 
 
-        const date = value.date;
-        const month = date.split("-")[1];
+            const date = value.date;
+            const month = date.split("-")[1];
 
-        let newExpInvoice = {
-            ...value, invData: { date: inv.date, id: inv.id }, m: month,
-            poSupplier: inv.poSupplier, salesInv: inv.invoice
+            let newExpInvoice = {
+                ...value, invData: { date: inv.date, id: inv.id }, m: month,
+                poSupplier: inv.poSupplier, salesInv: inv.invoice
+            }
+
+            await saveData(uidCollection, 'contracts', con)
+            await saveData(uidCollection, 'invoices', inv)
+            await saveData(uidCollection, 'expenses', newExpInvoice)
+
+            //Delete Expense invoice
+            await delCompExp(uidCollection, 'companyExpenses', value)
+
+
+            setValue({
+                id: '', lstSaved: '', supplier: '', dateRange: { startDate: null, endDate: null },
+                cur: '', amount: '', date: '',
+                expense: '', expType: '', paid: '', comments: ''
+            });
+
+            setToast({ show: true, text: 'Expense is successfully moved!', clr: 'success' })
+            setOpen(false)
+            setIsOpen(false)
+
+            let newData = expensesData.filter(x => x.id !== newExpInvoice.id)
+            setExpensesData(newData)
+
+        } catch (err) {
+            console.error('Move to shipment failed:', err)
+            setToast({ show: true, text: `The expense was not moved: ${err?.message || err}`, clr: 'fail' })
+        } finally {
+            setBusy(false)
         }
-
-        await saveData(uidCollection, 'contracts', con)
-        await saveData(uidCollection, 'invoices', inv)
-        await saveData(uidCollection, 'expenses', newExpInvoice)
-
-        //Delete Expense invoice
-        await delCompExp(uidCollection, 'companyExpenses', value)
-
-
-        setValue({
-            id: '', lstSaved: '', supplier: '', dateRange: { startDate: null, endDate: null },
-            cur: '', amount: '', date: '',
-            expense: '', expType: '', paid: '', comments: ''
-        });
-
-        setToast({ show: true, text: 'Expense is successfully moved!', clr: 'success' })
-        setOpen(false)
-        setIsOpen(false)
-
-        let newData = expensesData.filter(x => x.id !== newExpInvoice.id)
-        setExpensesData(newData)
     }
 
 

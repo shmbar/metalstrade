@@ -10,7 +10,7 @@ const Filters = (ln, resetTable, filterOn) => {
                 <Tltip direction='bottom' tltpText={getTtl('Reset Table', ln)}>
                     <button
                         onClick={() => resetTable()}
-                        className="w-8 h-8 inline-flex items-center justify-center rounded  cursor-pointer  focus:outline-none"
+                        className="w-8 h-8 inline-flex items-center justify-center rounded cursor-pointer focus:outline-none text-[var(--endeavour)] hover:bg-[var(--selago)] transition-colors"
                     >
                         <RotateCcw className="w-4 h-4" strokeWidth={2} />
                     </button>

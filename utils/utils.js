@@ -824,31 +824,43 @@ export const loadInvoice = async (uidCollection, path, obj) => {
 //   });
 // }
 
-export const updatePoSupplierInv = async (uidCollection, val, invcs) => {
+// Stamp the PO onto every invoice / expense it lists, on each PO save.
+//
+// This used to be one batch over the raw list, and one bad entry failed all of it: an entry
+// with no id (doc() throws on an empty path) or a record deleted since ("No document to
+// update" fails the whole batch). Nothing above caught it, so the PO's Save spun forever —
+// PO 050626 (2026-09-30) carried a blank expense entry, and four older POs point at invoices
+// or expenses that no longer exist. Entries without an id or a date point at nothing and are
+// skipped; when the batch fails on a missing record, each one is stamped on its own and the
+// missing ones are passed over. Any other failure (offline, permissions) still throws.
+const stampPoSupplier = async (uidCollection, prefix, val, refs) => {
+  const stamp = { poSupplier: { id: val.id, order: val.order, date: val.dateRange.startDate } };
+  const targets = (Array.isArray(refs) ? refs : [])
+    .filter((r) => r?.id && typeof r.date === 'string' && r.date.length >= 4)
+    .map((r) => doc(db, uidCollection, 'data', prefix + r.date.substring(0, 4), r.id));
+  if (!targets.length) return;
+
   const batch = writeBatch(db);
-
-  for (let i = 0; i < invcs.length; i++) {
-    const y = invcs[i].date.substring(0, 4)
-    let ref = doc(db, uidCollection, 'data', 'invoices_' + y, invcs[i].id);
-    batch.update(ref, { poSupplier: { id: val.id, order: val.order, date: val.dateRange.startDate } });
+  targets.forEach((ref) => batch.update(ref, stamp));
+  try {
+    await batch.commit();
+    return;
+  } catch (err) {
+    if (err?.code !== 'not-found') throw err;
   }
-
-  await batch.commit();
-
+  for (const ref of targets) {
+    try {
+      await updateDoc(ref, stamp);
+    } catch (err) {
+      if (err?.code !== 'not-found') throw err;
+      console.warn(`PO ${val.order}: ${ref.path} no longer exists — left out of the re-stamp`);
+    }
+  }
 }
 
-export const updatePoSupplierExp = async (uidCollection, val, exps) => {
-  const batch = writeBatch(db);
+export const updatePoSupplierInv = (uidCollection, val, invcs) => stampPoSupplier(uidCollection, 'invoices_', val, invcs);
 
-  for (let i = 0; i < exps.length; i++) {
-    const y = exps[i].date.substring(0, 4)
-    let ref = doc(db, uidCollection, 'data', 'expenses_' + y, exps[i].id);
-    batch.update(ref, { poSupplier: { id: val.id, order: val.order, date: val.dateRange.startDate } });
-  }
-
-  await batch.commit();
-
-}
+export const updatePoSupplierExp = (uidCollection, val, exps) => stampPoSupplier(uidCollection, 'expenses_', val, exps);
 
 // Stock docs keep a denormalized copy of the contract's materials list (`productsData`),
 // and the stock/warehouse view resolves each row's name from that copy. So when a contract's

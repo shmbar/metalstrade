@@ -93,12 +93,22 @@ export default function SumPanel({ title, count, storageKey, actions, children }
     );
 }
 
+// The panel's own window controls stay neutral; everything else is an action.
+const PANEL_CONTROLS = new Set(['collapse', 'expand', 'close']);
+
 /**
  * A header action. Swallows pointerdown so pressing it never starts a drag.
  * `danger` paints a failed action red until the caller clears it; `pulse` is the
  * in-flight state of an action that keeps its glyph.
+ *
+ * Actions (Excel, copy invoice numbers, copy summary) wear the theme violet, as
+ * every action icon on the table toolbars does; the panel's window controls
+ * (collapse, close) keep the header's neutral ink, like a dialog's ×. They were
+ * all neutral, which read as "not the theme" beside the violet Σ (client,
+ * 2026-09-30).
  */
 export function SumPanelAction({ action, title, onClick, disabled = false, danger = false, pulse = false }) {
+    const color = danger ? 'var(--danger-text)' : PANEL_CONTROLS.has(action) ? undefined : 'var(--endeavour)';
     return (
         <button
             type="button"
@@ -108,7 +118,7 @@ export function SumPanelAction({ action, title, onClick, disabled = false, dange
             title={title}
             aria-label={title}
             className="grid place-items-center p-1 rounded-lg hover:bg-[var(--bg-subtle)] transition-colors disabled:opacity-50"
-            style={danger ? { color: 'var(--danger-text)' } : undefined}
+            style={color ? { color } : undefined}
         >
             <BtnIcon action={action} className={pulse ? 'animate-pulse' : ''} />
         </button>

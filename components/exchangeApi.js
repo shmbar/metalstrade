@@ -12,7 +12,10 @@
 export const getCur = async (date) => {
   try {
     const qs = date ? `?date=${encodeURIComponent(date)}` : '';
-    const response = await fetch(`/api/fx${qs}`);
+    // Saving a PO waits on this. A rate provider that stalls must not hold the Save
+    // button hostage: after 10s the rate counts as unavailable and the PO keeps the
+    // one it already carries.
+    const response = await fetch(`/api/fx${qs}`, { signal: AbortSignal.timeout(10000) });
     const data = await response.json().catch(() => null);
 
     if (!response.ok || !data || data.error) {

@@ -142,86 +142,107 @@ const useContractsState = (props) => {
                 return false;
             }
 
-            let indx = contractsData.findIndex((x) => x.id === valueCon.id);
-            // New vs existing is decided by the record's OWN id — a blank id is the
-            // only thing that means "new" (see newContract above). It must NOT be
-            // decided by membership of contractsData: that list is filled in only by
-            // the pages that LIST contracts, so opening this same modal from Cashflow
-            // (clicking a PO#) leaves it empty, and every existing contract saved from
-            // there took the "new object" branch below and was written under a fresh
-            // uuid. The result was a second document carrying the same PO number and
-            // the same purchase invoices, diverging from the original with each edit —
-            // which is how one invoice came to sit on two rows of the supplier balances.
-            const isExisting = !!valueCon.id;
-            let tmpValue = {}
+            // Everything below writes. A failure anywhere used to escape to the Save button,
+            // which then spun on "Saving" until the page was reloaded — and reloading could
+            // not help, because the same PO failed the same way every time (PO 050626,
+            // 2026-09-30). Now the error is shown and the button comes back.
+            try {
 
-            // getCur returns null when the currency API is unreachable. Keep the
-            // rate the contract already carries rather than stamping a blank (or,
-            // as it used to, a fabricated 1) over a real one.
-            let tmpEuToUs = (await getCur(valueCon.dateRange.startDate)) ?? valueCon.euroToUSD ?? null
+                let indx = contractsData.findIndex((x) => x.id === valueCon.id);
+                // New vs existing is decided by the record's OWN id — a blank id is the
+                // only thing that means "new" (see newContract above). It must NOT be
+                // decided by membership of contractsData: that list is filled in only by
+                // the pages that LIST contracts, so opening this same modal from Cashflow
+                // (clicking a PO#) leaves it empty, and every existing contract saved from
+                // there took the "new object" branch below and was written under a fresh
+                // uuid. The result was a second document carrying the same PO number and
+                // the same purchase invoices, diverging from the original with each edit —
+                // which is how one invoice came to sit on two rows of the supplier balances.
+                const isExisting = !!valueCon.id;
+                let tmpValue = {}
+
+                // getCur returns null when the currency API is unreachable. Keep the
+                // rate the contract already carries rather than stamping a blank (or,
+                // as it used to, a fabricated 1) over a real one.
+                let tmpEuToUs = (await getCur(valueCon.dateRange.startDate)) ?? valueCon.euroToUSD ?? null
 
 
-            if (isExisting) { //update
-                tmpValue = {
-                    ...valueCon, lstSaved: dateFormat(new Date(), "dd-mmm-yyyy, HH:MM"),
-                    euroToUSD: tmpEuToUs
-                }
-                // Only the listing pages hold a list to keep in sync; from Cashflow
-                // there is none, and appending would fake a row the page never loaded.
-                if (indx !== -1) {
-                    setContractsData(contractsData.map((k) => (k.id === valueCon.id ? tmpValue : k)))
-                }
+                // The PO's own lists of invoices and expenses point at other records. An entry
+                // with no id points at nothing, and one id listed twice counts that record twice
+                // in the PO's totals — PO 050626 held both (a blank expense entry, and B1049000
+                // listed twice). Saving the PO tidies its own lists; the records are untouched.
+                const tidyRefs = (list) => {
+                    const seen = new Set();
+                    return (Array.isArray(list) ? list : []).filter((r) => r?.id && !seen.has(r.id) && seen.add(r.id));
+                };
+                const lists = { invoices: tidyRefs(valueCon.invoices), expenses: tidyRefs(valueCon.expenses) };
 
-                //update order number in invoices
-                let invcs = valueCon.invoices;
-                await updatePoSupplierInv(uidCollection, valueCon, invcs)
+                if (isExisting) { //update
+                    tmpValue = {
+                        ...valueCon, ...lists, lstSaved: dateFormat(new Date(), "dd-mmm-yyyy, HH:MM"),
+                        euroToUSD: tmpEuToUs
+                    }
+                    // Only the listing pages hold a list to keep in sync; from Cashflow
+                    // there is none, and appending would fake a row the page never loaded.
+                    if (indx !== -1) {
+                        setContractsData(contractsData.map((k) => (k.id === valueCon.id ? tmpValue : k)))
+                    }
 
-                let exps = valueCon.expenses;
-                await updatePoSupplierExp(uidCollection, valueCon, exps)
+                    //update order number in invoices
+                    await updatePoSupplierInv(uidCollection, valueCon, lists.invoices)
 
-                // Date moved to another year → the document is written into that
-                // year's collection, so the copy in the old year's collection has to
-                // go or the contract exists twice. Compare against the year this
-                // record was LOADED with (dateYr is merely the year being viewed, so
-                // it said "unchanged" for exactly the edits that moved a contract into
-                // the viewed year), and pass the year as the string delDoc parses —
-                // it was being handed an object, so the delete threw and silently
-                // never ran.
-                const prevYear = contractsData[indx]?.dateRange?.startDate?.substring(0, 4) || dateYr;
-                const newYear = valueCon.dateRange.startDate.substring(0, 4);
-                if (prevYear && newYear && prevYear !== newYear) {
-                    await delDoc(uidCollection, 'contracts', { id: valueCon.id, date: prevYear })
-                }
+                    await updatePoSupplierExp(uidCollection, valueCon, lists.expenses)
 
-            } else { //new object
-                tmpValue = {
-                    ...valueCon, id: uuidv4(),
-                    'lstSaved': dateFormat(new Date(), "dd-mmm-yyyy, HH:MM"), euroToUSD: tmpEuToUs
-                }
-                //     revalidatePath('/contracts')
-                setContractsData([...contractsData, tmpValue])
+                    // Date moved to another year → the document is written into that
+                    // year's collection, so the copy in the old year's collection has to
+                    // go or the contract exists twice. Compare against the year this
+                    // record was LOADED with (dateYr is merely the year being viewed, so
+                    // it said "unchanged" for exactly the edits that moved a contract into
+                    // the viewed year), and pass the year as the string delDoc parses —
+                    // it was being handed an object, so the delete threw and silently
+                    // never ran.
+                    const prevYear = contractsData[indx]?.dateRange?.startDate?.substring(0, 4) || dateYr;
+                    const newYear = valueCon.dateRange.startDate.substring(0, 4);
+                    if (prevYear && newYear && prevYear !== newYear) {
+                        await delDoc(uidCollection, 'contracts', { id: valueCon.id, date: prevYear })
+                    }
 
-                //  //Check if supplier is IMS or GIS
-                //  if(tmpValue.supplier==='f891ad09-aa67-4ba4-83f0-abe7040e0dd2' && !gisAccount){
-                //     let gisCon = {...tmpValue, id: uuidv4(), poInvoices: []} //Who is supplier here?
+                } else { //new object
+                    tmpValue = {
+                        ...valueCon, ...lists, id: uuidv4(),
+                        'lstSaved': dateFormat(new Date(), "dd-mmm-yyyy, HH:MM"), euroToUSD: tmpEuToUs
+                    }
+                    //     revalidatePath('/contracts')
+                    setContractsData([...contractsData, tmpValue])
+
+                    //  //Check if supplier is IMS or GIS
+                    //  if(tmpValue.supplier==='f891ad09-aa67-4ba4-83f0-abe7040e0dd2' && !gisAccount){
+                    //     let gisCon = {...tmpValue, id: uuidv4(), poInvoices: []} //Who is supplier here?
                   
-                //  }
+                    //  }
               
+                }
+
+                setValueCon(tmpValue)
+
+                let success = await saveData(uidCollection, 'contracts', tmpValue)
+
+                // Keep the stock docs' denormalized materials list in sync, so editing a material
+                // description here also updates what the stock/warehouse view shows for this contract.
+                if (success) {
+                    await updateStockProductsData(uidCollection, tmpValue.stock, tmpValue.productsData)
+                }
+
+                //   setIsOpenCon(false)
+                if (success) return true;
+
+            } catch (err) {
+                console.error('Contract save failed:', err);
+                setToast({ show: true, text: `The PO was not saved: ${err?.message || err}`, clr: 'fail' })
+                return false;
+            } finally {
+                setLoading(false)
             }
-
-            setValueCon(tmpValue)
-
-            let success = await saveData(uidCollection, 'contracts', tmpValue)
-
-            // Keep the stock docs' denormalized materials list in sync, so editing a material
-            // description here also updates what the stock/warehouse view shows for this contract.
-            if (success) {
-                await updateStockProductsData(uidCollection, tmpValue.stock, tmpValue.productsData)
-            }
-
-            //   setIsOpenCon(false)
-            setLoading(false)
-            if (success) return true;
         },
         duplicate: async (uidCollection) => {
             const sups = settings?.Supplier?.Supplier ?? [];
