@@ -2,7 +2,7 @@
   "expo": {
     "name": "IMS",
     "slug": "zaka-ur-rehman",
-    "version": "1.2.0",
+    "version": "1.2.1",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "scheme": "ims",
@@ -24,7 +24,7 @@
         ],
         "LSSupportsOpeningDocumentsInPlace": false
       },
-      "buildNumber": "46"
+      "buildNumber": "47"
     },
     "android": {
       "package": "com.zakarehman.imsmobile",
