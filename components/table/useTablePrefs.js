@@ -1,7 +1,8 @@
 'use client'
 
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { usePathname } from 'next/navigation'
+import { rowKeys, isSameList, nextPageIndex } from './keepPage'
 
 /* Per-page table preferences: which columns are shown, what each one is filtered to,
    how the table is sorted, and how many rows a page holds. Client asked for these to
@@ -90,4 +91,52 @@ export const useTablePagination = (defaultSize = 50, suffix = '') => {
   }, [pageIndex, pageSize, setPageSize])
 
   return [{ pageIndex, pageSize }, setPagination]
+}
+
+// Before the screen paints, so a page change never flashes the wrong rows; on the
+// server, where there is nothing to paint, the plain effect (useLayoutEffect warns there).
+const useBeforePaint = typeof window !== 'undefined' ? useLayoutEffect : useEffect
+
+/* The page a person is on, kept while the rows under it are refreshed.
+
+   TanStack sends a table back to page 1 whenever its rows are recomputed — after a new
+   search or sort, but also after new DATA. Saving in an edit window hands the table a
+   fresh copy of the same list, so working down page 3 of Stocks, every save in
+   Materials Breakdown threw the table back to page 1 (client, 2026-10-02) — and every
+   other page with an edit window did the same. This replaces that rule:
+     · search, a column filter, the sort          → page 1, as before
+     · different rows (another view, warehouse,
+       date range, find-by-spec)                  → page 1
+     · the same rows refreshed (an edit, a record
+       added or removed)                          → the page stays — or the last page,
+                                                    if it no longer exists
+   (components/table/keepPage.js tells the last two apart by the records' ids.)
+
+   Call it straight after useReactTable:  useKeepPage(table) */
+export const useKeepPage = (table) => {
+  // TanStack's own reset is the rule above that threw the page away; switched off here,
+  // on the table, so a table cannot take the hook and keep the old behaviour by omission.
+  table.setOptions(prev => ({ ...prev, autoResetPageIndex: false }))
+
+  const { globalFilter, columnFilters, sorting, pagination } = table.getState()
+  const data = table.options.data
+  const pageIndex = pagination?.pageIndex ?? 0
+  const pageCount = table.getPageCount()
+  const viewKey = JSON.stringify([globalFilter ?? '', columnFilters ?? [], sorting ?? []])
+  // What the last decision was made on: the view, the data, and that data's record keys.
+  const seen = useRef(null)
+
+  useBeforePaint(() => {
+    const prev = seen.current
+    const dataChanged = !prev || prev.data !== data
+    const keys = dataChanged ? rowKeys(data) : prev.keys
+    const next = nextPageIndex({
+      viewChanged: !!prev && prev.viewKey !== viewKey,
+      sameList: !prev || !dataChanged || isSameList(prev.keys, keys),
+      pageIndex,
+      pageCount,
+    })
+    seen.current = { viewKey, data, keys }
+    if (next !== null) table.setPageIndex(next)
+  })
 }

@@ -77,14 +77,16 @@ export default function ChemistryPopover({ lots = [], description = '', grade = 
             <PopoverContent align="start" onClick={stop} data-chemistry-popover
                 className="w-auto min-w-[300px] max-w-[560px] p-3 bg-[var(--bg-card)] border-[var(--line)]">
                 <div className="flex items-baseline justify-between gap-3">
+                    {/* The material's own name. No caller passes a grade since the grade
+                        list was retired (2026-10-02), and "No grade" headed every card. */}
                     <p className="responsiveText font-semibold text-[var(--ink)] truncate">
-                        {grade ? grade.name : 'No grade'}
+                        {grade ? grade.name : (description || 'Chemistry per lot')}
                     </p>
                     <span className="responsiveTextTable text-[var(--ink-muted)] shrink-0">
                         {rows.length} lot{rows.length === 1 ? '' : 's'}
                     </span>
                 </div>
-                {(!grade || grade.name !== description) && description && (
+                {grade && grade.name !== description && description && (
                     <p className="responsiveTextTable text-[var(--ink-muted)] truncate">{description}</p>
                 )}
                 {grade && (

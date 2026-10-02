@@ -19,7 +19,7 @@ import FiltersIcon from '../../../components/table/filters/filters';
 import ResetFilterTableIcon from '../../../components/table/filters/resetTabe';
 import dateBetweenFilterFn from '../../../components/table/filters/date-between-filter';
 import { labelAwareGlobalFilter } from '../../../components/table/filters/labelAwareGlobalFilter';
-import { useTablePrefs, useTablePagination } from '@components/table/useTablePrefs';
+import { useTablePrefs, useTablePagination, useKeepPage } from '@components/table/useTablePrefs';
 import { keywordColumnFilter } from '@components/table/filters/keywordColumnFilter';
 import { useFitHeight } from '@components/table/useFitHeight';
 
@@ -108,6 +108,8 @@ const Customtable = ({
     onPaginationChange: setPagination,
     onRowSelectionChange: setRowSelection
   })
+  // Stays on its page when a save refreshes the rows (components/table/useTablePrefs.js).
+  useKeepPage(table)
 
   useEffect(() => {
     setFilteredData?.(table.getFilteredRowModel().rows.map(r => r.original))

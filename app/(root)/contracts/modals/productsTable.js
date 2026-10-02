@@ -11,7 +11,6 @@ import { ChevronDown, MoveRight } from 'lucide-react';
 import Tltip from '@components/tlTip'
 import { getCur } from '@components/exchangeApi'
 import { BtnIcon } from '@components/buttonIcons';
-import GradeCell from '@components/GradeCell';
 
 // The PO stores weight (qnty) and price (unitPrc) in the contract's OWN unit/currency
 // (its Quantity selector + Currency = the "base"). Every other view in the app — the PO PDF,
@@ -370,7 +369,9 @@ const ProductsTable = ({ value, setValue, currency, quantityTable, setShowPoInvM
                                     <th scope="col" className=" w-1/12 py-1 pl-4 "></th>
                                     <th scope="col" className="w-1/12 px-1 py-1 text-left responsiveTextTable font-medium text-[var(--chathams-blue)]"  >
                                         #</th>
-                                    <th scope="col" className="w-4/12 px-1 py-1 text-left responsiveTextTable font-medium text-[var(--chathams-blue)]" >
+                                    {/* Takes the width the Grade column had (retired 2026-10-02): the
+                                        material's name and spec are entered in Materials Breakdown. */}
+                                    <th scope="col" className="w-6/12 px-1 py-1 text-left responsiveTextTable font-medium text-[var(--chathams-blue)]" >
                                         {getTtl('Description', ln)}  </th>
                                     <th scope="col" className=" w-2/12 px-1 py-1 text-left responsiveTextTable font-medium text-[var(--chathams-blue)]" >
                                         <div>   {getTtl('Quantity', ln)} <span className={`font-medium ${viewUnit ? 'text-[var(--endeavour)]' : ''}`}>
@@ -381,7 +382,6 @@ const ProductsTable = ({ value, setValue, currency, quantityTable, setShowPoInvM
                                                 currency stays once the column is no longer a unit price. */}
                                             {perContent ? (baseCode ? '(' + baseCode + ')' : '')
                                                 : (priceHeaderLabel ? '(' + priceHeaderLabel + ')' : '')}</span></div></th>
-                                    <th scope="col" className="w-2/12 px-1 py-1 text-left responsiveTextTable font-medium text-[var(--chathams-blue)]">Grade</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-[var(--line)] relative">
@@ -526,10 +526,6 @@ const ProductsTable = ({ value, setValue, currency, quantityTable, setShowPoInvM
                                                     </td>
                                                     );
                                                 })}
-                                            {/* Not a key of the product object: the grade lives in the shared registry (utils/grades.js). */}
-                                            <td className="px-1 py-1" onClick={(e) => e.stopPropagation()}>
-                                                <GradeCell lineId={obj.id} description={obj.description} />
-                                            </td>
                                         </tr>
                                     );
                                 })}

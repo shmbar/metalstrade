@@ -15,7 +15,7 @@ import RowsIndicator from "../../../components/table/RowsIndicator";
 import '../contracts/style.css';
 import { usePathname } from "next/navigation";
 import { getTtl } from "../../../utils/languages";
-import { useTablePrefs, useTablePagination } from '@components/table/useTablePrefs';
+import { useTablePrefs, useTablePagination, useKeepPage } from '@components/table/useTablePrefs';
 import { labelAwareGlobalFilter } from '@components/table/filters/labelAwareGlobalFilter';
 import { useFitHeight } from '@components/table/useFitHeight';
 
@@ -101,6 +101,8 @@ const Customtable = ({
     onColumnVisibilityChange: setColumnVisibility,
     onPaginationChange: setPagination,
   });
+  // Stays on its page when a save refreshes the rows (components/table/useTablePrefs.js).
+  useKeepPage(table);
 
   /* Report the rows the filters have left, so the Excel export can be built from
      what is on screen. Without this the page exported the whole period: search for

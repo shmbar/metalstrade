@@ -216,7 +216,6 @@ export default function AppLayout() {
       <Tabs.Screen name="settings-entity" options={{ href: null }} />
       <Tabs.Screen name="settings-company" options={{ href: null }} />
       <Tabs.Screen name="settings-setup" options={{ href: null }} />
-      <Tabs.Screen name="settings-grades" options={{ href: null }} />
       <Tabs.Screen name="settings-email" options={{ href: null }} />
       <Tabs.Screen name="settings-users" options={{ href: null }} />
       <Tabs.Screen name="settings-notifications" options={{ href: null }} />

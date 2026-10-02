@@ -25,8 +25,7 @@ import SumTable from './sumtables/sumTable'
 import GradeTable from './sumtables/gradeTable'
 import { gradeKeyOf, gradeLabel, niRangeLabel } from './sumtables/gradeKey'
 import ChemistryPopover from '../../../components/ChemistryPopover'
-import useGrades from '../../../hooks/useGrades'
-import { resolveGrade, parseSpecQuery, assayMatches, assayOf, describeSpec } from '../../../utils/grades'
+import { parseSpecQuery, assayMatches, assayOf, describeSpec } from '../../../utils/grades'
 import StorageAging from './storageAging'
 import { rowSpecs, specLabel, specText } from './specs'
 import StockAudit from './stockAudit'
@@ -62,23 +61,15 @@ const CB = (settings, handleSelectStock, selectedStock) => {
 
 
 
-/* The description, with the chemistry behind it one click away. A component rather than
-   an inline cell so it reads the grade registry itself: the column definitions are
-   memoised on the language alone and must not rebuild on every grade edit. A grade row
-   (By grade) carries its lines in _all; a line row carries its lots in data. */
+/* The description, with the chemistry behind it one click away. A grade row (By grade)
+   carries its lines in _all; a line row carries its lots in data. */
 const DescriptionCell = ({ row, value }) => {
-  const { index } = useGrades()
   const lines = row?._all || [row]
   const lots = lines.flatMap(l => l?.data || []).filter(l => l && l.type === 'in')
-  const first = lines[0]
-  const grade = resolveGrade(index, {
-    description: first?.descriptionName,
-    lineId: (first?.data || []).find(l => l && l.type === 'in' && l.description)?.description,
-  })
   return (
     <span className='inline-flex items-center gap-1 min-w-0 max-w-full'>
       <span className='truncate'>{value}</span>
-      <ChemistryPopover lots={lots} description={value} grade={grade} />
+      <ChemistryPopover lots={lots} description={value} />
     </span>
   )
 }
@@ -141,7 +132,6 @@ const Stocks = () => {
   // Find by spec — "Ni 28-33 Cr 15-20 Ti>0". Narrows the whole page (table, summary, grade
   // card, export) to lines holding a lot whose chemistry fits, whatever it was called.
   const [specQuery, setSpecQuery] = useState('')
-  const { index: gradeIndex } = useGrades()
 
 
   const handleSelectStock = (x) => {
@@ -493,14 +483,11 @@ const Stocks = () => {
     const groups = {};
     rows.forEach(row => {
       const name = row.descriptionName || '-';
-      // A declared grade (utils/grades.js) wins over the text fold.
-      const declared = resolveGrade(gradeIndex, {
-        description: name,
-        lineId: (row.data || []).find(l => l && l.type === 'in' && l.description)?.description,
-      });
+      // Grouped by the material's own name (the fold in gradeKey.js). The separate grade
+      // list that used to override it is retired — see sumtables/gradeTable.js.
       const { key: gKey, label: synth, ni } = gradeKeyOf(name);
-      const key = declared ? `grade:${declared.id}|${row.cur || ''}` : `${gKey || name}|${row.cur || ''}`;
-      if (!groups[key]) groups[key] = { key, synth: declared ? null : synth, grade: declared || null, spellings: new Set(), niValues: [], lines: [] };
+      const key = `${gKey || name}|${row.cur || ''}`;
+      if (!groups[key]) groups[key] = { key, synth, spellings: new Set(), niValues: [], lines: [] };
       groups[key].spellings.add(name);
       if (ni !== null) groups[key].niValues.push(ni);
       groups[key].lines.push(row);
@@ -515,7 +502,7 @@ const Stocks = () => {
     return Object.values(groups).map(g => {
       const qnty = g.lines.reduce((s, r) => s + (parseFloat(r.qnty) || 0), 0);
       const total = g.lines.reduce((s, r) => s + (r.total === '-' ? 0 : parseFloat(r.total) || 0), 0);
-      const base = g.grade ? g.grade.name : gradeLabel(g.synth, [...g.spellings]);
+      const base = gradeLabel(g.synth, [...g.spellings]);
       const span = g.synth ? niRangeLabel(g.niValues) : '';
       return {
         id: `grade:${g.key}`,
@@ -553,7 +540,7 @@ const Stocks = () => {
   };
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  const groupedData = useMemo(() => groupByGrade(tableData), [tableData, gradeIndex]);
+  const groupedData = useMemo(() => groupByGrade(tableData), [tableData]);
   const shownData = combine ? groupedData : tableData;
 
   // Rows currently visible after the table's filters (supplier, item, warehouse, etc.).
@@ -584,7 +571,7 @@ const Stocks = () => {
   const combinedForExport = useMemo(
     () => groupByGrade(getFormatted(filteredData)).map(r => ({ ...r, _pre: true })),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [filteredData, settings, gradeIndex]
+    [filteredData, settings]
   );
 
   return (
@@ -697,8 +684,7 @@ const Stocks = () => {
                     ln,
                     sumData,
                     columnVisibility,
-                    tableColumns,
-                    gradeIndex
+                    tableColumns
                   )}
                   ln={ln}
                   setFilteredArray1={setFilteredArray1}
@@ -737,7 +723,6 @@ const Stocks = () => {
                   dataTable={filteredData}
                   loading={loading}
                   settings={settings}
-                  gradeIndex={gradeIndex}
                 />
               </div>
 

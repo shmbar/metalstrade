@@ -174,7 +174,12 @@ const HASH = {
   // And again the same day: a `fitBelow` prop, handed to that hook, so the box leaves
   // room for the page's summary sections while they are folded to one line
   // (components/CollapsibleSection). Still layout only.
-  customtable: '3ee1e30b314a', // app/(root)/stocks/newTable.js:39 (contains the footer count)
+  // Re-recorded 2026-10-02 (later): useKeepPage(table) after useReactTable — a save in
+  // the Stocks window threw page 3 back to page 1. Which PAGE shows, nothing else: the
+  // filtered row model, the footer count and the rows pushed to page.js are untouched
+  // (asserted directly below), and the mobile list does not page. Verified that the
+  // file minus those two lines still hashes to the previous value, 3ee1e30b314a.
+  customtable: '7f05e4d7ff06', // app/(root)/stocks/newTable.js:39 (contains the footer count)
   addComma: '9d2dc43091c5', // app/(root)/stocks/whModal.js:52
   sumShowAmount: '61cca0f1837f', // app/(root)/stocks/sumtables/sumTable.js:8
   // Re-recorded 2026-09-12 after PORTING the three web changes behind it, not to

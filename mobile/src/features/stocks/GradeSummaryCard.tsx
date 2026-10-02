@@ -2,11 +2,10 @@ import React, { useMemo, useState } from 'react';
 import { View } from 'react-native';
 import { Pressable } from '@/components/ui/Pressable';
 import { Ionicons } from '@expo/vector-icons';
-import { Card, Text, Badge } from '@/components/ui';
+import { Card, Text } from '@/components/ui';
 import { useTheme } from '@/theme/ThemeProvider';
 import { useSettings } from '@/store/settings';
 import { computeGradeSummary } from './gradeSummary';
-import { useGrades } from './useGrades';
 import { layout } from '@/theme/tokens';
 import { moneyFull } from '@/lib/format';
 
@@ -16,15 +15,15 @@ const fmtQ = (v: number) =>
 const fmtM = (v: number, iso: string) => moneyFull(iso, v);
 
 // "Avg Cost Price per Grade" — web parity (stocks/sumtables/gradeTable.js).
-// Rows are folded to the grade (declared registry first, then the assay key), biggest
-// position first, and each opens onto the lots behind it: description + supplier.
+// Rows are folded by the material's own name, biggest position first, and each opens
+// onto the lots behind it: description + supplier. The separate grade list that used to
+// override the name is retired on both apps (2026-10-02) — nothing reads it here.
 export function GradeSummaryCard({ dataTable, title = 'Avg cost price per grade' }: { dataTable: any[]; title?: string }) {
   const { colors } = useTheme();
   const settings = useSettings((s) => s.settings);
-  const { index } = useGrades();
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
 
-  const rows = useMemo(() => computeGradeSummary(dataTable, settings, index), [dataTable, settings, index]);
+  const rows = useMemo(() => computeGradeSummary(dataTable, settings), [dataTable, settings]);
   if (!rows.length) return null;
 
   return (
@@ -66,14 +65,11 @@ export function GradeSummaryCard({ dataTable, title = 'Avg cost price per grade'
                 <View style={{ width: 14 }} />
               )}
               <View style={{ flex: 1, minWidth: 0 }}>
-                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-                  <Text variant="body" numberOfLines={2} style={{ flexShrink: 1 }}>{r.descriptionName}</Text>
-                  {/* A declared grade is a decision someone made; a fold is inferred. */}
-                  {r.declared ? <Badge label="Grade" tone="info" /> : null}
-                </View>
+                <Text variant="body" numberOfLines={2}>{r.descriptionName}</Text>
+                {/* The "· 3 spellings" count that trailed this line read as jargon
+                    (client, 2026-10-02); the lots behind the row are one tap away. */}
                 <Text variant="caption" tone="faint">
                   {fmtQ(r.totalQnty)} MT · {fmtM(r.totalValue, r.isoCode)}
-                  {r.spellings.length > 1 ? ` · ${r.spellings.length} spellings` : ''}
                 </Text>
               </View>
               <Text variant="bodyMedium" tone="primary" style={{ fontVariant: ['tabular-nums'] }}>

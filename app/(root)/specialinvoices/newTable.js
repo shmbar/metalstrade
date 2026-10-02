@@ -29,7 +29,7 @@ import FiltersIcon from '../../../components/table/filters/filters';
 import ResetFilterTableIcon from '../../../components/table/filters/resetTabe';
 import dateBetweenFilterFn from '../../../components/table/filters/date-between-filter';
 import { labelAwareGlobalFilter } from '../../../components/table/filters/labelAwareGlobalFilter';
-import { useTablePrefs, useTablePagination } from '@components/table/useTablePrefs';
+import { useTablePrefs, useTablePagination, useKeepPage } from '@components/table/useTablePrefs';
 import { keywordColumnFilter } from '@components/table/filters/keywordColumnFilter';
 import { useFitHeight } from '@components/table/useFitHeight';
 
@@ -135,6 +135,8 @@ const Customtable = ({
         onRowSelectionChange: setRowSelection,
         onSortingChange: setSorting,
     })
+    // Stays on its page when a save refreshes the rows (components/table/useTablePrefs.js).
+    useKeepPage(table)
 
     /* The mount-time table.resetColumnFilters() that used to sit here is gone: the
      client asked for a table's filters to be remembered, and clearing them on every

@@ -7,7 +7,6 @@ import Suppliers from './tabs/suppliers'
 import Clients from './tabs/clients'
 import BankAccount from './tabs/bankAccounts'
 import Stocks from './tabs/stocks'
-import Grades from './tabs/grades'
 import Toast from '../../../components/toast.js'
 import { SettingsContext } from "../../../contexts/useSettingsContext";
 import { getTtl } from "../../../utils/languages";
@@ -16,7 +15,6 @@ import Documents from './tabs/documents'
 import EmailSetup from './tabs/emailSetup'
 import NotificationSettings from './tabs/notifications'
 import { UserAuth } from '../../../contexts/useAuthContext'
-import { isTradingAccount } from '@utils/activeAccount'
 import Spin from '../../../components/spinTable';
 import VideoLoader from '../../../components/videoLoader';
 
@@ -27,8 +25,9 @@ function classNames(...classes) {
 }
 
 /* Panels by tab NAME. They used to be picked by position (0 → Company Details …
-   8 → Users), so inserting a tab — Grades, next to Stocks — would have silently
-   shifted every panel after it onto the wrong tab. */
+   8 → Users), so inserting or removing a tab would have silently shifted every panel
+   after it onto the wrong tab. (The Grades tab that sat next to Stocks was retired
+   2026-10-02: a material's name and spec are entered in Materials Breakdown.) */
 const PANELS = {
   'Company Details': CompanyDetails,
   'Setup': Setup,
@@ -36,7 +35,6 @@ const PANELS = {
   'Clients': Clients,
   'Bank Account': BankAccount,
   'Stocks': Stocks,
-  'Grades': Grades,
   'Documents': Documents,
   'Email Setup': EmailSetup,
   'Notifications': NotificationSettings,
@@ -47,11 +45,9 @@ const Page = () => {
 
   const { compData, loading } = useContext(SettingsContext);
   const ln = compData?.lng || 'English';
-  const { canManageUsers, uidCollection } = UserAuth();
+  const { canManageUsers } = UserAuth();
 
-  let tabs = ['Company Details', 'Setup', 'Suppliers', 'Clients', 'Bank Account', 'Stocks', 'Grades', 'Documents', 'Email Setup', 'Notifications']
-  // The grade registry is shared by IMS and GIS only (SHARED_STOCK) — hidden elsewhere.
-  if (!isTradingAccount(uidCollection)) tabs = tabs.filter(t => t !== 'Grades');
+  const tabs = ['Company Details', 'Setup', 'Suppliers', 'Clients', 'Bank Account', 'Stocks', 'Documents', 'Email Setup', 'Notifications']
   // Super Admins and Admins both manage people; the role hierarchy inside the
   // tab decides who each of them is allowed to touch.
   if (canManageUsers) tabs.push('Users');

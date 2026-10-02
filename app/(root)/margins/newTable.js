@@ -44,7 +44,7 @@ import CheckBox from "../../../components/checkbox";
 import Tltip from "../../../components/tlTip";
 import EmptyState from "../../../components/EmptyState";
 import { getTtl } from "../../../utils/languages";
-import { useTablePrefs, useTablePagination } from '@components/table/useTablePrefs';
+import { useTablePrefs, useTablePagination, useKeepPage } from '@components/table/useTablePrefs';
 import { labelAwareGlobalFilter } from '@components/table/filters/labelAwareGlobalFilter';
 
 // Fixed widths, sized to what each column HOLDS — not to a share of the screen.
@@ -455,6 +455,8 @@ const Customtable = (props) => {
         manualPagination: true,
         getRowId: (row) => row.id,
     });
+    // Stays on its page when a save refreshes the rows (components/table/useTablePrefs.js).
+    useKeepPage(table);
 
     const currs = ['margin', 'totalMargin', 'remaining'];
 

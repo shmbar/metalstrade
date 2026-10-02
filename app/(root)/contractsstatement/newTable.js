@@ -33,7 +33,7 @@ import ResetFilterTableIcon from '../../../components/table/filters/resetTabe';
 import dateBetweenFilterFn from '../../../components/table/filters/date-between-filter';
 import { labelAwareGlobalFilter } from '../../../components/table/filters/labelAwareGlobalFilter';
 import { NameCell } from '../../../components/Avatar';
-import { useTablePrefs, useTablePagination } from '@components/table/useTablePrefs';
+import { useTablePrefs, useTablePagination, useKeepPage } from '@components/table/useTablePrefs';
 import { keywordColumnFilter } from '@components/table/filters/keywordColumnFilter';
 import { useFitHeight } from '@components/table/useFitHeight';
 
@@ -222,6 +222,8 @@ const Customtable = ({
     onRowSelectionChange: setRowSelection,
     onSortingChange: setSorting,
   })
+  // Stays on its page when a save refreshes the rows (components/table/useTablePrefs.js).
+  useKeepPage(table)
 
   useEffect(() => {
     // flatRows includes the per-material sub-rows, not just the PO parent rows, so the Excel

@@ -716,7 +716,7 @@ import { labelAwareGlobalFilter } from '../../../components/table/filters/labelA
 import { TONES } from '../../../components/statusUtils';
 import CurrencyChip from '../../../components/CurrencyChip';
 import EmptyState from '../../../components/EmptyState';
-import { useTablePrefs, useTablePagination } from '@components/table/useTablePrefs';
+import { useTablePrefs, useTablePagination, useKeepPage } from '@components/table/useTablePrefs';
 import { keywordColumnFilter } from '@components/table/filters/keywordColumnFilter';
 import { useFitHeight } from '@components/table/useFitHeight';
 
@@ -831,6 +831,8 @@ const Customtable = ({
     getPaginationRowModel: getPaginationRowModel(),
     onPaginationChange: setPagination,
   })
+  // Stays on its page when a save refreshes the rows (components/table/useTablePrefs.js).
+  useKeepPage(table)
 
   const resetTable = () => table.resetColumnFilters()
   /* The mount-time table.resetColumnFilters() that used to sit here is gone: the

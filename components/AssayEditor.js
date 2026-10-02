@@ -19,7 +19,7 @@ import { BtnIcon } from '@components/buttonIcons';
 import { formatAssay, hasAssay, parseAssay, specFromAssay } from '@utils/grades';
 
 const POP_W = 340;
-const POP_H = 290;
+const POP_H = 330;   // with the Done row — decides whether it opens above the row instead
 
 function popPos(el, keepFlip) {
     const r = el.getBoundingClientRect();
@@ -63,6 +63,15 @@ export default function AssayEditor({ value = '', onChange, spec = '', onSpecCha
         setOpen(true);
     };
 
+    /* It used to close only on a click somewhere else, or Escape — "not closing as usual"
+       (client, 2026-10-02). Now also × and Done, Enter in the spec, Ctrl/⌘+Enter in the
+       analysis. What is typed is already on the row: closing keeps it, and the window's
+       own Save writes it. A keyboard close hands the focus back to the flask. */
+    const close = (refocus) => {
+        setOpen(false);
+        if (refocus) anchorRef.current?.focus();
+    };
+
     useEffect(() => {
         if (!open) return;
         const t = setTimeout(() => specRef.current?.focus(), 0);
@@ -95,11 +104,21 @@ export default function AssayEditor({ value = '', onChange, spec = '', onSpecCha
             setOpen(false);
         };
         // Escape closes the editor, not the breakdown around it.
-        const onKey = (e) => { if (e.key === 'Escape') { e.stopPropagation(); setOpen(false); } };
-        document.addEventListener('mousedown', onDown);
+        const onKey = (e) => {
+            if (e.key !== 'Escape') return;
+            e.stopPropagation();
+            setOpen(false);
+            anchorRef.current?.focus();
+        };
+        /* pointerdown, captured — not mousedown. Materials Breakdown is a draggable dialog,
+           and its title bar cancels pointerdown to start the drag, which stops the browser
+           from ever sending the mousedown: a click there left this open, and so did dragging
+           the window away from under it. Capture also reaches here before anything inside
+           the dialog can stop the event. */
+        document.addEventListener('pointerdown', onDown, true);
         document.addEventListener('keydown', onKey, true);
         return () => {
-            document.removeEventListener('mousedown', onDown);
+            document.removeEventListener('pointerdown', onDown, true);
             document.removeEventListener('keydown', onKey, true);
         };
     }, [open]);
@@ -123,9 +142,18 @@ export default function AssayEditor({ value = '', onChange, spec = '', onSpecCha
                             ...(pos.flip ? { bottom: pos.bottom } : { top: pos.top }),
                         }}
                         className="rounded-2xl border border-[var(--line)] bg-[var(--bg-card)] p-3 shadow-pop">
-                        <p className="responsiveTextTable font-medium text-[var(--ink-muted)] mb-1">Spec — this lot</p>
+                        <div className="flex items-center justify-between gap-2 mb-1">
+                            <p className="responsiveTextTable font-medium text-[var(--ink-muted)]">Spec — this lot</p>
+                            <button type="button" aria-label="Close" onClick={() => close(true)}
+                                className="inline-flex items-center justify-center shrink-0 w-6 h-6 rounded-control text-[var(--ink-muted)] hover:text-[var(--ink)] hover:bg-[var(--bg-subtle)]">
+                                <BtnIcon action="close" />
+                            </button>
+                        </div>
                         <input ref={specRef} value={specText}
                             onChange={e => onSpecChange?.(e.target.value)}
+                            // Stopped here: React events bubble through the portal into the
+                            // window around this popup, which must not act on this Enter.
+                            onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); e.stopPropagation(); close(true); } }}
                             placeholder="e.g. UMZ, 99%, 42Ni 15Cr"
                             className="w-full h-8 px-2 rounded-control border border-[var(--line-strong)] bg-[var(--bg-card)] text-[var(--ink)] responsiveTextInput outline-none focus:border-[var(--brand)]" />
                         {chips.length > 0 && (
@@ -146,16 +174,23 @@ export default function AssayEditor({ value = '', onChange, spec = '', onSpecCha
                         </p>
 
                         <p className="responsiveTextTable font-medium text-[var(--ink-muted)] mb-1 mt-3">Analysis — this lot</p>
+                        {/* Plain Enter is a new line here — a certificate pasted in comes in lines. */}
                         <textarea rows={3} value={text}
                             onChange={e => onChange?.(e.target.value)}
+                            onKeyDown={e => { if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); e.stopPropagation(); close(true); } }}
                             placeholder="e.g. 51.2Ni 18.9Cr 3Mo 5Nb 4.1Sn — or paste the certificate line"
                             className="w-full px-2 py-1.5 rounded-control border border-[var(--line-strong)] bg-[var(--bg-card)] text-[var(--ink)] responsiveTextInput outline-none focus:border-[var(--brand)] resize-y"
                             style={{ fontFamily: 'inherit' }} />
-                        <p className="responsiveTextTable mt-1.5 text-[var(--ink-muted)]">
-                            {hasAssay(parsed)
-                                ? <>Reads as <span className="tnum text-[var(--ink)]">{formatAssay(parsed)}</span></>
-                                : filled ? 'No elements recognised yet' : 'Saved with the breakdown'}
-                        </p>
+                        <div className="flex items-center justify-between gap-2 mt-1.5">
+                            <p className="responsiveTextTable text-[var(--ink-muted)] min-w-0">
+                                {hasAssay(parsed)
+                                    ? <>Reads as <span className="tnum text-[var(--ink)]">{formatAssay(parsed)}</span></>
+                                    : filled ? 'No elements recognised yet' : 'Saved with the breakdown'}
+                            </p>
+                            <button type="button" onClick={() => close(true)} className="blackButton blackButtonSm shrink-0">
+                                <BtnIcon action="confirm" />Done
+                            </button>
+                        </div>
                     </div>
                 </Portal>
             )}

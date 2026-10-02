@@ -32,7 +32,7 @@ import { labelAwareGlobalFilter } from '../../../components/table/filters/labelA
 import EmptyState from '../../../components/EmptyState';
 import { TONES } from '../../../components/statusUtils';
 import { ChevronRight } from 'lucide-react';
-import { useTablePrefs, useTablePagination } from '@components/table/useTablePrefs';
+import { useTablePrefs, useTablePagination, useKeepPage } from '@components/table/useTablePrefs';
 import { keywordColumnFilter } from '@components/table/filters/keywordColumnFilter';
 import { useFitHeight } from '@components/table/useFitHeight';
 
@@ -142,6 +142,8 @@ const Customtable = ({
     onSortingChange: setSorting,
     onExpandedChange: setExpanded,
   });
+  // Stays on its page when a save refreshes the rows (components/table/useTablePrefs.js).
+  useKeepPage(table);
 
   useEffect(() => {
     // Optional callback — callers like SharedStock render this table without it,
