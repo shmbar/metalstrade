@@ -96,13 +96,19 @@ export default function CommandPalette() {
     // edge; between 768px and ~1100px this hint sat on top of it. Ctrl+K still opens
     // the palette there — only the floating button steps aside.
     if (pathname?.startsWith('/apps/Assistant')) return null;
+    /* md only (768–1023px). From lg up the top bar carries its own "Search… Ctrl K"
+       button that opens this same palette (MainNav, `hidden lg:flex`), so there this
+       was a second copy — and a fixed one, floating over whatever reached the
+       bottom-right of the page: the pager's "Rows" picker, a table's last totals,
+       the newest line of the activity feed. It stays where the top-bar button is
+       hidden and it is the only visible way in. Ctrl+K works at every width. */
     return (
       <button
         type="button"
         onClick={() => setOpen(true)}
         aria-label="Open command palette (Ctrl+K)"
         title="Search & navigate (Ctrl+K)"
-        className="fixed bottom-4 right-20 z-40 hidden md:flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-[var(--bg-card)] border border-[var(--line-strong)] shadow-md hover:shadow-lg transition-shadow"
+        className="fixed bottom-4 right-20 z-40 hidden md:flex lg:hidden items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-[var(--bg-card)] border border-[var(--line-strong)] shadow-md hover:shadow-lg transition-shadow"
       >
         <Search className="w-3.5 h-3.5 text-[var(--chathams-blue)]" />
         <span className="responsiveTextTable text-[var(--regent-gray)] font-medium">

@@ -783,16 +783,32 @@ const Invoices = () => {
 						{/* Main Card */}
 						<div className="page-card rounded-2xl p-3 sm:p-5 border border-[var(--line)] w-full bg-[var(--bg-card)] shadow-card">
 
-							{/* Header Section */}
-							<div className='flex items-center justify-end flex-wrap gap-2 pb-2'>
-								{(() => {
+							{/* Table Component */}
+							<Customtable
+								data={tableData}
+								columns={propDefaults}
+								SelectRow={SelectRow}
+								invisible={invisible}
+								onCellUpdate={onCellUpdate}
+								undoCount={undoCount}
+								onUndo={handleUndo}
+								undoBusy={undoBusy}
+								undoLabel={undoLabel}
+								excellReport={excelReport}
+								setFilteredData={setFilteredData}
+								highlightId={highlightId}
+								/* The IMS/GIS split filter rides in the table toolbar, beside Quick
+								   Sum. It had a row of its own above the table — ~35px of card on
+								   every screen for one button, and the first thing a 14-inch laptop
+								   ran out of. */
+								extraActions={(() => {
 									const pendingCount = invoicesData.filter(x => splitStatusOf(x) === 'pending').length;
 									return (
 										<button
 											type='button'
 											onClick={() => setOnlyUnsplit(v => !v)}
 											title='Show only invoices not yet split between IMS & GIS'
-											className='inline-flex items-center gap-1.5 rounded-lg transition-colors'
+											className='inline-flex items-center gap-1.5 h-8 rounded-lg whitespace-nowrap transition-colors'
 											style={{
 												fontSize: 'var(--fs-body)', padding: '4px 12px',
 												color: onlyUnsplit ? 'var(--on-brand)' : 'var(--ink-secondary)',
@@ -808,22 +824,6 @@ const Invoices = () => {
 										</button>
 									);
 								})()}
-							</div>
-
-							{/* Table Component */}
-							<Customtable
-								data={tableData}
-								columns={propDefaults}
-								SelectRow={SelectRow}
-								invisible={invisible}
-								onCellUpdate={onCellUpdate}
-								undoCount={undoCount}
-								onUndo={handleUndo}
-								undoBusy={undoBusy}
-								undoLabel={undoLabel}
-								excellReport={excelReport}
-								setFilteredData={setFilteredData}
-								highlightId={highlightId}
 							/>
 						</div>
 

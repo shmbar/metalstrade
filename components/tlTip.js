@@ -27,7 +27,11 @@ const Tltip = ({ children, direction, tltpText, show, interactive = false }) => 
        what Radix did: side + flip, keyboard focus, Escape, aria-describedby. */
     if (isString && !interactive) {
         const text = capFirst(String(tltpText))
-        const on = (show == null || show) && text.trim() !== ''
+        /* Nothing to say when the text is only the dash a cell prints for "no value".
+           Tables pass the cell's own value as its tooltip (so a clipped port name can be
+           read in full), and an empty cell's value is "—": hovering it popped a pill
+           holding a single dash. */
+        const on = (show == null || show) && text.trim() !== '' && !/^[\s—–-]+$/.test(text)
         return (
             <Slot {...(on ? {
                 'data-tip': text,

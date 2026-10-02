@@ -187,7 +187,8 @@ const Stainless = ({ value, handleChange }) => {
 const SideCard = ({ title, subtitle, composition, prices, fields, results }) => (
     <FormulaCard title={title} subtitle={subtitle} aside={<Legend />}>
         <div className="flex flex-wrap items-start gap-3">
-            <div className="shrink-0">
+            {/* min-w-0, not shrink-0 — see the same wrapper in fenicr.js. */}
+            <div className="min-w-0 max-w-full">
                 <ElementTable
                     columns={ELEMENTS}
                     rows={[

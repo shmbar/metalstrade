@@ -340,7 +340,7 @@ export default function Sidebar() {
                       marginBottom: "4px",
                       paddingBottom: "2px",
                     }
-                  : { marginBottom: "10px" };
+                  : { marginBottom: "clamp(6px, 1vh, 10px)" };
 
                 return (
                   <div key={i} style={sectionWrapStyle}>
@@ -452,43 +452,45 @@ export default function Sidebar() {
               })
             )}
 
-            {/* User profile pill */}
-            <div style={{
-              position: "fixed", bottom: 18, left: 0,
-              width: collapsed ? "60px" : "clamp(190px, 15vw, 220px)",
-              zIndex: 0, padding: collapsed ? "0 8px" : "0 16px", display: "flex", justifyContent: "center",
-            }}>
-              <div style={{
-                display: "flex", alignItems: "center",
-                background: "var(--bg-card)", borderRadius: "999px",
-                border: "1px solid var(--line)",
-                boxShadow: "var(--shadow-sm)",
-                padding: collapsed ? "4px" : "4px 14px 4px 8px",
-                minWidth: 0, width: "100%", maxWidth: 260, gap: collapsed ? 0 : 10,
-                justifyContent: "center",
-              }}>
-                <span style={{
-                  width: 22, height: 22, borderRadius: "50%", background: "var(--brand-soft)",
-                  display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
-                  color: "var(--brand)", fontWeight: 600, fontSize: 11, textTransform: "uppercase",
-                }}>
-                  {(user?.displayName || user?.email || 'U').charAt(0)}
-                </span>
-                {!collapsed && (
-                  <span style={{ color: "var(--ink)", fontWeight: 600, fontSize: 12, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", flex: 1 }}>
-                    {user?.displayName || user?.email?.split('@')[0] || 'User'}
-                  </span>
-                )}
-                {!collapsed && (!can || can("settings")) && (
-                  <Link href="/settings" aria-label="Settings" style={{ display: "flex", alignItems: "center", justifyContent: "center", color: "var(--ink-muted)" }}>
-                    <Settings size={16} strokeWidth={1.75} style={{ marginLeft: 4, cursor: "pointer" }} />
-                  </Link>
-                )}
-              </div>
-            </div>
-
           </ul>
         </nav>
+
+        {/* User profile pill — a footer under the menu, not fixed over it. It was
+            position: fixed at bottom: 18 inside the scrolling <ul>, so on a 768px
+            screen it sat on top of the IMS Summary heading and Cashflow, and the
+            menu could not scroll them out from under it: the pill was outside the
+            scroll box's height. As the panel's last row the menu ends above it. */}
+        <div className="shrink-0" style={{
+          padding: collapsed ? "6px 4px 8px" : "6px 8px 8px", display: "flex", justifyContent: "center",
+        }}>
+          <div style={{
+            display: "flex", alignItems: "center",
+            background: "var(--bg-card)", borderRadius: "999px",
+            border: "1px solid var(--line)",
+            boxShadow: "var(--shadow-sm)",
+            padding: collapsed ? "4px" : "4px 14px 4px 8px",
+            minWidth: 0, width: "100%", maxWidth: 260, gap: collapsed ? 0 : 10,
+            justifyContent: "center",
+          }}>
+            <span style={{
+              width: 22, height: 22, borderRadius: "50%", background: "var(--brand-soft)",
+              display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
+              color: "var(--brand)", fontWeight: 600, fontSize: 11, textTransform: "uppercase",
+            }}>
+              {(user?.displayName || user?.email || 'U').charAt(0)}
+            </span>
+            {!collapsed && (
+              <span style={{ color: "var(--ink)", fontWeight: 600, fontSize: 12, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", flex: 1 }}>
+                {user?.displayName || user?.email?.split('@')[0] || 'User'}
+              </span>
+            )}
+            {!collapsed && (!can || can("settings")) && (
+              <Link href="/settings" aria-label="Settings" style={{ display: "flex", alignItems: "center", justifyContent: "center", color: "var(--ink-muted)" }}>
+                <Settings size={16} strokeWidth={1.75} style={{ marginLeft: 4, cursor: "pointer" }} />
+              </Link>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );

@@ -30,9 +30,16 @@
    value any of them can hold — a price like "$57,408.30" at --fs-input with
    tabular figures measures ~78px, so 104px clears it with room. Content-sized,
    never a share of the screen: a percentage column that stretches to 190px
-   because the monitor is wide is the thing this app has always got wrong. */
-const CELL = '104px';
-const ROW_LABEL = '140px';
+   because the monitor is wide is the thing this app has always got wrong.
+
+   Each track may give up a little room, never more than the content can lose:
+   on a 1366px laptop the Cost and Sales cards sit side by side at ~520px, and a
+   fixed 140 + 4×104 = 556px table cut the Fe column in half (2026-10-02, 14-inch
+   audit). 84px still holds "$61,112.07" at the input size on that rung; a wide
+   screen still gets 104 / 140 exactly. Fixed px both ends, so every row's grid
+   resolves to the same tracks — the rows are separate grids, not a subgrid. */
+const CELL = 'minmax(84px, 104px)';
+const ROW_LABEL = 'minmax(112px, 140px)';
 
 export const gridCols = (n) => ({ gridTemplateColumns: `${ROW_LABEL} repeat(${n}, ${CELL})` });
 
@@ -88,7 +95,8 @@ export const FormulaCard = ({ title, subtitle, aside, children }) => (
    page used to state anywhere. */
 export const ElementTable = ({ columns, rows }) => (
     <div className="rounded-2xl border border-[var(--line)] overflow-hidden bg-[var(--bg-card)] overflow-x-auto">
-        <div className="w-fit">
+        {/* As wide as the card allows, never wider than the columns at full size. */}
+        <div className="w-full max-w-fit">
             <div className="grid bg-[var(--bg-subtle)] border-b border-[var(--line)]" style={gridCols(columns.length)}>
                 <div className="bg-[var(--bg-subtle)]" aria-hidden="true" />
                 {columns.map((c) => (
@@ -145,7 +153,9 @@ export const ReadOnlyField = ({ value }) => (
 export const ResultTile = ({ label, value, note }) => (
     <div className="min-w-0 rounded-2xl border border-[var(--brand-border)] bg-[var(--brand-soft)] px-3 py-2">
         <div className="flex items-center justify-between gap-2 min-h-[var(--h-cell-control)]">
-            <span className={`${labelCls} truncate`}>{label}</span>
+            {/* title: beside its rate note, "Price / Euro (€/MT)" is cut to
+                "Price / Euro (€…" on a 14-inch laptop — the full label is on hover. */}
+            <span className={`${labelCls} truncate`} title={label}>{label}</span>
             {note}
         </div>
         <p className="responsiveTextPage font-medium tabular-nums text-[var(--brand-strong)] mt-0.5 truncate">{value}</p>

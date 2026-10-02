@@ -27,6 +27,8 @@ import {
   Check,
   ChevronDown,
   ChevronUp,
+  ChevronsDownUp,
+  ChevronsUpDown,
   ClipboardCheck,
   ClipboardList,
   Clock,
@@ -121,6 +123,12 @@ export const ACTION_ICONS = {
   // floating selection tally in components/SumPanel).
   collapse: ChevronDown,
   expand: ChevronUp,
+  // An inline section's own header (components/CollapsibleSection): the chevron
+  // points down while the section is open and is turned to point right when closed.
+  section: ChevronDown,
+  // Every section at once — Margins' "Collapse all" / "Expand all" months.
+  collapseall: ChevronsDownUp,
+  expandall: ChevronsUpDown,
 
   // ── Documents & output ─────────────────────────────────────────────────
   pdf: FileText,

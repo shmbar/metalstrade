@@ -17,6 +17,7 @@ import { usePathname } from "next/navigation";
 import { getTtl } from "../../../utils/languages";
 import { useTablePrefs, useTablePagination } from '@components/table/useTablePrefs';
 import { labelAwareGlobalFilter } from '@components/table/filters/labelAwareGlobalFilter';
+import { useFitHeight } from '@components/table/useFitHeight';
 
 const Customtable = ({
   data,
@@ -114,6 +115,10 @@ const Customtable = ({
   const dynamicMaxHeight = rows.length > 0
     ? `${Math.min(rows.length * 40 + 180, 700)}px`
     : '320px';
+  // The cap above, held to the screen it is on — on a 14-inch laptop 700px ran
+  // past the bottom and the page scrolled around the table (components/table/useFitHeight).
+  const [fitRef, fitPx] = useFitHeight();
+  const desktopMaxHeight = fitPx && String(dynamicMaxHeight).endsWith('px') ? `${Math.min(parseFloat(dynamicMaxHeight), fitPx)}px` : dynamicMaxHeight;
 
   // Calculate quick sum for selected rows and columns
   const selectedRows = table.getSelectedRowModel().rows.map(r => r.original);
@@ -166,7 +171,7 @@ const Customtable = ({
 
           {/* DESKTOP TABLE */}
           <div className="hidden md:block">
-            <div className="overflow-auto dashboard-scroll" style={{ maxHeight: dynamicMaxHeight, borderRadius: '24px', border: '1px solid var(--line-strong)' }}>
+            <div ref={fitRef} className="overflow-auto dashboard-scroll" style={{ maxHeight: desktopMaxHeight, borderRadius: '24px', border: '1px solid var(--line-strong)' }}>
               <table className="w-full" style={{ tableLayout: 'auto' }}>
                 <thead className="sticky top-0 z-sticky">
                   {table.getHeaderGroups().map(hdGroup => (

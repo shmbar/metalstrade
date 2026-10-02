@@ -64,7 +64,8 @@ import {
   salesPerMT,
   salesTotal,
   hasSalesPrices,
-  footerSalesCol,
+  footerSalesPmt,
+  footerSalesTotal,
   grandTotals,
 } from '@/features/materials/tableMath';
 import { seedLmeNickel } from '@/features/materials/useMaterials';
@@ -72,6 +73,7 @@ import {
   DEFAULT_ELEMENTS as MOBILE_ELEMENTS,
   UNIT_LABELS as MOBILE_UNIT_LABELS,
   UNIT_TO_MT as MOBILE_UNIT_TO_MT,
+  TO_KGS as MOBILE_TO_KGS,
 } from '@/features/materials/constants';
 import { cleanElement, cleanKgs, countDecimalDigits as mobileMatDecimals } from '@/features/materials/useMaterials';
 import { computeFenicr, computeStainless, computeSuperalloys } from '@/features/formulas/calc';
@@ -87,6 +89,7 @@ import {
   DEFAULT_ELEMENTS as WEB_ELEMENTS,
   UNIT_LABELS as WEB_UNIT_LABELS,
   UNIT_TO_MT as WEB_UNIT_TO_MT,
+  TO_KGS as WEB_TO_KGS,
 } from '../../app/(root)/materialtables/constants.js';
 
 // ── helpers ──────────────────────────────────────────────────────────────────
@@ -471,6 +474,12 @@ describe('material table constants', () => {
     expect(MOBILE_UNIT_TO_MT).toEqual(WEB_UNIT_TO_MT);
     expect(WEB_UNIT_TO_MT.kgs).toBe(0.001);
   });
+
+  it('the unit→kgs factors match web — the cross-table total is stated in kgs', () => {
+    // constants.js TO_KGS; read by the totals effect in materialtables/page.js.
+    expect(MOBILE_TO_KGS).toEqual(WEB_TO_KGS);
+    expect(WEB_TO_KGS.mt).toBe(1000);
+  });
 });
 
 // ═════════════════════════════════════════════════════════════════════════════
@@ -519,11 +528,22 @@ describe('material table footer', () => {
     // Re-recorded 2026-09-24: the costAvg/costTotal cells' `'$' + Intl…` became the shared
     // moneyFull('us', …) (utils/currency.js), which is what mobile tableMath.money calls.
     // Same output for positives; negatives now read -$1.00, not $-1.00. No formula moved.
-    expectWebUnchanged('app/(root)/materialtables/newTable.js', 'footerVal', '522bb8babec8');
+    // Re-recorded 2026-10-02: footerVal gained explicit `salesMt` / `salesTotal`
+    // branches (weighted per-MT, summed total, both as money). They used to fall
+    // through to the generic element branch. Mobile followed — footerSalesPmt /
+    // footerSalesTotal replace footerSalesCol, see 'material table sales columns'
+    // below. The cost and element branches are byte-identical.
+    expectWebUnchanged('app/(root)/materialtables/newTable.js', 'footerVal', '64ea91284138');
     // Re-recorded 2026-08-17: the ONLY change was a colour literal,
     // var(--chathams-blue) -> TONES.green.text. fmt, footerVal, hasPrices and niMult
     // were confirmed byte-identical, so no cost/footer formula moved.
-    expectWebUnchanged('app/(root)/materialtables/newTable.js', 'enhancedColumns', '38b8cfc2f4e3');
+    // Re-recorded 2026-10-02: the ONLY change is `niMult` added to the useMemo
+    // dependency list. Both accessorFn bodies are byte-identical, so no cost formula
+    // moved and mobile needs nothing. (Web also began handing TanStack a fresh data
+    // array when a price or the Ni % changes, because its per-row value cache kept
+    // these columns at their old figures — a web/TanStack matter; mobile recomputes
+    // every render and never had it.)
+    expectWebUnchanged('app/(root)/materialtables/newTable.js', 'enhancedColumns', 'ab0964589fa5');
     expectWebUnchanged('app/(root)/materialtables/newTable.js', 'hasPrices', '693a64e82c2a');
     expectWebUnchanged('app/(root)/materialtables/newTable.js', 'niMult', '39476216c4bf');
   });
@@ -717,37 +737,101 @@ describe('material table cost columns', () => {
 // 7. CROSS-TABLE GRAND TOTALS  (Tier 3 — mirror of materialtables/page.js:321-344)
 // ═════════════════════════════════════════════════════════════════════════════
 
+// Transcribed verbatim from the totals effect in app/(root)/materialtables/page.js
+// (2026-10-02), with `setTotals(result)` replaced by a return.
+const webGrandTotals = (data: any[]) => {
+  let totalKgs = 0;
+  const wSum: Record<string, number> = {};
+  const wKgs: Record<string, number> = {};
+  data.forEach((table: any) => {
+    const elems = table.elements || WEB_ELEMENTS;
+    const toKgs = (WEB_TO_KGS as any)[table.unit || 'kgs'] || 1;
+    table.data.forEach((row: any) => {
+      const mat = row.material;
+      const counted =
+        (mat && String(mat).trim() !== '') ||
+        elems.some((el: any) => {
+          const v = parseFloat(row[el.key]);
+          return !isNaN(v) && v !== 0;
+        });
+      if (!counted) return;
+      const kgs = (parseFloat(row.kgs) || 0) * toKgs;
+      totalKgs += kgs;
+      elems.forEach((el: any) => {
+        wSum[el.key] = (wSum[el.key] || 0) + (parseFloat(row[el.key]) || 0) * kgs;
+        wKgs[el.key] = (wKgs[el.key] || 0) + kgs;
+      });
+    });
+  });
+  const result: Record<string, string> = { kgs: totalKgs.toFixed(2) };
+  WEB_ELEMENTS.forEach((el: any) => {
+    result[el.key] = wKgs[el.key] > 0 ? (wSum[el.key] / wKgs[el.key]).toFixed(2) : '0.00';
+  });
+  return result;
+};
+
 describe('cross-table grand totals', () => {
-  it("web's grand-total effect and its per-table twin have not drifted", () => {
+  it("web's grand-total effect has not drifted", () => {
     // The roll-up lives in an anonymous useEffect, so it has no hashable symbol —
-    // pin the exact statements instead. `runPdf` carries the identical per-table
-    // weighted-average block and IS hashable.
+    // pin the exact statements instead.
+    //
+    // Re-pinned 2026-10-02 (14-inch / Material Tables pass). Web's roll-up was
+    // corrected on three counts and mobile's grandTotals was rewritten with it:
+    //   · weights are converted to kgs first (TO_KGS) — it used to add the raw figures,
+    //     so 20 MT + 20,000 kgs read "20,020" under a column headed Kgs;
+    //   · each element is averaged BY WEIGHT across rows — it used to take the plain
+    //     mean of the per-table averages;
+    //   · blank placeholder rows are skipped, the footer's own rule.
+    // runPdf still carries the OLD per-table block for the PDF's own total row and
+    // was not touched, so its hash stands.
     expectWebUnchanged('app/(root)/materialtables/page.js', 'runPdf', 'cf7b88345ded');
     const src = collapsed('app/(root)/materialtables/page.js');
+    expect(src).toContain("const toKgs = TO_KGS[table.unit || 'kgs'] || 1");
     expect(src).toContain(
-      "const ws = table.data.reduce((s, row) => s + (parseFloat(row[el.key] || 0) * Number(row.kgs)), 0) obj[el.key] = totalKgs > 0 ? (ws / totalKgs).toFixed(2) : '0.00'"
+      "const counted = (mat && String(mat).trim() !== '') || elems.some(el => { const v = parseFloat(row[el.key]); return !isNaN(v) && v !== 0 }) if (!counted) return"
     );
     expect(src).toContain(
-      "DEFAULT_ELEMENTS.forEach(el => { const valid = arr.filter(item => !isNaN(parseFloat(item[el.key]))) const sum = valid.reduce((acc, item) => acc + parseFloat(item[el.key] || 0), 0) result[el.key] = valid.length > 0 ? (sum / valid.length).toFixed(2) : '0.00' })"
+      'const kgs = (parseFloat(row.kgs) || 0) * toKgs totalKgs += kgs elems.forEach(el => { wSum[el.key] = (wSum[el.key] || 0) + (parseFloat(row[el.key]) || 0) * kgs wKgs[el.key] = (wKgs[el.key] || 0) + kgs })'
     );
-    // page.js:408 — the whole row is hidden when any value is unparseable.
+    expect(src).toContain(
+      "DEFAULT_ELEMENTS.forEach(el => { result[el.key] = wKgs[el.key] > 0 ? (wSum[el.key] / wKgs[el.key]).toFixed(2) : '0.00' })"
+    );
+    // The render guard is still there, though nothing can trip it any more.
     expect(src).toContain('!Object.values(totals).some(v => isNaN(v))');
   });
 
-  it('the grand total is an UNWEIGHTED mean of per-table averages, so a tiny table counts as much as a huge one', () => {
-    // page.js:335-339 — `sum / valid.length` over the PER-TABLE averages. A
-    // weight-weighted roll-up would give ~20 here; web gives 15.
+  it('the grand total is WEIGHTED by row weight, so a 10 kg sample does not count like a 1,000 t lot', () => {
+    // A plain mean of the two per-table averages would give 15; the blend is ~20.
     const tables = [
       makeMaterialTable({ id: 't1', data: [makeMaterialRow({ kgs: '10', ni: '10' })] }),
       makeMaterialTable({ id: 't2', data: [makeMaterialRow({ kgs: '1000000', ni: '20' })] }),
     ];
     const result = grandTotals(tables)!;
-    expect(result.ni).toBe('15.00');
+    expect(result.ni).toBe('20.00');
     expect(result.kgs).toBe('1000010.00');
+    expect(result).toEqual(webGrandTotals(tables));
+  });
+
+  it('every table is converted to kgs first, whatever unit it is kept in', () => {
+    // 20 MT and 20,000 kgs are the same weight: the total is 40,000 kgs and the two
+    // tables weigh equally. Added raw they came to 20,020 and the MT table all but
+    // vanished from the average.
+    const tables = [
+      makeMaterialTable({ id: 't1', unit: 'mt', data: [makeMaterialRow({ kgs: '20', ni: '10' })] }),
+      makeMaterialTable({ id: 't2', unit: 'kgs', data: [makeMaterialRow({ kgs: '20000', ni: '20' })] }),
+    ];
+    const result = grandTotals(tables)!;
+    expect(result.kgs).toBe('40000.00');
+    expect(result.ni).toBe('15.00');
+    expect(result).toEqual(webGrandTotals(tables));
+    // lbs go through 0.453592 kg per lb
+    const lbs = [makeMaterialTable({ id: 't3', unit: 'lbs', data: [makeMaterialRow({ kgs: '1000', ni: '10' })] })];
+    expect(grandTotals(lbs)!.kgs).toBe('453.59');
+    expect(grandTotals(lbs)).toEqual(webGrandTotals(lbs));
   });
 
   it('only the nine DEFAULT elements are rolled up — a custom column never appears', () => {
-    // page.js:335 iterates DEFAULT_ELEMENTS, not the table's own element list.
+    // The effect's last loop iterates DEFAULT_ELEMENTS, not the table's own list.
     const withCustom = makeMaterialTable({
       id: 't1',
       elements: [...MOBILE_ELEMENTS.map((e: any) => ({ ...e })), { key: 'al', label: 'Al' }],
@@ -758,29 +842,36 @@ describe('cross-table grand totals', () => {
     expect(result).not.toHaveProperty('al');
   });
 
-  it('a table with no weight contributes 0.00, not a division by zero', () => {
-    // page.js:329 — `totalKgs > 0 ? … : '0.00'`.
+  it('a table with no weight contributes NOTHING, rather than a 0.00 that drags the mean down', () => {
+    // Weighted: a zero-weight row adds 0 to both the sum and the divisor.
     const tables = [
       makeMaterialTable({ id: 't1', data: [makeMaterialRow({ kgs: '0', ni: '10' })] }),
       makeMaterialTable({ id: 't2', data: [makeMaterialRow({ kgs: '1000', ni: '20' })] }),
     ];
-    expect(grandTotals(tables)!.ni).toBe('10.00'); // (0.00 + 20.00) / 2
+    expect(grandTotals(tables)!.ni).toBe('20.00'); // was (0.00 + 20.00) / 2 = 10.00
+    expect(grandTotals(tables)).toEqual(webGrandTotals(tables));
   });
 
-  it('the whole Total row is withheld when any figure is unparseable', () => {
-    // page.js:408 — web renders nothing rather than a row of NaN.
+  it('an unparseable weight counts as zero — the Total row is never withheld for it', () => {
+    // `parseFloat(row.kgs) || 0`, the footer's own guard. The old `Number(row.kgs)`
+    // made the whole row NaN and web hid it.
     const tables = [makeMaterialTable({ id: 't1', data: [makeMaterialRow({ kgs: 'n/a', ni: '10' })] })];
-    expect(grandTotals(tables)).toBeNull();
-    expect(grandTotals([])).toBeNull();
+    const result = grandTotals(tables)!;
+    expect(result).not.toBeNull();
+    expect(result.kgs).toBe('0.00');
+    expect(result.ni).toBe('0.00'); // no weight behind it → no average
+    expect(result).toEqual(webGrandTotals(tables));
+    expect(grandTotals([])).toBeNull(); // web: `if (!data || data.length === 0) return`
   });
 
-  it('the grand total uses EVERY stored row — the placeholder filter is footer-only', () => {
-    // page.js:325-330 reads table.data directly; the blank-row filter is a
-    // newTable.js footer rule and is deliberately NOT applied here.
+  it('a blank placeholder row is skipped here too — the same rows the footer counts', () => {
     const placeholder = makeMaterialRow({ id: 'p', material: '', kgs: '1000', ni: '0', cr: '0', mo: '0', co: '0', nb: '0', w: '0', cu: '0', fe: '0', ti: '0' });
     const real = makeMaterialRow({ id: 'r', kgs: '1000', ni: '10' });
     const table = makeMaterialTable({ id: 't1', data: [real, placeholder] });
-    expect(grandTotals([table])!.ni).toBe('5.00'); // (10×1000 + 0×1000) / 2000
+    const result = grandTotals([table])!;
+    expect(result.ni).toBe('10.00'); // was 5.00, with the placeholder's 1,000 kg diluting it
+    expect(result.kgs).toBe('1000.00');
+    expect(result).toEqual(webGrandTotals([table]));
     expect(footerRows([real, placeholder], MOBILE_ELEMENTS as any)).toHaveLength(1);
   });
 });
@@ -1124,30 +1215,40 @@ describe('material table sales columns', () => {
     expect(hasSalesPrices(elements, {})).toBe(false);
   });
 
-  it('QUIRK: the Sales Total footer is a weighted AVERAGE, not a sum', () => {
-    // footerVal has explicit branches for costPmt and costTotal but NONE for the
-    // sales columns, so they fall through to the generic element branch at
-    // newTable.js:296-301 — a weight-weighted average, no '$', blank at zero.
-    // It reads oddly beside Cost Total (which IS a sum) and looks like a web
-    // oversight, but it is what the web page prints. Pinned so nobody "fixes" it
-    // into a number that matches neither app.
+  it('the Sales Total footer is a SUM and Sales MT a weighted average — the cost pair\'s rules', () => {
+    // newTable.js footerVal, the `salesMt` / `salesTotal` branches (added 2026-10-02).
+    // Until then neither column was named there, so both fell through to the generic
+    // element branch — a weight-weighted average with no '$'. For Sales Total that
+    // printed the weighted AVERAGE of the row totals beside a Cost Total that was a
+    // sum. This suite pinned that as a web quirk; web has corrected it and mobile's
+    // footerSalesCol went with it.
     const rows = [
       makeMaterialRow({ id: 'a', ni: '10', kgs: '1000' }),
-      makeMaterialRow({ id: 'b', ni: '10', kgs: '3000' }),
+      makeMaterialRow({ id: 'b', ni: '20', kgs: '3000' }),
     ];
     const p = { ni: '16000' };
     const totalW = totalWeight(rows);
-    const valueOf = (r: any) => salesTotal(r, elements, p, 1, 'kgs');
-    // per-row totals are 1600 and 4800; the SUM would be 6400
-    expect(valueOf(rows[0])).toBeCloseTo(1600, 6);
-    expect(valueOf(rows[1])).toBeCloseTo(4800, 6);
-    // weighted average = (1000*1600 + 3000*4800) / 4000 = 4000 — deliberately NOT 6400
-    expect(footerSalesCol(rows, valueOf, totalW)).toBeCloseTo(4000, 6);
-    expect(footerSalesCol(rows, valueOf, totalW)).not.toBeCloseTo(6400, 6);
+    // per-row: 1,600 $/MT × 1 MT = 1,600 and 3,200 $/MT × 3 MT = 9,600
+    expect(salesTotal(rows[0], elements, p, 1, 'kgs')).toBeCloseTo(1600, 6);
+    expect(salesTotal(rows[1], elements, p, 1, 'kgs')).toBeCloseTo(9600, 6);
+    // Sales Total: the SUM, 11,200 — not the weighted average (7,600)
+    expect(footerSalesTotal(rows, elements, p, 1, 'kgs')).toBeCloseTo(11200, 6);
+    // Sales MT: weighted by row weight — (1600×1000 + 3200×3000) / 4000
+    expect(footerSalesPmt(rows, elements, p, 1, totalW)).toBeCloseTo(2800, 6);
+    // …and both are the transcribed web expressions (salesPerMT ≡ webCostPmt on the sales map)
+    const webSalesMt = rows.reduce((s, r: any) => s + webCostPmt(r, elements, p, 1) * (parseFloat(r.kgs) || 0), 0) / totalW;
+    const webSalesTotal = rows.reduce(
+      (s, r: any) => s + webCostPmt(r, elements, p, 1) * (parseFloat(r.kgs) || 0) * (WEB_UNIT_TO_MT.kgs || 0.001),
+      0
+    );
+    expect(footerSalesPmt(rows, elements, p, 1, totalW)).toBeCloseTo(webSalesMt, 10);
+    expect(footerSalesTotal(rows, elements, p, 1, 'kgs')).toBeCloseTo(webSalesTotal, 10);
   });
 
   it('a zero-weight table gives a zero footer rather than dividing by zero', () => {
-    expect(footerSalesCol([makeMaterialRow({ kgs: '0' })], () => 5, 0)).toBe(0);
+    // footerVal: `if (!hasSalesPrices || totalW === 0) return ''`.
+    expect(footerSalesPmt([makeMaterialRow({ kgs: '0' })], elements, { ni: '16000' }, 1, 0)).toBe(0);
+    expect(footerSalesTotal([makeMaterialRow({ kgs: '0' })], elements, { ni: '16000' }, 1, 'kgs')).toBe(0);
   });
 });
 

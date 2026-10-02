@@ -10,6 +10,7 @@ import { TONES } from '../../../components/statusUtils';
 import SortIcon from '../../../components/table/SortIcon';
 import Tltip from '../../../components/tlTip';
 import BtnIcon from '../../../components/buttonIcons';
+import CollapsibleSection, { useSectionOpen, SectionFigure } from '../../../components/CollapsibleSection';
 
 /* Same Σ control as the cashflow tables — tick a lot to add it to a running total.
    Copied in shape, not imported, because the cashflow one is a module-private
@@ -52,6 +53,10 @@ const StorageAging = ({ data = [] }) => {
     const [openTerminals, setOpenTerminals] = useState({});
     const [sumSel, setSumSel] = useState({});
     const [ageFilter, setAgeFilter] = useState('all');
+    /* The section folds to its own headline. It is ~850px of cards and a list under
+       a table that already fills the screen, so on a short laptop screen it starts
+       folded (see CollapsibleSection); elsewhere it starts open, as it always was. */
+    const [open, toggleOpen] = useSectionOpen('aging');
     /* Supplier A→Z by default. Oldest-first sounds like the obvious order, but the
        list is worked through by chasing whoever the material sits with, so grouping
        a supplier's lots together beats scattering them among everyone else's. Days
@@ -198,8 +203,31 @@ const StorageAging = ({ data = [] }) => {
     const listValue = listRows.reduce((s, r) => s + (r.total === '-' ? 0 : parseFloat(r.total) || 0), 0);
 
     return (
-        <div className='w-full mt-6'>
-            <div className='flex items-center gap-2 mb-2'>
+        <div className='w-full mt-3'>
+            {!open && (
+                <CollapsibleSection
+                    id='stocks-aging'
+                    headerOnly
+                    open={false}
+                    onToggle={toggleOpen}
+                    title='Storage Aging by Terminal'
+                    summary={<>
+                        {staleRows.length > 0 && (
+                            <span className='inline-flex items-center gap-1 px-2 py-0.5 rounded-lg' style={{ background: TONES.red.bg, color: TONES.red.text, border: `1px solid ${TONES.red.border}` }}>
+                                <AlertTriangle className='w-3 h-3' /> {staleRows.length} sitting {STALE_DAYS}d+
+                            </span>
+                        )}
+                        <SectionFigure label='Terminals'>{shownTerminals.length}</SectionFigure>
+                        {listRows.length > 0 && <SectionFigure label={`${listThreshold}d+ qty`}>{fmtQty(listQty)}</SectionFigure>}
+                    </>}
+                />
+            )}
+            {open && (<>
+            <div id='stocks-aging-body' className='flex items-center gap-2 mb-2'>
+                <button type='button' onClick={toggleOpen} aria-expanded={true} aria-label='Hide storage aging' title='Hide storage aging'
+                    className='inline-flex items-center justify-center w-6 h-6 rounded-lg text-[var(--ink-muted)] hover:bg-[var(--bg-subtle)] transition-colors'>
+                    <BtnIcon action='section' />
+                </button>
                 <Warehouse className='w-4 h-4' style={{ color: 'var(--ink)' }} />
                 <h3 className='responsiveTextTitle font-medium text-[var(--ink)]'>Storage Aging by Terminal</h3>
                 {staleRows.length > 0 && (
@@ -402,6 +430,7 @@ const StorageAging = ({ data = [] }) => {
                     </div>
                 </div>
             )}
+            </>)}
         </div>
     );
 };

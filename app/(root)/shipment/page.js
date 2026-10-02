@@ -30,6 +30,7 @@ import { SHIPMENT_STATUSES, SHIPMENT_STATUS_STYLES, normalizeStatus } from '../c
 import SortIcon from "@components/table/SortIcon";
 import { useTablePrefs } from '@components/table/useTablePrefs';
 import { matchesAllWords, shownAs, searchHint } from '@utils/search';
+import { useFitHeight } from '@components/table/useFitHeight';
 
 // Shipment lifecycle vocabulary/colors live in a shared module so the Contracts Statement
 // follows the exact same statuses (see ../contractsstatement/shipmentStatus).
@@ -1162,6 +1163,10 @@ const ShipmentPage = () => {
     const dynamicMaxHeight = displayRows.length > 0
         ? `${Math.min(displayRows.length * 44 + extra + 120, 700 + extra)}px`
         : '320px';
+    // The cap above, held to the screen it is on — on a 14-inch laptop 700px ran
+    // past the bottom and the page scrolled around the table (components/table/useFitHeight).
+    const [fitRef, fitPx] = useFitHeight();
+    const desktopMaxHeight = fitPx && String(dynamicMaxHeight).endsWith('px') ? `${Math.min(parseFloat(dynamicMaxHeight), fitPx)}px` : dynamicMaxHeight;
 
     const getPageNumbers = () => {
         const pages = [];
@@ -1516,9 +1521,9 @@ const ShipmentPage = () => {
                         overflow on one axis forces the other to `auto`), but one that
                         never scrolled vertically — so it swallowed the sticky header
                         while the page scrolled behind it. */}
-                    <div
+                    <div ref={fitRef}
                         className="overflow-auto dashboard-scroll"
-                        style={{ maxHeight: dynamicMaxHeight }}
+                        style={{ maxHeight: desktopMaxHeight }}
                     >
                         {/* tableLayout: auto, like every other main table in the app.
                             This was `fixed` with a hardcoded percentage per column and a

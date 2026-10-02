@@ -167,7 +167,14 @@ const HASH = {
   // in utils/search.js, which mobile/src/shared/search.js mirrors byte-for-byte.
   // And again the same day: the row-expand chevron got an aria-label ("Show lines" /
   // "Hide lines"), which the tooltip engine now shows on hover. Markup only.
-  customtable: '2a8a9454f451', // app/(root)/stocks/newTable.js:38 (contains the footer count)
+  // Re-recorded 2026-10-02: the desktop scroll box takes its max-height from
+  // components/table/useFitHeight (the 700px cap held to the screen it is on, for
+  // 14-inch laptops) — two hook lines, a ref and the style value. Layout only: no row
+  // model, filter, footer count or figure moved, and mobile has no scroll box to fit.
+  // And again the same day: a `fitBelow` prop, handed to that hook, so the box leaves
+  // room for the page's summary sections while they are folded to one line
+  // (components/CollapsibleSection). Still layout only.
+  customtable: '3ee1e30b314a', // app/(root)/stocks/newTable.js:39 (contains the footer count)
   addComma: '9d2dc43091c5', // app/(root)/stocks/whModal.js:52
   sumShowAmount: '61cca0f1837f', // app/(root)/stocks/sumtables/sumTable.js:8
   // Re-recorded 2026-09-12 after PORTING the three web changes behind it, not to

@@ -21,6 +21,7 @@ import dateBetweenFilterFn from '../../../components/table/filters/date-between-
 import { labelAwareGlobalFilter } from '../../../components/table/filters/labelAwareGlobalFilter';
 import { useTablePrefs, useTablePagination } from '@components/table/useTablePrefs';
 import { keywordColumnFilter } from '@components/table/filters/keywordColumnFilter';
+import { useFitHeight } from '@components/table/useFitHeight';
 
 
 const Customtable = ({
@@ -114,13 +115,13 @@ const Customtable = ({
 
   const resetTable = () => table.resetColumnFilters()
 
+  // The box held to the screen it is on, as on every other page table
+  // (components/table/useFitHeight) — a fixed 700px ran past a 768px screen.
+  const [fitRef, fitPx] = useFitHeight();
 
-  // Fade-in animation for badges (as in contracts table)
-  if (typeof window !== 'undefined') {
-    const style = document.createElement('style');
-    style.innerHTML = `@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }`;
-    document.head.appendChild(style);
-  }
+  /* The badges' fadeIn keyframes come from globals.css. This component used to
+     append its own <style> copy to <head> in its render body — a new tag on every
+     render, so a statement left open piled up one per keystroke in its search. */
 
   return (
     <div className="w-full">
@@ -174,7 +175,7 @@ const Customtable = ({
 
           {/* DESKTOP */}
           <div className="hidden md:block flex-1">
-            <div className="overflow-auto dashboard-scroll" style={{ maxHeight: '700px' }}>
+            <div ref={fitRef} className="overflow-auto dashboard-scroll" style={{ maxHeight: fitPx ? `${Math.min(700, fitPx)}px` : '700px' }}>
               <table className="w-full" style={{ tableLayout: 'auto' }}>
                 <thead className="sticky top-0 z-sticky">
                   {table.getHeaderGroups().map(hdGroup => (

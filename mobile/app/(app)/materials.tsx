@@ -27,7 +27,8 @@ import {
   hasSalesPrices as hasSalesPricesOf,
   salesPerMT,
   salesTotal,
-  footerSalesCol,
+  footerSalesPmt,
+  footerSalesTotal,
   grandTotals,
 } from '@/features/materials/tableMath';
 import { StackHeader } from '@/components/StackHeader';
@@ -104,8 +105,10 @@ export default function Materials() {
             const showSales = !!table.showSales && hasSalesPricesOf(elements, salesPrices);
             const salesMt = (r: any) => salesPerMT(r, elements, salesPrices, salesNiMult);
             const salesTot = (r: any) => salesTotal(r, elements, salesPrices, salesNiMult, unitKey);
-            const footSalesMt = footerSalesCol(rows, salesMt, totalKgs);
-            const footSalesTotal = footerSalesCol(rows, salesTot, totalKgs);
+            // The footer pair is the cost pair's maths on the sales prices: per-MT
+            // averaged by weight, the total SUMMED (web newTable.js footerVal).
+            const footSalesMt = footerSalesPmt(rows, elements, salesPrices, salesNiMult, totalKgs);
+            const footSalesTotal = footerSalesTotal(rows, elements, salesPrices, salesNiMult, unitKey);
 
             return (
               <Card key={table.id || ti} padded={false}>
@@ -129,6 +132,14 @@ export default function Materials() {
                         <>
                           <Text variant="tableStrong" tone="muted" style={{ width: COST_COL, textAlign: 'right' }}>Cost PMT</Text>
                           <Text variant="tableStrong" tone="muted" style={{ width: COST_COL, textAlign: 'right' }}>Cost Total</Text>
+                        </>
+                      )}
+                      {/* The sales pair was drawn in every row and in the footer but
+                          never named up here, so its two figures sat under no heading. */}
+                      {showSales && (
+                        <>
+                          <Text variant="tableStrong" tone="muted" style={{ width: COST_COL, textAlign: 'right' }}>Sales MT</Text>
+                          <Text variant="tableStrong" tone="muted" style={{ width: COST_COL, textAlign: 'right' }}>Sales Total</Text>
                         </>
                       )}
                     </View>
@@ -204,13 +215,13 @@ export default function Materials() {
                         )}
                         {showSales && (
                           <>
-                            {/* No '$' and blank at zero — these fall through web's
-                                GENERIC footer branch, not the cost one. */}
+                            {/* Money, like the cost pair beside them — web gave these
+                                two their own footer branches on 2026-10-02. */}
                             <Text variant="tableStrong" tone="primary" style={{ width: COST_COL, textAlign: 'right' }}>
-                              {fmtAvg(footSalesMt)}
+                              {totalKgs === 0 ? '' : money(footSalesMt)}
                             </Text>
                             <Text variant="tableStrong" tone="primary" style={{ width: COST_COL, textAlign: 'right' }}>
-                              {fmtAvg(footSalesTotal)}
+                              {money(footSalesTotal)}
                             </Text>
                           </>
                         )}
@@ -244,12 +255,12 @@ export default function Materials() {
 }
 
 // Portfolio composition across every table — web's bottom "Total" row
-// (page.js:321-340), which mobile had no equivalent of.
+// (materialtables/page.js, the totals effect).
 //
-// Two quirks are deliberate, because they are web's: the per-element figure is the
-// UNWEIGHTED mean of each table's own weighted average (not a weight-weighted mean
-// across tables), and only the nine DEFAULT_ELEMENTS appear — a custom element added
-// to one table is never rolled up. The whole row is hidden if any value is NaN.
+// In kgs whatever unit each table is kept in, each element averaged by weight across
+// the rows that carry it, blank placeholder rows skipped — the footer's own rules,
+// applied across tables. Only the nine DEFAULT_ELEMENTS appear: a custom element
+// added to one table is never rolled up.
 function GrandTotals({ tables }: { tables: any[] }) {
   const { colors } = useTheme();
   const result = grandTotals(tables);

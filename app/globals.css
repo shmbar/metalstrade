@@ -808,6 +808,28 @@ th input, th select, th textarea, th button {
   font-variant-numeric: tabular-nums;
 }
 
+/* 14-inch laptops (1366×768, 1440×900 — the 1280–1535 rung of the type ladder and
+   below): 4px above and below a cell instead of 6. Measured 2026-10-02, a body row
+   ran 39–45px there, so a 768px screen showed about ten rows under the page header;
+   this is one more row per screen on every page-level table. The type on this rung
+   is already 11px, so the cell is the part that was oversized. Larger screens keep
+   6px — the same rows have room there. */
+@media (max-width: 1535px) {
+  .custom-table td {
+    padding-top: 4px;
+    padding-bottom: 4px;
+  }
+  /* rows-tight — a table whose every cell holds a control (--h-cell-control, 24px),
+     where the 4px above is padding around something that already has its own
+     height: Margins' month tables and its per-month totals. 2px takes those rows
+     from 33px to 29px; across the hundred-odd rows of a year that is ~400px of
+     page. Opt-in per table, and only on this rung. */
+  .custom-table.rows-tight td {
+    padding-top: 2px;
+    padding-bottom: 2px;
+  }
+}
+
 /* Left-aligned variant of the shared band. .custom-table centres, which is right
    for figures but wrong for a table of identifiers (supplier, contract no.) —
    and a bare Tailwind `text-left` on the cell is (0,1,0), so it LOSES to
@@ -2127,9 +2149,16 @@ div.relative.w-full.text-gray-700 > div.absolute.z-10:not(.right-0) > div.absolu
    taller than the viewport, so the table runs off the bottom of the screen and
    can't be scrolled to cleanly — the "pages won't scroll" report. On short
    viewports, cap the box to the visible area so the table fits and scrolls
-   inside it. Taller screens keep the existing 700px behaviour. */
+   inside it. Taller screens keep the existing 700px behaviour.
+
+   Not on a box marked data-fit (2026-10-02): those are page tables fitted by
+   components/table/useFitHeight, which measures what actually sits above them.
+   210px was a guess at that, and on the pages with KPI cards (Contracts,
+   Invoices, Expenses, Stocks…) about 256px sits above the table — so at 1366×768
+   this rule, being !important, put the bottom of every one of those tables 46px
+   below the screen whatever the measurement said. */
 @media (max-height: 820px) {
-  .dashboard-scroll {
+  .dashboard-scroll:not([data-fit]) {
     max-height: calc(100vh - 210px) !important;
   }
 }

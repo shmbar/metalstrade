@@ -275,17 +275,23 @@ const MaterialTables = () => {
         result && setToast({ show: true, text: 'Saved successfully!', clr: 'success' })
     }
 
+    /* Both work on the table as it stands now (`t`), not on the copy captured when
+       the button was drawn. Spreading that render-time copy put back whatever it
+       predated: two quick clicks on + added one row, not two, and an LME tick that
+       landed in between was quietly undone. */
     const addMaterial = (table) => {
-        const elems = table.elements || DEFAULT_ELEMENTS
-        const newRow = { id: uuidv4(), material: '', kgs: '', container: '', _feManual: false }
-        elems.forEach(el => { newRow[el.key] = '' })
-        setData(prev => prev.map(t => t.id === table.id
-            ? { ...table, data: [...table.data, newRow] } : t))
+        setData(prev => prev.map(t => {
+            if (t.id !== table.id) return t
+            const newRow = { id: uuidv4(), material: '', kgs: '', container: '', _feManual: false }
+            ;(t.elements || DEFAULT_ELEMENTS).forEach(el => { newRow[el.key] = '' })
+            return { ...t, data: [...t.data, newRow] }
+        }))
     }
 
     const delMaterial = (table1, cell) => {
+        const rowId = cell.row.original.id
         setData(prev => prev.map(t => t.id === table1.id
-            ? { ...table1, data: table1.data.filter(x => x.id !== cell.row.original.id) } : t))
+            ? { ...t, data: t.data.filter(x => x.id !== rowId) } : t))
     }
 
     const delTable = async (table1) => {
@@ -483,24 +489,42 @@ const MaterialTables = () => {
         TPdfTable(tmp, elems, UNIT_LABELS[table1.unit || 'kgs'])
     }
 
+    /* The "All tables" totals, worked out the way each table's own footer works
+       out its rows (newTable.js footerVal), so the two can be checked against each
+       other:
+         · every weight in kgs first. A table can be kept in MT or lbs, and the raw
+           figures were added as they stood — 20 MT and 20,000 kgs came to 20,020
+           under a column headed "Kgs";
+         · each element averaged by weight across the rows of the tables that carry
+           it. This took the plain mean of the per-table figures, so a 100 kg sample
+           had the same say in the result as a 20 t container;
+         · the same rows: a line with no material and no analysis is a blank the
+           footer skips, so it is skipped here too. */
     useEffect(() => {
         if (!data || data.length === 0) return
-        const arr = data.map(table => {
+        let totalKgs = 0
+        const wSum = {}
+        const wKgs = {}
+        data.forEach(table => {
             const elems = table.elements || DEFAULT_ELEMENTS
-            const totalKgs = table.data.reduce((sum, item) => sum + Number(item.kgs), 0)
-            const obj = { kgs: totalKgs }
-            elems.forEach(el => {
-                const ws = table.data.reduce((s, row) => s + (parseFloat(row[el.key] || 0) * Number(row.kgs)), 0)
-                obj[el.key] = totalKgs > 0 ? (ws / totalKgs).toFixed(2) : '0.00'
+            const toKgs = TO_KGS[table.unit || 'kgs'] || 1
+            table.data.forEach(row => {
+                // footerVal's own test, word for word: named, or carrying an analysis.
+                const mat = row.material
+                const counted = (mat && String(mat).trim() !== '')
+                    || elems.some(el => { const v = parseFloat(row[el.key]); return !isNaN(v) && v !== 0 })
+                if (!counted) return
+                const kgs = (parseFloat(row.kgs) || 0) * toKgs
+                totalKgs += kgs
+                elems.forEach(el => {
+                    wSum[el.key] = (wSum[el.key] || 0) + (parseFloat(row[el.key]) || 0) * kgs
+                    wKgs[el.key] = (wKgs[el.key] || 0) + kgs
+                })
             })
-            return obj
         })
-        const totalKgs = arr.reduce((sum, item) => sum + Number(item.kgs), 0)
         const result = { kgs: totalKgs.toFixed(2) }
         DEFAULT_ELEMENTS.forEach(el => {
-            const valid = arr.filter(item => !isNaN(parseFloat(item[el.key])))
-            const sum = valid.reduce((acc, item) => acc + parseFloat(item[el.key] || 0), 0)
-            result[el.key] = valid.length > 0 ? (sum / valid.length).toFixed(2) : '0.00'
+            result[el.key] = wKgs[el.key] > 0 ? (wSum[el.key] / wKgs[el.key]).toFixed(2) : '0.00'
         })
         setTotals(result)
         // Identity dep: every mutation goes through setData(prev => prev.map(...)),
@@ -545,7 +569,9 @@ const MaterialTables = () => {
                                        past this radius, so it now lives on the table itself
                                        (rounded-b-2xl on its scroll box in newTable.js) where it
                                        does that job without trapping popovers. */
-                                    <div key={table.id} className="mb-3 bg-[var(--bg-card)] rounded-2xl border border-[var(--line)]">
+                                    /* data-fit-anchor: the table's scroll box is fitted to the
+                                       screen together with this card (useFitHeight). */
+                                    <div key={table.id} data-fit-anchor className="mb-3 bg-[var(--bg-card)] rounded-2xl border border-[var(--line)]">
                                         <Table
                                             data={table.data}
                                             table1={table}

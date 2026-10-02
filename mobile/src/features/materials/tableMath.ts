@@ -6,9 +6,9 @@
 //   app/(root)/materialtables/newTable.js  — fmt (:175), footerVal (:197),
 //                                            hasPrices (:93), niMult (:98),
 //                                            costPmt/costTotal columns (:101-144)
-//   app/(root)/materialtables/page.js      — cross-table grand totals (:321-344)
+//   app/(root)/materialtables/page.js      — cross-table grand totals (the totals effect)
 
-import { DEFAULT_ELEMENTS, UNIT_TO_MT } from './constants';
+import { DEFAULT_ELEMENTS, TO_KGS, UNIT_TO_MT } from './constants';
 import { moneyFull } from '@/lib/format';
 
 export interface Element {
@@ -192,68 +192,70 @@ export const salesTotal = costTotal;
 export const hasSalesPrices = hasPrices;
 
 /**
- * Footer cell for the two SALES columns — newTable.js:296-301.
+ * Footer cells for the two SALES columns — newTable.js footerVal, the `salesMt` and
+ * `salesTotal` branches.
  *
- * Deliberately NOT the cost-side maths. footerVal has explicit branches for
- * `costPmt` and `costTotal`, but none for `salesMt` / `salesTotal`, so those fall
- * through to the generic element branch: a WEIGHT-WEIGHTED AVERAGE of the column's
- * value, formatted with no '$' and blank when zero.
+ * The cost pair's maths against the sales price map: Sales MT is the per-MT figure
+ * averaged by weight, Sales Total is the SUM of the row totals. Aliases of the cost
+ * helpers for the reason salesPerMT is one — web runs the same expressions.
  *
- * For Sales MT that is the natural figure. For Sales Total it means the footer is
- * the weighted average of the per-row totals rather than their SUM — which reads
- * oddly next to Cost Total, which IS a sum. It looks like an oversight on the web
- * side, but it is what the web page prints, so reproducing it is the whole point;
- * a "corrected" mobile figure would just be a number that matches nothing. Recorded
- * here so the next reader does not quietly fix it.
+ * Until 2026-10-02 web had no branch for either column, so both fell through to its
+ * generic element branch: a weighted average with no '$'. For Sales Total that
+ * printed the weighted AVERAGE of the row totals where Cost Total beside it printed
+ * a sum (6,900 and 10,350 read 9,487.50, not 17,250.00). Mobile reproduced that on
+ * purpose, to match the page; web was corrected in the 14-inch / Material Tables
+ * pass and this follows it. `footerSalesCol`, the helper that carried the old rule,
+ * is gone.
  */
-export const footerSalesCol = (rows: any[], valueOf: (r: any) => number, totalW: number): number => {
-  if (!(totalW > 0)) return 0;
-  const wSum = (rows || []).reduce(
-    (s: number, r: any) => s + (parseFloat(r?.kgs) || 0) * (valueOf(r) || 0),
-    0
-  );
-  return wSum / totalW;
-};
+export const footerSalesPmt = footerCostPmt;
+export const footerSalesTotal = footerCostTotal;
 
-// ── cross-table grand totals — page.js:321-344 ───────────────────────────────
+// ── cross-table grand totals — materialtables/page.js, the totals effect ─────
 
 /**
- * The bottom "Total" row spanning every table.
+ * The bottom "Total" row spanning every table — worked out the way each table's own
+ * footer works out its rows, so the two can be checked against each other.
  *
- * Three web quirks are reproduced deliberately:
- *  1. The per-element figure is the UNWEIGHTED mean of each table's own weighted
- *     average — a two-row table counts as much as a two-hundred-row one.
- *  2. Only the nine DEFAULT_ELEMENTS are rolled up; a custom element added to one
+ *  1. Every weight is converted to KGS first. A table can be kept in MT or lbs, and
+ *     the row is headed "Kgs".
+ *  2. Each element is averaged BY WEIGHT across the rows of the tables that carry it.
+ *  3. The same rows as the footer: a line with no material and no analysis is a
+ *     blank placeholder and is skipped (`footerRows`).
+ *  4. Only the nine DEFAULT_ELEMENTS are rolled up; a custom element added to one
  *     table never appears here.
- *  3. Unlike the per-table footer, this pass uses EVERY stored row — the
- *     blank-placeholder filter is a footer-only rule.
  *
- * Returns `null` when any value is unparseable, which is web's whole-row guard
- * (page.js:408) — the Total row is hidden rather than printing NaN.
+ * Until 2026-10-02 web did none of 1–3: it added the raw weights as they stood
+ * (20 MT + 20,000 kgs = "20,020 Kgs"), took the plain mean of the per-table
+ * averages (a 10 kg sample counted as much as a 1,000 t lot) and counted
+ * placeholder rows. Mobile mirrored those three on purpose; web was corrected and
+ * this follows it.
+ *
+ * Returns `null` only for no tables at all. A weight or percentage that will not
+ * parse counts as zero, as it does in the footer, so the row can no longer come out
+ * NaN — the old whole-row NaN guard has nothing left to catch.
  */
 export function grandTotals(tables: any[]): Record<string, string> | null {
   if (!tables || tables.length === 0) return null;
 
-  const per = tables.map((table: any) => {
+  let totalKgs = 0;
+  const wSum: Record<string, number> = {};
+  const wKgs: Record<string, number> = {};
+  tables.forEach((table: any) => {
     const elems: any[] = table?.elements || DEFAULT_ELEMENTS;
-    const rows: any[] = table?.data || [];
-    const totalKgs = rows.reduce((s: number, r: any) => s + Number(r?.kgs), 0);
-    const obj: any = { kgs: totalKgs };
-    elems.forEach((el: any) => {
-      const ws = rows.reduce((s: number, r: any) => s + parseFloat(r?.[el.key] || 0) * Number(r?.kgs), 0);
-      obj[el.key] = totalKgs > 0 ? (ws / totalKgs).toFixed(2) : '0.00';
+    const toKgs = TO_KGS[table?.unit || 'kgs'] || 1;
+    footerRows(table?.data || [], elems).forEach((row: any) => {
+      const kgs = (parseFloat(row?.kgs) || 0) * toKgs;
+      totalKgs += kgs;
+      elems.forEach((el: any) => {
+        wSum[el.key] = (wSum[el.key] || 0) + (parseFloat(row?.[el.key]) || 0) * kgs;
+        wKgs[el.key] = (wKgs[el.key] || 0) + kgs;
+      });
     });
-    return obj;
   });
 
-  const totalKgs = per.reduce((s: number, t: any) => s + Number(t.kgs), 0);
   const result: Record<string, string> = { kgs: totalKgs.toFixed(2) };
   DEFAULT_ELEMENTS.forEach((el) => {
-    const valid = per.filter((t: any) => !isNaN(parseFloat(t[el.key])));
-    const sum = valid.reduce((acc: number, t: any) => acc + parseFloat(t[el.key] || 0), 0);
-    result[el.key] = valid.length > 0 ? (sum / valid.length).toFixed(2) : '0.00';
+    result[el.key] = wKgs[el.key] > 0 ? (wSum[el.key] / wKgs[el.key]).toFixed(2) : '0.00';
   });
-
-  if (Object.values(result).some((v: any) => isNaN(parseFloat(v)))) return null;
   return result;
 }

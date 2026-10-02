@@ -2,7 +2,7 @@
 
 import {
     flexRender, getCoreRowModel, getFilteredRowModel,
-    getPaginationRowModel, getSortedRowModel, useReactTable
+    getSortedRowModel, useReactTable
 } from "@tanstack/react-table"
 import { useMemo, useState, useCallback } from "react"
 import { Settings2, HelpCircle, ArrowUpNarrowWide, ArrowDownWideNarrow } from "lucide-react"
@@ -14,7 +14,7 @@ import { SortableContext, horizontalListSortingStrategy, useSortable, arrayMove 
 import { CSS } from '@dnd-kit/utilities'
 import { UNIT_LABELS, UNIT_TO_MT } from './constants'
 import SortIcon from "@components/table/SortIcon";
-import { useTablePrefs, useTablePagination } from '@components/table/useTablePrefs';
+import { useFitHeight } from '@components/table/useFitHeight';
 import { labelAwareGlobalFilter } from '@components/table/filters/labelAwareGlobalFilter';
 import { moneyFull } from '@utils/currency';
 
@@ -172,6 +172,8 @@ function SortableHeaderCell({ id, label, style, onRemove, isFe, isStandard, sort
                     <button
                         onPointerDown={e => e.stopPropagation()}
                         onClick={e => { e.stopPropagation(); onRemove() }}
+                        title={`Remove the ${label} column`}
+                        aria-label={`Remove the ${label} column`}
                         className="responsiveTextTable" style={{ fontWeight: '500', color: 'var(--ink-muted)', background: 'none', border: 'none', cursor: 'pointer', padding: '0 1px', lineHeight: 1 }}
                     >×</button>
                 )}
@@ -201,8 +203,16 @@ const Customtable = ({
     setSalesNiPercent = () => {}, toggleSales = () => {}, applySalesPreset = () => {},
 }) => {
     const [globalFilter, setGlobalFilter] = useState('')
-    const [{ pageIndex, pageSize }, setPagination] = useTablePagination(50)
-    const [columnFilters, setColumnFilters] = useTablePrefs('filters', [])
+    /* No pagination, and the column filters live only as long as the page.
+       This table paged at 50 rows but has never drawn a pager, so a packing list
+       of 60 bundles showed 50 and gave no sign of the other ten — while the footer,
+       which reads the filtered model, still counted them. The filters were saved
+       per page in the browser, shared by every table on it, with no filter control
+       drawn here (filterOn={false}) — so one left over from an older layout could
+       hide rows and nothing on screen could clear it. */
+    const [columnFilters, setColumnFilters] = useState([])
+    // The desktop scroll box, fitted to the screen with its own card (see page.js).
+    const [fitRef, fitPx] = useFitHeight({ anchor: '[data-fit-anchor]', gap: 16 })
     const [addElemInput, setAddElemInput] = useState('')
     const [showAddElem, setShowAddElem] = useState(false)
     const [focusedCell, setFocusedCell] = useState(null)
@@ -214,7 +224,6 @@ const Customtable = ({
     const [showSalesPresets, setShowSalesPresets] = useState(false)
     const [showHelp, setShowHelp] = useState(false)
 
-    const pagination = useMemo(() => ({ pageIndex, pageSize }), [pageIndex, pageSize])
     const elementKeys = useMemo(() => elements.map(e => e.key), [elements])
 
     const hasPrices = useMemo(
@@ -293,7 +302,7 @@ const Customtable = ({
         const at = delIdx >= 0 ? delIdx : cols.length
         cols.splice(at, 0, costPmtCol, costTotalCol)
         return cols
-    }, [columns, hasPrices, showCosts, elements, prices, unit])
+    }, [columns, hasPrices, showCosts, elements, prices, unit, niMult])
 
     /* ── Sales columns ────────────────────────────────────────────────────────
        Same maths as cost, against salesPrices instead of prices: a row's value
@@ -338,17 +347,28 @@ const Customtable = ({
         return cols
     }, [enhancedColumns, hasSalesPrices, showSales, salesPerMT, unit])
 
+    /* A fresh array whenever something the computed columns read has changed.
+       TanStack keeps each row's accessor results in a per-row cache and only
+       rebuilds the rows when `data` itself is a new array — and a price, the Ni %
+       or the sales side changing does not touch `data`. So Cost PMT, Cost Total,
+       Sales MT and Sales Total stayed at whatever they were when the row was last
+       edited: change Ni from 15,570 to 15,000 and every row still showed the old
+       figure while the footer under it, which works from the prices directly,
+       showed the new one. Sorting by those columns used the stale values too. */
+    const tableRows = useMemo(
+        () => [...data],
+        [data, prices, salesPrices, niMult, salesNiMult, unit, elements]
+    )
+
     const table = useReactTable({
-        columns: columnsWithSales, data,
+        columns: columnsWithSales, data: tableRows,
         getCoreRowModel: getCoreRowModel(),
-        state: { globalFilter, pagination, columnFilters },
+        state: { globalFilter, columnFilters },
         onColumnFiltersChange: setColumnFilters,
         getFilteredRowModel: getFilteredRowModel(),
         globalFilterFn: labelAwareGlobalFilter,
         onGlobalFilterChange: setGlobalFilter,
         getSortedRowModel: getSortedRowModel(),
-        getPaginationRowModel: getPaginationRowModel(),
-        onPaginationChange: setPagination,
     })
 
     const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }))
@@ -435,6 +455,21 @@ const Customtable = ({
                 }, 0)
                 return s + cPmt * wMT
             }, 0)
+            return moneyFull('us', tot)
+        }
+        /* The sales pair, on the cost pair's terms: per-MT is averaged by weight,
+           the total is a sum. Neither was named here, so both fell through to the
+           element branch below — which averages a column by weight. Sales Total
+           therefore showed the weighted AVERAGE of the row totals (6,900 and 10,350
+           came to 9,487.50, not 17,250.00), and both lost their $. */
+        if (colId === 'salesMt') {
+            if (!hasSalesPrices || totalW === 0) return ''
+            const wAvg = rows.reduce((s, r) => s + salesPerMT(r.original) * (parseFloat(r.getValue('kgs')) || 0), 0) / totalW
+            return moneyFull('us', wAvg)
+        }
+        if (colId === 'salesTotal') {
+            if (!hasSalesPrices) return ''
+            const tot = rows.reduce((s, r) => s + salesPerMT(r.original) * (parseFloat(r.getValue('kgs')) || 0) * (UNIT_TO_MT[unit] || 0.001), 0)
             return moneyFull('us', tot)
         }
         const wSum = rows.reduce((s, r) => {
@@ -654,13 +689,20 @@ const Customtable = ({
                                     <div style={{ ...popStyle, right: 0, zIndex: 60, padding: '10px 14px', minWidth: '340px' }}>
                                         <p className="responsiveTextTable font-display" style={{ fontWeight: '600', color: 'var(--ink)', marginBottom: '6px' }}>How to use this table</p>
                                         {[
+                                            /* Was "Double-click column header label → Add / remove
+                                               element", which does nothing: adding is the + at the
+                                               end of the header row, removing is the × beside an
+                                               element. The Sales button was not listed at all. */
                                             ['Drag column header', 'Reorder elements'],
-                                            ['Double-click column header label', 'Add / remove element'],
-                                            ['Double-click Container / Price label', 'Rename the button'],
+                                            ['Click column header', 'Sort by that column'],
+                                            ['+ at the end of the header', 'Add an element column (type its symbol, e.g. Al)'],
+                                            ['× beside an element', 'Remove that element column'],
+                                            ['Double-click Container / Price / Sales Price label', 'Rename the button'],
                                             ['Preset button on a price row', 'Which elements that price is built from'],
                                             ['Fe price', 'Include steel scrap price (skipped if 0)'],
                                             ['Ni × %', 'Multiply Ni LME by a payable % factor'],
-                                            ['Price button', 'Toggle Cost PMT / Cost Total columns'],
+                                            ['Price button', 'Cost price row + Cost PMT / Cost Total columns'],
+                                            ['Sales Price button', 'Sales price row + Sales MT / Sales Total columns'],
                                             ['Container button', 'Toggle per-row container # column'],
                                         ].map(([action, desc]) => (
                                             <div key={action} style={{ display: 'flex', gap: '6px', marginBottom: '4px' }}>
@@ -738,8 +780,12 @@ const Customtable = ({
                 {/* The price bars are settings for the table, not the top of it. Run
                     straight into the header row and they read as two more rows of it
                     (Zak, 2026-08-26). A band of card background between the two says
-                    where the inputs stop and the data starts. */}
-                <div className="overflow-auto dashboard-scroll rounded-b-2xl pt-2 bg-[var(--bg-card)]" style={{ maxHeight: '700px' }}>
+                    where the inputs stop and the data starts.
+                    The band is its own strip above the scroll box, not the box's top
+                    padding: padding is part of what scrolls, so the pinned header
+                    stopped 7px short of the top and rows showed through the gap. */}
+                <div className="h-2 bg-[var(--bg-card)]" aria-hidden="true" />
+                <div ref={fitRef} className="overflow-auto dashboard-scroll rounded-b-2xl bg-[var(--bg-card)]" style={{ maxHeight: fitPx ? `${Math.min(700, fitPx)}px` : '700px' }}>
                     <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
                     {/* NOT w-full. With `table-layout: auto` a full-width table hands
                         every column a share of the leftover space, so a table with a
@@ -750,8 +796,12 @@ const Customtable = ({
                         around it handles the case where the content is wider. */}
                     <table className="responsiveTextTable" style={{ tableLayout: 'auto', borderCollapse: 'separate', borderSpacing: 0, fontFamily: 'inherit' }}>
 
-                        {/* THEAD */}
-                        <thead>
+                        {/* THEAD — pinned, like every other table header in the app. Without
+                            it a packing list of forty bundles scrolled its element names
+                            out of the box: a screen of percentages with nothing saying
+                            which column was Ni and which was Mo. The box above is the
+                            scroller (it carries the max-height), so top-0 lands on it. */}
+                        <thead className="sticky top-0 z-sticky">
                                 <SortableContext items={elementKeys} strategy={horizontalListSortingStrategy}>
                                     {table.getHeaderGroups().map(hg => (
                                         <tr key={hg.id}>
@@ -784,7 +834,7 @@ const Customtable = ({
                                                                         placeholder="Al"
                                                                         className="responsiveTextTable" style={{ width: '26px', textAlign: 'center', background: 'transparent', border: 'none', outline: 'none', borderBottom: '1px solid var(--line-strong)' }}
                                                                     />
-                                                                    <button onClick={() => { setAddElemInput(''); setShowAddElem(false) }} className="responsiveTextTable" style={{ color: 'var(--ink-secondary)', background: 'none', border: 'none', cursor: 'pointer' }}>✕</button>
+                                                                    <button onClick={() => { setAddElemInput(''); setShowAddElem(false) }} title="Cancel" aria-label="Cancel adding an element" className="responsiveTextTable" style={{ color: 'var(--ink-secondary)', background: 'none', border: 'none', cursor: 'pointer' }}>✕</button>
                                                                 </div>
                                                             ) : (
                                                                 <button onClick={() => setShowAddElem(true)} title="Add custom element column" style={{ fontSize: 'var(--fs-title)', fontWeight: '500', color: 'var(--ink-muted)', background: 'none', border: 'none', cursor: 'pointer', lineHeight: 1 }}>+</button>
@@ -853,6 +903,8 @@ const Customtable = ({
                                                     <div className="flex justify-center items-center">
                                                         <button
                                                             onClick={() => delMaterial(table1, cell)}
+                                                            title="Delete row"
+                                                            aria-label="Delete row"
                                                             style={{ fontSize: 'var(--fs-page)', fontWeight: '500', color: TONES.red.text, background: 'none', border: 'none', cursor: 'pointer', padding: '1px 5px', lineHeight: 1 }}
                                                         >×</button>
                                                     </div>
@@ -861,10 +913,14 @@ const Customtable = ({
                                                        figure everywhere else (see the formulas cards) — fill,
                                                        no border. It used to carry a pink border as well, which
                                                        made the one read-only column the loudest thing in the
-                                                       row. */
+                                                       row.
+                                                       Tinted only once it holds a figure — the rule Fe already
+                                                       follows below. A blank row drew four filled pills with
+                                                       nothing in them, so a table of new rows was a block of
+                                                       colour down its right-hand side. */
                                                     <div
                                                         className="flex items-center justify-center rounded-control px-1.5"
-                                                        style={{ background: hdrBg(colId), minWidth: '62px', minHeight: 'var(--h-cell-control)' }}
+                                                        style={{ background: cell.getValue() ? hdrBg(colId) : 'transparent', minWidth: '62px', minHeight: 'var(--h-cell-control)' }}
                                                     >
                                                         {flexRender(cell.column.columnDef.cell, cell.getContext())}
                                                     </div>
@@ -920,9 +976,11 @@ const Customtable = ({
                             ))}
                         </tbody>
 
-                        {/* TFOOT */}
+                        {/* TFOOT — pinned to the bottom of the box for the same reason: the
+                            totals are what the table is read for, and they were only on
+                            screen once you had scrolled past every row. */}
                         {showFooter && (
-                            <tfoot>
+                            <tfoot className="sticky bottom-0 z-sticky">
                                 <tr>
                                     {headers.map((header) => {
                                         const colId = header.column.id
@@ -959,7 +1017,13 @@ const Customtable = ({
                                 {row.getVisibleCells().map(cell => {
                                     const colId = cell.column.id
                                     if (colId === 'del') return null
+                                    /* All four worked-out columns are read-only, as on desktop.
+                                       Only the cost pair was listed here, so on a phone Sales MT
+                                       and Sales Total came up as text inputs: typing wrote a stray
+                                       salesMt / salesTotal field onto the row, and the figure
+                                       snapped straight back. */
                                     const isCost = colId === 'costPmt' || colId === 'costTotal'
+                                        || colId === 'salesMt' || colId === 'salesTotal'
                                     const isFe = colId === 'fe'
                                     const ck = `${row.id}-${colId}`
                                     const focused = focusedCell === ck

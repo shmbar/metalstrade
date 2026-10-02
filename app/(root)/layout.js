@@ -66,7 +66,9 @@ export default function MyLayout({
 			<div className='md:hidden flex drop-shadow-xl z-appbar fixed top-0 left-0 right-0 h-14'>
 				<SideBarMini />
 			</div>
-			<div className="grow md:overflow-auto h-screen relative pt-14 md:pt-0">
+			{/* data-app-scroller: the box that scrolls on desktop (the document does not) —
+			    components/table/useFitHeight measures page tables against it. */}
+			<div data-app-scroller className="grow md:overflow-auto h-screen relative pt-14 md:pt-0">
 								<GlobalSearchLoader />
 				<MainNav />
 				{children}

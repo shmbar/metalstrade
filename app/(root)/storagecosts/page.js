@@ -30,6 +30,7 @@ import { SortTh, sortRows, useSortState } from '@components/table/sorting';
 import ExpenseModal from '../expenses/modals/dataModal.js';
 import { matchesAllWords } from '@utils/search';
 import { moneyFull } from '@utils/currency';
+import { useFitHeight } from '@components/table/useFitHeight';
 
 const fmtUsd = (v) => moneyFull('us', v); // shared money format (utils/currency.js)
 const fmtMt = (v) => new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 }).format(v || 0);
@@ -377,6 +378,13 @@ const StorageCosts = () => {
         [perYear, yearSort.sortKey, yearSort.sortDir]
     );
 
+    /* The triage table, held to the screen with its own card (as the Material Tables
+       cards are). It is the one table on this page with no end to it — 47 untagged
+       invoices drew 1,670px of rows, and its header row left the screen with the
+       first of them. Now it scrolls inside a box that fits the screen once you are
+       at the card, under a header that stays put. */
+    const [triageFitRef, triageFitPx] = useFitHeight({ anchor: '[data-fit-anchor]', gap: 16, min: 240 });
+
     const saveTag = async (e) => {
         const d = draftOf(e);
         if (!d.storageWh || !d.storageMonth) return;
@@ -624,7 +632,7 @@ const StorageCosts = () => {
                 </div>
 
                 {/* Triage: untagged storage invoices */}
-                <div className="rounded-2xl border border-[var(--line)] bg-[var(--bg-card)] overflow-hidden">
+                <div data-fit-anchor className="rounded-2xl border border-[var(--line)] bg-[var(--bg-card)] overflow-hidden">
                     <div className="flex items-center gap-2 px-4 py-2.5" style={{ background: 'var(--bg-subtle)' }}>
                         {untagged.length > 0 ? <AlertTriangle className="w-4 h-4" style={{ color: 'var(--warn-text)' }} /> : <Check className="w-4 h-4" style={{ color: 'var(--ok-text)' }} />}
                         <span className="responsiveText font-semibold text-[var(--chathams-blue)]">
@@ -673,7 +681,7 @@ const StorageCosts = () => {
                                 : 'No untagged invoice matches this filter.'}
                         </div>
                     ) : (
-                        <div className="overflow-x-auto">
+                        <div ref={triageFitRef} className="overflow-auto" style={{ maxHeight: triageFitPx ? `${triageFitPx}px` : undefined }}>
                             {/* Fixed px per column, each sized to its own content plus its own
                                 header — a date is eight characters wide whatever the monitor is.
 
@@ -694,7 +702,7 @@ const StorageCosts = () => {
                                     <col style={{ width: 48 }} />
                                     <col />
                                 </colgroup>
-                                <thead>
+                                <thead className="sticky top-0 z-sticky">
                                     <tr className="text-left text-[var(--ink-muted)]" style={{ background: "var(--bg-subtle)", fontSize: "var(--fs-table)" }}>
                                         <SortTh colKey="_date" label="Date" sort={triageSort} idle className="px-2 py-1 font-semibold whitespace-nowrap" />
                                         <SortTh colKey="_invoice" label="Invoice" sort={triageSort} idle className="px-2 py-1 font-semibold whitespace-nowrap" />

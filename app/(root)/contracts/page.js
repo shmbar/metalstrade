@@ -31,6 +31,7 @@ import EditableSelectCell from '../../../components/table/inlineEditing/Editable
 import { updateContractField } from '../../../utils/utils';
 import { useGlobalSearch } from '../../../contexts/useGlobalSearchContext';
 import { BtnIcon } from '@components/buttonIcons';
+import CollapsibleSection, { useSectionOpen, SectionFigure, FIT_BELOW_FOLDED } from '@components/CollapsibleSection';
 import CurrencyChip from '@components/CurrencyChip';
 import { oneOf } from '@components/table/filters/oneOfFilter';
 import { useUndo } from '@hooks/useUndo';
@@ -46,6 +47,9 @@ const Contracts = () => {
 	const router = useRouter();
 	const searchParams = useSearchParams();
 	const [alertArr, setAlertArr] = useState([]);
+	// The delayed-response list under the table: folded to one line on a short
+	// laptop screen, open elsewhere, and whatever the user last chose after that.
+	const [alertsOpen, toggleAlerts] = useSectionOpen('delayed');
 	const [filteredData, setFilteredData] = useState([])
 	const [highlightId, setHighlightId] = useState(null)
 	const { upsertSourceItems } = useGlobalSearch();
@@ -462,6 +466,7 @@ const Contracts = () => {
 								onUndo={handleUndo}
 								undoBusy={undoBusy}
 								undoLabel={undoLabel}
+								fitBelow={alertArr.length > 0 && !alertsOpen ? FIT_BELOW_FOLDED : undefined}
 								extraActions={
 									<>
 										<Tltip direction='bottom' tltpText='Create new Contract'>
@@ -491,17 +496,40 @@ const Contracts = () => {
 							/>
 						</div>
 
-						{/* Alert Section */}
-						{alertArr.length > 0 && (
-							<div className='mt-4 px-2 sm:px-3'>
-								<div className="responsiveText font-medium border border-[var(--line)] p-4 rounded-2xl shadow-card bg-[var(--bg-card)] w-full max-w-2xl">
-									<div style={{ color: 'var(--ink)' }}>
-										<span className='responsiveText font-semibold'>Notification for delayed response</span>
+						{/* Alert Section — contracts with no response past their date.
+						    The same contracts are listed in the notification bell; this is the
+						    page's own copy, and it took 268px under the table whether anyone was
+						    reading it or not. Its header now says how many there are, how old the
+						    oldest is and which the first few are; the table (and its Keep Alerting
+						    switches) opens under it. */}
+						{alertArr.length > 0 && (() => {
+							const daysOf = (o) => Math.floor((Date.now() - new Date(o.dateRange?.endDate).getTime()) / 86400000);
+							const byAge = [...alertArr].sort((a, b) => daysOf(b) - daysOf(a));
+							return (
+								<CollapsibleSection
+									id='contracts-delayed'
+									/* Full width while folded, so the line holds its figures in one
+									   row; the opened table keeps the width the card always had. */
+									className={`mt-3 w-full ${alertsOpen ? 'max-w-2xl' : ''}`}
+									bare={false}
+									open={alertsOpen}
+									onToggle={toggleAlerts}
+									title='Notification for delayed response'
+									summary={<>
+										<SectionFigure label='Contracts'>{alertArr.length}</SectionFigure>
+										<SectionFigure label='Oldest'>{daysOf(byAge[0])} days</SectionFigure>
+										{!alertsOpen && byAge.slice(0, 3).map(o => (
+											<span key={o.id} className='whitespace-nowrap text-[var(--ink-secondary)]'>{o.order} · {daysOf(o)}d</span>
+										))}
+										{!alertsOpen && byAge.length > 3 && <span className='text-[var(--ink-muted)]'>+{byAge.length - 3} more</span>}
+									</>}
+								>
+									<div className='border border-[var(--line)] rounded-2xl shadow-card bg-[var(--bg-card)]'>
 										<DlayedResponse alertArr={alertArr} setAlertArr={setAlertArr} />
 									</div>
-								</div>
-							</div>
-						)}
+								</CollapsibleSection>
+							);
+						})()}
 
 						{/* Modals */}
 						{valueCon && (

@@ -698,7 +698,7 @@ import {
   useReactTable
 } from "@tanstack/react-table"
 
-import { Fragment, useEffect, useLayoutEffect, useMemo, useState, useContext, useRef } from "react"
+import { useCallback, Fragment, useEffect, useLayoutEffect, useMemo, useState, useContext, useRef } from "react"
 
 
 import { Paginator } from "../../../components/table/Paginator";
@@ -718,6 +718,7 @@ import CurrencyChip from '../../../components/CurrencyChip';
 import EmptyState from '../../../components/EmptyState';
 import { useTablePrefs, useTablePagination } from '@components/table/useTablePrefs';
 import { keywordColumnFilter } from '@components/table/filters/keywordColumnFilter';
+import { useFitHeight } from '@components/table/useFitHeight';
 
 const Customtable = ({
   data,
@@ -732,6 +733,11 @@ const Customtable = ({
   onUndo,
   undoBusy,
   undoLabel,
+  // Page-specific toolbar controls, drawn in the Header beside Quick Sum.
+  extraActions,
+  // Room to keep under the box: the page passes more while a section below the
+  // table is folded to one line, so that line stays on screen (CollapsibleSection).
+  fitBelow,
   summaryUSD = { amount: '$ 0.00' },
   summaryEUR = { amount: '€ 1,580.00' },
   // The column ID whose center the currency label should sit under (default: 'cur')
@@ -876,6 +882,11 @@ const Customtable = ({
   const dynamicMaxHeight = currentRows > 0
     ? `${Math.min(currentRows * 40 + 220, 700)}px`
     : '320px'
+  // The cap above, held to the screen it is on — on a 14-inch laptop 700px ran
+  // past the bottom and the page scrolled around the table (components/table/useFitHeight).
+  const [fitRef, fitPx] = useFitHeight({ maxBelow: fitBelow });
+  const desktopMaxHeight = fitPx && String(dynamicMaxHeight).endsWith('px') ? `${Math.min(parseFloat(dynamicMaxHeight), fitPx)}px` : dynamicMaxHeight;
+  const fitWrapRef = useCallback((node) => { tableWrapRef.current = node; fitRef(node); }, [fitRef]);
 
   const totalCols = columnsWithSelection.length
 
@@ -994,16 +1005,17 @@ const Customtable = ({
               onUndo={onUndo}
               undoBusy={undoBusy}
               undoLabel={undoLabel}
+              extraActions={extraActions}
             />
           </div>
 
           {/* ── DESKTOP TABLE ── */}
           <div className="hidden md:block flex-1">
             <div
-              ref={tableWrapRef}
+              ref={fitWrapRef}
               className="overflow-auto dashboard-scroll isolate"
               style={{
-                maxHeight: dynamicMaxHeight,
+                maxHeight: desktopMaxHeight,
                 position: 'relative',
               }}
             >

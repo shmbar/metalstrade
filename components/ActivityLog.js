@@ -7,6 +7,7 @@ import { FileText, Receipt, Banknote, Package, Settings as SettingsIcon, Activit
 import { TONES } from './statusUtils';
 import { NameCell } from './Avatar';
 import { matchesAllWords } from '@utils/search';
+import { useFitHeight } from './table/useFitHeight';
 
 // Visual identity per entity type (aligns with the status-color system in statusUtils).
 const ENTITY_META = {
@@ -79,6 +80,8 @@ const ActivityLog = ({ entityType, entityId, showFilters = false }) => {
     // first, cap for rendering afterwards, and let the reader ask for more.
     const PAGE = 200;
     const [visible, setVisible] = useState(PAGE);
+    // The full-page feed's box, fitted to the screen (see the list below).
+    const [fitRef, fitPx] = useFitHeight();
 
     const load = useCallback(async () => {
         if (!uidCollection) return;
@@ -227,10 +230,18 @@ const ActivityLog = ({ entityType, entityId, showFilters = false }) => {
                     </span>
                 </div>
             ) : (
-                // Scoped mode sits inside a modal, so it keeps its own scrollbox. The full-page
-                // feed scrolls with the page instead — an inner 60vh box left the card floating
-                // in dead space with a second scrollbar.
-                <div className={showFilters ? '' : 'max-h-[60vh] overflow-y-auto pr-1'}>
+                // Scoped mode sits inside a modal, so it keeps its own 60vh scrollbox.
+                // The full-page feed, on a desktop screen, scrolls in a box fitted to what is
+                // left of the screen (components/table/useFitHeight), like every page table:
+                // a hundred entries ran the page ~2,900px past a 14-inch laptop. A fixed 60vh
+                // box was tried here once and dropped — it left the card floating in dead space
+                // with a second scrollbar; a fitted box ends at the bottom of the screen and
+                // the page itself no longer scrolls. On a phone the page still scrolls (md:).
+                <div
+                    ref={showFilters ? fitRef : undefined}
+                    className={showFilters ? 'md:overflow-y-auto md:pr-1 md:max-h-[var(--feed-h)]' : 'max-h-[60vh] overflow-y-auto pr-1'}
+                    style={showFilters && fitPx ? { '--feed-h': `${fitPx}px` } : undefined}
+                >
                     {groups.map(group => (
                         <section key={group.key} className='mb-2 last:mb-0'>
                             <div className='flex items-center gap-2 mb-1'>

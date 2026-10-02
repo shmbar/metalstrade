@@ -31,6 +31,7 @@ import CurrencyChip from '../../../components/CurrencyChip';
 import { curCode } from '../../../utils/currency';
 import InvPopup from '../cashflow/invPopup';
 import ExpenseInvoiceCell, { hasAttachment } from '../../../components/ExpenseInvoiceCell';
+import CollapsibleSection, { useSectionOpen, CurrencyTotals, FIT_BELOW_FOLDED } from '../../../components/CollapsibleSection';
 
 
 const Expenses = () => {
@@ -61,6 +62,9 @@ const Expenses = () => {
     const [filteredId, setFilteredId] = useState([])
     const [totals, setTotals] = useState([])
     const [totalsAll, setTotalsAll] = useState([])
+    // The vendor summaries under the table: folded on a short laptop screen, open
+    // elsewhere, and whatever the user last chose after that.
+    const [summaryOpen, toggleSummary] = useSectionOpen('summary')
     const [onlyUnsplit, setOnlyUnsplit] = useState(false)
 
     // Persist a split change on one company-expense row: optimistic local update +
@@ -233,7 +237,18 @@ const Expenses = () => {
             },
             filterFn: oneOf,
         },
-        { accessorKey: 'comments', header: getTtl('Comments', ln) },
+        /* Two lines, and the whole note on hover. A comment can run to a paragraph
+           (one warehouse invoice lists every charge on it), and in this 150px
+           column that set its row to seven lines — 110px for one expense, a third of
+           the table on a 14-inch screen. Search and the Excel export still read the
+           full text; only the cell is clipped. */
+        {
+            accessorKey: 'comments', header: getTtl('Comments', ln),
+            cell: (props) => {
+                const v = props.getValue();
+                return <span className="line-clamp-2" title={v || undefined}>{v}</span>;
+            },
+        },
 
     ], [settings, ln, uidCollection, currentUser, logActivity, persistSplit, filesTick, openInvoice]);
 
@@ -374,29 +389,43 @@ const Expenses = () => {
                                 excellReport={excelReport}
                                 setFilteredData={(rows) => setFilteredId(rows.map(x => x.id))}
                                 invisible={invisible}
+                                fitBelow={summaryOpen ? undefined : FIT_BELOW_FOLDED}
+                                /* New Expense sits in the table toolbar, where New Contract
+                                   and New Sales Contract are. It had a 48px row to itself
+                                   between the pager and the summaries. */
+                                extraActions={
+                                    <Tltip direction='bottom' tltpText='Create new Company Expense'>
+                                        <button type="button" onClick={addNewExpense} className="whiteButton whitespace-nowrap">
+                                            <BtnIcon action="newRecord" />
+                                            <span>New Expense</span>
+                                        </button>
+                                    </Tltip>
+                                }
                             />
 
-                            {/* Action Button */}
-                            <div className="text-left pt-6 flex gap-4">
-                                <Tltip direction='bottom' tltpText='Create new Company Expense'>
-                                    <button type="button" onClick={addNewExpense} className="blackButton">
-                                        <BtnIcon action="add" />
-                                        <span>New Expense</span>
-                                    </button>
-                                </Tltip>
-                            </div>
-
-                            {/* Totals Section */}
-                            <div className='flex gap-4 flex-wrap'>
-                                <div className='pt-8 flex-1 min-w-[300px]'>
-                                    <TableTotals data={totals.map(x => ({ ...x, supplier: gQ(x.supplier, 'Supplier', 'nname') }))} columns={colsTotals} expensesData={expensesData}
-                                        settings={settings} filt='reduced' title='Summary - Unpaid Company expenses' />
+                            {/* Totals Section — one section that folds to its own totals. */}
+                            <CollapsibleSection
+                                id='company-expenses-summary'
+                                className='mt-3'
+                                open={summaryOpen}
+                                onToggle={toggleSummary}
+                                title='Summary by vendor'
+                                summary={<>
+                                    <CurrencyTotals label='Unpaid' rows={totals} />
+                                    <CurrencyTotals label='All' rows={totalsAll} />
+                                </>}
+                            >
+                                <div className='flex gap-4 flex-wrap items-start'>
+                                    <div className='flex-1 min-w-[300px]'>
+                                        <TableTotals data={totals.map(x => ({ ...x, supplier: gQ(x.supplier, 'Supplier', 'nname') }))} columns={colsTotals} expensesData={expensesData}
+                                            settings={settings} filt='reduced' title='Summary - Unpaid Company expenses' />
+                                    </div>
+                                    <div className='flex-1 min-w-[300px]'>
+                                        <TableTotals data={totalsAll.map(x => ({ ...x, supplier: gQ(x.supplier, 'Supplier', 'nname') }))} columns={colsTotals} expensesData={expensesData}
+                                            settings={settings} filt='full' title='Summary' />
+                                    </div>
                                 </div>
-                                <div className='pt-8 flex-1 min-w-[300px]'>
-                                    <TableTotals data={totalsAll.map(x => ({ ...x, supplier: gQ(x.supplier, 'Supplier', 'nname') }))} columns={colsTotals} expensesData={expensesData}
-                                        settings={settings} filt='full' title='Summary' />
-                                </div>
-                            </div>
+                            </CollapsibleSection>
                         </div>
 
                         {/* Modal */}

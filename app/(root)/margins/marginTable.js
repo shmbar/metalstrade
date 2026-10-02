@@ -4,17 +4,28 @@ import { IoAddCircleOutline } from "react-icons/io5";
 import { FiMinusCircle, FiTrash2 } from "react-icons/fi";
 import Customtable from './newTable';
 import { NumericFormat } from "react-number-format";
-import { updateOpenMonth } from '../../../utils/utils';
 import { BtnIcon } from '../../../components/buttonIcons';
 
+/* One figure of a folded month: label and value on ONE line.
+   They were stacked, which made a folded month 48px tall — nine of them, plus the
+   page header, still ran a 768px screen over. Inline they sit in the 28px band the
+   Add button already sets. flex-wrap puts the value back under its label by itself
+   where a cell is too narrow to hold both (the two-column phone layout). */
+const Figure = ({ label, children }) => (
+    <div className="flex flex-wrap items-baseline justify-center gap-x-2 text-center responsiveText font-medium">
+        <span className="font-sans" style={{ color: 'var(--brand)' }}>{label}</span>
+        <span>{children}</span>
+    </div>
+);
+
 const MarginTable = memo(function MarginTable(props) {
-    let { month, year, addItem, deleteMonth, openMonth, uidCollection } = props
+    let { month, year, addItem, deleteMonth, openMonth } = props
     let data = props.items
 
-    const saveOpenClose = (status) => {
-        updateOpenMonth(uidCollection, month, year, status)
-        props.setData(prev => prev.map(x => x.month === month ? { ...x, openMonth: status } : x))
-    }
+    /* Folding is this person's view (margins/useMonthFolds), not the month's data.
+       This wrote `openMonth` to the month's Firestore document and into the list the
+       page autosaves — so folding a month folded it for everyone in the workspace. */
+    const saveOpenClose = (status) => props.onToggleMonth?.(month, status)
 
     // Calculate summary values
     const purchase = data.reduce((sum, row) => sum + (Number(row.purchase) || 0), 0);
@@ -34,7 +45,7 @@ const MarginTable = memo(function MarginTable(props) {
                     borderRadius: '12px',
                     border: '1px solid var(--line)',
                     marginBottom: '0px',
-                    padding: '4px 8px'
+                    padding: '2px 8px'
                 }}
             >
                 {({ open }) => (
@@ -44,13 +55,13 @@ const MarginTable = memo(function MarginTable(props) {
                             className="flex flex-wrap items-center gap-2 mb-2"
                             style={{
                                 background: "var(--bg-card)",
-                                padding: '2px 4px',
+                                padding: '1px 4px',
                                 borderRadius: '8px',
                                 marginBottom: '0px',
-                                minHeight: '32px'
+                                minHeight: '30px'
                             }}
                         >
-                            <div className="bg-[var(--bg-subtle)] rounded-lg px-3 py-1 flex items-center gap-2 w-fit">
+                            <div className="bg-[var(--bg-subtle)] rounded-lg px-3 py-0.5 flex items-center gap-2 w-fit">
 
   <DisclosureButton aria-label={open ? 'Hide this month' : 'Show this month'} className="flex items-center justify-center hover:opacity-80 transition-all" onClick={() => saveOpenClose(!open)}>
     {!open ? (
@@ -77,119 +88,64 @@ const MarginTable = memo(function MarginTable(props) {
                             {!open && (
                             <div className="flex-1 min-w-[280px]">
                                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                                    <div className="text-center">
-                                        <div 
-                                            className="font-medium mb-0.5 responsiveText font-sans"
+                                    <Figure label="Qty (MT)">
+                                        <NumericFormat
+                                            value={purchase}
+                                            displayType="text"
+                                            thousandSeparator
+                                            allowNegative
+                                            decimalScale={3}
+                                            fixedDecimalScale
                                             style={{
-                                                color: 'var(--brand)',
-                                                                                                lineHeight: '1.1'
+                                                color: 'var(--ink)',
+                                                lineHeight: '1.2'
                                             }}
-                                        >
-                                            Qty (MT)
-                                        </div>
-                                        <div
-                                            className="responsiveText font-medium"
-                                        >
-                                            <NumericFormat
-                                                value={purchase}
-                                                displayType="text"
-                                                thousandSeparator
-                                                allowNegative
-                                                decimalScale={3}
-                                                fixedDecimalScale
-                                                style={{
-                                                    color: 'var(--ink)',
-                                                    lineHeight: '1.2'
-                                                }}
-                                            />
-                                        </div>
-                                    </div>
-
-                                    <div className="text-center">
-                                        <div 
-                                            className="font-medium mb-0.5 responsiveText font-sans"
+                                        />
+                                    </Figure>
+                                    <Figure label="Total Margin">
+                                        <NumericFormat
+                                            value={totalMargin}
+                                            displayType="text"
+                                            thousandSeparator
+                                            allowNegative
+                                            prefix="$"
+                                            decimalScale={2}
+                                            fixedDecimalScale
                                             style={{
-                                                color: 'var(--brand)',
-                                                                                                lineHeight: '1.1'
+                                                color: 'var(--ink)',
+                                                lineHeight: '1.2'
                                             }}
-                                        >
-                                            Total Margin
-                                        </div>
-                                        <div
-                                            className="responsiveText font-medium"
-                                        >
-                                            <NumericFormat
-                                                value={totalMargin}
-                                                displayType="text"
-                                                thousandSeparator
-                                                allowNegative
-                                                prefix="$"
-                                                decimalScale={2}
-                                                fixedDecimalScale
-                                                style={{
-                                                    color: 'var(--ink)',
-                                                    lineHeight: '1.2'
-                                                }}
-                                            />
-                                        </div>
-                                    </div>
-
-                                    <div className="text-center">
-                                        <div 
-                                            className="font-medium mb-0.5 responsiveText font-sans"
+                                        />
+                                    </Figure>
+                                    <Figure label="Open Ship">
+                                        <NumericFormat
+                                            value={totalOpenShip}
+                                            displayType="text"
+                                            thousandSeparator
+                                            allowNegative
+                                            decimalScale={3}
+                                            fixedDecimalScale
                                             style={{
-                                                color: 'var(--brand)',
-                                                                                                lineHeight: '1.1'
+                                                color: totalOpenShip > 0 ? 'var(--bad-text)' : 'var(--ink)',
+                                                lineHeight: '1.2'
                                             }}
-                                        >
-                                            Open Ship
-                                        </div>
-                                        <div
-                                            className="responsiveText font-medium"
-                                        >
-                                            <NumericFormat
-                                                value={totalOpenShip}
-                                                displayType="text"
-                                                thousandSeparator
-                                                allowNegative
-                                                decimalScale={3}
-                                                fixedDecimalScale
-                                                style={{
-                                                    color: totalOpenShip > 0 ? 'var(--bad-text)' : 'var(--ink)',
-                                                    lineHeight: '1.2'
-                                                }}
-                                            />
-                                        </div>
-                                    </div>
-
-                                    <div className="text-center">
-                                        <div 
-                                            className="font-medium mb-0.5 responsiveText font-sans"
+                                        />
+                                    </Figure>
+                                    <Figure label="Remaining">
+                                        <NumericFormat
+                                            value={remaining}
+                                            displayType="text"
+                                            thousandSeparator
+                                            allowNegative
+                                            prefix="$"
+                                            decimalScale={2}
+                                            fixedDecimalScale
                                             style={{
-                                                color: 'var(--brand)',
-                                                                                                lineHeight: '1.1'
+                                                color: remaining > 0 ? 'var(--bad-text)' : 'var(--ink)',
+                                                lineHeight: '1.2'
                                             }}
-                                        >
-                                            Remaining
-                                        </div>
-                                        <div
-                                            className="responsiveText font-medium"
-                                        >
-                                            <NumericFormat
-                                                value={remaining}
-                                                displayType="text"
-                                                thousandSeparator
-                                                allowNegative
-                                                prefix="$"
-                                                decimalScale={2}
-                                                fixedDecimalScale
-                                                style={{
-                                                    color: remaining > 0 ? 'var(--bad-text)' : 'var(--ink)',
-                                                    lineHeight: '1.2'
-                                                }}
-                                            />
-                                        </div>
-                                    </div>
+                                        />
+                                    </Figure>
                                 </div>
                             </div>
                             )}
@@ -197,7 +153,10 @@ const MarginTable = memo(function MarginTable(props) {
                             <div className="flex items-center gap-1.5">
                                 <button
                                     className="whiteButton"
-                                    onClick={() => addItem(month)}
+                                    /* A folded month opens to show the row it was just given —
+                                       on a 14-inch laptop every month starts folded, and the new
+                                       row would otherwise land out of sight. */
+                                    onClick={() => { addItem(month); if (!open) saveOpenClose(true); }}
                                 >
                                     <BtnIcon action="add" />Add
                                 </button>
@@ -225,7 +184,7 @@ const MarginTable = memo(function MarginTable(props) {
                                 className="mt-1 w-full"
                                 style={{
                                     borderTop: '1px solid var(--line)',
-                                    paddingTop: '8px'
+                                    paddingTop: '4px'
                                 }}
                             >
                                 <Customtable {...props} />

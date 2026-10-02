@@ -180,7 +180,11 @@ const Fenicr = ({ value, handleChange }) => {
 const SideCard = ({ title, subtitle, composition, prices, fields, results }) => (
     <FormulaCard title={title} subtitle={subtitle} aside={<Legend />}>
         <div className="flex flex-wrap items-start gap-3">
-            <div className="shrink-0">
+            {/* min-w-0, not shrink-0: allowed to give up width, so the table's
+                columns can narrow (parts.js) when the card is narrower than the
+                table. shrink-0 held it at its full 556px, and at 1366px the card
+                clipped the Fe column in half. */}
+            <div className="min-w-0 max-w-full">
                 <ElementTable
                     columns={ELEMENTS}
                     rows={[

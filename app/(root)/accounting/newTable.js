@@ -34,6 +34,7 @@ import { Filter } from "../../../components/table/filters/filterFunc";
 import { labelAwareGlobalFilter } from "../../../components/table/filters/labelAwareGlobalFilter";
 import { useTablePrefs, useTablePagination } from '@components/table/useTablePrefs';
 import { keywordColumnFilter } from '@components/table/filters/keywordColumnFilter';
+import { useFitHeight } from '@components/table/useFitHeight';
 
 
 const Customtable = ({ data, columns, invisible, excellReport, onCellUpdate, undoCount, onUndo, undoBusy, undoLabel, setFilteredData }) => {
@@ -179,6 +180,10 @@ const Customtable = ({ data, columns, invisible, excellReport, onCellUpdate, und
   const dynamicMaxHeight = currentRows > 0
     ? `${Math.min(currentRows * 40 + 180, 700)}px`
     : '320px';
+  // The cap above, held to the screen it is on — on a 14-inch laptop 700px ran
+  // past the bottom and the page scrolled around the table (components/table/useFitHeight).
+  const [fitRef, fitPx] = useFitHeight();
+  const desktopMaxHeight = fitPx && String(dynamicMaxHeight).endsWith('px') ? `${Math.min(parseFloat(dynamicMaxHeight), fitPx)}px` : dynamicMaxHeight;
 
 
   return (
@@ -242,10 +247,10 @@ const Customtable = ({ data, columns, invisible, excellReport, onCellUpdate, und
 
           {/* DESKTOP */}
           <div className="hidden md:block flex-1">
-            <div
+            <div ref={fitRef}
               className="overflow-auto dashboard-scroll"
               style={{
-                maxHeight: dynamicMaxHeight,
+                maxHeight: desktopMaxHeight,
               }}
             >
               <div>

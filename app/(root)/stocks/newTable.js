@@ -34,6 +34,7 @@ import { TONES } from '../../../components/statusUtils';
 import { ChevronRight } from 'lucide-react';
 import { useTablePrefs, useTablePagination } from '@components/table/useTablePrefs';
 import { keywordColumnFilter } from '@components/table/filters/keywordColumnFilter';
+import { useFitHeight } from '@components/table/useFitHeight';
 
 const Customtable = ({
   data,
@@ -44,7 +45,10 @@ const Customtable = ({
   cb,
   type,
   ln,
-  setFilteredArray1
+  setFilteredArray1,
+  // Room to keep under the box: the page passes more while the summaries below the
+  // table are folded to one line, so that line stays on screen (CollapsibleSection).
+  fitBelow,
 }) => {
 
   const [globalFilter, setGlobalFilter] = useState('');
@@ -157,6 +161,10 @@ const Customtable = ({
   const dynamicMaxHeight = currentRows > 0
     ? `${Math.min(currentRows * 40 + 180, 700)}px`
     : '320px';
+  // The cap above, held to the screen it is on — on a 14-inch laptop 700px ran
+  // past the bottom and the page scrolled around the table (components/table/useFitHeight).
+  const [fitRef, fitPx] = useFitHeight({ maxBelow: fitBelow });
+  const desktopMaxHeight = fitPx && String(dynamicMaxHeight).endsWith('px') ? `${Math.min(parseFloat(dynamicMaxHeight), fitPx)}px` : dynamicMaxHeight;
 
   return (
     <div className="w-full">
@@ -210,7 +218,7 @@ const Customtable = ({
 
           {/* DESKTOP */}
           <div className="hidden md:block flex-1">
-            <div className="overflow-auto dashboard-scroll" style={{ maxHeight: dynamicMaxHeight }}>
+            <div ref={fitRef} className="overflow-auto dashboard-scroll" style={{ maxHeight: desktopMaxHeight }}>
 <table className="w-full" style={{ tableLayout: 'auto' }}>
                 {/* THEAD - Multi-color gradient inspired by all cards */}
                 <thead className="sticky top-0 z-sticky">

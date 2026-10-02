@@ -35,6 +35,7 @@ import { Split, Wallet, Factory } from 'lucide-react';
 import KpiStrip from '../../../components/KpiStrip';
 import { NameCell } from '../../../components/Avatar';
 import { useUndo } from '@hooks/useUndo';
+import CollapsibleSection, { useSectionOpen, CurrencyTotals, FIT_BELOW_FOLDED } from '@components/CollapsibleSection';
 
 
 
@@ -48,6 +49,9 @@ const Expenses = () => {
 	const searchParams = useSearchParams();
 	const [totals, setTotals] = useState([])
 	const [totalsAll, setTotalsAll] = useState([])
+	// The vendor summaries under the table: folded on a short laptop screen, open
+	// elsewhere, and whatever the user last chose after that.
+	const [summaryOpen, toggleSummary] = useSectionOpen('summary')
 	const [filteredId, setFilteredId] = useState([])
 	const [highlightId, setHighlightId] = useState(null)
 	const { upsertSourceItems } = useGlobalSearch();
@@ -457,16 +461,33 @@ const Expenses = () => {
 						{/* Main Card */}
 						<div className="page-card rounded-2xl p-3 sm:p-5 border border-[var(--line)] w-full bg-[var(--bg-card)] shadow-card">
 
-							{/* Header Section */}
-							<div className='flex items-center justify-end flex-wrap gap-2 pb-2'>
-								{(() => {
+							{/* Table Component */}
+							<Customtable
+								data={tableData}
+								columns={propDefaults}
+								SelectRow={SelectRow}
+								invisible={invisible}
+								excellReport={excelReport}
+								setFilteredId={setFilteredId}
+								highlightId={highlightId}
+								onCellUpdate={onCellUpdate}
+								undoCount={undoCount}
+								onUndo={handleUndo}
+								undoBusy={undoBusy}
+								undoLabel={undoLabel}
+								fitBelow={summaryOpen ? undefined : FIT_BELOW_FOLDED}
+								/* The IMS/GIS split filter rides in the table toolbar, beside Quick
+								   Sum. It had a row of its own above the table — ~35px of card on
+								   every screen for one button, and the first thing a 14-inch laptop
+								   ran out of. */
+								extraActions={(() => {
 									const pendingCount = expensesData.filter(x => splitStatusOf(x) === 'pending').length;
 									return (
 										<button
 											type='button'
 											onClick={() => setOnlyUnsplit(v => !v)}
 											title='Show only invoices not yet split between IMS & GIS'
-											className='inline-flex items-center gap-1.5 rounded-lg transition-colors'
+											className='inline-flex items-center gap-1.5 h-8 rounded-lg whitespace-nowrap transition-colors'
 											style={{
 												fontSize: 'var(--fs-body)', padding: '4px 12px',
 												color: onlyUnsplit ? 'var(--on-brand)' : 'var(--ink-secondary)',
@@ -482,35 +503,29 @@ const Expenses = () => {
 										</button>
 									);
 								})()}
-							</div>
-
-							{/* Table Component */}
-							<Customtable
-								data={tableData}
-								columns={propDefaults}
-								SelectRow={SelectRow}
-								invisible={invisible}
-								excellReport={excelReport}
-								setFilteredId={setFilteredId}
-								highlightId={highlightId}
-								onCellUpdate={onCellUpdate}
-								undoCount={undoCount}
-								onUndo={handleUndo}
-								undoBusy={undoBusy}
-								undoLabel={undoLabel}
 							/>
 
-							{/* Totals Section */}
-							<div className='flex gap-4 2xl:gap-20 flex-wrap'>
-								<div className='pt-8'>
-									<TableTotals data={totals} columns={colsTotals} expensesData={expensesData}
-										settings={settings} filt='reduced' title='Summary - Unpaid invoices' />
+							{/* Totals Section — one section that folds to its own totals. */}
+							<CollapsibleSection
+								id='expenses-summary'
+								className='mt-3'
+								open={summaryOpen}
+								onToggle={toggleSummary}
+								title='Summary by vendor'
+								summary={<>
+									<CurrencyTotals label='Unpaid' rows={totals} />
+									<CurrencyTotals label='All' rows={totalsAll} />
+								</>}
+							>
+								<div className='flex gap-4 2xl:gap-20 flex-wrap items-start'>
+									<div>
+										<TableTotals data={totals} columns={colsTotals} expensesData={expensesData} settings={settings} filt='reduced' title='Summary - Unpaid invoices' />
+									</div>
+									<div>
+										<TableTotals data={totalsAll} columns={colsTotals} expensesData={expensesData} settings={settings} filt='full' title='Summary' />
+									</div>
 								</div>
-								<div className='pt-8'>
-									<TableTotals data={totalsAll} columns={colsTotals} expensesData={expensesData}
-										settings={settings} filt='full' title='Summary' />
-								</div>
-							</div>
+							</CollapsibleSection>
 						</div>
 
 						{/* Modals */}

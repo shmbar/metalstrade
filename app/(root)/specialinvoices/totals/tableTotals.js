@@ -87,13 +87,22 @@ const Customtable = ({ data, columns, expensesData, settings, title, filt, headi
                 .si-totals tr:last-child td {
                     border-bottom: none;
                 }
+                /* 14-inch laptops: the same rung the page tables tighten on
+                   (globals.css, .custom-table td). 8px above and below every cell
+                   made a six-line summary 400px tall. */
+                @media (max-width: 1535px) {
+                    .si-totals th, .si-totals td {
+                        padding-top: 4px !important;
+                        padding-bottom: 4px !important;
+                    }
+                }
             `}</style>
            
-            <div className="si-totals glass-table rounded-2xl shadow-lg border border-[var(--line)] p-2 sm:p-4 mb-6 w-full flex flex-col h-full"
-                style={{
-                    borderRadius: '16px',
-                    boxShadow: '0 2px 8px rgba(var(--shadow-rgb), 0.08)'
-                }}>
+            {/* One frame per summary — the bordered card below. This wrapper used to be
+                a second card around it (border, shadow, 14px padding, a 21px bottom
+                margin and h-full, which stretched the two-line Unpaid summary to the
+                height of its six-line neighbour). */}
+            <div className="si-totals glass-table rounded-2xl w-full flex flex-col">
                 {heading && (
                     <div className="font-normal font-sans text-[var(--chathams-blue)] mb-3 sm:mb-4 pl-1 pt-1">
                         {heading}
@@ -116,7 +125,7 @@ const Customtable = ({ data, columns, expensesData, settings, title, filt, headi
                         >
 
                         <div
-                        className="responsiveTextCardTitle px-6 py-4 text-center font-normal font-sans"
+                        className="responsiveTextCardTitle px-4 py-2 text-center font-normal font-sans"
                         style={{
                             background: 'var(--bg-subtle)',
                             color: 'var(--chathams-blue)'

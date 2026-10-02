@@ -72,7 +72,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                 headers below used to claim they matched newTable but
                                 carried responsiveTextInput (13px) and py-2, which made
                                 this the one header in the app two rungs too large. */}
-                            <table className="custom-table w-full rounded-2xl" style={{ tableLayout: 'auto', borderSpacing: '0' }}>
+                            <table className="custom-table rows-tight w-full rounded-2xl" style={{ tableLayout: 'auto', borderSpacing: '0' }}>
                                 <thead className="sticky top-0 z-sticky">
                                     <tr>
                                         <th

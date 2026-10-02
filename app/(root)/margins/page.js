@@ -45,6 +45,9 @@ import { useSortable } from '@dnd-kit/sortable';
 import { v4 as uuidv4 } from 'uuid';
 import { countDecimalDigits, dataIds, removeNonNumeric } from "./funcs";
 import { matchesAllWords } from '@utils/search';
+import { moneyFull } from '@utils/currency';
+import CollapsibleSection, { useSectionOpen, SectionFigure } from '@components/CollapsibleSection';
+import { useMonthFolds } from './useMonthFolds';
 
 // Cell Component
 const RowDragHandleCell = ({ rowId }) => {
@@ -84,6 +87,12 @@ const Margins = () => {
     const [shipped, setShipped] = useState('')
     const [remaining, setRemaining] = useState('')
     const [remainingGIS, setRemainingGIS] = useState('')
+    // The two per-month totals tables at the foot: folded on a short laptop screen,
+    // open elsewhere, and whatever the user last chose after that.
+    const [totalsOpen, toggleTotals] = useSectionOpen('totals')
+    // Which months are folded: this person's view, never the workspace's data
+    // (useMonthFolds). Folded by default on a 14-inch laptop screen.
+    const monthFolds = useMonthFolds(yr)
 
     const cName = compData?.name?.slice(0, 3).toLowerCase()
 
@@ -721,7 +730,10 @@ const Margins = () => {
 
                             {/* Action Buttons - Keep original position */}
                             <div className="rounded-2xl border border-[var(--line)]">
-                                <div className="p-2 flex gap-3 mt-3">
+                                {/* flex-wrap: on a phone the row is narrower than its buttons, and
+                                    without it the search box was squeezed to a sliver and
+                                    "Add month" broke over two lines. */}
+                                <div className="p-2 flex flex-wrap items-center gap-3 mt-3">
                                     <button
                                         className="whiteButton disabled:opacity-50"
                                         disabled={data.length >= 12}
@@ -783,6 +795,24 @@ const Margins = () => {
                                         />
                                         <SearchAdornment value={query} onClear={() => setQuery('')} />
                                     </div>
+
+                                    {/* Every month at once, for this person only (useMonthFolds).
+                                        A year of margins is nine or ten month tables and a
+                                        hundred rows; folded, each month is one line still
+                                        showing its Qty, Total Margin, Open Ship and Remaining. */}
+                                    {data.length > 1 && (() => {
+                                        const anyOpen = data.some(m => monthFolds.isOpen(m.month, m.openMonth));
+                                        return (
+                                            <button
+                                                className='whiteButton ml-auto whitespace-nowrap'
+                                                onClick={() => monthFolds.setAll(!anyOpen)}
+                                                title={anyOpen ? 'Fold every month to its totals line' : 'Open every month'}
+                                            >
+                                                <BtnIcon action={anyOpen ? 'collapseall' : 'expandall'} />
+                                                {anyOpen ? 'Collapse all' : 'Expand all'}
+                                            </button>
+                                        );
+                                    })()}
                                 </div>
 
                                 {/* Margins Tables */}
@@ -803,7 +833,8 @@ const Margins = () => {
                                                         month={month}
                                                         year={yr}
                                                         items={shown}
-                                                        openMonth={q ? true : openMonth}
+                                                        openMonth={q ? true : monthFolds.isOpen(month, openMonth)}
+                                                        onToggleMonth={monthFolds.setMonth}
                                                         setData={setData}
                                                         uidCollection={uidCollection}
                                                         addItem={addItem}
@@ -825,7 +856,24 @@ const Margins = () => {
                                     </div>
                                 </div>
 
-                                {/* Summary Sections */}
+                                {/* Summary Sections — the year's figures on the header line,
+                                    the month-by-month tables under it. */}
+                                <CollapsibleSection
+                                    id='margins-totals'
+                                    className='px-2 pb-2'
+                                    open={totalsOpen}
+                                    onToggle={toggleTotals}
+                                    title='Totals by month'
+                                    summary={(() => {
+                                        const mt = (v) => new Intl.NumberFormat('en-US', { minimumFractionDigits: 3, maximumFractionDigits: 3 }).format(Number(v) || 0);
+                                        return (<>
+                                            <SectionFigure label='Qty'>{mt(purchase)} MT</SectionFigure>
+                                            <SectionFigure label='Total margin'>{moneyFull('us', Number(totalMargin) || 0)}</SectionFigure>
+                                            <SectionFigure label='Open ship'>{mt(outStandingShip)} MT</SectionFigure>
+                                            <SectionFigure label='Remaining'>{moneyFull('us', Number(remaining) || 0)}</SectionFigure>
+                                        </>);
+                                    })()}
+                                >
                                 <div className='flex flex-col lg:flex-row gap-6'>
                                     <ThirdPart
                                         data={data}
@@ -847,6 +895,7 @@ const Margins = () => {
                                         isGIS
                                     />
                                 </div>
+                                </CollapsibleSection>
                             </div>
                         </div>
                     </>

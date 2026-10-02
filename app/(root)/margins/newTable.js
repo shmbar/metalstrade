@@ -487,7 +487,10 @@ const Customtable = (props) => {
 
                         KEEP THIS IN STEP with COLUMN_CONFIGS: widen a column there and this
                         number has to move by the same amount, or Description pays for it. */}
-                    <div className="hidden sm:block w-full min-w-[1392px] custom-table">
+                    {/* rows-tight: 2px above and below a cell on 14-inch laptops (globals.css). Every
+                        row here holds a 24px control, so the standard 4px made each one
+                        33px — and a year of margins is about a hundred of them. */}
+                    <div className="hidden sm:block w-full min-w-[1392px] custom-table rows-tight">
                         {/* Fixed layout — see the note above COLUMN_CONFIGS for why this
                             table is the one that keeps it. The widths there are what each
                             column holds; Description states none and takes the remainder. */}

@@ -1,6 +1,7 @@
 'use client';
 import { useContext, useEffect, useMemo, useState } from 'react';
 import Customtable from './newTable';
+import CollapsibleSection, { useSectionOpen, SectionFigure, FIT_BELOW_FOLDED } from '../../../components/CollapsibleSection';
 import SharedStock from './SharedStock';
 import KpiStrip from '../../../components/KpiStrip';
 import { NameCell } from '../../../components/Avatar';
@@ -125,6 +126,9 @@ const Stocks = () => {
   // const [selectedOpt, setSelectOpt] = useState({ opt: 4 })
   const [data, setData] = useState([])
   const [sumData, setSumData] = useState([])
+  // The two summary cards under the table: folded on a short laptop screen, open
+  // elsewhere, and whatever the user last chose after that (CollapsibleSection).
+  const [summaryOpen, toggleSummary] = useSectionOpen('summary')
 
   const [filteredArray1, setFilteredArray1] = useState([])
   const [item, setItem] = useState(null)
@@ -680,6 +684,7 @@ const Stocks = () => {
               <div className='mt-2'>
                 <Customtable
                   data={shownData}
+                  fitBelow={summaryOpen ? undefined : FIT_BELOW_FOLDED}
                   columns={tableColumns}
                   SelectRow={SelectRow}
                   cb={stockSelector}
@@ -701,11 +706,26 @@ const Stocks = () => {
               </div>
 
               {/* Totals Section */}
+              {/* One header line for the two cards, which fold under it. The header is
+                  drawn on its own (headerOnly) and the cards are hidden rather than
+                  unmounted, so they keep their sort and scroll position. */}
+              <CollapsibleSection
+                id='stocks-summary'
+                className='mt-3'
+                headerOnly
+                open={summaryOpen}
+                onToggle={toggleSummary}
+                title='Summary by warehouse and by grade'
+                summary={<>
+                  <SectionFigure label='Warehouses'>{sumData.length}</SectionFigure>
+                  <SectionFigure label='Quantity'>{new Intl.NumberFormat('en-US', { minimumFractionDigits: 3, maximumFractionDigits: 3 }).format(sumData.reduce((s, r) => s + (Number(r.qnty) || 0), 0))}</SectionFigure>
+                </>}
+              />
               {/* NOT flex-wrap: wrapping is decided on each card's CONTENT width, so
                   the grade card dropped onto its own line at 1440 even though the two
                   fit once shrunk. Side by side from xl up, stacked below it. Summary
                   holds its width; the grade card absorbs all the slack. */}
-              <div className='flex flex-col xl:flex-row gap-6 w-full xl:items-start'>
+              <div id='stocks-summary-body' className={`flex-col xl:flex-row gap-6 w-full xl:items-start ${summaryOpen ? 'flex' : 'hidden'}`}>
                 <SumTable
                   sumData={sumData}
                   loading={loading}

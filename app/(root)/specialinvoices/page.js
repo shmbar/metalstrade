@@ -21,6 +21,7 @@ import Modal from '../../../components/modal';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../../components/ui/select';
 import { NameCell } from '../../../components/Avatar';
 import { oneOf } from '../../../components/table/filters/oneOfFilter';
+import CollapsibleSection, { useSectionOpen, CurrencyTotals, FIT_BELOW_FOLDED } from '../../../components/CollapsibleSection';
 
 // Rows of the detail panel that hold an entity NAME, and so get the initial-avatar
 // chip. Keyed by the panel's own label because that panel is built from label/value
@@ -73,6 +74,9 @@ const SpecialInvoices = () => {
     const [totals, setTotals] = useState([])
     const [totalsAll, setTotalsAll] = useState([])
     const [filteredData, setFilteredData] = useState([])
+    // The two summaries under the table: folded on a short laptop screen, open
+    // elsewhere, and whatever the user last chose after that.
+    const [summaryOpen, toggleSummary] = useSectionOpen('summary')
 
     useEffect(() => {
 
@@ -311,10 +315,24 @@ const SpecialInvoices = () => {
                                     ln
                                 )}
                                 setFilteredData={setFilteredData}
+                                fitBelow={summaryOpen ? undefined : FIT_BELOW_FOLDED}
                             />
 
-                            {/* Totals Section */}
-                            <div className='flex flex-col md:flex-row w-full gap-4 mt-6 '>
+                            {/* Totals Section — one section that folds to its own totals. */}
+                            <CollapsibleSection
+                                id='misc-invoices-summary'
+                                className='mt-3'
+                                open={summaryOpen}
+                                onToggle={toggleSummary}
+                                title='Summary by supplier'
+                                summary={<>
+                                    <CurrencyTotals label='Unpaid' rows={totals} field='total' />
+                                    <CurrencyTotals label='All' rows={totalsAll} field='total' />
+                                </>}
+                            >
+                            {/* items-start: each card as tall as its own rows. Stretched to
+                                match, the two-line Unpaid card was a 400px box of nothing. */}
+                            <div className='flex flex-col md:flex-row md:items-start w-full gap-4'>
                                 <div className='w-full md:w-1/2'>
                                     <TableTotals
                                         data={totals}
@@ -337,6 +355,7 @@ const SpecialInvoices = () => {
                                     />
                                 </div>
                             </div>
+                            </CollapsibleSection>
                         </div>
                         {detail && (
                             <Modal isOpen={!!detail} setIsOpen={() => setDetail(null)} title='Misc Invoice' size='sm'>

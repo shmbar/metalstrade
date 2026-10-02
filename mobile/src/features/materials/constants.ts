@@ -30,3 +30,7 @@ export const UNIT_LABELS: Record<string, string> = { mt: 'MT', kgs: 'Kgs', lbs: 
 
 // Multiply a stored weight by this to get metric tons (used by the cost columns).
 export const UNIT_TO_MT: Record<string, number> = { mt: 1, kgs: 0.001, lbs: 0.000453592 };
+
+// Multiply a stored weight by this to get kilograms — web's TO_KGS, verbatim. The
+// cross-table total is stated in kgs whatever unit each table is kept in.
+export const TO_KGS: Record<string, number> = { mt: 1000, kgs: 1, lbs: 0.453592 };
