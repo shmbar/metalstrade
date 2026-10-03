@@ -45,6 +45,25 @@ export const fmtWeight = (v: any, unit: string): string => {
 // minus sign in front of the symbol — this used to print $-1,234.00.
 export const money = (n: number): string => moneyFull('us', n);
 
+/**
+ * A price-bar value — newTable.js fmtPrice: thousands commas, up to 2 decimals, and
+ * text that will not parse is echoed back rather than blanked.
+ */
+export const fmtPrice = (val: any): string => {
+  if (!val && val !== 0) return '';
+  const n = parseFloat(String(val).replace(/,/g, ''));
+  if (isNaN(n)) return String(val);
+  return new Intl.NumberFormat('en-US', { maximumFractionDigits: 2 }).format(n);
+};
+
+/**
+ * The elements a price bar actually charges for — the ones `costPmt` does not skip.
+ * It drops every price that parses to 0 (blank included), so these are exactly the
+ * prices the Cost / Sales figures were built from. Fe counts when priced.
+ */
+export const pricedElements = (elements: Element[], prices: Record<string, any>): Element[] =>
+  (elements || []).filter((el) => (parseFloat(prices?.[el.key]) || 0) !== 0);
+
 // ── footer ───────────────────────────────────────────────────────────────────
 
 /**

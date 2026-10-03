@@ -2,6 +2,7 @@
 // ID token as a Bearer header — the same auth the web routes (aiGuard.js) expect.
 import { fetch as expoFetch } from 'expo/fetch';
 import { auth } from '@/lib/firebase';
+import { apiErrorText } from '@/lib/apiError';
 
 export const apiBase = () => (process.env.EXPO_PUBLIC_API_BASE_URL || '').replace(/\/$/, '');
 export const apiConfigured = () => !!apiBase();
@@ -26,12 +27,14 @@ export async function sendJson<T = any>(method: 'POST' | 'PATCH' | 'PUT' | 'DELE
   const res = await fetch(`${base}${path}`, { method, headers: await authHeaders(), body: JSON.stringify(body), signal });
   const text = await res.text();
   let data: any;
+  let parsed = true;
   try {
     data = text ? JSON.parse(text) : {};
   } catch {
     data = { error: text };
+    parsed = false;
   }
-  if (!res.ok) throw new Error(data?.error || `Request failed (${res.status}).`);
+  if (!res.ok) throw new Error(apiErrorText(res.status, data, parsed));
   return data as T;
 }
 

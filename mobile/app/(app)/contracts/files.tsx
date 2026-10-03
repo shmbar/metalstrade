@@ -45,7 +45,7 @@ export default function ContractFiles() {
     const asset = res.assets[0];
     setBusy(true);
     try {
-      await uploadFile(id as string, asset.uri, asset.name);
+      await uploadFile(id as string, asset.uri, asset.name, asset.mimeType);
       toast.success('Attachment successfully uploaded!');
       qc.invalidateQueries({ queryKey: ['files', id] });
     } catch (e: any) {

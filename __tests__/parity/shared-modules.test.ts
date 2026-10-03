@@ -122,6 +122,9 @@ const IDENTICAL_PAIRS: Array<[mobile: string, web: string]> = [
   ['mobile/src/shared/productEntries.js', 'utils/productEntries.js'],
   // Ported 2026-09-27 so mobile Stock-in shows the sales invoice(s) each lot went out on.
   ['mobile/src/shared/salesUsage.js', 'utils/salesUsage.js'],
+  // Ported 2026-10-03 so a supplier invoice read on the phone is attached under a name
+  // the Cashflow invoice preview finds again ("Invoice 147 - scan_0001.pdf").
+  ['mobile/src/shared/invoiceFiles.js', 'utils/invoiceFiles.js'],
 ];
 
 /** The deliberate exception — see the Tier 4 block at the bottom of this file. */

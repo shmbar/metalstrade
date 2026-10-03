@@ -177,6 +177,54 @@ export function addInvoice(list: PoInvoice[], id: string, paymentId: string): Po
   return [...list, blankPoInvoice(id, paymentId)];
 }
 
+/**
+ * A purchase invoice read from the supplier's PDF — web poInvModal addInvoiceFromDoc.
+ *
+ * `out` is the reader's answer in the web's Expense shape (invoiceRead.expenseOut):
+ * `expense` is the supplier's invoice number, `amount` the invoice total.
+ *
+ * Reading a PDF whose number is already recorded must not add a twin — that doubled
+ * the supplier's balance (the Nicrometal FVEH/00002 case). Numbers compare with case,
+ * spaces and punctuation ignored, and that row's VALUE is refreshed instead: its
+ * payments stay exactly as they are (no percentage rescale, unlike typing a value) and
+ * only pmnt / blnc are re-derived. A new row starts with one empty payment, like Add.
+ *
+ * `existing` is the row that was refreshed, or null when a row was added.
+ */
+export function addInvoiceFromDoc(
+  list: PoInvoice[],
+  out: { expense?: any; amount?: any } | null | undefined,
+  id: string,
+  paymentId: string
+): { list: PoInvoice[]; existing: PoInvoice | null } {
+  const val = out?.amount != null && out.amount !== '' ? String(out.amount) : '';
+  const num = String(out?.expense || '').trim();
+  const normNo = (s: any) => String(s || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+  const existing = (num && (list || []).find((p) => normNo(p.inv) === normNo(num))) || null;
+  if (existing) {
+    return {
+      existing,
+      list: list.map((item) => {
+        if (item.id !== existing.id) return item;
+        const paid = (item.payments || []).reduce((t, z) => t + (parseFloat(z.pmnt) || 0), 0);
+        const v = val !== '' ? parseFloat(val) || 0 : parseFloat(item.invValue) || 0;
+        return { ...item, invValue: val !== '' ? val : item.invValue, pmnt: paid, blnc: Math.round((v - paid) * 100) / 100 };
+      }),
+    };
+  }
+  const newInv: PoInvoice = {
+    id,
+    inv: num,
+    invValue: val,
+    pmnt: '0',
+    // A number, like every hand-edited row — a string blnc broke supplier totals (web).
+    blnc: parseFloat(val) || 0,
+    invRef: [],
+    payments: [blankPayment(paymentId)],
+  };
+  return { existing: null, list: [...(list || []), newInv] };
+}
+
 export function deleteInvoice(list: PoInvoice[], id: string): PoInvoice[] {
   return list.filter((x) => x.id !== id);
 }

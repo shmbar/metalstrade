@@ -403,6 +403,18 @@ declare module '@shared/grades' {
   export function specBreakdown(entries?: { qnty: number; value: number; lots: any[]; description?: string; supplier?: string }[]): SpecPart[];
 }
 
+declare module '@shared/invoiceFiles' {
+  export type StoredInvoiceFile = { name: string; url: string; updated?: string };
+  /** The part of an invoice number looked for in a file name — its first token with a digit. */
+  export function invoiceKey(invoiceNo: any): string;
+  /** 2 = the number follows an invoice word, 1 = the number is in the name, 0 = no match. */
+  export function matchScore(fileName: any, invoiceNo: any): 0 | 1 | 2;
+  /** This invoice's file among a contract's uploads, or null when none is named for it. */
+  export function pickInvoiceFile<T extends StoredInvoiceFile>(files: T[] | undefined, invoiceNo: any): T | null;
+  /** A name that finds its way back to this invoice: kept when it carries the number, else prefixed. */
+  export function nameForInvoice(fileName: string, invoiceNo: any): string;
+}
+
 declare module '@shared/salesUsage' {
   export type LotSale = {
     invoices: { label: string; qnty: number; date?: string; clients: string[] }[];

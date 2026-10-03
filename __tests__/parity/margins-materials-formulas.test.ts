@@ -11,8 +11,11 @@
  *  Tier 3  app/(root)/margins/page.js:463         handleChange (the whole editing model)
  *          app/(root)/margins/marginTable.js:19   the collapsed month header
  *          app/(root)/margins/thirdpart.js:340    GIS totals decimal rules
- *          app/(root)/materialtables/newTable.js  fmt / footerVal / cost columns
+ *          app/(root)/materialtables/newTable.js  fmt / footerVal / cost columns / fmtPrice
  *          app/(root)/materialtables/page.js:321  cross-table grand totals
+ *          app/(root)/materialtables/page.js      autoFe + editCell (Fe as the balance),
+ *                                                 delTable (empty tables only),
+ *                                                 loadData / makeBlankTable (Ni seed)
  *          app/(root)/formulas/tabs/*.js          solidsPrice / solidsPrice1 / turnings
  *  Tier 4  Stainless reads a stored `fe` the tab never writes (web → NaN);
  *          mobile's finite guards where web produces NaN/Infinity;
@@ -67,8 +70,17 @@ import {
   footerSalesPmt,
   footerSalesTotal,
   grandTotals,
+  fmtPrice,
+  pricedElements,
 } from '@/features/materials/tableMath';
-import { seedLmeNickel } from '@/features/materials/useMaterials';
+import {
+  seedLmeNickel,
+  editRow,
+  canDeleteTable,
+  normalizeTable,
+  workingCopy,
+  blankTable,
+} from '@/features/materials/useMaterials';
 import {
   DEFAULT_ELEMENTS as MOBILE_ELEMENTS,
   UNIT_LABELS as MOBILE_UNIT_LABELS,
@@ -93,7 +105,7 @@ import {
 } from '../../app/(root)/materialtables/constants.js';
 
 // ── helpers ──────────────────────────────────────────────────────────────────
-import { expectWebUnchanged, repoFileText } from './_helpers/webSource';
+import { expectWebUnchanged, repoFileText, webFnSource } from './_helpers/webSource';
 import {
   makeMarginItem,
   makeMarginMonth,
@@ -915,6 +927,192 @@ describe('material cell input guard', () => {
     const src = collapsed('app/(root)/materialtables/page.js');
     expect(src).toContain("const clean = colId === 'kgs' ? value.replace(/[^0-9.-]/g, '') : value");
     expect(cleanElement('1,5')).toBe('15');
+  });
+});
+
+// ═════════════════════════════════════════════════════════════════════════════
+// 8b. CELL EDITING — Fe AS THE BALANCE  (Tier 3 — mirror of materialtables/page.js
+//     autoFe + the per-row body of editCell)
+// ═════════════════════════════════════════════════════════════════════════════
+//
+// Until 2026-10-03 the phone wrote the typed value and nothing else, so Fe never
+// moved: change Ni from 50 to 60 and the row still said Fe 30 where web says 20, and
+// that stale Fe is what Save wrote. A Fe typed on the phone was not marked manual
+// either, so the next web edit to that row overwrote it.
+
+// Transcribed verbatim from app/(root)/materialtables/page.js autoFe.
+const webAutoFe = (row: any, elements: any[]) => {
+  const nonFe = elements.filter((el: any) => el.key !== 'fe');
+  const hasAny = nonFe.some((el: any) => parseFloat(row[el.key]) > 0);
+  if (!hasAny) return '';
+  const sum = nonFe.reduce((s: number, el: any) => s + (parseFloat(row[el.key]) || 0), 0);
+  return parseFloat(Math.max(0, 100 - sum).toFixed(2)).toString();
+};
+
+// Transcribed verbatim from the row map inside page.js editCell. Its two guards —
+// the countDecimalDigits early return and the kgs strip — are covered above; the
+// phone runs them at the cell (cleanElement / cleanKgs) before editRow.
+const webEditRow = (row: any, colId: string, value: string, elems: any[]) => {
+  const hasFe = elems.some((el: any) => el.key === 'fe');
+  const clean = colId === 'kgs' ? value.replace(/[^0-9.-]/g, '') : value;
+  const newRow: any = { ...row, [colId]: clean };
+  if (colId === 'fe') {
+    if (clean === '') {
+      newRow._feManual = false;
+      const computed = webAutoFe(newRow, elems);
+      if (computed !== '') newRow.fe = computed;
+    } else {
+      newRow._feManual = true;
+    }
+  } else if (hasFe && colId !== 'kgs' && colId !== 'material' && colId !== 'container') {
+    if (!row._feManual) {
+      const computed = webAutoFe(newRow, elems);
+      if (computed !== '') newRow.fe = computed;
+    }
+  }
+  return newRow;
+};
+
+const ELEMS = [...MOBILE_ELEMENTS] as any[];
+const blankMatRow = () => ({
+  id: 'r1', material: '', kgs: '', container: '', _feManual: false,
+  ni: '', cr: '', mo: '', co: '', nb: '', w: '', cu: '', ti: '', fe: '',
+});
+
+describe('material cell editing — Fe as the balance', () => {
+  it("web's autoFe and editCell have not drifted", () => {
+    expectWebUnchanged('app/(root)/materialtables/page.js', 'autoFe', '56e7457be36f');
+    expectWebUnchanged('app/(root)/materialtables/page.js', 'editCell', 'c6b283c9cf8d');
+  });
+
+  it('typing an element recomputes Fe as 100 − the rest', () => {
+    let r = editRow(blankMatRow(), 'ni', '50', ELEMS);
+    expect(r.fe).toBe('50');
+    r = editRow(r, 'cr', '20.5', ELEMS);
+    expect(r.fe).toBe('29.5');
+    r = editRow(r, 'mo', '3', ELEMS);
+    expect(r.fe).toBe('26.5');
+  });
+
+  it('a typed Fe sticks through later edits; clearing it hands Fe back to the balance', () => {
+    let r = editRow(editRow(blankMatRow(), 'ni', '50', ELEMS), 'fe', '25', ELEMS);
+    expect(r).toMatchObject({ fe: '25', _feManual: true });
+    r = editRow(r, 'ni', '60', ELEMS);
+    expect(r.fe).toBe('25');
+    r = editRow(r, 'fe', '', ELEMS);
+    expect(r).toMatchObject({ fe: '40', _feManual: false });
+  });
+
+  it('material, weight and container never touch Fe', () => {
+    const r = editRow(blankMatRow(), 'ni', '50', ELEMS);
+    for (const col of ['material', 'kgs', 'container']) expect(editRow(r, col, '7', ELEMS).fe).toBe('50');
+  });
+
+  it("web's edges are kept: over 100 floors at 0, an emptied analysis keeps the last Fe, no Fe column adds none", () => {
+    expect(editRow(blankMatRow(), 'ni', '120', ELEMS).fe).toBe('0');
+    // The balance of an empty analysis is '' and web only writes a non-empty one.
+    expect(editRow(editRow(blankMatRow(), 'ni', '50', ELEMS), 'ni', '', ELEMS).fe).toBe('50');
+    const noFe = ELEMS.filter((e) => e.key !== 'fe');
+    expect('fe' in editRow({ id: 'x', ni: '' }, 'ni', '50', noFe)).toBe(false);
+  });
+
+  it('matches the web transcription edit for edit', () => {
+    const script: [string, string][] = [
+      ['material', 'Inconel 625 bundle'], ['kgs', '1250'], ['ni', '58.4'], ['cr', '21.3'], ['mo', '8.9'],
+      ['nb', '3.4'], ['fe', '4.5'], ['co', '0.2'], ['fe', ''], ['ti', '0.25'], ['container', 'TCKU1234567'],
+      ['ni', ''], ['cr', ''], ['mo', ''], ['nb', ''], ['co', ''], ['ti', ''], ['ni', '72'],
+    ];
+    let mob: any = blankMatRow();
+    let web: any = blankMatRow();
+    for (const [col, v] of script) {
+      mob = editRow(mob, col, v, ELEMS);
+      web = webEditRow(web, col, v, ELEMS);
+      expect(mob).toEqual(web);
+    }
+  });
+});
+
+describe('material table delete guard', () => {
+  it("web's delTable has not drifted, and refuses a table with rows", () => {
+    expectWebUnchanged('app/(root)/materialtables/page.js', 'delTable', 'f33735225a4b');
+    expect(webFnSource('app/(root)/materialtables/page.js', 'delTable')).toContain('table1.data.length === 0');
+  });
+
+  it('only an empty table can be deleted — a blank row still counts as a row', () => {
+    // The phone deleted a table outright behind a confirm, rows and all.
+    expect(canDeleteTable({ data: [] })).toBe(true);
+    expect(canDeleteTable({ data: [{ id: 'r1', material: 'Ni plate', kgs: '500' }] })).toBe(false);
+    expect(canDeleteTable({ data: [{ id: 'r1', material: '', kgs: '' }] })).toBe(false);
+  });
+});
+
+describe('material table load + Ni seed', () => {
+  it("web's loadData and makeBlankTable have not drifted", () => {
+    expectWebUnchanged('app/(root)/materialtables/page.js', 'loadData', '3e60ec5a623f');
+    expectWebUnchanged('app/(root)/materialtables/page.js', 'makeBlankTable', 'adddc8805fbf');
+  });
+
+  it('seeds both bars with the Formulas Ni price, as a string, and never over a saved price', () => {
+    const t = normalizeTable({ id: 't1', data: [], prices: { cr: '1200' }, salesPrices: { ni: '17000' } }, '16500');
+    expect(t.prices).toEqual({ ni: '16500', cr: '1200' });
+    expect(t.salesPrices).toEqual({ ni: '17000' });
+    expect(normalizeTable({ id: 't2', data: [], prices: { ni: '15000' } }, '16500').prices.ni).toBe('15000');
+    expect(normalizeTable({ id: 't3', data: [] }, '').prices).toEqual({});
+  });
+
+  it('fills the fields an older table lacks, as web does, with Fe last', () => {
+    const t = normalizeTable(
+      { id: 't1', data: [], elements: [{ key: 'ni', label: 'Ni' }, { key: 'fe', label: 'Fe' }, { key: 'cr', label: 'Cr' }] },
+      ''
+    );
+    expect(t).toMatchObject({
+      name: '', unit: 'kgs', containerNo: '', showContainer: false, containerLabel: 'Container',
+      showCosts: false, costLabel: 'Price', niPercent: 100, priceKeys: null,
+      showSales: false, salesLabel: 'Sales Price', salesNiPercent: 100, salesPriceKeys: null,
+    });
+    expect(t.elements.map((e: any) => e.key)).toEqual(['ni', 'cr', 'fe']);
+    // `!= null`, not `||`: a saved 0 % stays 0 in the document (niMultiplier reads it as 100).
+    expect(normalizeTable({ id: 't4', data: [], niPercent: 0 }, '').niPercent).toBe(0);
+  });
+
+  it('the first live print moves a seed, but not a price the table was saved with', () => {
+    // web: lastLmeRef = nilme on load, then the poll runs with that as "ours".
+    const rows = [
+      { id: 'seeded', data: [] },
+      { id: 'saved', data: [], prices: { ni: '15000' } },
+      { id: 'savedAtSeed', data: [], prices: { ni: '16500' } },
+    ];
+    const out = workingCopy(rows, '16500', '16670');
+    expect(out[0].prices.ni).toBe('16670');
+    expect(out[0].salesPrices.ni).toBe('16670');
+    expect(out[1].prices.ni).toBe('15000');
+    expect(out[2].prices.ni).toBe('16670'); // equal to the seed, so ours — as on web
+    expect(workingCopy(rows, '16500', null)[0].prices.ni).toBe('16500');
+  });
+
+  it('a new table stores the Ni seed as a string, so the next print can move it', () => {
+    const t = blankTable('16500');
+    expect(t.prices).toEqual({ ni: '16500' });
+    expect(t.salesPrices).toEqual({ ni: '16500' });
+    expect(blankTable(16500).prices).toEqual({ ni: '16500' });
+    expect(seedLmeNickel([t], '16670', '16500')[0].prices.ni).toBe('16670');
+  });
+});
+
+describe('material table price line', () => {
+  it("prints a price the way web's price bar does", () => {
+    expectWebUnchanged('app/(root)/materialtables/newTable.js', 'fmtPrice', '514866f9f774');
+    expect(fmtPrice('16670')).toBe('16,670');
+    expect(fmtPrice('1,250.5')).toBe('1,250.5');
+    expect(fmtPrice('')).toBe('');
+    expect(fmtPrice(0)).toBe('0');
+    expect(fmtPrice('abc')).toBe('abc');
+  });
+
+  it('lists exactly the prices the cost maths uses', () => {
+    // costPmt skips a price that parses to 0 (blank included); a negative one counts.
+    const prices = { ni: '16670', cr: '0', mo: '', fe: '300', w: '-5' };
+    expect(pricedElements(ELEMS, prices).map((e) => e.key)).toEqual(['ni', 'w', 'fe']);
   });
 });
 

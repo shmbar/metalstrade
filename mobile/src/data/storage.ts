@@ -3,6 +3,7 @@
 // so attachments are shared between web and mobile).
 import { ref, uploadBytes, listAll, getDownloadURL, deleteObject } from 'firebase/storage';
 import { storage } from '@/lib/firebase';
+import { mimeFor } from '@/lib/mime';
 
 export interface StoredFile {
   name: string;
@@ -15,10 +16,13 @@ export async function listFiles(entityId: string): Promise<StoredFile[]> {
 }
 
 // Uploads a picked file (by local uri) to Storage and returns its download URL.
-export async function uploadFile(entityId: string, uri: string, name: string): Promise<StoredFile> {
+// Stored with its media type (lib/mime): without one a PDF is served as
+// application/octet-stream, and the web downloads it instead of showing it.
+export async function uploadFile(entityId: string, uri: string, name: string, contentType?: string | null): Promise<StoredFile> {
   const blob = await (await fetch(uri)).blob();
   const r = ref(storage, `${entityId}/${name}`);
-  await uploadBytes(r, blob);
+  const type = mimeFor(name, contentType || blob.type);
+  await uploadBytes(r, blob, type ? { contentType: type } : undefined);
   return { name, url: await getDownloadURL(r) };
 }
 
