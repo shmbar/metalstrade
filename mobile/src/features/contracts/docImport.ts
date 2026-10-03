@@ -2,6 +2,7 @@ import * as DocumentPicker from 'expo-document-picker';
 import * as ImagePicker from 'expo-image-picker';
 import * as FileSystem from 'expo-file-system/legacy';
 import { postJson } from '@/lib/api';
+import { fileNameOf, mimeFor } from '@/lib/mime';
 import { newId } from '@/data/writes';
 
 export interface ExtractResult {
@@ -53,6 +54,15 @@ export async function photographDocument(): Promise<PickedDocument | null> {
   const asset = res.assets[0];
   if ((asset.base64 as string).length > MAX_BASE64) throw new Error(PHOTO_TOO_BIG);
   return { uri: asset.uri, name: asset.fileName || `Scan ${scanStamp()}.jpg`, mimeType: 'image/jpeg', base64: asset.base64 as string };
+}
+
+// A file handed to the app ("Open in IMS" from Mail/WhatsApp/Files) — the OS gives a
+// file:// (iOS inbox copy) or content:// (Android) URI.
+export async function documentFromUri(uri: string): Promise<PickedDocument> {
+  const base64 = await FileSystem.readAsStringAsync(uri, { encoding: FileSystem.EncodingType.Base64 });
+  if (base64.length > MAX_BASE64) throw new Error(TOO_BIG);
+  const name = fileNameOf(uri);
+  return { uri, name, mimeType: mimeFor(name) || 'application/pdf', base64 };
 }
 
 // "2026-10-03 16.05" — a readable name for a camera scan, which has none of its own.
@@ -165,19 +175,9 @@ export async function pickAndExtractContract(settings: any): Promise<ExtractResu
   return doc ? extract(doc, settings) : null;
 }
 
-// A PDF opened INTO the app ("Open in IMS" from Mail/WhatsApp/Files) — the OS
-// hands us a file:// (iOS inbox copy) or content:// (Android) URI.
+// A PDF opened INTO the app, read as a supplier proforma for a new contract.
 export async function extractFromUri(uri: string, settings: any): Promise<ExtractResult> {
-  const base64 = await FileSystem.readAsStringAsync(uri, { encoding: FileSystem.EncodingType.Base64 });
-  if (base64.length > MAX_BASE64) throw new Error(TOO_BIG);
-  const last = uri.split('/').pop() || 'document.pdf';
-  let name = last;
-  try {
-    name = decodeURIComponent(last);
-  } catch {
-    // a stray "%" in the name — keep it as it came
-  }
-  return extract({ uri, name, mimeType: 'application/pdf', base64 }, settings);
+  return extract(await documentFromUri(uri), settings);
 }
 
 // Photograph a paper proforma with the camera — GPT-4o vision reads it server-side.

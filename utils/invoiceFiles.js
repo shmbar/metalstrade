@@ -43,6 +43,19 @@ export const matchScore = (fileName, invoiceNo) => {
     const key = invoiceKey(invoiceNo);
     if (!key) return 0;
     const toks = tokensOf(String(fileName ?? '').replace(/\.[a-z0-9]+$/i, ''));
+    /* A number whose digit part is too short to trust on its own — "FVEH/00002" keys on
+       "2" — is still found when the WHOLE number is in the name, token for token
+       ("Invoice FVEH-00002 - scan_0001", "FVEH_00002"). Until 2026-10-03 such an invoice
+       could never be found by its file, however it was named. */
+    if (key.length < 3) {
+        const seq = tokensOf(invoiceNo).map(norm);
+        const names = toks.map(norm);
+        if (seq.length > 1) {
+            for (let i = 0; i + seq.length <= names.length; i++) {
+                if (seq.every((s, j) => names[i + j] === s)) return 2;
+            }
+        }
+    }
     let best = 0;
     toks.forEach((t, i) => {
         if (norm(t) !== key) return;
@@ -76,8 +89,10 @@ export const pickInvoiceFile = (files = [], invoiceNo) => {
 };
 
 /** A name that will find its way back to this invoice: kept as is when it already
-    carries the number, else prefixed with it. */
+    carries the number, else prefixed with it. A "/" in the number becomes "-": Storage
+    reads a slash as a folder, so "Invoice FVEH/00002 - …" was filed in a sub-folder that
+    the contract's file listing never shows — the upload looked lost. */
 export const nameForInvoice = (fileName, invoiceNo) =>
     matchScore(fileName, invoiceNo) === 2 || !invoiceKey(invoiceNo)
         ? fileName
-        : `Invoice ${String(invoiceNo).trim()} - ${fileName}`;
+        : `Invoice ${String(invoiceNo).trim().replace(/[\\/]/g, '-')} - ${fileName}`;

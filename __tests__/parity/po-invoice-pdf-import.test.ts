@@ -15,9 +15,18 @@
  */
 import { describe, it, expect } from 'vitest';
 import { addInvoiceFromDoc } from '@/features/contracts/poInvoiceModel';
-import { attachmentName, defaultSelection, expenseOut, readWarnings, INVOICE_FIELDS } from '@/features/contracts/invoiceRead';
+import {
+  attachmentName,
+  defaultSelection,
+  expenseOut,
+  readWarnings,
+  INVOICE_FIELDS,
+  matchesPoNumber,
+  suggestPurchaseOrders,
+} from '@/features/contracts/invoiceRead';
+import { setPendingRead, peekPendingRead, clearPendingRead } from '@/features/contracts/pendingRead';
 import { apiErrorText } from '@/lib/apiError';
-import { mimeFor } from '@/lib/mime';
+import { mimeFor, fileNameOf } from '@/lib/mime';
 import { nameForInvoice, pickInvoiceFile } from '@shared/invoiceFiles';
 import { expectWebUnchanged, repoFileText } from './_helpers/webSource';
 
@@ -132,7 +141,10 @@ describe('web sources have not drifted', () => {
   it('poInvModal addInvoiceFromDoc, and the overlay it opens', () => {
     expectWebUnchanged('app/(root)/contracts/modals/poInvModal.js', 'addInvoiceFromDoc', '908749c5e5cc');
     expectWebUnchanged('components/DocumentImportOverlay.js', 'handleFile', '2a5934e42cae');
-    expectWebUnchanged('components/DocumentImportOverlay.js', 'handleApply', '501763d5416a');
+    // Re-recorded 2026-10-03 (501763d5416a → 501e0cf8fdcf): the attached file is named for
+    // the invoice it was read as (nameForInvoice). The field mapping did not move —
+    // webExpenseOut below is unchanged.
+    expectWebUnchanged('components/DocumentImportOverlay.js', 'handleApply', '501e0cf8fdcf');
   });
 
   it("the Purchase invoices window reads with the 'expense' reader, anchored to the contract", () => {
@@ -246,7 +258,8 @@ describe('what the review sheet warns about', () => {
 
 describe('the attached file is found again by the Cashflow preview', () => {
   it('a file without the number is named for the invoice; one that names it is kept', () => {
-    expect(nameForInvoice('scan_0001.pdf', 'FVEH/00002')).toBe('Invoice FVEH/00002 - scan_0001.pdf');
+    // Web's own nameForInvoice drops the slash since 2026-10-03, too.
+    expect(nameForInvoice('scan_0001.pdf', 'FVEH/00002')).toBe('Invoice FVEH-00002 - scan_0001.pdf');
     expect(nameForInvoice('Invoice No. 147 dd. 08.09.2026.pdf', '147')).toBe('Invoice No. 147 dd. 08.09.2026.pdf');
     expect(nameForInvoice('Scan 2026-10-03 16.05.jpg', '')).toBe('Scan 2026-10-03 16.05.jpg');
   });
@@ -274,6 +287,74 @@ describe('the attached file is found again by the Cashflow preview', () => {
       { name: nameForInvoice('scan_0002.pdf', '147'), url: 'b' },
     ];
     expect(pickInvoiceFile(files, '147')?.url).toBe('b');
+  });
+});
+
+// document-reader route.js — matchByOrder with its `target`, as one function.
+const webMatchByOrder = (order: any, buyerPoNumber: any) => {
+  const target = String(buyerPoNumber).toLowerCase().replace(/[^a-z0-9-]/g, '');
+  const ord = String(order || '').toLowerCase().replace(/[^a-z0-9-]/g, '');
+  if (!ord || !target) return false;
+  return ord === target || ord.includes(target) || target.includes(ord);
+};
+
+describe('"Open in IMS": which PO a shared supplier invoice is for', () => {
+  const contracts = [
+    { id: 'c-old', order: '120925-NIC', supplier: 'sup-nicro', date: '2025-09-12' },
+    { id: 'c-match', order: '050626', supplier: 'sup-nicro', date: '2026-06-05' },
+    { id: 'c-new', order: '220926-NIC', supplier: 'sup-nicro', date: '2026-09-22' },
+    { id: 'c-other', order: '260926-SHA', supplier: 'sup-shalex', date: '2026-09-26' },
+    { id: 'c-gone', order: '050626-B', supplier: 'sup-nicro', date: '2026-06-06', deleted: true },
+    { id: 'c-blank', order: '', supplier: 'sup-nicro', date: '2026-09-30' },
+  ];
+
+  it("the PO-number test is the reader's own", () => {
+    expectWebUnchanged('app/api/ai/document-reader/route.js', 'matchByOrder', '078ed505cdbf');
+    for (const [order, po] of [
+      ['050626', '050626'], ['PO 050626', '050626'], ['050626-NIC', 'PO#050626'], ['050626', 'Order No. 050627'],
+      ['', '050626'], ['050626', ''], ['ABC-12', 'abc-12'], ['26', '260926'],
+    ]) {
+      expect(matchesPoNumber(order, po)).toBe(webMatchByOrder(order, po));
+    }
+  });
+
+  it('suggests the PO printed on the invoice first, then that supplier\'s latest POs', () => {
+    const s = suggestPurchaseOrders({ buyerPoNumber: 'PO 050626', supplierId: 'sup-nicro' }, contracts);
+    expect(s.map((x) => [x.contract.id, x.why])).toEqual([
+      ['c-match', 'po'],
+      ['c-new', 'supplier'],
+      ['c-old', 'supplier'],
+    ]);
+  });
+
+  it('skips deleted and number-less POs, never lists one twice, and stops at the limit', () => {
+    const s = suggestPurchaseOrders({ buyerPoNumber: '050626', supplierId: 'sup-nicro' }, contracts, 2);
+    expect(s.map((x) => x.contract.id)).toEqual(['c-match', 'c-new']);
+    expect(suggestPurchaseOrders({}, contracts)).toEqual([]);
+  });
+
+  it('a number of 1–3 characters must match exactly — "26" is inside half the POs of a year', () => {
+    const s = suggestPurchaseOrders({ buyerPoNumber: '26' }, contracts);
+    expect(s).toEqual([]);
+  });
+
+  it('the read is handed to the PO the user picked, once', () => {
+    const read = { contractId: 'c-match', doc: { uri: 'file:///x.pdf', name: 'x.pdf', mimeType: 'application/pdf', base64: '' }, result: { amount: 1 } };
+    setPendingRead(read);
+    expect(peekPendingRead('c-other')).toBeNull(); // another PO's screen opens no sheet
+    expect(peekPendingRead('c-match')).toBe(read); // a peek does not use it up…
+    expect(peekPendingRead('c-match')).toBe(read);
+    clearPendingRead('c-other');
+    expect(peekPendingRead('c-match')).toBe(read); // …and clearing another PO leaves it
+    clearPendingRead('c-match');
+    expect(peekPendingRead('c-match')).toBeNull(); // a second visit opens nothing
+  });
+
+  it('the shared file keeps its own name', () => {
+    expect(fileNameOf('file:///private/var/mobile/Containers/Data/Inbox/Invoice%20147.pdf')).toBe('Invoice 147.pdf');
+    expect(fileNameOf('file:///tmp/100%.pdf')).toBe('100%.pdf'); // a stray "%" is kept, not thrown
+    expect(fileNameOf('content://com.android.providers/document/abc.pdf?x=1')).toBe('abc.pdf');
+    expect(fileNameOf('')).toBe('document.pdf');
   });
 });
 

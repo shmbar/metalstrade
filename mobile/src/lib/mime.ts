@@ -26,3 +26,17 @@ export function mimeFor(name: string, given?: string | null): string | undefined
   const m = String(name || '').toLowerCase().match(/\.([a-z0-9]+)$/);
   return m ? BY_EXTENSION[m[1]] : undefined;
 }
+
+/**
+ * The file name at the end of a file:// or content:// URI — what the OS hands the app
+ * for "Open in IMS" — decoded when it can be ("Invoice%20147.pdf" → "Invoice 147.pdf").
+ */
+export function fileNameOf(uri: string, fallback = 'document.pdf'): string {
+  const last = String(uri || '').split(/[?#]/)[0].split('/').pop() || '';
+  if (!last) return fallback;
+  try {
+    return decodeURIComponent(last);
+  } catch {
+    return last; // a stray "%" in the name — keep it as it came
+  }
+}

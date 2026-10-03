@@ -4,6 +4,7 @@ import { createPortal } from 'react-dom';
 import { FileText, Upload, Loader2, X, CheckSquare, Square, AlertTriangle, CheckCircle2, ChevronRight } from 'lucide-react';
 import { authedFetch } from '../utils/aiClient';
 import { uploadFile, fileToBase64 } from '../utils/utils';
+import { nameForInvoice } from '../utils/invoiceFiles';
 import { TONES } from './statusUtils';
 
 const ACCEPTED = ['application/pdf', 'image/jpeg', 'image/png', 'image/jpg'];
@@ -450,7 +451,14 @@ const DocumentImportOverlay = ({ documentType, suppliers, clients, currencies, e
         // AI-linked contract — the supplier-invoice preview reads attachments by contract id.
         const finalAnchor = anchorId || (documentType === 'expense' ? result?.linkedContract?.id : null);
         if (finalAnchor && file) {
-            uploadFile(finalAnchor, file, () => { }).catch(() => { });
+            /* A supplier invoice is filed under its own number: the Cashflow preview picks a
+               PO's file by its NAME (utils/invoiceFiles.js), and a file kept under the name it
+               arrived with — "scan_0001.pdf" — was never found again. The number is the one
+               the user kept ticked; without one the file keeps its own name. (The phone names
+               it the same way — mobile invoiceRead attachmentName.) */
+            const named = out.expense ? nameForInvoice(file.name, out.expense) : file.name;
+            const toSend = named === file.name ? file : new File([file], named, { type: file.type });
+            uploadFile(finalAnchor, toSend, () => { }).catch(() => { });
         }
         onApply(out, file);
         onClose();

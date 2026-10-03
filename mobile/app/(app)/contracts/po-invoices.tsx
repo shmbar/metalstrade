@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { View, Alert } from 'react-native';
 import { Pressable } from '@/components/ui/Pressable';
 import { useLocalSearchParams } from 'expo-router';
@@ -12,6 +12,7 @@ import {
   setInvoiceField, setPaymentAmount, setPaymentPerc, setPaymentDate, toggleDraft,
 } from '@/features/contracts/poInvoiceModel';
 import { pickDocument, photographDocument, readSupplierInvoice, type PickedDocument } from '@/features/contracts/docImport';
+import { peekPendingRead, clearPendingRead } from '@/features/contracts/pendingRead';
 import { attachmentName, defaultSelection, expenseOut, readWarnings, type InvoiceField, type Selection } from '@/features/contracts/invoiceRead';
 import { updateContractField, newId } from '@/data/writes';
 import { existingSalesInvoiceNumbers } from '@/data/firestore';
@@ -107,7 +108,15 @@ export default function PoInvoices() {
      until "Save purchase invoices", exactly as on web. */
   const settings = useSettings((s) => s.settings);
   const [reading, setReading] = useState<null | 'pdf' | 'camera'>(null);
-  const [review, setReview] = useState<InvoiceReview | null>(null);
+  // An invoice shared into the app ("Open in IMS") was read on the import screen and
+  // this PO picked for it — it opens straight on the review sheet, not read again.
+  const [review, setReview] = useState<InvoiceReview | null>(() => {
+    const p = peekPendingRead(String(id || ''));
+    return p ? { doc: p.doc, source: 'pdf', result: p.result, selected: defaultSelection(p.result) } : null;
+  });
+  useEffect(() => {
+    clearPendingRead(String(id || ''));
+  }, [id]);
 
   const readInvoice = async (source: 'pdf' | 'camera') => {
     try {

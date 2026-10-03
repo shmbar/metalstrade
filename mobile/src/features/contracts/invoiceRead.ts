@@ -77,6 +77,60 @@ export function expenseOut(result: any, selected: Selection): any {
   return out;
 }
 
+// The PO-number test the document-reader route links an invoice to a contract by
+// (route.js matchByOrder), verbatim: lower-cased, everything but letters, digits and
+// "-" dropped, then equal, or either one containing the other.
+const poKey = (s: any) => String(s || '').toLowerCase().replace(/[^a-z0-9-]/g, '');
+export const matchesPoNumber = (order: any, buyerPo: any): boolean => {
+  const ord = poKey(order);
+  const target = poKey(buyerPo);
+  if (!ord || !target) return false;
+  return ord === target || ord.includes(target) || target.includes(ord);
+};
+
+const dateOf = (c: any): string => String(c?.date || c?.dateRange?.startDate || '');
+
+export interface PoSuggestion {
+  contract: any;
+  /** 'po' = the PO number printed on the invoice; 'supplier' = that supplier's recent POs. */
+  why: 'po' | 'supplier';
+}
+
+/**
+ * Which POs a shared supplier invoice most likely belongs to, best first: the one(s)
+ * whose number is printed on the invoice, then the invoice supplier's latest POs.
+ *
+ * Matched here rather than by sending the contract list with the file (as web's expense
+ * import does): same rule, a smaller upload, and it works whether or not the contracts
+ * had loaded when the file was read. One difference, for a suggestion list only: a
+ * number of 1–3 characters must match exactly — "26" is inside half the POs of a year.
+ */
+export function suggestPurchaseOrders(result: any, contracts: any[], limit = 5): PoSuggestion[] {
+  const live = (contracts || []).filter((c: any) => c && !c.deleted && c.order);
+  const byDate = (a: any, b: any) => dateOf(b).localeCompare(dateOf(a));
+  const out: PoSuggestion[] = [];
+  const seen = new Set<string>();
+  const add = (c: any, why: PoSuggestion['why']) => {
+    if (out.length >= limit || seen.has(c.id)) return;
+    seen.add(c.id);
+    out.push({ contract: c, why });
+  };
+  const target = poKey(result?.buyerPoNumber);
+  if (target) {
+    live
+      .filter((c: any) => (target.length < 4 || poKey(c.order).length < 4 ? poKey(c.order) === target : matchesPoNumber(c.order, target)))
+      .sort(byDate)
+      .forEach((c: any) => add(c, 'po'));
+  }
+  if (result?.supplierId) {
+    live
+      .filter((c: any) => c.supplier === result.supplierId)
+      .sort(byDate)
+      .forEach((c: any) => add(c, 'supplier'));
+  }
+  return out;
+}
+
 /**
  * What to check before adding the invoice. The first three are web's own banners.
  * The supplier and currency checks are the phone's: this screen belongs to one PO, so

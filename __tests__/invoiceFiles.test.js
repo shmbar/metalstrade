@@ -59,3 +59,31 @@ describe('reading an invoice number out of a file name', () => {
         expect(pickInvoiceFile([{ name: nameForInvoice('scan_0001.pdf', '147'), url: 'x' }], '147').url).toBe('x');
     });
 });
+
+// Nicrometal's invoice numbers carry a slash: FVEH/00002. Its digit part keys on "2",
+// which is far too short to trust on its own, and the slash became a Storage folder.
+describe('an invoice number like FVEH/00002', () => {
+    it('is named without a slash, so the upload is not filed in a sub-folder', () => {
+        expect(nameForInvoice('scan_0001.pdf', 'FVEH/00002')).toBe('Invoice FVEH-00002 - scan_0001.pdf');
+        expect(nameForInvoice('scan_0001.pdf', 'A\\B 12')).toBe('Invoice A-B 12 - scan_0001.pdf');
+    });
+
+    it('is found by the whole number, token for token', () => {
+        expect(matchScore('Invoice FVEH-00002 - scan_0001.pdf', 'FVEH/00002')).toBe(2);
+        expect(matchScore('FVEH_00002.pdf', 'FVEH/00002')).toBe(2);
+        expect(nameForInvoice('FVEH_00002.pdf', 'FVEH/00002')).toBe('FVEH_00002.pdf');
+        const files = [
+            { name: nameForInvoice('scan_0001.pdf', 'FVEH/00002'), url: 'two' },
+            { name: nameForInvoice('scan_0002.pdf', 'FVEH/00003'), url: 'three' },
+        ];
+        expect(pickInvoiceFile(files, 'FVEH/00002').url).toBe('two');
+        expect(pickInvoiceFile(files, 'FVEH/00003').url).toBe('three');
+    });
+
+    it('but not by its short digit part alone, and nothing else changed', () => {
+        expect(matchScore('scan_0002.pdf', 'FVEH/00002')).toBe(0);
+        expect(matchScore('FVEH 00003.pdf', 'FVEH/00002')).toBe(0);
+        // A trusted key keeps its old score — the whole-number rule only rescues short ones.
+        expect(matchScore('DSO2473 R88 Lobis.pdf', 'DSO2473 R88')).toBe(1);
+    });
+});

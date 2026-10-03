@@ -28,6 +28,8 @@ export default function ContractsLayout() {
       <Stack.Screen name="cert-checker" options={{ animation: 'slide_from_right' }} />
       <Stack.Screen name="po-invoices" options={{ animation: 'slide_from_right' }} />
       <Stack.Screen name="pnl" options={{ animation: 'slide_from_right' }} />
+      {/* "Open in IMS": what a shared document is — supplier invoice or new contract. */}
+      <Stack.Screen name="import" options={{ animation: 'slide_from_bottom' }} />
     </Stack>
   );
 }

@@ -41,12 +41,14 @@ function RootNavigator() {
     ]).catch(() => {});
   }, []);
 
-  // "Open in IMS": a PDF handed to the app (Mail/Files/WhatsApp share sheet)
-  // lands on the new-contract form with AI autofill running on that file.
+  // "Open in IMS": a PDF handed to the app (Mail/Files/WhatsApp share sheet) lands on
+  // the Shared document screen, which asks what it is: a supplier's invoice for a PO
+  // already here (read into that PO's purchase invoices), or a proforma for a new
+  // contract (the new-contract form with AI autofill — the only choice there used to be).
   useEffect(() => {
     const handle = (url: string | null) => {
       if (url && (url.startsWith('file:') || url.startsWith('content:'))) {
-        router.push({ pathname: '/(app)/contracts/edit', params: { importUri: url } } as any);
+        router.push({ pathname: '/(app)/contracts/import', params: { uri: url } } as any);
       }
     };
     Linking.getInitialURL().then(handle).catch(() => {});
