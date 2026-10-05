@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { View, FlatList } from 'react-native';
-import { router } from 'expo-router';
+import { router } from '@/lib/nav';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Screen, Card, Text, SegmentedControl, SectionHeader, SkeletonList, ErrorState, EmptyState, SearchField } from '@/components/ui';

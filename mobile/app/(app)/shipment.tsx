@@ -9,7 +9,7 @@ import { useTheme } from '@/theme/ThemeProvider';
 import {
   useShipment, useSetShipmentStatus, useSaveShipmentLine, useSaveContractShipmentNotes, ShipmentRow, ShipmentLine, fmtShipDate,
 } from '@/features/shipment/useShipment';
-import { router } from 'expo-router';
+import { router } from '@/lib/nav';
 import { toast } from '@/store/toast';
 import { SHIPMENT_STATUSES } from '@shared/shipmentStatus';
 import { StackHeader } from '@/components/StackHeader';

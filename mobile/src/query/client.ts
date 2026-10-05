@@ -1,7 +1,9 @@
 import { QueryClient, MutationCache, onlineManager } from '@tanstack/react-query';
 import { createAsyncStoragePersister } from '@tanstack/query-async-storage-persister';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { AppState } from 'react-native';
 import * as Network from 'expo-network';
+import { persistWhenAway } from './backgroundPersister';
 import { toast } from '@/store/toast';
 import { haptics } from '@/lib/haptics';
 
@@ -44,6 +46,11 @@ export const queryClient = new QueryClient({
       retry: 1,
       refetchOnWindowFocus: false,
     },
+    // A save runs when it is pressed. Under the default ('online') a save made while the
+    // network check said offline was PAUSED — its button spun, disabled, until that check
+    // changed its mind, even when the check was simply wrong after a Wi-Fi/cellular hand-over.
+    // Firestore queues writes and syncs them itself; an API call fails fast and says so.
+    mutations: { networkMode: 'always' },
   },
 });
 
@@ -67,16 +74,19 @@ export const marketsQueryClient = new QueryClient({
 // Persist the query cache to device storage so previously loaded contracts,
 // invoices, stocks etc. render instantly on launch — even with no internet.
 //
-// throttleTime was 2 s. Every refetch — each screen visit past staleTime, each
-// live-sync event from a teammate — re-serialised those ~10.7 MB on the JS thread
-// two seconds later, and a tap that landed in that window did nothing: the
-// client's "some need to press a few times". At 30 s the offline copy is at most
-// half a minute behind, and the stall is rare instead of constant.
-export const asyncStoragePersister = createAsyncStoragePersister({
-  storage: AsyncStorage,
-  key: 'ims-query-cache',
-  throttleTime: 30_000,
-});
+// throttleTime was 2 s, then 30 s: every refetch re-serialised ~10.7 MB on the JS
+// thread shortly after, and a tap that landed in that window did nothing. Even at
+// 30 s that was a freeze every half minute while someone moved through the app, so
+// the copy is now written only when the app leaves the foreground
+// (query/backgroundPersister.ts) — never while anyone is tapping.
+export const asyncStoragePersister = persistWhenAway(
+  createAsyncStoragePersister({
+    storage: AsyncStorage,
+    key: 'ims-query-cache',
+    throttleTime: 0,
+  }),
+  (listener) => AppState.addEventListener('change', listener)
+);
 
 // Feed real connectivity into TanStack Query so it pauses/retries fetches
 // correctly and we can show the offline banner from the same source of truth.
@@ -84,10 +94,20 @@ onlineManager.setEventListener((setOnline) => {
   const sub = Network.addNetworkStateListener((state) => {
     setOnline(!!state.isConnected && state.isInternetReachable !== false);
   });
-  Network.getNetworkStateAsync()
-    .then((state) => setOnline(!!state.isConnected && state.isInternetReachable !== false))
-    .catch(() => {});
-  return () => sub.remove();
+  const check = () =>
+    Network.getNetworkStateAsync()
+      .then((state) => setOnline(!!state.isConnected && state.isInternetReachable !== false))
+      .catch(() => {});
+  check();
+  // Ask again on every return to the app: a change while it was in the background can go
+  // unreported, and a stale 'offline' would keep refreshes from running.
+  const app = AppState.addEventListener('change', (next) => {
+    if (next === 'active') check();
+  });
+  return () => {
+    sub.remove();
+    app.remove();
+  };
 });
 
 export const qk = {

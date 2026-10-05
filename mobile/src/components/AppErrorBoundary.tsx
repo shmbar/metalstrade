@@ -1,6 +1,6 @@
 import { View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { router } from 'expo-router';
+import { router } from '@/lib/nav';
 import type { ErrorBoundaryProps } from 'expo-router';
 import { Text, Button } from '@/components/ui';
 import { useTheme } from '@/theme/ThemeProvider';

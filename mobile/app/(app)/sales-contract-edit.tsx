@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { View, Alert } from 'react-native';
 import { Pressable } from '@/components/ui/Pressable';
-import { useLocalSearchParams, router } from 'expo-router';
+import { useLocalSearchParams } from 'expo-router';
+import { useBackWhenDone } from '@/lib/nav';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Screen, Card, Text, Select, TextField, DateField, Button, SectionHeader, EmptyState, StackHeader, IconButton, Chip } from '@/components/ui';
@@ -21,7 +22,18 @@ import { layout } from '@/theme/tokens';
 // Sales-contract detail / editor — the mobile twin of web's SalesContractDetails
 // modal. Web requires client / cur / contractNo / date, derives `total` from the
 // product lines, and never auto-generates the contract number.
-export default function SalesContractEdit() {
+/* A hidden tab stays mounted between visits, so this form kept the last record's values:
+   "New" after viewing another record opened with its figures and its id, and Save
+   overwrote it. Each open carries a visit number from lib/nav (navGate withVisit) and the
+   form starts over for each; a Back to it (from Attachments) is the same visit. */
+export default function SalesContractEditScreen() {
+  const { _v } = useLocalSearchParams<{ _v?: string }>();
+  return <SalesContractEdit key={_v || 'first'} />;
+}
+
+function SalesContractEdit() {
+  // Back after a save/delete only if still on this screen (lib/nav).
+  const backWhenDone = useBackWhenDone();
   const { id } = useLocalSearchParams<{ id: string }>();
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
@@ -144,7 +156,7 @@ export default function SalesContractEdit() {
         value: v,
         previousDate: (existing as any)?.raw?.dateRange?.startDate || (existing as any)?.raw?.date,
       });
-      router.back();
+      backWhenDone();
     } catch (e: any) {
       Alert.alert('Save failed', e?.message || 'Could not save the sales contract.');
     }
@@ -159,7 +171,7 @@ export default function SalesContractEdit() {
         onPress: async () => {
           try {
             await del.mutateAsync(v);
-            router.back();
+            backWhenDone();
           } catch (e: any) {
             Alert.alert('Delete failed', e?.message || 'Could not delete.');
           }

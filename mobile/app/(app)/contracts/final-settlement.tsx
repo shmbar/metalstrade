@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { View, Switch, Alert } from 'react-native';
-import { useLocalSearchParams, router } from 'expo-router';
+import { useLocalSearchParams } from 'expo-router';
+import { useBackWhenDone } from '@/lib/nav';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Screen, Card, Text, TextField, Button, LoadingState, ErrorState, EmptyState, StackHeader } from '@/components/ui';
@@ -20,6 +21,8 @@ import { haptics } from '@/lib/haptics';
 import { layout } from '@/theme/tokens';
 
 export default function FinalSettlement() {
+  // Back after a save/delete only if still on this screen (lib/nav).
+  const backWhenDone = useBackWhenDone();
   const { id } = useLocalSearchParams<{ id: string }>();
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
@@ -72,7 +75,7 @@ export default function FinalSettlement() {
           ? 'Held back — cashflow & stocks are unchanged until you turn Draft off and save.'
           : 'The final figures now apply to cashflow & stocks.'
       );
-      router.back();
+      backWhenDone();
     } catch (e: any) {
       Alert.alert('Save failed', e?.message || 'Could not save the settlement.');
     }

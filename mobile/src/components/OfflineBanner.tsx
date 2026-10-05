@@ -17,6 +17,8 @@ export function OfflineBanner() {
   if (online) return null;
   return (
     <View
+      // Information only — never catches a tap meant for the header under it.
+      pointerEvents="none"
       style={{
         position: 'absolute',
         top: insets.top + 4,

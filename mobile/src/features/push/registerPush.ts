@@ -4,7 +4,7 @@
 // never a blocker.
 import { Platform } from 'react-native';
 import * as Notifications from 'expo-notifications';
-import { router } from 'expo-router';
+import { router } from '@/lib/nav';
 import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
 import Constants from 'expo-constants';
 import { db } from '@/lib/firebase';

@@ -17,6 +17,7 @@ import { useWarmLedger } from '@/features/stocks/useWarmLedger';
 import { useTheme } from '@/theme/ThemeProvider';
 import { getShadow, typography } from '@/theme/tokens';
 import { Pressable } from '@/components/ui/Pressable';
+import { sheets } from '@/lib/sheetRegistry';
 import { useShallow } from 'zustand/react/shallow';
 
 export { AppErrorBoundary as ErrorBoundary } from '@/components/AppErrorBoundary';
@@ -108,7 +109,9 @@ export default function AppLayout() {
     const from = lastCompany.current;
     lastCompany.current = uidCollection;
     if (!from || !uidCollection || from === uidCollection) return;
-    navRef.reset({ index: 0, routes: [{ name: '(app)' as never }] });
+    // Like every navigation (lib/nav): never while a sheet is on screen.
+    sheets.closeAll();
+    sheets.whenGone(() => navRef.reset({ index: 0, routes: [{ name: '(app)' as never }] }));
     toast.success(`Now in ${workspaceName(uidCollection) || 'the other company'} — open records were closed so nothing is saved to the wrong company`);
   }, [uidCollection, navRef]);
 

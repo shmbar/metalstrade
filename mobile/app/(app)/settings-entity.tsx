@@ -1,7 +1,8 @@
 import { useMemo, useState } from 'react';
 import { View, Alert } from 'react-native';
 import { Pressable } from '@/components/ui/Pressable';
-import { useLocalSearchParams, router } from 'expo-router';
+import { useLocalSearchParams } from 'expo-router';
+import { router } from '@/lib/nav';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Screen, Card, Text, TextField, Select, Button, EmptyState, Sheet, IconButton, SegmentedControl, SectionHeader, Avatar } from '@/components/ui';

@@ -1,7 +1,8 @@
 import { useMemo, useState } from 'react';
 import { View, Alert } from 'react-native';
 import { BackButton } from '@/components/ui/BackButton';
-import { useLocalSearchParams, router } from 'expo-router';
+import { useLocalSearchParams } from 'expo-router';
+import { router, useBackWhenDone } from '@/lib/nav';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Screen, Card, Text, Badge, Button, SectionHeader, TextField, DateField, EmptyState, SkeletonList, Sheet, IconButton, Avatar, Chip, ErrorState } from '@/components/ui';
@@ -26,6 +27,8 @@ import { HistorySheet } from '@/components/HistorySheet';
 import { useShallow } from 'zustand/react/shallow';
 
 export default function InvoiceDetail() {
+  // Back after a save/delete only if still on this screen (lib/nav).
+  const backWhenDone = useBackWhenDone();
   const { id, pay } = useLocalSearchParams<{ id: string; pay?: string }>();
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
@@ -165,7 +168,7 @@ export default function InvoiceDetail() {
             { id: view.id, year: view.year },
             {
               onSuccess: () => {
-                router.back();
+                backWhenDone();
               },
               onError: (e: any) => Alert.alert('Not deleted', e?.message || 'Could not delete the invoice.'),
             }

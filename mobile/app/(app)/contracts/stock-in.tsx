@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
 import { View, Switch, Alert } from 'react-native';
 import { Pressable } from '@/components/ui/Pressable';
-import { useLocalSearchParams, router } from 'expo-router';
+import { useLocalSearchParams } from 'expo-router';
+import { useBackWhenDone } from '@/lib/nav';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Screen, Card, Text, TextField, Select, DateField, Button, LoadingState, EmptyState, StackHeader, IconButton, Badge } from '@/components/ui';
@@ -17,6 +18,8 @@ import { haptics } from '@/lib/haptics';
 import { layout } from '@/theme/tokens';
 
 export default function StockIn() {
+  // Back after a save/delete only if still on this screen (lib/nav).
+  const backWhenDone = useBackWhenDone();
   const { id } = useLocalSearchParams<{ id: string }>();
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
@@ -109,7 +112,7 @@ export default function StockIn() {
     }
     try {
       await save.mutateAsync({ contract, lots });
-      router.back();
+      backWhenDone();
     } catch (e: any) {
       Alert.alert('Save failed', e?.message || 'Could not save stock.');
     }

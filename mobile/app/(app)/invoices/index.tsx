@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { View, FlatList } from 'react-native';
-import { router, useLocalSearchParams } from 'expo-router';
+import { useLocalSearchParams } from 'expo-router';
+import { router } from '@/lib/nav';
 import { Ionicons } from '@expo/vector-icons';
 import { Screen, Text, SkeletonList, FadeInItem, ErrorState, EmptyState, SearchField, Chip, IconButton, ChipRow, ChipDivider } from '@/components/ui';
 import { ScreenHeader } from '@/components/ScreenHeader';

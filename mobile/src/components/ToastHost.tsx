@@ -4,7 +4,6 @@ import Animated, { FadeInUp, FadeOutUp, LinearTransition } from 'react-native-re
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { Text } from '@/components/ui/Text';
-import { Pressable } from '@/components/ui/Pressable';
 import { useTheme } from '@/theme/ThemeProvider';
 import { getShadow, spacing } from '@/theme/tokens';
 import { useToastStore, ToastItem } from '@/store/toast';
@@ -32,8 +31,7 @@ function ToastCard({ item }: { item: ToastItem }) {
       exiting={FadeOutUp.duration(160)}
       layout={LinearTransition.springify().damping(20)}
     >
-      <Pressable
-        onPress={() => dismiss(item.id)}
+      <View
         accessibilityRole="alert"
         accessibilityLiveRegion="polite"
         style={{
@@ -71,7 +69,7 @@ function ToastCard({ item }: { item: ToastItem }) {
             {item.message}
           </Text>
         </View>
-      </Pressable>
+      </View>
     </Animated.View>
   );
 }
@@ -83,7 +81,11 @@ export function ToastHost() {
   if (items.length === 0) return null;
   return (
     <View
-      pointerEvents="box-none"
+      // Touches pass straight through. A toast sits over the header — the Back button and
+      // the screen's actions — for up to four seconds after every save, and when it took
+      // taps (to dismiss itself) the first tap on Back after saving did nothing
+      // (client, 2026-10-05: "buttons not responding"). It goes away on its own.
+      pointerEvents="none"
       style={{
         position: 'absolute',
         top: insets.top + 8,

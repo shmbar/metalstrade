@@ -1,5 +1,5 @@
-import React from 'react';
-import { Pressable as RNPressable, PressableProps, StyleProp, ViewStyle } from 'react-native';
+import React, { useRef } from 'react';
+import { GestureResponderEvent, Pressable as RNPressable, PressableProps, StyleProp, StyleSheet, ViewStyle } from 'react-native';
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { haptics } from '@/lib/haptics';
 
@@ -30,12 +30,19 @@ const AnimatedPressable = Animated.createAnimatedComponent(RNPressable);
  * - A childless Pressable (a modal backdrop) gets no feedback: dimming the scrim
  *   for a frame before its sheet closes reads as a flicker, not a response.
  * - `pressedOpacity={1}` opts a single control out.
+ *
+ * The dim MULTIPLIES the control's own opacity. It used to replace it: an animated style
+ * wins over a static one, so the 0.5 a disabled Button or IconButton sets was overwritten
+ * by the dim's resting 1 — every disabled control in the app looked live, and a tap on one
+ * did nothing ("buttons not responding", client, 2026-10-05).
  */
 export function Pressable({
   style,
   children,
   pressedOpacity = 0.6,
   haptic,
+  pressGuardMs = 0,
+  onPress,
   onPressIn,
   onPressOut,
   ...rest
@@ -47,9 +54,32 @@ export function Pressable({
    * finish whatever the tap started (client, 2026-09-24: "haptics feel slow").
    */
   haptic?: PressHaptic;
+  /**
+   * A second press within this many ms of the first is ignored — a double tap is one
+   * action. Button and IconButton set it: a quick double tap on Save wrote twice, and on
+   * "+" added two rows, because the second tap landed before the first had re-rendered
+   * the control as busy.
+   */
+  pressGuardMs?: number;
 }) {
-  const opacity = useSharedValue(1);
-  const dim = useAnimatedStyle(() => ({ opacity: opacity.get() }));
+  const progress = useSharedValue(0);
+  // The opacity the caller asked for (a disabled control's dim), which the press multiplies.
+  const restOpacity = typeof style === 'function' ? 1 : Number(StyleSheet.flatten(style as StyleProp<ViewStyle>)?.opacity ?? 1);
+  const dim = useAnimatedStyle(
+    () => ({ opacity: restOpacity * (1 - progress.get() * (1 - pressedOpacity)) }),
+    [restOpacity, pressedOpacity]
+  );
+  const lastPress = useRef(0);
+  const guardedPress = onPress
+    ? (e: GestureResponderEvent) => {
+        if (pressGuardMs > 0) {
+          const t = Date.now();
+          if (t - lastPress.current < pressGuardMs) return;
+          lastPress.current = t;
+        }
+        onPress(e);
+      }
+    : undefined;
   const buzz = () => {
     if (!haptic || rest.disabled) return;
     if (haptic === 'selection') haptics.selection();
@@ -60,6 +90,7 @@ export function Pressable({
     return (
       <RNPressable
         style={style}
+        onPress={guardedPress}
         onPressIn={(e) => {
           buzz();
           onPressIn?.(e);
@@ -74,13 +105,14 @@ export function Pressable({
   return (
     <AnimatedPressable
       style={[style as StyleProp<ViewStyle>, dim]}
+      onPress={guardedPress}
       onPressIn={(e) => {
         buzz();
-        if (!rest.disabled) opacity.set(withTiming(pressedOpacity, { duration: 60 }));
+        if (!rest.disabled) progress.set(withTiming(1, { duration: 60 }));
         onPressIn?.(e);
       }}
       onPressOut={(e) => {
-        opacity.set(withTiming(1, { duration: 160 }));
+        progress.set(withTiming(0, { duration: 160 }));
         onPressOut?.(e);
       }}
       {...rest}
@@ -89,3 +121,6 @@ export function Pressable({
     </AnimatedPressable>
   );
 }
+
+/** The double-tap window Button and IconButton use. */
+export const PRESS_GUARD_MS = 400;

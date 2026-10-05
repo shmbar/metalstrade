@@ -80,8 +80,14 @@ export default function SignIn() {
 
   const doSignIn = async (e: string, p: string, fromBio = false) => {
     setBusy(true);
-    const ok = await signIn(e, p);
-    setBusy(false);
+    let ok = false;
+    // In a finally: a sign-in that throws (no network mid-handshake) left the button
+    // spinning and disabled for good.
+    try {
+      ok = await signIn(e, p);
+    } finally {
+      setBusy(false);
+    }
     if (ok && !fromBio) {
       const available = await isBiometricAvailable();
       const enabled = await isBiometricEnabled();

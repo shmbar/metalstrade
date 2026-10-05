@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { Modal, View, ScrollView, StyleSheet, useWindowDimensions } from 'react-native';
 import Animated, { useAnimatedStyle, useSharedValue, withSpring, withTiming } from 'react-native-reanimated';
 import { Gesture, GestureDetector, GestureHandlerRootView } from 'react-native-gesture-handler';
@@ -10,6 +10,7 @@ import { Pressable } from './Pressable';
 import { useTheme } from '@/theme/ThemeProvider';
 import { getShadow, spacing } from '@/theme/tokens';
 import { KeyboardRevealContext, keyboardScrollProps, syncKeyboard, useKeyboard, useKeyboardAwareScroll, usePresentAfterKeyboard } from '@/lib/keyboard';
+import { sheets } from '@/lib/sheetRegistry';
 
 interface SheetProps {
   visible: boolean;
@@ -77,6 +78,21 @@ export function Sheet({
   // keyboard has finished closing — the order is enforced in lib/keyboard, once, for every
   // sheet — so the form is never positioned from a keyboard it is about to lose.
   const presented = usePresentAfterKeyboard(visible);
+
+  // While this sheet is on screen — and for the moment it takes to leave — every navigation
+  // waits for it (lib/sheetRegistry, lib/nav). "Tap a row in the sheet, open that record"
+  // used to dismiss the sheet and push the next screen at once; on iOS that collision can
+  // leave the sheet's empty, transparent layer over the app, eating every tap. A navigation
+  // from outside (a push notification, a shared file) closes the sheet first.
+  const onCloseRef = useRef(onClose);
+  useEffect(() => {
+    onCloseRef.current = onClose;
+  });
+  useEffect(() => {
+    if (!presented) return;
+    const id = sheets.opened(() => onCloseRef.current());
+    return () => sheets.closed(id);
+  }, [presented]);
 
   // The panel slides in on the same value the drag-to-close uses. A Reanimated "entering"
   // layout animation ran on the panel before; it is a separate animator on the same view as

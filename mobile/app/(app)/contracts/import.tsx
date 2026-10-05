@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { View, Alert, ActivityIndicator } from 'react-native';
-import { router, useLocalSearchParams } from 'expo-router';
+import { useLocalSearchParams } from 'expo-router';
+import { router } from '@/lib/nav';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Screen, Card, Text, StackHeader, ActionGrid, SearchField, EntityRow, LoadingState, EmptyState, SectionHeader } from '@/components/ui';
 import { useTheme } from '@/theme/ThemeProvider';

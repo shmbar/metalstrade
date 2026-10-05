@@ -73,3 +73,66 @@ describe('mobile design guard', () => {
     expect(offenders).toEqual([]);
   });
 });
+
+// Client, 2026-10-05: "buttons getting stuck or not responding when navigating". The causes
+// were shared, so the fixes live in shared code — and these keep them from being undone.
+describe('navigation and touch safety', () => {
+  const read = (p) => fs.readFileSync(path.join(ROOT, p), 'utf8');
+
+  it('every navigation goes through lib/nav — no screen imports expo-router\'s router', () => {
+    // lib/nav drops double taps and never navigates while a sheet is on screen.
+    const offenders = files
+      .filter((f) => rel(f) !== 'src/lib/nav.ts')
+      .filter((f) => /import\s*\{[^}]*\brouter\b[^}]*\}\s*from\s*['"]expo-router['"]/.test(fs.readFileSync(f, 'utf8')))
+      .map(rel);
+    expect(offenders).toEqual([]);
+  });
+
+  it('the only Modal is Sheet, and Sheet reports itself to the sheet registry', () => {
+    // JSX at the start of a line — not a comment that mentions one.
+    const raw = files.filter((f) => rel(f) !== 'src/components/ui/Sheet.tsx' && /^\s*<Modal\b/m.test(fs.readFileSync(f, 'utf8'))).map(rel);
+    expect(raw).toEqual([]);
+    const sheet = read('src/components/ui/Sheet.tsx');
+    expect(sheet).toContain('sheets.opened(');
+    expect(sheet).toContain('sheets.closed(id)');
+  });
+
+  it('a toast never takes a tap — it sits over the Back button after every save', () => {
+    const host = read('src/components/ToastHost.tsx');
+    expect(host).toContain('pointerEvents="none"');
+    expect(host).not.toMatch(/<Pressable\b/);
+  });
+
+  it('a disabled control looks disabled: the press dim multiplies its opacity', () => {
+    const pressable = read('src/components/ui/Pressable.tsx');
+    expect(pressable).toMatch(/opacity: restOpacity \* \(/);
+  });
+
+  it('a double tap on a Button or IconButton is one action', () => {
+    for (const p of ['src/components/ui/Button.tsx', 'src/components/ui/IconButton.tsx']) {
+      expect(read(p)).toContain('pressGuardMs={PRESS_GUARD_MS}');
+    }
+  });
+
+  it('the device copy is never written on a timer while the app is in use', () => {
+    const client = read('src/query/client.ts');
+    expect(client).toContain('persistWhenAway(');
+    expect(client).not.toMatch(/throttleTime:\s*[1-9]/);
+  });
+
+  it('a save runs when pressed — never paused behind a network check that may be wrong', () => {
+    expect(read('src/query/client.ts')).toContain("mutations: { networkMode: 'always' }");
+  });
+
+  it('the offline pill never catches a tap meant for the header under it', () => {
+    expect(read('src/components/OfflineBanner.tsx')).toContain('pointerEvents="none"');
+  });
+
+  it('each hidden-tab form starts over for every open (keyed by lib/nav\'s visit number)', () => {
+    for (const [p, name] of [['app/(app)/expense-edit.tsx', 'ExpenseEdit'], ['app/(app)/sales-contract-edit.tsx', 'SalesContractEdit']]) {
+      const src = read(p);
+      expect(src).toContain(`export default function ${name}Screen()`);
+      expect(src).toContain(`<${name} key={_v || 'first'} />`);
+    }
+  });
+});

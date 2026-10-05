@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { View, FlatList } from 'react-native';
-import { router } from 'expo-router';
+import { router } from '@/lib/nav';
 import { Ionicons } from '@expo/vector-icons';
 import { Card, Text, Badge, SkeletonList, FadeInItem, ErrorState, EmptyState, SearchField, Chip } from '@/components/ui';
 import { useTheme } from '@/theme/ThemeProvider';

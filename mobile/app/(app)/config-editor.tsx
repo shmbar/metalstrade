@@ -1,6 +1,7 @@
 import { useMemo, useState, useEffect } from 'react';
 import { View } from 'react-native';
-import { useLocalSearchParams, router } from 'expo-router';
+import { useLocalSearchParams } from 'expo-router';
+import { useBackWhenDone } from '@/lib/nav';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Screen, Card, TextField, Button, EmptyState, IconButton } from '@/components/ui';
 import { useSettings } from '@/store/settings';
@@ -18,6 +19,8 @@ const FIELD_BY_KEY: Record<string, string> = {
 };
 
 export default function ConfigEditor() {
+  // Back after a save/delete only if still on this screen (lib/nav).
+  const backWhenDone = useBackWhenDone();
   const { cat, title } = useLocalSearchParams<{ cat: string; title?: string }>();
   const insets = useSafeAreaInsets();
   const settings = useSettings((s) => s.settings);
@@ -51,7 +54,7 @@ export default function ConfigEditor() {
       const clean = items.filter((x) => x.deleted || String(x[field] ?? '').trim() !== '');
       await saveEntities(cat as string, clean);
       toast.success('Data successfully saved');
-      router.back();
+      backWhenDone();
     } catch {
       toast.error('Failed to save');
     } finally {

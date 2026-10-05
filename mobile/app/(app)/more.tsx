@@ -1,7 +1,7 @@
 import { useMemo, useState, useEffect } from 'react';
 import { View, Alert, Switch } from 'react-native';
 import { Pressable } from '@/components/ui/Pressable';
-import { router } from 'expo-router';
+import { router } from '@/lib/nav';
 import Constants from 'expo-constants';
 import { Ionicons } from '@expo/vector-icons';
 import { Screen, Card, Text, Badge, Button, SectionHeader, EmptyState, SearchField, Chip, SegmentedControl, CountBadge } from '@/components/ui';

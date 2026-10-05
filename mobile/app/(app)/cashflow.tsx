@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { View, Alert, StyleSheet } from 'react-native';
 import { Pressable } from '@/components/ui/Pressable';
-import { router } from 'expo-router';
+import { router } from '@/lib/nav';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {

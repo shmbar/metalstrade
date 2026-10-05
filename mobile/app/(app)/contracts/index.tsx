@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { View, FlatList } from 'react-native';
-import { router } from 'expo-router';
+import { router } from '@/lib/nav';
 import { Pressable } from '@/components/ui/Pressable';
 import { Ionicons } from '@expo/vector-icons';
 import { Screen, Text, SkeletonList, FadeInItem, ErrorState, EmptyState, SearchField, Chip, Fab, IconButton, Sheet, useFabScroll, FAB_CLEARANCE } from '@/components/ui';

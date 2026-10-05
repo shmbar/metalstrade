@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { View, Alert } from 'react-native';
 import { Pressable } from '@/components/ui/Pressable';
-import { useLocalSearchParams, router } from 'expo-router';
+import { useLocalSearchParams } from 'expo-router';
+import { useBackWhenDone } from '@/lib/nav';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Screen, Card, Text, TextField, Select, DateField, Button, SectionHeader, EmptyState, StackHeader, IconButton, SkeletonList, KeyboardFooter } from '@/components/ui';
@@ -17,6 +18,8 @@ import { curSymbol, fmtMoney } from '@/lib/format';
 import { layout, spacing } from '@/theme/tokens';
 
 export default function InvoiceEdit() {
+  // Back after a save/delete only if still on this screen (lib/nav).
+  const backWhenDone = useBackWhenDone();
   const { id } = useLocalSearchParams<{ id: string }>();
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
@@ -146,7 +149,7 @@ export default function InvoiceEdit() {
         raw,
         removedLineIds: removedIds,
       });
-      router.back();
+      backWhenDone();
     } catch (e: any) {
       Alert.alert('Save failed', e?.message || 'Could not save the invoice.');
     }

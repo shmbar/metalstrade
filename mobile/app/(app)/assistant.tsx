@@ -3,7 +3,7 @@ import { View, FlatList, TextInput, ScrollView, Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Animated, { useAnimatedStyle, useSharedValue, withDelay, withRepeat, withSequence, withTiming } from 'react-native-reanimated';
 import { Pressable } from '@/components/ui/Pressable';
-import { router } from 'expo-router';
+import { router } from '@/lib/nav';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Text, EmptyState, StackHeader, KeyboardFooter, IconButton, Chip } from '@/components/ui';

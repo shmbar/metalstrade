@@ -1,5 +1,5 @@
 import React from 'react';
-import { router } from 'expo-router';
+import { router } from '@/lib/nav';
 import { Ionicons } from '@expo/vector-icons';
 import { Pressable } from './Pressable';
 import { useTheme } from '@/theme/ThemeProvider';

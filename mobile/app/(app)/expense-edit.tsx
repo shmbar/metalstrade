@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { View, Alert } from 'react-native';
 import { Pressable } from '@/components/ui/Pressable';
-import { useLocalSearchParams, router } from 'expo-router';
+import { useLocalSearchParams } from 'expo-router';
+import { router, useBackWhenDone } from '@/lib/nav';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Screen, Card, Text, Select, TextField, DateField, Button, EmptyState , Sheet, StackHeader, SkeletonList } from '@/components/ui';
 import { useTheme } from '@/theme/ThemeProvider';
@@ -20,7 +21,18 @@ import { spacing } from '@/theme/tokens';
 // (app/(root)/expenses/modals/expenses.js). Web required all of
 // expense / cur / supplier / expType / amount / date before saving, and kept the
 // linked invoice + contract entries in step; both are enforced here.
-export default function ExpenseEdit() {
+/* A hidden tab stays mounted between visits, so this form kept the last record's values:
+   "New" after viewing another record opened with its figures and its id, and Save
+   overwrote it. Each open carries a visit number from lib/nav (navGate withVisit) and the
+   form starts over for each; a Back to it (from Attachments) is the same visit. */
+export default function ExpenseEditScreen() {
+  const { _v } = useLocalSearchParams<{ _v?: string }>();
+  return <ExpenseEdit key={_v || 'first'} />;
+}
+
+function ExpenseEdit() {
+  // Back after a save/delete only if still on this screen (lib/nav).
+  const backWhenDone = useBackWhenDone();
   const { id, kind } = useLocalSearchParams<{ id: string; kind?: string }>();
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
@@ -118,7 +130,7 @@ export default function ExpenseEdit() {
         kind: isCompany ? 'companyexpense' : 'expense',
         previousDate: row?.raw?.dateRange?.startDate || row?.raw?.date,
       });
-      router.back();
+      backWhenDone();
     } catch (e: any) {
       Alert.alert('Save failed', e?.message || 'Could not save the expense.');
     }
@@ -133,7 +145,7 @@ export default function ExpenseEdit() {
         onPress: async () => {
           try {
             await del.mutateAsync({ expense: v, kind: isCompany ? 'companyexpense' : 'expense' });
-            router.back();
+            backWhenDone();
           } catch (e: any) {
             Alert.alert('Delete failed', e?.message || 'Could not delete the expense.');
           }
@@ -204,7 +216,7 @@ export default function ExpenseEdit() {
                   text: 'Move',
                   onPress: () =>
                     moveMisc.mutate(v, {
-                      onSuccess: () => router.back(),
+                      onSuccess: () => backWhenDone(),
                       onError: (e: any) => Alert.alert('Move failed', e?.message || 'Could not move the expense.'),
                     }),
                 },
@@ -253,7 +265,7 @@ export default function ExpenseEdit() {
                 }
                 await moveShip.mutateAsync({ expense: v, invoice: { ...inv, __yr: findYr } });
                 setFindOpen(false);
-                router.back();
+                backWhenDone();
               } catch (e: any) {
                 Alert.alert('Move failed', e?.message || 'Could not move the expense.');
               } finally {

@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { View, Alert } from 'react-native';
-import { router } from 'expo-router';
+import { router } from '@/lib/nav';
 import { Text, Select, TextField, Button, Sheet } from '@/components/ui';
 import { useTheme } from '@/theme/ThemeProvider';
 import { radius, spacing } from '@/theme/tokens';

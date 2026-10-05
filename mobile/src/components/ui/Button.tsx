@@ -1,6 +1,6 @@
 import React from 'react';
 import { ActivityIndicator, ViewStyle, View } from 'react-native';
-import { Pressable } from './Pressable';
+import { Pressable, PRESS_GUARD_MS } from './Pressable';
 import { Text } from './Text';
 import { useTheme } from '@/theme/ThemeProvider';
 import { layout, radius, spacing } from '@/theme/tokens';
@@ -54,6 +54,7 @@ export function Button({
   return (
     <Pressable
       onPress={onPress}
+      pressGuardMs={PRESS_GUARD_MS}
       // Every button answers the finger on touch-down (client, 2026-09-30: "buttons sometimes
       // have no haptic"): a firmer tap for the ones that commit something, a light tick for
       // the rest. Rows and cards that only navigate stay silent, as in iOS itself.

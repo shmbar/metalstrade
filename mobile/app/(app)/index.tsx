@@ -1,7 +1,8 @@
 import { useMemo, useRef, useState } from 'react';
 import { View, ScrollView, RefreshControl, Animated } from 'react-native';
 import { Pressable } from '@/components/ui/Pressable';
-import { router, Redirect } from 'expo-router';
+import { Redirect } from 'expo-router';
+import { router } from '@/lib/nav';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';

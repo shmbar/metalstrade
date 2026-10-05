@@ -1,6 +1,6 @@
 import React from 'react';
 import { Ionicons } from '@expo/vector-icons';
-import { Pressable } from './Pressable';
+import { Pressable, PRESS_GUARD_MS } from './Pressable';
 import { useTheme } from '@/theme/ThemeProvider';
 import { layout } from '@/theme/tokens';
 
@@ -46,6 +46,7 @@ export function IconButton({
   return (
     <Pressable
       onPress={onPress}
+      pressGuardMs={PRESS_GUARD_MS}
       haptic={haptic}
       hitSlop={8}
       disabled={disabled}

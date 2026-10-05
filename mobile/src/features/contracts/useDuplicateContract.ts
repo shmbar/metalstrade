@@ -1,5 +1,5 @@
 import { Alert } from 'react-native';
-import { router } from 'expo-router';
+import { router } from '@/lib/nav';
 import { useSettings } from '@/store/settings';
 import { useContracts } from './useContracts';
 import { useSaveContract } from './useSaveContract';
