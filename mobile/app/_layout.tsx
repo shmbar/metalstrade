@@ -22,12 +22,21 @@ import { ThemeProvider, useTheme } from '@/theme/ThemeProvider';
 import { PrivacyLock } from '@/components/PrivacyLock';
 import { ToastHost } from '@/components/ToastHost';
 import { queryClient, asyncStoragePersister } from '@/query/client';
+import { dropSharedReadsOnInvalidate } from '@/query/sharedReads';
+import { launch } from '@/features/live/launch';
 import { useAuth } from '@/store/auth';
 
 // Root error boundary — catches any render crash and shows a recovery screen.
 export { AppErrorBoundary as ErrorBoundary } from '@/components/AppErrorBoundary';
 
 SplashScreen.preventAutoHideAsync().catch(() => {});
+
+// An invalidated query — a save, a teammate's change — drops the screens' shared reads first.
+dropSharedReadsOnInvalidate(queryClient);
+
+// The device copy is back in the cache (or there was none): the launch gate may start
+// judging whether the first screen has its data (features/live/launchGate.ts).
+const markRestored = () => launch.markRestored();
 
 /* An app-icon shortcut navigates through lib/nav like everything else. The library's hook
    uses expo-router's own router, so a shortcut used while the app sat in the background
@@ -117,6 +126,8 @@ export default function RootLayout() {
         <PersistQueryClientProvider
           client={queryClient}
           persistOptions={{ persister: asyncStoragePersister, maxAge: 1000 * 60 * 60 * 24 * 7 }}
+          onSuccess={markRestored}
+          onError={markRestored}
         >
           <ThemeProvider>
             <RootNavigator />

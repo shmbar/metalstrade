@@ -4,16 +4,32 @@
 // linked invoices/expenses, and old-doc cleanup when a contract's year changes.
 
 import {
-  doc, getDoc, getDocs, setDoc, deleteDoc, updateDoc, writeBatch,
-  arrayUnion, increment, collection, query, where, deleteField,
+  doc, getDoc, getDocs, setDoc as sdkSetDoc, deleteDoc as sdkDeleteDoc, updateDoc as sdkUpdateDoc,
+  writeBatch as sdkWriteBatch, arrayUnion, increment, collection, query, where, deleteField,
 } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
+import { aroundWrite } from './collectionReads';
 import { tidyRefs } from '@/lib/contractRefs';
 import { loadStockDataByIds } from './firestore';
 import { splitNotifId } from '@shared/splitUtils';
 import { priorityOf } from '@shared/notificationPriority';
 import { resolveInvoiceDate } from '@shared/pureHelpers';
 import { Contract, Invoice, Payment } from './types';
+
+/* Every write in this file goes through these four. The screens' bulk reads are shared for
+   a couple of minutes (data/collectionReads.ts); a write drops them when it starts and
+   again when the server has it, so a screen refreshing after a save always reads what the
+   save wrote. The reads in this file stay on the full SDK, which also sees the user's own
+   writes before the server confirms them — what a save in progress needs. */
+const setDoc = ((...args: unknown[]) => aroundWrite((sdkSetDoc as (...a: unknown[]) => Promise<void>)(...args))) as typeof sdkSetDoc;
+const updateDoc = ((...args: unknown[]) => aroundWrite((sdkUpdateDoc as (...a: unknown[]) => Promise<void>)(...args))) as typeof sdkUpdateDoc;
+const deleteDoc: typeof sdkDeleteDoc = (ref) => aroundWrite(sdkDeleteDoc(ref));
+const writeBatch: typeof sdkWriteBatch = (firestore) => {
+  const batch = sdkWriteBatch(firestore);
+  const commit = batch.commit.bind(batch);
+  batch.commit = () => aroundWrite(commit());
+  return batch;
+};
 
 // RN-safe id generator — mirrors utils.js newId() (crypto.randomUUID when present,
 // else a timestamp+random fallback). Format parity isn't required, uniqueness is.

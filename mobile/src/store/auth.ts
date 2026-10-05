@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { AppState } from 'react-native';
 import { sheets } from '@/lib/sheetRegistry';
 import { touchPresence, endPresence, PRESENCE_HEARTBEAT_MS } from '@/data/firestore';
+import { clearCollectionReads } from '@/data/collectionReads';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   onAuthStateChanged,
@@ -371,6 +372,7 @@ export const useAuth = create<AuthState>((set, get) => ({
         // in on this device can be shown the previous account's figures for the frame
         // before their own data arrives. Covers idle-expiry too, which lands here.
         queryClient.clear();
+        clearCollectionReads(); // and the screens' shared reads (data/collectionReads.ts)
         Promise.resolve(asyncStoragePersister.removeClient()).catch(() => {});
         // The device copy of supplier/client/warehouse lists goes with it.
         useSettings.getState().reset();

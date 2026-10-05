@@ -12,6 +12,7 @@ import {
   Button,
   TextField,
   DateField,
+  Skeleton,
   SkeletonList,
   ErrorState,
   SegmentedControl,
@@ -58,6 +59,11 @@ import { useShallow } from 'zustand/react/shallow';
  */
 
 type Tab = 'general' | 'unsold';
+
+/* Shown in place of a figure that needs the stock ledger while it is still loading — the
+   rest of the page is already real (useCashflow: `stock` is null until the ledger is in). */
+const STOCK_PENDING = '—';
+const STOCK_PENDING_NOTE = 'Loading stock…';
 type SortKey = 'amount' | 'name';
 type Kind = 'client' | 'supplier' | 'expense';
 type ManualField = 'initial' | 'financedLeft' | 'financedRight';
@@ -101,7 +107,9 @@ const FIELD_LABEL: Record<ManualField, string> = {
 export default function Cashflow() {
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
-  const { data, isLoading, isError, error, refetch } = useCashflow();
+  // `data` is everything that does not need the stock ledger; `stock` (null until the ledger
+  // is in) holds every figure that does; `whole` is both, for the report.
+  const { flows: data, stock, data: whole, isLoading, isError, error, refetch } = useCashflow();
   const isAdmin = useAuth((s) => s.isAdmin);
   const { settings, settingsLoaded, compData } = useSettings(useShallow((s) => ({ settings: s.settings, settingsLoaded: s.loaded, compData: s.compData })));
   const hideBalances = usePrivacyStore((s) => s.hidden);
@@ -166,11 +174,12 @@ export default function Cashflow() {
   const [yearDraft, setYearDraft] = useState<Record<number, string>>({});
 
   const whName = (id: string) => entityName(settings?.Stocks?.Stocks, id, 'warehouse', settingsLoaded);
-  // Built only while the Report sheet is open (after whName, which it uses).
+  // Built only while the Report sheet is open (after whName, which it uses), and only from a
+  // complete page — its totals include stock.
   const report = useMemo(
-    () => (reportOpen && data ? buildCashflowReport(data, { isAdmin, warehouseName: (id) => whName(id) }) : null),
+    () => (reportOpen && whole ? buildCashflowReport(whole, { isAdmin, warehouseName: (id) => whName(id) }) : null),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [reportOpen, data, isAdmin]
+    [reportOpen, whole, isAdmin]
   );
 
   // Web's find box filters ROWS by name; section totals keep covering the full
@@ -330,15 +339,15 @@ export default function Cashflow() {
   };
 
   // ── derived rows (search + sort) ───────────────────────────────────────────
-  const stocksPaid = data ? arrange(data.stocksPaid, (r) => r.total, (r) => whName(r.stock)) : [];
-  const stocksUnpaid = data ? arrange(data.stocksUnpaid, (r) => r.total, (r) => whName(r.stock)) : [];
+  const stocksPaid = stock ? arrange(stock.stocksPaid, (r) => r.total, (r) => whName(r.stock)) : [];
+  const stocksUnpaid = stock ? arrange(stock.stocksUnpaid, (r) => r.total, (r) => whName(r.stock)) : [];
   const byCp = (rows: Counterparty[]) => arrange(rows, (r) => r.usd, (r) => r.name);
   const clientsNoPay = data ? byCp(data.clientsNoPayment) : [];
   const clientsBal = data ? byCp(data.clientsWithBalance) : [];
   const suppliersNoPay = data ? byCp(data.suppliersNoPayment) : [];
   const suppliersBal = data ? byCp(data.suppliersWithBalance) : [];
   const expenses = data ? byCp(data.expenseSuppliers) : [];
-  const unsold = data ? arrange(data.unsoldBySupplier, (r) => r.total, (r) => r.name) : [];
+  const unsold = stock ? arrange(stock.unsoldBySupplier, (r) => r.total, (r) => r.name) : [];
   const sharedMatches = matchesAllWords('Shared Stock inventory IMS GIS', words);
 
   const kpis: KpiItem[] = data
@@ -348,10 +357,10 @@ export default function Cashflow() {
               {
                 key: 'balance',
                 label: 'Total Balance',
-                value: money(usd(data.balance)),
+                value: stock ? money(usd(stock.balance)) : STOCK_PENDING,
                 icon: 'wallet' as const,
-                tone: data.balance >= 0 ? ('positive' as const) : ('negative' as const),
-                sub: 'Left − right totals',
+                tone: !stock ? ('default' as const) : stock.balance >= 0 ? ('positive' as const) : ('negative' as const),
+                sub: stock ? 'Left − right totals' : STOCK_PENDING_NOTE,
               },
             ]
           : []),
@@ -442,7 +451,7 @@ export default function Cashflow() {
         right={
           <View style={{ flexDirection: 'row', gap: 8 }}>
             {/* The page as one report — web's Report button (eb201c9f). */}
-            <IconButton icon="document-text-outline" accessibilityLabel="Cashflow report" disabled={!data} onPress={() => setReportOpen(true)} />
+            <IconButton icon="document-text-outline" accessibilityLabel="Cashflow report" disabled={!whole} onPress={() => setReportOpen(true)} />
             <IconButton
               icon={hideBalances ? 'eye-off-outline' : 'eye-outline'}
               accessibilityLabel={hideBalances ? 'Show balances' : 'Hide balances'}
@@ -510,28 +519,33 @@ export default function Cashflow() {
         <ErrorState message={(error as Error)?.message || 'Failed to load cashflow.'} onRetry={refetch} />
       ) : !data ? null : tab === 'unsold' ? (
         /* ══ UNSOLD STOCKS tab — web page.js:1370 ══════════════════════════════ */
-        <FoldSection
-          id="cashflow.unsold"
-          defaultOpen
-          icon="cube-outline"
-          title="Unsold Stocks"
-          subtitle={`${data.unsoldBySupplier.length} supplier${data.unsoldBySupplier.length === 1 ? '' : 's'}`}
-          total={money(usd(data.unsoldTotal))}
-          totalTone="warn"
-        >
-          {unsold.length
-            ? unsold.map((r, i) => (
-                <EntityRow
-                  key={r.supplier}
-                  first={i === 0}
-                  name={r.name}
-                  subtitle={`${r.items.length} line${r.items.length === 1 ? '' : 's'}`}
-                  value={money(moneyFull(r.cur, r.total))}
-                  onPress={() => setUnsoldSheet(r)}
-                />
-              ))
-            : emptyRow('No unsold stocks')}
-        </FoldSection>
+        // Every line of this tab is worked out from the stock ledger.
+        !stock ? (
+          <SkeletonList count={4} />
+        ) : (
+          <FoldSection
+            id="cashflow.unsold"
+            defaultOpen
+            icon="cube-outline"
+            title="Unsold Stocks"
+            subtitle={`${stock.unsoldBySupplier.length} supplier${stock.unsoldBySupplier.length === 1 ? '' : 's'}`}
+            total={money(usd(stock.unsoldTotal))}
+            totalTone="warn"
+          >
+            {unsold.length
+              ? unsold.map((r, i) => (
+                  <EntityRow
+                    key={r.supplier}
+                    first={i === 0}
+                    name={r.name}
+                    subtitle={`${r.items.length} line${r.items.length === 1 ? '' : 's'}`}
+                    value={money(moneyFull(r.cur, r.total))}
+                    onPress={() => setUnsoldSheet(r)}
+                  />
+                ))
+              : emptyRow('No unsold stocks')}
+          </FoldSection>
+        )
       ) : (
         /* ══ GENERAL CASHFLOW tab ═════════════════════════════════════════════ */
         <View style={{ gap: layout.stack }}>
@@ -544,12 +558,21 @@ export default function Cashflow() {
               value: data.incoming,
             })}
 
-          <FoldSection id="cashflow.stocksPaid" icon="cube-outline" title="Stocks - Paid" subtitle={`${stocksPaid.length} warehouse${stocksPaid.length === 1 ? '' : 's'}`} total={money(usd(data.stocksPaidTotal))}>
-            {warehouseRows(stocksPaid)}
-          </FoldSection>
+          {stock ? (
+            <FoldSection id="cashflow.stocksPaid" icon="cube-outline" title="Stocks - Paid" subtitle={`${stocksPaid.length} warehouse${stocksPaid.length === 1 ? '' : 's'}`} total={money(usd(stock.stocksPaidTotal))}>
+              {warehouseRows(stocksPaid)}
+            </FoldSection>
+          ) : (
+            <FoldSection id="cashflow.stocksPaid" icon="cube-outline" title="Stocks - Paid" subtitle={STOCK_PENDING_NOTE} total={STOCK_PENDING}>
+              <View style={{ gap: 10, paddingHorizontal: layout.cardInset, paddingBottom: layout.cardInset }}>
+                <Skeleton width="60%" />
+                <Skeleton width="45%" />
+              </View>
+            </FoldSection>
+          )}
 
-          {data.stocksUnpaid.length > 0 && (
-            <FoldSection id="cashflow.stocksUnpaid" icon="cube-outline" title="Stocks - UnPaid" subtitle={`${stocksUnpaid.length} warehouse${stocksUnpaid.length === 1 ? '' : 's'}`} total={money(usd(data.stocksUnpaidTotal))} totalTone="warn">
+          {stock && stock.stocksUnpaid.length > 0 && (
+            <FoldSection id="cashflow.stocksUnpaid" icon="cube-outline" title="Stocks - UnPaid" subtitle={`${stocksUnpaid.length} warehouse${stocksUnpaid.length === 1 ? '' : 's'}`} total={money(usd(stock.stocksUnpaidTotal))} totalTone="warn">
               {warehouseRows(stocksUnpaid)}
             </FoldSection>
           )}
@@ -625,8 +648,8 @@ export default function Cashflow() {
             <Card>
               <View style={{ flexDirection: 'row', gap: 8 }}>
                 {[
-                  { label: 'Total (Left)', value: data.totalLeft, filled: false },
-                  { label: 'Balance', value: data.balance, filled: true },
+                  { label: 'Total (Left)', value: stock ? stock.totalLeft : null, filled: false },
+                  { label: 'Balance', value: stock ? stock.balance : null, filled: true },
                   { label: 'Total (Right)', value: data.totalRight, filled: false },
                 ].map((t) => (
                   <View
@@ -649,7 +672,7 @@ export default function Cashflow() {
                       color={t.filled ? colors.primaryText : colors.text}
                       style={{ marginTop: 3 }}
                     >
-                      {money(usd(t.value))}
+                      {t.value == null ? STOCK_PENDING : money(usd(t.value))}
                     </Text>
                   </View>
                 ))}
@@ -670,11 +693,11 @@ export default function Cashflow() {
                 <View style={{ marginTop: 8 }}>
                   <Line label="Future (margins)" v={money(usd(data.incoming))} />
                   <Line label="Opening entries" v={money(usd(data.manual.initial))} />
-                  <Line label="Stocks paid" v={money(usd(data.stocksPaidTotal))} />
-                  <Line label="Stocks unpaid" v={money(usd(data.stocksUnpaidTotal))} />
+                  <Line label="Stocks paid" v={stock ? money(usd(stock.stocksPaidTotal)) : STOCK_PENDING} />
+                  <Line label="Stocks unpaid" v={stock ? money(usd(stock.stocksUnpaidTotal)) : STOCK_PENDING} />
                   <Line label="Client receivables" v={money(usd(data.kpi.clientsDue))} />
                   <Line label="Financing (left)" v={money(usd(data.manual.financedLeft))} />
-                  <Line label="Total (Left)" v={money(usd(data.totalLeft))} strong />
+                  <Line label="Total (Left)" v={stock ? money(usd(stock.totalLeft)) : STOCK_PENDING} strong />
                   <View style={{ height: 8 }} />
                   <Line label="Supplier payables" v={money(usd(data.payablesUsd))} />
                   <Line label="Unpaid expenses" v={money(usd(data.expensesUsd))} />

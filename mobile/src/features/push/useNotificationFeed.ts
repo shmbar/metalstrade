@@ -10,6 +10,7 @@ import {
 import { sortByPriority, priorityOf } from '@shared/notificationPriority';
 import { isNotificationEnabled, unreadCountFor } from '@shared/notificationPrefs';
 import { useNotificationPrefsStore } from './notificationPrefs';
+import { useLaunchSettled } from '@/features/live/launch';
 import { useShallow } from 'zustand/react/shallow';
 
 export type Priority = 'high' | 'medium' | 'low';
@@ -134,8 +135,12 @@ export function useNotificationFeed() {
 export function useUnreadNotificationCount(): number {
   const { uidCollection, uid } = useAuth(useShallow((s) => ({ uidCollection: s.uidCollection, uid: s.currentUser.uid })));
   const prefs = useNotificationPrefsStore((s) => s.prefs);
+  // The badge lives in the app shell, so it is read once the first screen has its data
+  // (features/live/launchGate.ts) instead of beside it; the Notifications screen itself
+  // reads at once, and the badge shows the device copy's count meanwhile.
+  const settled = useLaunchSettled();
   const { data } = useQuery({
-    enabled: !!uidCollection,
+    enabled: !!uidCollection && settled,
     queryKey: ['notifications', uidCollection],
     queryFn: () => loadNotifications(uidCollection as string),
   });

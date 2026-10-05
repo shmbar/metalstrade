@@ -4,6 +4,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '@/theme/ThemeProvider';
 import { spacing } from '@/theme/tokens';
 import { haptics } from '@/lib/haptics';
+import { clearCollectionReads } from '@/data/collectionReads';
 import { KeyboardRevealContext, keyboardScrollProps, NATIVE_KEYBOARD_INSETS, useKeyboardAwareScroll } from '@/lib/keyboard';
 
 interface ScreenProps extends ScrollViewProps {
@@ -81,7 +82,10 @@ export function Screen({
               // Fires the instant the pull-to-refresh triggers, every screen that
               // uses <Screen onRefresh>, the way pulling to refresh feels on a
               // banking app's transaction list.
-              <RefreshControl refreshing={!!refreshing} onRefresh={() => { haptics.impact(); onRefresh(); }} tintColor={colors.primary} />
+              // A pull asks for the server's copy, so the shared reads are dropped first
+              // (data/collectionReads.ts) — otherwise a pull within two minutes of the
+              // last read would only hand the same records back.
+              <RefreshControl refreshing={!!refreshing} onRefresh={() => { haptics.impact(); clearCollectionReads(); onRefresh(); }} tintColor={colors.primary} />
             ) : undefined
           }
           {...rest}

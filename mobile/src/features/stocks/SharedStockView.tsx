@@ -10,6 +10,7 @@ import {
   useSharedStock, blankLot, financedOf, OWNERS, FINANCING, Financing, SharedLot,
 } from './useSharedStock';
 import { keyboardScrollProps } from '@/lib/keyboard';
+import { clearCollectionReads } from '@/data/collectionReads';
 
 const fmtQ = (v: number) => new Intl.NumberFormat('en-US', { maximumFractionDigits: 3 }).format(v || 0);
 
@@ -133,7 +134,7 @@ export function SharedStockView() {
         style={{ flex: 1 }}
         contentContainerStyle={{ paddingBottom: LIST_END_PADDING }}
         showsVerticalScrollIndicator={false}
-        refreshControl={<RefreshControl refreshing={isLoading} onRefresh={refetch} tintColor={colors.primary} />}
+        refreshControl={<RefreshControl refreshing={isLoading} onRefresh={() => { clearCollectionReads(); refetch(); }} tintColor={colors.primary} />}
       >
         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12, gap: 12 }}>
           <View style={{ flex: 1, minWidth: 0 }}>

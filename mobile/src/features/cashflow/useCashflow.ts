@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '@/store/auth';
 import { useSettings } from '@/store/settings';
-import { loadData, loadFlatByDate, loadMargins, loadDataSettings, loadInvoicesTagged } from '@/data/firestore';
+import { loadData, loadFlatByDate, loadMargins, loadDisplayDocument, loadInvoicesTagged } from '@/data/firestore';
 import { useAllStockLots } from '@/features/stocks/useAllStockLots';
 import { computeInventory, cashflowStockLots } from '@/features/stocks/aggregate';
 import { Contract, Invoice } from '@/data/types';
@@ -520,6 +520,32 @@ export function sumMarginsRemaining(margins: any[]): number {
 export const sumManualEntries = (arr: any): number =>
   Array.isArray(arr) ? arr.reduce((t: number, o: any) => t + (parseFloat(o?.num) || 0), 0) : 0;
 
+/** The figures that need the stock ledger. */
+export const CASHFLOW_STOCK_KEYS = [
+  'stocksPaid',
+  'stocksUnpaid',
+  'stocksPaidTotal',
+  'stocksUnpaidTotal',
+  'unsoldBySupplier',
+  'unsoldByCur',
+  'unsoldTotal',
+  'totalLeft',
+  'balance',
+] as const;
+export type CashflowStock = Pick<CashflowData, (typeof CASHFLOW_STOCK_KEYS)[number]>;
+export type CashflowFlows = Omit<CashflowData, (typeof CASHFLOW_STOCK_KEYS)[number]>;
+
+/** One computed page as its two parts: what needs the stock ledger and what does not. */
+export function splitCashflow(d: CashflowData): { flows: CashflowFlows; stock: CashflowStock } {
+  const flows: Record<string, unknown> = { ...d };
+  const stock: Record<string, unknown> = {};
+  for (const k of CASHFLOW_STOCK_KEYS) {
+    stock[k] = d[k];
+    delete flows[k];
+  }
+  return { flows: flows as CashflowFlows, stock: stock as CashflowStock };
+}
+
 export interface CashflowInputs {
   invoices: any[];
   /** 4-year window: receivables + supplier payables */
@@ -811,41 +837,57 @@ export function computeCashflow(input: CashflowInputs): CashflowData {
   };
 }
 
+/**
+ * Everything Cashflow reads except the stock ledger, fetched together. Stock lots come from
+ * the SHARED, live ledger query (useAllStockLots), so the screen never re-downloads the
+ * collection the Stocks tab already holds.
+ *
+ * Measured 2026-10-05 (mobile/__tests__/perf/_load-path.smoke.ts): these 17 requests and
+ * 8.8 MB took 7.5–9 s on a laptop, and every one of them — even the 1 KB `cashflow`
+ * document — was released only when the 5.3 MB ledger had arrived on the same stream. They
+ * are now off that stream (data/collectionReads.ts), and the two-year contract window is cut
+ * from the four-year read's buckets instead of being downloaded a second time.
+ */
+export async function loadCashflowInputs(uid: string, curYr: number) {
+  const { range4y, range2y } = cashflowYearRanges(curYr);
+  const [invoices, contracts4y, contracts2y, expenses, companyExpenses, margins, cashflowDoc] = await Promise.all([
+    // __yr-tagged so clientPartialPayment writes to the exact source bucket
+    // instead of re-deriving a year from a possibly non-ISO date field.
+    loadInvoicesTagged(uid, range4y),
+    loadData<Contract>(uid, 'contracts', range4y),
+    loadData<Contract>(uid, 'contracts', range2y),
+    loadData<any>(uid, 'expenses', range2y),
+    loadFlatByDate<any>(uid, 'companyExpenses', range2y),
+    // Web loads TWO years for the incoming figure (page.js:83 yr = [curYr-1, curYr]).
+    Promise.all([curYr - 1, curYr].map((y) => loadMargins(uid, y).catch(() => []))).then((a) => a.flat()),
+    loadDisplayDocument<any>(uid, 'cashflow').catch(() => ({})),
+  ]);
+  return { invoices, contracts4y, contracts2y, expenses, companyExpenses, margins, cashflowDoc };
+}
+
 export function useCashflow() {
   const uidCollection = useAuth((s) => s.uidCollection);
   const { settings, loaded } = useSettings(useShallow((s) => ({ settings: s.settings, loaded: s.loaded })));
 
   const curYr = new Date().getFullYear();
-  const { range4y, range2y } = cashflowYearRanges(curYr);
 
   const query = useQuery({
     enabled: !!uidCollection && loaded,
     queryKey: ['cashflow', uidCollection, curYr],
-    queryFn: async () => {
-      const uid = uidCollection as string;
-      const [invoices, contracts4y, contracts2y, expenses, companyExpenses, margins, cashflowDoc] = await Promise.all([
-        // __yr-tagged so clientPartialPayment writes to the exact source bucket
-        // instead of re-deriving a year from a possibly non-ISO date field.
-        loadInvoicesTagged(uid, range4y),
-        loadData<Contract>(uid, 'contracts', range4y),
-        loadData<Contract>(uid, 'contracts', range2y),
-        loadData<any>(uid, 'expenses', range2y),
-        loadFlatByDate<any>(uid, 'companyExpenses', range2y),
-        // Web loads TWO years for the incoming figure (page.js:83 yr = [curYr-1, curYr]).
-        Promise.all([curYr - 1, curYr].map((y) => loadMargins(uid, y).catch(() => []))).then((a) => a.flat()),
-        loadDataSettings<any>(uid, 'cashflow').catch(() => ({})),
-      ]);
-      // Stock lots come from the SHARED ledger query (see useAllStockLots) so the
-      // Cashflow screen does not re-download the whole collection the Stocks tab
-      // already has cached.
-      return { invoices, contracts4y, contracts2y, expenses, companyExpenses, margins, cashflowDoc };
-    },
+    queryFn: () => loadCashflowInputs(uidCollection as string, curYr),
   });
 
   const lotsQuery = useAllStockLots();
 
-  const data = useMemo<CashflowData | null>(() => {
-    if (!query.data || !lotsQuery.data || !loaded) return null;
+  /* The screen no longer waits for the stock ledger before it shows anything. Receivables,
+     payables, expenses, Future and the manual entries do not touch stock, so they are
+     computed — by the same computeCashflow — as soon as their own reads are in (`flows`).
+     The stock sections and every total that adds stock in (Total (Left), Balance) come
+     separately (`stock`), and stay null until the ledger has arrived: a figure worked out
+     from a missing ledger cannot reach the screen, because the type does not let it. */
+  const stocks = lotsQuery.data;
+  const computed = useMemo<CashflowData | null>(() => {
+    if (!query.data || !loaded) return null;
     const { invoices, contracts4y, contracts2y, expenses, companyExpenses, margins, cashflowDoc } = query.data;
     return computeCashflow({
       invoices,
@@ -855,13 +897,19 @@ export function useCashflow() {
       companyExpenses,
       margins,
       cashflowDoc,
-      stocks: lotsQuery.data,
+      stocks: stocks || [],
       settings,
     });
-  }, [query.data, lotsQuery.data, settings, loaded]);
+  }, [query.data, stocks, settings, loaded]);
+  const split = useMemo(() => (computed ? splitCashflow(computed) : null), [computed]);
 
   return {
-    data,
+    /** Everything that does not need the stock ledger — ready as soon as Cashflow's own reads are in. */
+    flows: split?.flows ?? null,
+    /** The stock sections and the totals that add stock in — null until the ledger has arrived. */
+    stock: stocks ? (split?.stock ?? null) : null,
+    /** The whole page, flows and stock — what the report is built from. Null until both are in. */
+    data: stocks ? computed : null,
     // Waiting for the name lists counts as loading, so the screen shows its skeleton.
     isLoading: query.isLoading || lotsQuery.isLoading || !loaded,
     isError: query.isError || lotsQuery.isError,

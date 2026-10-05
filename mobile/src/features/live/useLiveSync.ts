@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react';
 import { collection, onSnapshot } from 'firebase/firestore';
 import { useQueryClient } from '@tanstack/react-query';
 import { db } from '@/lib/firebase';
+import { launch } from './launch';
 
 /*
  * Live multi-user sync: a teammate's save on the web appears here without a refresh.
@@ -17,6 +18,12 @@ import { db } from '@/lib/firebase';
  *      here at all; the rest is scoped to the keys that actually derive from the
  *      collection that changed.
  * Settings and company data have their own listener in store/settings.ts.
+ *
+ * 2026-10-05: two of the watchers named collections that do not exist — 'specialinvoices'
+ * (it is specialInvoices) and 'salescontracts' (sales contracts are year-bucketed like
+ * contracts) — so a teammate's misc invoice or sales contract never reached an open phone.
+ * And every watcher's first answer is a full read of its collection, so they now start
+ * after the first screen has its data (launchGate.ts) instead of competing with it.
  */
 
 // Which cached screens derive from which collection.
@@ -30,6 +37,18 @@ const DERIVED: Record<string, string[]> = {
   activity: ['activity'],
 };
 
+/** The collections watched, as {path, kind} — the year-bucketed ones for the current year. */
+export function liveSyncWatches(year: number): { path: string; kind: keyof typeof DERIVED }[] {
+  return [
+    { path: `invoices_${year}`, kind: 'invoices' },
+    { path: `contracts_${year}`, kind: 'contracts' },
+    { path: `expenses_${year}`, kind: 'expenses' },
+    { path: 'companyExpenses', kind: 'companyExpenses' },
+    { path: 'specialInvoices', kind: 'specialinvoices' },
+    { path: `salescontracts_${year}`, kind: 'salescontracts' },
+  ];
+}
+
 export function useLiveSync(uidCollection: string | null) {
   const qc = useQueryClient();
   const pending = useRef(new Set<string>());
@@ -38,6 +57,8 @@ export function useLiveSync(uidCollection: string | null) {
   useEffect(() => {
     if (!uidCollection) return;
     const year = new Date().getFullYear();
+    let live = true;
+    let subs: (() => void)[] = [];
 
     // Several documents usually change together (an invoice and its contract); collect
     // the affected screens for a moment and refresh each of them once.
@@ -67,15 +88,11 @@ export function useLiveSync(uidCollection: string | null) {
       );
     };
 
-    const subs = [
-      watch(`invoices_${year}`, 'invoices'),
-      watch(`contracts_${year}`, 'contracts'),
-      watch(`expenses_${year}`, 'expenses'),
-      watch('companyExpenses', 'companyExpenses'),
-      watch('specialinvoices', 'specialinvoices'),
-      watch('salescontracts', 'salescontracts'),
-    ];
+    launch.whenSettled().then(() => {
+      if (live) subs = liveSyncWatches(year).map((w) => watch(w.path, w.kind));
+    });
     return () => {
+      live = false;
       subs.forEach((u) => u());
       if (timer.current) clearTimeout(timer.current);
     };

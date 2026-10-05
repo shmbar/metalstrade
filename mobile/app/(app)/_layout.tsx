@@ -12,6 +12,7 @@ import { registerPush, listenPushTaps, setAppBadge } from '@/features/push/regis
 import { useUnreadNotificationCount } from '@/features/push/useNotificationFeed';
 import { useFollowNotificationPrefs } from '@/features/push/notificationPrefs';
 import { useLiveSync } from '@/features/live/useLiveSync';
+import { useLaunchSession } from '@/features/live/launch';
 import { useFreshOnFocus } from '@/features/live/useFreshOnFocus';
 import { useWarmLedger } from '@/features/stocks/useWarmLedger';
 import { useTheme } from '@/theme/ThemeProvider';
@@ -89,9 +90,12 @@ export default function AppLayout() {
     setAppBadge(uidCollection ? unread : 0);
   }, [unread, uidCollection]);
 
+  // A session's background work waits for its first screen (features/live/launchGate.ts).
+  // Declared BEFORE the warm-ups below, so its effect arms the gate before they wait on it.
+  useLaunchSession(uidCollection);
   // Live multi-user sync: teammate writes refresh this device in real time.
   useLiveSync(uidCollection);
-  // The big stock ledger starts loading at sign-in and then stays live.
+  // The big stock ledger loads in the background once signed in, then stays live.
   useWarmLedger(uidCollection);
   // Switching tab (or returning to the app) refreshes what is on screen and stale.
   useFreshOnFocus(route, !!uidCollection);

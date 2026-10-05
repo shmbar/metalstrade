@@ -174,3 +174,70 @@ describe('navigation and touch safety', () => {
     }
   });
 });
+
+// Dashboard and Cashflow sat on their skeletons (client, 2026-10-05): every bulk read queued
+// behind the stock ledger on the full SDK's one stream, the Dashboard made its requests one
+// after another, and the same year buckets were downloaded again and again. What fixed it
+// is shared, so it is pinned here (see __tests__/read-layer.test.ts for the behaviour).
+describe('Dashboard and Cashflow load without waiting on each other', () => {
+  const read = (p) => fs.readFileSync(path.join(ROOT, p), 'utf8');
+  /** The body of a top-level function in a module, up to the next top-level declaration. */
+  const fnBody = (src, name) => {
+    const start = src.search(new RegExp(`^(export )?(async )?function ${name}\\b`, 'm'));
+    expect(start, `${name} not found`).toBeGreaterThanOrEqual(0);
+    const rest = src.slice(start + 1);
+    const end = rest.search(/^(export |async function |function |const |let )/m);
+    return end < 0 ? rest : rest.slice(0, end);
+  };
+
+  it('the screens\' bulk reads go through the shared read layer, never the listeners\' stream', () => {
+    const src = read('src/data/firestore.ts');
+    for (const name of ['loadData', 'loadInvoicesTagged', 'loadFlatByDate', 'loadMargins', 'getInvoicesBatched', 'loadDocsByIdBatched', 'buildInvoiceIndex', 'loadNotifications', 'loadAllStockData']) {
+      expect(fnBody(src, name), name).not.toMatch(/\bgetDocs?\(/);
+    }
+    expect(read('src/features/cashflow/useCashflow.ts')).not.toMatch(/loadDataSettings/);
+  });
+
+  it('the Dashboard starts its reads together — one wave, not a chain of awaits', () => {
+    const body = fnBody(read('src/features/dashboard/useDashboard.ts'), 'loadDashboardInputs');
+    // the contracts' invoice index (needs the contracts) and the one Promise.all — nothing else waits
+    expect(body.match(/\bawait\b/g)).toHaveLength(2);
+    expect(body).toMatch(/await Promise\.all\(/);
+  });
+
+  it('a save drops the shared reads when it starts and when it lands', () => {
+    const src = read('src/data/writes.ts');
+    const imported = src.match(/import \{([^}]*)\} from 'firebase\/firestore'/)[1];
+    for (const fn of ['setDoc', 'updateDoc', 'deleteDoc', 'writeBatch']) {
+      expect(imported).toMatch(new RegExp(`\\b${fn} as sdk\\w+`));
+      expect(imported).not.toMatch(new RegExp(`(^|[\\s,])${fn}\\s*(,|$)`));
+    }
+    expect(src.match(/aroundWrite\(/g).length).toBeGreaterThanOrEqual(4);
+  });
+
+  it('a pull to refresh and an invalidation drop them too; sign-out forgets them', () => {
+    expect(read('src/components/ui/Screen.tsx')).toMatch(/clearCollectionReads\(\);\s*onRefresh\(\);/);
+    expect(read('app/_layout.tsx')).toContain('dropSharedReadsOnInvalidate(queryClient);');
+    expect(read('src/store/auth.ts')).toMatch(/queryClient\.clear\(\);\s*clearCollectionReads\(\);/);
+  });
+
+  it('background downloads wait for the first screen; a screen that needs the ledger does not', () => {
+    for (const p of ['src/features/stocks/useWarmLedger.ts', 'src/features/live/useLiveSync.ts']) {
+      expect(read(p)).toContain('launch.whenSettled()');
+    }
+    expect(read('src/features/stocks/useAllStockLots.ts')).not.toContain('whenSettled');
+    const layout = read('app/(app)/_layout.tsx');
+    const at = (s) => layout.indexOf(s);
+    expect(at('useLaunchSession(uidCollection);')).toBeGreaterThan(0);
+    expect(at('useLaunchSession(uidCollection);')).toBeLessThan(at('useLiveSync(uidCollection);'));
+    expect(at('useLaunchSession(uidCollection);')).toBeLessThan(at('useWarmLedger(uidCollection);'));
+    expect(read('app/_layout.tsx')).toMatch(/onSuccess=\{markRestored\}\s*onError=\{markRestored\}/);
+  });
+
+  it('Cashflow never shows a stock figure worked out without the ledger', () => {
+    const screen = read('app/(app)/cashflow.tsx');
+    expect(screen).toContain('const { flows: data, stock, data: whole');
+    expect(screen).not.toMatch(/\bdata\.(stocksPaid|stocksUnpaid|stocksPaidTotal|stocksUnpaidTotal|unsoldBySupplier|unsoldByCur|unsoldTotal|totalLeft|balance)\b/);
+    expect(screen).toMatch(/buildCashflowReport\(whole,/);
+  });
+});

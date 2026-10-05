@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '@/store/auth';
 import { useSettings, selectTermDays, selectCompanyRate } from '@/store/settings';
 import { loadData, loadFlatByDate, buildInvoiceIndex, contractInvoicesFromIndex, loadMargins } from '@/data/firestore';
-import { Contract, Invoice } from '@/data/types';
+import { Contract, DateSelect, Invoice } from '@/data/types';
 import {
   receivables as financeReceivables,
   agingBuckets,
@@ -140,6 +140,90 @@ export interface MiscRow {
   paid: string;
 }
 
+/** How long the Dashboard waits for the live EUR/USD rate before going on without it. */
+export const FX_WAIT_MS = 6000;
+
+/** `promise`, or `fallback` once `ms` have passed without an answer. */
+function withinMs<T>(promise: Promise<T>, ms: number, fallback: T): Promise<T> {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  const late = new Promise<T>((resolve) => {
+    timer = setTimeout(() => resolve(fallback), ms);
+  });
+  return Promise.race([promise, late]).finally(() => clearTimeout(timer));
+}
+
+/**
+ * Everything the Dashboard reads, fetched together.
+ *
+ * It used to be nine awaits in a row — contracts, their invoices, the period's invoices,
+ * four years of invoices, misc invoices, expenses, the live rate, margins, overheads — so
+ * the screen waited for the SUM of thirteen requests: 7–8 s on a laptop with production
+ * data, 12 s at launch (measured 2026-10-05, mobile/__tests__/perf/_load-path.smoke.ts).
+ * None of them needs another's answer except the contracts' invoice index, which needs the
+ * contracts, so now they all start at once and the screen waits for the slowest. The
+ * four-year invoice read starts first: the period's invoices and the contracts' invoices
+ * come out of the same year buckets (data/firestore.ts), so they cost no download of their own.
+ */
+export async function loadDashboardInputs(uid: string, dateSelect: DateSelect) {
+  const marginsYear = Number(dateSelect.start.substring(0, 4));
+  const curYr = new Date().getFullYear();
+
+  // Outstanding receivables are a running total — last 4 years, like the web app.
+  const recvInvoices = loadData<Invoice>(uid, 'invoices', { start: `${curYr - 3}-01-01`, end: `${curYr}-12-31` });
+
+  // Revenue invoices dated in the period.
+  const periodInvoices = loadData<Invoice>(uid, 'invoices', dateSelect);
+
+  // Contracts in the selected period, enriched with their linked invoices in
+  // one batched pass (the same N+1-avoiding flow the web dashboard uses).
+  const enriched = loadData<Contract>(uid, 'contracts', dateSelect).then(async (contracts) => {
+    const invIndex = await buildInvoiceIndex(uid, contracts);
+    return contracts.map((c) => ({
+      ...c,
+      invoicesData: contractInvoicesFromIndex(c, invIndex, true) as Invoice[][],
+    }));
+  });
+
+  // Misc (P1 special) invoices in the period.
+  const misc = loadFlatByDate<any>(uid, 'specialInvoices', dateSelect);
+
+  /* CANONICAL expense rows - the collection /expenses reads. The dashboard used
+     to total expenses off each contract's embedded `expenses` array, a partial
+     stale mirror that understated contract spend by ~30% and could not see a
+     supplier, a sales invoice or a paid flag. Web fixed this (page.js:1558 passes
+     scopedExpenses); mobile was still on the old source. */
+  const expenseRows = loadData<any>(uid, 'expenses', dateSelect);
+
+  /* Live EUR/USD, used ONLY as the last fallback before 1:1. Without it a EUR
+     contract with no company rate and no rate of its own converted at 1.0 - the
+     euro counted as a dollar in whatever total it landed in. Best-effort: a
+     failure leaves the old behaviour rather than blocking the screen. It runs
+     beside the reads now instead of after them, and a call that hangs is given up
+     after FX_WAIT_MS with the value getCur itself returns when the call fails (1),
+     where the screen used to wait for it without limit. */
+  const liveRate = withinMs(getCur(new Date().toISOString().slice(0, 10)).catch(() => 0), FX_WAIT_MS, 1);
+
+  /* MARGINS and COMPANY OVERHEADS. Web's headline Net Profit is not revenue minus
+     cost minus expenses at all — it is the Margins page's Profits figure minus
+     company overheads (page.js:1759 + :1788). Mobile was computing its own
+     revenue-cogs-expenses figure and calling it the same thing, which is why the
+     two apps disagreed on the single number a user looks at first. */
+  const margins = loadMargins(uid, marginsYear).catch(() => []);
+  const companyExpenses = loadFlatByDate<any>(uid, 'companyExpenses', dateSelect).catch(() => []);
+
+  const all = await Promise.all([enriched, periodInvoices, recvInvoices, misc, expenseRows, liveRate, margins, companyExpenses]);
+  return {
+    enriched: all[0],
+    periodInvoices: all[1],
+    recvInvoices: all[2],
+    misc: all[3].filter(Boolean),
+    expenseRows: all[4],
+    liveRate: all[5],
+    margins: all[6],
+    companyExpenses: all[7],
+  };
+}
+
 // Loads everything the dashboard needs in parallel, then derives KPIs. The
 // financial aggregates come straight from the shared finance.js so they match
 // the web CRM to the cent.
@@ -154,54 +238,7 @@ export function useDashboard(filters: DashboardFilters = { supplier: '', client:
   const query = useQuery({
     enabled,
     queryKey: ['dashboard', uidCollection, dateSelect.start, dateSelect.end],
-    queryFn: async () => {
-      const uid = uidCollection as string;
-
-      // Contracts in the selected period, enriched with their linked invoices in
-      // one batched pass (the same N+1-avoiding flow the web dashboard uses).
-      const contracts = await loadData<Contract>(uid, 'contracts', dateSelect);
-      const invIndex = await buildInvoiceIndex(uid, contracts);
-      const enriched = contracts.map((c) => ({
-        ...c,
-        invoicesData: contractInvoicesFromIndex(c, invIndex, true) as Invoice[][],
-      }));
-
-      // Revenue invoices dated in the period.
-      const periodInvoices = await loadData<Invoice>(uid, 'invoices', dateSelect);
-
-      // Outstanding receivables are a running total — last 4 years, like the web app.
-      const curYr = new Date().getFullYear();
-      const recvInvoices = await loadData<Invoice>(uid, 'invoices', {
-        start: `${curYr - 3}-01-01`,
-        end: `${curYr}-12-31`,
-      });
-
-      // Misc (P1 special) invoices in the period.
-      const misc = await loadFlatByDate<any>(uid, 'specialInvoices', dateSelect);
-
-      /* CANONICAL expense rows - the collection /expenses reads. The dashboard used
-         to total expenses off each contract's embedded `expenses` array, a partial
-         stale mirror that understated contract spend by ~30% and could not see a
-         supplier, a sales invoice or a paid flag. Web fixed this (page.js:1558 passes
-         scopedExpenses); mobile was still on the old source. */
-      const expenseRows = await loadData<any>(uid, 'expenses', dateSelect);
-
-      /* Live EUR/USD, used ONLY as the last fallback before 1:1. Without it a EUR
-         contract with no company rate and no rate of its own converted at 1.0 - the
-         euro counted as a dollar in whatever total it landed in. Best-effort: a
-         failure leaves the old behaviour rather than blocking the screen. */
-      const liveRate = await getCur(new Date().toISOString().slice(0, 10)).catch(() => 0);
-
-      /* MARGINS and COMPANY OVERHEADS. Web's headline Net Profit is not revenue minus
-         cost minus expenses at all — it is the Margins page's Profits figure minus
-         company overheads (page.js:1759 + :1788). Mobile was computing its own
-         revenue-cogs-expenses figure and calling it the same thing, which is why the
-         two apps disagreed on the single number a user looks at first. */
-      const margins = await loadMargins(uid, Number(dateSelect.start.substring(0, 4))).catch(() => []);
-      const companyExpenses = await loadFlatByDate<any>(uid, 'companyExpenses', dateSelect).catch(() => []);
-
-      return { enriched, periodInvoices, recvInvoices, misc: misc.filter(Boolean), expenseRows, liveRate, margins, companyExpenses };
-    },
+    queryFn: () => loadDashboardInputs(uidCollection as string, dateSelect),
   });
 
   const data = useMemo<DashboardData | null>(() => {

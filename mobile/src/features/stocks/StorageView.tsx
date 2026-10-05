@@ -10,6 +10,7 @@ import { UNIT } from '@shared/storageUtils';
 import { fmtMoney, dateLabel } from '@/lib/format';
 import { radius, spacing, LIST_END_PADDING, layout } from '@/theme/tokens';
 import { keyboardScrollProps } from '@/lib/keyboard';
+import { clearCollectionReads } from '@/data/collectionReads';
 
 const fmtUsd = (v: number) => `$${fmtMoney(v || 0)}`;
 // For raw, unconverted document amounts. Web renders these in the DOCUMENT's own
@@ -152,7 +153,7 @@ export function StorageView() {
       style={{ flex: 1 }}
       contentContainerStyle={{ paddingBottom: LIST_END_PADDING }}
       showsVerticalScrollIndicator={false}
-      refreshControl={<RefreshControl refreshing={isLoading} onRefresh={refetch} tintColor={colors.primary} />}
+      refreshControl={<RefreshControl refreshing={isLoading} onRefresh={() => { clearCollectionReads(); refetch(); }} tintColor={colors.primary} />}
     >
       {/* Unit toggle */}
       <View style={{ marginBottom: layout.stack }}>

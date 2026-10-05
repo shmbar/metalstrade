@@ -15,7 +15,8 @@ import {
 } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { Contract, Invoice, Settings, CompanyData, DateSelect } from './types';
-import { dedupeById } from '@shared/pureHelpers';
+import { peekRows, readDocument, readMatching, readRange, readRows } from './collectionReads';
+import { bucketYears, chunked, coversYear, inDateRange, matchingInChunks, mergeBuckets, Row } from './rangeReads';
 
 // ── settings / singletons ────────────────────────────────────────────────────
 export async function loadDataSettings<T = any>(uidCollection: string, doc1: string): Promise<T | {}> {
@@ -26,70 +27,64 @@ export async function loadDataSettings<T = any>(uidCollection: string, doc1: str
 export const loadSettings = (uid: string) => loadDataSettings<Settings>(uid, 'settings');
 export const loadCompanyData = (uid: string) => loadDataSettings<CompanyData>(uid, 'cmpnyData');
 
+/**
+ * The same document as loadDataSettings, for a screen that only DISPLAYS it (Cashflow's
+ * {uid}/cashflow): read off the listeners' stream (data/collectionReads.ts), so it is not
+ * held up behind the stock ledger. The settings store keeps loadDataSettings — it can run
+ * while the user's own edit to the document is still on its way to the server.
+ */
+export const loadDisplayDocument = <T = any>(uidCollection: string, doc1: string): Promise<T | Record<string, never>> =>
+  readDocument<T>(uidCollection, doc1);
+
 // ── year-bucketed range read (contracts / invoices / expenses) ───────────────
-// Mirrors utils.js loadData: one query per year in the range, filtered on `date`.
+// The same RESULT as utils.js loadData — every record of the year buckets the range
+// spans whose `date` falls inside it, in date order, one per document id — reached
+// through the shared read layer (collectionReads.ts) instead of a query per screen:
+//  - a bucket whose whole year is inside the range is read whole, once, and shared — the
+//    Dashboard and Cashflow ask for the same years again and again in different ranges;
+//  - a bucket already read whole (or being read) is cut down to the range here
+//    (rangeReads.ts) instead of being asked for again;
+//  - anything else is the same `date >= start && date <= end` query as before.
+// Every path returns the records in the server's order, so nothing downstream can tell.
+//
+// A record re-dated across a year boundary can survive in TWO buckets under the same
+// document id, so a multi-year window hands it back twice and every consumer counts
+// two real rows — Cashflow's Supplier - Balances listed one purchase invoice on two
+// lines and doubled it in the total. Web fixed this in utils.js loadData (1d51dce1);
+// dedupeById is the shared helper both apps use, byte-identical (inside mergeBuckets).
+function bucketInRange(uidCollection: string, path: string, yr: number, range: DateSelect): Promise<Row[]> {
+  const segments = ['data', `${path}_${yr}`];
+  const asked = () => readRange(uidCollection, range, ...segments);
+  const whole = peekRows(uidCollection, ...segments) ?? (coversYear(range, yr) ? readRows(uidCollection, ...segments) : null);
+  return whole ? whole.then((rows) => inDateRange(rows, range), asked) : asked();
+}
+
+async function rangeBuckets(uidCollection: string, path: string, range: DateSelect) {
+  const years = bucketYears(range);
+  if (!years) return null;
+  return Promise.all(years.map(async (yr) => ({ yr, rows: await bucketInRange(uidCollection, path, yr, range) })));
+}
+
 export async function loadData<T = any>(
   uidCollection: string,
   path: string,
   dateSelect: DateSelect
 ): Promise<T[]> {
-  const startYr = parseInt(dateSelect.start?.substring(0, 4));
-  const endYr = parseInt(dateSelect.end?.substring(0, 4));
-  if (!startYr || !endYr) return [];
-
-  const years: number[] = [];
-  for (let i = startYr; i <= endYr; i++) years.push(i);
-
-  const snapshots = await Promise.all(
-    years.map((yr) =>
-      getDocs(
-        query(
-          collection(db, uidCollection, 'data', `${path}_${yr}`),
-          where('date', '>=', dateSelect.start),
-          where('date', '<=', dateSelect.end)
-        )
-      )
-    )
-  );
-
-  // A record re-dated across a year boundary can survive in TWO buckets under the
-  // same document id, so a multi-year window hands it back twice and every consumer
-  // counts two real rows — Cashflow's Supplier - Balances listed one purchase invoice
-  // on two lines and doubled it in the total. Web fixed this in utils.js loadData
-  // (1d51dce1); dedupeById is the shared helper both apps use, byte-identical.
-  return dedupeById<T>(snapshots.flatMap((snap) => snap.docs.map((d) => ({ id: d.id, data: d.data() as T }))));
+  const buckets = await rangeBuckets(uidCollection, path, dateSelect);
+  return buckets ? mergeBuckets<T>(buckets) : [];
 }
 
-// Year-tagged invoice range read. Identical query to loadData('invoices'), but
-// stamps each doc with `__yr` (its source bucket) so a later write can target the
-// exact collection without re-deriving the year from a (possibly non-ISO) date.
+// Year-tagged invoice range read. Identical to loadData('invoices'), but stamps each
+// doc with `__yr` (its source bucket) so a later write can target the exact collection
+// without re-deriving the year from a (possibly non-ISO) date. Same year-bucket dedupe;
+// the surviving copy keeps ITS bucket tag, so a payment written back lands on the
+// record that won, not on the stale twin.
 export async function loadInvoicesTagged(
   uidCollection: string,
   dateSelect: DateSelect
 ): Promise<(Invoice & { __yr: string })[]> {
-  const startYr = parseInt(dateSelect.start?.substring(0, 4));
-  const endYr = parseInt(dateSelect.end?.substring(0, 4));
-  if (!startYr || !endYr) return [];
-  const years: number[] = [];
-  for (let i = startYr; i <= endYr; i++) years.push(i);
-  const snapshots = await Promise.all(
-    years.map((yr) =>
-      getDocs(
-        query(
-          collection(db, uidCollection, 'data', `invoices_${yr}`),
-          where('date', '>=', dateSelect.start),
-          where('date', '<=', dateSelect.end)
-        )
-      ).then((snap) => ({ yr, snap }))
-    )
-  );
-  // Same year-bucket dedupe as loadData. The surviving copy keeps ITS bucket tag, so
-  // a payment written back lands on the record that won, not on the stale twin.
-  return dedupeById<Invoice & { __yr: string }>(
-    snapshots.flatMap(({ yr, snap }) =>
-      snap.docs.map((d) => ({ id: d.id, data: { ...(d.data() as Invoice), __yr: String(yr) } }))
-    )
-  );
+  const buckets = await rangeBuckets(uidCollection, 'invoices', dateSelect);
+  return buckets ? mergeBuckets<Invoice & { __yr: string }>(buckets, true) : [];
 }
 
 // Activity feed — append-only {uid}/data/activity, newest first. Port of
@@ -108,9 +103,9 @@ export async function loadActivity(
 }
 
 // Monthly margins for a year — port of utils.js loadMargins ({uid}/margins/{year}).
+// Through the shared read layer: Dashboard and Cashflow both need the current year.
 export async function loadMargins(uidCollection: string, year: number | string): Promise<any[]> {
-  const snap = await getDocs(collection(db, uidCollection, 'margins', String(year)));
-  return snap.docs.map((d) => d.data());
+  return (await readRows(uidCollection, 'margins', String(year))).map((r) => r.data);
 }
 
 // Precomputed per-client account statement — port of utils.js loadAcntStatement.
@@ -131,10 +126,11 @@ export async function loadAcntStatement(
 // client-side (no composite index needed, and legacy docs may lack the field).
 // Priority ordering + audience/snooze filtering happen in the reader, exactly as
 // useNotificationContext does on web.
+// Through the shared read layer: the badge and the screen read it, at launch it no longer
+// waits behind the stock ledger, and a mark-as-read (data/writes.ts) drops the shared copy.
 export async function loadNotifications(uidCollection: string, max = 100): Promise<any[]> {
-  const snap = await getDocs(collection(db, uidCollection, 'data', 'notifications'));
-  return snap.docs
-    .map((d) => d.data())
+  return (await readRows(uidCollection, 'data', 'notifications'))
+    .map((r) => r.data)
     .sort((a, b) => (b.createdAtMs || 0) - (a.createdAtMs || 0))
     .slice(0, max);
 }
@@ -146,10 +142,11 @@ export async function loadMaterials(uidCollection: string): Promise<any[]> {
 }
 
 // All stock lots — flat (non year-bucketed) `stocks` collection. Port of
-// utils.js loadAllStockData.
+// utils.js loadAllStockData. Only the Shared Stock pool is read this way now (the
+// company's own ledger is a live listener, features/stocks/stockLedger.ts), and only to
+// be displayed — on Cashflow among others — so it goes through the shared read layer.
 export async function loadAllStockData(uidCollection: string): Promise<any[]> {
-  const snap = await getDocs(collection(db, uidCollection, 'data', 'stocks'));
-  return snap.docs.map((d) => d.data());
+  return (await readRows(uidCollection, 'data', 'stocks')).map((r) => r.data);
 }
 
 // Contracts in a date range filtered by one entity field (e.g. supplier) — port of
@@ -298,14 +295,9 @@ export async function loadFlatByDate<T = any>(
   path: string,
   dateSelect: DateSelect
 ): Promise<T[]> {
-  const snap = await getDocs(
-    query(
-      collection(db, uidCollection, 'data', path),
-      where('date', '>=', dateSelect.start),
-      where('date', '<=', dateSelect.end)
-    )
-  );
-  return snap.docs.map((d) => d.data() as T);
+  // The same query as before, off the listeners' stream and shared for an identical range
+  // (collectionReads.ts) — the Dashboard and the Expenses screen ask for the same period.
+  return (await readRange(uidCollection, dateSelect, 'data', path)).map((r) => r.data as T);
 }
 
 // ── batched invoice index (the N+1 killer from utils.js) ─────────────────────
@@ -319,31 +311,30 @@ function groupedArrayInvoice(arrD: Invoice[]): Invoice[][] {
   }, []);
 }
 
+/**
+ * For one year bucket: what `where(field, 'in', chunk)` returns for each chunk in turn. Cut
+ * from the bucket when the shared layer already holds it (or is reading it) — on the
+ * Dashboard and Cashflow it always is, since both load those very invoice years — and
+ * asked of Firestore, a chunk per request as before, when it does not.
+ */
+async function matchingInBucket(uidCollection: string, bucket: string, field: string, chunks: unknown[][]): Promise<Row[]> {
+  const asked = async () =>
+    (await Promise.all(chunks.map((chunk) => readMatching(uidCollection, field, chunk, 'data', bucket)))).flat();
+  const whole = peekRows(uidCollection, 'data', bucket);
+  return whole ? whole.then((rows) => matchingInChunks(rows, field, chunks), asked) : asked();
+}
+
 async function getInvoicesBatched(
   uidCollection: string,
   path: string,
   needByYear: Record<string, number[]>
 ): Promise<Record<string, Invoice[]>> {
-  const CHUNK = 30;
-  const entries: { yr: string; chunk: number[] }[] = [];
-  for (const [yr, numbers] of Object.entries(needByYear || {})) {
-    const uniq = [...new Set(numbers)].filter((n) => n != null);
-    for (let i = 0; i < uniq.length; i += CHUNK) {
-      const chunk = uniq.slice(i, i + CHUNK);
-      if (chunk.length) entries.push({ yr, chunk });
-    }
-  }
-  const snaps = await Promise.all(
-    entries.map((e) =>
-      getDocs(query(collection(db, uidCollection, 'data', `${path}_${e.yr}`), where('invoice', 'in', e.chunk)))
-    )
-  );
+  const years = Object.entries(needByYear || {})
+    .map(([yr, numbers]) => ({ yr, chunks: chunked(numbers) }))
+    .filter((y) => y.chunks.length);
+  const found = await Promise.all(years.map((y) => matchingInBucket(uidCollection, `${path}_${y.yr}`, 'invoice', y.chunks)));
   const byYear: Record<string, Invoice[]> = {};
-  snaps.forEach((snap, idx) => {
-    const yr = entries[idx].yr;
-    byYear[yr] ||= [];
-    snap.docs.forEach((d) => byYear[yr].push(d.data() as Invoice));
-  });
+  years.forEach((y, i) => (byYear[y.yr] = found[i].map((r) => r.data as Invoice)));
   return byYear;
 }
 
@@ -355,31 +346,19 @@ export async function loadDocsByIdBatched<T = any>(
   path: string,
   refs: { id?: string; date?: string }[]
 ): Promise<Record<string, T>> {
-  const CHUNK = 30;
   const byYear: Record<string, Set<string>> = {};
   (refs || []).forEach((r) => {
     if (r?.id && r?.date) (byYear[r.date.substring(0, 4)] ||= new Set()).add(r.id);
   });
-  const entries: { yr: string; chunk: string[] }[] = [];
-  for (const [yr, ids] of Object.entries(byYear)) {
-    const list = [...ids];
-    for (let i = 0; i < list.length; i += CHUNK) {
-      const chunk = list.slice(i, i + CHUNK);
-      if (chunk.length) entries.push({ yr, chunk });
-    }
-  }
-  const snaps = await Promise.all(
-    entries.map((e) =>
-      getDocs(query(collection(db, uidCollection, 'data', `${path}_${e.yr}`), where('id', 'in', e.chunk)))
-    )
-  );
+  const years = Object.entries(byYear).map(([yr, ids]) => ({ yr, chunks: chunked([...ids]) }));
+  const found = await Promise.all(years.map((y) => matchingInBucket(uidCollection, `${path}_${y.yr}`, 'id', y.chunks)));
+  // Year after year, chunk after chunk: a later copy of an id overwrites an earlier one,
+  // exactly as the original's pass over its query results did.
   const index: Record<string, T> = {};
-  snaps.forEach((snap) =>
-    snap.docs.forEach((d) => {
-      const data = d.data() as any;
-      if (data?.id) index[data.id] = data as T;
-    })
-  );
+  found.flat().forEach((r) => {
+    const data = r.data as any;
+    if (data?.id) index[data.id] = data as T;
+  });
   return index;
 }
 
@@ -406,15 +385,18 @@ export async function buildInvoiceIndex(
       else if (ref.id) legacyRefs.push(ref);
     })
   );
-  const invByYear = await getInvoicesBatched(uidCollection, 'invoices', needByYear);
+  // Both lookups at once (they used to run one after the other); each hands back its own
+  // copies of the records, as two separate queries did.
+  const [invByYear, byId] = await Promise.all([
+    getInvoicesBatched(uidCollection, 'invoices', needByYear),
+    legacyRefs.length ? loadDocsByIdBatched<Invoice>(uidCollection, 'invoices', legacyRefs) : Promise.resolve({}),
+  ]);
   const index: InvoiceIndex = {};
   Object.entries(invByYear).forEach(([yr, docs]) => {
     const m = (index[yr] = {} as Record<number, Invoice[]>);
     docs.forEach((d) => ((m[d.invoice as number] ||= []).push(d)));
   });
-  index.__byId = legacyRefs.length
-    ? await loadDocsByIdBatched<Invoice>(uidCollection, 'invoices', legacyRefs)
-    : {};
+  index.__byId = byId;
   return index;
 }
 

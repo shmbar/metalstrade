@@ -1,6 +1,9 @@
 import { collection, onSnapshot } from 'firebase/firestore';
 import type { QueryClient } from '@tanstack/react-query';
 import { db } from '@/lib/firebase';
+import { readWholeOnce } from '@/data/collectionReads';
+import { launch } from '@/features/live/launch';
+import { createLedger, LedgerCache } from './ledgerCore';
 import { STOCK_LOTS_KEY } from './useAllStockLots';
 
 /*
@@ -18,83 +21,48 @@ import { STOCK_LOTS_KEY } from './useAllStockLots';
  * straight into the query cache. No refetch, no second copy, and the screens update
  * themselves — which is also what "not good synchronization" was asking for.
  *
+ * COLD START (2026-10-05). When there is no copy of the ledger on the phone at all — the
+ * first sign-in, the other company's first visit, a copy older than a week — a screen
+ * waiting for the listener's first answer waited 9–12 s: the listener shares the full
+ * SDK's one stream, where the 3,358 lots arrive slowly and everything else queues behind
+ * them. A plain read of the same collection (data/collectionReads.ts readWholeOnce) is a
+ * separate request and takes about 3.5 s, so a cold ledger is read that way first and the
+ * listener starts the moment it lands. The rules live in ledgerCore.ts.
+ *
  * The subscription is shared by every screen and outlives a tab switch (KEEP_ALIVE_MS),
  * so walking Stocks → Cashflow → Stocks costs nothing.
  */
 
 const KEEP_ALIVE_MS = 5 * 60_000;
 
-type Waiter = { resolve: (rows: any[]) => void; reject: (e: any) => void };
-
-let current: {
-  uid: string;
-  unsub: () => void;
-  rows: any[] | null;
-  waiters: Waiter[];
-  refs: number;
-  idle: ReturnType<typeof setTimeout> | null;
-} | null = null;
-
-const stop = () => {
-  if (!current) return;
-  current.unsub();
-  if (current.idle) clearTimeout(current.idle);
-  current = null;
-};
-
-function start(uid: string, qc: QueryClient) {
-  const state = {
-    uid,
-    unsub: () => {},
-    rows: null as any[] | null,
-    waiters: [] as Waiter[],
-    refs: 0,
-    idle: null as ReturnType<typeof setTimeout> | null,
-  };
-  state.unsub = onSnapshot(
-    collection(db, uid, 'data', 'stocks'),
-    (snap) => {
+const ledger = createLedger({
+  listen: (uid, onRows, onError) =>
+    onSnapshot(
+      collection(db, uid, 'data', 'stocks'),
       // Local writes are INCLUDED on purpose: Firestore hands us the new row before the
       // server confirms it, so a save the user just made shows up in the same frame.
-      const rows = snap.docs.map((d) => d.data()).filter(Boolean);
-      state.rows = rows;
-      qc.setQueryData([STOCK_LOTS_KEY, uid], rows);
-      state.waiters.splice(0).forEach((w) => w.resolve(rows));
-    },
-    (err) => {
-      // Permission or transport failure: hand the error to whoever is waiting and let
-      // the query fall back to a plain read on its next attempt.
-      state.waiters.splice(0).forEach((w) => w.reject(err));
-      if (current === state) stop();
-    }
-  );
-  current = state;
-  return state;
-}
+      (snap) => onRows(snap.docs.map((d) => d.data()).filter(Boolean)),
+      onError
+    ),
+  readOnce: async (uid) => (await readWholeOnce(uid, 'data', 'stocks')).map((r) => r.data).filter(Boolean),
+  whenRestored: () => launch.whenRestored(),
+  setTimer: (fn, ms) => setTimeout(fn, ms),
+  clearTimer: (id) => clearTimeout(id as ReturnType<typeof setTimeout>),
+  keepAliveMs: KEEP_ALIVE_MS,
+});
 
-/** Rows as soon as the ledger has them — the first snapshot, or the live copy already held. */
-export function lotsReady(uid: string, qc: QueryClient): Promise<any[]> {
-  const state = current?.uid === uid ? current : (stop(), start(uid, qc));
-  if (state.rows) return Promise.resolve(state.rows);
-  return new Promise<any[]>((resolve, reject) => state.waiters.push({ resolve, reject }));
-}
+const cacheOf = (qc: QueryClient): LedgerCache => ({
+  get: (uid) => qc.getQueryData([STOCK_LOTS_KEY, uid]),
+  set: (uid, rows) => {
+    qc.setQueryData([STOCK_LOTS_KEY, uid], rows);
+  },
+});
+
+/** Rows as soon as the ledger has them — the first read, or the live copy already held. */
+export const lotsReady = (uid: string, qc: QueryClient): Promise<any[]> => ledger.lotsReady(uid, cacheOf(qc));
 
 /** Keep the ledger live while a screen is mounted; it lingers briefly after the last one. */
-export function holdLots(uid: string, qc: QueryClient): () => void {
-  const state = current?.uid === uid ? current : (stop(), start(uid, qc));
-  state.refs += 1;
-  if (state.idle) {
-    clearTimeout(state.idle);
-    state.idle = null;
-  }
-  return () => {
-    state.refs -= 1;
-    if (state.refs > 0 || current !== state) return;
-    state.idle = setTimeout(() => {
-      if (current === state && state.refs === 0) stop();
-    }, KEEP_ALIVE_MS);
-  };
-}
+export const holdLots = (uid: string, qc: QueryClient): (() => void) => ledger.holdLots(uid, cacheOf(qc));
 
 /** Sign-out: drop the listener so the next account starts clean. */
-export const stopLotsLedger = stop;
+export const stopLotsLedger = (): void => ledger.stop();
