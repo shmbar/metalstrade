@@ -29,11 +29,25 @@ export { AppErrorBoundary as ErrorBoundary } from '@/components/AppErrorBoundary
 
 SplashScreen.preventAutoHideAsync().catch(() => {});
 
+/* An app-icon shortcut navigates through lib/nav like everything else. The library's hook
+   uses expo-router's own router, so a shortcut used while the app sat in the background
+   with a sheet open pushed a screen under that sheet — the collision lib/nav exists to
+   prevent. Returning true tells the hook the action is handled. Declared out here so its
+   identity never changes: the hook re-runs, and re-handles the launch shortcut, whenever
+   its callback does. */
+const openShortcut = (action: QuickActions.Action): boolean => {
+  const href = (action.params as { href?: unknown } | null | undefined)?.href;
+  if (typeof href !== 'string' && !(href && typeof href === 'object')) return false;
+  // Deferred a tick, as the library does, so a launch shortcut lands after the first mount.
+  setTimeout(() => router.navigate(href as any, { withAnchor: true }));
+  return true;
+};
+
 function RootNavigator() {
   const { colors, scheme } = useTheme();
 
   // Long-press app icon shortcuts → deep links (set once per session).
-  useQuickActionRouting();
+  useQuickActionRouting(openShortcut);
   useEffect(() => {
     QuickActions.setItems([
       { id: 'new-contract', title: 'New Contract', icon: 'compose', params: { href: '/(app)/contracts/edit' } },

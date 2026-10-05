@@ -88,6 +88,44 @@ describe('navigation and touch safety', () => {
     expect(offenders).toEqual([]);
   });
 
+  it('nothing navigates around lib/nav: no useRouter, Link or navigation.* calls', () => {
+    const BYPASS = /\buseRouter\(|<Link\b|\bnavigation\.(navigate|push|goBack|pop|replace|dispatch|reset)\(|\b(CommonActions|StackActions)\./;
+    const offenders = files
+      .filter((f) => rel(f) !== 'src/lib/nav.ts')
+      .filter((f) => BYPASS.test(fs.readFileSync(f, 'utf8')))
+      .map(rel);
+    expect(offenders).toEqual([]);
+  });
+
+  it('the paths that do not start from a button go through it too', () => {
+    // App-icon shortcuts: the library's hook would use expo-router's own router.
+    expect(read('app/_layout.tsx')).toContain('useQuickActionRouting(openShortcut)');
+    // The IMS ↔ GIS reset and signing out take screens away wholesale — after any sheet.
+    expect(read('app/(app)/_layout.tsx')).toMatch(/sheets\.whenGone\(\(\) => navRef\.reset\(/);
+    const auth = read('src/store/auth.ts');
+    expect(auth).toContain('sheets.closeAll();');
+    expect(auth.indexOf('sheets.whenGone(resolve)')).toBeLessThan(auth.indexOf('await fbSignOut(auth)'));
+  });
+
+  it('the five "tap in a sheet, go somewhere" screens use the registered Sheet and lib/nav', () => {
+    // Each closed its sheet and navigated in the same tick — the collision that left an
+    // invisible layer over the app. What makes them safe now is shared, so it is pinned here.
+    const sites = [
+      ['app/(app)/contracts/[id].tsx', /setSheet\(null\);\s*router\.push\(/],
+      ['app/(app)/contracts/index.tsx', /setAlertsOpen\(false\);\s*router\.push\(/],
+      ['app/(app)/shipment.tsx', /setEditing\(null\);\s*router\.push\(/],
+      ['src/features/stocks/LotSheet.tsx', /onClose\(\);\s*router\.push\(/],
+      ['app/(app)/expense-edit.tsx', /setFindOpen\(false\);\s*backWhenDone\(\);/],
+    ];
+    for (const [p, closeThenGo] of sites) {
+      const src = read(p);
+      expect(src, p).toMatch(closeThenGo); // the pattern is still there…
+      expect(src, p).toMatch(/<Sheet\b/); // …inside the one Sheet that registers itself…
+      expect(src, p).toMatch(/import \{[^}]*\} from '@\/lib\/nav';/); // …navigating through the gate
+      expect(src, p).not.toMatch(/import\s*\{[^}]*\brouter\b[^}]*\}\s*from\s*['"]expo-router['"]/);
+    }
+  });
+
   it('the only Modal is Sheet, and Sheet reports itself to the sheet registry', () => {
     // JSX at the start of a line — not a comment that mentions one.
     const raw = files.filter((f) => rel(f) !== 'src/components/ui/Sheet.tsx' && /^\s*<Modal\b/m.test(fs.readFileSync(f, 'utf8'))).map(rel);

@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { AppState } from 'react-native';
+import { sheets } from '@/lib/sheetRegistry';
 import { touchPresence, endPresence, PRESENCE_HEARTBEAT_MS } from '@/data/firestore';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
@@ -244,6 +245,10 @@ export const useAuth = create<AuthState>((set, get) => ({
     await AsyncStorage.removeItem(LAST_SEEN_KEY).catch(() => {});
     stopLotsLedger();
     set({ locked: false, covered: false });
+    // Signing out takes every screen away at once. A sheet still on screen then is the
+    // collision lib/nav prevents for ordinary moves — so it is closed, and has left, first.
+    sheets.closeAll();
+    await new Promise<void>((resolve) => sheets.whenGone(resolve));
     await fbSignOut(auth).catch(() => {});
   },
 
