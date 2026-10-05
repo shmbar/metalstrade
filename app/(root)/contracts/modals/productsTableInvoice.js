@@ -14,6 +14,7 @@ import { Selector } from '@components/selectors/selectShad';
 import { Import } from 'lucide-react';
 import Tltip from '@components/tlTip'
 import { BtnIcon } from '@components/buttonIcons';
+import { pdfText } from './pdf/pdfText';
 
 
 const cols = ['container', 'qnty', 'unitPrc', 'total', 'stock', 'stockValue']
@@ -302,8 +303,10 @@ const ProductsTable = ({ value, setValue, currency, settings, uidCollection, set
     const handleKeyPress3 = (e) => {
 
         if (e.key === 'Enter') {
+            // Stored the way it prints: the browser hides a doubled space, the PDF does not —
+            // invoice 1480 was typed "30Ni  25Ti   Turnings" and went out that way.
             let newArr = value.productsDataInvoice.map((x) =>
-                x.id === edit.id ? { ...x, descriptionText: valueDesc } : x
+                x.id === edit.id ? { ...x, descriptionText: pdfText(valueDesc) } : x
             );
             setValue({ ...value, productsDataInvoice: newArr });
 

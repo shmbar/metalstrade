@@ -11,6 +11,7 @@ const ensurePdfLibs = async () => {
 import { getD } from '@utils/utils.js';
 import dateFormat from "dateformat";
 import { registerPdfFonts } from './pdfFonts';
+import { pdfRows } from './pdfText';
 
 
 let showAmountInv = (x) => {
@@ -121,7 +122,8 @@ export const PdfAccountStatement = async (arrTable, settings, compData, client, 
             //     `${valueCon.cur && getD(settings.Currency.Currency, valueCon, 'cur')}`
             // ]
         ],
-        body: arrTable,
+        // Cleaned before it is measured, so a cell is placed by the text it will show (pdfText.js).
+        body: pdfRows(arrTable),
         columnStyles: {
             0: { cellWidth: 27, halign: 'center' },
             1: { cellWidth: 27, halign: 'left' },

@@ -11,6 +11,7 @@ const ensurePdfLibs = async () => {
 import { getD, fileToDataUrl } from '@utils/utils.js';
 import dateFormat from "dateformat";
 import { registerPdfFonts } from './pdfFonts';
+import { pdfRows } from './pdfText';
 
 
 
@@ -296,7 +297,8 @@ export const Pdf = async (valueCon, arrTable, settings, compData, gisAccount, mo
         ['', '', `${view?.qtyLabel || (valueCon.qTypeTable && getD(settings.Quantity.Quantity, valueCon, 'qTypeTable'))}`,
             `${view?.curLabel || (valueCon.cur && getD(settings.Currency.Currency, valueCon, 'cur'))}`
         ]],
-        body: arrTable,
+        // Cleaned before it is measured, so a cell is placed by the text it will show (pdfText.js).
+        body: pdfRows(arrTable),
         columnStyles: {
             0: { cellWidth: 15, halign: 'center' },
             1: { cellWidth: 100, halign: 'left' },

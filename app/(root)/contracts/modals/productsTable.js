@@ -11,6 +11,7 @@ import { ChevronDown, MoveRight } from 'lucide-react';
 import Tltip from '@components/tlTip'
 import { getCur } from '@components/exchangeApi'
 import { BtnIcon } from '@components/buttonIcons';
+import { pdfText } from './pdf/pdfText';
 
 // The PO stores weight (qnty) and price (unitPrc) in the contract's OWN unit/currency
 // (its Quantity selector + Currency = the "base"). Every other view in the app — the PO PDF,
@@ -144,6 +145,9 @@ const ProductsTable = ({ value, setValue, currency, quantityTable, setShowPoInvM
             const numeric = edit.header === 'unitPrc' || edit.header === 'qnty';
             const isEquation = numeric && (e.target.value).substr(0, 1) === "=";
             let Nm = e.target.value;
+            // A description is stored the way it prints: runs of spaces collapsed, ends trimmed.
+            // The browser hides a doubled space; the PO and invoice PDFs do not (pdf/pdfText.js).
+            if (edit.header === 'description') Nm = pdfText(Nm);
             if (isEquation) {
                 try { Nm = Number(CalculateNum(e.target.value, 10)); } catch { Nm = NaN; }
                 if (!Number.isFinite(Nm)) {

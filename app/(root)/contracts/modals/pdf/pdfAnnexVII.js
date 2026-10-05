@@ -12,7 +12,9 @@ import { registerPdfFonts } from './pdfFonts';
 export const PdfAnnexVII = async (valueInv, compData, settings) => {
     await ensurePdfLibs();
     const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
-    await registerPdfFonts(doc);   // real fonts, so Polish characters survive
+    // Real fonts, so Polish characters survive. Text drawn as written: this form spaces
+    // its fields and checkboxes with runs of spaces (pdfFonts.js cleanText).
+    await registerPdfFonts(doc, { cleanText: false });
 
     const clts = settings.Client?.Client ?? [];
     const client = clts.find(z => z.id === valueInv.client);

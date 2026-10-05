@@ -20,6 +20,7 @@
 // result is cached for the life of the tab.
 
 import { fileToBase64 } from '@utils/utils';
+import { pdfText } from './pdfText';
 
 // Two real files, registered under every name the generators already ask for.
 // Aliases rather than a rename on purpose: the six modules contain some two
@@ -73,11 +74,30 @@ const loadFiles = async () => {
     return cache;
 };
 
+/* Every string a generator draws is drawn the way the screen shows it: runs of spaces
+   collapsed, ends trimmed (pdfText.js — invoice 1480 printed "30Ni  25Ti   Turnings").
+   Done here because this is the one function all the generators already call on a new
+   document, and they hold some two hundred doc.text calls between them. It covers what
+   autoTable draws too, since that goes through doc.text; a table body is ALSO cleaned
+   before it is measured (pdfRows, in each generator), or a centred cell would be placed
+   by its width with the extra spaces still in it. */
+const drawCleanText = (doc) => {
+    if (doc.__cleanText) return;
+    const draw = doc.text.bind(doc);
+    doc.text = (text, ...rest) => draw(Array.isArray(text) ? text.map(pdfText) : pdfText(text), ...rest);
+    doc.__cleanText = true;
+};
+
 // Registers the faces on `doc` and returns true when the document can be drawn in
 // them. On failure it returns false rather than throwing: a PDF in the wrong font
 // is a far better outcome than no PDF at all, and the caller falls back to the
 // built-in font exactly as before.
-export const registerPdfFonts = async (doc) => {
+//
+// `cleanText: false` keeps every string exactly as written. For a form laid out WITH
+// spaces: Annex VII spaces "Tel.: …    Fax: …" and its checkboxes with runs of them,
+// and indents a footnote's second line with leading spaces.
+export const registerPdfFonts = async (doc, { cleanText = true } = {}) => {
+    if (cleanText) drawCleanText(doc);   // before the fonts: it must hold even when they fail to load
     try {
         const files = await loadFiles();
         for (const [file, base64] of Object.entries(files)) doc.addFileToVFS(file, base64);

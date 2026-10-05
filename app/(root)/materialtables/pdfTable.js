@@ -9,6 +9,7 @@ const ensurePdfLibs = async () => {
     autoTable = autoTableMod.default;
 };
 import { DEFAULT_ELEMENTS } from './constants'
+import { pdfRows } from '../contracts/modals/pdf/pdfText'
 
 export const TPdfTable = async (arrTable, elements, unitLabel = 'Kgs') => {
     await ensurePdfLibs();
@@ -48,7 +49,8 @@ export const TPdfTable = async (arrTable, elements, unitLabel = 'Kgs') => {
             headStyles: { fillColor: [9, 110, 182], textColor: [255, 255, 255], fontSize: 8, halign: 'center', font: 'PoppinsB' },
             bodyStyles: { fontSize: 8, font: 'Plus Jakarta Sans', textColor: [32, 55, 100] },
             head: [headers],
-            body: arrTable,
+            // A material name prints as the screen shows it: runs of spaces collapsed (pdfText.js).
+            body: pdfRows(arrTable),
             columnStyles,
             didParseCell(data) {
                 if (data.row.section !== 'body') return
