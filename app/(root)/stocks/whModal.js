@@ -330,18 +330,24 @@ const WHvModal = ({ isOpen, setIsOpen, item, setItem, data, setData }) => {
         }))
     }
 
-    // whitespace-nowrap was pushing these captions out of their column: several of
-    // them sit in a md:col-span-1 (1/12 of the row), so "Description:" could not
-    // fit on one line and overflowed the field below it. Let them wrap.
+    // whitespace-nowrap was pushing these captions out of their column — a narrow one
+    // could not hold "Description:" on one line, and it overflowed the field below it.
+    // Let them wrap.
     const labelCls = 'responsiveText font-medium text-[var(--ink-muted)] mb-1'
     const inputCls = 'w-full rounded-control border border-[var(--line-strong)] bg-[var(--bg-card)] text-[var(--ink)] responsiveTextInput h-8 px-2 focus:outline-none focus:ring-[3px] focus:ring-[var(--brand-soft)] focus:border-[var(--brand)] disabled:opacity-70'
 
     return (
         <Modal isOpen={isOpen} setIsOpen={setIsOpen} title={getTtl('Materials Breakdown', ln)} size='lg'>
 
-            {/* Info fields */}
-            <div className='grid grid-cols-12 gap-3 p-3 m-3 rounded-2xl border border-[var(--line)]' style={{ background: 'var(--bg-subtle)' }}>
-                <div className='col-span-12 md:col-span-4 flex flex-col'>
+            {/* Info fields. From md up a figure's box is as wide as a figure needs — 80px holds
+                1,234.567, 124px a price or a total into the tens of millions — and the two
+                names share what is left, 3:2. They were all shares of twelve columns, and
+                Weight's one was 56px of this 840px window: "29.044" was cut (client,
+                2026-10-05). The room came from Stock, which shows a warehouse's full legal
+                name and elides the long ones as it always did. Below md the fields pair up on
+                the twelve columns. */}
+            <div className='grid grid-cols-12 md:grid-cols-[minmax(0,3fr)_80px_124px_124px_minmax(0,2fr)] gap-3 p-3 m-3 rounded-2xl border border-[var(--line)]' style={{ background: 'var(--bg-subtle)' }}>
+                <div className='col-span-12 md:col-span-1 flex flex-col'>
                     <p className={labelCls}>{getTtl('Description', ln)}:</p>
                     <Tltip direction='top' tltpText="Rename this row's material — this stock row only; the PO line and other rows keep their name. Save to apply.">
                         <input type='text' value={nameDraft} name='descriptionName' className={inputCls}
@@ -354,22 +360,22 @@ const WHvModal = ({ isOpen, setIsOpen, item, setItem, data, setData }) => {
                     <p className={labelCls}>{getTtl('Weight', ln)}</p>
                     <input type='text' disabled className={inputCls} name='qnty' value={addComma(item.qnty, false)} onChange={() => {}} />
                 </div>
-                <div className='col-span-6 md:col-span-2 flex flex-col'>
+                <div className='col-span-6 md:col-span-1 flex flex-col'>
                     <p className={labelCls}>{getTtl('Price', ln)}:</p>
                     <input type='text' disabled className={inputCls} name='unitPrc' value={item.unitPrc ? addComma(item.unitPrc, true) : '-'} onChange={e => handleValuePmnt(e)} />
                 </div>
-                <div className='col-span-6 md:col-span-2 flex flex-col'>
+                <div className='col-span-6 md:col-span-1 flex flex-col'>
                     <p className={labelCls}>{getTtl('Total', ln)}:</p>
                     <input type='text' disabled className={inputCls} name='total' value={item.total === '-' ? item.total : addComma((item.total * 1).toFixed(2), true)} />
                 </div>
-                <div className='col-span-6 md:col-span-3 flex flex-col'>
+                <div className='col-span-6 md:col-span-1 flex flex-col'>
                     <p className={labelCls}>{getTtl('Stock', ln)}:</p>
                     <input type='text' disabled value={getD(settings.Stocks.Stocks, item, 'stock')} className={inputCls + ' truncate'} />
                 </div>
                 {/* Spec: the lot's own when the row is one lot, else what its lots add up to,
                     each edited on its line in the table below. */}
                 {lots.length > 0 && (
-                    <div className='col-span-12 flex items-center gap-2 min-w-0'>
+                    <div className='col-span-full flex items-center gap-2 min-w-0'>
                         <p className={labelCls + ' mb-0'}>Spec:</p>
                         {lots.length === 1 ? specEditor(lots[0]) : (
                             <>

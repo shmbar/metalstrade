@@ -9,7 +9,6 @@ import { oneOf } from '../../../components/table/filters/oneOfFilter';
 import { Boxes, Warehouse, Factory, Layers } from 'lucide-react';
 import MyDetailsModal from './whModal.js'
 import { SettingsContext } from "../../../contexts/useSettingsContext";
-import { ContractsContext } from "../../../contexts/useContractsContext";
 import Toast from '../../../components/toast.js'
 import Spinner from '../../../components/spinner';
 import VideoLoader from '../../../components/videoLoader';
@@ -28,6 +27,7 @@ import ChemistryPopover from '../../../components/ChemistryPopover'
 import { parseSpecQuery, assayMatches, assayOf, describeSpec } from '../../../utils/grades'
 import StorageAging from './storageAging'
 import { rowSpecs, specLabel, specText } from './specs'
+import { lineOfRow } from './rowLine'
 import StockAudit from './stockAudit'
 import { BtnIcon, SearchAdornment } from '../../../components/buttonIcons'
 import { isNumber } from 'mathjs';
@@ -108,7 +108,6 @@ const SpecCell = ({ row }) => {
 const Stocks = () => {
 
   const { settings, setLoading, loading, ln } = useContext(SettingsContext);
-  const { isOpenCon, setIsOpenCon } = useContext(ContractsContext);
   const { uidCollection } = UserAuth();
   const [selectedStock, setSelectedStock] = useState({ stock: 'allStocks', id: 'allStocks', nname: '..All Stocks' })
   const [activeTab, setActiveTab] = useState('mine') // 'mine' = this account's stock, 'shared' = IMS+GIS shared pool
@@ -123,6 +122,11 @@ const Stocks = () => {
 
   const [filteredArray1, setFilteredArray1] = useState([])
   const [item, setItem] = useState(null)
+  /* The row window's own switch. It used to borrow the contract window's (isOpenCon in
+     ContractsContext), which every page shares and which outlives a page: the window's
+     Contract button turns it on for /contracts, and coming Back here with it still on
+     drew this window with no row in it — "Application error" (client, 2026-10-05). */
+  const [rowOpen, setRowOpen] = useState(false)
   const [isLoadingStock, setIsLoadingStock] = useState(false)
   const [rawStockData, setRawStockData] = useState([])
   const [auditOpen, setAuditOpen] = useState(false)
@@ -406,9 +410,12 @@ const Stocks = () => {
   }
 
 
+  // A row's window is its stock line's; a grade folding several lines has none (rowLine.js).
   const SelectRow = (obj) => {
-    setItem(data.find((x, i) => x.id === obj.id));
-    setIsOpenCon(true);
+    const line = lineOfRow(obj, data);
+    if (!line) return;
+    setItem(line);
+    setRowOpen(true);
   }
 
 
@@ -733,10 +740,10 @@ const Stocks = () => {
             </div>
 
             {/* Modal */}
-            {isOpenCon && (
+            {rowOpen && item && (
               <MyDetailsModal
-                isOpen={isOpenCon}
-                setIsOpen={setIsOpenCon}
+                isOpen={rowOpen}
+                setIsOpen={setRowOpen}
                 data={data}
                 setData={setData}
                 title=''
