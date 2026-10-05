@@ -1362,6 +1362,72 @@ describe('soldStatus.lineStatus — the manual shipment status outranks anything
     expect(out.isShipment).toBe(false);
     expect(out.label).toBe('Unsold 10 MT');
   });
+
+  it('"Completed" with weight nobody has sold says so, amber; a few kilos stay plain', () => {
+    // PO 191125-1 (2026-10-05): "Completed" beside two unsold 52Ni containers read as a contradiction.
+    expect(both(webSold.lineStatus, mobSold.lineStatus, { shipmentStatus: 'Delivered', unsold: 45.005 })).toEqual({
+      key: 'Completed', label: 'Completed · 45.01 MT unsold', isShipment: true, warn: true,
+    });
+    expect(both(webSold.lineStatus, mobSold.lineStatus, { shipmentStatus: 'Completed', unsold: 0.03 })).toEqual({ key: 'Completed', label: 'Completed', isShipment: true });
+    // only "Completed" claims done-ness: an arrived PO with stock to sell is just Arrived
+    expect(both(webSold.lineStatus, mobSold.lineStatus, { shipmentStatus: 'Arrived', unsold: 45 })).toEqual({ key: 'Arrived', label: 'Arrived', isShipment: true });
+  });
+});
+
+describe('soldStatus.unsoldLeft — weight left that nobody has sold, not a weight difference', () => {
+  it('the leftover on lots with no buyer counts; on sold lots it is a weight difference', () => {
+    // PO 191125-1, 52Ni: 45.005 left; lots 22.531 sold, 22.519 + 22.503 with no buyer
+    expect(both(webSold.unsoldLeft, mobSold.unsoldLeft, {
+      remaining: 45.005, lots: [{ qnty: 22.531, sold: true }, { qnty: 22.519, sold: false }, { qnty: 22.503, sold: false }],
+    })).toBe(45.005);
+    // PO 290126: one sold lot of 26.519, 26.371 invoiced to its buyer — 0.148 is weighing
+    expect(both(webSold.unsoldLeft, mobSold.unsoldLeft, { remaining: 0.148, lots: [{ qnty: 26.519, sold: true }] })).toBe(0);
+    // never more than what is left, never below zero
+    expect(both(webSold.unsoldLeft, mobSold.unsoldLeft, { remaining: 4.565, lots: [{ qnty: 24.055, sold: false }] })).toBe(4.565);
+    expect(both(webSold.unsoldLeft, mobSold.unsoldLeft, { remaining: -0.934, lots: [{ qnty: 8.638, sold: false }] })).toBe(0);
+    expect(both(webSold.unsoldLeft, mobSold.unsoldLeft, undefined)).toBe(0);
+  });
+});
+
+describe('soldStatus.toShip — what there is to ship: the contract until the goods are in, then what arrived', () => {
+  // PO 191125-1, IMS (client, 2026-10-05): 176 MT contracted, 179.649 MT received, 134.606 MT
+  // invoiced, status Delivered. The two 52Ni containers left (22.519 + 22.503) were read as
+  // 41.394 against the contract; against what arrived they are 45.043.
+  const st = 'Delivered';
+  it('a delivered PO is measured against what was received', () => {
+    const po = both(webSold.toShip, mobSold.toShip, { contractQty: 176, receivedQty: 179.649, shippedQty: 134.606, shipmentStatus: st });
+    expect(po.basis).toBeCloseTo(179.649, 6);
+    expect(po.remaining).toBeCloseTo(45.043, 6);
+  });
+
+  it('…and so is each of its lines', () => {
+    const line = (contractQty: number, receivedQty: number, shippedQty: number) =>
+      both(webSold.toShip, mobSold.toShip, { contractQty, receivedQty, shippedQty, shipmentStatus: st }).remaining;
+    expect(line(66, 67.553, 22.548)).toBeCloseTo(45.005, 6);   // 52Ni — the two unsold containers
+    expect(line(66, 67.261, 67.223)).toBeCloseTo(0.038, 6);    // 19Ni — weighing, not stock
+    expect(line(44, 44.835, 44.835)).toBeCloseTo(0, 6);        // 40Ni — done
+  });
+
+  it('before the goods are in: the contract — unless more has already arrived', () => {
+    expect(both(webSold.toShip, mobSold.toShip, { contractQty: 100, receivedQty: 60, shippedQty: 50, shipmentStatus: 'In Transit' }))
+      .toStrictEqual({ basis: 100, shipped: 50, remaining: 50, byReceived: false });
+    expect(both(webSold.toShip, mobSold.toShip, { contractQty: 100, receivedQty: 103, shippedQty: 50, shipmentStatus: '' }).basis).toBe(103);
+  });
+
+  it('a short delivery that is finished owes nothing more', () => {
+    expect(both(webSold.toShip, mobSold.toShip, { contractQty: 66, receivedQty: 64, shippedQty: 64, shipmentStatus: 'Completed' }).remaining).toBe(0);
+  });
+
+  it('nothing recorded as received falls back to the contract; a helper line (contract 0) counts its own lots', () => {
+    expect(both(webSold.toShip, mobSold.toShip, { contractQty: 66, receivedQty: 0, shippedQty: 0, shipmentStatus: 'Completed' }).basis).toBe(66);
+    expect(both(webSold.toShip, mobSold.toShip, { contractQty: 0, receivedQty: 22, shippedQty: 0 }).basis).toBe(22);
+    expect(both(webSold.toShip, mobSold.toShip, undefined)).toStrictEqual({ basis: 0, shipped: 0, remaining: 0, byReceived: false });
+  });
+
+  it('weights are kept to the kilogram: received less shipped never reads "-0.000"', () => {
+    const r = both(webSold.toShip, mobSold.toShip, { contractQty: 20, receivedQty: 19.44, shippedQty: 19.44, shipmentStatus: 'Completed' }).remaining;
+    expect(Object.is(r, 0)).toBe(true);
+  });
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -1832,7 +1898,7 @@ const SHARED_EXPORTS: Record<string, { covered: string[]; untestable?: Record<st
   },
   pureHelpers: { covered: ['computeStockNetSummary', 'dedupeById', 'groupInvoicesByNumber', 'resolveDueDate', 'resolveInvoiceDate', 'savedAtMs', 'toIsoDate'] },
   splitUtils: { covered: ['SPLIT_DEFAULT_RATIO', 'computeShares', 'curSymbol', 'splitNotifId', 'splitStatusOf'] },
-  soldStatus: { covered: ['aggregateRollups', 'computeLineSold', 'lineStatus', 'lotIsSold', 'rollupTone'] },
+  soldStatus: { covered: ['aggregateRollups', 'computeLineSold', 'lineStatus', 'lotIsSold', 'rollupTone', 'toShip', 'unsoldLeft'] },
   storageUtils: { covered: ['EUR_USD', 'STORAGE_LABELS', 'UNIT', 'arrivalStr', 'computeStorageMetric', 'isStorageType', 'mtInWh', 'toUsd', 'ym'] },
   notificationPriority: { covered: ['PRIORITY', 'PRIORITY_ORDER', 'priorityOf', 'priorityRank', 'sortByPriority'] },
   notificationRouting: { covered: ['routeFor'] },
@@ -1890,7 +1956,11 @@ describe('meta — Tier 3 drift alarms on the rules the goldens above encode', (
     ['utils/pureHelpers.js', 'toIsoDate', 'a4c34e57e905'],
     ['utils/splitUtils.js', 'computeShares', '890c9e7a8b34'],
     ['app/(root)/contractsstatement/soldStatus.js', 'computeLineSold', '7f39e341a1b5'],
-    ['app/(root)/contractsstatement/soldStatus.js', 'lineStatus', 'e4008353ac00'],
+    // Re-recorded 2026-10-05: a 'Completed' with weight still to ship (toShip) reads
+    // 'Completed · 45.01 MT unsold', warn: true (unsoldLeft) — PO 191125-1. Goldens above; mobile's copy is byte-identical.
+    ['app/(root)/contractsstatement/soldStatus.js', 'lineStatus', '8c554339fae3'],
+    ['app/(root)/contractsstatement/soldStatus.js', 'toShip', 'b52df698da80'],
+    ['app/(root)/contractsstatement/soldStatus.js', 'unsoldLeft', 'ce1e7d317953'],
     ['app/(root)/storagecosts/storageUtils.js', 'computeStorageMetric', 'dd00ae771434'],
     ['app/(root)/storagecosts/storageUtils.js', 'mtInWh', 'fe44f0afab48'],
     ['utils/notificationPriority.js', 'priorityOf', '9607cd8bc88e'],

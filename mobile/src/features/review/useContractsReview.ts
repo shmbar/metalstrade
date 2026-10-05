@@ -5,7 +5,7 @@ import { useSettings } from '@/store/settings';
 import { loadData, buildInvoiceIndex, contractInvoicesFromIndex, loadStockDataByIds } from '@/data/firestore';
 import { Contract, Invoice } from '@/data/types';
 import { num } from '@shared/finance';
-import { lotIsSold, computeLineSold, aggregateRollups, lineStatus } from '@shared/soldStatus';
+import { lotIsSold, computeLineSold, aggregateRollups, lineStatus, toShip, unsoldLeft } from '@shared/soldStatus';
 import { reviewFinancials, ReviewFinancials, ViewCur } from './reviewFinance';
 import { useShallow } from 'zustand/react/shallow';
 
@@ -29,9 +29,13 @@ export interface ReviewRow {
   cur: string;
   poWeight: number;
   shippedWeight: number;
+  /** what there is to ship: the contract until the goods are in, then what arrived (toShip) */
+  shipBasis: number;
   remaining: number;
   statusKey: string;
   statusLabel: string;
+  /** "Completed" with weight still to ship — shown amber, as web does */
+  statusWarn?: boolean;
   /** the VIEW currency the money columns are expressed in (web's valCur) */
   finCur: string;
   /** web's 11 money columns for this contract, converted into finCur */
@@ -48,6 +52,7 @@ export interface StatementLine {
   cur: string;
   poWeight: number;
   shippedWeight: number;
+  shipBasis: number;
   remaining: number;
   qntyReceived: number;
   consignees: string[];
@@ -56,6 +61,7 @@ export interface StatementLine {
   salesPos: string[];
   statusKey: string;
   statusLabel: string;
+  statusWarn?: boolean;
 }
 
 export interface StatementTotal {
@@ -102,6 +108,9 @@ export function useContractsReview(viewCur: 'us' | 'eu' = 'us') {
 
       let poWeight = 0;
       let shippedWeight = 0;
+      let receivedWeight = 0;
+      let leftByLine = 0;     // each line's leftover, none below zero (web poFigures)
+      let unsoldWeight = 0;   // weight left on lots with no buyer (unsoldLeft)
       const lineRollups: any[] = [];
       const supplierName0 = settings?.Supplier?.Supplier?.find((s: any) => s.id === contract.supplier)?.nname || '—';
       const conDate = (contract as any).dateRange?.startDate || (contract as any).date || '';
@@ -124,8 +133,17 @@ export function useContractsReview(viewCur: 'us' | 'eu' = 'us') {
         // A helper line (split off another line, or brought in from another PO) repeats
         // weight already on a line of its own — web ContractsReview&Statement, same fix:
         // PO 210426-1 read 150.838 MT against a real 102.216.
-        if (!(product as any)?.import) poWeight += contractQty;
+        const isHelper = !!(product as any)?.import;
+        if (!isHelper) poWeight += contractQty;
         shippedWeight += shipped;
+        const received = lots.reduce((t: number, l: any) => t + l.qnty, 0);
+        receivedWeight += received;
+        // What there is to ship: the contract until the goods are in, then what arrived
+        // (soldStatus.js toShip — web's statement, PO 191125-1).
+        const ship = toShip({ contractQty: isHelper ? 0 : contractQty, receivedQty: received, shippedQty: shipped, shipmentStatus: (contract as any).shipmentStatus });
+        const unsold = unsoldLeft({ remaining: ship.remaining, lots });
+        leftByLine += Math.max(0, ship.remaining);
+        unsoldWeight += unsold;
 
         // Web renders ONE STATEMENT ROW PER MATERIAL LINE (16 columns). Mobile used
         // to compute this loop and keep only the summed weights, so the statement
@@ -147,7 +165,7 @@ export function useContractsReview(viewCur: 'us' | 'eu' = 'us') {
           });
         });
         const lotRows = (stock || []).filter((c: any) => c.description === mid && num(c.qnty) !== 0);
-        const st = lineStatus({ shipmentStatus: (contract as any).shipmentStatus, rollup: lineRollup });
+        const st = lineStatus({ shipmentStatus: (contract as any).shipmentStatus, rollup: lineRollup, unsold });
         statementLines.push({
           key: contract.id + '|' + mid,
           order: contract.order || '—',
@@ -158,19 +176,25 @@ export function useContractsReview(viewCur: 'us' | 'eu' = 'us') {
           cur: contract.cur === 'eu' ? 'eu' : 'us',
           poWeight: contractQty,
           shippedWeight: shipped,
-          remaining: contractQty - shipped,
-          qntyReceived: lotRows.reduce((t: number, o: any) => t + num(o.qnty), 0),
+          shipBasis: ship.basis,
+          remaining: ship.remaining,
+          qntyReceived: received,
           consignees: [...new Set(consignees)],
           destinations: [...new Set(destinations)],
           invoiceNums: [...new Set(invoiceNums)],
           salesPos: [...new Set(lotRows.map((l: any) => String(l.salesPo || '').trim()).filter(Boolean))],
           statusKey: st.key,
           statusLabel: st.label,
+          statusWarn: !!st.warn,
         });
       });
 
       const rollup = aggregateRollups(lineRollups);
-      const status = lineStatus({ shipmentStatus: (contract as any).shipmentStatus, rollup });
+      // The PO as a whole (web poFigures): contract less shipped until the goods are in; then
+      // each line's leftover on its own, so an over-invoiced line cannot cancel unsold containers.
+      const po = toShip({ contractQty: poWeight, receivedQty: receivedWeight, shippedQty: shippedWeight, shipmentStatus: (contract as any).shipmentStatus });
+      const poRemaining = po.byReceived ? Math.round(leftByLine * 1000) / 1000 : po.remaining;
+      const status = lineStatus({ shipmentStatus: (contract as any).shipmentStatus, rollup, unsold: Math.round(unsoldWeight * 1000) / 1000 });
 
       return {
         id: contract.id,
@@ -179,9 +203,11 @@ export function useContractsReview(viewCur: 'us' | 'eu' = 'us') {
         cur: contract.cur === 'eu' ? 'eu' : 'us',
         poWeight,
         shippedWeight,
-        remaining: poWeight - shippedWeight,
+        shipBasis: po.basis,
+        remaining: poRemaining,
         statusKey: status.key,
         statusLabel: status.label,
+        statusWarn: !!status.warn,
         // Web has ONE global currency selector (page.js:215 valCur, default 'us')
         // and converts every contract into it at that contract's own euroToUSD.
         // Mobile was passing each contract's OWN currency, so a EUR contract's
@@ -199,7 +225,8 @@ export function useContractsReview(viewCur: 'us' | 'eu' = 'us') {
       const e = map.get(key) || { supplier: r.supplierName, cur: r.cur, poWeight: 0, shippedWeight: 0, remaining: 0 };
       e.poWeight += r.poWeight;
       e.shippedWeight += r.shippedWeight;
-      e.remaining = e.poWeight - e.shippedWeight;
+      // PO by PO, as each row reads it (toShip) — not contract less shipped across them.
+      e.remaining += r.remaining;
       map.set(key, e);
     });
 
@@ -213,7 +240,9 @@ export function useContractsReview(viewCur: 'us' | 'eu' = 'us') {
   return { ...data, isLoading: query.isLoading, isError: query.isError, error: query.error, refetch: query.refetch };
 }
 
-export const statusTone = (key: string): 'positive' | 'warn' | 'info' | 'negative' | 'neutral' => {
+export const statusTone = (key: string, warn = false): 'positive' | 'warn' | 'info' | 'negative' | 'neutral' => {
+  // "Completed · 45.04 MT not shipped" — a finished status with weight still to ship.
+  if (warn) return 'warn';
   if (key === 'shipped' || key === 'Completed' || key === 'sold') return 'positive';
   if (key === 'partial' || key === 'pending' || key === 'Pending') return 'warn';
   if (key === 'unsold' || key === 'On Hold') return 'negative';

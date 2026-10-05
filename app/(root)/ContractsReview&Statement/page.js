@@ -22,7 +22,7 @@ import TruncatedCell from '@components/table/TruncatedCell';
 import CBox from '../../../components/combobox.js'
 import { EXD } from './excel'
 import { EXD as EXDStatement } from '../contractsstatement/excel'
-import { lotIsSold, computeLineSold, aggregateRollups, lineStatus } from '../contractsstatement/soldStatus'
+import { lotIsSold, computeLineSold, aggregateRollups, lineStatus, toShip, unsoldLeft } from '../contractsstatement/soldStatus'
 import { SHIPMENT_STATUSES, SHIPMENT_STATUS_STYLES } from '../contractsstatement/shipmentStatus'
 import { oneOf } from '../../../components/table/filters/oneOfFilter'
 import dateFormat from "dateformat";
@@ -52,10 +52,13 @@ const FALLBACK_STATUS_STYLES = {
 // Status chip that follows the software lifecycle: the contract's shipment status (Pending /
 // Shipped / In Transit / Arrived / Completed / On Hold) when set, otherwise an auto-derived
 // status (Unsold / Sold·pending shipment / Shipped) from the sold + shipped quantities.
-const StatusChip = ({ shipmentStatus, rollup }) => {
-    const { key, label, isShipment } = lineStatus({ shipmentStatus, rollup });
+// A "Completed" row that still holds weight with no buyer reads "Completed · 45 MT unsold" in
+// amber (soldStatus.js lineStatus / unsoldLeft), so it cannot read as done beside it.
+const StatusChip = ({ shipmentStatus, rollup, unsold }) => {
+    const { key, label, isShipment, warn } = lineStatus({ shipmentStatus, rollup, unsold });
     if (key === 'none') return <span className="responsiveTextTable" style={{ color: 'var(--regent-gray)' }}>—</span>;
-    const style = isShipment ? (SHIPMENT_STATUS_STYLES[key] || SHIPMENT_STATUS_STYLES['']) : FALLBACK_STATUS_STYLES[key];
+    const style = warn ? SHIPMENT_STATUS_STYLES['On Hold']
+        : isShipment ? (SHIPMENT_STATUS_STYLES[key] || SHIPMENT_STATUS_STYLES['']) : FALLBACK_STATUS_STYLES[key];
     return (
         <span className="px-3 py-1 rounded-2xl responsiveTextTable font-medium whitespace-nowrap" style={style}>
             {label}
@@ -63,7 +66,26 @@ const StatusChip = ({ shipmentStatus, rollup }) => {
     );
 };
 
-// Shipped-vs-contracted progress bar
+/* One PO's weights from its statement lines — for the PO row and the supplier totals alike.
+   Quantity is the PO's OWN lines (a helper line repeats weight already on one); received and
+   shipped count every line. Until the goods are in, what is left is the contract less what
+   shipped, whichever line the invoice named. Once it is measured against what ARRIVED (toShip),
+   each line's leftover counts on its own: a line that shipped more than it received — a weight
+   difference, or stock drawn from another PO through a shared line — must not cancel another
+   line's unsold containers (PO 300126 read 6.852 MT left with 19.8 MT sitting on its lines). */
+const poFigures = (lines) => {
+    const poWeight = lines.reduce((t, l) => t + (l.helper ? 0 : (Number(l.poWeight) || 0)), 0);
+    const shiipedWeight = lines.reduce((t, l) => t + (Number(l.shiipedWeight) || 0), 0);
+    const qntyReceived = lines.reduce((t, l) => t + (Number(l.qntyReceived) || 0), 0);
+    const po = toShip({ contractQty: poWeight, receivedQty: qntyReceived, shippedQty: shiipedWeight, shipmentStatus: lines[0]?.shipmentStatus });
+    const remaining = po.byReceived
+        ? Math.round(lines.reduce((t, l) => t + Math.max(0, Number(l.remaining) || 0), 0) * 1000) / 1000
+        : po.remaining;
+    const unsold = Math.round(lines.reduce((t, l) => t + (Number(l.unsold) || 0), 0) * 1000) / 1000;
+    return { poWeight, shiipedWeight, qntyReceived, shipBasis: po.basis, remaining, unsold };
+};
+
+// Shipped progress bar: against what there is to ship (toShip — the contract, or what arrived)
 const ProgressBar = ({ shipped, total }) => {
     const t = parseFloat(total) || 0;
     const s = parseFloat(shipped) || 0;
@@ -300,23 +322,23 @@ const ContractsMerged = () => {
 
             dt = setCurFilterDataStatement(dt)
 
-            const groupedTotals = dt.reduce((acc, { supplier, poWeight, shiipedWeight, cur, helper }) => {
+            // Per supplier, built PO by PO (poFigures) so the totals read what the PO rows read.
+            const byPo = dt.reduce((m, l) => m.set(l.order, [...(m.get(l.order) || []), l]), new Map());
+            const groupedTotals = [...byPo.values()].reduce((acc, lines) => {
+                const { supplier, cur } = lines[0];
+                const po = poFigures(lines);
 
                 let key = cur === "us" ? "totalsUs" : "totalsEU";
 
                 acc[key] ??= [];
                 let existing = acc[key].find(z => z.supplier === supplier);
-                // A helper line's weight is already counted on the line it repeats.
-                const qty = helper ? 0 : (Number(poWeight) || 0);
 
                 if (existing) {
-                    existing.poWeight = (Number(existing.poWeight) || 0) + qty;
-                    existing.shiipedWeight = (Number(existing.shiipedWeight) || 0) + (Number(shiipedWeight) || 0);
-                    existing.remaining = existing.poWeight - existing.shiipedWeight
-
+                    existing.poWeight += po.poWeight;
+                    existing.shiipedWeight += po.shiipedWeight;
+                    existing.remaining += po.remaining;
                 } else {
-                    const shipped = Number(shiipedWeight) || 0;
-                    acc[key].push({ supplier, poWeight: qty, shiipedWeight: shipped, remaining: qty - shipped, cur });
+                    acc[key].push({ supplier, poWeight: po.poWeight, shiipedWeight: po.shiipedWeight, remaining: po.remaining, cur });
                 }
 
                 return acc;
@@ -457,6 +479,11 @@ const ContractsMerged = () => {
                 })
                 // Sold = shipped/invoiced OR allocated on the lot, measured against the contract qty.
                 const soldRollup = computeLineSold({ contractQty: total, shippedQty: totalShipped, lots })
+                const isHelper = !!obj.productsData.find(z => z.id === x)?.import
+                const received = objTmp.reduce((t, l) => t + (Number(l.qnty) || 0), 0)
+                // What there is to ship: the contract until the goods are in, then what arrived
+                // (soldStatus.js toShip). A helper line's weight counts only through its own lots.
+                const ship = toShip({ contractQty: isHelper ? 0 : total, receivedQty: received, shippedQty: totalShipped, shipmentStatus: obj.shipmentStatus })
 
                 newObj = {
                     // A helper line — split off an existing line in the Materials Breakdown
@@ -464,11 +491,12 @@ const ContractsMerged = () => {
                     // already sits on a line of its own. It is listed like any line, but
                     // never added into the PO's Quantity or Remaining (see
                     // groupedArrayInvoiceStatement and the supplier totals).
-                    helper: !!obj.productsData.find(z => z.id === x)?.import,
+                    helper: isHelper,
                     supplier: obj.supplier, date: obj.date, order: obj.order, poWeight: total,
                     comments: obj.comments, description: obj.productsData.find(z => z.id === x).description,
                     unitPrc: obj.productsData.find(z => z.id === x).unitPrc, cur: obj.cur,
-                    shiipedWeight: totalShipped, remaining: total - totalShipped,
+                    shiipedWeight: totalShipped, shipBasis: ship.basis, remaining: ship.remaining,
+                    unsold: unsoldLeft({ remaining: ship.remaining, lots }),
                     client: totalClients.length > 0 ? [...new Set(totalClients)] : objTmp.map(x => (settings.Client.Client.find(d => d.id === x.client)?.nname ?? '')),
                     totalPo: totalPo.length > 0 ? [...new Set(totalPo)] : objTmp.map(x => x.qnty + '-' + (x.salesPo ?? '')),
                     destination: [...new Set(totalDestination)],
@@ -476,9 +504,7 @@ const ContractsMerged = () => {
                     id: obj.productsData.find(z => z.id === x).id, client1: [...new Set(totalClients)].join(' '),
                     totalPo1: [...new Set(totalPo)].join(' '), destination1: [...new Set(totalDestination)].join(' '),
                     status: objTmp.map(x => x.qnty + '-' + (x.status ?? '')),
-                    qntyReceived: objTmp.reduce((total, obj1) => {
-                        return total + obj1.qnty * 1;
-                    }, 0),
+                    qntyReceived: received,
                     lots,
                     shipments,
                     soldRollup,
@@ -687,10 +713,12 @@ const ContractsMerged = () => {
             filterFn: oneOf,
             cell: (props) => <StackCell value={props.getValue()} avatar />,
         },
-        { accessorKey: 'shiipedWeight', header: getTtl('Shipped Weight', ln) + ' MT', cell: (props) => <ProgressBar shipped={props.getValue()} total={props.row.original.poWeight} /> },
+        { accessorKey: 'shiipedWeight', header: getTtl('Shipped Weight', ln) + ' MT', cell: (props) => <ProgressBar shipped={props.getValue()} total={props.row.original.shipBasis ?? props.row.original.poWeight} /> },
         {
+            // Over-shipped reads as its size, in red. Math.abs, not `* -1`: 0 * -1 is -0, which
+            // printed "-0.000" on every line that had shipped exactly what it received.
             accessorKey: 'remaining', header: getTtl('Remaining Weight', ln) + ' MT', cell: (props) => <p className={`${props.getValue() < 0 ? 'text-red-400 font-semibold' : ''}`}>
-                {props.getValue() > 0 ? showWeight(props.getValue()) : showWeight(props.getValue() * -1)}</p>
+                {showWeight(Math.abs(Number(props.getValue()) || 0))}</p>
         },
         {
             accessorKey: 'qntyReceived', header: 'Mat. Table', cell: (props) => <span>
@@ -709,7 +737,7 @@ const ContractsMerged = () => {
             accessorFn: statusToken,
             meta: { filterVariant: 'multi', options: STATUS_FILTER_OPTIONS, excludeFromQuickSum: true },
             filterFn: oneOf,
-            cell: (props) => <StatusChip shipmentStatus={props.row.original.shipmentStatus} rollup={props.row.original.soldRollup} />,
+            cell: (props) => <StatusChip shipmentStatus={props.row.original.shipmentStatus} rollup={props.row.original.soldRollup} unsold={props.row.original.unsold} />,
         },
         {
             accessorKey: 'totalPo', header: getTtl('PO Client', ln),
@@ -738,7 +766,7 @@ const ContractsMerged = () => {
         { accessorKey: 'shiipedWeight', header: getTtl('Shipped Weight', ln) + ' MT', cell: (props) => <p>{showWeight(props.getValue())}</p> },
         {
             accessorKey: 'remaining', header: getTtl('Remaining Weight', ln) + ' MT', cell: (props) => <p className={`${props.getValue() < 0 ? 'text-red-400 font-semibold' : ''}`}>
-                {props.getValue() > 0 ? showWeight(props.getValue()) : showWeight(props.getValue() * -1)}</p>
+                {showWeight(Math.abs(Number(props.getValue()) || 0))}</p>
         },
     ];
 
@@ -812,19 +840,23 @@ const ContractsMerged = () => {
             // so the bar said 40% shipped when it was 60% (client, 2026-09-24: "where does
             // it show the shipped / remaining weight? I don't understand"). What shipped
             // counts in full whichever line the invoice named, so Remaining is the one
-            // minus the other rather than a sum of per-line remainders.
-            const poWeight = i.reduce((total, obj) => total + (obj.helper ? 0 : (Number(obj.poWeight) || 0)), 0);
-            const shiipedWeight = i.reduce((total, obj) => total + (Number(obj.shiipedWeight) || 0), 0);
+            // minus the other rather than a sum of per-line remainders — measured against
+            // what ARRIVED once the goods are in (poFigures / toShip; PO 191125-1 read
+            // 41.394 against the contract, 45.043 against the 179.649 MT received).
+            const po = poFigures(i);
 
             newArr.push({
                 ...i[0],
                 helper: false,
-                poWeight,
+                poWeight: po.poWeight,
                 unitPrc: '',
                 description: '',
-                shiipedWeight,
-                remaining: poWeight - shiipedWeight,
-                qntyReceived: '',
+                shiipedWeight: po.shiipedWeight,
+                shipBasis: po.shipBasis,
+                remaining: po.remaining,
+                unsold: po.unsold,
+                // The PO's total received, so an over-delivery shows on its own row.
+                qntyReceived: po.qntyReceived,
                 client: '',
                 totalPo: '',
                 destination: '',

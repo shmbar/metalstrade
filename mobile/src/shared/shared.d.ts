@@ -140,7 +140,16 @@ declare module '@shared/soldStatus' {
     shippedQty: number;
   };
   export function aggregateRollups(rollups?: any[]): { tone: string; soldQty: number; receivedQty: number; shippedQty: number };
-  export function lineStatus(args?: { shipmentStatus?: string; rollup?: any }): { key: string; label: string; isShipment: boolean };
+  /** What a line or PO has to ship: the contract until the goods are in (or more arrived), then what was received. */
+  export function toShip(args?: { contractQty?: number; receivedQty?: number; shippedQty?: number; shipmentStatus?: string }): {
+    basis: number;
+    shipped: number;
+    remaining: number;
+    byReceived: boolean;
+  };
+  /** Of a line's weight left to ship, the part on lots with no buyer. */
+  export function unsoldLeft(args?: { remaining?: number; lots?: { qnty: number; sold: boolean }[] }): number;
+  export function lineStatus(args?: { shipmentStatus?: string; rollup?: any; unsold?: number }): { key: string; label: string; isShipment: boolean; warn?: boolean };
 }
 
 declare module '@shared/salesLink' {

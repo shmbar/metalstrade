@@ -39,6 +39,40 @@ export const computeLineSold = ({ contractQty = 0, shippedQty = 0, lots = [] }) 
     return { tone: rollupTone(soldQty, basis), soldQty, receivedQty: basis, shippedQty: shipped };
 };
 
+// The lifecycle statuses that mean the goods are in our hands.
+const IN_HAND = new Set(['Arrived', 'Completed']);
+// Below this much, unsold weight is not worth a warning on a finished PO.
+const LEFT_TOLERANCE = 0.05;
+// Weights are kept to the kilogram; without this 19.44 − 19.44 read "-0.000".
+const round3 = (n) => Math.round((Number(n) || 0) * 1000) / 1000 || 0;
+
+/* What a contract line — or a whole PO — has to ship, and what is left of it.
+
+   The basis is the CONTRACTED quantity until the goods are in, and from then on what was
+   RECEIVED; it is also what was received as soon as that is more than the contract
+   (`byReceived`). PO 191125-1 (client, 2026-10-05): 176 MT contracted, 179.649 received,
+   134.606 shipped. Against the contract it read "41.394 remaining" beside "Completed" — the
+   3.65 MT over-delivered netted against two containers nobody had sold. Against what arrived
+   it is 45.043. A helper line passes contractQty 0: its weight counts only through its lots. */
+export const toShip = ({ contractQty = 0, receivedQty = 0, shippedQty = 0, shipmentStatus = '' } = {}) => {
+    const contract = Number(contractQty) || 0;
+    const received = Number(receivedQty) || 0;
+    const shipped = Number(shippedQty) || 0;
+    const inHand = IN_HAND.has(normalizeStatus(shipmentStatus));
+    const byReceived = received > 0 && (inHand || received > contract);
+    const basis = byReceived ? received : contract;
+    return { basis, shipped, remaining: round3(basis - shipped), byReceived };
+};
+
+/* What nobody has shipped OR sold: of a line's weight left to ship, the part on lots with no
+   buyer. A sold lot's leftover is a weight difference — 8.509 MT received, 8.205 invoiced to
+   the buyer it went to — not stock to chase; the 45 MT of 52Ni on PO 191125-1 had no buyer.
+   `lots` are the statement's { qnty, sold } (lotIsSold). */
+export const unsoldLeft = ({ remaining = 0, lots = [] } = {}) => {
+    const onUnsoldLots = (lots || []).reduce((t, l) => t + (l && !l.sold ? (Number(l.qnty) || 0) : 0), 0);
+    return round3(Math.min(Math.max(0, Number(remaining) || 0), onUnsoldLots));
+};
+
 // Aggregate already-computed line roll-ups into a PO-level roll-up.
 export const aggregateRollups = (rollups = []) => {
     const soldQty = rollups.reduce((t, r) => t + (Number(r?.soldQty) || 0), 0);
@@ -51,8 +85,13 @@ export const aggregateRollups = (rollups = []) => {
 // (Pending/Shipped/In Transit/Arrived/Completed/On Hold) when it's set, otherwise an auto-derived
 // status from sold + shipped quantities. Returns { key, label, isShipment } — `key` selects the
 // chip colour (a shipment-status name when isShipment, else one of the fallback keys below).
-export const lineStatus = ({ shipmentStatus, rollup } = {}) => {
+// `unsold` (unsoldLeft) lets a "Completed" that still holds weight with no buyer say so, with
+// `warn: true`, instead of reading as done beside it.
+export const lineStatus = ({ shipmentStatus, rollup, unsold } = {}) => {
     const st = normalizeStatus(shipmentStatus);
+    if (st === 'Completed' && Number(unsold) > LEFT_TOLERANCE) {
+        return { key: st, label: `Completed · ${fmtQty(unsold)} MT unsold`, isShipment: true, warn: true };
+    }
     if (st) return { key: st, label: st, isShipment: true };
 
     if (!rollup || rollup.tone === 'none' || !(Number(rollup.receivedQty) > 0.0001)) {

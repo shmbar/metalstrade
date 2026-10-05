@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { View, FlatList } from 'react-native';
-import { Pressable } from '@/components/ui/Pressable';
+import { Pressable } from '@/components/ui/Pressable';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Screen, Card, Text, Badge, SegmentedControl, ProgressBar, SkeletonList, ErrorState, EmptyState, SearchField } from '@/components/ui';
@@ -94,7 +94,8 @@ export default function ContractsReview() {
             onRefresh={refetch}
             refreshing={isLoading}
             renderItem={({ item }) => {
-              const pct = item.poWeight > 0 ? Math.min(100, (item.shippedWeight / item.poWeight) * 100) : 0;
+              // Against what there is to ship — the contract, or what arrived once it is in (toShip).
+              const pct = item.shipBasis > 0 ? Math.min(100, (item.shippedWeight / item.shipBasis) * 100) : 0;
               return (
                 <Card style={{ marginBottom: layout.stack }}>
                   <View style={{ flexDirection: 'row', justifyContent: 'space-between', gap: 12 }}>
@@ -102,11 +103,11 @@ export default function ContractsReview() {
                       <Text variant="h3" numberOfLines={1}>{item.order}</Text>
                       <Text variant="caption" tone="muted" numberOfLines={1}>{item.supplierName}</Text>
                     </View>
-                    <Badge label={item.statusLabel || '—'} tone={statusTone(item.statusKey)} />
+                    <Badge label={item.statusLabel || '—'} tone={statusTone(item.statusKey, item.statusWarn)} />
                   </View>
                   <View style={{ marginTop: 10, gap: 4 }}>
                     <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                      <Text variant="caption" tone="faint">Shipped {wtCap(item.shippedWeight)} / {wtCap(item.poWeight)} MT</Text>
+                      <Text variant="caption" tone="faint">Shipped {wtCap(item.shippedWeight)} / {wtCap(item.shipBasis)} MT</Text>
                       <Text variant="caption" tone={pct >= 99.9 ? 'positive' : 'muted'}>{pct.toFixed(0)}%</Text>
                     </View>
                     <ProgressBar pct={pct} color={pct >= 99.9 ? colors.positive : colors.primary} height={8} />
@@ -198,7 +199,7 @@ export default function ContractsReview() {
                     {[item.order, item.supplierName, (item.date || '').substring(0, 10)].filter(Boolean).join(' · ')}
                   </Text>
                 </View>
-                <Badge label={item.statusLabel || '—'} tone={statusTone(item.statusKey)} />
+                <Badge label={item.statusLabel || '—'} tone={statusTone(item.statusKey, item.statusWarn)} />
               </View>
 
               <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 10 }}>
