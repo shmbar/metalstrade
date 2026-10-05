@@ -179,7 +179,15 @@ const HASH = {
   // filtered row model, the footer count and the rows pushed to page.js are untouched
   // (asserted directly below), and the mobile list does not page. Verified that the
   // file minus those two lines still hashes to the previous value, 3ee1e30b314a.
-  customtable: '7f05e4d7ff06', // app/(root)/stocks/newTable.js:39 (contains the footer count)
+  // Re-recorded 2026-10-06: By grade's search picks LINES and folds only those — a second,
+  // never-drawn table (lineTable) filters the lines and the drawn one takes the folds with
+  // manualFiltering, ids by grade, the Supplier checklist read off the lines, and the
+  // footer's "1—N" counting top-level rows ("698 triart" listed Thormet's 698 in Triart's
+  // grade). On Lines — the only view mobile has — nothing moves: lineTable gets no rows,
+  // the drawn table filters `data` as before, every row is top-level, and the two mirrored
+  // lines asserted below are unchanged. The By grade rule is now mobile's own: its list
+  // searches lines (display.ts filterInventoryRows) and has no fold.
+  customtable: '7353db663d71', // app/(root)/stocks/newTable.js:39 (contains the footer count)
   addComma: '9d2dc43091c5', // app/(root)/stocks/whModal.js:52
   sumShowAmount: '61cca0f1837f', // app/(root)/stocks/sumtables/sumTable.js:8
   // Re-recorded 2026-09-12 after PORTING the three web changes behind it, not to

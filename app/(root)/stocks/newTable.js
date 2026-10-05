@@ -36,6 +36,8 @@ import { useTablePrefs, useTablePagination, useKeepPage } from '@components/tabl
 import { keywordColumnFilter } from '@components/table/filters/keywordColumnFilter';
 import { useFitHeight } from '@components/table/useFitHeight';
 
+const NO_LINES = [];
+
 const Customtable = ({
   data,
   columns,
@@ -49,6 +51,9 @@ const Customtable = ({
   // Room to keep under the box: the page passes more while the summaries below the
   // table are folded to one line, so that line stays on screen (CollapsibleSection).
   fitBelow,
+  // By grade: folds stock lines into grade rows (page.js passes byGrade.js
+  // groupByGrade). `data` is still the lines; see `rows` below.
+  group,
 }) => {
 
   const [globalFilter, setGlobalFilter] = useState('');
@@ -111,21 +116,45 @@ const Customtable = ({
     ];
   }, [columns, quickSumEnabled]);
 
+  /* The search box and the column filters pick LINES, By grade as on Lines, and only the
+     lines they keep are folded into grades. Filtering the folds instead kept a whole grade
+     for any one line of it that matched: "698 triart" listed Thormet's 698 beside
+     Triart's, inside a total that counted both (client, 2026-10-06). Letting the filter
+     reach into a fold was no better — "698 Turnings 6 lots · 56.876 MT" opened onto a
+     single 1.318 MT line (2026-09-10). Folding what the filters kept answers both: a
+     grade is the sum of exactly the lines under it. This table shares the filter state
+     with the one drawn below and is never drawn itself. */
+  const lineTable = useReactTable({
+    data: group ? data : NO_LINES,
+    columns,
+    getCoreRowModel: getCoreRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    filterFns: { dateBetweenFilterFn },
+    defaultColumn: { filterFn: keywordColumnFilter },
+    globalFilterFn: labelAwareGlobalFilter,
+    state: { globalFilter, columnFilters },
+    onGlobalFilterChange: setGlobalFilter,
+    onColumnFiltersChange: setColumnFilters,
+    autoResetAll: false,
+  });
+  const keptLines = group ? lineTable.getFilteredRowModel().rows : null;
+  const rows = useMemo(() => (group ? group(keptLines.map(r => r.original)) : data), [group, keptLines, data]);
+
   const table = useReactTable({
-    data,
+    data: rows,
     columns: columnsWithSelection,
     enableRowSelection: quickSumEnabled,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
+    // By grade the rows come filtered (lineTable above).
+    manualFiltering: !!group,
     getSortedRowModel: getSortedRowModel(),
     getExpandedRowModel: getExpandedRowModel(),
     getSubRows: (row) => row._lines,
-    /* Filter the GRADES, never the lines inside them. A fold's quantity and value are
-       the sum of all its lines, so letting the search reach the sub-rows made a row
-       that reads "698 Turnings 6 lots · 56.876 MT" open to a single 1.318 MT line —
-       parent and children that cannot be reconciled. Filtering only the top level
-       means opening a fold always shows exactly what its total is made of. */
-    maxLeafRowFilterDepth: 0,
+    /* By grade a row is known by its own id ("grade:<key>", a line's id): the grades are
+       folded again on every search, and an id by position left the grade opened third
+       open on whichever grade came third next. */
+    getRowId: group ? (row) => (row.id == null ? undefined : String(row.id)) : undefined,
     // Page size counts GRADES, not the lines hidden under them — otherwise opening
     // one 21-lot group would shove twenty rows onto the next page.
     paginateExpandedRows: false,
@@ -148,14 +177,14 @@ const Customtable = ({
   useEffect(() => {
     // Optional callback — callers like SharedStock render this table without it,
     // and calling it unguarded white-screened the whole /stocks page.
-    /* `data` is a dependency on purpose: the rows this table is handed change on their
+    /* `rows` is a dependency on purpose: the rows this table shows change on their
        own — the find-by-spec box narrows them, Lines/By grade swaps them for folds —
        and everything downstream (totals, the grade card, the export, the spec read-back)
        reads what was last reported here. Reporting only on a filter change left all of
        that on the pre-spec rows while the table itself showed nine. */
     setFilteredArray1?.(table.getFilteredRowModel().rows.map(r => r.original));
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [globalFilter, columnFilters, data]);
+  }, [globalFilter, columnFilters, rows]);
 
   const resetTable = () => table.resetColumnFilters();
 
@@ -276,7 +305,11 @@ const Customtable = ({
                               }}
                             >
                               {header.column.getCanFilter() && (
-                                <Filter column={header.column} table={table} filterOn={filterOn} />
+                                /* By grade the filters pick lines (lineTable), so a checklist
+                                   offers the lines' own names — "Triart", not a grade's
+                                   joined "Thormet, Triart". */
+                                <Filter column={group ? lineTable.getColumn(header.column.id) : header.column}
+                                  table={group ? lineTable : table} filterOn={filterOn} />
                               )}
                             </th>
                           ))}
@@ -507,7 +540,8 @@ const Customtable = ({
   <div className="w-full px-4 py-3">
     <div className="flex items-center justify-between">
 
-      {/* LEFT — Showing Range */}
+      {/* LEFT — Showing Range. The page's own rows, not the lines opened under them: an
+          open grade read "1—9 of 2". */}
       <div
         className="whitespace-nowrap font-normal responsiveTextTable"
         style={{
@@ -519,7 +553,7 @@ const Customtable = ({
             table.getState().pagination.pageSize +
           (table.getFilteredRowModel().rows.length ? 1 : 0)
         }—${
-          table.getRowModel().rows.length +
+          table.getRowModel().rows.filter(r => r.depth === 0).length +
           table.getState().pagination.pageIndex *
             table.getState().pagination.pageSize
         } ${getTtl('of', ln)} ${

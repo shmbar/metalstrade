@@ -11,7 +11,10 @@ const makeRow = (values, { subRows = [], original = values } = {}) => {
 const keeps = (row, q) => labelAwareGlobalFilter(row, 'any', labelAwareGlobalFilter.resolveFilterValue(q));
 
 /* Stocks → By grade, 2026-09-29: the grade rows read "CHP", "Silmet"… and the lines inside
-   them read "Ta Bars". Typing "Ta Bars" found every line on Lines and nothing on By grade. */
+   them read "Ta Bars". Typing "Ta Bars" found every line on Lines and nothing on By grade.
+   By grade has since stopped searching its grade rows: it searches the lines and folds the
+   ones found (stocks/__tests__/byGrade.test.js, 2026-10-06). A parent row read through its
+   sub-rows is today the Contracts Statement's PO over its lines. */
 describe('labelAwareGlobalFilter — a row that stands for others is searched by what it holds', () => {
     const line = (po, spec) => makeRow({ order: po, supplier: 'Shalex', descriptionName: 'Ta Bars', spec });
 
@@ -21,14 +24,6 @@ describe('labelAwareGlobalFilter — a row that stands for others is searched by
         expect(keeps(grade, 'ta bars')).toBe(true);
         expect(keeps(grade, 'ta bars umz')).toBe(true);      // words from different lines
         expect(keeps(grade, 'ta bars ingots')).toBe(false);  // every word must be somewhere
-    });
-
-    it('a single-line grade (no sub-rows) is found through the _searchText its builder gives it', () => {
-        const values = { order: '060826-1 +3', descriptionName: 'Silmet' };
-        const grade = makeRow(values, { original: { ...values, _searchText: '270326-TIM Shalex Ta Bars 070526' } });
-        expect(keeps(grade, 'ta bars')).toBe(true);
-        expect(keeps(grade, '070526')).toBe(true);           // the PO hidden behind "+3"
-        expect(keeps(grade, 'thormet')).toBe(false);
     });
 
     it('a row is found by what its cells SHOW: dates, amounts, status words, drawn numbers', () => {

@@ -73,14 +73,11 @@ const rowSearchText = (row) => {
   for (const cell of cells) {
     parts.push(...cellSearchParts(cell.column, row.getValue(cell.column.id), row.original));
   }
-  /* A row that stands for others — the Stocks page's "By grade" rows fold the stock lines
-     of a grade — is searched by what it holds as well as by its own cells: typing "Ta
-     Bars" on By grade found nothing, because the grade rows read "CHP", "UMZ", "Silmet"
-     and the words were only on the lines inside them (client, 2026-09-29). So a row also
-     reads its sub-rows, and any `_searchText` its builder gives it (a single-line grade has
-     no sub-rows to read). A sub-row is still filtered on its own when the row expands. */
-  const extra = row.original && typeof row.original._searchText === 'string' ? row.original._searchText : '';
-  if (extra) parts.push(extra);
+  /* A row that stands for others — a Contracts Statement PO over its lines — is searched
+     by what it holds as well as by its own cells, so a word that is only on its lines
+     still finds it. A sub-row is still filtered on its own when the row expands.
+     (Stocks' By grade does not come through here: it searches the lines themselves and
+     folds the ones found into grades — stocks/newTable.js, client 2026-10-06.) */
   (row.subRows || []).forEach((sub) => parts.push(rowSearchText(sub)));
   const text = parts.join(' ');
   cache.set(row, { sig, text });
