@@ -8,6 +8,7 @@ const ensurePdfLibs = async () => {
 };
 import dateFormat from 'dateformat';
 import { registerPdfFonts } from './pdfFonts';
+import { LEFT, TABLE_WIDTH } from './pdfLayout';
 
 export const PdfISF = async (valueInv, compData, settings, _valueCon) => {
     await ensurePdfLibs();
@@ -25,10 +26,14 @@ export const PdfISF = async (valueInv, compData, settings, _valueCon) => {
         ? dateFormat(new Date(valueInv.dateRange.startDate), 'dd mmm yyyy')
         : '';
 
-    const L = 15;
-    const W = 180;
+    /* The frame every document shares, 10 to 200 mm (pdfLayout.js); this form alone ran from
+       15 to 195. And one inset for every word inside a box, so the labels, values and part
+       headings start on one line down the form: it used 1, 1.5 and 2 mm, line by line. */
+    const L = LEFT;
+    const W = TABLE_WIDTH;
     const R = L + W;
     const HW = W / 2;
+    const P = 1.5;
 
     doc.setDrawColor(0);
     doc.setTextColor(0);
@@ -56,7 +61,7 @@ export const PdfISF = async (valueInv, compData, settings, _valueCon) => {
         doc.setFillColor(190, 215, 240);
         r(L, y, W, 5.5, 'FD');
         B(8); doc.setTextColor(20, 20, 80);
-        t(label, L + 2, y + 4);
+        t(label, L + P, y + 4);
         doc.setTextColor(0);
         return y + 5.5;
     };
@@ -74,7 +79,7 @@ export const PdfISF = async (valueInv, compData, settings, _valueCon) => {
     doc.setFillColor(225, 240, 255);
     r(L, 21, W, 8, 'F');
     r(L, 21, W, 8);
-    B(7); t('ISF Importer Company Name:', L + 2, 26);
+    B(7); t('ISF Importer Company Name:', L + P, 26);
     N(8.5); t(shipTo?.nname || '', L + 58, 26);
     B(7); t('Invoice #:', R - 48, 26);
     N(8.5); t(String(valueInv.invoice || ''), R - 28, 26);
@@ -88,14 +93,14 @@ export const PdfISF = async (valueInv, compData, settings, _valueCon) => {
     const rH1 = 9;
     r(L, y, W * 0.62, rH1);
     r(L + W * 0.62, y, W * 0.38, rH1);
-    B(6.5); t('1. Shipment Type:', L + 1, y + 4);
+    B(6.5); t('1. Shipment Type:', L + P, y + 4);
     N(7.5);
     const st = isf.shipmentType || '';
     cb(L + 32, y + 2.7, st === 'FCL'); t('FCL', L + 36, y + 5.8);
     cb(L + 47, y + 2.7, st === 'LCL'); t('LCL', L + 51, y + 5.8);
     cb(L + 62, y + 2.7, st === 'BULK'); t('BULK', L + 66, y + 5.8);
     cb(L + 80, y + 2.7, st === 'CONSOL'); t('CONSOL', L + 84, y + 5.8);
-    const cx = L + W * 0.62 + 2;
+    const cx = L + W * 0.62 + P;
     B(6.5); t('2. Container:', cx, y + 4);
     N(7.5);
     cb(cx + 20, y + 2.7, true); t('Yes', cx + 24.2, y + 5.8);
@@ -105,7 +110,7 @@ export const PdfISF = async (valueInv, compData, settings, _valueCon) => {
     // Filing Type
     const rH2 = 8;
     r(L, y, W, rH2);
-    B(6.5); t('3. Filing Type:', L + 1, y + 3.5);
+    B(6.5); t('3. Filing Type:', L + P, y + 3.5);
     N(7.5);
     cb(L + 27, y + 2.2, true); t('10+2 ISF', L + 31.2, y + 5.5);
     cb(L + 54, y + 2.2, false); t('5+2 ISF', L + 58.2, y + 5.5);
@@ -114,26 +119,26 @@ export const PdfISF = async (valueInv, compData, settings, _valueCon) => {
     // POL | POD
     const rH3 = 8;
     r(L, y, HW, rH3); r(L + HW, y, HW, rH3);
-    B(6.5); t('4. Place of Loading (POL):', L + 1, y + 3.2);
-    N(8); t(String(valueInv.pol || ''), L + 1, y + rH3 - 1.2);
-    B(6.5); t('5. 1st Port of Call / Port of Discharge:', L + HW + 1, y + 3.2);
-    N(8); t(String(isf.pod || ''), L + HW + 1, y + rH3 - 1.2);
+    B(6.5); t('4. Place of Loading (POL):', L + P, y + 3.2);
+    N(8); t(String(valueInv.pol || ''), L + P, y + rH3 - 1.2);
+    B(6.5); t('5. 1st Port of Call / Port of Discharge:', L + HW + P, y + 3.2);
+    N(8); t(String(isf.pod || ''), L + HW + P, y + rH3 - 1.2);
     y += rH3;
 
     // ETD | ETA
     r(L, y, HW, rH3); r(L + HW, y, HW, rH3);
-    B(6.5); t('6. ETD (Estimated Time of Departure):', L + 1, y + 3.2);
-    N(8); t(etdDate, L + 1, y + rH3 - 1.2);
-    B(6.5); t('7. ETA (Estimated Time of Arrival):', L + HW + 1, y + 3.2);
-    N(8); t(String(isf.eta || ''), L + HW + 1, y + rH3 - 1.2);
+    B(6.5); t('6. ETD (Estimated Time of Departure):', L + P, y + 3.2);
+    N(8); t(etdDate, L + P, y + rH3 - 1.2);
+    B(6.5); t('7. ETA (Estimated Time of Arrival):', L + HW + P, y + 3.2);
+    N(8); t(String(isf.eta || ''), L + HW + P, y + rH3 - 1.2);
     y += rH3;
 
     // Importer Ref # | Carnet #
     r(L, y, HW, rH3); r(L + HW, y, HW, rH3);
-    B(6.5); t('8. Importer Reference #:', L + 1, y + 3.2);
-    N(8); t(String(isf.importerRecordNum || ''), L + 1, y + rH3 - 1.2);
-    B(6.5); t('9. Carnet #:', L + HW + 1, y + 3.2);
-    N(8); t(String(isf.carnetNum || ''), L + HW + 1, y + rH3 - 1.2);
+    B(6.5); t('8. Importer Reference #:', L + P, y + 3.2);
+    N(8); t(String(isf.importerRecordNum || ''), L + P, y + rH3 - 1.2);
+    B(6.5); t('9. Carnet #:', L + HW + P, y + 3.2);
+    N(8); t(String(isf.carnetNum || ''), L + HW + P, y + rH3 - 1.2);
     y += rH3;
 
     // ── PART II — B/L DATA ────────────────────────────────────────────────────
@@ -141,15 +146,15 @@ export const PdfISF = async (valueInv, compData, settings, _valueCon) => {
 
     // SCAC | BL Number
     r(L, y, HW, rH3); r(L + HW, y, HW, rH3);
-    B(6.5); t('10. SCAC Code:', L + 1, y + 3.2);
-    N(8); t(String(isf.blScac || ''), L + 1, y + rH3 - 1.2);
-    B(6.5); t('Bill of Lading Number:', L + HW + 1, y + 3.2);
-    N(8); t(String(isf.blNum || ''), L + HW + 1, y + rH3 - 1.2);
+    B(6.5); t('10. SCAC Code:', L + P, y + 3.2);
+    N(8); t(String(isf.blScac || ''), L + P, y + rH3 - 1.2);
+    B(6.5); t('Bill of Lading Number:', L + HW + P, y + 3.2);
+    N(8); t(String(isf.blNum || ''), L + HW + P, y + rH3 - 1.2);
     y += rH3;
 
     // BL Type checkboxes
     r(L, y, W, rH1);
-    B(6.5); t('11. B/L Type:', L + 1, y + 4);
+    B(6.5); t('11. B/L Type:', L + P, y + 4);
     N(7.5);
     const blt = isf.blType || '';
     cb(L + 25, y + 2.7, blt === 'House'); t('House B/L', L + 29.2, y + 5.8);
@@ -164,12 +169,12 @@ export const PdfISF = async (valueInv, compData, settings, _valueCon) => {
     // IDs row (3 equal columns)
     const TW = W / 3;
     r(L, y, TW, rH3); r(L + TW, y, TW, rH3); r(L + 2 * TW, y, TW, rH3);
-    B(6.5); t('12. ISF Importer ID:', L + 1, y + 3.2);
-    N(8); t(String(isf.isfImporterId || ''), L + 1, y + rH3 - 1.2);
-    B(6.5); t('13. Consignee ID:', L + TW + 1, y + 3.2);
-    N(8); t(String(isf.consigneeNum || ''), L + TW + 1, y + rH3 - 1.2);
-    B(6.5); t('14. IOR ID:', L + 2 * TW + 1, y + 3.2);
-    N(8); t(String(isf.iorId || ''), L + 2 * TW + 1, y + rH3 - 1.2);
+    B(6.5); t('12. ISF Importer ID:', L + P, y + 3.2);
+    N(8); t(String(isf.isfImporterId || ''), L + P, y + rH3 - 1.2);
+    B(6.5); t('13. Consignee ID:', L + TW + P, y + 3.2);
+    N(8); t(String(isf.consigneeNum || ''), L + TW + P, y + rH3 - 1.2);
+    B(6.5); t('14. IOR ID:', L + 2 * TW + P, y + 3.2);
+    N(8); t(String(isf.iorId || ''), L + 2 * TW + P, y + rH3 - 1.2);
     y += rH3;
 
     // Address block helper (2-column grid)
@@ -186,7 +191,7 @@ export const PdfISF = async (valueInv, compData, settings, _valueCon) => {
         doc.setFillColor(230, 242, 253);
         r(bx, by, BW, 5.5, 'F');
         B(6.5); doc.setTextColor(20, 20, 80);
-        t(`${num}. ${label}`, bx + 1.5, by + 4);
+        t(`${num}. ${label}`, bx + P, by + 4);
         doc.setTextColor(0);
         if (sameAs) {
             cb(bx + BW - 34, by + 1.1, true);
@@ -195,11 +200,11 @@ export const PdfISF = async (valueInv, compData, settings, _valueCon) => {
             doc.setTextColor(0);
         }
         N(7.5);
-        t(String(name || ''), bx + 1.5, by + 10.5);
-        t(String(a1 || ''), bx + 1.5, by + 15.5);
-        t(String(a2 || ''), bx + 1.5, by + 20);
+        t(String(name || ''), bx + P, by + 10.5);
+        t(String(a1 || ''), bx + P, by + 15.5);
+        t(String(a2 || ''), bx + P, by + 20);
         N(7); doc.setTextColor(70);
-        t(String(country || ''), bx + 1.5, by + 25);
+        t(String(country || ''), bx + P, by + 25);
         doc.setTextColor(0);
     };
 
@@ -221,8 +226,9 @@ export const PdfISF = async (valueInv, compData, settings, _valueCon) => {
     // ── PART IV — COMMODITY DATA ──────────────────────────────────────────────
     y = partHeader('PART IV — INVOICE / COMMODITY DATA', y);
 
-    // Table columns: # | Item Description | HTS Tariff Code | Qty | Unit | Country of Origin
-    const cols = [8, 64, 36, 20, 15, 37];
+    // Table columns: # | Item Description | HTS Tariff Code | Qty | Unit | Country of Origin.
+    // They span the frame; the description takes what the fixed columns leave.
+    const cols = [8, W - 116, 36, 20, 15, 37];
     const colX = cols.reduce((acc, w, i) => {
         acc.push(i === 0 ? L : acc[i - 1] + cols[i - 1]);
         return acc;
@@ -233,7 +239,7 @@ export const PdfISF = async (valueInv, compData, settings, _valueCon) => {
     r(L, y, W, 7, 'FD');
     B(6.5); doc.setTextColor(20, 20, 80);
     const hdrs = ['#', 'Item Description', 'HTS Tariff Code (10)', 'Qty', 'Unit', 'Country of Origin'];
-    hdrs.forEach((h, i) => t(h, colX[i] + 1, y + 5));
+    hdrs.forEach((h, i) => t(h, colX[i] + P, y + 5));
     doc.setTextColor(0);
     y += 7;
 
@@ -244,17 +250,17 @@ export const PdfISF = async (valueInv, compData, settings, _valueCon) => {
     N(8);
     const products = valueInv.productsDataInvoice?.filter(p => p.qnty !== 's') ?? [];
     const totalQty = products.reduce((s, p) => s + (parseFloat(p.qnty) || 0), 0);
-    t('1', colX[0] + 2, y + 7);
+    t('1', colX[0] + P, y + 7);
     // Item description may be long — truncate if needed
     const descText = String(isf.itemDescription || '');
-    const descLines = doc.splitTextToSize(descText, cols[1] - 3);
+    const descLines = doc.splitTextToSize(descText, cols[1] - 2 * P);
     N(7.5);
-    descLines.slice(0, 2).forEach((line, i) => t(line, colX[1] + 1, y + 4.5 + i * 3.8));
+    descLines.slice(0, 2).forEach((line, i) => t(line, colX[1] + P, y + 4.5 + i * 3.8));
     N(8);
-    t(String(isf.htsCommodityCode || ''), colX[2] + 1, y + 7);
-    t(totalQty > 0 ? totalQty.toFixed(3) : '', colX[3] + 1, y + 7);
-    t('MT', colX[4] + 1, y + 7);
-    t(originLabel, colX[5] + 1, y + 7);
+    t(String(isf.htsCommodityCode || ''), colX[2] + P, y + 7);
+    t(totalQty > 0 ? totalQty.toFixed(3) : '', colX[3] + P, y + 7);
+    t('MT', colX[4] + P, y + 7);
+    t(originLabel, colX[5] + P, y + 7);
     y += rowH;
 
     // ── PART V — NOTIFICATION & CERTIFICATION ─────────────────────────────────
@@ -262,10 +268,10 @@ export const PdfISF = async (valueInv, compData, settings, _valueCon) => {
 
     // Email row
     r(L, y, HW, rH3); r(L + HW, y, HW, rH3);
-    B(6.5); t('Email Address 1:', L + 1, y + 3.2);
-    N(8); t(String(isf.email1 || ''), L + 1, y + rH3 - 1.2);
-    B(6.5); t('Email Address 2:', L + HW + 1, y + 3.2);
-    N(8); t(String(isf.email2 || ''), L + HW + 1, y + rH3 - 1.2);
+    B(6.5); t('Email Address 1:', L + P, y + 3.2);
+    N(8); t(String(isf.email1 || ''), L + P, y + rH3 - 1.2);
+    B(6.5); t('Email Address 2:', L + HW + P, y + 3.2);
+    N(8); t(String(isf.email2 || ''), L + HW + P, y + rH3 - 1.2);
     y += rH3;
 
     // Certification
@@ -273,8 +279,8 @@ export const PdfISF = async (valueInv, compData, settings, _valueCon) => {
     doc.setFillColor(248, 252, 255);
     r(L, y, W, 15, 'FD');
     N(7);
-    const certLines = doc.splitTextToSize(certText, W - 4);
-    certLines.forEach((line, i) => t(line, L + 2, y + 5 + i * 3.7));
+    const certLines = doc.splitTextToSize(certText, W - 2 * P);
+    certLines.forEach((line, i) => t(line, L + P, y + 5 + i * 3.7));
     y += 15;
 
     // Signature row — 3 columns: Name | Date | Authorized Signature
@@ -285,22 +291,22 @@ export const PdfISF = async (valueInv, compData, settings, _valueCon) => {
     doc.line(L + W * 0.65, y, L + W * 0.65, y + sigH);
 
     // Name column
-    B(6.5); t('Name:', L + 2, y + 4.5);
-    N(8); t(compData.contact || '', L + 2, y + 10);
-    B(6.5); t('Company:', L + 2, y + 14.5);
+    B(6.5); t('Name:', L + P, y + 4.5);
+    N(8); t(compData.contact || '', L + P, y + 10);
+    B(6.5); t('Company:', L + P, y + 14.5);
 
     // Date column
-    B(6.5); t('Date:', L + W * 0.35 + 2, y + 4.5);
-    N(8); t(etdDate, L + W * 0.35 + 2, y + 10);
+    B(6.5); t('Date:', L + W * 0.35 + P, y + 4.5);
+    N(8); t(etdDate, L + W * 0.35 + P, y + 10);
 
     // Authorized Signature column
-    B(6.5); t('Authorized Signature:', L + W * 0.65 + 2, y + 4.5);
+    B(6.5); t('Authorized Signature:', L + W * 0.65 + P, y + 4.5);
     try {
         gisAccount
-            ? doc.addImage('logo/gisSignature.jpg', 'JPEG', L + W * 0.65 + 2, y + 5.5, 50, 9)
-            : doc.addImage('logo/imsSignatureNew.jpg', 'JPEG', L + W * 0.65 + 2, y + 5.5, 50, 9);
+            ? doc.addImage('logo/gisSignature.jpg', 'JPEG', L + W * 0.65 + P, y + 5.5, 50, 9)
+            : doc.addImage('logo/imsSignatureNew.jpg', 'JPEG', L + W * 0.65 + P, y + 5.5, 50, 9);
     } catch (_) {
-        N(8); t('________________________________', L + W * 0.65 + 2, y + 13);
+        N(8); t('________________________________', L + W * 0.65 + P, y + 13);
     }
 
     // ── FOOTER ────────────────────────────────────────────────────────────────

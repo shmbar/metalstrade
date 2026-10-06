@@ -10,6 +10,8 @@ const ensurePdfLibs = async () => {
 };
 import { DEFAULT_ELEMENTS } from './constants'
 import { pdfRows } from '../contracts/modals/pdf/pdfText'
+import { registerPdfFonts } from '../contracts/modals/pdf/pdfFonts'
+import { TABLE_WIDTH } from '../contracts/modals/pdf/pdfLayout'
 
 export const TPdfTable = async (arrTable, elements, unitLabel = 'Kgs') => {
     await ensurePdfLibs();
@@ -23,19 +25,23 @@ export const TPdfTable = async (arrTable, elements, unitLabel = 'Kgs') => {
     console.error = () => {}
     try {
         const doc = new jsPDF()
-        doc.addFont('/fonts/Calibri.ttf', 'Plus Jakarta Sans', 'normal')
-        doc.addFont('/fonts/Calibri-bold.ttf', 'PoppinsB', 'bold')
+        // The fonts registered the way every other document registers them (pdfFonts.js):
+        // fetched once and kept. The two addFont calls here had jsPDF fetch each file with a
+        // synchronous request on every export.
+        await registerPdfFonts(doc)
 
         const pageWidth = doc.internal.pageSize.width
-        const wantedWidth = 190
-        const margin = (pageWidth - wantedWidth) / 2
+        const margin = (pageWidth - TABLE_WIDTH) / 2
 
         const headers = ['Material', unitLabel, ...elems.map(e => e.label)]
 
-        // Dynamic column widths: material 60, weight 18, each element 12
-        const elemWidth = Math.min(12, Math.floor((wantedWidth - 60 - 18) / elems.length))
+        /* Weight 18, each element 12 (less when there are many), and Material takes the rest,
+           so the columns add up to the full 190 mm like every other document's table. Material
+           was a fixed 60, which left the table 4 mm short of the margin with the usual nine
+           elements, and more with fewer. */
+        const elemWidth = Math.min(12, Math.floor((TABLE_WIDTH - 60 - 18) / elems.length))
         const columnStyles = {
-            0: { cellWidth: 60, halign: 'center' },
+            0: { cellWidth: TABLE_WIDTH - 18 - elemWidth * elems.length, halign: 'center' },
             1: { cellWidth: 18, halign: 'center' },
         }
         elems.forEach((_, i) => { columnStyles[i + 2] = { cellWidth: elemWidth, halign: 'center' } })

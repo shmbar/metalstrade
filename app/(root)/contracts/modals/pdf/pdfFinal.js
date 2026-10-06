@@ -11,7 +11,8 @@ const ensurePdfLibs = async () => {
 import { getD } from '@utils/utils.js';
 import dateFormat from "dateformat";
 import { registerPdfFonts } from './pdfFonts';
-import { pdfRows } from './pdfText';
+import { pdfText, pdfRows } from './pdfText';
+import { RIGHT, MIDDLE, TABLE_WIDTH, BLOCKS, stack, gridCell, companyHeader, companyBand, signOff } from './pdfLayout';
 
 
 
@@ -26,27 +27,6 @@ const showFinalRemarks = (doc, startRemarksRow, valueCon) => {
             doc.text(valueCon.finalSRemarks[i]?.rmrk, 10, startRemarksRow + 5 + i * 4);
         }
     }
-}
-
-const Signatiure = (doc, compData, gisAccount) => {
-    doc.setFont('Plus Jakarta Sans', 'normal');
-    doc.setFontSize(7);
-    doc.text(`Please make sure to put ${gisAccount ? 'GIS' : 'IMS'} Shipping - ${compData.email} in copy of all e-mails regarding Inquires/Purchase orders/Settlements and etc.`, 12, 236)
-
-    doc.setFont('Plus Jakarta Sans', 'normal');
-    doc.text('With kind regards,', 12, 242);
-
-    {
-        gisAccount ? doc.addImage('logo/gisSignature.jpg', "JPEG", 10, 244, 40, 24)
-            :
-            doc.addImage('logo/imsSignatureNew.jpg', "JPEG", 10, 243, 33, 28);
-    }
-
-    doc.setFont('Plus Jakarta Sans', 'normal');
-    doc.setFontSize(6);
-    doc.text('Any Radio Active materials detected within your load will be isolated and safely impounded and disposed of as per the regulations of the day laid down by the Government and all', 30, 267);
-    doc.text(' costs relating to its safe disposal shall be borne by the Supplier', 75, 270);
-
 }
 
 export const Pdf = async (valueCon, arrTable, settings, compData, data, gisAccount) => {
@@ -68,76 +48,9 @@ export const Pdf = async (valueCon, arrTable, settings, compData, data, gisAccou
     //   doc.addFont("/fonts/Anon.ttf", "Anon", "normal");
     // doc.addFont("/fonts/Anon-bold.ttf", "AnonB", "bold");
 
-    const header = () => {
-        gisAccount ?
-            doc.addImage('/logo/gisLogo.jpg', "JPEG", 8, 10, 50, 25) :
-            doc.addImage('/logo/logoIms.jpg', "JPEG", 10, 10, 50, 25);
-
-        doc.setTextColor(32, 55, 100)
-        doc.setFont('PoppinsB', 'bold');
-        doc.setFontSize(10);
-        doc.text(compData.name, 130, 15)
-        doc.setFontSize(9);
-        doc.setFont('Plus Jakarta Sans', 'normal');
-        doc.text(compData.street, 130, 21)
-        doc.text(compData.city + ' ' + compData.zip, 130, 27)
-        doc.text(compData.country, 130, 33)
-
-        //    doc.setDrawColor(220, 220, 220); // draw red lines
-        //    doc.line(10, 38, 200, 38); // horizontal line
-    }
-
-    const footer = () => {
-
-        //Footer
-        if (!gisAccount) {
-            doc.setDrawColor(220, 220, 220);
-            doc.line(10, 272, 200, 272);
-        }
-
-
-        if (gisAccount) {
-            doc.addImage('/logo/gisFooter.jpg', "JPEG", 0, 272, 220, 26)
-        } else {
-            doc.setFillColor(9, 110, 182)
-            doc.rect(0, 272, 220, 26, "F");
-        }
-
-
-
-        doc.setFont('PoppinsB', 'bold');
-        doc.setFontSize(9);
-
-        // {
-        //     compData.logolink === '/logo/logoNew.png' ?
-        doc.setTextColor(255, 255, 255)
-        //        : doc.setTextColor(32, 55, 100)        }
-
-
-        if (gisAccount) {
-            doc.text(compData.name, 187.5, 282)
-            doc.setFontSize(9);
-            doc.setFont('Plus Jakarta Sans', 'normal');
-            doc.text(compData.street + ' - ' + compData.city + ' ' + compData.zip +
-                ' - ' + compData.country, 163, 286);
-            doc.text('Reg No. ' + compData.reg +
-                ' - EORI No. ' + compData.eori, 152, 290);
-            doc.text(compData.website, 179, 294);
-        } else {
-            doc.text(compData.name, 82, 278)
-            doc.setFontSize(8);
-            doc.setFont('Plus Jakarta Sans', 'normal');
-            doc.text(compData.street + ' - ' + compData.city + ' ' + compData.zip +
-                ' - ' + compData.country, 78, 282);
-            doc.text('Reg No. ' + compData.reg + ' - Vat No. ' + compData.vat +
-                ' - EORI No. ' + compData.eori, 64, 286);
-            doc.setFontSize(8);
-            doc.text(compData.email + ' - ' + compData.website, 70, 290);
-            doc.setTextColor(32, 55, 100)
-        }
-    }
-    header()
-    footer();
+    // On the grid every document shares (pdfLayout.js).
+    companyHeader(doc, compData, gisAccount);
+    companyBand(doc, compData, gisAccount);
 
     doc.setTextColor(25, 25, 112)
     doc.setFontSize(8);
@@ -159,51 +72,43 @@ export const Pdf = async (valueCon, arrTable, settings, compData, data, gisAccou
         doc.text(supp.other1, 10, 71);
     }
 
+    /* The order, its date and the supplier's invoices all end at the margin, level with the
+       table. The order and the date were left-aligned at 185 while the invoice numbers under
+       them ended at 200: three lines, three right edges. */
     doc.setFontSize(8);
-    doc.setFont('PoppinsB', 'bold');
-    doc.text('Purchase Order No:', 130, 50);
-    doc.setFont('Plus Jakarta Sans', 'normal');
-    doc.setFontSize(8);
-    doc.text(valueCon.order, 185, 50);
-    doc.setFont('PoppinsB', 'bold');
-    doc.setFontSize(8);
-    doc.text('Date:', 130, 54);
-    doc.setFont('Plus Jakarta Sans', 'normal');
-    doc.setFontSize(8);
-    doc.text(valueCon.date === '' || valueCon.date.startDate === null ? '' :
-        dateFormat(valueCon.date.startDate, 'dd.mm.yy'), 185, 54);
+    const below = stack(doc, [
+        ['Purchase Order No:', valueCon.order],
+        ['Date:', valueCon.date === '' || valueCon.date.startDate === null ? '' :
+            dateFormat(valueCon.date.startDate, 'dd.mm.yy')],
+    ], { ...BLOCKS.right, top: 50 });
 
-
-    doc.setFont('PoppinsB', 'bold');
-    doc.setFontSize(8);
-    doc.text('Invoices:', 130, 58);
-    doc.setFont('Plus Jakarta Sans', 'normal');
-    doc.setFontSize(8);
     const InvArr = [...new Set(data.flatMap(x =>
         x.poInvoices.filter(y => y.id === x.poInvoice).map(y => y.inv)
     ))];
 
-    // Long invoice numbers (e.g. FVEH/00001/06/26/D) overflowed the page when
-    // drawn left-aligned at x=185 — only ~15mm remained to the margin. Right-align
-    // each number at the content edge (x=200, same as the table) so it grows
-    // leftward into the free space, and wrap onto extra lines if still too long.
-    let invY = 58;
+    // One invoice number to a line under one heading. A long one (FVEH/00001/06/26/D) wraps
+    // within the room beside the heading rather than run into it.
+    doc.setFont('PoppinsB', 'bold');
+    doc.text('Invoices:', BLOCKS.right.label, below);
+    const invRoom = RIGHT - (BLOCKS.right.label + doc.getTextWidth('Invoices:') + 2);
+    doc.setFont('Plus Jakarta Sans', 'normal');
+    let invY = below;
     for (let i = 0; i < InvArr.length; i++) {
-        const lines = doc.splitTextToSize(String(InvArr[i] ?? ''), 62);
+        const lines = doc.splitTextToSize(String(InvArr[i] ?? ''), invRoom);
         for (const ln of lines) {
-            doc.text(ln, 200, invY, { align: 'right' });
+            doc.text(ln, RIGHT, invY, { align: 'right' });
             invY += 4;
         }
     }
 
+    // Centred on the page (it was placed by eye at x = 90).
     doc.setFont('PoppinsB', 'bold');
     doc.setFontSize(12);
-    doc.text('Final Settlement', 90, 80);
+    doc.text('Final Settlement', MIDDLE, 80, { align: 'center' });
 
     console.error = () => { };
-    let wantedTableWidth = 190;
     let pageWidth = doc.internal.pageSize.width;
-    let margin = (pageWidth - wantedTableWidth) / 2;
+    let margin = (pageWidth - TABLE_WIDTH) / 2;
 
 
     // Index of the first summary row (kept stable so the underlines below don't shift when
@@ -358,18 +263,7 @@ export const Pdf = async (valueCon, arrTable, settings, compData, data, gisAccou
                 data.row.section === 'head') {
                 data.cell.styles.halign = 'left'
             }
-
-            if (data.row.index === 0 && data.row.section === 'head') {
-                data.cell.styles.cellPadding = 1
-            }
-
-            if (data.row.index === 1 && data.row.section === 'head') {
-                data.cell.styles.cellPadding = 0
-            }
-
-            if (data.row.section === 'body') {
-                data.cell.styles.cellPadding = 0.5
-            }
+            gridCell(data);
         },
         willDrawCell: (data) => {
             let arr = [1, 2, 3, 4, 5, 6]
@@ -397,8 +291,8 @@ export const Pdf = async (valueCon, arrTable, settings, compData, data, gisAccou
     showFinalRemarks(doc, startRemarksRow, valueCon)
 
 
-    Signatiure(doc, compData, gisAccount)
+    signOff(doc, compData, gisAccount)
 
-    doc.save("FinalSettlement_" + supp.nname + "_" + valueCon.order + ".pdf"); // will save the file in the current working directory
+    doc.save("FinalSettlement_" + pdfText(supp.nname) + "_" + pdfText(valueCon.order) + ".pdf"); // pdfText: no stray spaces in the name
 
 };

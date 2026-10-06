@@ -11,7 +11,8 @@ const ensurePdfLibs = async () => {
 import { getD } from '@utils/utils.js';
 import dateFormat from "dateformat";
 import { registerPdfFonts } from './pdfFonts';
-import { pdfRows } from './pdfText';
+import { pdfText, pdfRows } from './pdfText';
+import { LEFT, RIGHT, MIDDLE, TABLE_WIDTH, gridCell, companyHeader } from './pdfLayout';
 
 
 let showAmountInv = (x) => {
@@ -37,43 +38,24 @@ export const PdfAccountStatement = async (arrTable, settings, compData, client, 
     //   doc.addFont("/fonts/Anon.ttf", "Anon", "normal");
     // doc.addFont("/fonts/Anon-bold.ttf", "AnonB", "bold");
 
-    const header = () => {
-         gisAccount ?
-            doc.addImage('/logo/gisLogo.jpg', "JPEG", 8, 10, 50, 25) :
-            doc.addImage('/logo/logoIms.jpg', "JPEG", 10, 10, 50, 25);
+    // On the grid every document shares (pdfLayout.js).
+    const header = () => companyHeader(doc, compData, gisAccount);
 
-        doc.setTextColor(32, 55, 100)
-        doc.setFont('PoppinsB', 'bold');
-        doc.setFontSize(10);
-        doc.text(compData.name, 130, 15)
-        doc.setFontSize(9);
-        doc.setFont('Plus Jakarta Sans', 'normal');
-        doc.text(compData.street, 130, 21)
-        doc.text(compData.city + ' ' + compData.zip, 130, 27)
-        doc.text(compData.country, 130, 33)
-
-        //    doc.setDrawColor(220, 220, 220); // draw red lines
-        //    doc.line(10, 38, 200, 38); // horizontal line
-    }
-
+    // Centred on the page — the lines had been placed by eye at x = 82, 78, 64 and 70.
     const footer = () => {
-        doc.setFont('Plus Jakarta Sans', 'normal');
-        doc.setFontSize(6);
-
-        //Footer
         doc.setDrawColor(220, 220, 220);
-        doc.line(10, 272, 200, 272);
+        doc.line(LEFT, 272, RIGHT, 272);
+        const at = { align: 'center' };
         doc.setFont('PoppinsB', 'bold');
         doc.setFontSize(9);
-        doc.text(compData.name, 82, 276)
+        doc.text(compData.name, MIDDLE, 276, at)
         doc.setFontSize(8);
         doc.setFont('Plus Jakarta Sans', 'normal');
         doc.text(compData.street + ' - ' + compData.city + ' ' + compData.zip +
-            ' - ' + compData.country, 78, 280);
+            ' - ' + compData.country, MIDDLE, 280, at);
         doc.text('Reg No. ' + compData.reg + ' - Vat No. ' + compData.vat +
-            ' - EORI No. ' + compData.eori, 64, 284);
-        doc.setFontSize(8);
-        doc.text(compData.email + ' - ' + compData.website, 70, 288);
+            ' - EORI No. ' + compData.eori, MIDDLE, 284, at);
+        doc.text(compData.email + ' - ' + compData.website, MIDDLE, 288, at);
     }
     header()
     // footer();
@@ -97,17 +79,18 @@ export const PdfAccountStatement = async (arrTable, settings, compData, client, 
     }
 
 
+    // One title, centred on the page — the words and the date were placed by eye at 70 and
+    // 112, which left the pair 5 mm left of the middle.
     doc.setFont('PoppinsB', 'bold');
     doc.setFontSize(12);
-    doc.text('ACCOUNT STATEMENT', 70, 80);
-    doc.text(dateFormat(new Date(), "dd-mmm-yy"), 112, 80);
-
-
+    doc.text(`ACCOUNT STATEMENT ${dateFormat(new Date(), "dd-mmm-yy")}`, MIDDLE, 80, { align: 'center' });
 
     console.error = () => { };
-    let wantedTableWidth = 190;
     let pageWidth = doc.internal.pageSize.width;
-    let margin = (pageWidth - wantedTableWidth) / 2;
+    let margin = (pageWidth - TABLE_WIDTH) / 2;
+    // Seven equal columns across the full 190 mm. They were 27 mm each, 189 in all, so the
+    // table stopped 1 mm short of the rule drawn under it.
+    const colW = TABLE_WIDTH / 7;
 
     autoTable(doc, {
         theme: 'plain',
@@ -125,31 +108,20 @@ export const PdfAccountStatement = async (arrTable, settings, compData, client, 
         // Cleaned before it is measured, so a cell is placed by the text it will show (pdfText.js).
         body: pdfRows(arrTable),
         columnStyles: {
-            0: { cellWidth: 27, halign: 'center' },
-            1: { cellWidth: 27, halign: 'left' },
-            2: { cellWidth: 27, halign: 'center' },
-            3: { cellWidth: 27, halign: 'center' },
-            4: { cellWidth: 27, halign: 'center' },
-            5: { cellWidth: 27, halign: 'center' },
-            6: { cellWidth: 27, halign: 'center' }
+            0: { cellWidth: colW, halign: 'center' },
+            1: { cellWidth: colW, halign: 'left' },
+            2: { cellWidth: colW, halign: 'center' },
+            3: { cellWidth: colW, halign: 'center' },
+            4: { cellWidth: colW, halign: 'center' },
+            5: { cellWidth: colW, halign: 'center' },
+            6: { cellWidth: colW, halign: 'center' }
 
         },
         didParseCell: function (data) {
             if (data.row.index === 0 && data.column.index === 1 && data.row.section === 'head') {
                 data.cell.styles.halign = 'left'
             }
-
-            if (data.row.index === 0 && data.row.section === 'head') {
-                data.cell.styles.cellPadding = 1
-            }
-
-            if (data.row.index === 1 && data.row.section === 'head') {
-                data.cell.styles.cellPadding = 0
-            }
-
-            if (data.row.section === 'body') {
-                data.cell.styles.cellPadding = 0.5
-            }
+            gridCell(data);
         }
 
     });
@@ -157,37 +129,26 @@ export const PdfAccountStatement = async (arrTable, settings, compData, client, 
     let finalY = doc.lastAutoTable.finalY;
     let line = finalY + 2
     doc.setDrawColor(50, 50, 50);
-    doc.line(10, line, 200, line);
+    doc.line(LEFT, line, RIGHT, line);
 
 
     let totalLine = line + 6
 
+    /* Each total sits centred under the column it totals, the currencies under Currency.
+       They were at x = 80, 110 and 140, which put Paid under Due Payment and Unpaid under
+       Currency and Due Payment. */
+    const under = (col) => LEFT + colW * (col + 0.5);
+    const at = { align: 'center' };
     doc.setFont('PoppinsB', 'bold');
     doc.setFontSize(12);
-    doc.text('Total:', 40, totalLine + 5); //USD
-
-    doc.setFont('PoppinsB', 'bold');
-    doc.setFontSize(12);
-    doc.text('USD', 60, totalLine + 5); //USD
-    doc.text('EUR', 60, totalLine + 10); //Eur
-
-    doc.setFont('PoppinsB', 'bold');
-    doc.setFontSize(12);
-    doc.text('Amount', 80, totalLine);
-    doc.text(showAmountInv(totals[0].us.amount), 80, totalLine + 5); //USD
-    doc.text(showAmountInv(totals[1].eu.amount), 80, totalLine + 10); //Eur
-
-    doc.setFont('PoppinsB', 'bold');
-    doc.setFontSize(12);
-    doc.text('Paid', 110, totalLine);
-    doc.text(showAmountInv(totals[0].us.paid), 110, totalLine + 5); //USD
-    doc.text(showAmountInv(totals[1].eu.paid), 110, totalLine + 10); //Eur
-
-    doc.setFont('PoppinsB', 'bold');
-    doc.setFontSize(12);
-    doc.text('Unpaid', 140, totalLine);
-    doc.text(showAmountInv(totals[0].us.notPaid), 140, totalLine + 5); //USD
-    doc.text(showAmountInv(totals[1].eu.notPaid), 140, totalLine + 10); //Eur
+    doc.text('Total:', LEFT, totalLine + 5);
+    doc.text('USD', under(3), totalLine + 5, at);
+    doc.text('EUR', under(3), totalLine + 10, at);
+    [['Amount', 2, 'amount'], ['Paid', 5, 'paid'], ['Unpaid', 6, 'notPaid']].forEach(([caption, col, key]) => {
+        doc.text(caption, under(col), totalLine, at);
+        doc.text(showAmountInv(totals[0].us[key]), under(col), totalLine + 5, at); //USD
+        doc.text(showAmountInv(totals[1].eu[key]), under(col), totalLine + 10, at); //Eur
+    });
 
     let pageCount = doc.internal.getNumberOfPages();
     if (pageCount !== 1) {
@@ -199,5 +160,5 @@ export const PdfAccountStatement = async (arrTable, settings, compData, client, 
 
 
     //doc.save("PO_" + supp.nname + "_" + valueCon.order + ".pdf"); // will save the file in the current working directory
-    doc.save("Debt_" + clnt?.nname + ".pdf"); // will save the file in the current working directory
+    doc.save("Debt_" + pdfText(clnt?.nname) + ".pdf"); // pdfText: "Solumet " named the file "Debt_Solumet .pdf"
 };

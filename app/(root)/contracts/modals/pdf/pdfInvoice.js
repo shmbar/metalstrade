@@ -12,6 +12,7 @@ import { getD } from '@utils/utils.js';
 import dateFormat from "dateformat";
 import { registerPdfFonts } from './pdfFonts';
 import { pdfText, pdfRows } from './pdfText';
+import { MIDDLE, TABLE_WIDTH, BLOCKS, stack, gridCell, companyHeader } from './pdfLayout';
 
 const showRemarks = (doc, startRemarksRow, valueCon) => {
     if (valueCon.remarks.length > 0) {
@@ -52,25 +53,8 @@ export const Pdf = async (value, arrTable, settings, compData, gisAccount) => {
          doc.text("DRAFT", 45, 90, null, 20);
      } */
 
-    const header = () => {
-        gisAccount ?
-            doc.addImage('/logo/gisLogo.jpg', "JPEG", 8, 10, 50, 25) :
-            doc.addImage('/logo/logoIms.jpg', "JPEG", 10, 10, 50, 25);
-
-
-        doc.setTextColor(32, 55, 100)
-        doc.setFont('PoppinsB', 'bold');
-        doc.setFontSize(10);
-        doc.text(compData.name, 138, 15)
-        doc.setFontSize(9);
-        doc.setFont('Plus Jakarta Sans', 'normal');
-        doc.text(compData.street, 138, 21)
-        doc.text(compData.city + ' ' + compData.zip, 138, 27)
-        doc.text(compData.country, 138, 33)
-
-        //    doc.setDrawColor(220, 220, 220); // draw red lines
-        //    doc.line(10, 38, 200, 38); // horizontal line
-    }
+    // On the grid every document shares (pdfLayout.js).
+    const header = () => companyHeader(doc, compData, gisAccount);
 
     const footer = () => {
         doc.setFont('Plus Jakarta Sans', 'normal');
@@ -78,9 +62,8 @@ export const Pdf = async (value, arrTable, settings, compData, gisAccount) => {
 
         // Centred on the page. They were placed by eye at x = 70 and x = 66, which centred the
         // first line 0.6 mm and the second 1.6 mm left of the middle — and not on each other.
-        const mid = doc.internal.pageSize.width / 2;
-        doc.text('This document was issued electronically and is therefore valid without signature', mid, 265, { align: 'center' });
-        doc.text('These goods remain property of the seller until payment in full has been received by us', mid, 268, { align: 'center' });
+        doc.text('This document was issued electronically and is therefore valid without signature', MIDDLE, 265, { align: 'center' });
+        doc.text('These goods remain property of the seller until payment in full has been received by us', MIDDLE, 268, { align: 'center' });
 
         //Footer
         if (!gisAccount) {
@@ -210,36 +193,30 @@ export const Pdf = async (value, arrTable, settings, compData, gisAccount) => {
     }
 
     /* The three blocks above the table — shipment (left), ports and packing (centre), weights
-       (right). Each lists only the fields this invoice has, from the top down. Every field used
-       to own a fixed line, so an invoice with no Origin and no POL printed Shipment on line 1,
-       POD on line 2 and Delivery Terms on line 3: three blocks that did not line up with each
-       other (client, 2026-10-05, invoice 1480). Which fields print is exactly as before. */
+       (right). Each lists only the fields this invoice has, from the top down (pdfLayout.js
+       stack). Every field used to own a fixed line, so an invoice with no Origin and no POL
+       printed Shipment on line 1, POD on line 2 and Delivery Terms on line 3: three blocks
+       that did not line up with each other (client, 2026-10-05, invoice 1480). Which fields
+       print is exactly as before. */
     doc.setFontSize(8);
-    const stack = (rows, labelX, drawValue) => rows.filter(Boolean).forEach(([label, text], i) => {
-        const y = 92 + i * 4;
-        doc.setFont('PoppinsB', 'bold');
-        doc.text(label, labelX, y);
-        doc.setFont('Plus Jakarta Sans', 'normal');
-        drawValue(String(text ?? ''), y);
-    });
 
     // A credit note or a final note prints no packing, tare or package count.
     const isNote = value.invType === '2222' || value.invType === '3333'
     const noDelDate = value.delDate.startDate === '' || value.delDate.startDate === null
 
-    stack([
+    stack(doc, [
         ['Shipment:', getD(settings.Shipment.Shipment, value, 'shpType')],
         // 'empty' is the option that prints the heading with nothing beside it
         value.origin !== '' && ['Origin:', value.origin !== 'empty' ? getD(settings.Origin.Origin, value, 'origin') : ''],
         value.delTerm !== '' && ['Delivery Terms:', getD(settings['Delivery Terms']['Delivery Terms'], value, 'delTerm')],
         !noDelDate && ['Delivery Date:', dateFormat(value.delDate.startDate, 'dd-mmm-yyyy')],
-    ], 10, (text, y) => doc.text(text, 35, y));
+    ], BLOCKS.left);
 
-    stack([
+    stack(doc, [
         value.pol !== '' && ['POL:', getD(settings.POL.POL, value, 'pol')],
         value.pod !== '' && ['POD:', getD(settings.POD.POD, value, 'pod')],
         value.packing !== '' && !isNote && ['Packing:', getD(settings.Packing.Packing, value, 'packing')],
-    ], 80, (text, y) => doc.text(text, 95, y));
+    ], BLOCKS.middle);
 
     //Total Net WT Kgs:
     const options = { style: 'decimal', minimumFractionDigits: 0, maximumFractionDigits: 2 };
@@ -256,13 +233,13 @@ export const Pdf = async (value, arrTable, settings, compData, gisAccount) => {
     let fourthRule = value.packing === 'P7'
     let fifthRule = value.packing === 'P13'
 
-    stack([
+    stack(doc, [
         ['Total Net WT Kgs:', NetWTKgs],
         !secondRule && !fifthRule && !isNote && ['Total Tarre WT Kgs:', TotalTarre],
         value.ttlGross !== '' && !fourthRule && !fifthRule
             && [thirdRule ? 'QTY Ingots' : 'Total Gross WT Kgs:', (value.ttlGross * 1).toLocaleString(locale, options)],
         value.ttlPackages !== '' && !secondRule && !isNote && ['Total Packages:', value.ttlPackages],
-    ], 138, (text, y) => doc.text(text, 200, y, { align: 'right' }));
+    ], BLOCKS.right);
 
     if (value.hs1 !== '' || value.hs2 !== '') {
         doc.setFont('Plus Jakarta Sans', 'normal');
@@ -338,9 +315,8 @@ export const Pdf = async (value, arrTable, settings, compData, gisAccount) => {
     (value.invType === '2222' || value.invType === '3333') && arrTable.push(newRow4);
 
     console.error = () => { };
-    let wantedTableWidth = 190;
     let pageWidth = doc.internal.pageSize.width;
-    let margin = (pageWidth - wantedTableWidth) / 2;
+    let margin = (pageWidth - TABLE_WIDTH) / 2;
 
     autoTable(doc, {
         theme: 'plain',
@@ -380,14 +356,7 @@ export const Pdf = async (value, arrTable, settings, compData, gisAccount) => {
             if (data.column.index === 1 && data.row.section === 'body') {
                 data.cell.styles.halign = 'left'
             }
-
-            /* One horizontal inset for every cell, so a heading starts exactly above the values
-               of its column. The header row used 1 mm all round and the body 0.5, which put
-               "#", "PO#" and "Description" half a millimetre to the right of what they head.
-               The vertical padding is what gives each band its height, and is as it was:
-               1 for the heading row, 0 for the units row under it, 0.5 for the body. */
-            const padY = data.row.section === 'head' ? (data.row.index === 0 ? 1 : 0) : 0.5;
-            data.cell.styles.cellPadding = { top: padY, bottom: padY, left: 1, right: 1 };
+            gridCell(data);   // one inset, and each column's own width (pdfLayout.js)
         },
         willDrawCell: (data) => {
             const tmp1 = value.invType === '1111' ? 2 : 3

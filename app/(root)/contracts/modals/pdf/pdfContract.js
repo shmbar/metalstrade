@@ -8,10 +8,11 @@ const ensurePdfLibs = async () => {
     jsPDF = jspdfMod.jsPDF;
     autoTable = autoTableMod.default;
 };
-import { getD, fileToDataUrl } from '@utils/utils.js';
+import { getD } from '@utils/utils.js';
 import dateFormat from "dateformat";
 import { registerPdfFonts } from './pdfFonts';
-import { pdfRows } from './pdfText';
+import { pdfText, pdfRows } from './pdfText';
+import { LEFT, RIGHT, TABLE_WIDTH, BLOCKS, stack, gridCell, companyHeader, companyBand, signOff } from './pdfLayout';
 
 
 
@@ -50,27 +51,6 @@ const showPriceRemarks = (doc, startRemarkPricesRow, valueCon) => {
     }
 }
 
-const Signatiure = (doc, compData, gisAccount) => {
-    doc.setFont('Plus Jakarta Sans', 'normal');
-    doc.setFontSize(7);
-    doc.text(`Please make sure to put ${gisAccount ? 'GIS' : 'IMS'} Shipping - ${compData.email} in copy of all e-mails regarding Inquires/Purchase orders/Settlements and etc.`, 12, 236)
-
-    doc.setFont('Plus Jakarta Sans', 'normal');
-    doc.text('With kind regards,', 12, 242);
-
-    {
-        gisAccount ? doc.addImage('logo/gisSignature.jpg', "JPEG", 10, 244, 40, 24)
-            :
-            doc.addImage('logo/imsSignatureNew.jpg', "JPEG", 10, 243, 33, 28);
-    }
-
-    doc.setFont('Plus Jakarta Sans', 'normal');
-    doc.setFontSize(6);
-    doc.text('Any Radio Active materials detected within your load will be isolated and safely impounded and disposed of as per the regulations of the day laid down by the Government and all', 30, 267);
-    doc.text(' costs relating to its safe disposal shall be borne by the Supplier', 75, 270);
-
-}
-
 /* `view` carries the unit/currency the caller already expressed arrTable in, when the
    products table's "View in" overlay is active — { qtyLabel: 'MT', curLabel: 'USD' }.
    Omitted (the normal case) the header keeps reading the contract's own stored
@@ -93,83 +73,10 @@ export const Pdf = async (valueCon, arrTable, settings, compData, gisAccount, mo
     //   doc.addFont("/fonts/Anon.ttf", "Anon", "normal");
     // doc.addFont("/fonts/Anon-bold.ttf", "AnonB", "bold");
 
-    const loadImageAsBase64 = async (url) => {
-        const response = await fetch(url);
-        const blob = await response.blob();
-        // Shared reader — works even where Lockdown Mode removes FileReader.
-        return fileToDataUrl(blob);
-    };
-
-    const header = async () => {
-
-        gisAccount ?
-            doc.addImage('/logo/gisLogo.jpg', "JPEG", 8, 10, 50, 25) :
-            doc.addImage('/logo/logoIms.jpg', "JPEG", 10, 10, 50, 25);
-
-        doc.setTextColor(32, 55, 100)
-        doc.setFont('PoppinsB', 'bold');
-        doc.setFontSize(10);
-        doc.text(compData.name, 130, 15)
-        doc.setFontSize(9);
-        doc.setFont('Plus Jakarta Sans', 'normal');
-        doc.text(compData.street, 130, 21)
-        doc.text(compData.city + ' ' + compData.zip, 130, 27)
-        doc.text(compData.country, 130, 33)
-
-        //    doc.setDrawColor(220, 220, 220); // draw red lines
-        //    doc.line(10, 38, 200, 38); // horizontal line
-    }
-
-    const footer = () => {
-
-        //Footer
-        if (!gisAccount) {
-            doc.setDrawColor(220, 220, 220);
-            doc.line(10, 272, 200, 272);
-        }
-
-        if (gisAccount) {
-            doc.addImage('/logo/gisFooter.jpg', "JPEG", 0, 272, 220, 26)
-        } else {
-            doc.setFillColor(9, 110, 182)
-            doc.rect(0, 272, 220, 26, "F");
-        }
-
-        doc.setFont('PoppinsB', 'bold');
-        doc.setFontSize(9);
-
-        // {
-        //     compData.logolink === '/logo/logoNew.png' ?
-        doc.setTextColor(255, 255, 255)
-        //        : doc.setTextColor(32, 55, 100)        }
-
-        if (gisAccount) {
-            
-            doc.text(compData.name, 187.5, 282)
-            doc.setFontSize(9);
-            doc.setFont('Plus Jakarta Sans', 'normal');
-            doc.text(compData.street + ' - ' + compData.city + ' ' + compData.zip +
-                ' - ' + compData.country, 163, 286);
-            doc.text('Reg No. ' + compData.reg +
-                ' - EORI No. ' + compData.eori, 152, 290);
-            doc.text(compData.website, 179, 294);
-            doc.setTextColor(32, 55, 100)
-            
-        } else {
-            doc.text(compData.name, 82, 278)
-            doc.setFontSize(8);
-            doc.setFont('Plus Jakarta Sans', 'normal');
-            doc.text(compData.street + ' - ' + compData.city + ' ' + compData.zip +
-                ' - ' + compData.country, 78, 282);
-            doc.text('Reg No. ' + compData.reg + ' - Vat No. ' + compData.vat +
-                ' - EORI No. ' + compData.eori, 64, 286);
-            doc.setFontSize(8);
-            doc.text(compData.email + ' - ' + compData.website, 70, 290);
-            doc.setTextColor(32, 55, 100)
-        }
-
-    }
-    await header()
+    // On the grid every document shares (pdfLayout.js).
+    const header = () => companyHeader(doc, compData, gisAccount);
+    const footer = () => companyBand(doc, compData, gisAccount);
+    header()
     footer();
 
     doc.setTextColor(25, 25, 112)
@@ -192,98 +99,54 @@ export const Pdf = async (valueCon, arrTable, settings, compData, gisAccount, mo
         doc.text(supp.other1, 10, 71);
     }
 
+    // The order and its date end at the margin, level with the table — they were left-aligned
+    // at 168, so the right edge fell wherever the text stopped.
     doc.setFontSize(8);
+    stack(doc, [
+        ['Purchase Order No:', valueCon.order],
+        ['Date:', valueCon.date === '' || valueCon.dateRange.startDate === null ? '' :
+            dateFormat(valueCon.dateRange.startDate, 'dd-mmm-yyyy')],
+    ], { ...BLOCKS.right, top: 50 });
+
+    // From the left edge like every other line of text (it started at 35).
+    doc.setFont('Plus Jakarta Sans', 'normal');
+    doc.text('We confirm having purchased from you the following material subject to our Conditions of Purchase stated below:', LEFT, 84);
+
+    /* The three blocks list only the fields this PO has, from the top down, as the invoice's
+       do (pdfLayout.js stack). Every field owned a fixed line, so a PO with no Origin printed
+       Delivery Terms on line 3, beside Packing and Delivery Time. Which fields print is as
+       before. */
+    stack(doc, [
+        ['Shipment:', getD(settings.Shipment.Shipment, valueCon, 'shpType')],
+        // 'empty' is the option that prints the heading with nothing beside it
+        valueCon.origin !== '' && ['Origin:', valueCon.origin !== 'empty' ? getD(settings.Origin.Origin, valueCon, 'origin') : ''],
+        valueCon.delTerm !== '' && ['Delivery Terms:', getD(settings['Delivery Terms']['Delivery Terms'], valueCon, 'delTerm')],
+    ], BLOCKS.left);
+
+    stack(doc, [
+        valueCon.pol !== '' && ['POL:', getD(settings.POL.POL, valueCon, 'pol')],
+        valueCon.pod !== '' && ['POD:', getD(settings.POD.POD, valueCon, 'pod')],
+        valueCon.packing !== '' && ['Packing:', getD(settings.Packing.Packing, valueCon, 'packing')],
+    ], BLOCKS.middle);
+
+    stack(doc, [
+        valueCon.contType !== '' && ['Container Type:', getD(settings['Container Type']['Container Type'], valueCon, 'contType')],
+        valueCon.size !== '' && ['Size:', getD(settings.Size.Size, valueCon, 'size')],
+        valueCon.deltime !== '' && ['Delivery Time:', valueCon.isDeltimeText ? valueCon.deltime :
+            getD(settings['Delivery Time']['Delivery Time'], valueCon, 'deltime')],
+    ], BLOCKS.right);
+
+    // The terms start in the left block's value column (they were at 37, 2 mm off it) and
+    // wrap at the margin.
     doc.setFont('PoppinsB', 'bold');
-    doc.text('Purchase Order No:', 130, 50);
+    doc.text('Payment Terms:', LEFT, 115);
     doc.setFont('Plus Jakarta Sans', 'normal');
-    doc.setFontSize(8);
-    doc.text(valueCon.order, 168, 50);
-    doc.setFont('PoppinsB', 'bold');
-    doc.setFontSize(8);
-    doc.text('Date:', 130, 54);
-    doc.setFont('Plus Jakarta Sans', 'normal');
-    doc.setFontSize(8);
-    doc.text(valueCon.date === '' || valueCon.dateRange.startDate === null ? '' :
-        dateFormat(valueCon.dateRange.startDate, 'dd-mmm-yyyy'), 168, 54);
-
-    doc.setFont('Plus Jakarta Sans', 'normal');
-    doc.setFontSize(8);
-    doc.text('We confirm having purchased from you the following material subject to our Conditions of Purchase stated below:', 35, 84);
-
-    doc.setFont('PoppinsB', 'bold');
-    doc.text('Shipment:', 10, 92);
-    doc.setFont('Plus Jakarta Sans', 'normal');
-    doc.text(getD(settings.Shipment.Shipment, valueCon, 'shpType'), 35, 92);
-
-    if (valueCon.origin !== '') {
-        doc.setFont('PoppinsB', 'bold');
-        doc.text('Origin:', 10, 96);
-        if (valueCon.origin !== 'empty') {
-            doc.setFont('Plus Jakarta Sans', 'normal');
-            doc.text(getD(settings.Origin.Origin, valueCon, 'origin'), 35, 96);
-        }
-    }
-
-    if (valueCon.delTerm !== '') {
-        doc.setFont('PoppinsB', 'bold');
-        doc.text('Delivery Terms:', 10, 100);
-        doc.setFont('Plus Jakarta Sans', 'normal');
-        doc.text(getD(settings['Delivery Terms']['Delivery Terms'], valueCon, 'delTerm'), 35, 100);
-    }
-
-    if (valueCon.pol !== '') {
-        doc.setFont('PoppinsB', 'bold');
-        doc.text('POL:', 77, 92);
-        doc.setFont('Plus Jakarta Sans', 'normal');
-        doc.text(getD(settings.POL.POL, valueCon, 'pol'), 92, 92);
-    }
-
-    if (valueCon.pod !== '') {
-        doc.setFont('PoppinsB', 'bold');
-        doc.text('POD:', 77, 96);
-        doc.setFont('Plus Jakarta Sans', 'normal');
-        doc.text(getD(settings.POD.POD, valueCon, 'pod'), 92, 96);
-    }
-
-    if (valueCon.packing !== '') {
-        doc.setFont('PoppinsB', 'bold');
-        doc.text('Packing:', 77, 100);
-        doc.setFont('Plus Jakarta Sans', 'normal');
-        doc.text(getD(settings.Packing.Packing, valueCon, 'packing'), 92, 100);
-    }
-    if (valueCon.contType !== '') {
-        doc.setFont('PoppinsB', 'bold');
-        doc.text('Container Type:', 130, 92);
-        doc.setFont('Plus Jakarta Sans', 'normal');
-        doc.text(getD(settings['Container Type']['Container Type'], valueCon, 'contType'), 155, 92);
-    }
-
-    if (valueCon.size !== '') {
-        doc.setFont('PoppinsB', 'bold');
-        doc.text('Size:', 130, 96);
-        doc.setFont('Plus Jakarta Sans', 'normal');
-        doc.text(getD(settings.Size.Size, valueCon, 'size'), 155, 96);
-    }
-
-    if (valueCon.deltime !== '') {
-        doc.setFont('PoppinsB', 'bold');
-        doc.text('Delivery Time:', 130, 100);
-        doc.setFont('Plus Jakarta Sans', 'normal');
-        valueCon.isDeltimeText ?
-            doc.text(valueCon.deltime, 155, 100) :
-            doc.text(getD(settings['Delivery Time']['Delivery Time'], valueCon, 'deltime'), 155, 100);
-    }
-
-    doc.setFont('PoppinsB', 'bold');
-    doc.text('Payment Terms:', 10, 115);
-    doc.setFont('Plus Jakarta Sans', 'normal');
-    const tmp1 = doc.splitTextToSize(valueCon.isTermPmntText ? (valueCon.termPmnt || '') : getD(settings['Payment Terms']['Payment Terms'], valueCon, 'termPmnt'), 155, {})
-    doc.text(tmp1, 37, 115);
+    const tmp1 = doc.splitTextToSize(valueCon.isTermPmntText ? (valueCon.termPmnt || '') : getD(settings['Payment Terms']['Payment Terms'], valueCon, 'termPmnt'), RIGHT - BLOCKS.left.value, {})
+    doc.text(tmp1, BLOCKS.left.value, 115);
 
     console.error = () => { };
-    let wantedTableWidth = 190;
     let pageWidth = doc.internal.pageSize.width;
-    let margin = (pageWidth - wantedTableWidth) / 2;
+    let margin = (pageWidth - TABLE_WIDTH) / 2;
 
     autoTable(doc, {
         theme: 'plain',
@@ -299,9 +162,12 @@ export const Pdf = async (valueCon, arrTable, settings, compData, gisAccount, mo
         ]],
         // Cleaned before it is measured, so a cell is placed by the text it will show (pdfText.js).
         body: pdfRows(arrTable),
+        /* The columns add up to the 190 mm between the margins. They added up to 185, so the
+           table stopped 5 mm short of the margin every value above it now ends on; the
+           5 mm went to Description. */
         columnStyles: {
             0: { cellWidth: 15, halign: 'center' },
-            1: { cellWidth: 100, halign: 'left' },
+            1: { cellWidth: 105, halign: 'left' },
             2: { cellWidth: 35, halign: 'center' },
             3: { cellWidth: 35, halign: 'center' }
         },
@@ -309,18 +175,7 @@ export const Pdf = async (valueCon, arrTable, settings, compData, gisAccount, mo
             if (data.row.index === 0 && data.column.index === 1 && data.row.section === 'head') {
                 data.cell.styles.halign = 'left'
             }
-
-            if (data.row.index === 0 && data.row.section === 'head') {
-                data.cell.styles.cellPadding = 1
-            }
-
-            if (data.row.index === 1 && data.row.section === 'head') {
-                data.cell.styles.cellPadding = 0
-            }
-
-            if (data.row.section === 'body') {
-                data.cell.styles.cellPadding = 0.5
-            }
+            gridCell(data);
         }
 
     });
@@ -395,9 +250,10 @@ export const Pdf = async (valueCon, arrTable, settings, compData, gisAccount, mo
 
     }
 
-    Signatiure(doc, compData, gisAccount)
+    signOff(doc, compData, gisAccount)
 
-    const filename = "PO_" + supp.nname + "_" + valueCon.order + ".pdf";
+    // pdfText, as the invoice's: a name stored with a trailing space named the file "PO_DMT _…".
+    const filename = "PO_" + pdfText(supp.nname) + "_" + pdfText(valueCon.order) + ".pdf";
     // 'preview' → hand the caller a Blob to render in an in-app viewer (no download).
     // Default 'save' keeps the original behavior (download to the working directory).
     if (mode === 'preview') {
