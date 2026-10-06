@@ -73,6 +73,13 @@ export function rollupMonth(z: MarginMonth): MarginMonth {
   };
 }
 
+// The totals every month document stores, put back in step with its rows — web
+// app/(root)/margins/marginsView.js `withStoredTotals`. Run on the year before it is
+// saved, and on what is loaded before it is shown: deleting a row re-totalled nothing
+// on either app, so a month kept counting a deal that was gone (IMS 07-2025 stored
+// 793 MT for rows that make 783; GIS 01-2026 stored $101,075 for rows that make $74,675).
+export const withStoredTotals = (data: MarginMonth[]): MarginMonth[] => (data || []).map(rollupMonth);
+
 // Derived per-item fields, recomputed on every edit (web does this in a second
 // pass right after applying the raw value).
 export function recomputeItem(x: MarginItem): MarginItem {

@@ -554,10 +554,15 @@ export function executeTool(name, args, data) {
 
         case 'get_profit_info': {
             if (margins.length > 0) {
-                // Sums the same stored month totalMargin the Margins page totals —
-                // GIS half-splits are already baked into that field on save.
-                const totalMargin = margins.reduce((sum, m) => sum + (parseFloat(m.totalMargin) || 0), 0);
-                const monthsWithData = margins.filter(m => parseFloat(m.totalMargin) > 0).length;
+                // Each month added up from the rows it lists, as the Margins page totals it
+                // (margins/marginsView.js): a deal shared with the other company counts half.
+                // Not the totalMargin a month document stores — deleting a row left that as it
+                // was, so GIS 2026 answered $808,600 beside a page that adds up to $782,200.
+                const monthMargin = (m) => (m.ids || [])
+                    .map(id => (m.items || []).find(i => i.id === id)).filter(Boolean)
+                    .reduce((sum, i) => sum + (i.gis ? (Number(i.totalMargin) || 0) / 2 : Number(i.totalMargin) || 0), 0);
+                const totalMargin = margins.reduce((sum, m) => sum + monthMargin(m), 0);
+                const monthsWithData = margins.filter(m => monthMargin(m) > 0).length;
                 return `Profit/Margin summary (loaded date range):\n• Total margin: ${totalMargin.toFixed(2)}\n• Months with data: ${monthsWithData} of ${margins.length}\nFor full details visit the Margins page (/margins).`;
             }
             return 'No margin data found in the loaded date range. Visit the Margins page (/margins) to record and view profit analysis.';

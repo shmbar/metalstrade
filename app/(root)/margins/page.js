@@ -4,7 +4,7 @@ import Spinner from "../../../components/spinner";
 import Toast from "../../../components/toast";
 import { SettingsContext } from "../../../contexts/useSettingsContext";
 import { getTtl } from "../../../utils/languages";
-import React, { useCallback, useContext, useEffect, useRef, useState } from 'react'
+import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import MarginTable from "./marginTable";
 import YearSelect from "../../../components/yearSelect";
 import { loadMargins, saveMargins } from "../../../utils/utils";
@@ -48,6 +48,9 @@ import { matchesAllWords } from '@utils/search';
 import { moneyFull } from '@utils/currency';
 import CollapsibleSection, { useSectionOpen, SectionFigure } from '@components/CollapsibleSection';
 import { useMonthFolds } from './useMonthFolds';
+import { viewMonths, sumMonths, withStoredTotals } from './marginsView';
+import { buildMarginsReport } from './marginsReport';
+import { exportMarginsExcel, exportMarginsPdf } from './marginsExport';
 
 // Cell Component
 const RowDragHandleCell = ({ rowId }) => {
@@ -72,21 +75,14 @@ const Margins = () => {
 
     const { settings, ln, setLoading, loading, setToast, compData, updateSettings } = useContext(SettingsContext);
     const [yr, setYr] = useState()
-    const { uidCollection } = UserAuth();
+    const { uidCollection, gisAccount } = UserAuth();
     const [data, setData] = useState([]);
-    const [dataGIS, setDataGIS] = useState([]);
     const currentYear = new Date().getFullYear();
-    const [incoming, setIncoming] = useState('')
-    const [outStandingShip, setOutStandingShip] = useState('')
-    const [outStandingShipGIS, setOutStandingShipGIS] = useState('')
-
-    const [purchase, setPurchase] = useState('')
-    const [purchaseGIS, setPurchaseGIS] = useState('')
-    const [totalMargin, setTotalMargin] = useState('')
-    const [totalMarginGIS, setTotalMarginGIS] = useState('')
-    const [shipped, setShipped] = useState('')
-    const [remaining, setRemaining] = useState('')
-    const [remainingGIS, setRemainingGIS] = useState('')
+    // 'all', or 'shared' — only the deals ticked as shared with the other company (the GIS
+    // column here in IMS, IMS in GIS). The boxes, the month tables, the totals under them and
+    // both exports follow it (client, 2026-10-06).
+    const [scope, setScope] = useState('all')
+    const scopeRef = useRef(scope); scopeRef.current = scope;
     // The two per-month totals tables at the foot: folded on a short laptop screen,
     // open elsewhere, and whatever the user last chose after that.
     const [totalsOpen, toggleTotals] = useSectionOpen('totals')
@@ -155,7 +151,8 @@ const Margins = () => {
         const t = setTimeout(async () => {
             if (!uidCollection || dataYrRef.current == null) return;
             setAutoSaving(true);
-            const ok = await saveMargins(uidCollection, dataRef.current, dataYrRef.current).catch(() => false);
+            // withStoredTotals: each month's stored totals back in step with its rows (marginsView.js).
+            const ok = await saveMargins(uidCollection, withStoredTotals(dataRef.current), dataYrRef.current).catch(() => false);
             setAutoSaving(false);
             if (ok) {
                 setDirty(false);
@@ -170,7 +167,7 @@ const Margins = () => {
     // In-app navigation unmounts the page and would cancel a pending autosave — flush it.
     useEffect(() => () => {
         if (dirtyRef.current && uidCollection && dataYrRef.current != null) {
-            saveMargins(uidCollection, dataRef.current, dataYrRef.current).catch(() => { });
+            saveMargins(uidCollection, withStoredTotals(dataRef.current), dataYrRef.current).catch(() => { });
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [uidCollection]);
@@ -297,43 +294,43 @@ const Margins = () => {
         return () => window.removeEventListener('focus', onFocus);
     }, []);
 
+    /* Every figure the page shows is added up from the rows (marginsView.js) — the totals
+       stored on a month went stale whenever a row was deleted, and the boxes and the Totals
+       table read them: GIS 01-2026 showed $101,075 profit for rows that make $74,675.
+         · the boxes at the top: the year, in the chosen scope;
+         · the month tables, the totals under them and the exports: the scope and the search —
+           the totals describe exactly the rows listed. */
+    const otherCo = cName === 'ims' ? 'GIS' : 'IMS';   // the shared-deal column's own label
+    const q = query.trim();
+    const keep = useMemo(() => {
+        if (!q) return null;
+        const sup = (id) => settings?.Supplier?.Supplier?.find(x => x.id === id)?.nname || '';
+        const cli = (id) => settings?.Client?.Client?.find(x => x.id === id)?.nname || '';
+        return (x) => matchesAllWords([x.description, sup(x.supplier), cli(x.client)], q);
+    }, [q, settings]);
+    const scoped = useMemo(() => viewMonths(data, { scope }), [data, scope]);
+    const listed = useMemo(() => viewMonths(data, { scope, keep }), [data, scope, keep]);
+    const top = useMemo(() => sumMonths(scoped), [scoped]);
+    const below = useMemo(() => ({ share: sumMonths(listed), whole: sumMonths(listed, 'whole') }), [listed]);
+
+    // What the two export buttons print: the months, rows and totals exactly as listed.
+    const report = () => buildMarginsReport({
+        months: listed, year: yr, scope, other: otherCo, query: q, settings, company: compData?.name || '',
+    });
+    const [exporting, setExporting] = useState('');
+    const runExport = async (kind) => {
+        if (exporting) return;
+        setExporting(kind);
+        try {
+            await (kind === 'excel' ? exportMarginsExcel(report()) : exportMarginsPdf(report(), gisAccount));
+        } catch (e) {
+            setToast({ show: true, text: `The ${kind === 'excel' ? 'Excel' : 'PDF'} could not be made: ${e?.message || e}`, clr: 'fail' });
+        } finally {
+            setExporting('');
+        }
+    };
+
     useEffect(() => {
-        // Main totals
-        let _purchase = 0, _openShip = 0, _totalMargin = 0, _remaining = 0;
-        // GIS totals
-        let _purchaseGIS = 0, _openShipGIS = 0, _totalMarginGIS = 0, _remainingGIS = 0;
-        const gisData = data.map(z => {
-            _purchase    += parseFloat(z.purchase)    || 0;
-            _openShip    += parseFloat(z.openShip)    || 0;
-            _totalMargin += parseFloat(z.totalMargin) || 0;
-            _remaining   += parseFloat(z.remaining)   || 0;
-
-            const gPurchase    = z.items.reduce((a, c) => a + parseFloat(c.gis ? (c.purchase    || 0) : 0), 0);
-            const gOpenShip    = z.items.reduce((a, c) => a + parseFloat(c.gis ? (c.openShip * 1 || 0) : 0), 0);
-            const gTotalMargin = z.items.reduce((a, c) => a + parseFloat(c.gis ? (c.totalMargin || 0) : 0), 0);
-            const gRemaining   = z.items.reduce((a, c) => a + parseFloat(c.gis ? (c.remaining   || 0) : 0), 0);
-
-            _purchaseGIS    += gPurchase;
-            _openShipGIS    += gOpenShip;
-            _totalMarginGIS += gTotalMargin;
-            _remainingGIS   += gRemaining;
-
-            return { ...z, purchase: gPurchase, openShip: gOpenShip, totalMargin: gTotalMargin, remaining: gRemaining };
-        });
-
-        setIncoming(_remaining);
-        setOutStandingShip(_openShip);
-        setPurchase(_purchase);
-        setTotalMargin(_totalMargin);
-        setShipped(_purchase - _openShip);
-        setRemaining(_remaining);
-
-        setDataGIS(gisData);
-        setPurchaseGIS(_purchaseGIS);
-        setTotalMarginGIS(_totalMarginGIS);
-        setOutStandingShipGIS(_openShipGIS);
-        setRemainingGIS(_remainingGIS);
-
         // `purchase` = Qty (MT); `margin` = per-unit profit $; `totalMargin` = total profit $.
         // No cost basis exists so a % can't be computed. Two distinct signals:
         //   • REAL ALERT  → margin was entered and total profit is ≤ threshold (losses / thin deals)
@@ -439,7 +436,8 @@ const Margins = () => {
         pushUndo();
         setDirty(true);
         const newId = uuidv4();
-        const newItem1 = { ...newItm, id: newId };
+        // Added while only the shared deals are listed, it is one — else it would vanish on adding.
+        const newItem1 = { ...newItm, id: newId, ...(scopeRef.current === 'shared' ? { gis: true } : {}) };
         setData(prev => prev.map(z => z.month === month
             ? { ...z, items: [...z.items, newItem1], ids: [...z.ids, newId] }
             : z
@@ -537,7 +535,7 @@ const Margins = () => {
     }, []);
 
     const saveData = async () => {
-        let result = await saveMargins(uidCollection, data, yr)
+        let result = await saveMargins(uidCollection, withStoredTotals(data), yr)
         if (result) { setDirty(false); setToast({ show: true, text: 'Data successfully saved!', clr: 'success' }) }
     }
 
@@ -721,11 +719,11 @@ const Margins = () => {
 
                             {/* Stats Section */}
                             <FirstPart
-                                incoming={incoming}
-                                outStandingShip={outStandingShip}
-                                purchase={purchase}
-                                totalMargin={totalMargin}
-                                shipped={shipped}
+                                incoming={top.remaining}
+                                outStandingShip={top.openShip}
+                                purchase={top.purchase}
+                                totalMargin={top.totalMargin}
+                                shipped={top.purchase - top.openShip}
                             />
 
                             {/* Action Buttons - Keep original position */}
@@ -796,6 +794,33 @@ const Margins = () => {
                                         <SearchAdornment value={query} onClear={() => setQuery('')} />
                                     </div>
 
+                                    {/* Every deal, or only those shared with the other company —
+                                        the same switch as Stocks' Lines / By grade. */}
+                                    <div className='flex items-center bg-[var(--bg-subtle)] border border-[var(--line)] rounded-lg p-0.5'>
+                                        {[['all', 'All deals'], ['shared', `${otherCo} only`]].map(([val, label]) => (
+                                            <button key={val} type='button' onClick={() => setScope(val)} aria-pressed={scope === val}
+                                                className={`rounded-lg transition-colors ${scope === val
+                                                    ? 'bg-[var(--bg-card)] text-[var(--ink)] font-medium shadow-card'
+                                                    : 'text-[var(--ink-secondary)]'}`}
+                                                style={{ fontSize: 'var(--fs-input)', padding: '5px 14px' }}>
+                                                {label}
+                                            </button>
+                                        ))}
+                                    </div>
+
+                                    {/* What is listed — this scope, this search, every month folded or
+                                        not — with the totals of exactly those rows. */}
+                                    <Tltip direction='top' tltpText={`Excel of the ${scope === 'shared' ? `${otherCo}-only ` : ''}margins listed`}>
+                                        <button className='whiteButton disabled:opacity-50' onClick={() => runExport('excel')} disabled={!!exporting}>
+                                            <BtnIcon action={exporting === 'excel' ? 'saving' : 'excel'} spin={exporting === 'excel'} />Excel
+                                        </button>
+                                    </Tltip>
+                                    <Tltip direction='top' tltpText={`PDF of the ${scope === 'shared' ? `${otherCo}-only ` : ''}margins listed`}>
+                                        <button className='whiteButton disabled:opacity-50' onClick={() => runExport('pdf')} disabled={!!exporting}>
+                                            <BtnIcon action={exporting === 'pdf' ? 'saving' : 'pdf'} spin={exporting === 'pdf'} />PDF
+                                        </button>
+                                    </Tltip>
+
                                     {/* Every month at once, for this person only (useMonthFolds).
                                         A year of margins is nine or ten month tables and a
                                         hundred rows; folded, each month is one line still
@@ -818,14 +843,11 @@ const Margins = () => {
                                 {/* Margins Tables */}
                                 <div className="w-full p-2 mt-2">
                                     <div className="w-full max-w-8xl divide-y divide-[var(--line)] rounded-2xl">
-                                        {data.map(({ month, items, openMonth }) => {
-                                            // Search filters the DISPLAY only — edits address rows by id+month
-                                            // and autosave writes the full dataset, so nothing can be lost.
-                                            const q = query.trim().toLowerCase();
-                                            const supName = (id) => settings?.Supplier?.Supplier?.find(x => x.id === id)?.nname || '';
-                                            const cliName = (id) => settings?.Client?.Client?.find(x => x.id === id)?.nname || '';
-                                            const shown = !q ? items : items.filter(x =>
-                                                matchesAllWords([x.description, supName(x.supplier), cliName(x.client)], q));
+                                        {listed.map(({ month, items: shown, openMonth }) => {
+                                            // The scope and the search narrow the DISPLAY only — edits address
+                                            // rows by id+month and autosave writes the full dataset, so nothing
+                                            // can be lost. A month the search leaves empty is not listed; one
+                                            // with no shared deals is, so "Add" still has somewhere to go.
                                             if (q && shown.length === 0) return null;
                                             return (
                                                 <div key={month}>
@@ -867,31 +889,32 @@ const Margins = () => {
                                     summary={(() => {
                                         const mt = (v) => new Intl.NumberFormat('en-US', { minimumFractionDigits: 3, maximumFractionDigits: 3 }).format(Number(v) || 0);
                                         return (<>
-                                            <SectionFigure label='Qty'>{mt(purchase)} MT</SectionFigure>
-                                            <SectionFigure label='Total margin'>{moneyFull('us', Number(totalMargin) || 0)}</SectionFigure>
-                                            <SectionFigure label='Open ship'>{mt(outStandingShip)} MT</SectionFigure>
-                                            <SectionFigure label='Remaining'>{moneyFull('us', Number(remaining) || 0)}</SectionFigure>
+                                            <SectionFigure label='Qty'>{mt(below.share.purchase)} MT</SectionFigure>
+                                            <SectionFigure label='Total margin'>{moneyFull('us', below.share.totalMargin)}</SectionFigure>
+                                            <SectionFigure label='Open ship'>{mt(below.share.openShip)} MT</SectionFigure>
+                                            <SectionFigure label='Remaining'>{moneyFull('us', below.share.remaining)}</SectionFigure>
                                         </>);
                                     })()}
                                 >
+                                {/* Of the rows listed above: this scope and this search. */}
                                 <div className='flex flex-col lg:flex-row gap-6'>
                                     <ThirdPart
-                                        data={data}
-                                        remaining={remaining}
-                                        outStandingShip={outStandingShip}
-                                        purchase={purchase}
-                                        totalMargin={totalMargin}
+                                        data={listed.map(m => ({ ...m, ...m.totals }))}
+                                        remaining={below.share.remaining}
+                                        outStandingShip={below.share.openShip}
+                                        purchase={below.share.purchase}
+                                        totalMargin={below.share.totalMargin}
                                         yr={yr}
                                         title='Totals'
                                     />
                                     <ThirdPart
-                                        data={dataGIS}
-                                        remaining={remainingGIS}
-                                        outStandingShip={outStandingShipGIS}
-                                        purchase={purchaseGIS}
-                                        totalMargin={totalMarginGIS}
+                                        data={listed.map(m => ({ ...m, ...m.whole }))}
+                                        remaining={below.whole.remaining}
+                                        outStandingShip={below.whole.openShip}
+                                        purchase={below.whole.purchase}
+                                        totalMargin={below.whole.totalMargin}
                                         yr={yr}
-                                        title={cName === 'ims' ? 'Total GIS' : 'Total IMS'}
+                                        title={`Total ${otherCo}`}
                                         isGIS
                                     />
                                 </div>

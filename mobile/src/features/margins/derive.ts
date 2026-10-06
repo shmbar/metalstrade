@@ -9,9 +9,10 @@
 // render. It never reads the persisted month aggregate, which is why a row added
 // or deleted in the editor updates the header immediately, before any save.
 //
-// Deriving here rather than rolling up on add/delete is deliberate: web does not
-// roll up either, and unilaterally changing what mobile PERSISTS would make the
-// saved month doc — and the Profits KPI that sums it — diverge from web.
+// Neither app re-totals a month when a row is added or deleted; both put the stored
+// totals back in step with the rows when the year is SAVED (web marginsView.js
+// withStoredTotals, here marginsModel.withStoredTotals), so what is persisted is the
+// same from either app.
 //
 // The gis rule is the subtle part: a gis row is a shared deal, so it contributes
 // HALF its totalMargin and HALF its remaining, but its FULL purchase and openShip.
@@ -33,6 +34,47 @@ export const monthRemaining = (items: any[]): number =>
     (sum: number, r: any) => sum + (r?.gis ? Number(r?.remaining) / 2 || 0 : Number(r?.remaining) || 0),
     0
   );
+
+// ── the year's cards — app/(root)/margins/marginsView.js ─────────────────────
+//
+// Added up from the months' ROWS with the four sums above, never read off the totals
+// a month document stores. Deleting a row left those as they were on both apps, so the
+// cards kept counting a deal that was gone: GIS 01-2026 read $101,075 profit for rows
+// that make $74,675 (2026-10-06). `docs` are the year's months with the rows each one
+// lists, in saved order (marginsModel.orderByIds) — what the editor shows.
+//
+// The "GIS" figures are the shared deals added up WHOLE (web "Total GIS"): the other
+// company's half is not taken off them.
+
+export interface YearFigures {
+  incoming: number; // remaining
+  outstandingShip: number; // openShip
+  quantity: number; // purchase (MT)
+  profit: number; // totalMargin
+  shipped: number; // purchase − openShip
+  profitGIS: number;
+  purchaseGIS: number;
+  openShipGIS: number;
+  remainingGIS: number;
+}
+
+export const yearFigures = (docs: any[]): YearFigures => {
+  const rows = (docs || []).flatMap((m: any) => m?.items || []);
+  const whole = rows.filter((r: any) => r?.gis).map((r: any) => ({ ...r, gis: false }));
+  const quantity = monthPurchase(rows);
+  const outstandingShip = monthOpenShip(rows);
+  return {
+    incoming: monthRemaining(rows),
+    outstandingShip,
+    quantity,
+    profit: monthMargin(rows),
+    shipped: quantity - outstandingShip,
+    profitGIS: monthMargin(whole),
+    purchaseGIS: monthPurchase(whole),
+    openShipGIS: monthOpenShip(whole),
+    remainingGIS: monthRemaining(whole),
+  };
+};
 
 // ── GIS totals decimal rules — app/(root)/margins/thirdpart.js ────────────────
 //

@@ -34,6 +34,7 @@ import {
   monthMargin,
   monthOpenShip,
   monthRemaining,
+  yearFigures,
   gisPurchasedDecimals,
   GIS_OUTSTANDING_DECIMALS,
 } from '@/features/margins/derive';
@@ -47,6 +48,7 @@ import {
   orderByIds,
   recomputeItem,
   rollupMonth,
+  withStoredTotals as mobileWithStoredTotals,
   countDecimalDigits as mobileCountDecimals,
   removeNonNumeric as mobileRemoveNonNumeric,
 } from '@/features/margins/marginsModel';
@@ -97,6 +99,11 @@ import {
   countDecimalDigits as webCountDecimals,
   removeNonNumeric as webRemoveNonNumeric,
 } from '../../app/(root)/margins/funcs.js';
+import {
+  viewMonths as webViewMonths,
+  sumMonths as webSumMonths,
+  withStoredTotals as webWithStoredTotals,
+} from '../../app/(root)/margins/marginsView.js';
 import {
   DEFAULT_ELEMENTS as WEB_ELEMENTS,
   UNIT_LABELS as WEB_UNIT_LABELS,
@@ -431,6 +438,138 @@ describe('collapsed month header', () => {
     expect(src).toContain('value={totalMargin} displayType="text" thousandSeparator allowNegative prefix="$" decimalScale={2} fixedDecimalScale');
     expect(fmtMoney(monthPurchase(items), 3)).toBe('125.500');
     expect(fmtMoney(monthMargin(items), 2)).toBe('1,200.00');
+  });
+});
+
+// ═════════════════════════════════════════════════════════════════════════════
+// 3b. THE YEAR'S FIGURES COME FROM THE ROWS  (Tier 2 — web marginsView.js is pure)
+// ═════════════════════════════════════════════════════════════════════════════
+//
+// 2026-10-06. Both apps read the year's cards off the totals each month document
+// stores, and neither re-totalled a month when a row was deleted — so a month kept
+// counting a deal that was gone (IMS 07-2025 stored 793 MT for rows that make 783;
+// GIS 01-2026 stored $101,075 profit for rows that make $74,675). Both now add the
+// year up from its rows, and both put the stored totals back in step on every save.
+
+describe("the year's figures are added up from the rows", () => {
+  // A year as Firestore holds it: rows in any order, `ids` the order on screen.
+  const year = () => [
+    {
+      // Stale on purpose — the totals a deleted row left behind.
+      ...makeMarginMonth({ month: '01', purchase: 123, totalMargin: 101075, openShip: 60, remaining: 6 }),
+      ids: ['b', 'a', 'gone'],
+      items: [
+        makeMarginItem({ id: 'a', purchase: '20', margin: '500', totalMargin: 10000, shipped: '5', openShip: 15, remaining: 7500, gis: false }),
+        makeMarginItem({ id: 'b', purchase: '10.125', margin: '300', totalMargin: 3037.5, shipped: '10.125', openShip: 0, remaining: 0, gis: true }),
+        // Not in `ids`: no row on either screen, so it is counted by neither.
+        makeMarginItem({ id: 'orphan', purchase: '999', totalMargin: 999, openShip: 999, remaining: 999, gis: true }),
+      ],
+    },
+    {
+      ...makeMarginMonth({ month: '02' }),
+      ids: ['c', 'd'],
+      items: [
+        makeMarginItem({ id: 'c', purchase: '4.5', margin: '1000', totalMargin: 4500, shipped: '', openShip: 4.5, remaining: 4500, gis: true }),
+        // A line added and left empty, and one with a half-typed figure.
+        makeMarginItem({ id: 'd', purchase: '', margin: '', totalMargin: '', shipped: '', openShip: '', remaining: '', gis: false }),
+      ],
+    },
+    { ...makeMarginMonth({ month: '03', items: [] }), purchase: '', totalMargin: '', openShip: '', remaining: '' },
+  ];
+  // Web orders a month's rows by its `ids` as it loads them (margins/page.js Load).
+  const webLoaded = (docs: any[]) =>
+    docs.map(({ items, ids, ...rest }: any) => ({
+      ...rest,
+      ids,
+      items: ids?.map((id: string) => items?.find((item: any) => item.id === id)).filter(Boolean) || [],
+    }));
+
+  it('web still orders rows by `ids` on load, and drops what `ids` does not list', () => {
+    const src = collapsed('app/(root)/margins/page.js');
+    expect(src).toContain('items: ids?.map(id => items?.find(item => item.id === id)).filter(Boolean) || []');
+    expect(orderByIds(year()).map((m) => m.items.map((i: any) => i.id))).toEqual(
+      webLoaded(year()).map((m: any) => m.items.map((i: any) => i.id))
+    );
+  });
+
+  it("the cards show the same year on both apps, whatever the months' stored totals say", () => {
+    const web = webViewMonths(webLoaded(year()));
+    const share = webSumMonths(web);
+    const whole = webSumMonths(web, 'whole');
+    const mobile = yearFigures(orderByIds(year()));
+    // web FirstPart: incoming = remaining, outstanding = openShip, shipped = purchase − openShip.
+    expect(mobile).toEqual({
+      incoming: share.remaining,
+      outstandingShip: share.openShip,
+      quantity: share.purchase,
+      profit: share.totalMargin,
+      shipped: share.purchase - share.openShip,
+      profitGIS: whole.totalMargin,
+      purchaseGIS: whole.purchase,
+      openShipGIS: whole.openShip,
+      remainingGIS: whole.remaining,
+    });
+    // The figures themselves: 20 + 10.125 + 4.5 MT; a shared deal's margin counts half…
+    expect(mobile.quantity).toBe(34.625);
+    expect(mobile.profit).toBe(10000 + 3037.5 / 2 + 4500 / 2);
+    // …and whole under "GIS". Neither the stale 123 MT / $101,075 nor the orphan is in any of it.
+    expect(mobile.profitGIS).toBe(3037.5 + 4500);
+    expect(mobile.purchaseGIS).toBe(14.625);
+  });
+
+  it('a half-typed figure counts as zero on both, as the month footer counts it', () => {
+    // newTable.js footer: `sum + (value * 1 || 0)`; marginTable.js: `Number(row.purchase) || 0`.
+    const junk = [
+      makeMarginMonth({
+        month: '01',
+        items: [
+          makeMarginItem({ id: 'a', purchase: '1.2.3', totalMargin: NaN, openShip: NaN, remaining: NaN }),
+          makeMarginItem({ id: 'b', purchase: '-', totalMargin: '5-', openShip: '.', remaining: null, gis: true }),
+          makeMarginItem({ id: 'c', purchase: '7', totalMargin: 70, openShip: 7, remaining: 70 }),
+        ],
+      }),
+    ];
+    const share = webSumMonths(webViewMonths(webLoaded(junk)));
+    expect(share).toMatchObject({ purchase: 7, totalMargin: 70, openShip: 7, remaining: 70 });
+    expect(yearFigures(orderByIds(junk))).toMatchObject({ quantity: 7, profit: 70, outstandingShip: 7, incoming: 70 });
+    expect(monthPurchase(junk[0].items)).toBe(share.purchase);
+  });
+
+  it('a save writes the same four totals from either app, and nothing else changes', () => {
+    const web = webWithStoredTotals(webLoaded(year()));
+    const mobile = mobileWithStoredTotals(orderByIds(year()) as any);
+    expect(mobile).toEqual(web);
+    // The stale month is healed, the empty one stores zeros rather than ''.
+    expect(mobile[0]).toMatchObject({ purchase: 30.125, totalMargin: 11518.75, openShip: 15, remaining: 7500 });
+    expect(mobile[2]).toMatchObject({ purchase: 0, totalMargin: 0, openShip: 0, remaining: 0 });
+    // Rows, their order and the month's own fields are as they were.
+    expect(mobile[0].items).toEqual(orderByIds(year())[0].items);
+    expect(mobile[0].ids).toEqual(['b', 'a', 'gone']);
+    expect(Object.keys(mobile[0]).sort()).toEqual(Object.keys(orderByIds(year())[0]).sort());
+  });
+
+  it('what a save stores is what the cards show', () => {
+    const saved = mobileWithStoredTotals(orderByIds(year()) as any);
+    const figures = yearFigures(orderByIds(year()));
+    const add = (k: 'purchase' | 'totalMargin' | 'openShip' | 'remaining') => saved.reduce((s, m: any) => s + m[k], 0);
+    expect(add('purchase')).toBe(figures.quantity);
+    expect(add('totalMargin')).toBe(figures.profit);
+    expect(add('openShip')).toBe(figures.outstandingShip);
+    expect(add('remaining')).toBe(figures.incoming);
+  });
+
+  it('both apps heal the stored totals on every save, and read the cards from the rows', () => {
+    // Web: the autosave, the flush on leaving the page, and the Save button.
+    const web = collapsed('app/(root)/margins/page.js');
+    expect(web.match(/saveMargins\(uidCollection, withStoredTotals\(/g) || []).toHaveLength(3);
+    expect(web.match(/saveMargins\(/g) || []).toHaveLength(3);
+    expect(web).toContain('const top = useMemo(() => sumMonths(scoped), [scoped]);');
+    // Mobile: the one save, and the screen's cards.
+    const mobile = collapsed('mobile/src/features/margins/useMargins.ts');
+    expect(mobile.match(/saveMargins\(uidCollection, withStoredTotals\(months\), year\)/g) || []).toHaveLength(1);
+    expect(mobile.match(/saveMargins\(/g) || []).toHaveLength(1);
+    expect(mobile).toContain('const totals: MarginTotals = yearFigures(docs);');
+    expect(mobile).toContain('const docs = orderByIds(query.data || []);');
   });
 });
 

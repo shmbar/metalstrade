@@ -83,3 +83,38 @@ describe('get_overdue_invoices — overdue and balance are not the same question
         expect(res.sources.map(s => s.id)).toEqual(['id-1409', 'id-1420']);
     });
 });
+
+// The Assistant's profit is the Margins page's profit: each month added up from the rows it
+// lists, a deal shared with the other company counting half (margins/marginsView.js). It
+// used to read the totalMargin a month document stores, which a deleted row left as it was —
+// GIS 2026 answered $808,600 beside a page whose rows add up to $782,200.
+describe('get_profit_info — the same profit the Margins page shows', () => {
+    const row = (id, totalMargin, gis = false) => ({ id, totalMargin, gis });
+    const margins = [
+        // Stored total left behind by a deleted row; 'gone' is listed but no longer there,
+        // 'orphan' is there but no longer listed.
+        { month: '01', totalMargin: 101075, ids: ['a', 'b', 'gone'], items: [row('a', 60000), row('b', 29350, true), row('orphan', 5000)] },
+        { month: '02', totalMargin: '', ids: ['c'], items: [row('c', '1200.50')] },
+        { month: '03', totalMargin: 0, ids: [], items: [] },
+    ];
+
+    it('adds the year up from its rows, a shared deal counting half', () => {
+        const out = textOf(executeTool('get_profit_info', {}, { margins }));
+        // 60,000 + 29,350 / 2 + 1,200.50 — not the stored 101,075
+        expect(out).toContain('Total margin: 75875.50');
+        expect(out).not.toContain('101075');
+        expect(out).toContain('Months with data: 2 of 3');
+    });
+
+    it('agrees with the Margins page on the same months', async () => {
+        const { viewMonths, sumMonths } = await import('../app/(root)/margins/marginsView.js');
+        // The page lists a month's rows in its `ids` order (margins/page.js Load).
+        const loaded = margins.map(({ items, ids, ...rest }) => ({ ...rest, ids, items: ids.map(id => items.find(i => i.id === id)).filter(Boolean) }));
+        const page = sumMonths(viewMonths(loaded)).totalMargin;
+        expect(textOf(executeTool('get_profit_info', {}, { margins }))).toContain(`Total margin: ${page.toFixed(2)}`);
+    });
+
+    it('says so when there is nothing to add up', () => {
+        expect(textOf(executeTool('get_profit_info', {}, { margins: [] }))).toContain('No margin data found');
+    });
+});

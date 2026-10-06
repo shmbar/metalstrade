@@ -14,7 +14,9 @@ import {
   deleteItem as deleteItemPure,
   addMonth as addMonthPure,
   deleteMonth as deleteMonthPure,
+  withStoredTotals,
 } from './marginsModel';
+import { monthPurchase, monthMargin, monthOpenShip, monthRemaining, yearFigures } from './derive';
 import { num } from '@shared/finance';
 import { useShallow } from 'zustand/react/shallow';
 
@@ -62,47 +64,35 @@ export function useMargins() {
   });
 
   const data = useMemo(() => {
-    const rows: MarginMonth[] = (query.data || [])
+    // Every figure is added up from the months' ROWS, as web does (marginsView.js) —
+    // never read off the totals a month document stores. Deleting a row left those as
+    // they were, so the cards kept counting a deal that was gone (derive.ts yearFigures).
+    // The rows are the ones a month lists, in its saved order — what the editor shows.
+    const docs = orderByIds(query.data || []);
+    const rows: MarginMonth[] = docs
       .map((z: any) => {
-        const purchase = num(z.purchase);
-        const openShip = num(z.openShip);
+        const purchase = monthPurchase(z.items);
+        const openShip = monthOpenShip(z.items);
         return {
           month: String(z.month ?? ''),
           monthLabel: monthName(z.month),
           purchase,
           openShip,
-          totalMargin: num(z.totalMargin),
-          remaining: num(z.remaining),
+          totalMargin: monthMargin(z.items),
+          remaining: monthRemaining(z.items),
           shipped: purchase - openShip,
         };
       })
       .sort((a, b) => parseInt(a.month) - parseInt(b.month));
 
-    const sum = (k: keyof MarginMonth) => rows.reduce((s, r) => s + (r[k] as number), 0);
-    // GIS totals — web margins page.js:213-221 (full un-halved item values).
-    const gisSum = (field: string) =>
-      (query.data || []).reduce(
-        (s: number, z: any) => s + (z.items || []).reduce((a: number, c: any) => a + (c.gis ? num(c[field]) : 0), 0),
-        0
-      );
-    const totals: MarginTotals = {
-      incoming: sum('remaining'),
-      outstandingShip: sum('openShip'),
-      quantity: sum('purchase'),
-      profit: sum('totalMargin'),
-      shipped: sum('purchase') - sum('openShip'),
-      profitGIS: gisSum('totalMargin'),
-      purchaseGIS: gisSum('purchase'),
-      openShipGIS: gisSum('openShip'),
-      remainingGIS: gisSum('remaining'),
-    };
+    const totals: MarginTotals = yearFigures(docs);
 
     // Items at/below the alert threshold — web rule (margins page.js:257-263):
     // "entered" when per-unit margin OR total margin is non-zero; alert when
     // totalMargin <= the CONFIGURED threshold (settings.MarginAlert.threshold).
     const threshold = marginThreshold;
     const alertedItems: any[] = [];
-    (query.data || []).forEach((m: any) =>
+    docs.forEach((m: any) =>
       (m.items || []).forEach((it: any) => {
         const perUnit = num(it.margin);
         const totalM = num(it.totalMargin);
@@ -160,7 +150,10 @@ export function useMarginsEditor() {
     meta: { success: 'Data successfully saved!' },
     mutationFn: async () => {
       if (!uidCollection) throw new Error('Not authenticated');
-      await saveMargins(uidCollection, months, year);
+      // Each month's stored totals back in step with its rows (marginsModel.withStoredTotals),
+      // as web saves them: Cashflow and the Assistant read those totals, and deleting a row
+      // re-totals nothing.
+      await saveMargins(uidCollection, withStoredTotals(months), year);
     },
     onSuccess: () => {
       setDirty(false);
