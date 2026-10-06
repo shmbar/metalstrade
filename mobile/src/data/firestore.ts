@@ -227,6 +227,22 @@ export async function loadStockDataByIds(uidCollection: string, ids: string[]): 
   return out;
 }
 
+// Every stock lot of these material lines (chunked `in` at 30) — port of utils.js
+// loadStockData('description', …): a shared lot's spec is read from its whole line.
+export async function loadStockDataByDescription(uidCollection: string, lineIds: string[]): Promise<any[]> {
+  const CHUNK = 30;
+  const out: any[] = [];
+  for (let i = 0; i < (lineIds?.length || 0); i += CHUNK) {
+    const chunk = lineIds.slice(i, i + CHUNK);
+    if (!chunk.length) continue;
+    const snap = await getDocs(
+      query(collection(db, uidCollection, 'data', 'stocks'), where('description', 'in', chunk))
+    );
+    snap.forEach((d) => out.push(d.data()));
+  }
+  return out;
+}
+
 /**
  * Which of these sales-invoice numbers still exist → Map of number (string) → the PO
  * number its invoice is on. Port of web utils.js existingSalesInvoiceNumbers (66b06dd7).

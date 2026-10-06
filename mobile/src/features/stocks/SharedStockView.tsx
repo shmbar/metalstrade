@@ -21,7 +21,7 @@ export function SharedStockView() {
   const { colors } = useTheme();
   const {
     rows, netRows, totalMt, money, accountName,
-    warehouses, suppliers, currencies, whName, curSym,
+    warehouses, suppliers, currencies, whName, supName, curSym,
     save, remove, isLoading, isError, error, refetch,
   } = useSharedStock();
 
@@ -71,8 +71,12 @@ export function SharedStockView() {
       stock: r.stock,
       supplier: r.supplier || '',
       cur: r.cur,
+      // Picked, so it follows that lot from now on (its spec arrives with the next read).
+      link: 'live', spec: '', stockName: whName(r.stock), supplierName: supName(r.supplier),
     }));
   };
+  // The lot in the sheet follows a stock lot: its material, warehouse and supplier are that lot's.
+  const linked = lot.link === 'live';
 
   const toggleOwner = (o: string) =>
     setLot((prev: any) => ({
@@ -159,6 +163,14 @@ export function SharedStockView() {
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', gap: 12 }}>
                   <View style={{ flex: 1, minWidth: 0 }}>
                     <Text variant="h3" numberOfLines={2}>{r.descriptionName}</Text>
+                    {!!r.spec && (
+                      <Text variant="caption" tone="primary" numberOfLines={1} style={{ marginTop: 2 }}>{r.spec}</Text>
+                    )}
+                    {r.link === 'gone' && (
+                      <Text variant="caption" tone="faint" numberOfLines={1} style={{ marginTop: 2 }}>
+                        Not in {r.sourceAccount} stock now
+                      </Text>
+                    )}
                     <Text variant="caption" tone="muted" numberOfLines={1} style={{ marginTop: 2 }}>
                       {[r.stockName, r.supplierName, r.status].filter((x) => x && x !== '—').join(' · ') || '—'}
                     </Text>
@@ -239,14 +251,24 @@ export function SharedStockView() {
             value={lot.descriptionText}
             onChangeText={(v) => setF('descriptionText', v)}
             placeholder="e.g. 56Ni 14Cr 13Co Turnings"
+            editable={!linked}
+            style={linked ? { opacity: 0.7 } : undefined}
           />
+          {linked && (
+            <Text variant="caption" tone="faint" style={{ marginTop: -spacing.sm }}>
+              {lot.spec ? `Spec ${lot.spec} · ` : ''}Follows {lot.sourceAccount} stock{lot.sourcePo ? ` (PO ${lot.sourcePo})` : ''}: the
+              material, spec, warehouse and supplier change with it there, in its Materials Breakdown.
+            </Text>
+          )}
           <TextField
             label="Quantity (MT) *"
             value={String(lot.qnty ?? '')}
             onChangeText={(v) => setF('qnty', v.replace(/[^0-9.]/g, ''))}
             keyboardType="decimal-pad"
           />
-          <Select label="Warehouse / location *" value={lot.stock} options={whOptions} onChange={(v) => setF('stock', v)} required />
+          {linked
+            ? <TextField label="Warehouse / location *" value={lot.stockName || whName(lot.stock)} editable={false} style={{ opacity: 0.7 }} />
+            : <Select label="Warehouse / location *" value={lot.stock} options={whOptions} onChange={(v) => setF('stock', v)} required />}
           <TextField
             label="Unit price"
             value={String(lot.unitPrc ?? '')}
@@ -254,7 +276,9 @@ export function SharedStockView() {
             keyboardType="decimal-pad"
           />
           <Select label="Currency" value={lot.cur} options={curOptions} onChange={(v) => setF('cur', v)} />
-          <Select label="Supplier (optional)" value={lot.supplier} options={supOptions} onChange={(v) => setF('supplier', v)} />
+          {linked
+            ? <TextField label="Supplier (optional)" value={lot.supplierName || supName(lot.supplier)} editable={false} style={{ opacity: 0.7 }} />
+            : <Select label="Supplier (optional)" value={lot.supplier} options={supOptions} onChange={(v) => setF('supplier', v)} />}
           <TextField
             label="Shipment status (optional)"
             value={lot.status}

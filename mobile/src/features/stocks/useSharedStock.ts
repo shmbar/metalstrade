@@ -5,9 +5,10 @@
 
 import { useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useAuth } from '@/store/auth';
+import { useAuth, TRADING_WORKSPACES } from '@/store/auth';
 import { useSettings } from '@/store/settings';
-import { loadSharedStock } from '@/data/firestore';
+import { loadSharedStock, loadStockDataByIds, loadStockDataByDescription, loadSettings } from '@/data/firestore';
+import { sourceIds, followSources, sharedNames } from '@shared/sharedStock';
 import { useAllStockLots, STOCK_LOTS_KEY } from './useAllStockLots';
 import { saveSharedStock, deleteSharedStock, newId } from '@/data/writes';
 import { useShallow } from 'zustand/react/shallow';
@@ -50,6 +51,36 @@ export interface SharedLot {
   sourcePo?: string;
   date?: string;
   createdAtMs?: number;
+  /** The source line's spec, as the Stocks page's Spec column reads it. */
+  spec?: string;
+  /** 'live' — follows the lot it was picked from; 'gone' — that lot is no longer in stock. */
+  link?: '' | 'live' | 'gone';
+}
+
+/* The pool as it stands — port of web utils.js loadSharedStockLive. Each picked lot's
+   material, spec, warehouse, supplier and PO as the lot it came from has them today, and
+   every warehouse and supplier named from the workspace it belongs to (@shared/sharedStock):
+   the stored copy stayed as it was on the day it was shared, and IMS's names read "—" in GIS. */
+async function loadSharedStockLive(here: string) {
+  const shared = (await loadSharedStock()).filter(Boolean);
+  const sources: Record<string, any[]> = {};
+  await Promise.all(Object.entries(sourceIds(shared)).map(async ([name, ids]) => {
+    const uid = TRADING_WORKSPACES.find((w) => w.name === name)?.id;
+    if (!uid) return;
+    try {
+      const lots = await loadStockDataByIds(uid, ids);
+      const lines = [...new Set(lots.map((l: any) => l.description).filter(Boolean))] as string[];
+      const onLines = lines.length ? await loadStockDataByDescription(uid, lines) : [];
+      sources[name] = [...lots, ...onLines.filter((l: any) => !lots.some((x: any) => x.id === l.id))];
+    } catch {
+      /* that workspace's lots stay as they were stored */
+    }
+  }));
+  const settingsByWs: Record<string, any> = {};
+  await Promise.all(TRADING_WORKSPACES.map(async (w) => {
+    try { settingsByWs[w.name] = await loadSettings(w.id); } catch { /* named from the other workspace */ }
+  }));
+  return followSources(shared, sources).map((s) => ({ ...s, ...sharedNames(s, settingsByWs, here) }));
 }
 
 export interface NetRow {
@@ -121,7 +152,7 @@ export function useSharedStock() {
     // IMS / GIS only — anyone else is refused by firestore.rules, and must not see it.
     enabled: loaded && tradingAccount,
     queryKey: ['shared-stock', uidCollection],
-    queryFn: async () => ({ shared: (await loadSharedStock()).filter(Boolean) }),
+    queryFn: async () => ({ shared: await loadSharedStockLive(accountName) }),
   });
   const ownLotsQuery = useAllStockLots();
 
@@ -130,8 +161,10 @@ export function useSharedStock() {
       (query.data?.shared || []).map((x: any) => ({
         ...x,
         descriptionName: x.descriptionText || x.description || '—',
-        stockName: whName(x.stock),
-        supplierName: supName(x.supplier),
+        spec: x.spec || '',
+        // Named by the loader from the lot's own workspace; this one's lists only as a fallback.
+        stockName: x.stockName && x.stockName !== '—' ? x.stockName : whName(x.stock),
+        supplierName: x.supplierName && x.supplierName !== '—' ? x.supplierName : supName(x.supplier),
         ownersLabel: Array.isArray(x.owners) && x.owners.length ? x.owners.join(' + ') : 'IMS + GIS',
         financedLabel: financedOf(x) === 'BOTH' ? 'IMS + GIS' : financedOf(x),
       })),
@@ -234,6 +267,8 @@ export function useSharedStock() {
         sourceId: lot.sourceId || '',
         sourceAccount: lot.sourceAccount || '',
         sourcePo: lot.sourcePo || '',
+        // As last read from the source; every read takes it afresh (@shared/sharedStock).
+        spec: lot.spec || '',
         date: lot.date || stamp,
         createdAtMs: lot.createdAtMs || now.getTime(),
       };

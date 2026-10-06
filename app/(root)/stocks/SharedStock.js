@@ -24,7 +24,7 @@ import { NameCell } from '@components/Avatar';
 import { Selector } from '@components/selectors/selectShad';
 import { SettingsContext } from '@contexts/useSettingsContext';
 import { UserAuth } from '@contexts/useAuthContext';
-import { loadSharedStock, saveSharedStock, deleteSharedStock, loadAllStockData, filteredArray } from '@utils/utils';
+import { loadSharedStockLive, saveSharedStock, deleteSharedStock, loadAllStockData, filteredArray } from '@utils/utils';
 import { getTtl } from '@utils/languages';
 import { TableSkeleton } from "@components/skeletons";
 import { TONES } from '@components/statusUtils';
@@ -45,6 +45,9 @@ const SharedStock = () => {
     const accountName = gisAccount ? 'GIS' : 'IMS';
 
     const [rows, setRows] = useState([]);
+    // The rows the table's search and filters keep — what the summary under it adds up.
+    // It added up every lot whatever was typed: "utica" showed 11 rows over all 33 lots' totals.
+    const [shown, setShown] = useState(null);
     const [ownLots, setOwnLots] = useState([]);   // this account's raw stock ledger, for the picker
     const [loading, setLoading] = useState(true);
     const [open, setOpen] = useState(false);
@@ -63,18 +66,21 @@ const SharedStock = () => {
         return c?.symbol || curSymbol(c?.cur || id) || '$';
     };
 
+    /* The pool as it stands (utils/utils.js loadSharedStockLive): each picked lot's material,
+       spec, warehouse, supplier and PO as the lot it came from has them today, and every name
+       read from the settings of the workspace it belongs to — from GIS, IMS's warehouses and
+       suppliers showed "—". */
     const load = async () => {
         setLoading(true);
         const [data, mine] = await Promise.all([
-            loadSharedStock(),
+            loadSharedStockLive(accountName),
             uidCollection ? loadAllStockData(uidCollection) : Promise.resolve([]),
         ]);
         setOwnLots((mine || []).filter(Boolean));
         setRows((data || []).filter(Boolean).map(x => ({
             ...x,
             descriptionName: x.descriptionText || x.description || '—',
-            stockName: whName(x.stock),
-            supplierName: supName(x.supplier),
+            spec: x.spec || '',
             ownersLabel: Array.isArray(x.owners) && x.owners.length ? x.owners.join(' + ') : 'IMS + GIS',
             financedLabel: financedOf(x) === 'BOTH' ? 'IMS + GIS' : financedOf(x),
         })));
@@ -135,11 +141,21 @@ const SharedStock = () => {
             stock: r.stock,
             supplier: r.supplier || '',
             cur: r.cur,
+            // Picked, so it follows that lot from now on (its spec arrives with the next read).
+            link: 'live', spec: '', stockName: whName(r.stock), supplierName: supName(r.supplier),
         }));
     };
 
     const columns = useMemo(() => [
-        { accessorKey: 'descriptionName', header: getTtl('Description', ln) || 'Material' },
+        {
+            accessorKey: 'descriptionName', header: getTtl('Description', ln) || 'Material',
+            // A lot picked from stock that is no longer there keeps the name it last had — say so.
+            cell: p => p.row.original.link === 'gone'
+                ? <span>{p.getValue()} <span className='text-[var(--ink-muted)]'>· not in {p.row.original.sourceAccount} stock now</span></span>
+                : p.getValue(),
+        },
+        // The source lot's spec, as My Stock's Spec column reads it — and searchable like it.
+        { accessorKey: 'spec', header: 'Spec', cell: p => p.getValue() || '' },
         {
             accessorKey: 'qnty', header: getTtl('Quantity', ln) || 'Quantity',
             cell: p => <NumericFormat value={p.getValue()} displayType='text' thousandSeparator decimalScale={3} />,
@@ -219,6 +235,8 @@ const SharedStock = () => {
             sourceId: lot.sourceId || '',
             sourceAccount: lot.sourceAccount || '',
             sourcePo: lot.sourcePo || '',
+            // As last read from the source; every read takes it afresh (utils/sharedStock.js).
+            spec: lot.spec || '',
             date: lot.date || dateFormat(now, 'dd-mmm-yyyy'),
             createdAtMs: lot.createdAtMs || now.getTime(),
         };
@@ -237,7 +255,14 @@ const SharedStock = () => {
         load();
     };
 
-    const totalMt = rows.reduce((s, r) => s + (parseFloat(r.qnty) || 0), 0);
+    const totalMt = rows.reduce((s, r) => s + (parseFloat(r.qnty) || 0), 0);   // the whole pool, for the line above the table
+    const view = shown || rows;                                                // what the table shows, for the summary under it
+    const viewMt = view.reduce((s, r) => s + (parseFloat(r.qnty) || 0), 0);
+    // The grade card names a supplier from THIS workspace's settings, so it is handed the name
+    // already read from the lot's own workspace (an IMS supplier is an id GIS cannot name).
+    const gradeRows = useMemo(() => view.map(r => ({
+        ...r, supplier: r.supplierName && r.supplierName !== '—' ? r.supplierName : r.supplier,
+    })), [view]);
 
     // Total stock value and how much each company is financing — driven by the
     // lot's explicit "Financed by" (IMS / GIS / Both 50-50); legacy lots without
@@ -245,7 +270,7 @@ const SharedStock = () => {
     const money = useMemo(() => {
         const totals = {};
         const fin = { IMS: {}, GIS: {} };
-        rows.forEach(r => {
+        view.forEach(r => {
             const val = (parseFloat(r.qnty) || 0) * (parseFloat(r.unitPrc) || 0);
             if (!val) return;
             const cur = r.cur || 'us';
@@ -255,7 +280,7 @@ const SharedStock = () => {
             payers.forEach(o => { if (fin[o]) fin[o][cur] = (fin[o][cur] || 0) + val / payers.length; });
         });
         return { totals, fin };
-    }, [rows]);
+    }, [view]);
 
     const fmtMoney = (obj) => {
         const parts = Object.entries(obj)
@@ -268,6 +293,8 @@ const SharedStock = () => {
     // sitting ABOVE its control — never inline to its left, which overlaps the
     // field once the row gets narrow.
     const labelCls = 'responsiveText font-medium text-[var(--ink-muted)] mb-1 block';
+    // The lot in the window follows a stock lot (picked, and that lot still there).
+    const linked = lot.link === 'live';
 
     if (loading) return <div className='p-6'><TableSkeleton rows={6} title={false} /></div>;
 
@@ -290,13 +317,14 @@ const SharedStock = () => {
                 </div>
             ) : (
                 <>
-                    <Customtable data={rows} columns={columns} invisible={{}} SelectRow={openEdit} type='sharedStock' ln={ln} />
+                    <Customtable data={rows} columns={columns} invisible={{}} SelectRow={openEdit} type='sharedStock' ln={ln}
+                        setFilteredArray1={setShown} />
 
-                    {/* Bottom summary: total value + who finances how much */}
+                    {/* Bottom summary: total value + who finances how much — of the rows the table shows */}
                     <div className='flex flex-wrap items-center gap-x-6 gap-y-1 mt-3 rounded-2xl border border-[var(--border-divider)] bg-[var(--surface-pill)] px-4 py-2.5 responsiveTextTable'>
                         <span style={{ color: 'var(--regent-gray)' }}>
                             Total:&nbsp;<b style={{ color: 'var(--chathams-blue)' }}>
-                                {new Intl.NumberFormat('en-US', { maximumFractionDigits: 3 }).format(totalMt)} MT</b>
+                                {new Intl.NumberFormat('en-US', { maximumFractionDigits: 3 }).format(viewMt)} MT</b>
                             &nbsp;·&nbsp;<b style={{ color: 'var(--chathams-blue)' }}>{fmtMoney(money.totals)}</b>
                         </span>
                         <span style={{ color: 'var(--regent-gray)' }}>
@@ -308,8 +336,8 @@ const SharedStock = () => {
                         </span>
                     </div>
 
-                    {/* Same per-grade summary the regular stock tab has */}
-                    <GradeTable dataTable={rows} loading={false} settings={settings} />
+                    {/* Same per-grade summary the regular stock tab has, of the same rows */}
+                    <GradeTable dataTable={gradeRows} loading={false} settings={settings} />
                 </>
             )}
 
@@ -324,7 +352,7 @@ const SharedStock = () => {
                                 onChange={pickFromStock}
                                 name='pick'
                                 secondaryName='_label'
-                                clear={() => setLot(prev => ({ ...prev, sourceId: '', sourceAccount: '', sourcePo: '' }))}
+                                clear={() => setLot(prev => ({ ...prev, sourceId: '', sourceAccount: '', sourcePo: '', link: '' }))}
                             />
                             <p className='responsiveTextTable text-[var(--ink-muted)] mt-1'>
                                 Selecting a lot fills everything in from your inventory ({accountName}) — lower the quantity if you&apos;re sharing only part of it. The lot also stays in your own stock list.
@@ -332,7 +360,16 @@ const SharedStock = () => {
                         </div>
                         <div className='sm:col-span-2'>
                             <label className={labelCls}>Material / description *</label>
-                            <input className={inputCls} value={lot.descriptionText} onChange={e => setF('descriptionText', e.target.value)} placeholder='e.g. 56Ni 14Cr 13Co Turnings' />
+                            {/* A picked lot's material, spec, warehouse and supplier are that lot's
+                                (utils/sharedStock.js): shown here, changed where the lot lives. */}
+                            <input className={inputCls + (linked ? ' opacity-70 cursor-not-allowed' : '')} value={lot.descriptionText} readOnly={linked}
+                                onChange={e => setF('descriptionText', e.target.value)} placeholder='e.g. 56Ni 14Cr 13Co Turnings' />
+                            {linked && (
+                                <p className='responsiveTextTable text-[var(--ink-muted)] mt-1'>
+                                    {lot.spec ? <>Spec <b className='font-medium text-[var(--ink)]'>{lot.spec}</b> · </> : null}
+                                    Follows {lot.sourceAccount} stock{lot.sourcePo ? ` (PO ${lot.sourcePo})` : ''}: the material, spec, warehouse and supplier change with it there, in its Materials Breakdown.
+                                </p>
+                            )}
                         </div>
                         <div>
                             <label className={labelCls}>Quantity (MT) *</label>
@@ -340,7 +377,9 @@ const SharedStock = () => {
                         </div>
                         <div>
                             <label className={labelCls}>Warehouse / location *</label>
-                            <Selector arr={warehouses} value={{ stock: lot.stock }} onChange={id => setF('stock', id)} name='stock' secondaryName='stock' clear={() => setF('stock', '')} />
+                            {linked
+                                ? <input className={inputCls + ' opacity-70 cursor-not-allowed'} value={lot.stockName || whName(lot.stock)} readOnly />
+                                : <Selector arr={warehouses} value={{ stock: lot.stock }} onChange={id => setF('stock', id)} name='stock' secondaryName='stock' clear={() => setF('stock', '')} />}
                         </div>
                         <div>
                             <label className={labelCls}>Unit price</label>
@@ -352,7 +391,9 @@ const SharedStock = () => {
                         </div>
                         <div>
                             <label className={labelCls}>Supplier (optional)</label>
-                            <Selector arr={suppliers} value={{ supplier: lot.supplier }} onChange={id => setF('supplier', id)} name='supplier' secondaryName='nname' clear={() => setF('supplier', '')} />
+                            {linked
+                                ? <input className={inputCls + ' opacity-70 cursor-not-allowed'} value={lot.supplierName || supName(lot.supplier)} readOnly />
+                                : <Selector arr={suppliers} value={{ supplier: lot.supplier }} onChange={id => setF('supplier', id)} name='supplier' secondaryName='nname' clear={() => setF('supplier', '')} />}
                         </div>
                         <div>
                             <label className={labelCls}>Shipment status (optional)</label>

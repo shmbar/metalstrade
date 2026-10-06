@@ -42,6 +42,8 @@ export { resolveDueDate, resolveInvoiceDate, groupInvoicesByNumber, computeStock
 import { dedupeById } from './pureHelpers';
 import { groupSalesByLine } from './salesUsage';
 import { onHandByLine } from './stockGuards';
+import { ACCOUNTS } from './activeAccount';
+import { sourceIds, followSources, sharedNames } from './sharedStock';
 
 const storage = getStorage();
 
@@ -1268,6 +1270,36 @@ export const deleteSharedStock = async (id) => {
   if (!id) return;
   try { await deleteDoc(doc(db, SHARED_STOCK_UID, 'data', 'stocks', id)); }
   catch (e) { console.warn('deleteSharedStock failed:', e?.message || e); }
+}
+
+/* The shared pool as it stands, for the screens that show it (Stocks → Shared, Cashflow).
+   Each picked lot's material, spec, warehouse, supplier and PO are read from the lot it was
+   picked from, and every warehouse and supplier is named from the settings of the workspace
+   it belongs to (utils/sharedStock.js). Two small reads per workspace the pool draws on —
+   its source lots by id, then the lots on their lines — and each workspace's settings.
+   `here`: the workspace reading ('IMS' | 'GIS'). A workspace that cannot be read leaves its
+   lots as they were stored. */
+export const loadSharedStockLive = async (here = '') => {
+  const shared = (await loadSharedStock()).filter(Boolean);
+  const sources = {};
+  await Promise.all(Object.entries(sourceIds(shared)).map(async ([name, ids]) => {
+    const uid = ACCOUNTS.find(a => a.name === name)?.uidCollection;
+    if (!uid) return;
+    try {
+      const lots = await loadStockData(uid, 'id', ids);
+      const lines = [...new Set(lots.map(l => l.description).filter(Boolean))];
+      const onLines = lines.length ? await loadStockData(uid, 'description', lines) : [];
+      sources[name] = [...lots, ...onLines.filter(l => !lots.some(x => x.id === l.id))];
+    } catch (e) {
+      console.warn(`Shared stock: the ${name} lots it was picked from could not be read:`, e?.message || e);
+    }
+  }));
+  const settingsByWs = {};
+  await Promise.all(ACCOUNTS.map(async (a) => {
+    try { settingsByWs[a.name] = await loadDataSettings(a.uidCollection, 'settings'); }
+    catch { /* its names are looked up in the other workspace */ }
+  }));
+  return followSources(shared, sources).map(s => ({ ...s, ...sharedNames(s, settingsByWs, here) }));
 }
 
 // Net stock on hand per material line, across every warehouse — { [lineId]: qty }.

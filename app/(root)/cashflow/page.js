@@ -9,7 +9,7 @@ import AutosavePill from "../../../components/AutosavePill";
 import Spin from '../../../components/spinTable';
 import VideoLoader from '../../../components/videoLoader';
 import { CardsSkeleton } from "../../../components/skeletons";
-import { loadData, loadDataSettings, loadInvoice, loadMargins, loadSharedStock, loadStockData, loadAllStockData, saveCashflow, saveCashflowFinanced, saveDataSettings, saveMultipleData, saveStockIn, syncSpecialInvoicesPaidStatus, updateClientPayment, updateExpPayments, updateContractField, updateInvoiceField } from "../../../utils/utils";
+import { loadData, loadDataSettings, loadInvoice, loadMargins, loadSharedStockLive, loadStockData, loadAllStockData, saveCashflow, saveCashflowFinanced, saveDataSettings, saveMultipleData, saveStockIn, syncSpecialInvoicesPaidStatus, updateClientPayment, updateExpPayments, updateContractField, updateInvoiceField } from "../../../utils/utils";
 import { resolveInvoiceDate } from "../../../utils/pureHelpers";
 import { UserAuth } from "../../../contexts/useAuthContext";
 import { accountName, isTradingAccount } from '@utils/activeAccount';
@@ -1081,7 +1081,9 @@ const Cashflow = () => {
     useEffect(() => {
         // IMS / GIS only — the pool is theirs, and firestore.rules refuses anyone else.
         if (!uidCollection || !isTradingAccount(uidCollection)) { setSharedStock([]); return; }
-        loadSharedStock()
+        // As the Shared tab reads it: each lot's material and warehouse as its source has them
+        // now, named from the workspace they belong to (utils/sharedStock.js).
+        loadSharedStockLive(accountName(uidCollection))
             .then(d => setSharedStock((d || []).filter(Boolean)))
             .catch(() => setSharedStock([]));
     }, [uidCollection]);

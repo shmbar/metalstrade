@@ -1250,7 +1250,9 @@ export const SharedStockDetails = ({ rows, settings }) => {
         ...r,
         _po: r.sourcePo || '',
         _mat: r.descriptionText || r.description || '',
-        _wh: whName(r.stock),
+        // Named from the lot's own workspace by the loader (an IMS warehouse is an id GIS
+        // cannot name); this workspace's list only for a row that came without one.
+        _wh: r.stockShort && r.stockShort !== '—' ? r.stockShort : whName(r.stock),
         _fin: finOf(r) === 'BOTH' ? 'IMS + GIS' : finOf(r),
         _total: valOf(r),
         // createdAtMs is stamped when a lot is added to the shared pool — the

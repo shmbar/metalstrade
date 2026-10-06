@@ -436,3 +436,13 @@ declare module '@shared/salesUsage' {
   export function lotSalesCellText(a: LotSale | undefined, max?: number): string;
   export function lotSalesTooltip(a: LotSale | undefined, unit?: string): string;
 }
+
+declare module '@shared/sharedStock' {
+  export const FOLLOWED: string[];
+  export function lotName(lot: any): string;
+  export function lineSpec(lineLots: any[], name: string): string;
+  export function sourceIds(shared: any[]): Record<string, string[]>;
+  /** link: 'live' (source found) | 'gone' (its workspace was read, the lot is not there) | '' (typed, or unread). */
+  export function followSources<T extends Record<string, any>>(shared: T[], sources: Record<string, any[]>): (T & { link: '' | 'live' | 'gone' })[];
+  export function sharedNames(lot: any, settingsByWs: Record<string, any>, here?: string): { stockName: string; stockShort: string; supplierName: string };
+}
