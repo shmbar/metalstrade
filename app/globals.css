@@ -1261,6 +1261,45 @@ thead th {
     box-shadow: var(--shadow-xs);
   }
 
+  /* ── Segmented switch ───────────────────────────────────────────────────────
+     Two or three views of one list: "All deals | GIS only", "Lines | By grade",
+     "General Cashflow | Unsold Stocks", the Activity tabs. Six copies were hand-rolled
+     at --fs-input with 5px/14px padding, so beside Add month / Save / Excel or a search
+     box the switch stood taller and a type rung larger than the row (client,
+     2026-10-07: "smaller to match all icon sizes of the row and font"). It is ON the
+     band now — h-8, the band's 12px label, --radius-control, a --line-strong edge —
+     defined once. The chosen option is the raised card; mark it aria-pressed="true". */
+  .seg-switch {
+    @apply h-8;
+    display: inline-flex;
+    align-items: stretch;
+    gap: 2px;
+    padding: 2px;
+    max-width: 100%;
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius-control);
+    background: var(--bg-subtle);
+    box-shadow: var(--shadow-xs);
+  }
+  .seg-switch > button {
+    display: inline-flex;
+    align-items: center;
+    padding: 0 10px;
+    border-radius: calc(var(--radius-control) - 3px);
+    font-size: 0.75rem; /* the band's 12px label, as .whiteButton */
+    font-weight: 500;   /* one weight for every option, so choosing one does not reflow the row */
+    line-height: 1;
+    white-space: nowrap;
+    color: var(--ink-secondary);
+    transition: background-color 120ms ease, color 120ms ease;
+  }
+  .seg-switch > button:hover { color: var(--ink); }
+  .seg-switch > button[aria-pressed="true"] {
+    background: var(--bg-card);
+    color: var(--ink);
+    box-shadow: var(--shadow-xs);
+  }
+
   .supplierButton {
     @apply bg-[var(--brand-soft)] hover:bg-[var(--bg-sunken)] text-[var(--brand)] flex items-center gap-1.5 justify-center rounded-control border-0 px-2.5 h-8 font-medium focus:outline-none transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed;
     font-size: 0.75rem; /* 12px fixed — matches the reference */

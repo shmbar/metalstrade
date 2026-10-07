@@ -31,13 +31,9 @@ const ActivityPage = () => {
                     </div>
 
                     {/* Same segmented control the Stocks page uses, so the two read as one app. */}
-                    <div className="flex items-center bg-[var(--bg-subtle)] border border-[var(--line)] rounded-lg p-0.5 w-fit mb-1">
+                    <div className="seg-switch w-fit mb-1">
                         {TABS.map(t => (
-                            <button key={t.id} type="button" onClick={() => setTab(t.id)}
-                                className={`rounded-lg transition-colors ${tab === t.id
-                                    ? 'bg-[var(--bg-card)] text-[var(--ink)] font-medium shadow-card'
-                                    : 'text-[var(--ink-secondary)]'}`}
-                                style={{ fontSize: 'var(--fs-input)', padding: '5px 14px' }}>
+                            <button key={t.id} type="button" onClick={() => setTab(t.id)} aria-pressed={tab === t.id}>
                                 {t.label}
                             </button>
                         ))}

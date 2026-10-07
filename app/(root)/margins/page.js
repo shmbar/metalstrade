@@ -796,13 +796,9 @@ const Margins = () => {
 
                                     {/* Every deal, or only those shared with the other company —
                                         the same switch as Stocks' Lines / By grade. */}
-                                    <div className='flex items-center bg-[var(--bg-subtle)] border border-[var(--line)] rounded-lg p-0.5'>
+                                    <div className='seg-switch'>
                                         {[['all', 'All deals'], ['shared', `${otherCo} only`]].map(([val, label]) => (
-                                            <button key={val} type='button' onClick={() => setScope(val)} aria-pressed={scope === val}
-                                                className={`rounded-lg transition-colors ${scope === val
-                                                    ? 'bg-[var(--bg-card)] text-[var(--ink)] font-medium shadow-card'
-                                                    : 'text-[var(--ink-secondary)]'}`}
-                                                style={{ fontSize: 'var(--fs-input)', padding: '5px 14px' }}>
+                                            <button key={val} type='button' onClick={() => setScope(val)} aria-pressed={scope === val}>
                                                 {label}
                                             </button>
                                         ))}

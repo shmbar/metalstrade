@@ -72,13 +72,9 @@ const ActivitySummary = () => {
     return (
         <div className='p-3'>
             <div className='flex flex-wrap items-center gap-2 mb-3'>
-                <div className='flex items-center bg-[var(--bg-subtle)] border border-[var(--line)] rounded-lg p-0.5'>
+                <div className='seg-switch'>
                     {RANGES.map(r => (
-                        <button key={r.id} type='button' onClick={() => setRange(r.id)}
-                            className={`rounded-lg transition-colors ${range === r.id
-                                ? 'bg-[var(--bg-card)] text-[var(--ink)] font-medium shadow-card'
-                                : 'text-[var(--ink-secondary)]'}`}
-                            style={{ fontSize: 'var(--fs-input)', padding: '5px 14px' }}>
+                        <button key={r.id} type='button' onClick={() => setRange(r.id)} aria-pressed={range === r.id}>
                             {r.label}
                         </button>
                     ))}

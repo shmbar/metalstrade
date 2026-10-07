@@ -1585,17 +1585,11 @@ const Cashflow = () => {
                                 than sit a few px shorter; min-h-8 keeps the band's 28px floor when the
                                 row wraps and the box is alone on its line. */}
                             <div className="flex flex-wrap items-stretch gap-2 mb-2">
-                                <div className="inline-flex gap-1 bg-[var(--bg-subtle)] border border-[var(--line)] rounded-lg p-0.5">
-                                    <button
-                                        onClick={() => setActiveTab('general')}
-                                        className={`px-4 py-1 responsiveTextInput rounded-lg transition-all ${activeTab === 'general' ? 'bg-[var(--bg-card)] text-[var(--ink)] font-medium shadow-card' : 'text-[var(--ink-secondary)]'}`}
-                                    >
+                                <div className="seg-switch">
+                                    <button type="button" onClick={() => setActiveTab('general')} aria-pressed={activeTab === 'general'}>
                                         General Cashflow
                                     </button>
-                                    <button
-                                        onClick={() => setActiveTab('unsold')}
-                                        className={`px-4 py-1 responsiveTextInput rounded-lg transition-all ${activeTab === 'unsold' ? 'bg-[var(--bg-card)] text-[var(--ink)] font-medium shadow-card' : 'text-[var(--ink-secondary)]'}`}
-                                    >
+                                    <button type="button" onClick={() => setActiveTab('unsold')} aria-pressed={activeTab === 'unsold'}>
                                         Unsold Stocks
                                     </button>
                                 </div>
