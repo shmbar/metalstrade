@@ -14,6 +14,7 @@ import { loadStockDataByIds } from './firestore';
 import { splitNotifId } from '@shared/splitUtils';
 import { priorityOf } from '@shared/notificationPriority';
 import { resolveInvoiceDate } from '@shared/pureHelpers';
+import { applySettledTotals } from '@shared/settlement';
 import { Contract, Invoice, Payment } from './types';
 
 /* Every write in this file goes through these four. The screens' bulk reads are shared for
@@ -1206,22 +1207,12 @@ export async function deleteCompanyExpense(uidCollection: string, id: string): P
   await deleteDoc(doc(db, uidCollection, 'data', 'companyExpenses', id));
 }
 
-// Roll settled line totals up to each purchase invoice they belong to, so the
-// invoice's value (and therefore its balance) reflects the final settlement —
-// port of finalSettlmentModal.js settledByInv/newPoInvoices. Only runs when the
-// settlement is CONFIRMED (draft off); a draft must not move supplier balances.
+// Each purchase invoice's value set to the settled total of its lines (and its balance
+// to value − paid) — shared settlement.js applySettledTotals, web's rule verbatim. Only
+// when the person chose "Use settled totals" on confirming a settlement; it used to run
+// on every confirm and overwrote invoices priced differently from their lots.
 export function buildSettledPoInvoices(valueCon: Contract, data: any[]): any[] {
-  const settledByInv: Record<string, number> = {};
-  data.forEach((x: any) => {
-    if (!x.poInvoice) return;
-    settledByInv[x.poInvoice] = (settledByInv[x.poInvoice] || 0) + (parseFloat(x.finaltotal) || 0);
-  });
-  return (valueCon.poInvoices || []).map((pi: any) => {
-    if (settledByInv[pi.id] == null) return pi;
-    const invValue = Math.round(settledByInv[pi.id] * 100) / 100;
-    const pmnt = parseFloat(pi.pmnt) || 0;
-    return { ...pi, invValue, blnc: Math.round((invValue - pmnt) * 100) / 100 };
-  });
+  return applySettledTotals(valueCon.poInvoices || [], data);
 }
 
 // Patch fields on a contract doc — port of utils.js updateContractField. Year from

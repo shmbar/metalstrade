@@ -9,6 +9,7 @@ import { Contract, Invoice } from '@/data/types';
 import { resolveClientName } from '@/features/invoices/useInvoices';
 import { monthRemaining } from '@/features/margins/derive';
 import { num, settlementReduction, docsInForce, fx } from '@shared/finance';
+import { priceShare } from '@shared/lotPrice';
 // @ts-ignore — plain JS module shared verbatim with the web
 import { lotIsSold } from '@shared/soldStatus';
 import { useShallow } from 'zustand/react/shallow';
@@ -463,7 +464,14 @@ function computeUnsoldWeb(contractsData: any[], stockData: any[], settings: any,
             : Number(prod.qnty) || 0;
       if (qnty <= 0.0005) continue; // nothing left (or represented by the per-alloy lines)
 
-      const unitPrc = Number(prod.unitPrc) || 0;
+      // A line priced per element content (shared lotPrice.js) is worth its lots' content
+      // share of the price, weighted by quantity — web funcs.js runStocks, verbatim rule.
+      const lotsQty = unsoldLots.reduce((s, l) => s + (Number(l.qnty) || 0), 0);
+      const share =
+        lotsQty > 0 && unsoldLots.some((l: any) => l.priceOn)
+          ? unsoldLots.reduce((s, l) => s + (Number(l.qnty) || 0) * priceShare(l), 0) / lotsQty
+          : 1;
+      const unitPrc = (Number(prod.unitPrc) || 0) * share;
       // Warehouse(s) the unsold material physically sits in, from its lots — web
       // funcs.js runStocks stockName, verbatim.
       const stockName = [

@@ -13,6 +13,7 @@ import { useStockInLots, useSaveStockIn, useLotSales, blankLot } from '@/feature
 import { allocateSalesToLots, lotSalesCellText, lotSalesTooltip } from '@shared/salesUsage';
 import { newId } from '@/data/writes';
 import { num } from '@shared/finance';
+import { lotLineTotal } from '@shared/lotPrice';
 import { moneyFull } from '@/lib/format';
 import { haptics } from '@/lib/haptics';
 import { layout } from '@/theme/tokens';
@@ -79,14 +80,16 @@ export default function StockIn() {
       // on the OTHER field being non-empty, and only two of them carry the "qnty is
       // zero → total is the unit price" shortcut. Collapsing them into one rule
       // zeroed totals web leaves alone, and applied the shortcut where web doesn't.
+      // qty × price, × the element's content when the lot is priced per content (shared
+      // lotPrice.js — set on web in the lot's chemistry; Hf Ni VAR is $3,950 per kg of Hf).
       if ('qnty' in patch) {
         // handleValueQnty — no zero shortcut
         if (String(row.unitPrc ?? '') !== '')
-          row.total = Math.round(num(row.qnty) * num(row.unitPrc) * 100) / 100;
+          row.total = lotLineTotal(row, num(row.qnty), num(row.unitPrc));
       } else if ('unitPrc' in patch) {
         // handleValuePmnt — zero shortcut on the numeric-stripped qnty
         if (String(row.qnty ?? '') !== '')
-          row.total = num(row.qnty) === 0 ? num(row.unitPrc) : Math.round(num(row.qnty) * num(row.unitPrc) * 100) / 100;
+          row.total = num(row.qnty) === 0 ? num(row.unitPrc) : lotLineTotal(row, num(row.qnty), num(row.unitPrc));
       } else if (patch.description !== undefined) {
         // handleChange description branch — needs BOTH fields populated
         if (String(row.unitPrc ?? '') !== '' && String(row.qnty ?? '') !== '')

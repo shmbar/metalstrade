@@ -134,7 +134,11 @@ const HASH = {
   // 2026-09-23: rows now default to newest contract first (`_ts`, PO tie-break) —
   // ORDER only, no figure changed; mobile applies the same order in useStocks.ts.
   // The Tier 3 comparisons below sort by id, so they are order-agnostic by design.
-  loadtStocks: '378ce05f1230', // app/(root)/stocks/page.js:132  (aggregation core)
+  // Re-recorded 2026-10-07 (was 378ce05f1230): a lot priced per element content (`priceOn`,
+  // shared lotPrice.js — Hf Ni VAR, $3,950 per kg of Hf at 89.06%) takes its content's share
+  // of the price; every other lot is unchanged. Mobile's computeInventory applies the same
+  // rule at the same point (aggregate.ts, both branches) — covered in lotPrice.test.ts.
+  loadtStocks: 'aeb81cfbd0af', // app/(root)/stocks/page.js:240  (aggregation core)
   setTotals: '0878395a5db7', // app/(root)/stocks/page.js:263
   getFormatted: 'ce2b9a9845ad', // app/(root)/stocks/page.js:312
   showWeight: 'eff225f4c25c', // app/(root)/stocks/page.js:288
@@ -251,7 +255,11 @@ const HASH = {
   // per-supplier sums at the end now come from cashflow/totals.js (warehouseTotals,
   // unsoldBySupplier) in DOLLARS, a euro lot at the page's live EUR→USD instead of added
   // as it stood. Mobile's splitStocksPaidUnpaid / computeUnsoldWeb take the same rate.
-  runStocks: '7ea6cfc580d7', // app/(root)/cashflow/funcs.js:256
+  // Re-recorded again 2026-10-07 (was 7ea6cfc580d7): the lot price takes a content-priced
+  // lot's share (shared lotPrice.js), an unsold line takes its lots' quantity-weighted share,
+  // and unsold rows carry the PO's unit (qTypeTable) so totals convert to MT. Mobile's
+  // computeInventory lotPrice and useCashflow computeUnsoldWeb take the same rule.
+  runStocks: 'e253194d6ab0', // app/(root)/cashflow/funcs.js:278
   staleDays: 'a2e0c4822268', // app/(root)/stocks/storageAging.js:11
   // Re-recorded 2026-09-09: DEMURRAGE_DAYS renamed to LONG_STAY_DAYS — the value
   // (90) is unchanged, but "demurrage" implied a specific shipping-contract charge

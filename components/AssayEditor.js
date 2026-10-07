@@ -17,9 +17,10 @@ import { useEffect, useRef, useState } from 'react';
 import { Portal } from '@headlessui/react';
 import { BtnIcon } from '@components/buttonIcons';
 import { formatAssay, hasAssay, parseAssay, specFromAssay } from '@utils/grades';
+import { contentPct } from '@utils/lotPrice';
 
 const POP_W = 340;
-const POP_H = 330;   // with the Done row — decides whether it opens above the row instead
+const POP_H = 400;   // with the price basis and the Done row — decides whether it opens above the row instead
 
 function popPos(el, keepFlip) {
     const r = el.getBoundingClientRect();
@@ -38,8 +39,13 @@ function popPos(el, keepFlip) {
                certificate reliably. Empty is fine: the chemistry then names the spec.
      analysis  the certificate's figures, as typed or pasted.
    knownSpecs: the specs already given to this PO's other lots, offered as one-click
-   chips so the second lot of "UMZ" is not typed again. */
-export default function AssayEditor({ value = '', onChange, spec = '', onSpecChange, knownSpecs = [], disabled = false }) {
+   chips so the second lot of "UMZ" is not typed again.
+   priceOn / onPriceOnChange / unitLabel (optional — the Materials Breakdown passes them):
+   what the lot's unit price is per. Per unit of material, or per unit of ONE element's
+   content read from this chemistry — Hf Ni VAR is $3,950 per kg of Hf, 89.06% Hf
+   (utils/lotPrice.js). Offered only when the chemistry names an element. */
+export default function AssayEditor({ value = '', onChange, spec = '', onSpecChange, knownSpecs = [], disabled = false,
+    priceOn = '', onPriceOnChange, unitLabel = 'unit' }) {
     const anchorRef = useRef(null);
     const popRef = useRef(null);
     const specRef = useRef(null);
@@ -181,6 +187,37 @@ export default function AssayEditor({ value = '', onChange, spec = '', onSpecCha
                             placeholder="e.g. 51.2Ni 18.9Cr 3Mo 5Nb 4.1Sn — or paste the certificate line"
                             className="w-full px-2 py-1.5 rounded-control border border-[var(--line-strong)] bg-[var(--bg-card)] text-[var(--ink)] responsiveTextInput outline-none focus:border-[var(--brand)] resize-y"
                             style={{ fontFamily: 'inherit' }} />
+                        {onPriceOnChange && (() => {
+                            // The elements this lot states — the analysis first, else the spec —
+                            // each with the content the valuation will use (lotPrice.contentPct).
+                            const lot = { analysis: text, spec: specText };
+                            const els = [...new Set([...Object.keys(parsed), ...Object.keys(parseAssay(specText))])]
+                                .map(el => [el, contentPct(lot, el)]).filter(([, p]) => p)
+                                .sort((a, b) => b[1] - a[1]);
+                            if (!els.length && !priceOn) return null;
+                            const chip = (on) => `h-6 px-2 rounded-lg border responsiveTextTable tnum ${on
+                                ? 'border-[var(--brand)] bg-[var(--violet-bg)] text-[var(--brand-strong)] font-medium'
+                                : 'border-[var(--line)] bg-[var(--bg-subtle)] text-[var(--ink-secondary)] hover:border-[var(--brand)]'}`;
+                            const pct = priceOn ? contentPct(lot, priceOn) : null;
+                            return (<>
+                                <p className="responsiveTextTable font-medium text-[var(--ink-muted)] mb-1 mt-3">Unit price is per</p>
+                                <div className="flex flex-wrap gap-1">
+                                    <button type="button" aria-pressed={!priceOn} onClick={() => onPriceOnChange('')} className={chip(!priceOn)}>
+                                        {unitLabel} of material
+                                    </button>
+                                    {els.map(([el, p]) => (
+                                        <button key={el} type="button" aria-pressed={priceOn === el} onClick={() => onPriceOnChange(el)} className={chip(priceOn === el)}>
+                                            {unitLabel} of {el} · {p}%
+                                        </button>
+                                    ))}
+                                </div>
+                                <p className="responsiveTextTable mt-1 text-[var(--ink-muted)]">
+                                    {!priceOn ? 'Pick an element when the supplier prices its content, e.g. $ per kg of Hf.'
+                                        : pct ? <>The line is worth quantity × <span className="tnum text-[var(--ink)]">{pct}% {priceOn}</span> × unit price.</>
+                                            : <span className="text-[var(--danger-text)]">{priceOn} is not in this lot’s chemistry — add it, or the line is valued per {unitLabel} of material.</span>}
+                                </p>
+                            </>);
+                        })()}
                         <div className="flex items-center justify-between gap-2 mt-1.5">
                             <p className="responsiveTextTable text-[var(--ink-muted)] min-w-0">
                                 {hasAssay(parsed)

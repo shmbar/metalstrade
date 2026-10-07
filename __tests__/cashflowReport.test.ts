@@ -191,6 +191,20 @@ describe('cashflow report', () => {
     ]);
   });
 
+  it('a line kept in kg counts in tonnes — Hf Ni VAR\'s 660 kg is 0.660 MT, not 660', () => {
+    const KG = { kg: 0.001 } as any;
+    const r = buildCashflowReport(world({
+      names: { ...names, mt: (row: any) => (parseFloat(row.qnty) || 0) * (KG[row.qTypeTable] ?? 1) },
+      stockPaidRows: [
+        { stock: 'w1', cur: 'us', total: 700, qnty: '7', unitPrc: 100, order: 'PO-9', supplier: 's1' },
+        { stock: 'w1', cur: 'us', total: 2321794.2, qnty: '660', qTypeTable: 'kg', unitPrc: 3517.87, order: '190626-2-TIM', supplier: 's2' },
+      ],
+    }));
+    const s = r.sections.find((x: any) => x.key === 'stocksPaid');
+    expect(s.parties[0].rows.map((x: any) => x.qty)).toEqual([7, 0.66]);
+    expect(r.stock.paidQty).toBeCloseTo(7.66, 6);
+  });
+
   it('stock tonnage counts active lines only', () => {
     const r = buildCashflowReport(world());
     expect(r.stock.unpaidQty).toBeCloseTo(3, 6);

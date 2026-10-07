@@ -186,7 +186,7 @@ const stockSection = ({ key, title, warehouses, rows, holdable, names, rate }) =
             supplier: [...new Set((z.supplierIds?.length ? z.supplierIds : [z.supplier])
                 .filter(id => id && id !== '-').map(names.supplier))].join(' + '),
             description: z.descriptionName || '',
-            qty: num(z.qnty),
+            qty: names.mt ? names.mt(z) : num(z.qnty), // in MT — a kg line is not 660 tonnes
             unitPrc: num(z.unitPrc),
             cur: resolveCur(z),
             value: z.total === '-' ? 0 : num(z.total),
@@ -259,7 +259,7 @@ const unsoldSection = ({ aggregates, rows, names, rate }) => {
             po: z.order || '',
             description: z.description || '',
             warehouse: z.stockName || '',
-            qty: num(z.qnty),
+            qty: names.mt ? names.mt(z) : num(z.qnty), // in MT, from the PO's unit
             unitPrc: num(z.unitPrc),
             cur: resolveCur(z),
             value: num(z.total),

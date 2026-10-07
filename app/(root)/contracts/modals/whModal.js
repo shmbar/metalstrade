@@ -19,6 +19,7 @@ import { Save, CirclePlus, ScrollText, Trash, Copy, Pencil } from "lucide-react"
 import { BtnIcon } from "@components/buttonIcons";
 import DocumentImportOverlay from '@components/DocumentImportOverlay';
 import AssayEditor from '@components/AssayEditor';
+import { contentPct, lotLineTotal } from '@utils/lotPrice';
 
 
 
@@ -122,11 +123,12 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowPoInvModal }) => {
         let itm = data[i]
         itm = { ...itm, [e.target.name]: removeNonNumeric(e.target.value) }
 
+        // qty × price — × the element's content when the line is priced per content (lotPrice.js).
         if (e.target.name === 'unitPrc' && itm.qnty !== '') {
             itm = {
                 ...itm,
                 total: removeNonNumeric(itm.qnty) === '0' ? removeNonNumeric(itm.unitPrc) :
-                    Math.round(removeNonNumeric(itm.qnty) * removeNonNumeric(itm.unitPrc) * 100) / 100
+                    lotLineTotal(itm, removeNonNumeric(itm.qnty), removeNonNumeric(itm.unitPrc))
             }
         }
 
@@ -144,8 +146,7 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowPoInvModal }) => {
 
         if (e.target.name === 'qnty' && itm.unitPrc !== '') {
             itm = {
-                ...itm, total:
-                    Math.round(removeNonNumeric(itm.qnty) * removeNonNumeric(itm.unitPrc) * 100) / 100
+                ...itm, total: lotLineTotal(itm, removeNonNumeric(itm.qnty), removeNonNumeric(itm.unitPrc))
             }
         }
 
@@ -170,7 +171,16 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowPoInvModal }) => {
     };
 
     const handleValue1 = (e, i) => {
-        setData(data.map((z, index) => index === i ? { ...z, [e.target.name]: e.target.value } : z));
+        setData(data.map((z, index) => {
+            if (index !== i) return z;
+            const next = { ...z, [e.target.name]: e.target.value };
+            // The chemistry or the price basis moved: a line priced per content re-totals.
+            const q = removeNonNumeric(next.qnty ?? ''), p = removeNonNumeric(next.unitPrc ?? '');
+            if (['analysis', 'spec', 'priceOn'].includes(e.target.name) && q !== '' && q !== '0' && p !== '' && (next.priceOn || z.priceOn)) {
+                next.total = lotLineTotal(next, q, p);
+            }
+            return next;
+        }));
     }
 
     let newStock = {
@@ -486,6 +496,11 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowPoInvModal }) => {
     const WH_MIN_WIDTH = gridCols.split(' ').reduce((sum, w) => sum + parseInt(w, 10), 0)
         + (anySpInv ? 14 : 13) * 6;
     const whHead = 'responsiveTextTable font-medium text-[var(--chathams-blue)] truncate';
+    // The PO's quantity unit as a price reads it: "per kg", "per MT", "per lb".
+    const unitShort = (() => {
+        const u = getD(settings.Quantity.Quantity, valueCon, 'qTypeTable') || 'MT';
+        return u === 'KGS' ? 'kg' : u === 'LB' ? 'lb' : u;
+    })();
 
     return (
         <Modal isOpen={isOpen} setIsOpen={setIsOpen} title={getTtl('Materials Breakdown', ln)}
@@ -565,15 +580,30 @@ const PoInvModal = ({ isOpen, setIsOpen, setShowPoInvModal }) => {
                                     onChange={(v) => handleValue1({ target: { name: 'analysis', value: v } }, i)}
                                     spec={x.spec || ''}
                                     onSpecChange={(v) => handleValue1({ target: { name: 'spec', value: v } }, i)}
-                                    knownSpecs={data.filter((_, k) => k !== i).map(d => d.spec)} />
+                                    knownSpecs={data.filter((_, k) => k !== i).map(d => d.spec)}
+                                    priceOn={x.priceOn || ''}
+                                    onPriceOnChange={(v) => handleValue1({ target: { name: 'priceOn', value: v } }, i)}
+                                    unitLabel={unitShort} />
                             </div>
 
                             <input type='text' className="number-separator tnum input h-7 responsiveTextTable" name='qnty' style={{ fontFamily: 'inherit' }}
                                 value={addComma(x.qnty, false)} onChange={e => { rememberCaret(e); handleValueQnty(e, i); }} />
 
-                            <input type='text' className="number-separator tnum input h-7 responsiveTextTable" name='unitPrc' style={{ fontFamily: 'inherit' }}
-                                value={addComma(x.unitPrc, true)} placeholder="text"
-                                onChange={e => handleValuePmnt(e, i)} />
+                            <div className='flex flex-col min-w-0'>
+                                <input type='text' className="number-separator tnum input h-7 responsiveTextTable" name='unitPrc' style={{ fontFamily: 'inherit' }}
+                                    value={addComma(x.unitPrc, true)} placeholder="text"
+                                    onChange={e => handleValuePmnt(e, i)} />
+                                {x.priceOn && (
+                                    // Priced per element content (set in the lot's chemistry, the flask).
+                                    <Tltip direction='top' tltpText={contentPct(x, x.priceOn)
+                                        ? `Per ${unitShort} of ${x.priceOn} — the line is worth quantity × ${contentPct(x, x.priceOn)}% ${x.priceOn} × this price`
+                                        : `Per ${unitShort} of ${x.priceOn}, but ${x.priceOn} is not in this lot's chemistry — valued per ${unitShort} of material`}>
+                                        <span className={`responsiveTextTable truncate mt-0.5 cursor-default ${contentPct(x, x.priceOn) ? 'text-[var(--brand-strong)]' : 'text-[var(--danger-text)]'}`}>
+                                            per {unitShort} {x.priceOn}
+                                        </span>
+                                    </Tltip>
+                                )}
+                            </div>
 
                             <input type='text' disabled className="number-separator tnum input h-7 responsiveTextTable" name='total'
                                 value={addComma(x.total, true, 'total')} onChange={e => handleValue(e, i)} />

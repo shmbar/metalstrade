@@ -13,6 +13,9 @@ import Tltip from '@components/tlTip.js';
 import { Save, X } from 'lucide-react';
 import { Button } from '@components/ui/button';
 import { BtnIcon } from '@components/buttonIcons';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@components/ui/dialog';
+import { settledInvoiceChanges, applySettledTotals } from '@utils/settlement';
+import { moneyFull } from '@utils/currency';
 
 function countDecimalDigits(inputString) {
 
@@ -48,6 +51,9 @@ const FinalSettlmentModal = ({ isOpen, setIsOpen, setShowPoInvModal }) => {
     // `confirmedMap` keeps those confirmed values by lot id so a draft save can restore them.
     const [isDraft, setIsDraft] = useState(false)
     const [confirmedMap, setConfirmedMap] = useState({})
+    // A confirmed settlement whose totals differ from its supplier invoices waits here for
+    // the person to say whether those invoice values change (utils/settlement.js).
+    const [invAsk, setInvAsk] = useState(null)
 
 
     useEffect(() => {
@@ -158,24 +164,25 @@ const FinalSettlmentModal = ({ isOpen, setIsOpen, setShowPoInvModal }) => {
         })
 
         if (!isDraft) {
-            // Roll the settled line totals up to each supplier (purchase) invoice they belong to,
-            // and set that invoice's value so its balance reflects the final settlement automatically.
-            const settledByInv = {}
-            data.forEach(x => {
-                if (!x.poInvoice) return
-                settledByInv[x.poInvoice] = (settledByInv[x.poInvoice] || 0) + (parseFloat(x.finaltotal) || 0)
-            })
-            const newPoInvoices = (valueCon.poInvoices || []).map(pi => {
-                if (settledByInv[pi.id] == null) return pi
-                const invValue = Math.round(settledByInv[pi.id] * 100) / 100
-                const pmnt = parseFloat(pi.pmnt) || 0
-                return { ...pi, invValue, blnc: Math.round((invValue - pmnt) * 100) / 100 }
-            })
-            saveData_stocks(uidCollection, payload, newPoInvoices)
-            return
+            // A supplier invoice's value changes only when the person says so. Confirming used
+            // to overwrite every linked invoice with its lots' settled total — Thormet PO 300126,
+            // paid in full, then read $337,893.43 owed (utils/settlement.js).
+            const changes = settledInvoiceChanges(valueCon.poInvoices, payload)
+            if (changes.length) {
+                setInvAsk({ payload, changes })
+                return
+            }
         }
 
         saveData_stocks(uidCollection, payload)
+    }
+
+    // The answer to that question. Either way the settlement itself is saved.
+    const finishSave = (useSettled) => {
+        const ask = invAsk
+        setInvAsk(null)
+        if (!ask) return
+        saveData_stocks(uidCollection, ask.payload, useSettled ? applySettledTotals(valueCon.poInvoices, ask.payload) : null)
     }
 
     // ---- Live settlement summary + custom calculation lines (persisted on the contract) ----
@@ -390,6 +397,48 @@ const FinalSettlmentModal = ({ isOpen, setIsOpen, setShowPoInvModal }) => {
                 </div>
 
             </div>
+
+            {/* Confirming a settlement whose totals differ from its supplier invoices: keep the
+                invoice values (the default — right whenever the lines are priced differently
+                from the supplier's invoices) or set them to the settled totals. */}
+            <Dialog open={!!invAsk} onOpenChange={(open) => { if (!open) setInvAsk(null) }}>
+                <DialogContent className="max-w-xl rounded-2xl">
+                    <DialogHeader>
+                        <DialogTitle className="text-[var(--endeavour)]">Supplier invoice values</DialogTitle>
+                    </DialogHeader>
+                    <p className="responsiveText text-[var(--ink-secondary)]">
+                        The settled totals differ from {invAsk?.changes.length === 1 ? 'this supplier invoice' : `these ${invAsk?.changes.length} supplier invoices`}.
+                        The settlement is saved either way — should the invoice values change too?
+                    </p>
+                    <div className="max-h-64 overflow-y-auto">
+                        <table className="cashflow-detail-table w-full table-auto">
+                            <thead>
+                                <tr>
+                                    <th className="text-left">Invoice</th>
+                                    <th className="text-right">Value now</th>
+                                    <th className="text-right">Settled total</th>
+                                    <th className="text-right">Balance if changed</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {(invAsk?.changes || []).map(c => (
+                                    <tr key={c.id}>
+                                        <td className="text-left">{c.inv || '—'}</td>
+                                        <td className="text-right tabular-nums">{moneyFull(valueCon.cur, c.now)}</td>
+                                        <td className="text-right tabular-nums">{moneyFull(valueCon.cur, c.settled)}</td>
+                                        <td className="text-right tabular-nums">{moneyFull(valueCon.cur, c.balanceAfter)}</td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                    <DialogFooter className="flex flex-wrap gap-2 mt-2">
+                        <button type="button" className="blackButton" onClick={() => finishSave(false)} autoFocus>Keep invoice values</button>
+                        <button type="button" className="whiteButton" onClick={() => finishSave(true)}>Use settled totals</button>
+                        <button type="button" className="whiteButton" onClick={() => setInvAsk(null)}>{getTtl('Cancel', ln)}</button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </Modal>
     )
 }

@@ -8,6 +8,7 @@ import '../../contracts/style.css'
 import { getTtl } from "@utils/languages"
 import Tltip from "@components/tlTip"
 import { detailsToolTip } from "./tablesFuncs"
+import { UNIT_TO_MT } from "@utils/finance"
 
 const CURRENCIES = {
   USD: { symbol: '$', code: 'usd', label: 'Total $' },
@@ -46,7 +47,9 @@ const Customtable = ({ data, columns, ln, ttl, settings, dataTable, rmrk }) => {
     Object.keys(CURRENCIES).forEach(cur => {
       const filtered = data.filter(item => item.cur === cur)
       result[cur] = {
-        quantity: filtered.reduce((sum, item) => sum + (item.qnty || 0), 0),
+        // In MT: a warehouse row keeps its PO's unit (the Weight type column), so the
+        // total converts each first — 660 kg used to count as 660 MT (2026-10-07).
+        quantity: filtered.reduce((sum, item) => sum + (item.qnty || 0) * (UNIT_TO_MT[item.qTypeTable] ?? 1), 0),
         total: filtered.reduce((sum, item) => sum + (item.total || 0), 0)
       }
     })
@@ -73,6 +76,8 @@ const Customtable = ({ data, columns, ln, ttl, settings, dataTable, rmrk }) => {
           >
             {index === 0
               ? config.label
+              : col.accessorKey === 'qTypeTable'
+                ? 'MT'
               : col.accessorKey === 'qnty'
                 ? formatNumber(quantity)
                 : col.accessorKey === 'total'

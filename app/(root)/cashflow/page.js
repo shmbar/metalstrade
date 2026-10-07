@@ -18,7 +18,7 @@ import { NumericFormat } from "react-number-format";
 import { addComma, ClientDetails, clientToolTip, entityName, ExpensesToolTip, FinalSummaryBadge, runExpenses, runInvoices, runStocks, runSupPayments, SharedStockDetails, stockHoldInvoices, StocksUnSold, StoclToolTip, SupplierDetails, supplierToolTip } from "./funcs";
 import { getTotals, getTotalsSupPayments, sumUnpaidStocksByWarehouse } from "./totals";
 import { fetchEurUsd } from "../../../hooks/useExchangeRates";
-import { EUR_USD_FALLBACK } from "../../../utils/finance";
+import { EUR_USD_FALLBACK, toMT } from "../../../utils/finance";
 import Tltip from "../../../components/tlTip";
 import { FaSortAmountDown } from "react-icons/fa";
 import { FaSortAmountUpAlt } from "react-icons/fa";
@@ -1447,6 +1447,8 @@ const Cashflow = () => {
         names: {
             client: cliName, supplier: supName, warehouse: whName,
             expType: (id) => settings?.Expenses?.Expenses?.find(q => q.id === id)?.expType || '',
+            // A stock line's quantity in MT — lots keep their PO's unit (kg, lb).
+            mt: (row) => toMT(parseFloat(row?.qnty) || 0, row, settings),
         },
         isAdmin,
         account: accountName(uidCollection),

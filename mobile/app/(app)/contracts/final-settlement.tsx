@@ -16,7 +16,8 @@ import {
   recomputeTotal,
   SettlementBase,
 } from '@/features/stocks/useFinalSettlement';
-import { curSymbol, fmtMoney } from '@/lib/format';
+import { curSymbol, fmtMoney, moneyFull } from '@/lib/format';
+import { settledInvoiceChanges } from '@shared/settlement';
 import { haptics } from '@/lib/haptics';
 import { layout } from '@/theme/tokens';
 
@@ -61,14 +62,10 @@ export default function FinalSettlement() {
     });
   };
 
-  const onSave = async () => {
+  const persist = async (payload: any[], applyToPoInvoices: boolean) => {
     if (!contract) return;
     try {
-      const payload = buildPayload(built.rows, working, isDraft);
-      // Confirming a settlement (draft OFF) must also roll the settled line totals
-      // up into each purchase invoice's invValue/blnc — otherwise the supplier
-      // balances on Cashflow stay at the pre-settlement figures. Web parity.
-      await save.mutateAsync({ contract, payload, applyToPoInvoices: !isDraft });
+      await save.mutateAsync({ contract, payload, applyToPoInvoices });
       Alert.alert(
         isDraft ? 'Saved as draft' : 'Settlement applied',
         isDraft
@@ -79,6 +76,29 @@ export default function FinalSettlement() {
     } catch (e: any) {
       Alert.alert('Save failed', e?.message || 'Could not save the settlement.');
     }
+  };
+
+  const onSave = async () => {
+    if (!contract) return;
+    const payload = buildPayload(built.rows, working, isDraft);
+    // A supplier invoice's value changes only when the person says so (shared settlement.js,
+    // web finalSettlmentModal.js). Confirming used to overwrite each linked invoice with its
+    // lots' settled total — Thormet PO 300126, paid in full, then read $337,893.43 owed.
+    const changes = isDraft ? [] : settledInvoiceChanges(contract.poInvoices || [], payload);
+    if (!changes.length) {
+      await persist(payload, false);
+      return;
+    }
+    const list = changes.map((c) => `${c.inv || '—'}: ${moneyFull(contract.cur, c.now)} → ${moneyFull(contract.cur, c.settled)}`).join('\n');
+    Alert.alert(
+      'Supplier invoice values',
+      `The settled totals differ from ${changes.length === 1 ? 'this supplier invoice' : `these ${changes.length} supplier invoices`}:\n\n${list}\n\nThe settlement is saved either way — should the invoice values change too?`,
+      [
+        { text: 'Keep invoice values', onPress: () => void persist(payload, false) },
+        { text: 'Use settled totals', onPress: () => void persist(payload, true) },
+        { text: 'Cancel', style: 'cancel' },
+      ]
+    );
   };
 
   if (!contract) {

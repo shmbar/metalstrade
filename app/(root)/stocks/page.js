@@ -16,7 +16,8 @@ import { TableSkeleton } from "../../../components/skeletons";
 import { UserAuth } from "../../../contexts/useAuthContext"
 import { isTradingAccount } from '@utils/activeAccount'
 import { loadStockData, filteredArray, loadAllStockData } from '../../../utils/utils'
-import { settledInQty, settlementReduction } from '../../../utils/finance'
+import { settledInQty, settlementReduction, toMT } from '../../../utils/finance'
+import { effectiveUnitPrice } from '../../../utils/lotPrice'
 import { Selector } from '../../../components/selectors/selectShad.js'
 import { EXD } from './excel'
 import { getTtl } from '../../../utils/languages';
@@ -299,7 +300,12 @@ const Stocks = () => {
         // reduction (utils/finance settlementReduction).
         totalObj['qnty'] = (parseFloat(totalObj['qnty']) || 0) + settlementReduction(filteredstockData)
 
-
+        // A lot priced per element content is worth its content's share of the price
+        // (utils/lotPrice.js): Hf Ni VAR is $3,950 per kg of Hf at 89.06% Hf. The price
+        // shown and multiplied is per unit of material, so price × quantity is still the total.
+        // `priced` is the lot whose price the loop above kept — the last in-lot with a quantity.
+        const priced = [...filteredstockData].reverse().find(x => x.type === 'in' && x.description && parseFloat(x.qnty) > 0)
+        if (priced?.priceOn) totalObj['unitPrc'] = effectiveUnitPrice(priced, totalObj.unitPrc)
 
         totalObj['total'] = totalObj.qnty === 0 && !filteredstockData.some(item =>
           item.hasOwnProperty("finalqnty") && item.type === "in"
@@ -486,13 +492,14 @@ const Stocks = () => {
   // What a spec search found, read back beside the box.
   const specSummary = useMemo(() => {
     if (!spec) return '';
-    const q = filteredData.reduce((s, r) => s + (parseFloat(r.qnty) || 0), 0);
+    // MT: each line from its PO's unit (kg, lb) — they are added together below.
+    const q = filteredData.reduce((s, r) => s + toMT(parseFloat(r.qnty) || 0, r, settings), 0);
     const v = filteredData.reduce((s, r) => s + (r.total === '-' ? 0 : parseFloat(r.total) || 0), 0);
     const oneCur = new Set(filteredData.map(r => r.cur)).size === 1;
     const n = filteredData.length;
     return `${n} line${n === 1 ? '' : 's'} · ${q.toLocaleString('en-US', { minimumFractionDigits: 3, maximumFractionDigits: 3 })} MT`
       + (oneCur && q > 0 ? ` · avg ${Math.round(v / q).toLocaleString('en-US')}/MT` : '');
-  }, [spec, filteredData]);
+  }, [spec, filteredData, settings]);
 
   /* What the Data sheet exports when the table is combined. Built from the FILTERED
      lines, so the sheet is the screen: filter to one supplier, combine, export, and
@@ -637,7 +644,7 @@ const Stocks = () => {
                 title='Summary by warehouse and by grade'
                 summary={<>
                   <SectionFigure label='Warehouses'>{sumData.length}</SectionFigure>
-                  <SectionFigure label='Quantity'>{new Intl.NumberFormat('en-US', { minimumFractionDigits: 3, maximumFractionDigits: 3 }).format(sumData.reduce((s, r) => s + (Number(r.qnty) || 0), 0))}</SectionFigure>
+                  <SectionFigure label='Quantity'>{new Intl.NumberFormat('en-US', { minimumFractionDigits: 3, maximumFractionDigits: 3 }).format(sumData.reduce((s, r) => s + toMT(Number(r.qnty) || 0, r, settings), 0))} MT</SectionFigure>
                 </>}
               />
               {/* NOT flex-wrap: wrapping is decided on each card's CONTENT width, so

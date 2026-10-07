@@ -1,7 +1,8 @@
 import { useState, useContext, Children, cloneElement, isValidElement } from 'react';
 import { SettingsContext } from "../../../contexts/useSettingsContext";
-import { settledInQty, settlementReduction, resolveCur, EUR_USD_FALLBACK } from "../../../utils/finance";
+import { settledInQty, settlementReduction, resolveCur, EUR_USD_FALLBACK, toMT, unitOf } from "../../../utils/finance";
 import { isEuro, isFN, isFNNumber, unsoldBySupplier, vendorTotals, warehouseTotals } from "./totals";
+import { priceShare, contentPct } from "../../../utils/lotPrice";
 
 import CheckBox from "../../../components/checkbox";
 import Avatar from "../../../components/Avatar";
@@ -23,6 +24,27 @@ import { BtnIcon } from "../../../components/buttonIcons";
 
 // Every figure the page adds up comes from totals.js — in DOLLARS, a euro amount at
 // today's live EUR→USD (see the note at the top of that file).
+
+// A row's quantity in metric tonnes. A lot keeps its PO's unit (kg, lb), so a sum across
+// lots converts first — Seagull's total read 1,085.940 "MT" because Hf Ni VAR's 660 kg were
+// added as 660 tonnes (client, 2026-10-07). finance.js toMT reads the unit off qTypeTable.
+const qtyMT = (row, settings) => toMT(parseFloat(row?.qnty) || 0, row, settings);
+// The unit a row's own quantity is in, shown beside it when it is not MT ("660.000 kg").
+const unitTag = (row, settings) => {
+    const u = unitOf(row, settings);
+    return u === 'MT' ? '' : u === 'KGS' ? 'kg' : String(u).toLowerCase();
+};
+const QtyUnit = ({ row, settings }) => {
+    const u = unitTag(row, settings);
+    return u ? <span className="text-[var(--ink-muted)]"> {u}</span> : null;
+};
+// A row whose lots are priced per element content (lotPrice.js): what its unit price means.
+const contentNote = (row) => {
+    const lot = (row?.data || []).find(l => l?.type === 'in' && l.priceOn);
+    if (!lot) return '';
+    const pct = contentPct(lot, lot.priceOn);
+    return pct ? `Priced per unit of ${lot.priceOn} content: ${lot.unitPrc} × ${pct}% ${lot.priceOn}` : `Priced per unit of ${lot.priceOn} content — the ${lot.priceOn} % is missing from the lot's assay`;
+};
 
 // Composite key for the running-sum basket (ids are uuids but kind-prefixed to be safe)
 const sumKey = (kind, id) => kind + '_' + id;
@@ -343,7 +365,13 @@ export const runStocks = async (uidCollection, settings, yr, contractsData = [],
             // Value mirrors the inventory tables: quantity × the line's unit price. Summing
             // raw lot totals would fold in zero-quantity settlement/adjustment lots, which
             // distorts both the value and the displayed unit price.
-            const unitPrc = Number(prod.unitPrc) || 0;
+            // A line priced per element content (lotPrice.js) is worth its lots' content
+            // share of the price — weighted by quantity, as lots of one line can assay
+            // differently. Hf Ni VAR: $3,950 per kg of Hf × 89.06% Hf.
+            const lotsQty = unsoldLots.reduce((s, l) => s + (Number(l.qnty) || 0), 0);
+            const share = lotsQty > 0 && unsoldLots.some(l => l.priceOn)
+                ? unsoldLots.reduce((s, l) => s + (Number(l.qnty) || 0) * priceShare(l), 0) / lotsQty : 1;
+            const unitPrc = (Number(prod.unitPrc) || 0) * share;
             const total = qnty * unitPrc;
             // Warehouse(s) the unsold material physically sits in (from its lots).
             const stockName = [...new Set(unsoldLots
@@ -359,6 +387,7 @@ export const runStocks = async (uidCollection, settings, yr, contractsData = [],
                 unitPrc,
                 total,
                 cur: con.cur,
+                qTypeTable: con.qTypeTable || '', // the PO's unit — totals convert to MT
                 orderData: { date: con.date, id: con.id },
                 groupDesc: prod.import ? ownLineDesc : '',
             });
@@ -431,11 +460,13 @@ export const runStocks = async (uidCollection, settings, yr, contractsData = [],
             // carry a price. 'out' lots hold a SALE price and only reduce the quantity —
             // valuing them would stop a fully-sold row netting to zero. When no in-lot has
             // a price at all, the resolution above still decides, so those rows never move.
+            // Per unit of MATERIAL: a lot priced per element content counts its content's
+            // share of the price (lotPrice.js) — Hf Ni VAR is $3,950 per kg of Hf, 89.06% Hf.
             const lotPrice = (z) => {
                 const own = parseFloat(z.unitPrc);
-                if (Number.isFinite(own) && own !== 0) return own;
-                return parseFloat(z.productsData?.find(y =>
-                    y.id === (z.descriptionId || z.description))?.unitPrc) || 0;
+                if (Number.isFinite(own) && own !== 0) return own * priceShare(z);
+                return (parseFloat(z.productsData?.find(y =>
+                    y.id === (z.descriptionId || z.description))?.unitPrc) || 0) * priceShare(z);
             };
             const lotQty = (z) => settledInQty(z);
             const pricedInLots = filteredData.filter(z => z.type === 'in' && lotPrice(z) > 0);
@@ -789,7 +820,7 @@ export const StoclToolTip = ({ stock, stockDataAll, settings, uidCollection, set
                                         <UnpaidShareBadge row={z} />
                                     </span>
                                 </td>
-                                <td className="text-center">{
+                                <td className="text-center whitespace-nowrap">
                                     <NumericFormat
                                         value={z.qnty}
                                         displayType="text"
@@ -798,9 +829,10 @@ export const StoclToolTip = ({ stock, stockDataAll, settings, uidCollection, set
                                         decimalScale='3'
                                         fixedDecimalScale
                                     />
-                                }</td>
-                                <td className="text-right">{
-                                    <NumericFormat
+                                    <QtyUnit row={z} settings={settings} />
+                                </td>
+                                <td className="text-right">{(() => {
+                                    const price = <NumericFormat
                                         value={z.unitPrc}
                                         displayType="text"
                                         thousandSeparator
@@ -808,8 +840,13 @@ export const StoclToolTip = ({ stock, stockDataAll, settings, uidCollection, set
                                         prefix={z.cur === 'us' ? '$' : '€'}
                                         decimalScale='2'
                                         fixedDecimalScale
-                                    />
-                                }</td>
+                                    />;
+                                    // Per unit of material; a lot priced per element content says how.
+                                    const note = contentNote(z);
+                                    return note
+                                        ? <Tltip direction='top' tltpText={note}><span className="cursor-help border-b border-dotted border-[var(--line-strong)]">{price}</span></Tltip>
+                                        : price;
+                                })()}</td>
                                 <td className="text-right">{
                                     <NumericFormat
                                         value={z.total}
@@ -870,7 +907,7 @@ export const StoclToolTip = ({ stock, stockDataAll, settings, uidCollection, set
                                             </span>
                                         </td>
                                         <td className="text-center font-medium">{
-                                            <NumericFormat value={qSum} displayType="text" thousandSeparator decimalScale='3' fixedDecimalScale />
+                                            <><NumericFormat value={qSum} displayType="text" thousandSeparator decimalScale='3' fixedDecimalScale /><QtyUnit row={grp[0]} settings={settings} /></>
                                         }</td>
                                         <td className="text-right"></td>
                                         <td className="text-right font-medium">{
@@ -894,16 +931,17 @@ export const StoclToolTip = ({ stock, stockDataAll, settings, uidCollection, set
                         pendingRows={filteredArr.filter(z => z.pending)}
                         activeRows={filteredArr.filter(z => !z.pending)}
                         cells={(rows, label) => {
-                            const q = rows.reduce((sum, item) => sum + (item.qnty * 1 || 0), 0);
+                            // In MT: each line converted from its PO's unit (kg, lb) first.
+                            const q = rows.reduce((sum, item) => sum + qtyMT(item, settings), 0);
                             const v = rows.reduce((sum, item) => sum + (item.total * 1 || 0), 0);
                             return (<>
                                 <th></th>
                                 <th className="text-left">{label}</th>
                                 <th></th>
                                 <th></th>
-                                <th className="text-center">
+                                <th className="text-center whitespace-nowrap">
                                     <NumericFormat value={q} displayType="text" thousandSeparator allowNegative={true}
-                                        decimalScale='3' fixedDecimalScale />
+                                        decimalScale='3' fixedDecimalScale suffix=' MT' />
                                 </th>
                                 {/* Unit prices are per-MT rates for DIFFERENT materials, so adding them
                                     up produces a number that is neither money nor a price — $2,075/MT of
@@ -984,7 +1022,7 @@ export const StocksUnSold = ({ supplier, stockDataAllArray, settings, uidCollect
                                 <td className="text-left w-20">
                                     <Tltip direction='top' tltpText={z.stockName || ''}><span className="flex items-center gap-1.5 min-w-0 cursor-default"><Avatar name={z.stockName} size={18} /><span className="block truncate">{z.stockName}</span></span></Tltip>
                                 </td>
-                                <td className="text-center">{
+                                <td className="text-center whitespace-nowrap">
                                     <NumericFormat
                                         value={z.qnty}
                                         displayType="text"
@@ -993,7 +1031,8 @@ export const StocksUnSold = ({ supplier, stockDataAllArray, settings, uidCollect
                                         decimalScale='3'
                                         fixedDecimalScale
                                     />
-                                }</td>
+                                    <QtyUnit row={z} settings={settings} />
+                                </td>
                                 <td className="text-right">{
                                     <NumericFormat
                                         value={z.unitPrc}
@@ -1078,7 +1117,7 @@ export const StocksUnSold = ({ supplier, stockDataAllArray, settings, uidCollect
                                             );
                                         })()}</td>
                                         <td className="text-center font-medium">{
-                                            <NumericFormat value={qSum} displayType="text" thousandSeparator decimalScale='3' fixedDecimalScale />
+                                            <><NumericFormat value={qSum} displayType="text" thousandSeparator decimalScale='3' fixedDecimalScale /><QtyUnit row={grp[0]} settings={settings} /></>
                                         }</td>
                                         <td className="text-right"></td>
                                         <td className="text-right font-medium">{
@@ -1104,15 +1143,17 @@ export const StocksUnSold = ({ supplier, stockDataAllArray, settings, uidCollect
                         </th>
                         <th></th>
                         <th></th>
-                        <th className="text-center">
+                        <th className="text-center whitespace-nowrap">
                             {
+                                // In MT: each line converted from its PO's unit (kg, lb) first.
                                 <NumericFormat
-                                    value={filteredArr.reduce((sum, item) => sum + (item.qnty * 1 || 0), 0)}
+                                    value={filteredArr.reduce((sum, item) => sum + qtyMT(item, settings), 0)}
                                     displayType="text"
                                     thousandSeparator
                                     allowNegative={true}
                                     decimalScale='3'
                                     fixedDecimalScale
+                                    suffix=' MT'
                                 />
                             }
                         </th>
@@ -1132,7 +1173,7 @@ export const StocksUnSold = ({ supplier, stockDataAllArray, settings, uidCollect
                 const groups = Object.values(base.reduce((acc, z) => {
                     const k = `${norm(z.description)}|${z.cur}`;
                     if (!acc[k]) acc[k] = { description: z.description || '(no name)', cur: z.cur, qnty: 0, total: 0, pos: new Set() };
-                    acc[k].qnty += parseFloat(z.qnty) || 0;
+                    acc[k].qnty += qtyMT(z, settings); // MT, so POs in kg and in MT add up
                     acc[k].total += parseFloat(z.total) || 0;
                     if (z.order) acc[k].pos.add(z.order);
                     return acc;
@@ -1148,7 +1189,7 @@ export const StocksUnSold = ({ supplier, stockDataAllArray, settings, uidCollect
                                         Totals per material ({groups.length})
                                     </span>
                                 </th>
-                                <th className="text-center w-14">{showMatTotals ? 'Quantity' : ''}</th>
+                                <th className="text-center w-14">{showMatTotals ? 'Quantity (MT)' : ''}</th>
                                 <th className="text-right w-20">{showMatTotals ? 'Avg Price' : ''}</th>
                                 <th className="text-right w-20">{showMatTotals ? 'Total' : 'click to expand'}</th>
                             </tr>
@@ -1263,7 +1304,7 @@ export const SharedStockDetails = ({ rows, settings }) => {
                                     </Tltip>
                                 </td>
                                 <td className="text-center">
-                                    <NumericFormat value={r.qnty} displayType="text" thousandSeparator decimalScale='3' fixedDecimalScale />
+                                    <NumericFormat value={r.qnty} displayType="text" thousandSeparator decimalScale='3' fixedDecimalScale /><QtyUnit row={r} settings={settings} />
                                 </td>
                                 <td className="text-right">
                                     <NumericFormat value={r.unitPrc} displayType="text" thousandSeparator
@@ -1283,7 +1324,7 @@ export const SharedStockDetails = ({ rows, settings }) => {
                             <th></th>
                             <th></th>
                             <th className="text-center">
-                                <NumericFormat value={(rows || []).reduce((s, r) => s + (parseFloat(r.qnty) || 0), 0)}
+                                <NumericFormat value={(rows || []).reduce((s, r) => s + qtyMT(r, settings), 0)} suffix=' MT'
                                     displayType="text" thousandSeparator decimalScale='3' fixedDecimalScale />
                             </th>
                             {/* Two figures stacked in one cell. leading-4 pushed them

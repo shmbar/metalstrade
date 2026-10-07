@@ -128,6 +128,12 @@ const IDENTICAL_PAIRS: Array<[mobile: string, web: string]> = [
   // Ported 2026-10-06 so a shared lot reads its material, spec, warehouse and supplier from
   // the lot it was picked from, and names them from that lot's workspace, on both apps.
   ['mobile/src/shared/sharedStock.js', 'utils/sharedStock.js'],
+  // Added 2026-10-07 so a confirmed final settlement asks, on both apps, before it changes a
+  // supplier invoice's value (Thormet PO 300126). Covered in __tests__/settlement.test.ts.
+  ['mobile/src/shared/settlement.js', 'utils/settlement.js'],
+  // Added 2026-10-07 so a lot priced per element content (Hf Ni VAR, PO 190626-2-TIM) is
+  // valued the same on both apps. Covered in __tests__/lotPrice.test.ts.
+  ['mobile/src/shared/lotPrice.js', 'utils/lotPrice.js'],
 ];
 
 /** The deliberate exception — see the Tier 4 block at the bottom of this file. */

@@ -416,6 +416,29 @@ declare module '@shared/currency' {
   export function eurRateNote(fx: { rate: number; source?: string | null; stale?: boolean } | null | undefined): string;
 }
 
+declare module '@shared/lotPrice' {
+  /** The element's content in the lot, in %, from its analysis or else its spec; null when not stated. */
+  export function contentPct(lot: any, el: string | null | undefined): number | null;
+  /** 1 per unit of material; the element's content (0–1) when the lot is priced per content (`priceOn`). */
+  export function priceShare(lot: any): number;
+  /** Price per unit of material: the typed price × priceShare. */
+  export function effectiveUnitPrice(lot: any, price?: unknown): number;
+  /** quantity × price × priceShare, rounded to cents. */
+  export function lotLineTotal(lot: any, qnty?: unknown, price?: unknown): number;
+}
+
+declare module '@shared/settlement' {
+  export interface SettledInvoiceChange {
+    id: string; inv: string; now: number; settled: number; paid: number; balanceNow: number; balanceAfter: number;
+  }
+  /** Settled total per supplier invoice id — Σ finaltotal of the lots that name it. */
+  export function settledTotalsByInvoice(lots?: any[]): Record<string, number>;
+  /** The supplier invoices a confirmed settlement WOULD change; empty when none would. */
+  export function settledInvoiceChanges(poInvoices?: any[], lots?: any[]): SettledInvoiceChange[];
+  /** Values set to the settled totals — only when the person chooses it. */
+  export function applySettledTotals(poInvoices?: any[], lots?: any[]): any[];
+}
+
 declare module '@shared/productEntries' {
   export type EntryMerge = { from: string; to: string };
   export function entryNameKey(s: unknown): string;

@@ -3,6 +3,7 @@
 // (warehouse | description), filtering original invoices superseded by a final one,
 // applying finalqnty adjustments, and keeping only current on-hand rows (qnty > 0.1).
 // Pure: takes raw stock lots + settings, returns display rows + per-group totals.
+import { priceShare, effectiveUnitPrice } from '@shared/lotPrice';
 
 type Lot = any;
 
@@ -288,14 +289,16 @@ export function computeInventory(
          row at the weighted-average cost of the in-lots that carry a price. 'out' lots
          hold a SALE price and only reduce quantity. With no priced in-lot, the
          resolution above still decides, so those rows never move. */
+      // Per unit of MATERIAL: a lot priced per element content counts its content's share
+      // of the price (shared lotPrice.js; web funcs.js) — Hf Ni VAR, $3,950/kg Hf at 89.06%.
       const lotPrice = (z: any) => {
         const own = f(z.unitPrc);
-        if (Number.isFinite(own) && own !== 0) return own;
+        if (Number.isFinite(own) && own !== 0) return own * priceShare(z);
         return (
-          f(
+          (f(
             z.productsData?.find((y: any) => y.id === (z.descriptionId || z.description))
               ?.unitPrc
-          ) || 0
+          ) || 0) * priceShare(z)
         );
       };
       const lotQty = (z: any) => settledInQty(z);
@@ -307,6 +310,10 @@ export function computeInventory(
       }
       totalObj.total = f(totalObj.qnty) * f(totalObj.unitPrc);
     } else {
+      // web stocks page.js: the lot whose price the loop kept (the last in-lot with a
+      // quantity) priced per element content → its content's share of the price.
+      const priced: any = [...group].reverse().find((z: any) => z.type === 'in' && z.description && f(z.qnty) > 0);
+      if (priced?.priceOn) totalObj.unitPrc = effectiveUnitPrice(priced, totalObj.unitPrc);
       totalObj.total =
         totalObj.qnty === 0 && !group.some((it) => 'finalqnty' in it && it.type === 'in')
           ? totalObj.unitPrc
