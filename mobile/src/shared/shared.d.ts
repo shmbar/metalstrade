@@ -36,6 +36,8 @@ declare module '@shared/finance' {
   export function effectiveDueDate(inv: any, termDays?: number): string | null;
   export function isOverdue(inv: any, asOf?: Date, termDays?: number): boolean;
   export function fx(amount: number, cur: string, rate: number, base?: string): number;
+  /** Dollars per euro when NO live rate could be fetched — Cashflow says so when it uses it. */
+  export const EUR_USD_FALLBACK: number;
   export function unitOf(contract: any, settings: any): string;
   export function toMT(qty: number, contract: any, settings: any): number;
   export function settledInQty(lot: any): number;
@@ -410,6 +412,8 @@ declare module '@shared/currency' {
   export function moneyFull(cur: string | undefined | null, value: number | string, decimals?: number): string;
   /** "$1.23M", "-€45.60K", "$980.00". */
   export function moneyCompact(cur: string | undefined | null, value: number | string, decimals?: number): string;
+  /** "Euro amounts are converted at $1.1249 per € — live rate" — the same words on web and phone. */
+  export function eurRateNote(fx: { rate: number; source?: string | null; stale?: boolean } | null | undefined): string;
 }
 
 declare module '@shared/productEntries' {

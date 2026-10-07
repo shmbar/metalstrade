@@ -34,7 +34,7 @@ import { usePrivacyStore, maskIfHidden } from '@/store/privacy';
 import { useCashflow, Counterparty, StockLotRow, StockWarehouseRow, UnsoldSupplierRow } from '@/features/cashflow/useCashflow';
 import { useCashflowActions } from '@/features/cashflow/useCashflowActions';
 import { useSharedStock } from '@/features/stocks/useSharedStock';
-import { curSymbol, fmtMoney, dateLabel, moneyFull, moneyLines } from '@/lib/format';
+import { curSymbol, fmtMoney, dateLabel, eurRateNote, moneyFull, moneyLines } from '@/lib/format';
 import { radius, spacing, layout } from '@/theme/tokens';
 import { matchesAllWords, searchWords } from '@shared/search';
 import { entityName } from '@/lib/entityName';
@@ -79,13 +79,6 @@ const curLine = (byCur: Record<string, number>) => {
   return ents.map(([c, v]) => moneyFull(c, v)).join('  ');
 };
 
-/** Per-currency total across a section's rows — re-derived over exactly the rows shown. */
-const sumCur = (rows: Counterparty[]): Record<string, number> => {
-  const out: Record<string, number> = {};
-  rows.forEach((r) => Object.entries(r.byCur).forEach(([c, v]) => (out[c] = (out[c] || 0) + v)));
-  return out;
-};
-
 const qty = (n: number) => fmtMoney(n, 3);
 // A credit (negative balance) reads -$500.00, not $-500.00 — the shared money format.
 const full = (cur: string, n: number) => moneyFull(cur, n);
@@ -115,6 +108,9 @@ export default function Cashflow() {
   const hideBalances = usePrivacyStore((s) => s.hidden);
   const togglePrivacy = usePrivacyStore((s) => s.toggle);
   const money = (s: string) => maskIfHidden(hideBalances, s);
+  // Every row figure on this screen is in dollars (useCashflow — a euro amount at today's
+  // rate); a row holding euros says how many beside its count, as web's € chip does.
+  const eurPart = (eur: number | undefined) => (Math.abs(eur || 0) > 0.005 ? ` · incl. ${money(moneyFull('eu', eur || 0))}` : '');
   const { paySupplier, payExpense, partialPay, payClient, saveManualRows, saveYearTotal, savePending, saveStockPending, closeBalance } = useCashflowActions();
   const shared = useSharedStock();
 
@@ -349,6 +345,12 @@ export default function Cashflow() {
   const expenses = data ? byCp(data.expenseSuppliers) : [];
   const unsold = stock ? arrange(stock.unsoldBySupplier, (r) => r.total, (r) => r.name) : [];
   const sharedMatches = matchesAllWords('Shared Stock inventory IMS GIS', words);
+  // A figure on the screen holds euros → say at what rate they became dollars (web's caption).
+  const hasEur = (v: number | undefined) => Math.abs(v || 0) > 0.005;
+  const hasEuro =
+    !!data &&
+    ([...data.receivableClients, ...data.payableSuppliers, ...data.expenseSuppliers].some((c) => hasEur(c.byCur.eu)) ||
+      (!!stock && [...stock.stocksPaid, ...stock.stocksUnpaid, ...stock.unsoldBySupplier].some((w) => hasEur(w.eur))));
 
   const kpis: KpiItem[] = data
     ? [
@@ -383,7 +385,7 @@ export default function Cashflow() {
             key={r.name}
             first={i === 0}
             name={r.name}
-            subtitle={`${r.count} ${noun}${r.count === 1 ? '' : 's'}${r.pendingCount ? ` · ${r.pendingCount} pending` : ''}`}
+            subtitle={`${r.count} ${noun}${r.count === 1 ? '' : 's'}${r.pendingCount ? ` · ${r.pendingCount} pending` : ''}${eurPart(r.byCur.eu)}`}
             value={money(valueOf(r))}
             onPress={() => setDetail({ kind, cp: r })}
           />
@@ -397,7 +399,7 @@ export default function Cashflow() {
             key={w.stock}
             first={i === 0}
             name={whName(w.stock)}
-            subtitle={`${w.count} lot${w.count === 1 ? '' : 's'}${w.pendingCount ? ` · ${w.pendingCount} pending` : ''}`}
+            subtitle={`${w.count} lot${w.count === 1 ? '' : 's'}${w.pendingCount ? ` · ${w.pendingCount} pending` : ''}${eurPart(w.eur)}`}
             value={money(usd(w.total))}
             onPress={() => setStockSheet({ name: whName(w.stock), row: w })}
           />
@@ -510,6 +512,11 @@ export default function Cashflow() {
           Rows only — totals cover the full period
         </Text>
       ) : null}
+      {data && hasEuro ? (
+        <Text variant="caption" tone="faint" style={{ marginTop: 6, marginLeft: 6 }}>
+          {eurRateNote(data.fx)}
+        </Text>
+      ) : null}
 
       <View style={{ height: 8 }} />
 
@@ -538,8 +545,8 @@ export default function Cashflow() {
                     key={r.supplier}
                     first={i === 0}
                     name={r.name}
-                    subtitle={`${r.items.length} line${r.items.length === 1 ? '' : 's'}`}
-                    value={money(moneyFull(r.cur, r.total))}
+                    subtitle={`${r.items.length} line${r.items.length === 1 ? '' : 's'}${eurPart(r.eur)}`}
+                    value={money(usd(r.total))}
                     onPress={() => setUnsoldSheet(r)}
                   />
                 ))
@@ -596,10 +603,10 @@ export default function Cashflow() {
             icon="people-outline"
             title="Clients - Payment"
             subtitle="No payment recorded yet"
-            total={money(moneyLines(sumCur(data.clientsNoPayment)))}
+            total={money(usd(data.clientsNoPayment.reduce((s, r) => s + r.usd, 0)))}
             totalTone="positive"
           >
-            {counterpartyRows(clientsNoPay, 'client', (r) => moneyLines(r.byCur), 'invoice')}
+            {counterpartyRows(clientsNoPay, 'client', (r) => usd(r.usd), 'invoice')}
           </FoldSection>
 
           <FoldSection
@@ -607,10 +614,10 @@ export default function Cashflow() {
             icon="people-outline"
             title="Clients - Balances"
             subtitle="Partly paid — balance remaining"
-            total={money(moneyLines(sumCur(data.clientsWithBalance)))}
+            total={money(usd(data.clientsWithBalance.reduce((s, r) => s + r.usd, 0)))}
             totalTone="positive"
           >
-            {counterpartyRows(clientsBal, 'client', (r) => moneyLines(r.byCur), 'invoice')}
+            {counterpartyRows(clientsBal, 'client', (r) => usd(r.usd), 'invoice')}
           </FoldSection>
 
           {isAdmin && manualSection('financedLeft', 'cash-outline')}
@@ -878,12 +885,14 @@ export default function Cashflow() {
             <View style={{ gap: 4 }}>
               {/* Stocks - UnPaid: rows whose purchase invoices are all on hold (web Pending),
                   on a faded line of their own above the total that counts. */}
+              {/* Per currency, like the lots above them and web's table footer: the dollar
+                  figure is the warehouse row's, a euro lot in at today's rate. */}
               {stockSheet.row.pendingCount > 0 && (
                 <View style={{ opacity: 0.72 }}>
-                  <SheetTotal label={`Pending (${stockSheet.row.pendingCount})`} v={money(usd(stockSheet.row.pendingTotal))} />
+                  <SheetTotal label={`Pending (${stockSheet.row.pendingCount})`} v={money(moneyLines(itemsByCur(stockSheet.row.items.filter((l) => l.pending), 'total')))} />
                 </View>
               )}
-              <SheetTotal label="Total" v={money(usd(stockSheet.row.total))} strong />
+              <SheetTotal label="Total" v={money(moneyLines(itemsByCur(stockSheet.row.items.filter((l) => !l.pending), 'total')))} strong />
             </View>
           ) : undefined
         }
@@ -924,7 +933,7 @@ export default function Cashflow() {
         onClose={() => setUnsoldSheet(null)}
         title={unsoldSheet?.name}
         subtitle={unsoldSheet ? `${unsoldSheet.items.length} line${unsoldSheet.items.length === 1 ? '' : 's'} unsold` : undefined}
-        footer={unsoldSheet ? <SheetTotal label="Total" v={money(moneyFull(unsoldSheet.cur, unsoldSheet.total))} strong /> : undefined}
+        footer={unsoldSheet ? <SheetTotal label="Total" v={money(moneyLines(itemsByCur(unsoldSheet.items, 'total')))} strong /> : undefined}
       >
         {(unsoldSheet?.items || []).map((l, i) => (
           <DetailLine

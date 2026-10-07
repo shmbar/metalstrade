@@ -1901,6 +1901,9 @@ const SHARED_EXPORTS: Record<string, { covered: string[]; untestable?: Record<st
       'invoiceBookedOn', 'invoiceRank', 'isLiveDoc', 'ledgerTotals', 'salesBookedIn', 'standingDocs',
       // the Status word of the Invoices page — same test file, web AND mobile.
       'invoiceStatus',
+      // 2026-10-07 — Cashflow's EUR→USD when no live rate answered. Covered web AND mobile
+      // in __tests__/eurUsdRate.test.ts.
+      'EUR_USD_FALLBACK',
     ],
     untestable: {
       resolveDueDate: 're-export of pureHelpers.resolveDueDate (finance.js:9-11) — covered there',

@@ -12,7 +12,7 @@ import Modal from '../../../components/modal';
 import Avatar from '../../../components/Avatar';
 import { BtnIcon } from '../../../components/buttonIcons';
 import { amountToneClass } from '../../../components/statusUtils';
-import { moneyFull } from '@utils/currency';
+import { eurRateNote, moneyFull } from '@utils/currency';
 
 const usd = (v) => moneyFull('us', v);
 const pct = (v) => `${(v * 100).toFixed(1)}%`;
@@ -118,6 +118,7 @@ export default function CashflowReportModal({ isOpen, setIsOpen, report, onDownl
             <div className="sticky top-0 z-10 flex flex-wrap items-center justify-between gap-2 px-4 py-2 bg-[var(--bg-card)] border-b border-[var(--line)]">
                 <span className="responsiveTextTable text-[var(--ink-muted)]">
                     Figures match the page. Invoices on hold (Pending) are left out of every total and listed at the end.
+                    {report.fx?.hasEuro ? ` ${eurRateNote(report.fx)}.` : ''}
                 </span>
                 <button type="button" className="blackButton" onClick={onDownload} disabled={downloading}>
                     <BtnIcon action={downloading ? 'saving' : 'excel'} spin={downloading} />

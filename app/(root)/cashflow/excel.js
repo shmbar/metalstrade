@@ -13,6 +13,7 @@
 // purple header band, white bold 12pt; light-blue totals band with thin borders.
 // exceljs is imported on demand so it stays off the first-load bundle.
 import { saveAs } from 'file-saver';
+import { eurRateNote } from '@utils/currency';
 
 const HEADER_FILL = { type: 'pattern', pattern: 'solid', fgColor: { argb: '800080' } };
 const TOTAL_FILL = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'BFDBFE' } };
@@ -217,6 +218,9 @@ const writeSummary = (wb, used, rep) => {
     text(`${rep.account ? rep.account + ' · ' : ''}as of ${when.toLocaleString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}`
         + (rep.years?.length ? ` · years ${rep.years.join(', ')}` : ''), { color: MUTED });
     text('Figures match the Cashflow page. Invoices on hold (Pending) are left out of every total and listed at the end.', { italic: true, color: MUTED });
+    // Every total is in dollars; a sheet keeps each line in its own currency and adds
+    // the dollar figure beside it, in the "… USD" column its totals are taken from.
+    if (rep.fx?.hasEuro) text(`${eurRateNote(rep.fx)}. Each sheet shows a line in its own currency with the dollar figure beside it.`, { italic: true, color: MUTED });
 
     const byKey = Object.fromEntries(rep.sections.map(s => [s.key, s]));
 

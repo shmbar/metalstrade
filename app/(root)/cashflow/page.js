@@ -15,7 +15,10 @@ import { UserAuth } from "../../../contexts/useAuthContext";
 import { accountName, isTradingAccount } from '@utils/activeAccount';
 import { incomingOf } from '../margins/marginsView';
 import { NumericFormat } from "react-number-format";
-import { addComma, ClientDetails, clientToolTip, entityName, ExpensesToolTip, FinalSummaryBadge, getTotals, getTotalsSupPayments, runExpenses, runInvoices, runStocks, runSupPayments, SharedStockDetails, stockHoldInvoices, StocksUnSold, StoclToolTip, sumUnpaidStocksByWarehouse, SupplierDetails, supplierToolTip } from "./funcs";
+import { addComma, ClientDetails, clientToolTip, entityName, ExpensesToolTip, FinalSummaryBadge, runExpenses, runInvoices, runStocks, runSupPayments, SharedStockDetails, stockHoldInvoices, StocksUnSold, StoclToolTip, SupplierDetails, supplierToolTip } from "./funcs";
+import { getTotals, getTotalsSupPayments, sumUnpaidStocksByWarehouse } from "./totals";
+import { fetchEurUsd } from "../../../hooks/useExchangeRates";
+import { EUR_USD_FALLBACK } from "../../../utils/finance";
 import Tltip from "../../../components/tlTip";
 import { FaSortAmountDown } from "react-icons/fa";
 import { FaSortAmountUpAlt } from "react-icons/fa";
@@ -40,7 +43,7 @@ import { BtnIcon, SearchAdornment } from "../../../components/buttonIcons";
 import Avatar from "../../../components/Avatar";
 import { Boxes, Users, Factory, Wallet, Banknote, Clock } from "lucide-react";
 import { matchesAllWords } from '@utils/search';
-import { moneyFull } from '@utils/currency';
+import { eurRateNote, moneyFull } from '@utils/currency';
 
 function countDecimalDigits(inputString) {
     const match = inputString.match(/(?:\.(\d+))?(?:[eE]([+-]?\d+))?$/);
@@ -90,6 +93,17 @@ const PendingChip = ({ row, field, prefix = '$' }) => isHeld(row) && !allHeld(ro
         <span className="inline-flex items-center gap-1 h-5 px-1.5 rounded-lg shrink-0 responsiveTextTable font-medium leading-none text-[var(--ink-secondary)] bg-[var(--bg-subtle)] border border-[var(--line-strong)] tabular-nums whitespace-nowrap cursor-default">
             <Clock size={11} aria-hidden="true" />
             <NumericFormat value={row._pendingBlnc} displayType="text" thousandSeparator allowNegative={true} prefix={prefix} decimalScale={2} fixedDecimalScale />
+        </span>
+    </Tltip>
+) : null;
+
+/* The euros inside a row's figure. Every row on this page is in dollars; one that holds
+   euro invoices, lots or expenses says how many euros went into it (totals.js `_eur`), and
+   its tooltip says at what rate they were converted. */
+const EurNote = ({ row, rate }) => Math.abs(Number(row?._eur) || 0) > 0.005 ? (
+    <Tltip direction='top' tltpText={`${moneyFull('eu', row._eur)} of this figure, converted at $${Number(rate).toFixed(4)} per €`}>
+        <span className="inline-flex items-center h-5 px-1.5 rounded-lg shrink-0 responsiveTextTable font-medium leading-none text-[var(--ink-secondary)] bg-[var(--bg-subtle)] border border-[var(--line-strong)] tabular-nums whitespace-nowrap cursor-default">
+            {moneyFull('eu', row._eur)}
         </span>
     </Tltip>
 ) : null;
@@ -147,6 +161,16 @@ const Cashflow = () => {
     const { blankInvoice } = useContext(InvoiceContext);
     const [invPreview, setInvPreview] = useState(null);
     const [nameQ, setNameQ] = useState('');
+
+    /* Today's EUR→USD, asked for once per load (Load below). Every euro figure on this page
+       goes into the dollar totals at this one rate — see the note at the top of totals.js.
+       `fxRate` is what the page shows and the report prints; the ref is what the handlers
+       read, since they re-sum a section long after the render that created them. Every
+       section total on this page is taken through these two, never getTotals* directly. */
+    const [fxRate, setFxRate] = useState({ rate: EUR_USD_FALLBACK, source: null, time: null, stale: false });
+    const eurUsdRef = useRef(EUR_USD_FALLBACK);
+    const clientTotals = (rows) => getTotals(rows, eurUsdRef.current);
+    const supplierTotals = (rows) => getTotalsSupPayments(rows, eurUsdRef.current);
     const openInvModal = (z, type) => {
         const supplierName = type === 'supplier'
             ? settings.Supplier?.Supplier?.find(s => s.id === z.supplier)?.nname
@@ -172,12 +196,12 @@ const Cashflow = () => {
        id> — a single-field write, so it can never race a payment that rewrites the
        poInvoices array. Client invoices: paymentPending on the invoice document itself. */
     const regroupSuppliers = (rows) => {
-        setSupPayments1(getTotalsSupPayments(rows.filter(z => z.pmnt * 1 > 0)));
-        setSupPayments2(getTotalsSupPayments(rows.filter(z => parseFloat(z.pmnt) === 0)));
+        setSupPayments1(supplierTotals(rows.filter(z => z.pmnt * 1 > 0)));
+        setSupPayments2(supplierTotals(rows.filter(z => parseFloat(z.pmnt) === 0)));
     };
     const regroupClients = (rows) => {
-        setClientInvoices1(getTotals(rows.filter(z => z.payments.length > 0)));
-        setClientInvoices2(getTotals(rows.filter(z => z.payments.length === 0)));
+        setClientInvoices1(clientTotals(rows.filter(z => z.payments.length > 0)));
+        setClientInvoices2(clientTotals(rows.filter(z => z.payments.length === 0)));
     };
     // Latest rows, read through refs rather than a setState updater: re-summing from
     // inside an updater would schedule updates from an update function, which React
@@ -344,14 +368,14 @@ const Cashflow = () => {
         });
     }, [stockDataNoPayment, supPaymentsData]);
     const stockData2 = useMemo(() => {
-        const rows = sumUnpaidStocksByWarehouse(stockUnpaidRows)
+        const rows = sumUnpaidStocksByWarehouse(stockUnpaidRows, fxRate.rate)
             .map(z => ({ ...z, stockName: settings?.Stocks?.Stocks?.find(k => k.id === z.stock)?.stock }));
         const { by, desc } = stockUnpaidOrder;
         const cmp = by === 'name'
             ? (a, b) => (a.stockName || '').localeCompare(b.stockName || '')
             : (a, b) => a.total - b.total;
         return rows.sort((a, b) => (desc ? -cmp(a, b) : cmp(a, b)));
-    }, [stockUnpaidRows, stockUnpaidOrder, settings]);
+    }, [stockUnpaidRows, stockUnpaidOrder, settings, fxRate.rate]);
     const [supPmntssSort, setSupPmntssSort] = useState(true)
     const [supPmntssSort1, setSupPmntssSort1] = useState(true)
     const [supPmntssSortName, setSupPmntssSortName] = useState(false)
@@ -440,11 +464,21 @@ const Cashflow = () => {
                     })
                 )
             ).then(perYear => [].concat(...perYear));
-            const expensesPromise = runExpenses(uidCollection, settings, yr);
+            // Today's EUR→USD from the live feed, asked for alongside the reads — it never
+            // holds them up, and it cannot hang or fail (fetchEurUsd). Every euro figure
+            // below goes into the dollar totals at this one rate; EUR_USD_FALLBACK only when
+            // neither feed answered, which the page then says beside its totals.
+            const eurUsdPromise = fetchEurUsd().then((got) => {
+                const next = got.rate > 0 ? got : { ...got, rate: EUR_USD_FALLBACK };
+                eurUsdRef.current = next.rate;
+                setFxRate(next);
+                return next.rate;
+            });
+            const expensesPromise = runExpenses(uidCollection, settings, yr, eurUsdPromise);
             // Start the stocks download NOW (it does not depend on contracts) — only the
             // netting inside runStocks needs the contract list.
             const stocksDataPromise = loadAllStockData(uidCollection);
-            const stocksPromise = contractsPromise.then(cd => runStocks(uidCollection, settings, yr, cd, stocksDataPromise));
+            const stocksPromise = contractsPromise.then(cd => runStocks(uidCollection, settings, yr, cd, stocksDataPromise, eurUsdPromise));
 
             const marginsPerYear = await marginsPromise;
             // "Incoming" is added up from the Margins ROWS, as the Margins page adds them
@@ -488,12 +522,15 @@ const Cashflow = () => {
             setStockDataNoSold(dataStock.unSoldArrTitles)
             setStockDataAllArray(dataStock.unSoldAll)
 
+            // The rate is in the ref before any section below is added up.
+            await eurUsdPromise
+
             //load invoices (from the shared raw rows — no second download)
             let invoices = await runInvoices(uidCollection, settings, yr, rawInvoices)
             invoices = invoices.map(z => ({ ...z, clientName: settings.Client.Client.find(k => k.id === z.client)?.nname, checked: false, pending: !!z.paymentPending }))
             setClientsData(invoices)
-            setClientInvoices1(getTotals(invoices.filter(z => z.payments.length > 0)))
-            setClientInvoices2(getTotals(invoices.filter(z => z.payments.length === 0)))
+            setClientInvoices1(clientTotals(invoices.filter(z => z.payments.length > 0)))
+            setClientInvoices2(clientTotals(invoices.filter(z => z.payments.length === 0)))
 
             // Shipment-finalized status lives only on the sales invoice, but the
             // supplier balances below need the same flag so both sides agree on
@@ -518,8 +555,8 @@ const Cashflow = () => {
             let supPayments = await runSupPayments(uidCollection, settings, yr, contractsData, rawInvoices)
             supPayments = supPayments.map(z => ({ ...z, suplierName: settings.Supplier.Supplier.find(a => a.id === z.supplier)?.nname, checked: false, fnlzing: fnlzingByContract[z.orderData?.id] }))
             setsupPaymentsData(supPayments)
-            setSupPayments1(getTotalsSupPayments(supPayments.filter(z => z.pmnt * 1 > 0)))
-            setSupPayments2(getTotalsSupPayments(supPayments.filter(z => parseFloat(z.pmnt) === 0)))
+            setSupPayments1(supplierTotals(supPayments.filter(z => z.pmnt * 1 > 0)))
+            setSupPayments2(supplierTotals(supPayments.filter(z => parseFloat(z.pmnt) === 0)))
 
 
             //Expenses (already loading since the top of Load)
@@ -742,7 +779,7 @@ const Cashflow = () => {
         const setData = isFirst ? setClientInvoices1 : setClientInvoices2;
         const toggleSort = isFirst ? setClientSortName : setClientSortName1;
 
-        const newArr = getTotals(data).sort((a, b) =>
+        const newArr = clientTotals(data).sort((a, b) =>
             !sortDir ? a.clientName.localeCompare(b.clientName) : b.clientName.localeCompare(a.clientName)
         );
 
@@ -758,7 +795,7 @@ const Cashflow = () => {
         const setData = isFirst ? setClientInvoices1 : setClientInvoices2;
         const toggleSort = isFirst ? setClientSort : setClientSort1;
 
-        const newArr = getTotals(data).sort((a, b) =>
+        const newArr = clientTotals(data).sort((a, b) =>
             !sortDir ? a.debtBlnc - b.debtBlnc : b.debtBlnc - a.debtBlnc
         );
 
@@ -774,7 +811,7 @@ const Cashflow = () => {
         const setData = isFirst ? setSupPayments1 : setSupPayments2;
         const toggleSort = isFirst ? setSupPmntssSortName : setSupPmntssSortName1;
 
-        const newArr = getTotalsSupPayments(data).sort((a, b) =>
+        const newArr = supplierTotals(data).sort((a, b) =>
             !sortDir ? a.suplierName.localeCompare(b.suplierName) : b.suplierName.localeCompare(a.suplierName)
         );
 
@@ -791,7 +828,7 @@ const Cashflow = () => {
         const setData = isFirst ? setSupPayments1 : setSupPayments2;
         const toggleSort = isFirst ? setSupPmntssSort : setSupPmntssSort1;
 
-        const newArr = getTotalsSupPayments(data).sort((a, b) =>
+        const newArr = supplierTotals(data).sort((a, b) =>
             !sortDir ? a.blnc - b.blnc : b.blnc - a.blnc
         );
 
@@ -935,8 +972,8 @@ const Cashflow = () => {
         clientsDataRef.current = newArr
         setClientsData(newArr)
 
-        setClientInvoices1(getTotals(newArr.filter(z => z.payments.length > 0)))
-        setClientInvoices2(getTotals(newArr.filter(z => z.payments.length === 0)))
+        setClientInvoices1(clientTotals(newArr.filter(z => z.payments.length > 0)))
+        setClientInvoices2(clientTotals(newArr.filter(z => z.payments.length === 0)))
 
     }
 
@@ -1039,8 +1076,8 @@ const Cashflow = () => {
 
         let newArr = supPaymentsData.filter(z => !arr1.map(x => x.id).includes(z.id))
         setsupPaymentsData(newArr)
-        setSupPayments2(getTotalsSupPayments(newArr.filter(z => parseFloat(z.pmnt) === 0)));
-        setSupPayments1(getTotalsSupPayments(newArr.filter(z => z.blnc * 1 > 0)))
+        setSupPayments2(supplierTotals(newArr.filter(z => parseFloat(z.pmnt) === 0)));
+        setSupPayments1(supplierTotals(newArr.filter(z => z.blnc * 1 > 0)))
     }
 
     const toggleCheckExp = (z) => {
@@ -1301,8 +1338,8 @@ const Cashflow = () => {
 
         const newArr = supPaymentsData.filter(x => x.id !== item.id);
         setsupPaymentsData(newArr);
-        setSupPayments1(getTotalsSupPayments(newArr.filter(z => z.blnc * 1 > 0)));
-        setSupPayments2(getTotalsSupPayments(newArr.filter(z => parseFloat(z.pmnt) === 0)));
+        setSupPayments1(supplierTotals(newArr.filter(z => z.blnc * 1 > 0)));
+        setSupPayments2(supplierTotals(newArr.filter(z => parseFloat(z.pmnt) === 0)));
         setToast({ show: true, text: `Balance of invoice ${item.invoice} closed (settlement adjustment recorded)`, clr: 'success' });
     };
 
@@ -1346,9 +1383,9 @@ const Cashflow = () => {
 
         setsupPaymentsData(newArr);
         if (flag) {
-            setSupPayments2(getTotalsSupPayments(newArr.filter(z => parseFloat(z.pmnt) === 0)));
+            setSupPayments2(supplierTotals(newArr.filter(z => parseFloat(z.pmnt) === 0)));
         }
-        setSupPayments1(getTotalsSupPayments(newArr.filter(z => z.blnc * 1 > 0)))
+        setSupPayments1(supplierTotals(newArr.filter(z => z.blnc * 1 > 0)))
 
         setToast({ show: true, text: getTtl('Payments successfully saved!', ln), clr: 'success' })
 
@@ -1390,8 +1427,8 @@ const Cashflow = () => {
 
         setClientsData(newArr)
 
-        setClientInvoices1(getTotals(newArr.filter(z => z.payments.length > 0)))
-        setClientInvoices2(getTotals(newArr.filter(z => z.payments.length === 0)))
+        setClientInvoices1(clientTotals(newArr.filter(z => z.payments.length > 0)))
+        setClientInvoices2(clientTotals(newArr.filter(z => z.payments.length === 0)))
 
     }
     // ...existing code...
@@ -1414,6 +1451,7 @@ const Cashflow = () => {
         isAdmin,
         account: accountName(uidCollection),
         years: yr,
+        fx: fxRate,
         incoming, initialData, financedLeft, financedRight,
         stockPaid: stockData1, stockPaidRows: stockDataAll,
         stockUnpaid: stockData2, stockUnpaidRows,
@@ -1452,6 +1490,11 @@ const Cashflow = () => {
         </span>
     ) : undefined;
     const expensesKpi = (expenses || []).reduce((t, o) => t + (parseFloat(o.amount) || 0), 0);
+    // The line under the title that says at what rate the euros on this page became
+    // dollars and where that rate came from. Only when a figure on the page holds euros.
+    const hasEuro = [stockData1, stockData2, stockDataNoSold, clientInvoices1, clientInvoices2, supPayments1, supPayments2, expenses]
+        .some(rows => (rows || []).some(r => Math.abs(Number(r?._eur) || 0) > 0.005));
+    const rateNote = hasEuro ? eurRateNote(fxRate) : '';
     const fmtUsd = (n) => moneyFull('us', n); // "-$1,234.00", not "$-1,234.00"
     // Until every input is in (balanceReady), a loading bar stands where the figure goes.
     // Once it is, the figure counts up from zero to the real balance.
@@ -1500,6 +1543,7 @@ const Cashflow = () => {
                                 <div>
                                     <h1 className="text-display">{getTtl('Cashflow', ln)}</h1>
                                     <p className="responsiveTextInput text-[var(--ink-muted)] mt-0.5">Cash position across stocks, clients, suppliers & expenses</p>
+                                    {rateNote && <p data-eur-rate className="responsiveTextTable text-[var(--ink-muted)] mt-0.5 tabular-nums">{rateNote}</p>}
                                 </div>
                                 <div className="flex items-center gap-2 group">
                                     <Tltip direction='bottom' tltpText='The current situation on one screen — position, receivables, payables, stock and what is on hold'>
@@ -1595,6 +1639,7 @@ const Cashflow = () => {
                                                             <div className="responsiveText font-medium text-[var(--ink)] items-center flex gap-1.5 outline-none whitespace-normal break-words min-w-0">
                                                                 <Avatar name={x.supplierName} size={18} />
                                                                 {x.supplierName}
+                                                                <EurNote row={x} rate={fxRate.rate} />
                                                             </div>
                                                             <div className="leading-4 2xl:leading-6">
                                                                 <NumericFormat
@@ -1707,6 +1752,7 @@ const Cashflow = () => {
                                                                         >
                                                                             <Avatar name={whName(x.stock)} size={18} />
                                                                             {whName(x.stock)}
+                                                                            <EurNote row={x} rate={fxRate.rate} />
                                                                         </div>
 
                                                                         <div className="leading-4 2xl:leading-6">
@@ -1771,6 +1817,7 @@ const Cashflow = () => {
                                                                                 {whName(x.stock)}
                                                                             </span>
                                                                             <PendingChip row={x} field="total" prefix={x.cur === 'us' ? '$' : '€'} />
+                                                                            <EurNote row={x} rate={fxRate.rate} />
                                                                         </div>
 
                                                                         <div className="leading-4 2xl:leading-6 shrink-0 text-right">
@@ -1835,6 +1882,7 @@ const Cashflow = () => {
                                                                             </div>
                                                                             <FinalSummaryBadge finalized={x._finCount} total={x._finTotal} />
                                                                             <PendingChip row={x} field="debtBlnc" prefix={x.cur === 'us' ? '$' : '€'} />
+                                                                            <EurNote row={x} rate={fxRate.rate} />
                                                                         </div>
                                                                         <div className='leading-4 2xl:leading-6 '>
                                                                             <RowAmount row={x} field="debtBlnc" prefix={x.cur === 'us' ? '$' : '€'} />
@@ -1867,6 +1915,7 @@ const Cashflow = () => {
                                                                             </div>
                                                                             <FinalSummaryBadge finalized={x._finCount} total={x._finTotal} />
                                                                             <PendingChip row={x} field="debtBlnc" prefix={x.cur === 'us' ? '$' : '€'} />
+                                                                            <EurNote row={x} rate={fxRate.rate} />
                                                                         </div>
                                                                         <div className='leading-4 2xl:leading-6'>
                                                                             <RowAmount row={x} field="debtBlnc" prefix={x.cur === 'us' ? '$' : '€'} />
@@ -1981,6 +2030,7 @@ const Cashflow = () => {
                                                                             </span>
                                                                             <FinalSummaryBadge finalized={x._finCount} total={x._finTotal} />
                                                                             <PendingChip row={x} field="blnc" />
+                                                                            <EurNote row={x} rate={fxRate.rate} />
                                                                         </div>
                                                                         <div className="w-full text-right">
                                                                             <RowAmount row={x} field="blnc" />
@@ -2017,6 +2067,7 @@ const Cashflow = () => {
                                                                             </span>
                                                                             <FinalSummaryBadge finalized={x._finCount} total={x._finTotal} />
                                                                             <PendingChip row={x} field="blnc" />
+                                                                            <EurNote row={x} rate={fxRate.rate} />
                                                                         </div>
                                                                         <div className="w-full text-right">
                                                                             <RowAmount row={x} field="blnc" />
@@ -2046,6 +2097,7 @@ const Cashflow = () => {
                                                                         <div className="responsiveText font-medium text-[var(--ink)] items-center flex gap-1.5 outline-none whitespace-normal break-words min-w-0">
                                                                             <Avatar name={supName(x.supplier)} size={18} />
                                                                             {supName(x.supplier)}
+                                                                            <EurNote row={x} rate={fxRate.rate} />
                                                                         </div>
 
                                                                         <div className="items-center flex">

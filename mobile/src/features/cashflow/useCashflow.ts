@@ -8,13 +8,21 @@ import { computeInventory, cashflowStockLots } from '@/features/stocks/aggregate
 import { Contract, Invoice } from '@/data/types';
 import { resolveClientName } from '@/features/invoices/useInvoices';
 import { monthRemaining } from '@/features/margins/derive';
-import { num, settlementReduction, docsInForce } from '@shared/finance';
+import { num, settlementReduction, docsInForce, fx } from '@shared/finance';
 // @ts-ignore — plain JS module shared verbatim with the web
 import { lotIsSold } from '@shared/soldStatus';
 import { useShallow } from 'zustand/react/shallow';
+import { useEurUsd, usableRate, type EurUsd } from '@/features/prices/eurUsd';
 
-// EUR→USD constant the cashflow expenses use (web parity: runExpenses mult 1.08).
-const EXP_EUR_USD = 1.08;
+/*
+ * Cashflow is a DOLLAR page (web cashflow/totals.js, 2026-10-07): every figure, section
+ * total, card and the left/right balance is in dollars, and a euro invoice, PO balance,
+ * stock lot or expense goes in at TODAY's live EUR→USD (features/prices/eurUsd.ts — the
+ * same feeds as web). It used to be three rules on one page: client balances and stock at
+ * face value (GIS #41's €117,260.00 counted as $117,260.00), suppliers at each PO's own
+ * rate, expenses at a fixed 1.08. The lines a section opens onto stay in their own
+ * currency; `byCur` / `eur` keep the euro part as it was booked.
+ */
 const round2 = (n: any) => Math.round((Number(n) || 0) * 100) / 100;
 
 export interface Counterparty {
@@ -49,12 +57,15 @@ export interface StockLotRow {
 
 export interface StockWarehouseRow {
   stock: string;
-  /** Active value — held (Pending) rows are left out, as on web. */
+  /** Active value in DOLLARS (a euro lot at today's rate) — held (Pending) rows left out, as on web. */
   total: number;
+  /** The euro part of `total`, as booked (web `_eur`). */
+  eur: number;
   count: number;
-  /** Value and number of rows on hold (web _pendingBlnc / _pendingCount). */
+  /** Value (dollars) and number of rows on hold (web _pendingBlnc / _pendingCount). */
   pendingTotal: number;
   pendingCount: number;
+  /** Each lot in its own currency. */
   items: StockLotRow[];
 }
 
@@ -73,8 +84,12 @@ export interface UnsoldLineRow {
 export interface UnsoldSupplierRow {
   supplier: string;
   name: string;
+  /** In DOLLARS — a euro PO's lines at today's rate (web unsoldBySupplier). */
   total: number;
+  /** Always 'us' — the row is a dollar figure; its lines keep their own currency. */
   cur: string;
+  /** The euro part of `total`, as booked. */
+  eur: number;
   items: UnsoldLineRow[];
 }
 
@@ -98,8 +113,10 @@ export interface CashflowData {
    */
   clientsNoPayment: Counterparty[];
   clientsWithBalance: Counterparty[];
-  // Outgoing — supplier payables from contract poInvoices (USD basis, EUR×euroToUSD).
-  // COMBINED total — still what the bottom line sums.
+  /** The EUR→USD every euro figure here went in at, and where it came from (eurUsd.ts). */
+  fx: EurUsd;
+  // Outgoing — supplier payables from contract poInvoices, in dollars (a euro PO at the
+  // page's rate). COMBINED total — still what the bottom line sums.
   payablesUsd: number;
   payableSuppliers: Counterparty[];
   /**
@@ -115,10 +132,10 @@ export interface CashflowData {
    * the material still counts — this says how much of it is already spoken for.
    */
   draftMaterials: Record<string, { invoices: (string | number)[]; qnty: number }>;
-  // Outgoing — unpaid expenses (paid==='222'), USD basis (EUR×1.08).
+  // Outgoing — unpaid expenses (paid==='222'), in dollars (a euro expense at the page's rate).
   expensesUsd: number;
   expenseSuppliers: Counterparty[];
-  // Unsold stock value (capital tied up).
+  // Unsold stock value (capital tied up), per currency as booked.
   unsoldByCur: Record<string, number>;
   // Stocks split by whether their purchase invoice has been paid — web's
   // "Stocks - Paid" / "Stocks - UnPaid". One row per WAREHOUSE, as web lists
@@ -133,13 +150,12 @@ export interface CashflowData {
    * unsoldByCur is the same rows folded per currency.
    */
   unsoldBySupplier: UnsoldSupplierRow[];
-  /** Web's tab footer: every supplier's total summed as-is, printed with '$'. */
+  /** Web's tab footer: every supplier's total — in dollars, so it adds up. */
   unsoldTotal: number;
   /**
-   * Web's KPI strip (page.js:1263-1280). Clients due = Σ debtBlnc over both client
-   * sections (currencies summed as-is, as web does); Suppliers due = Σ blnc with
-   * EUR already converted (getTotalsSupPayments); Expenses = Σ amount with EUR×1.08
-   * (runExpenses). Total Balance (admin) is `balance`.
+   * Web's KPI strip (page.js). Clients due = Σ both client sections, Suppliers due = Σ
+   * both supplier sections, Expenses = Σ vendors — every one in dollars, a euro amount at
+   * the page's rate (`fx`). Total Balance (admin) is `balance`.
    */
   kpi: { clientsDue: number; suppliersDue: number; expenses: number };
   /** Admin "Total for {year}" inputs — {uid}/cashflow[year].total{year}, one per year in web's `yr`. */
@@ -238,7 +254,7 @@ function computeReceivablesWeb(invoices: Invoice[]): any[] {
 // uses (web funcs.js stockHoldInvoices). Web reads those invoices off its supplier
 // rows, so they are resolved the same way here: the 4-year contract load, drafts and
 // ≤1¢ balances left out, nothing paid. A held row stays listed but leaves the totals.
-function splitStocksPaidUnpaid(inventoryRows: any[], contractsData: any[], settings: any, holdContracts: any[] = []) {
+function splitStocksPaidUnpaid(inventoryRows: any[], contractsData: any[], settings: any, holdContracts: any[] = [], rate = 0) {
   const supName = (id: string) => settings?.Supplier?.Supplier?.find((x: any) => x.id === id)?.nname || '';
   const paid: any[] = [];
   const unpaid: any[] = [];
@@ -298,8 +314,12 @@ function splitStocksPaidUnpaid(inventoryRows: any[], contractsData: any[], setti
     unpaid.push(isHeld(row) ? { ...base, _held: true } : base);
   });
 
-  const sumTotal = (rows: any[]) =>
-    rows.filter((r) => !r._held).reduce((s, r) => s + (r.total === '-' ? 0 : parseFloat(r.total) || 0), 0);
+  // A row's value as it was booked, and in dollars — a euro lot at the page's rate (web
+  // totals.js warehouseTotals / sumUnpaidStocksByWarehouse).
+  const ownValue = (r: any) => (r.total === '-' ? 0 : parseFloat(r.total) || 0);
+  const isEur = (r: any) => r.cur === 'eu';
+  const usdValue = (r: any) => fx(ownValue(r), isEur(r) ? 'eu' : 'us', rate);
+  const sumTotal = (rows: any[]) => rows.filter((r) => !r._held).reduce((s, r) => s + usdValue(r), 0);
 
   // Per-warehouse roll-up; each row keeps its lots so a warehouse can open onto
   // them (web's StoclToolTip). Web orders warehouses by total, descending.
@@ -307,13 +327,14 @@ function splitStocksPaidUnpaid(inventoryRows: any[], contractsData: any[], setti
     const m: Record<string, StockWarehouseRow> = {};
     rows.forEach((r) => {
       const k = r.stock || '—';
-      (m[k] ||= { stock: k, total: 0, count: 0, pendingTotal: 0, pendingCount: 0, items: [] });
-      const total = r.total === '-' ? 0 : parseFloat(r.total) || 0;
+      (m[k] ||= { stock: k, total: 0, eur: 0, count: 0, pendingTotal: 0, pendingCount: 0, items: [] });
+      const total = ownValue(r);
       if (r._held) {
-        m[k].pendingTotal += total;
+        m[k].pendingTotal += usdValue(r);
         m[k].pendingCount += 1;
       } else {
-        m[k].total += total;
+        m[k].total += usdValue(r);
+        if (isEur(r)) m[k].eur += total;
       }
       m[k].count += 1;
       m[k].items.push({
@@ -345,7 +366,7 @@ function splitStocksPaidUnpaid(inventoryRows: any[], contractsData: any[], setti
 // ── Unsold stocks: verbatim port of web runStocks unsold block (funcs.js:211-272) ──
 // Driven by the manual Sold/Unsold lot status; fully-sold contracts (and their
 // duplicated phantoms) drop out; not-yet-received products fall back to contract qty.
-function computeUnsoldWeb(contractsData: any[], stockData: any[], settings: any) {
+function computeUnsoldWeb(contractsData: any[], stockData: any[], settings: any, rate = 0) {
   // Port of utils.js filteredArray — an invoice superseded by its Credit/Final note
   // must not write off the same line twice.
   const filteredArray = (arr: any[]): any[] => {
@@ -470,16 +491,20 @@ function computeUnsoldWeb(contractsData: any[], stockData: any[], settings: any)
     return rows;
   });
 
-  // Per-supplier totals (web unSoldArrTitles), each keeping its contract lines
-  // (web unSoldAll filtered per supplier by StocksUnSold).
+  // Per-supplier totals (web unsoldBySupplier), each keeping its contract lines
+  // (web unSoldAll filtered per supplier by StocksUnSold). In dollars: a euro PO's lines
+  // at the page's rate — the row used to take its first PO's currency and add every line
+  // as it stood.
   const supName = (id: string) => settings?.Supplier?.Supplier?.find((x: any) => x.id === id)?.nname || '—';
   const bySupplier: Record<string, UnsoldSupplierRow> = {};
   unSoldAll.forEach((item: any) => {
     if (!item?.order) return;
     if (!bySupplier[item.supplier]) {
-      bySupplier[item.supplier] = { supplier: item.supplier, name: supName(item.supplier), total: 0, cur: item.cur, items: [] };
+      bySupplier[item.supplier] = { supplier: item.supplier, name: supName(item.supplier), total: 0, cur: 'us', eur: 0, items: [] };
     }
-    bySupplier[item.supplier].total += Number(item.total) || 0;
+    const own = Number(item.total) || 0;
+    bySupplier[item.supplier].total += fx(own, item.cur === 'eu' ? 'eu' : 'us', rate);
+    if (item.cur === 'eu') bySupplier[item.supplier].eur += own;
     bySupplier[item.supplier].items.push({
       order: item.order,
       description: item.description,
@@ -566,6 +591,8 @@ export interface CashflowInputs {
   cashflowDoc: any;
   stocks: any[];
   settings: any;
+  /** Today's EUR→USD (useEurUsd). Without one, EUR_USD_FALLBACK — and `fx.source` says so. */
+  fx?: EurUsd | null;
 }
 
 /**
@@ -575,6 +602,9 @@ export interface CashflowInputs {
 export function computeCashflow(input: CashflowInputs): CashflowData {
   const { invoices, contracts4y, contracts2y, expenses, companyExpenses, margins, cashflowDoc, stocks, settings } =
     input;
+  // The one EUR→USD every euro figure below goes in at (see the DOLLAR-page note at the top).
+  const rateInfo = usableRate(input.fx);
+  const rate = rateInfo.rate;
 
   /** Add one row's amount into a Counterparty map, creating the entry on first sight. */
   // An item on hold (web Cashflow "Pending", 2026-09-24) is listed but kept out of the
@@ -595,6 +625,8 @@ export function computeCashflow(input: CashflowInputs): CashflowData {
 
   // ── Receivables (clients) — web runInvoices pipeline ───────────────────
   const receivablesByCur: Record<string, number> = {};
+  // The same receivables in dollars — what Clients due and Total (Left) add (web getTotals).
+  let receivablesUsd = 0;
   const clientMap = new Map<string, Counterparty>();
   // Web's own split (page.js:1633 "Clients - Payment" / :1690 "Clients - Balances"):
   // the SAME grouped-invoice rows, partitioned on whether any payment has ever been
@@ -615,14 +647,20 @@ export function computeCashflow(input: CashflowInputs): CashflowData {
     const cur = inv.cur === 'eu' ? 'eu' : 'us';
     // On hold in web Cashflow ("Pending"): not an active receivable.
     const pending = !!inv.paymentPending;
-    if (!pending) addCur(receivablesByCur, cur, bal);
+    // In dollars at the page's rate — a euro balance used to be added in as dollars.
+    const usd = fx(bal, cur, rate);
+    if (!pending) {
+      addCur(receivablesByCur, cur, bal);
+      receivablesUsd += usd;
+    }
     const name = resolveClientName(inv.client, settings) || '—';
-    const usd = cur === 'us' ? bal : bal * (num(inv.euroToUSD) || EXP_EUR_USD);
     const item = {
       kind: 'invoice',
       id: inv.id,
       number: inv.invoice,
       balance: bal,
+      // The balance in dollars — the report sums held receivables with it.
+      usd,
       cur,
       raw: inv,
       order: inv.poSupplier?.order || '',
@@ -653,14 +691,12 @@ export function computeCashflow(input: CashflowInputs): CashflowData {
   let payablesUsd = 0;
   (contracts4y || []).forEach((con: any) => {
     const cur = con.cur === 'eu' ? 'eu' : 'us';
-    // Web has no rate fallback (NaN poisons its total on missing euroToUSD) —
-    // the 1.08 fallback here is a deliberate hardening, matching the expenses rate.
-    const rate = num(con.euroToUSD) || EXP_EUR_USD;
     (con.poInvoices || []).forEach((inv: any) => {
       if (inv.draft) return; // web: draft purchase invoices excluded
       const blnc = num(inv.blnc);
       if (Math.abs(blnc) <= 0.011) return; // web: ≤1¢ residues are settled
-      const usd = cur === 'us' ? blnc : blnc * rate;
+      // In dollars at the page's rate, not the rate the PO was saved at (web getTotalsSupPayments).
+      const usd = fx(blnc, cur, rate);
       // On hold in web Cashflow ("Pending") — a map on the contract, keyed by
       // purchase-invoice id (web funcs.js runSupPayments). Not an active payable.
       const pending = !!(con as any).pendingInvoices?.[inv.id];
@@ -672,7 +708,7 @@ export function computeCashflow(input: CashflowInputs): CashflowData {
         contractDate: con.dateRange?.startDate || con.date || '',
         poInvoiceId: inv.id,
         inv: inv.inv,
-        // The balance in USD (contract rate) — the report sums held payables with it.
+        // The balance in dollars — the report sums held payables with it.
         usd,
         order: con.order || '',
         invValue: num(inv.invValue),
@@ -695,7 +731,7 @@ export function computeCashflow(input: CashflowInputs): CashflowData {
     });
   });
 
-  // ── Unpaid expenses (paid === '222'); web: anything non-'us' converts ×1.08 ──
+  // ── Unpaid expenses (paid === '222'); anything not marked 'us' is euros, at the page's rate ──
   // Same record must never count twice: an expense that exists in BOTH the
   // supplier-expenses and company-expenses collections (copy flows) — or any
   // double-load — would duplicate its row and its minus in the totals.
@@ -715,7 +751,7 @@ export function computeCashflow(input: CashflowInputs): CashflowData {
     .forEach((e) => {
       const isUs = e.cur === 'us';
       const amt = num(e.amount);
-      const usd = amt * (isUs ? 1 : EXP_EUR_USD);
+      const usd = fx(amt, isUs ? 'us' : 'eu', rate); // was a fixed 1.08 (web vendorTotals)
       expensesUsd += usd;
       const name = settings?.Supplier?.Supplier?.find((s: any) => s.id === e.supplier)?.nname || 'Expense';
       const c: Counterparty = expMap.get(name) || { name, byCur: {}, usd: 0, count: 0, items: [] };
@@ -740,10 +776,10 @@ export function computeCashflow(input: CashflowInputs): CashflowData {
 
   // ── Unsold stock value — web Sold/Unsold lot-status algorithm ──────────
   const unsoldByCur: Record<string, number> = {};
-  const unsoldBySupplier = computeUnsoldWeb(contracts2y, stocks, settings);
-  unsoldBySupplier.forEach((row) => addCur(unsoldByCur, row.cur === 'eu' ? 'eu' : 'us', row.total));
-  // Web's tab footer (page.js:1417): parseFloat(item.total) summed across every
-  // supplier regardless of currency, printed with a '$' prefix.
+  const unsoldBySupplier = computeUnsoldWeb(contracts2y, stocks, settings, rate);
+  // Per currency as booked — from the lines, since each supplier row is in dollars now.
+  unsoldBySupplier.forEach((row) => row.items.forEach((l) => addCur(unsoldByCur, l.cur, Number(l.total) || 0)));
+  // Web's tab footer: every supplier's total — dollars, so the sum means something.
   const unsoldTotal = unsoldBySupplier.reduce((sum, r) => sum + (Number(r.total) || 0), 0);
 
   // ── Stocks Paid / UnPaid (web sections + Total-Left components) ────────
@@ -756,7 +792,7 @@ export function computeCashflow(input: CashflowInputs): CashflowData {
   // The predicate itself lives beside computeInventory (cashflowStockLots) so the
   // parity suite can check it against web's runStocks directly.
   const inventoryRows = computeInventory(cashflowStockLots(stocks), settings, { minQnty: 0, cashflow: true }).rows;
-  const stockSplit = splitStocksPaidUnpaid(inventoryRows, contracts2y || [], settings, contracts4y || []);
+  const stockSplit = splitStocksPaidUnpaid(inventoryRows, contracts2y || [], settings, contracts4y || [], rate);
 
   const incoming = sumMarginsRemaining(margins);
 
@@ -776,16 +812,14 @@ export function computeCashflow(input: CashflowInputs): CashflowData {
   const financedLeftRows = rowsOf(fin.financedLeft);
   const financedRightRows = rowsOf(fin.financedRight);
 
-  // Web bottom line (cashflow/page.js:285-329). Receivables are summed across
-  // currencies here because web's Total (Left) does exactly that — see the web
-  // bug noted in the report; this reproduces the page, it does not fix it.
-  const receivablesAll = Object.values(receivablesByCur).reduce((a, b) => a + b, 0);
+  // Web bottom line (cashflow/page.js Total (Left) / Total (Right)) — every part in dollars.
+  // Receivables used to be added across currencies as they stood (€1 as $1), as web did.
   const totalLeft =
-    incoming + manual.initial + stockSplit.paidTotal + stockSplit.unpaidTotal + receivablesAll + manual.financedLeft;
+    incoming + manual.initial + stockSplit.paidTotal + stockSplit.unpaidTotal + receivablesUsd + manual.financedLeft;
   const totalRight = payablesUsd + expensesUsd + manual.financedRight;
 
-  // Web's KPI strip reuses exactly the section reduces above (page.js:1263-1265).
-  const kpi = { clientsDue: receivablesAll, suppliersDue: payablesUsd, expenses: expensesUsd };
+  // Web's KPI strip reuses exactly the section reduces above.
+  const kpi = { clientsDue: receivablesUsd, suppliersDue: payablesUsd, expenses: expensesUsd };
 
   // Admin "Total for {year}" — web reads cashflowDoc[year][`total${year}`] for
   // each year in `yr` = [currentYear - 1, currentYear] (page.js:101, :217-221).
@@ -814,6 +848,7 @@ export function computeCashflow(input: CashflowInputs): CashflowData {
   }
 
   return {
+    fx: rateInfo,
     receivablesByCur,
     receivableClients: sortByUsd(clientMap),
     clientsNoPayment: sortByUsd(clientMapNoPay),
@@ -887,6 +922,12 @@ export function useCashflow() {
 
   const lotsQuery = useAllStockLots();
 
+  /* Today's EUR→USD. Nothing is added up until it is in (web awaits it the same way), so a
+     figure never shows at one rate and then jumps to another. It cannot hold the screen up
+     for long: each feed gets four seconds, and a feed that is unreachable fails at once. */
+  const rateQuery = useEurUsd();
+  const fxNow = rateQuery.data;
+
   /* The screen no longer waits for the stock ledger before it shows anything. Receivables,
      payables, expenses, Future and the manual entries do not touch stock, so they are
      computed — by the same computeCashflow — as soon as their own reads are in (`flows`).
@@ -895,7 +936,7 @@ export function useCashflow() {
      from a missing ledger cannot reach the screen, because the type does not let it. */
   const stocks = lotsQuery.data;
   const computed = useMemo<CashflowData | null>(() => {
-    if (!query.data || !loaded) return null;
+    if (!query.data || !loaded || !fxNow) return null;
     const { invoices, contracts4y, contracts2y, expenses, companyExpenses, margins, cashflowDoc } = query.data;
     return computeCashflow({
       invoices,
@@ -907,8 +948,9 @@ export function useCashflow() {
       cashflowDoc,
       stocks: stocks || [],
       settings,
+      fx: fxNow,
     });
-  }, [query.data, stocks, settings, loaded]);
+  }, [query.data, stocks, settings, loaded, fxNow]);
   const split = useMemo(() => (computed ? splitCashflow(computed) : null), [computed]);
 
   return {
@@ -918,13 +960,14 @@ export function useCashflow() {
     stock: stocks ? (split?.stock ?? null) : null,
     /** The whole page, flows and stock — what the report is built from. Null until both are in. */
     data: stocks ? computed : null,
-    // Waiting for the name lists counts as loading, so the screen shows its skeleton.
-    isLoading: query.isLoading || lotsQuery.isLoading || !loaded,
+    // Waiting for the name lists — or the rate — counts as loading, so the screen shows its skeleton.
+    isLoading: query.isLoading || lotsQuery.isLoading || !loaded || !fxNow,
     isError: query.isError || lotsQuery.isError,
     error: query.error || lotsQuery.error,
     refetch: () => {
       query.refetch();
       lotsQuery.refetch();
+      rateQuery.refetch(); // a pull to refresh asks for today's rate again, as a web reload does
     },
   };
 }

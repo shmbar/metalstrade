@@ -51,6 +51,10 @@ import { docsInForce as webDocsInForce, heldDraftIds as webHeldDraftIds } from '
 // WEB's own Margins view rules — Cashflow's "Incoming" is one of them.
 // @ts-ignore — plain JS, no types
 import { incomingOf as webIncomingOf } from '../../app/(root)/margins/marginsView';
+// WEB's own Cashflow adders (pure since 2026-10-07): every client, supplier, warehouse and
+// vendor figure, in dollars at the page's EUR→USD.
+// @ts-ignore — plain JS, no types
+import { getTotals as webGetTotals, getTotalsSupPayments as webGetTotalsSup, vendorTotals as webVendorTotals } from '../../app/(root)/cashflow/totals.js';
 
 // ── mobile under test ────────────────────────────────────────────────────────
 import {
@@ -1107,11 +1111,11 @@ const webTotalRight = (p: {
     : 0);
 
 /**
- * Mirror of cashflow/funcs.js:1655 getTotalsSupPayments — the ONLY place web
- * converts a supplier balance. Note the missing rate fallback, pinned below.
+ * A supplier balance in dollars, by web's OWN getTotalsSupPayments (cashflow/totals.js) —
+ * the only place web converts one. At the page's EUR→USD (2026-10-07); it used to be the
+ * rate the PO was saved at, and NaN for a PO saved without one.
  */
-const webSupBlnc = (item: any) =>
-  item.cur === 'us' ? parseFloat(item.blnc) : parseFloat(String(item.blnc * item.euroToUSD));
+const webSupBlnc = (item: any, rate?: number) => webGetTotalsSup([{ supplier: 's', ...item }], rate)[0].blnc;
 
 
 // ═════════════════════════════════════════════════════════════════════════════
@@ -1262,11 +1266,21 @@ describe('cashflow — web drift alarms', () => {
     expectRegionUnchanged(CF, 'Balance\n', 'value={totalLeft - totalRight}', '216c77e07d22');
   });
 
+  // Re-recorded 2026-10-07 (was c4a89d7af3ec, in funcs.js): Cashflow's adders moved to the
+  // pure cashflow/totals.js and convert a euro amount at the page's live EUR→USD — not each
+  // PO's own rate (suppliers), face value (clients, stock) or a fixed 1.08 (expenses). Mobile
+  // took the same rate (useCashflow `fx`, features/prices/eurUsd.ts), and the tests in this
+  // file now call web's own functions rather than a transcribed mirror.
   // 2026-09-24: invoices on hold ("Pending") leave the active balance and are carried as
-  // _pendingBlnc (funcs.js pendingSplit). The EUR conversion itself is unchanged. Mobile
-  // matches: useCashflow.ts addToMap / payablesUsd / receivablesByCur skip pending items.
+  // _pendingBlnc (totals.js pendingSplit). Mobile matches: useCashflow.ts addToMap /
+  // payablesUsd / receivablesByCur skip pending items.
+  const TOTALS = 'app/(root)/cashflow/totals.js';
   it("web's supplier-balance currency conversion has not drifted", () =>
-    expectWebUnchanged('app/(root)/cashflow/funcs.js', 'getTotalsSupPayments', 'c4a89d7af3ec'));
+    expectWebUnchanged(TOTALS, 'getTotalsSupPayments', 'feb84edb76d8'));
+  it("web's client-balance currency conversion has not drifted", () =>
+    expectWebUnchanged(TOTALS, 'getTotals', '0513de232fb2'));
+  it("web's expense currency conversion has not drifted", () =>
+    expectWebUnchanged(TOTALS, 'vendorTotals', '08be310a7310'));
 });
 
 describe('cashflow — the running-balance windows', () => {
@@ -1591,29 +1605,53 @@ describe('cashflow — the bottom line', () => {
     expect(mixed.totalLeft).toBeCloseTo(1_500, 6);
   });
 
-  it('Total (Left) sums receivables ACROSS currencies — web does not convert them', () => {
-    // web page.js:295-301 reduces clientInvoices1/2 on `debtBlnc` with no currency
-    // handling, while getTotals (funcs.js:1164) aggregates per CLIENT, not per
-    // currency. Mobile reproduces the page rather than fixing it.
+  it('Total (Left) adds a euro receivable in DOLLARS at the page rate — web getTotals (2026-10-07)', () => {
+    // Until 2026-10-07 both apps added a euro balance in as if it were dollars (GIS #41:
+    // €117,260.00 counted as $117,260.00). Web's getTotals (cashflow/totals.js) now converts
+    // each balance at the page's live EUR→USD, and mobile takes the same rate.
     const invoices = [
       makeInvoice({ id: 'usd', invoice: 1001, cur: 'us', totalAmount: 1000, payments: [] }),
       makeInvoice({ id: 'eur', invoice: 1002, cur: 'eu', totalAmount: 500, payments: [], client: 'cli-2' }),
     ];
-    const d = world({ invoices });
-    expect(d.receivablesByCur).toEqual({ us: 1000, eu: 500 });
-    expect(d.totalLeft).toBeCloseTo(1500, 6); // 500 EUR added to 1000 USD as if it were USD
+    const fx = { rate: 1.125, source: 'live' as const, stale: false };
+    const d = world({ invoices, fx });
+    expect(d.receivablesByCur).toEqual({ us: 1000, eu: 500 }); // still listed as booked
+    expect(d.kpi.clientsDue).toBeCloseTo(1000 + 500 * 1.125, 6);
+    expect(d.fx).toEqual(fx);
+    // web's own rows for the same two balances
+    const webRows = webGetTotals(
+      [
+        { client: 'cli-1', cur: 'us', debtBlnc: 1000 },
+        { client: 'cli-2', cur: 'eu', debtBlnc: 500 },
+      ],
+      1.125
+    );
     expect(d.totalLeft).toBeCloseTo(
       webTotalLeft({
         incoming: 0,
         initialData: [],
         stockData1: [],
         stockData2: [],
-        clientInvoices1: [{ debtBlnc: 1000 }],
-        clientInvoices2: [{ debtBlnc: 500 }],
+        clientInvoices1: [],
+        clientInvoices2: webRows,
         financedLeft: [],
       }),
       6
     );
+    expect(d.totalLeft).toBeCloseTo(1562.5, 6);
+  });
+
+  it('a euro stock lot is in Total (Left) in dollars at the page rate', () => {
+    // web totals.js warehouseTotals / sumUnpaidStocksByWarehouse — a euro lot used to be
+    // added to a warehouse's dollars as it stood.
+    const { stocks, contracts2y } = stockWorld();
+    const euro = stocks.map((l: any) => (l.id === 'lot-unpaid' ? { ...l, cur: 'eu' } : l));
+    const d = world({ stocks: euro, contracts2y, fx: { rate: 1.125, source: 'live', stale: false } });
+    expect(d.stocksPaidTotal).toBeCloseTo(10_000, 6);
+    expect(d.stocksUnpaidTotal).toBeCloseTo(1_000 * 1.125, 6);
+    expect(d.stocksUnpaid[0].eur).toBeCloseTo(1_000, 6);
+    expect(d.stocksUnpaid[0].items[0]).toMatchObject({ cur: 'eu', total: 1_000 }); // the lot as booked
+    expect(d.totalLeft).toBeCloseTo(10_000 + 1_125, 6);
   });
 
   it('Total (Right) adds supplier payables, unpaid expenses and right-hand financing', () => {
@@ -1641,8 +1679,8 @@ describe('cashflow — the bottom line', () => {
     expect(d.totalRight).toBeCloseTo(6000 + 1500 + 75, 6);
   });
 
-  it('a EUR supplier balance is converted at the contract rate before it joins Total (Right)', () => {
-    // web funcs.js:1655 — `item.cur === 'us' ? parseFloat(blnc) : blnc * euroToUSD`.
+  it('a EUR supplier balance joins Total (Right) at the PAGE rate, not the rate its PO was saved at', () => {
+    // web totals.js getTotalsSupPayments since 2026-10-07 — it was `blnc * euroToUSD`.
     const contracts4y = [
       makeContract({
         id: 'c1',
@@ -1651,15 +1689,19 @@ describe('cashflow — the bottom line', () => {
         poInvoices: [makePoInvoice({ id: 'p1', blnc: '1000' })],
       }),
     ];
-    const d = world({ contracts4y });
-    expect(d.payablesUsd).toBeCloseTo(1100, 6);
-    expect(d.payablesUsd).toBeCloseTo(webSupBlnc({ cur: 'eu', blnc: '1000', euroToUSD: 1.1 }), 6);
+    const d = world({ contracts4y, fx: { rate: 1.125, source: 'live', stale: false } });
+    expect(d.payablesUsd).toBeCloseTo(1125, 6);
+    expect(d.payablesUsd).toBeCloseTo(webSupBlnc({ cur: 'eu', blnc: '1000', euroToUSD: 1.1 }, 1.125), 6);
   });
 
-  it('an unpaid EUR expense converts at the flat 1.08, not at the contract rate', () => {
-    // web funcs.js runExpenses multiplies anything non-'us' by 1.08.
+  it('an unpaid EUR expense converts at the page rate — the fixed 1.08 only when no rate came', () => {
+    // web totals.js vendorTotals; both apps used a fixed 1.08 before 2026-10-07.
     const expenses = [makeExpense({ id: 'e1', amount: '1000', cur: 'eu', paid: '222' })];
-    expect(world({ expenses }).expensesUsd).toBeCloseTo(1080, 6);
+    expect(world({ expenses, fx: { rate: 1.125, source: 'live', stale: false } }).expensesUsd).toBeCloseTo(1125, 6);
+    expect(webVendorTotals([{ supplier: 's', cur: 'eu', amount: '1000' }], 1.125)[0].amount).toBeCloseTo(1125, 6);
+    const none = world({ expenses }); // no rate fetched
+    expect(none.expensesUsd).toBeCloseTo(1080, 6);
+    expect(none.fx).toEqual({ rate: 1.08, source: null, stale: false });
   });
 
   it('only expenses flagged unpaid reach Total (Right)', () => {
@@ -1849,7 +1891,7 @@ describe('cashflow — a note still saved as a draft does not hide its issued in
 
 describe('cashflow — Supplier Payment / Balances split (page.js:1811, :1871)', () => {
   const settings = makeSettings();
-  const world = (contracts4y: any[]) =>
+  const world = (contracts4y: any[], fx?: any) =>
     computeCashflow({
       invoices: [],
       contracts4y,
@@ -1860,6 +1902,7 @@ describe('cashflow — Supplier Payment / Balances split (page.js:1811, :1871)',
       cashflowDoc: {},
       stocks: [],
       settings,
+      fx,
     });
 
   it('a poInvoice with pmnt === 0 lands in suppliersNoPayment', () => {
@@ -1912,17 +1955,21 @@ describe('cashflow — Supplier Payment / Balances split (page.js:1811, :1871)',
     expect(combinedUsd).toBeCloseTo(10000, 6);
   });
 
-  it('a EUR contract converts at ITS OWN euroToUSD in both buckets, like the combined list', () => {
-    const d = world([
-      makeContract({
-        id: 'con-1',
-        supplier: 'sup-1',
-        cur: 'eu',
-        euroToUSD: 1.1,
-        poInvoices: [makePoInvoice({ id: 'po-1', pmnt: '0', blnc: '1000', invValue: '1000' })],
-      }),
-    ]);
-    expect(d.suppliersNoPayment[0].usd).toBeCloseTo(1100, 6);
+  it('a EUR contract converts at the page rate in both buckets, like the combined list', () => {
+    // Not at the contract's own euroToUSD (1.1) — web totals.js since 2026-10-07.
+    const d = world(
+      [
+        makeContract({
+          id: 'con-1',
+          supplier: 'sup-1',
+          cur: 'eu',
+          euroToUSD: 1.1,
+          poInvoices: [makePoInvoice({ id: 'po-1', pmnt: '0', blnc: '1000', invValue: '1000' })],
+        }),
+      ],
+      { rate: 1.125, source: 'live', stale: false }
+    );
+    expect(d.suppliersNoPayment[0].usd).toBeCloseTo(1125, 6);
     expect(d.suppliersNoPayment[0].byCur.eu).toBeCloseTo(1000, 6);
   });
 
@@ -2655,11 +2702,11 @@ describe('TIER 4 — intentional divergences', () => {
     ).toEqual(['PO-JAN', 'PO-MAY']);
   });
 
-  it('mobile falls back to a 1.08 EUR rate where web produces NaN', () => {
-    // web funcs.js:1655 does `blnc * item.euroToUSD` with no guard, so a EUR contract
-    // missing euroToUSD poisons Total (Right) into NaN and the page shows nothing.
-    // Mobile falls back to the same 1.08 the expenses side uses.
-    expect(webSupBlnc({ cur: 'eu', blnc: '1000', euroToUSD: undefined })).toBeNaN();
+  // RETIRED 2026-10-07 — a EUR contract saved without a rate of its own. Web's supplier
+  // balance came out NaN (it multiplied by the PO's missing euroToUSD) and mobile used 1.08.
+  // Both now convert at the page's EUR→USD and never read the PO's rate.
+  it('a EUR contract with no rate of its own converts at the page rate on both apps', () => {
+    expect(webSupBlnc({ cur: 'eu', blnc: '1000', euroToUSD: undefined }, 1.125)).toBeCloseTo(1125, 6);
     const d = computeCashflow({
       invoices: [],
       contracts4y: [makeContract({ cur: 'eu', euroToUSD: undefined, poInvoices: [makePoInvoice({ blnc: '1000' })] })],
@@ -2670,8 +2717,9 @@ describe('TIER 4 — intentional divergences', () => {
       cashflowDoc: {},
       stocks: [],
       settings: makeSettings(),
+      fx: { rate: 1.125, source: 'live', stale: false },
     });
-    expect(d.payablesUsd).toBeCloseTo(1080, 6);
+    expect(d.payablesUsd).toBeCloseTo(1125, 6);
     expect(Number.isFinite(d.totalRight)).toBe(true);
   });
 

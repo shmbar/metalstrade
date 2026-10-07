@@ -3,7 +3,7 @@ import { StyleSheet, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Sheet, Text, Button } from '@/components/ui';
 import { useTheme } from '@/theme/ThemeProvider';
-import { moneyFull, moneyLines } from '@/lib/format';
+import { eurRateNote, moneyFull, moneyLines } from '@/lib/format';
 import { exportCsv, exportPdf } from '@/lib/export';
 import { toast } from '@/store/toast';
 import { layout } from '@/theme/tokens';
@@ -19,6 +19,8 @@ import type { ByCur, CashflowReport } from './cashflowReport';
 const TOP = 5;
 const usd = (n: number) => moneyFull('us', n);
 const line = (byCur: ByCur) => moneyLines(byCur).split('\n').join('  ');
+// Receivables are a dollar figure; when any of them is in euros, the per-currency line says how much.
+const perCur = (r: CashflowReport) => (Math.abs(r.receivables.byCur.eu || 0) > 0.005 ? line(r.receivables.byCur) : undefined);
 
 function Block({ title, children }: { title: string; children: React.ReactNode }) {
   const { colors } = useTheme();
@@ -59,7 +61,8 @@ export function reportHtml(r: CashflowReport, company: string): string {
         ['Balance', usd(r.position.balance)],
       ]),
     table('Receivables', [
-      ['Outstanding', line(r.receivables.byCur)],
+      ['Outstanding (USD)', usd(r.receivables.usd)],
+      ...(perCur(r) ? [['… per currency', perCur(r) as string] as [string, string]] : []),
       ...(Object.keys(r.receivables.pendingByCur).length ? [['On hold (not included)', line(r.receivables.pendingByCur)] as [string, string]] : []),
       ...r.receivables.aging.map((b) => [`${b.label} (${b.count})`, line(b.byCur)] as [string, string]),
       ...(r.receivables.undated.count ? [[`No invoice date (${r.receivables.undated.count})`, line(r.receivables.undated.byCur)] as [string, string]] : []),
@@ -78,7 +81,7 @@ export function reportHtml(r: CashflowReport, company: string): string {
     h2{font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:#6d5ce0;margin:18px 0 6px}
     table{width:100%;border-collapse:collapse} td{padding:5px 6px;border-bottom:1px solid #e6e3f0}
     td.n{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
-  </style></head><body><h1>Cashflow report</h1><div class="sub">${esc(company)} · as of ${esc(r.asOf)}</div>${parts.join('')}</body></html>`;
+  </style></head><body><h1>Cashflow report</h1><div class="sub">${esc(company)} · as of ${esc(r.asOf)}${r.fx.hasEuro ? `<br>${esc(eurRateNote(r.fx))}` : ''}</div>${parts.join('')}</body></html>`;
 }
 
 export function CashflowReportSheet({ visible, onClose, report, company, money }: { visible: boolean; onClose: () => void; report: CashflowReport | null; company: string; money: (s: string) => string }) {
@@ -114,6 +117,11 @@ export function CashflowReportSheet({ visible, onClose, report, company, money }
     >
       {r ? (
         <>
+          {r.fx.hasEuro ? (
+            <Text variant="caption" tone="muted" style={{ marginBottom: layout.stack }}>
+              {eurRateNote(r.fx)}
+            </Text>
+          ) : null}
           {r.position && (
             <Block title="Position">
               <Row first label="Total (Left)" sub="What we have and are owed" value={money(usd(r.position.totalLeft))} />
@@ -122,7 +130,7 @@ export function CashflowReportSheet({ visible, onClose, report, company, money }
             </Block>
           )}
           <Block title="Who owes us — and for how long">
-            <Row first label="Outstanding" value={money(line(r.receivables.byCur))} strong />
+            <Row first label="Outstanding (USD)" sub={perCur(r)} value={money(usd(r.receivables.usd))} strong />
             {r.receivables.aging.map((b) => (
               <Row key={b.label} label={b.label} sub={`${b.count} invoice${b.count === 1 ? '' : 's'}`} value={money(line(b.byCur))} />
             ))}

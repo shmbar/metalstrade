@@ -1,10 +1,15 @@
 // Cashflow report (app/(root)/cashflow/report.js) — the object behind the Report dialog
 // and the Excel export. Its one promise is that it reconciles with the page: every
 // section total is the page's own figure, Left/Right add up the way page.js adds them,
-// and Pending holds stay out of the totals but are never lost.
+// and Pending holds stay out of the totals but are never lost. Like the page it is in
+// dollars, a euro line at the rate the page loaded with (`fx`, 2026-10-07).
 import { describe, expect, it } from 'vitest';
 // @ts-ignore — plain JS module
 import { buildCashflowReport } from '../app/(root)/cashflow/report.js';
+// @ts-ignore — plain JS module
+import { eurRateNote } from '../utils/currency.js';
+// @ts-ignore — plain JS module, the phone's byte-identical copy
+import { eurRateNote as phoneEurRateNote } from '../mobile/src/shared/currency.js';
 
 const names = {
   client: (id: string) => ({ c1: 'Acme', c2: 'Borealis' } as any)[id] || `client ${id}`,
@@ -35,6 +40,7 @@ const world = (over: any = {}) => {
   ];
   return {
     names, isAdmin: true, account: 'IMS', years: [2025, 2026], asOf: new Date('2026-09-29T12:00:00Z'),
+    fx: { rate: 1.1, source: 'live', stale: false }, // page.js fxRate
     incoming: 5000,
     initialData: [{ title: 'Airwallex', num: '2000' }],
     financedLeft: [{ title: 'Loan in', num: 100 }],
@@ -53,7 +59,7 @@ const world = (over: any = {}) => {
     supplierRows,
     suppliersPayment: [{ supplier: 's1', blnc: 720, _pendingBlnc: 0, _pendingCount: 0 }],
     suppliersBalances: [{ supplier: 's2', blnc: 0, _pendingBlnc: 800, _pendingCount: 1 }],
-    expenses: [{ supplier: 's1', amount: 108 + 10 }],
+    expenses: [{ supplier: 's1', amount: 110 + 10 }], // the page's vendor row: €100 at 1.1 + $10
     expenseRows: [
       { supplier: 's1', cur: 'eu', amount: 100, expense: 'E-1', expType: 't', date: '2026-09-01' },
       { supplier: 's1', cur: 'us', amount: 10, expense: 'E-2', expType: 't', date: '2026-09-02' },
@@ -74,7 +80,7 @@ describe('cashflow report', () => {
     expect(s.suppliersBalances.total).toBe(0);
     expect(s.suppliersBalances.pendingTotal).toBe(800);
     expect(s.stocksUnpaid.total).toBe(300);
-    expect(s.expenses.total).toBe(118);
+    expect(s.expenses.total).toBe(120);
     expect(s.unsold.total).toBe(900);
   });
 
@@ -83,7 +89,7 @@ describe('cashflow report', () => {
     // page.js: incoming + initialData + stocks paid + unpaid + both client sections + financedLeft
     expect(r.position.leftTotal).toBeCloseTo(5000 + 2000 + 700 + 300 + 1000 + 300 + 100, 6);
     // page.js: both supplier sections + expenses + financedRight
-    expect(r.position.rightTotal).toBeCloseTo(720 + 0 + 118 + 50, 6);
+    expect(r.position.rightTotal).toBeCloseTo(720 + 0 + 120 + 50, 6);
     expect(r.position.balance).toBeCloseTo(r.position.leftTotal - r.position.rightTotal, 6);
     expect(r.position.left.reduce((t: number, l: any) => t + l.share, 0)).toBeCloseTo(1, 6);
   });
@@ -112,6 +118,57 @@ describe('cashflow report', () => {
     expect(triart.summary.value).toBeUndefined(); // USD 500 + EUR 200 is not 700 of anything
     expect(triart.summary.balanceUsd).toBeCloseTo(500 + 200 * 1.1, 6);
     expect(triart.rows[1].balanceUsd).toBeCloseTo(220, 6); // getTotalsSupPayments' conversion
+  });
+
+  it('a euro line is converted at the PAGE\'s rate, never the one its PO was saved at', () => {
+    const r = buildCashflowReport(world({ fx: { rate: 1.25, source: 'live' } }));
+    const triart = r.sections.find((x: any) => x.key === 'suppliersPayment').parties[0];
+    expect(triart.rows[1].balance).toBe(200); // the line keeps its own euros…
+    expect(triart.rows[1].cur).toBe('eu');
+    expect(triart.rows[1].balanceUsd).toBeCloseTo(250, 6); // …and its dollars at 1.25, not the PO's 1.1
+    const exp = r.sections.find((x: any) => x.key === 'expenses').parties[0];
+    expect(exp.rows.map((x: any) => x.usd)).toEqual([125, 10]);
+  });
+
+  it('a euro client invoice is in dollars everywhere a figure is added — section, ageing, holds', () => {
+    const eu = { client: 'c2', cur: 'eu', invoice: 41, totalAmount: 117260, debtBlnc: 117260, payments: [],
+      poSupplier: { order: 'PO-41' }, date: '2026-09-20' };
+    const r = buildCashflowReport(world({
+      fx: { rate: 1.125, source: 'live' },
+      clientRows: [eu, { ...eu, invoice: 42, debtBlnc: 1000, totalAmount: 1000, pending: true }],
+      // the page's aggregate (getTotals): dollars, the held invoice beside it
+      clientsPayment: [{ client: 'c2', cur: 'us', debtBlnc: 117260 * 1.125, _pendingBlnc: 1125, _pendingCount: 1 }],
+      clientsBalances: [],
+    }));
+    const sec = r.sections.find((x: any) => x.key === 'clientsPayment');
+    const party = sec.parties[0];
+    expect(party.rows[0]).toMatchObject({ cur: 'eu', balance: 117260 });
+    expect(party.rows[0].balanceUsd).toBeCloseTo(131917.5, 6);
+    expect(party.summary.balanceUsd).toBeCloseTo(131917.5, 6); // the page's own figure
+    expect(sec.total).toBeCloseTo(131917.5, 6);
+    expect(r.receivables.due).toBeCloseTo(131917.5, 6);
+    expect(r.receivables.aging[0].amount).toBeCloseTo(131917.5, 6); // 9 days old, in dollars
+    expect(r.receivables.notFinalAmount).toBeCloseTo(131917.5, 6);
+    const hold = r.holds.find((h: any) => h.section === 'Clients - Payment');
+    expect(hold).toMatchObject({ cur: 'us' });
+    expect(hold.amount).toBeCloseTo(1125, 6);
+  });
+
+  it('says what rate it used and where from — and falls back when the page had none', () => {
+    const r = buildCashflowReport(world());
+    expect(r.fx).toEqual({ rate: 1.1, source: 'live', stale: false, hasEuro: true });
+    const none = buildCashflowReport(world({ fx: undefined }));
+    expect(none.fx.rate).toBe(1.08);
+    expect(none.fx.source).toBeNull();
+    const usdOnly = buildCashflowReport(world({ supplierRows: [supplierRow({})], expenseRows: [] }));
+    expect(usdOnly.fx.hasEuro).toBe(false);
+  });
+
+  it.each([['web', eurRateNote], ['phone', phoneEurRateNote]])('the rate sentence names its source (%s, utils/currency eurRateNote)', (_app, note: any) => {
+    expect(note({ rate: 1.12345, source: 'live' })).toBe('Euro amounts are converted at $1.1235 per € — live rate');
+    expect(note({ rate: 1.1, source: 'daily' })).toBe("Euro amounts are converted at $1.1000 per € — today's rate");
+    expect(note({ rate: 1.1, source: 'live', stale: true })).toBe('Euro amounts are converted at $1.1000 per € — last rate received');
+    expect(note({ rate: 1.08, source: null })).toBe('Euro amounts are converted at $1.0800 per € — the live rate did not answer, so this is a fixed rate');
   });
 
   it('receivables age from the invoice date and leave held invoices out', () => {

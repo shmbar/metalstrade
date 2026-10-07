@@ -96,3 +96,18 @@ export function moneyCompact(cur, value, decimals = 2) {
     const body = digits(n, decimals) + unit;
     return `${signed(v, body)}${moneySymbol(cur)}${body}`;
 }
+
+// ── Converted amounts ─────────────────────────────────────────────────────────────────
+//
+// The one sentence that says at what rate euros became dollars, and where that rate came
+// from, wherever a page adds euro amounts into a dollar total (Cashflow on web and phone:
+// under the title, in the Report, on the Excel summary). `fx` = { rate, source, stale }:
+// `rate` is dollars per euro; `source` is 'live' (the minute feed) or 'daily', and none
+// when no feed answered and the fixed rate had to be used; `stale` means the live feed
+// served its last good answer.
+export function eurRateNote(fx) {
+    const from = !fx?.source ? 'the live rate did not answer, so this is a fixed rate'
+        : fx.stale ? 'last rate received'
+            : fx.source === 'live' ? 'live rate' : "today's rate";
+    return `Euro amounts are converted at $${toAmount(fx?.rate).toFixed(4)} per € — ${from}`;
+}

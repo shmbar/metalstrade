@@ -3,23 +3,20 @@
 // arrays the page renders, so every figure reconciles with the screen:
 //
 //   - a party's amount is the page's active figure — Pending holds are left out of it
-//     and carried beside it (funcs.js pendingSplit), exactly like the section headers;
-//   - suppliers are in USD (getTotalsSupPayments converts EUR at the contract's rate),
-//     expenses in USD at runExpenses' 1.08, clients and stock summed as the page sums
-//     them.
+//     and carried beside it (totals.js pendingSplit), exactly like the section headers;
+//   - every section is in DOLLARS, as the page is: a euro invoice, lot or expense goes
+//     in at the rate the page loaded with (`p.fx.rate` — today's live EUR→USD, see the
+//     note at the top of totals.js). Each line keeps its own figure in its own currency
+//     and carries the dollar one beside it, in the column the totals are taken from.
 //
 // Pure — no React, no Firestore. Names come in as resolvers so this file can be tested
 // without loading funcs.js.
 import { resolveInvoiceDate } from '../../../utils/pureHelpers';
+import { fx, num, resolveCur, EUR_USD_FALLBACK } from '../../../utils/finance';
 
-const num = (v) => {
-    const n = parseFloat(v);
-    return Number.isFinite(n) ? n : 0;
-};
 const sum = (arr, f) => arr.reduce((s, x) => s + f(x), 0);
-
-// runExpenses' EUR→USD rate for the per-vendor totals (funcs.js).
-const EXP_EUR_USD = 1.08;
+// An expense is in euros unless it is marked dollars (funcs.js expenseCur).
+const expenseCur = (z) => (z?.cur === 'us' ? 'us' : 'eu');
 
 const isClientFinal = (z) => z.shipData?.fnlzing === '4568' || z.invType === '3333' || z.invType === 'Final Note';
 const isSupplierFinal = (z) => z.fnlzing === '4568' || /fn\s*$/i.test(String(z.invoice || '').trim());
@@ -63,11 +60,12 @@ const makeSection = ({ key, title, side, party, unit, columns, amountKey, partie
 
 const NAME = (header) => ({ key: 'name', header, width: 30 });
 const COUNT = (header) => ({ key: 'count', header, width: 9, kind: 'count' });
-const HOLD = { key: 'hold', header: 'On hold', width: 14, kind: 'money' };
+// What is on hold is a page figure, so it is in dollars like the totals beside it.
+const HOLD = { key: 'hold', header: 'On hold', width: 14, kind: 'usd' };
 const STATUS = { key: 'status', header: 'Status', width: 11 };
 
 // ── Clients ─────────────────────────────────────────────────────────────────────
-const clientSection = ({ key, title, aggregates, rows, paid, names }) => {
+const clientSection = ({ key, title, aggregates, rows, paid, names, rate }) => {
     const columns = [
         NAME('Client'), COUNT('Invoices'),
         { key: 'po', header: 'PO#', width: 12 },
@@ -82,6 +80,7 @@ const clientSection = ({ key, title, aggregates, rows, paid, names }) => {
             : [{ key: 'pct', header: 'Payment %', width: 10, kind: 'pct' },
                 { key: 'prep', header: 'Prepayment', width: 15, kind: 'money', sum: true }]),
         { key: 'balance', header: 'Balance', width: 15, kind: 'money', sum: true },
+        { key: 'balanceUsd', header: 'Balance USD', width: 15, kind: 'usd', sum: true },
         HOLD,
         { key: 'final', header: 'Final', width: 7 },
         STATUS,
@@ -89,7 +88,7 @@ const clientSection = ({ key, title, aggregates, rows, paid, names }) => {
     const parties = aggregates.map((a) => ({
         id: a.client,
         name: names.client(a.client),
-        cur: a.cur,
+        cur: 'us', // the page's client figures are in USD (getTotals)
         amount: num(a.debtBlnc),
         pendingAmount: num(a._pendingBlnc),
         pendingCount: a._pendingCount || 0,
@@ -100,24 +99,26 @@ const clientSection = ({ key, title, aggregates, rows, paid, names }) => {
             invDate: dateOf(resolveInvoiceDate(z) || z.date),
             etd: dateOf(z.shipData?.etd?.startDate),
             eta: dateOf(z.shipData?.eta?.startDate),
-            cur: z.cur,
+            cur: resolveCur(z),
             amount: num(z.totalAmount),
             ...(paid
                 ? { paid: sum(z.payments || [], p => num(p.pmnt)) }
                 : { pct: num(z.percentage) || null, prep: num(z.totalAmount) * num(z.percentage) / 100 || null }),
             balance: num(z.debtBlnc),
+            // getTotals' conversion, row by row.
+            balanceUsd: fx(z.debtBlnc, z.cur, rate),
             final: isClientFinal(z) ? 'Yes' : 'No',
             status: z.pending ? 'Pending' : '',
-            _cur: z.cur,
+            _cur: resolveCur(z),
             _pending: !!z.pending,
             _final: isClientFinal(z),
         })),
     }));
-    return makeSection({ key, title, side: 'left', party: 'Client', unit: ['invoice', 'invoices'], columns, amountKey: 'balance', parties });
+    return makeSection({ key, title, side: 'left', party: 'Client', unit: ['invoice', 'invoices'], columns, amountKey: 'balanceUsd', parties });
 };
 
 // ── Suppliers ───────────────────────────────────────────────────────────────────
-const supplierSection = ({ key, title, aggregates, rows, names }) => {
+const supplierSection = ({ key, title, aggregates, rows, names, rate }) => {
     const columns = [
         NAME('Supplier'), COUNT('Invoices'),
         { key: 'po', header: 'PO#', width: 12 },
@@ -127,14 +128,14 @@ const supplierSection = ({ key, title, aggregates, rows, names }) => {
         { key: 'paid', header: 'Paid', width: 15, kind: 'money', sum: true },
         { key: 'balance', header: 'Balance', width: 15, kind: 'money', sum: true },
         { key: 'balanceUsd', header: 'Balance USD', width: 15, kind: 'usd', sum: true },
-        { ...HOLD, kind: 'usd' },
+        HOLD,
         { key: 'final', header: 'Final', width: 7 },
         STATUS,
     ];
     const parties = aggregates.map((a) => ({
         id: a.supplier,
         name: names.supplier(a.supplier),
-        cur: 'us', // the page's supplier figures are converted to USD
+        cur: 'us', // the page's supplier figures are in USD (getTotalsSupPayments)
         amount: num(a.blnc),
         pendingAmount: num(a._pendingBlnc),
         pendingCount: a._pendingCount || 0,
@@ -143,15 +144,15 @@ const supplierSection = ({ key, title, aggregates, rows, names }) => {
             name: names.supplier(z.supplier),
             po: z.order || '',
             invoice: z.invoice ?? '',
-            cur: z.cur,
+            cur: resolveCur(z),
             value: num(z.invValue),
             paid: num(z.pmnt),
             balance: num(z.blnc),
             // getTotalsSupPayments' conversion, row by row.
-            balanceUsd: z.cur === 'us' ? num(z.blnc) : num(z.blnc) * num(z.euroToUSD),
+            balanceUsd: fx(z.blnc, z.cur, rate),
             final: isSupplierFinal(z) ? 'Yes' : 'No',
             status: z.pending ? 'Pending' : '',
-            _cur: z.cur,
+            _cur: resolveCur(z),
             _pending: !!z.pending,
         })),
     }));
@@ -159,7 +160,7 @@ const supplierSection = ({ key, title, aggregates, rows, names }) => {
 };
 
 // ── Stock ───────────────────────────────────────────────────────────────────────
-const stockSection = ({ key, title, warehouses, rows, holdable, names }) => {
+const stockSection = ({ key, title, warehouses, rows, holdable, names, rate }) => {
     const columns = [
         NAME('Warehouse'), COUNT('Lines'),
         { key: 'po', header: 'PO#', width: 14 },
@@ -169,12 +170,13 @@ const stockSection = ({ key, title, warehouses, rows, holdable, names }) => {
         { key: 'unitPrc', header: 'Unit price', width: 13, kind: 'money' },
         { key: 'cur', header: 'Cur.', width: 6 },
         { key: 'value', header: 'Value', width: 16, kind: 'money', sum: true },
+        { key: 'valueUsd', header: 'Value USD', width: 16, kind: 'usd', sum: true },
         ...(holdable ? [HOLD, STATUS] : []),
     ];
     const parties = warehouses.map((w) => ({
         id: w.stock,
         name: names.warehouse(w.stock),
-        cur: w.cur,
+        cur: 'us', // the page's warehouse figures are in USD (runStocks, sumUnpaidStocksByWarehouse)
         amount: num(w.total),
         pendingAmount: num(w._pendingBlnc),
         pendingCount: w._pendingCount || 0,
@@ -186,18 +188,19 @@ const stockSection = ({ key, title, warehouses, rows, holdable, names }) => {
             description: z.descriptionName || '',
             qty: num(z.qnty),
             unitPrc: num(z.unitPrc),
-            cur: z.cur,
+            cur: resolveCur(z),
             value: z.total === '-' ? 0 : num(z.total),
+            valueUsd: z.total === '-' ? 0 : fx(z.total, z.cur, rate),
             ...(holdable ? { status: z.pending ? 'Pending' : '' } : {}),
-            _cur: z.cur,
+            _cur: resolveCur(z),
             _pending: !!z.pending,
         })),
     }));
-    return makeSection({ key, title, side: 'left', party: 'Warehouse', unit: ['line', 'lines'], columns, amountKey: 'value', parties });
+    return makeSection({ key, title, side: 'left', party: 'Warehouse', unit: ['line', 'lines'], columns, amountKey: 'valueUsd', parties });
 };
 
 // ── Expenses ────────────────────────────────────────────────────────────────────
-const expenseSection = ({ aggregates, rows, names }) => {
+const expenseSection = ({ aggregates, rows, names, rate }) => {
     const columns = [
         NAME('Vendor'), COUNT('Expenses'),
         { key: 'po', header: 'PO#', width: 12 },
@@ -221,17 +224,18 @@ const expenseSection = ({ aggregates, rows, names }) => {
             invoice: z.expense || '',
             type: names.expType(z.expType),
             date: dateOf(z.date),
-            cur: z.cur,
+            cur: expenseCur(z),
             amount: num(z.amount),
-            usd: num(z.amount) * (z.cur === 'us' ? 1 : EXP_EUR_USD),
-            _cur: z.cur,
+            // runExpenses' conversion, row by row.
+            usd: fx(z.amount, expenseCur(z), rate),
+            _cur: expenseCur(z),
         })),
     }));
     return makeSection({ key: 'expenses', title: 'Expenses', side: 'right', party: 'Vendor', unit: ['expense', 'expenses'], columns, amountKey: 'usd', parties });
 };
 
 // ── Unsold stock (the page's second tab) ────────────────────────────────────────
-const unsoldSection = ({ aggregates, rows, names }) => {
+const unsoldSection = ({ aggregates, rows, names, rate }) => {
     const columns = [
         NAME('Supplier'), COUNT('Lines'),
         { key: 'po', header: 'PO#', width: 12 },
@@ -241,11 +245,12 @@ const unsoldSection = ({ aggregates, rows, names }) => {
         { key: 'unitPrc', header: 'Unit price', width: 13, kind: 'money' },
         { key: 'cur', header: 'Cur.', width: 6 },
         { key: 'value', header: 'Value', width: 16, kind: 'money', sum: true },
+        { key: 'valueUsd', header: 'Value USD', width: 16, kind: 'usd', sum: true },
     ];
     const parties = aggregates.map((a) => ({
         id: a.supplier,
         name: a.supplierName || names.supplier(a.supplier),
-        cur: a.cur,
+        cur: 'us', // the page's unsold figures are in USD (runStocks)
         amount: num(a.total),
         pendingAmount: 0,
         pendingCount: 0,
@@ -256,12 +261,13 @@ const unsoldSection = ({ aggregates, rows, names }) => {
             warehouse: z.stockName || '',
             qty: num(z.qnty),
             unitPrc: num(z.unitPrc),
-            cur: z.cur,
+            cur: resolveCur(z),
             value: num(z.total),
-            _cur: z.cur,
+            valueUsd: fx(z.total, z.cur, rate),
+            _cur: resolveCur(z),
         })),
     }));
-    return makeSection({ key: 'unsold', title: 'Unsold Stocks', side: null, party: 'Supplier', unit: ['line', 'lines'], columns, amountKey: 'value', parties });
+    return makeSection({ key: 'unsold', title: 'Unsold Stocks', side: null, party: 'Supplier', unit: ['line', 'lines'], columns, amountKey: 'valueUsd', parties });
 };
 
 // Top n parties by amount, merged across sections (a client can sit in both the
@@ -297,18 +303,23 @@ const AGE_BUCKETS = [
 export const buildCashflowReport = (p) => {
     const names = p.names;
     const asOf = p.asOf || new Date();
+    // The rate the page's figures were converted at (page.js fxRate) — the lines below are
+    // converted with the same one, so each sheet adds up to the page's own section figure.
+    const rate = num(p.fx?.rate) > 0 ? num(p.fx.rate) : EUR_USD_FALLBACK;
 
     const sections = [
-        stockSection({ key: 'stocksPaid', title: 'Stocks - Paid', warehouses: p.stockPaid || [], rows: p.stockPaidRows || [], holdable: false, names }),
-        stockSection({ key: 'stocksUnpaid', title: 'Stocks - UnPaid', warehouses: p.stockUnpaid || [], rows: p.stockUnpaidRows || [], holdable: true, names }),
-        clientSection({ key: 'clientsPayment', title: 'Clients - Payment', aggregates: p.clientsPayment || [], rows: (p.clientRows || []).filter(z => !(z.payments || []).length), paid: false, names }),
-        clientSection({ key: 'clientsBalances', title: 'Clients - Balances', aggregates: p.clientsBalances || [], rows: (p.clientRows || []).filter(z => (z.payments || []).length > 0), paid: true, names }),
-        supplierSection({ key: 'suppliersPayment', title: 'Supplier - Payment', aggregates: p.suppliersPayment || [], rows: (p.supplierRows || []).filter(z => num(z.pmnt) === 0), names }),
-        supplierSection({ key: 'suppliersBalances', title: 'Supplier - Balances', aggregates: p.suppliersBalances || [], rows: (p.supplierRows || []).filter(z => num(z.pmnt) > 0), names }),
-        expenseSection({ aggregates: p.expenses || [], rows: p.expenseRows || [], names }),
-        unsoldSection({ aggregates: p.unsold || [], rows: p.unsoldRows || [], names }),
+        stockSection({ key: 'stocksPaid', title: 'Stocks - Paid', warehouses: p.stockPaid || [], rows: p.stockPaidRows || [], holdable: false, names, rate }),
+        stockSection({ key: 'stocksUnpaid', title: 'Stocks - UnPaid', warehouses: p.stockUnpaid || [], rows: p.stockUnpaidRows || [], holdable: true, names, rate }),
+        clientSection({ key: 'clientsPayment', title: 'Clients - Payment', aggregates: p.clientsPayment || [], rows: (p.clientRows || []).filter(z => !(z.payments || []).length), paid: false, names, rate }),
+        clientSection({ key: 'clientsBalances', title: 'Clients - Balances', aggregates: p.clientsBalances || [], rows: (p.clientRows || []).filter(z => (z.payments || []).length > 0), paid: true, names, rate }),
+        supplierSection({ key: 'suppliersPayment', title: 'Supplier - Payment', aggregates: p.suppliersPayment || [], rows: (p.supplierRows || []).filter(z => num(z.pmnt) === 0), names, rate }),
+        supplierSection({ key: 'suppliersBalances', title: 'Supplier - Balances', aggregates: p.suppliersBalances || [], rows: (p.supplierRows || []).filter(z => num(z.pmnt) > 0), names, rate }),
+        expenseSection({ aggregates: p.expenses || [], rows: p.expenseRows || [], names, rate }),
+        unsoldSection({ aggregates: p.unsold || [], rows: p.unsoldRows || [], names, rate }),
     ];
     const s = Object.fromEntries(sections.map(x => [x.key, x]));
+    // Said on the report only when a line on it is in euros.
+    const hasEuro = sections.some(sec => sec.parties.some(pp => pp.rows.some(r => r._cur === 'eu')));
 
     // ── Position: the page's Total (Left) / Total (Right) and what makes them up ──
     let position = null;
@@ -344,13 +355,14 @@ export const buildCashflowReport = (p) => {
     const clientsDue = s.clientsPayment.total + s.clientsBalances.total;
     const aging = AGE_BUCKETS.map(b => ({ ...b, count: 0, amount: 0 }));
     let undated = { count: 0, amount: 0 };
+    // In dollars, like `due` above it — a euro invoice ages at the page's rate.
     clientActive.forEach((r) => {
         if (r.balance <= 0.01) return; // credits and settled residues are not ageing debt
-        if (!r.invDate) { undated.count++; undated.amount += r.balance; return; }
+        if (!r.invDate) { undated.count++; undated.amount += r.balanceUsd; return; }
         const days = Math.max(0, Math.floor((asOf - new Date(r.invDate)) / 86400000));
         const b = aging.find(x => days <= x.maxDays) || aging[aging.length - 1];
         b.count++;
-        b.amount += r.balance;
+        b.amount += r.balanceUsd;
     });
     const agingTotal = sum(aging, b => b.amount) + undated.amount;
     const notFinal = clientActive.filter(r => !r._final);
@@ -362,7 +374,7 @@ export const buildCashflowReport = (p) => {
         pendingTotal: s.clientsPayment.pendingTotal + s.clientsBalances.pendingTotal,
         pendingCount: s.clientsPayment.pendingCount + s.clientsBalances.pendingCount,
         notFinalCount: notFinal.length,
-        notFinalAmount: sum(notFinal, r => r.balance),
+        notFinalAmount: sum(notFinal, r => r.balanceUsd),
         aging: aging.map(b => ({ label: b.label, count: b.count, amount: b.amount, share: agingTotal ? b.amount / agingTotal : 0 })),
         undated,
         top: topParties(clientSecs, clientsDue),
@@ -405,13 +417,13 @@ export const buildCashflowReport = (p) => {
         top: topParties([s.expenses], s.expenses.total),
     };
 
-    // ── Everything on hold, largest first ──
+    // ── Everything on hold, largest first — each at the dollar figure its section counts in ──
     const holds = sections.flatMap(sec => sec.parties.flatMap(pp => pp.rows.filter(r => r._pending).map(r => ({
         section: sec.title,
         party: pp.name,
         reference: [r.po && `PO ${r.po}`, r.invoice && `Inv ${r.invoice}`, r.description].filter(Boolean).join(' · '),
-        cur: sec.key.startsWith('suppliers') ? 'us' : r._cur,
-        amount: sec.key.startsWith('suppliers') ? r.balanceUsd : sec.key.startsWith('clients') ? r.balance : r.value,
+        cur: 'us',
+        amount: sec.key.startsWith('stocks') ? r.valueUsd : r.balanceUsd,
     })))).sort((a, b) => Math.abs(b.amount) - Math.abs(a.amount));
 
     return {
@@ -419,6 +431,9 @@ export const buildCashflowReport = (p) => {
         account: p.account || '',
         years: p.years || [],
         isAdmin: !!p.isAdmin,
+        // The EUR→USD every euro line above went in at, and where it came from (page.js
+        // fxRate: 'live' / 'daily', or no source when the fixed fallback had to be used).
+        fx: { rate, source: p.fx?.source || null, stale: !!p.fx?.stale, hasEuro },
         sections,
         position,
         receivables,

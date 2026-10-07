@@ -1,6 +1,8 @@
 // Display formatters — ported from the web dashboard (app/(root)/dashboard/page.js)
 // so on-screen numbers match the web app exactly. Pure, no React.
 import { moneyCompact as sharedMoneyCompact, moneyFull as sharedMoneyFull } from '@shared/currency';
+// The sentence that says at what rate euros became dollars — web's words, verbatim.
+export { eurRateNote } from '@shared/currency';
 
 export const curSymbol = (cur: string | undefined): string => {
   const c = String(cur || '').toLowerCase();

@@ -49,6 +49,32 @@ async function fromDaily() {
     };
 }
 
+/* Today's EUR→USD as ONE number, for a page that converts with it once per load rather
+   than ticking along with the strip — Cashflow adds its euro balances into its dollar
+   totals at this rate. The same two feeds as the hook below, in the same order. It never
+   throws and never hangs (each feed is given `timeoutMs`), and it says where the figure
+   came from: `rate` is dollars per euro, 0 when neither feed answered. */
+const within = (promise, ms) => {
+    let timer;
+    return Promise.race([
+        promise,
+        new Promise((_, reject) => { timer = setTimeout(() => reject(new Error('timed out')), ms); }),
+    ]).finally(() => clearTimeout(timer));
+};
+
+export async function fetchEurUsd(timeoutMs = 4000) {
+    for (const feed of [fromLive, fromDaily]) {
+        try {
+            const got = await within(feed(false), timeoutMs);
+            const eurPerUsd = Number(got?.rates?.EUR);
+            if (eurPerUsd > 0) {
+                return { rate: 1 / eurPerUsd, source: got.source, time: got.time || null, stale: !!got.stale };
+            }
+        } catch { /* the next feed */ }
+    }
+    return { rate: 0, source: null, time: null, stale: false };
+}
+
 export default function useExchangeRates(refreshInterval = 60 * 1000) {
     const [rates, setRates] = useState(null);
     const [loading, setLoading] = useState(true);

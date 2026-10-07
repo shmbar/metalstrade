@@ -98,6 +98,12 @@ export const fx = (amount, cur, rate, base = 'us') => {
   return base === 'us' ? a * (r > 0 ? r : 1) : a / (r > 0 ? r : 1);
 };
 
+// Dollars per euro for a load on which NO live rate could be fetched. Never the first
+// choice: Cashflow asks the live feed first on both apps (web hooks/useExchangeRates.js
+// fetchEurUsd, phone features/prices/eurUsd.ts) and says so on screen when it had to
+// fall back to this.
+export const EUR_USD_FALLBACK = 1.08;
+
 // ── quantity / MT ────────────────────────────────────────────────────────────
 export const unitOf = (contract, settings) =>
   settings?.Quantity?.Quantity?.find(q => q.id === contract?.qTypeTable)?.qTypeTable || 'MT';

@@ -1,6 +1,7 @@
 import { useState, useContext, Children, cloneElement, isValidElement } from 'react';
 import { SettingsContext } from "../../../contexts/useSettingsContext";
-import { settledInQty, settlementReduction } from "../../../utils/finance";
+import { settledInQty, settlementReduction, resolveCur, EUR_USD_FALLBACK } from "../../../utils/finance";
+import { isEuro, isFN, isFNNumber, unsoldBySupplier, vendorTotals, warehouseTotals } from "./totals";
 
 import CheckBox from "../../../components/checkbox";
 import Avatar from "../../../components/Avatar";
@@ -19,6 +20,9 @@ import { BtnIcon } from "../../../components/buttonIcons";
 
 
 
+
+// Every figure the page adds up comes from totals.js — in DOLLARS, a euro amount at
+// today's live EUR→USD (see the note at the top of that file).
 
 // Composite key for the running-sum basket (ids are uuids but kind-prefixed to be safe)
 const sumKey = (kind, id) => kind + '_' + id;
@@ -61,19 +65,7 @@ const SumTh = () => (
     </th>
 );
 
-// Shipment-finalized badge. The only "finalized" signal in the app is the sales
-// invoice's shipData.fnlzing (Finalizing const: '4568' = Yes, '2587' = No). A
-// finalized shipment means the final invoice has been issued; anything else
-// (No, or unset on older data) is still provisional — i.e. a balance from
-// BEFORE the final invoice. Used on client balances (read straight off the
-// invoice) and supplier balances (mirrored from the linked contract's sales
-// invoice via contract id, wired up in cashflow/page.js).
-// A Final Note doc counts as finalized by itself — issuing the final note IS the
-// finalization; the manual Finalizing flag stays for shipments finalized without one.
-const isFN = (t) => t === '3333' || t === 'Final Note';
-// Purchase invoices carry no invoice-type field — the business convention is an
-// "FN" suffix in the number itself ("0012FN"), so that counts as a final note too.
-const isFNNumber = (no) => /fn\s*$/i.test(String(no || '').trim());
+// Shipment-finalized badge — what counts as finalized is isFN / isFNNumber (totals.js).
 const FinalBadge = ({ fnlzing, invType, invoiceNo }) => {
     const fn = isFN(invType) || isFNNumber(invoiceNo);
     const yes = fnlzing === '4568' || fn;
@@ -160,11 +152,12 @@ export const DraftUseBadge = ({ use }) => {
 export const UnpaidShareBadge = ({ row }) => {
     if (!row?._partlyPaid) return null;
     const unpaid = Number(row._unpaidVal) || 0;
+    const cur = isEuro(row) ? 'eur' : 'usd'; // the lot's own currency, like the line it sits on
     return (
-        <Tltip direction='top' tltpText={`Part of this row is already paid for — ${showAmount(unpaid, 'usd')} of it is still owed to the supplier`}>
+        <Tltip direction='top' tltpText={`Part of this row is already paid for — ${showAmount(unpaid, cur)} of it is still owed to the supplier`}>
             <span className='inline-flex items-center rounded-full px-1.5 shrink-0 cursor-default responsiveTextTable numeric'
                 style={{ ...toneChipStyle(TONES.amber), lineHeight: 1.5 }}>
-                {showAmount(unpaid, 'usd')} unpaid
+                {showAmount(unpaid, cur)} unpaid
             </span>
         </Tltip>
     );
@@ -221,6 +214,25 @@ let showAmount = (x, y) => {
     }).format(x)
 }
 
+/* A detail table's footer figure, per currency. The lines above it are each in their own
+   currency, so the dollar lines and the euro lines are added separately and each sum is
+   printed under its own symbol. They were all one sum under "$": a €117,260.00 invoice
+   read as a $117,260.00 total (GIS #41, 2026-10-07). Where the two currencies meet is the
+   row the table opens from — dollars, the euros in at today's rate.
+   A table of dollar lines only — nearly all of them — prints exactly what it always did. */
+const footMoney = (rows, valueOf, curOf = resolveCur) => {
+    let us = 0, eu = 0, anyUs = false, anyEu = false;
+    for (const r of rows) {
+        const v = Number(valueOf(r)) || 0;
+        if (curOf(r) === 'eu') { eu += v; anyEu = true; } else { us += v; anyUs = true; }
+    }
+    if (!anyEu) return showAmount(us, 'usd');
+    if (!anyUs) return showAmount(eu, 'eur');
+    return <><span className="block">{showAmount(us, 'usd')}</span><span className="block pt-0.5">{showAmount(eu, 'eur')}</span></>;
+};
+// The one currency a set of lines is in, or null when it holds both (no single average).
+const oneCur = (rows) => (rows.some(isEuro) ? (rows.every(isEuro) ? 'eur' : null) : 'usd');
+
 // Round to whole cents (nearest). Money is stored/derived with occasional
 // sub-cent fractions (e.g. a prepayment = percentage * total). Rounding every
 // component before we subtract guarantees Amount - Payment === Balance on screen,
@@ -241,12 +253,16 @@ const byNewestThenPO = (a, b) => (b._ts || 0) - (a._ts || 0)
     || String(a.order ?? '').localeCompare(String(b.order ?? ''), undefined, { numeric: true })
 
 
-export const runStocks = async (uidCollection, settings, yr, contractsData = [], stocksPromise = null) => {
+export const runStocks = async (uidCollection, settings, yr, contractsData = [], stocksPromise = null, eurUsd = EUR_USD_FALLBACK) => {
 
     // Accept a prefetched download so the (large) stocks read can run in parallel
     // with the contracts load instead of starting only after it resolves.
     let stockData = await (stocksPromise || loadAllStockData(uidCollection))
     stockData = stockData.filter(z => z.total !== 0).filter(x => x.draft === undefined || x.draft === false)
+    // Today's EUR→USD for the sums below (totals.js, in dollars). It comes as a
+    // promise so the download never waits for the rate feed; it has answered long before
+    // the ledger has.
+    const rate = Number(await eurUsd) || EUR_USD_FALLBACK
 
 
     let newArr = []
@@ -350,24 +366,8 @@ export const runStocks = async (uidCollection, settings, yr, contractsData = [],
         return rows;
     });
 
-    const unSoldArrTitles = Object.values(
-        unSoldAll.reduce((acc, item) => {
-            if (!item?.order) return acc;
-
-            const supplier = item.supplier;
-            const supplierName = settings.Supplier.Supplier.find(z => z.id === item.supplier)?.nname;
-            const total = Number(item.total) || 0;
-            const cur = item.cur;
-
-            if (!acc[supplier]) {
-                acc[supplier] = { supplier, total: 0, cur, supplierName };
-            }
-
-            acc[supplier].total += total;
-
-            return acc;
-        }, {})
-    );
+    // One line per supplier, in dollars (totals.js).
+    const unSoldArrTitles = unsoldBySupplier(unSoldAll, (id) => settings.Supplier.Supplier.find(z => z.id === id)?.nname, rate);
 
 
     let stocksArrData = [...new Set(stockData.map(x => x.stock))]
@@ -552,20 +552,8 @@ export const runStocks = async (uidCollection, settings, yr, contractsData = [],
     })
 
 
-    const sumupResult = Object.values(sumArr.reduce((acc, item) => {
-        const stock = item.stock || "no_stock";  // Handle cases where stock is undefined
-        if (!acc[stock]) {
-            // If the stock is not yet in the accumulator, initialize it
-            acc[stock] = { ...item };
-        } else {
-            // If the stock is already in the accumulator, sum up qnty and total
-            acc[stock].qnty += item.qnty;
-            acc[stock].total += item.total;
-        }
-        return acc;
-    }, {}));
-
-    const result = sumupResult.filter(z => z.total !== 0);
+    // One line per warehouse, in dollars (totals.js) — the groups above are per currency.
+    const result = warehouseTotals(sumArr, rate).filter(z => z.total !== 0);
 
     ////////////----/////////////////////////////
 
@@ -584,20 +572,7 @@ export const runStocks = async (uidCollection, settings, yr, contractsData = [],
     })
 
 
-    const sumupResult1 = Object.values(sumArr1.reduce((acc, item) => {
-        const stock = item.stock || "no_stock";  // Handle cases where stock is undefined
-        if (!acc[stock]) {
-            // If the stock is not yet in the accumulator, initialize it
-            acc[stock] = { ...item };
-        } else {
-            // If the stock is already in the accumulator, sum up qnty and total
-            acc[stock].qnty += item.qnty;
-            acc[stock].total += item.total;
-        }
-        return acc;
-    }, {}));
-
-    const result1 = sumupResult1.filter(z => z.total !== 0);
+    const result1 = warehouseTotals(sumArr1, rate).filter(z => z.total !== 0);
 
     return { result, result1, stocksArrWithPayment, stocksArrNoPayment, unSoldArrTitles, unSoldAll };
 }
@@ -708,23 +683,6 @@ export const stockHoldInvoices = (row, supRowByKey) => {
         if (inv && (parseFloat(inv.pmnt) || 0) === 0) found.set(key, inv);
     }
     return [...found.values()];
-};
-
-/* Stocks – UnPaid per warehouse — runStocks' result1, re-summed on the page so a hold
-   moves it at once. Held rows are carried beside the active total as _pendingBlnc /
-   _pendingCount, the names the section helpers already read for suppliers and clients.
-   A warehouse whose every row is held stays listed (its total reads 0, its hold does not). */
-export const sumUnpaidStocksByWarehouse = (rows) => {
-    const byStock = {};
-    for (const r of rows) {
-        const w = (byStock[r.stock || 'no_stock'] ||= {
-            stock: r.stock, cur: r.cur, qTypeTable: r.qTypeTable, qnty: 0, total: 0, _pendingBlnc: 0, _pendingCount: 0,
-        });
-        const value = r.total === '-' ? 0 : parseFloat(r.total) || 0;
-        if (r.pending) { w._pendingBlnc += value; w._pendingCount += 1; }
-        else { w.qnty += parseFloat(r.qnty) || 0; w.total += value; }
-    }
-    return Object.values(byStock).filter(w => w.total !== 0 || w._pendingBlnc !== 0);
 };
 
 export const StoclToolTip = ({ stock, stockDataAll, settings, uidCollection, setDateSelect,
@@ -953,8 +911,8 @@ export const StoclToolTip = ({ stock, stockDataAll, settings, uidCollection, set
                                     sat next to a real total, so it read as if it meant something. The
                                     honest figure for this column is the weighted average: what the whole
                                     pile cost per unit, which is total value over total weight. */}
-                                <th className="text-right">{q ? showAmount(v / q, 'usd') : ''}</th>
-                                <th className="text-right">{showAmount(v, 'usd')}</th>
+                                <th className="text-right">{q && oneCur(rows) ? showAmount(v / q, oneCur(rows)) : ''}</th>
+                                <th className="text-right">{footMoney(rows, item => item.total * 1 || 0)}</th>
                                 {onPending && <th></th>}
                             </>);
                         }}
@@ -981,7 +939,7 @@ export const StocksUnSold = ({ supplier, stockDataAllArray, settings, uidCollect
         // Newest lot first (falls back to PO# for ties) so both stock tables read consistently.
         .sort(byNewestThenPO);
     const filteredArr = sortKey ? sortRows(base, sortKey, sortDir) : base;
-    const ttl = showAmount(filteredArr.reduce((sum, item) => sum + item.total * 1, 0) || '', 'usd');
+    const ttl = footMoney(filteredArr, item => item.total * 1 || 0);
 
     const buildSumItem = (z) => ({
         key: sumKey('stock', z.id), id: z.id, kind: 'stock',
@@ -1451,41 +1409,6 @@ export const runInvoices = async (uidCollection, settings, yr, invoicesData = nu
     return dt
 }
 
-export const getTotals = (arr) => {
-    const acc = new Map();
-
-    for (const item of arr) {
-        const ent = item.client;
-        if (!ent) continue;
-
-        // Carry counts forward when re-aggregating an already-summarised array
-        // (the sort handlers re-run getTotals on its own output); only fall back
-        // to the raw shipData flag on the first pass over per-invoice rows.
-        const incTotal = item._finTotal != null ? item._finTotal : 1;
-        const incFinal = item._finTotal != null ? (item._finCount || 0) : ((item.shipData?.fnlzing === '4568' || isFN(item.invType)) ? 1 : 0);
-        // Pending receivables stay out of the active figure — same rule, and same
-        // carried-forward split, as getTotalsSupPayments (see pendingSplit).
-        const split = pendingSplit(item, Number(item.debtBlnc) || 0);
-        if (!acc.has(ent)) {
-            acc.set(ent, {
-                ...item, pending: false, debtBlnc: split.active,
-                _pendingBlnc: split.pending, _pendingCount: split.count,
-                _finCount: incFinal, _finTotal: incTotal,
-            });
-        } else {
-            const existing = acc.get(ent);
-            existing.debtBlnc += split.active;
-            existing._pendingBlnc += split.pending;
-            existing._pendingCount += split.count;
-            existing._finCount += incFinal;
-            existing._finTotal += incTotal;
-            acc.set(ent, existing); // not strictly necessary, but clear
-        }
-    }
-
-    return [...acc.values()];
-};
-
 const setCurFilterData = (arr, settings) => {
 
     let dt = arr.map((x) => {
@@ -1665,15 +1588,14 @@ export const ClientDetails = ({ client, data, type, uidCollection, setDateSelect
                                     <th className="text-left whitespace-nowrap">{label}</th>
                                     <th></th>
                                     <th className="text-right">
-                                        {showAmount(rows.reduce((sum, item) => sum + item.totalAmount, 0), 'usd')}
+                                        {footMoney(rows, item => item.totalAmount)}
                                     </th>
                                     <th className="text-right">
-                                        {showAmount(rows
-                                            .flatMap(item => item.payments || [])
-                                            .reduce((sum, payment) => sum + (parseFloat(payment.pmnt) || 0), 0), 'usd')}
+                                        {footMoney(rows, item => (item.payments || [])
+                                            .reduce((sum, payment) => sum + (parseFloat(payment.pmnt) || 0), 0))}
                                     </th>
                                     <th className="text-right">
-                                        {showAmount(rows.reduce((sum, item) => sum + item.debtBlnc, 0), 'usd')}
+                                        {footMoney(rows, item => item.debtBlnc)}
                                     </th>
                                     <th></th>
                                     <th></th>
@@ -1796,11 +1718,11 @@ export const ClientDetails = ({ client, data, type, uidCollection, setDateSelect
                                     <th className="text-left whitespace-nowrap">{label}</th>
                                     <th></th>
                                     <th className="text-right">
-                                        {showAmount(rows.reduce((sum, item) => sum + item.totalAmount, 0), 'usd')}
+                                        {footMoney(rows, item => item.totalAmount)}
                                     </th>
                                     <th></th>
                                     <th className="text-right">
-                                        {showAmount(rows.reduce((sum, item) => sum + item.totalAmount * (item.percentage / 100), 0), 'usd')}
+                                        {footMoney(rows, item => item.totalAmount * (item.percentage / 100))}
                                     </th>
                                     <th></th>
                                     <th></th>
@@ -1992,65 +1914,12 @@ export const runSupPayments = async (uidCollection, settings, yr, contractsData 
 }
 
 
-/* Pending invoices (payment on hold) stay OUT of every active total — the supplier
-   header, the section total, the Suppliers-due card, the left/right balance — and are
-   carried beside it as _pendingBlnc / _pendingCount so each place can still say how
-   much is on hold (client, 2026-09-24). Everything on the page is summed from what
-   these two functions return, so this is the one place the rule has to live.
-   A raw row reads its own `pending` flag; an already-aggregated row (the sort handlers
-   re-run these on their own output) carries its split forward unchanged. */
-const pendingSplit = (item, value) => {
-    if (item._finTotal != null) {
-        return { active: value, pending: Number(item._pendingBlnc) || 0, count: item._pendingCount || 0 };
-    }
-    return item.pending
-        ? { active: 0, pending: value, count: 1 }
-        : { active: value, pending: 0, count: 0 };
-};
-
-export const getTotalsSupPayments = (arr) => {
-
-    let totalBySupplier = Object.values(arr.reduce((acc, item) => {
-        const supplier = item.supplier;
-        const blncValue = item.cur === 'us' ? parseFloat(item.blnc) : parseFloat(item.blnc * item.euroToUSD);
-        const split = pendingSplit(item, blncValue);
-        // Idempotent under re-aggregation (sort handlers re-run this on its own
-        // output): carry forward existing counts, else derive from the raw flag.
-        const incTotal = item._finTotal != null ? item._finTotal : 1;
-        const incFinal = item._finTotal != null ? (item._finCount || 0)
-            : ((item.fnlzing === '4568' || isFNNumber(item.invoice)) ? 1 : 0);
-        if (!acc[supplier]) {
-            // Seed with the PARSED, currency-converted balance — never the raw field.
-            // AI-imported purchase invoices store blnc as a string, and seeding the
-            // raw value made later `+=` STRING-CONCATENATE (a $31,500 + $12,345 pair
-            // displayed as $31,50012,345…) and skipped the EUR→USD conversion.
-            acc[supplier] = {
-                ...item, pending: false, blnc: split.active,
-                _pendingBlnc: split.pending, _pendingCount: split.count,
-                _finCount: incFinal, _finTotal: incTotal,
-            };
-        } else {
-            acc[supplier].blnc += split.active;
-            acc[supplier]._pendingBlnc += split.pending;
-            acc[supplier]._pendingCount += split.count;
-            acc[supplier]._finCount += incFinal;
-            acc[supplier]._finTotal += incTotal;
-        }
-
-        return acc;
-    }, {}));
-
-
-    return totalBySupplier//.map(([supplier, blnc]) => ({ supplier, blnc }));
-}
-
-
 /* Pending — a payment on hold (client, 2026-09-24).
 
    An invoice marked pending stays in its table, faded, but is left out of every active
    total and due figure: the header beside the supplier or client name, the section
    total, the top Clients due / Suppliers due cards and the left/right balance (see
-   pendingSplit). Each table closes with a faded "Pending (n)" line above its "Total (n)".
+   totals.js pendingSplit). Each table closes with a faded "Pending (n)" line above its "Total (n)".
 
    It took over the Status column from the RDY / TRN cargo status, which the client
    dropped for now ("at this stage we don't need the status Ready/Transit"). What was
@@ -2270,13 +2139,13 @@ export const SupplierDetails = ({ supplier, data, uidCollection, setDateSelect,
                             <th className="text-left whitespace-nowrap">{label}</th>
                             <th></th>
                             <th className="text-right">
-                                {showAmount(rows.reduce((sum, item) => sum + item.invValue * 1, 0), 'usd')}
+                                {footMoney(rows, item => item.invValue)}
                             </th>
                             <th className="text-right">
-                                {showAmount(rows.reduce((sum, item) => sum + item.pmnt * 1, 0), 'usd')}
+                                {footMoney(rows, item => item.pmnt)}
                             </th>
                             <th className="text-right">
-                                {showAmount(rows.reduce((sum, item) => sum + item.blnc * 1, 0), 'usd')}
+                                {footMoney(rows, item => item.blnc)}
                             </th>
                             <th></th>
                             <th></th>
@@ -2304,7 +2173,7 @@ export const SupplierDetails = ({ supplier, data, uidCollection, setDateSelect,
 
 //Expenses
 
-export const runExpenses = async (uidCollection, settings, yr) => {
+export const runExpenses = async (uidCollection, settings, yr, eurUsd = EUR_USD_FALLBACK) => {
 
     //let dt = await loadData(uidCollection, 'expenses', { start: `${yr}-01-01`, end: `${yr}-12-31` });
     let dt = await Promise.all(
@@ -2345,19 +2214,10 @@ export const runExpenses = async (uidCollection, settings, yr) => {
 
     dt = dt.filter(z => z && z.paid === '222')
 
-    let totalBySupplier = Object.entries(
-        dt.reduce((acc, item) => {
-            const supplier = item.supplier;
-            const pmntValue = parseFloat(item.amount);
-            let mult = item.cur === 'us' ? 1 : 1.08
-            // Accumulate pmnt values by supplier
-            acc[supplier] = (acc[supplier] || 0) + pmntValue * mult;
-            return acc;
-        }, {})
-    );
-
-    // Convert the result to an array of objects with supplier and pmnt fields
-    totalBySupplier = totalBySupplier.map(([supplier, amount]) => ({ supplier, amount }));
+    // Each vendor's unpaid total in DOLLARS, a euro expense at today's rate (totals.js).
+    // The rate comes as a promise so the two reads above never wait for the rate feed.
+    const rate = Number(await eurUsd) || EUR_USD_FALLBACK
+    const totalBySupplier = vendorTotals(dt, rate);
 
     return { totalBySupplier, dt };
 

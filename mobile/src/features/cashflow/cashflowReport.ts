@@ -1,4 +1,6 @@
 import { resolveInvoiceDate } from '@shared/pureHelpers';
+import { fx } from '@shared/finance';
+import type { EurUsd } from '@/features/prices/eurUsd';
 import type { CashflowData, Counterparty } from './useCashflow';
 
 /*
@@ -9,8 +11,9 @@ import type { CashflowData, Counterparty } from './useCashflow';
  *
  * Built ONLY from what the Cashflow screen already computed (useCashflow), so every figure
  * reconciles with the screen by construction: a party's figure is its active figure, holds
- * are carried beside it (web pendingSplit), and currencies are never added together — a
- * client's $ and € stay two amounts. Pure; tested in __tests__/cashflowReport.mobile.test.ts.
+ * are carried beside it (web pendingSplit). Every total is in dollars, as on the screen — a
+ * euro amount at the rate the screen used (`fx`, 2026-10-07) — and the receivables are also
+ * listed per currency as booked. Pure; tested in __tests__/parity/cashflow-report-mobile.test.ts.
  */
 
 export type ByCur = Record<string, number>;
@@ -21,9 +24,12 @@ export interface ReportRow { section: string; party: string; ref: string; po: st
 
 export interface CashflowReport {
   asOf: string;
+  /** The EUR→USD the screen's euro amounts went in at, and whether any figure holds euros. */
+  fx: EurUsd & { hasEuro: boolean };
   /** Admin only — the page shows the position to admins only. */
   position: { left: { label: string; usd: number }[]; right: { label: string; usd: number }[]; totalLeft: number; totalRight: number; balance: number } | null;
-  receivables: { byCur: ByCur; pendingByCur: ByCur; aging: AgingBucket[]; undated: AgingBucket; parties: ReportParty[] };
+  /** `usd` is the screen's Clients due; `byCur` the same balances per currency as booked. */
+  receivables: { usd: number; byCur: ByCur; pendingByCur: ByCur; aging: AgingBucket[]; undated: AgingBucket; parties: ReportParty[] };
   payables: { usd: number; pendingUsd: number; parties: ReportParty[] };
   stock: { paidUsd: number; unpaidUsd: number; pendingUsd: number; warehouses: { name: string; paidUsd: number; unpaidUsd: number; lots: number }[] };
   expenses: { usd: number; parties: ReportParty[] };
@@ -77,7 +83,7 @@ export function buildCashflowReport(
       const ref = `${it.number ?? ''}${it.marker || ''}`;
       rows.push({ section: 'Receivables', party: c.name, ref, po: it.order || '', date, description: '', cur: it.cur, amount: Number(it.amount) || 0, balance: Number(it.balance) || 0, status: it.pending ? 'Pending' : '' });
       if (it.pending) {
-        holds.push({ kind: 'Client invoice', party: c.name, ref, cur: it.cur, amount: Number(it.balance) || 0, usd: 0 });
+        holds.push({ kind: 'Client invoice', party: c.name, ref, cur: it.cur, amount: Number(it.balance) || 0, usd: Number(it.usd) || 0 });
         return;
       }
       const bal = Number(it.balance) || 0;
@@ -123,7 +129,7 @@ export function buildCashflowReport(
       whMap.set(w.stock, e);
       w.items.forEach((l) => {
         rows.push({ section: paid ? 'Stocks - Paid' : 'Stocks - UnPaid', party: name, ref: '', po: l.order, date: '', description: l.description, cur: l.cur, amount: l.total, balance: l.total, status: l.pending ? 'Pending' : '' });
-        if (l.pending) holds.push({ kind: 'Stock', party: name, ref: `PO ${l.order || '—'} · ${l.description}`, cur: l.cur, amount: l.total, usd: 0 });
+        if (l.pending) holds.push({ kind: 'Stock', party: name, ref: `PO ${l.order || '—'} · ${l.description}`, cur: l.cur, amount: l.total, usd: fx(l.total, l.cur, data.fx.rate) });
       });
     });
   stockRows(data.stocksPaid, true);
@@ -164,10 +170,14 @@ export function buildCashflowReport(
       }
     : null;
 
+  // Said on the report only when a figure on it holds euros.
+  const hasEuro = rows.some((x) => x.cur === 'eu');
+
   return {
     asOf: asOf.toISOString().slice(0, 10),
+    fx: { ...data.fx, hasEuro },
     position,
-    receivables: { byCur: { ...data.receivablesByCur }, pendingByCur: receivablesPending, aging, undated, parties: mergeParties([receivableCounterparties]) },
+    receivables: { usd: data.kpi.clientsDue, byCur: { ...data.receivablesByCur }, pendingByCur: receivablesPending, aging, undated, parties: mergeParties([receivableCounterparties]) },
     payables: { usd: data.payablesUsd, pendingUsd: payablesPendingUsd, parties: mergeParties([supplierCounterparties]) },
     stock: {
       paidUsd: data.stocksPaidTotal,
@@ -180,7 +190,7 @@ export function buildCashflowReport(
       byCur: { ...data.unsoldByCur },
       parties: data.unsoldBySupplier.map((u) => ({ name: u.name, cur: u.cur, total: u.total, lines: u.items.length })).sort((a, b) => b.total - a.total),
     },
-    holds: holds.sort((a, b) => Math.abs(b.usd || b.amount) - Math.abs(a.usd || a.amount)),
+    holds: holds.sort((a, b) => Math.abs(b.usd) - Math.abs(a.usd)), // every hold is in dollars now
     rows,
   };
 }

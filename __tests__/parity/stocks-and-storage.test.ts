@@ -247,7 +247,11 @@ const HASH = {
   // Re-recorded again 2026-09-21: both quantity paths (the unsold-contract-line one and
   // the inventory-total one) now subtract settlementReduction; mobile's computeUnsoldWeb
   // (useCashflow.ts) and computeInventory carry the same term.
-  runStocks: '6ea75924f563', // app/(root)/cashflow/funcs.js:244
+  // Re-recorded 2026-10-07 (was 6ea75924f563): no netting moved — the per-warehouse and
+  // per-supplier sums at the end now come from cashflow/totals.js (warehouseTotals,
+  // unsoldBySupplier) in DOLLARS, a euro lot at the page's live EUR→USD instead of added
+  // as it stood. Mobile's splitStocksPaidUnpaid / computeUnsoldWeb take the same rate.
+  runStocks: '7ea6cfc580d7', // app/(root)/cashflow/funcs.js:256
   staleDays: 'a2e0c4822268', // app/(root)/stocks/storageAging.js:11
   // Re-recorded 2026-09-09: DEMURRAGE_DAYS renamed to LONG_STAY_DAYS — the value
   // (90) is unchanged, but "demurrage" implied a specific shipping-contract charge
