@@ -1,4 +1,5 @@
 import { gradeKeyOf, gradeLabel, niRangeLabel } from './sumtables/gradeKey'
+import { UNIT_TO_MT } from '../../../utils/finance'
 
 /* Lines vs grades.
 
@@ -36,7 +37,11 @@ export const groupByGrade = (rows) => {
   const join = (arr) => arr.length <= 2 ? arr.join(', ') : `${arr[0]} +${arr.length - 1}`;
 
   return Object.values(groups).map(g => {
-    const qnty = g.lines.reduce((s, r) => s + (parseFloat(r.qnty) || 0), 0);
+    // One unit per row: the lines' own when they share it; MT when they do not, each line
+    // converted first — a line kept in kg is not that many tonnes (2026-10-07).
+    const units = uniq(g.lines.map(r => r.qTypeTable || 'MT'));
+    const mixed = units.length > 1;
+    const qnty = g.lines.reduce((s, r) => s + (parseFloat(r.qnty) || 0) * (mixed ? (UNIT_TO_MT[r.qTypeTable] ?? 1) : 1), 0);
     const total = g.lines.reduce((s, r) => s + (r.total === '-' ? 0 : parseFloat(r.total) || 0), 0);
     const base = gradeLabel(g.synth, [...g.spellings]);
     const span = g.synth ? niRangeLabel(g.niValues) : '';
@@ -49,7 +54,7 @@ export const groupByGrade = (rows) => {
       stock: join(uniq(g.lines.map(r => r.stock))),
       descriptionName: span ? `${base} · ${span}` : base,
       qnty,
-      qTypeTable: uniq(g.lines.map(r => r.qTypeTable))[0] || '',
+      qTypeTable: mixed ? 'MT' : (uniq(g.lines.map(r => r.qTypeTable))[0] || ''),
       // Weighted, not the mean of the lines' own unit prices.
       unitPrc: qnty > 0 ? total / qnty : 0,
       total,

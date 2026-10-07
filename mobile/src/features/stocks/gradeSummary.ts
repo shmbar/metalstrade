@@ -10,6 +10,7 @@
 // ordered alphabetically instead of by money.
 import { resolveGrade, GradeIndex } from '@shared/grades';
 import { gradeKeyOf, niRangeLabel, gradeLabel } from '@shared/gradeKey';
+import { toMT } from '@shared/finance';
 
 /** One lot line behind a grade row: this description, from this supplier. */
 export interface GradeLot {
@@ -73,7 +74,8 @@ export function computeGradeSummary(
       };
     }
     const g = groups[key];
-    const qty = parseFloat(row.qnty) || 0;
+    // In MT — the card is per MT, and a line kept in kg is not that many tonnes (web gradeTable.js).
+    const qty = toMT(parseFloat(row.qnty) || 0, row, settings);
     const val = row.total === '-' ? 0 : parseFloat(row.total) || 0;
     g.totalQnty += qty;
     g.totalValue += val;

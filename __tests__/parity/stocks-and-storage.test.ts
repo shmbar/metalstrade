@@ -85,6 +85,8 @@ import { computeGradeSummary as mobileGradeSummary } from '@/features/stocks/gra
 // mirror transcribing them again would add rot, not coverage.
 import { gradeKeyOf as webGradeKeyOf, niRangeLabel as webNiRangeLabel, gradeLabel as webGradeLabel } from '../../app/(root)/stocks/sumtables/gradeKey.js';
 import { resolveGrade as webResolveGrade, buildGradeIndex } from '../../utils/grades.js';
+// @ts-ignore — plain JS module
+import { toMT as webToMT } from '../../utils/finance.js';
 import { specText as webSpecText } from '../../app/(root)/stocks/specs.js';
 import {
   DAY as MOBILE_DAY,
@@ -201,7 +203,11 @@ const HASH = {
   // of the three — its card listed every spelling separately, alphabetically. The
   // mirror above now matches web line for line, mobile's gradeSummary.ts was rewritten
   // against it, and the Tier-3 block below asserts fold, declared-grade and ordering.
-  gradeSummary: '1121c3c00ecc', // app/(root)/stocks/sumtables/gradeTable.js:35
+  // Re-recorded 2026-10-07 (was 1121c3c00ecc): a line's quantity is taken in MT
+  // (finance.toMT) — the card is per MT and Hf Ni VAR's 660 kg counted as 660 MT.
+  // Mobile's gradeSummary.ts converts at the same line; the mirror above does too, and
+  // "a line kept in kg counts in MT" below compares the two.
+  gradeSummary: '7d4cc9c546a4', // app/(root)/stocks/sumtables/gradeTable.js:40
   buildAudit: '8475451a4c58', // app/(root)/stocks/stockAudit.js:35
   resolveDescName: '826bf84cceac', // app/(root)/stocks/stockAudit.js:21
   filteredArray: '2c0d632f5d81', // utils/utils.js:207
@@ -584,7 +590,8 @@ const webComputeGradeSummary = (dataTable: any[], settings: any, gradeIndex: any
       };
     }
     const g = groups[key];
-    const qty = parseFloat(row.qnty) || 0;
+    // 2026-10-07: in MT, each line from its own unit — gradeTable.js, verbatim.
+    const qty = webToMT(parseFloat(row.qnty) || 0, row, settings);
     const val = row.total === '-' ? 0 : parseFloat(row.total) || 0;
     g.totalQnty += qty;
     g.totalValue += val;
@@ -1698,12 +1705,27 @@ describe('Tier 3 — avg cost per grade (sumtables/gradeTable.js computeGradeSum
   });
 
   it('a "-" valued lot adds tonnage but no value, dragging the grade average down', () => {
-    // gradeTable.js:29 `row.total === '-' ? 0 : …` with :28 counting the quantity.
-    const rws = rows();
-    const mo = mobileGradeSummary(rws, SETTINGS).find((g: any) => g.descriptionName === 'Mo Scrap')!;
+    // gradeTable.js `row.total === '-' ? 0 : …` while the quantity still counts. Its own
+    // row since 2026-10-07: the fixture's Mo Scrap lot is 5 KGS, which is 0.005 MT now —
+    // under the card's 0.1 MT floor, so it is (rightly) no longer listed at all.
+    const rws = [{ descriptionName: 'Mo Scrap', cur: 'us', supplier: 'sup-1', qnty: 5, qTypeTable: 'q-mt', total: '-' }];
+    const mo = mobileGradeSummary(rws as any, SETTINGS)[0];
     expect(mo.totalQnty).toBe(5);
     expect(mo.totalValue).toBe(0);
     expect(mo.avgPrice).toBe(0);
+    expect(webComputeGradeSummary(rws, SETTINGS).map(webPick)).toEqual([pick(mo)]);
+  });
+
+  it('a line kept in kg counts in MT, so the per-MT average means what it says (2026-10-07)', () => {
+    // Hf Ni VAR, IMS PO 190626-2-TIM: 660 kg was 660 "MT" on this card.
+    const rws = [
+      { descriptionName: 'Hf Ni VAR', cur: 'us', supplier: 'sup-1', qnty: 660, qTypeTable: 'q-kgs', total: 2321794.2 },
+      { descriptionName: 'Hf Ni VAR', cur: 'us', supplier: 'sup-2', qnty: 0.5, qTypeTable: 'q-mt', total: 1500000 },
+    ];
+    const hf = mobileGradeSummary(rws as any, SETTINGS)[0];
+    expect(hf.totalQnty).toBeCloseTo(1.16, 9);
+    expect(hf.avgPrice).toBeCloseTo((2321794.2 + 1500000) / 1.16, 6);
+    expect(webComputeGradeSummary(rws, SETTINGS).map(webPick)).toEqual([pick(hf)]);
   });
 
   it('a grade totalling 0.1 or less is not reported', () => {

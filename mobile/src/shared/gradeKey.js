@@ -45,6 +45,29 @@ const titleElement = (sym) => {
   return hit || sym
 }
 
+/* "IN 100" is "IN100", "Ni 200" is "Ni200": a short letter prefix and the number after
+   it are one alloy code however it was spaced. Client, 2026-10-07: ELG Utica's
+   "IN100 off spec Turnings" and "IN 100 off spec Turnings" listed as two grades. */
+const joinCodes = (words) => {
+  const out = []
+  for (let i = 0; i < words.length; i++) {
+    const w = words[i], next = words[i + 1]
+    if (/^[A-Za-z]{1,4}$/.test(w) && next && /^\d+$/.test(next)) { out.push(w + next); i++ }
+    else out.push(w)
+  }
+  return out
+}
+
+/* One spelling per word: case, a trailing full stop, and the plural — "off specs
+   Turnings" is "off spec Turnings" (client, 2026-10-07: R88 and 718 off spec(s) Turnings
+   each split in two). Only a word of 4+ letters ending in a single "s" loses it, so
+   "ss", "gas" and "bus" stay as typed. */
+const normWord = (w) => {
+  let x = w.toLowerCase().replace(/\.$/, '')
+  if (/^[a-z]{4,}$/.test(x) && x.endsWith('s') && !x.endsWith('ss')) x = x.slice(0, -1)
+  return x
+}
+
 /* Returns { key, label, ni } — key groups, label names the group, ni is the Ni
    percentage this description declared. `label` is null when the original
    description should be used as the name (the usual case); it is set only where the
@@ -82,13 +105,17 @@ export const gradeKeyOf = (description) => {
     label = [seq, ...form].join(' ')
     words = [seq, ...form]
   } else {
-    words = s.replace(/[/_]/g, '-').split(/[^A-Za-z0-9.\-]+/).filter(Boolean)
+    words = joinCodes(s.replace(/[/_]/g, '-')
+      // "off-spec" is "off spec": a hyphen between two words joins nothing a space does
+      // not. Kept between figures and inside alloy codes ("Ti 6-4", "Ti-6Al-4V").
+      .replace(/\b([A-Za-z]{2,})-(?=[A-Za-z]{2,}\b)/g, '$1 ')
+      .split(/[^A-Za-z0-9.\-]+/).filter(Boolean))
   }
 
-  /* Sorted, lower-cased tokens: the key must not care about word order, because the
+  /* Sorted, normalised tokens: the key must not care about word order, because the
      same grade is typed both ways ("718 off grade Turnings" / "718 Turnings off
-     grade", "Fines Mix" / "Mix Fines"). */
-  const key = words.map(w => w.toLowerCase().replace(/\.$/, '')).sort().join(' ')
+     grade", "Fines Mix" / "Mix Fines"), nor about a plural (normWord). */
+  const key = words.map(normWord).sort().join(' ')
   const niEl = elements.find(e => e.sym === 'Ni')
   return { key, label, ni: collapsible && Number.isFinite(niEl?.num) ? niEl.num : null }
 }

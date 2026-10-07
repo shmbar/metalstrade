@@ -8,6 +8,7 @@ import Tltip from '../../../../components/tlTip'
 import ChemistryPopover from '../../../../components/ChemistryPopover'
 import { resolveGrade, specBreakdown } from '../../../../utils/grades'
 import { gradeKeyOf, gradeLabel, niRangeLabel } from './gradeKey'
+import { toMT } from '../../../../utils/finance'
 
 /* The four figure columns are bounded — each is sized to the wider of its header and
    its values — and Description is the one free-text column, so under table-layout:fixed
@@ -61,7 +62,8 @@ export const computeGradeSummary = (dataTable, settings, gradeIndex = null) => {
       }
     }
     const g = groups[key]
-    const qty = parseFloat(row.qnty) || 0
+    // In MT — the card is per MT, and a line kept in kg is not that many tonnes (2026-10-07).
+    const qty = toMT(parseFloat(row.qnty) || 0, row, settings)
     const val = row.total === '-' ? 0 : parseFloat(row.total) || 0
     g.totalQnty += qty
     g.totalValue += val
