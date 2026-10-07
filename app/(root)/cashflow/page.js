@@ -271,6 +271,18 @@ const Cashflow = () => {
     const [financedRight, setFinancedRight] = useState([])
     const [totalRight, setTotalRight] = useState('')
 
+    /* Whether Total Balance may be shown yet. Left and right are added up from reads
+       that land at different times: Financing comes from the small `cashflow` document,
+       which arrives first, while Incoming, stocks, client and supplier balances and
+       expenses follow from the big reads. Shown as they came in, the card counted down
+       to minus the Financing, swung through −$85M on a refresh, and only then climbed
+       to the real balance (client, 2026-10-07: "it starts counting from minus").
+       balancesLoaded = the cashflow document is in; flowsLoaded = Load() has finished;
+       balanceReady = both, set by the effect after the two totals effects below. */
+    const [balancesLoaded, setBalancesLoaded] = useState(false)
+    const [flowsLoaded, setFlowsLoaded] = useState(false)
+    const [balanceReady, setBalanceReady] = useState(false)
+
     // Party names for the section rows. entityName falls back past a missing
     // short name and labels an id that no longer resolves, so no row can render
     // as a nameless dot.
@@ -386,6 +398,7 @@ const Cashflow = () => {
             setFinancedLeft(inData.financed?.financedLeft || [])
 
             setFinancedRight(inData.financed?.financedRight || [])
+            setBalancesLoaded(true)
 
             setTotalYrs([
                 Object.fromEntries(
@@ -404,6 +417,8 @@ const Cashflow = () => {
 
         const Load = async () => {
             setLoading(true)
+            // A reload (another year range) mixes old and new sections until it ends.
+            setFlowsLoaded(false)
 
             // All independent Firestore reads start in parallel; each processing step
             // below awaits only what it needs. Raw invoices are loaded ONCE and shared
@@ -515,6 +530,7 @@ const Cashflow = () => {
             setExpenses(expenses.totalBySupplier.sort((a, b) => b.amount - a.amount))
             setExpensesAll(expenses.dt.map(x => ({ ...x, checked: false })))
 
+            setFlowsLoaded(true)
             setLoading(false)
         }
 
@@ -568,6 +584,14 @@ const Cashflow = () => {
 
 
     }, [financedRight, expenses, supPayments2, supPayments1])
+
+    // Declared AFTER the two totals effects on purpose. Effects run in the order they are
+    // declared, and React renders the state they set together: when the last input lands,
+    // its total and this flag reach the screen in the same render. A flag worked out
+    // during render would be one render early — showing the total from before that input.
+    useEffect(() => {
+        setBalanceReady(balancesLoaded && flowsLoaded)
+    }, [balancesLoaded, flowsLoaded])
 
 
     const removeNonNumeric = (num) => num.toString().replace(/[^0-9.]/g, "");
@@ -1429,12 +1453,17 @@ const Cashflow = () => {
     ) : undefined;
     const expensesKpi = (expenses || []).reduce((t, o) => t + (parseFloat(o.amount) || 0), 0);
     const fmtUsd = (n) => moneyFull('us', n); // "-$1,234.00", not "$-1,234.00"
+    // Until every input is in (balanceReady), a loading bar stands where the figure goes.
+    // Once it is, the figure counts up from zero to the real balance.
+    const balanceKpi = (totalLeft || 0) - (totalRight || 0);
     const kpiItems = [
         ...(isAdmin ? [{
             label: 'Total Balance',
-            value: (totalLeft || 0) - (totalRight || 0),
+            value: balanceReady
+                ? balanceKpi
+                : <span className="skel rounded-lg inline-block align-middle" style={{ width: 112, height: 14 }} role="status" aria-label="Loading the balance" />,
             format: fmtUsd, icon: Banknote,
-            tone: ((totalLeft || 0) - (totalRight || 0)) >= 0 ? 'green' : 'red',
+            tone: !balanceReady ? 'gray' : balanceKpi >= 0 ? 'green' : 'red',
             sub: 'Left − right totals',
         }] : []),
         { label: 'Clients due', value: clientsDueKpi, format: fmtUsd, icon: Users, tone: 'blue', sub: pendingSub(clientsPendingKpi) },
