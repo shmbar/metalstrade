@@ -3,7 +3,7 @@ import { statusTone, amountToneClass, amountToneColor, TONES } from '../statusUt
 
 describe('statusTone', () => {
     it('maps positive / done statuses to green', () => {
-        ['Paid', 'Final', 'Finished', 'Closed', 'Shipped', 'Completed', 'Delivered', 'Active', 'Approved']
+        ['Paid', 'Final', 'Finished', 'Closed', 'Shipped', 'Completed', 'Delivered', 'Active', 'Approved', 'Issued']
             .forEach(s => expect(statusTone(s), s).toBe('green'));
     });
 

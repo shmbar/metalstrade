@@ -5,7 +5,7 @@ import { useSettings } from '@/store/settings';
 import { loadData } from '@/data/firestore';
 import { saveSalesContract, deleteSalesContract, SALES_CONTRACT_REQUIRED } from '@/data/writes';
 import { num } from '@shared/finance';
-import { invoiceQtyBySalesContract } from '@shared/salesLink';
+import { invoiceQtyBySalesContract, settledInvoices } from '@shared/salesLink';
 import { arr } from '@/lib/guard';
 import { useShallow } from 'zustand/react/shallow';
 
@@ -29,10 +29,10 @@ export function useSalesContracts() {
         const invoices = await loadData<any>(uid, 'invoices', { start: `${minY}-01-01`, end: `${maxY}-12-31` });
         // Per LINE — an invoice can cover several client POs, with the split recorded
         // on its rows. @shared/salesLink is the verbatim port of utils/salesLink.js,
-        // so mobile and web credit shipped tonnage identically.
-        invoices
-          .filter((inv) => inv && !inv.canceled)
-          .forEach((inv) => {
+        // so mobile and web credit shipped tonnage identically — each invoice once, as
+        // it stands: a Final Note replaces its invoice rather than shipping it again.
+        settledInvoices(invoices)
+          .forEach((inv: any) => {
             const byQty = invoiceQtyBySalesContract(inv);
             for (const scId of Object.keys(byQty)) {
               shipped[scId] = (shipped[scId] || 0) + byQty[scId];

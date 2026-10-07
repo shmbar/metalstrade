@@ -4,7 +4,7 @@ import { useAuth } from '@/store/auth';
 import { useSettings } from '@/store/settings';
 import { loadData, loadActivity } from '@/data/firestore';
 import { updateContractField, updateInvoiceField, logEvent } from '@/data/writes';
-import { toIsoDate } from '@shared/pureHelpers';
+import { toIsoDate, heldDraftIds } from '@shared/pureHelpers';
 import { Contract, Invoice } from '@/data/types';
 import { normalizeStatus } from '@shared/shipmentStatus';
 import { matchesAllWords, searchWords, shownAs } from '@shared/search';
@@ -119,15 +119,25 @@ const unitFromLabel = (label: string): string => {
  * invoice contributes 0 MT the way the Inventory tab treats it.
  */
 export function buildShipmentQtyMap(invoices: any[]): Record<string, { shipped: number; shipments: ShipmentLine[] }> {
-  const byContract: Record<string, Map<string, any>> = {};
+  // A note still saved as a draft does not stand in for the invoice it would replace: the
+  // shipment is the one that was issued. Worked out per contract, as web does over each
+  // contract's own documents (shared heldDraftIds, 2026-10-07).
+  const docsOf: Record<string, any[]> = {};
   (invoices || []).filter(Boolean).forEach((d: any) => {
     const cid = d.poSupplier?.id;
-    if (!cid) return;
-    if (!byContract[cid]) byContract[cid] = new Map();
-    const key = String(d.invoice ?? d.id);
-    const prev = byContract[cid].get(key);
-    // web page.js:63 'supersedes' — a STRING comparison on invType, kept verbatim.
-    if (!prev || String(d.invType || '') > String(prev.invType || '')) byContract[cid].set(key, d);
+    if (cid) (docsOf[cid] ||= []).push(d);
+  });
+  const byContract: Record<string, Map<string, any>> = {};
+  Object.entries(docsOf).forEach(([cid, docs]) => {
+    const held = heldDraftIds(docs);
+    byContract[cid] = new Map();
+    docs.forEach((d: any) => {
+      if (held.has(d.id)) return;
+      const key = String(d.invoice ?? d.id);
+      const prev = byContract[cid].get(key);
+      // web page.js:63 'supersedes' — a STRING comparison on invType, kept verbatim.
+      if (!prev || String(d.invType || '') > String(prev.invType || '')) byContract[cid].set(key, d);
+    });
   });
 
   const out: Record<string, { shipped: number; shipments: ShipmentLine[] }> = {};

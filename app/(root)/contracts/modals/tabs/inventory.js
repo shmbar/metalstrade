@@ -2,6 +2,7 @@ import React, { useContext, useEffect, useState } from 'react'
 import { ContractsContext } from "@contexts/useContractsContext";
 import { SettingsContext } from "@contexts/useSettingsContext";
 import { getD, getInvoices, loadStockData } from '@utils/utils'
+import { heldDraftIds, resolveInvoiceDate } from '@utils/finance'
 import { UserAuth } from "@contexts/useAuthContext";
 import dateFormat from "dateformat";
 import { getTtl } from '@utils/languages';
@@ -47,8 +48,13 @@ const sumTotalsCon = (value, name) => {
 }
 
 
-const getReduced = (dt) => {
+const getReduced = (docs) => {
     let arr = []
+
+    // A note still saved as a draft does not stand in for the invoice it would replace:
+    // what shipped is what was issued — and what left the stock (finance.js heldDraftIds).
+    const held = heldDraftIds(docs)
+    const dt = docs.filter(x => !held.has(x.id))
 
     for (const obj of dt) {
 
@@ -60,9 +66,13 @@ const getReduced = (dt) => {
     }
     // Order by date, then by invoice number as a numeric tie-break so invoices that
     // share the same date still appear in logical numbering order (1, 2, 10 — not 1, 10, 2).
-    arr = arr.map(x => ({ ...x, d: x.final ? x.date : x.date.startDate })).sort((a, b) => {
-        const dateA = new Date(a.d).getTime();
-        const dateB = new Date(b.d).getTime();
+    // The invoice's own date. Every document keeps it as a plain string today (older ones
+    // as the picker's { startDate } pair — resolveInvoiceDate reads both). This read
+    // `x.date.startDate` off the string, which is undefined: the Date column printed
+    // TODAY's date on every invoice, and the sort below had nothing to go on.
+    arr = arr.map(x => ({ ...x, d: resolveInvoiceDate(x) || x.date?.startDate || '' })).sort((a, b) => {
+        const dateA = new Date(a.d).getTime() || 0;
+        const dateB = new Date(b.d).getTime() || 0;
         if (dateA !== dateB) return dateA - dateB;
         return String(a.invoice ?? '').localeCompare(String(b.invoice ?? ''), undefined, { numeric: true });
     });
@@ -146,7 +156,7 @@ const Inventory = () => {
         return x === 'client' ? <NameCell name={obj.final ? obj.client.nname :
             settings.Client.Client.find(z => z.id === obj.client)?.nname} /> :
             x === 'invoice' ? obj[x] + getprefixInv(obj) :
-                x === 'd' ? dateFormat(obj.d, 'dd-mmm-yyyy') :
+                x === 'd' ? (obj.d ? dateFormat(obj.d, 'dd-mmm-yyyy') : '') :
                     x === 'shipped' ? obj.canceled ? 0 : frm(obj.productsDataInvoice.map(x => x.qnty)
                         .reduce((accumulator, currentValue) => accumulator + currentValue * 1, 0)) :
                         x === 'remaining' ?

@@ -31,7 +31,8 @@ export const EXD = (dataTable, settings, name, ln) => {
             { key: 'ToCr', header: 'Cr', width: 30, style: styles },
             { key: 'ToMo', header: 'Mo', width: 30, style: styles },
             { key: 'Toqnty', header: 'Weight MT', width: 30, style: styles },
-            { key: 'invoice', header: 'Delivery Terms', width: 30, style: styles },
+            // "IMS ref", as the page heads it — this column was labelled "Delivery Terms".
+            { key: 'invoice', header: 'IMS ref', width: 30, style: styles },
             { key: 'BackNi', header: 'Ni', width: 30, style: styles },
             { key: 'BackCr', header: 'Cr', width: 30, style: styles },
             { key: 'BackMo', header: 'Mo', width: 30, style: styles },

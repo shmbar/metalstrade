@@ -1,6 +1,7 @@
 'use client';
-import { useContext, useEffect, useState, useCallback, useMemo , useRef } from 'react';
+import { useContext, useEffect, useLayoutEffect, useState, useCallback, useMemo , useRef } from 'react';
 import Customtable from '../contracts/newTable';
+import { forgetSavedFilter } from '@components/table/useTablePrefs';
 import MyDetailsModal from './modals/dataModal.js'
 import { SettingsContext } from "../../../contexts/useSettingsContext";
 import MonthSelect from '../../../components/monthSelect';
@@ -34,6 +35,8 @@ import dynamic from 'next/dynamic';
 const ReminderModal = dynamic(() => import('../../../components/invoices/ReminderModal'), { ssr: false });
 import StatusBadge from '../../../components/StatusBadge';
 import CurrencyChip from '../../../components/CurrencyChip';
+import { curCode } from '../../../utils/currency';
+import { invoiceStatus } from '../../../utils/finance';
 import { Bell, Split, Receipt, FileCheck2, FilePen, FileX2 } from 'lucide-react';
 import KpiStrip from '../../../components/KpiStrip';
 import ProgressBar from '../../../components/ProgressBar';
@@ -51,6 +54,20 @@ const Invoices = () => {
 	const { setValueCon } = useContext(ContractsContext);
 	const router = useRouter();
 	const searchParams = useSearchParams();
+
+	/* The Status filter's words changed meaning on 2026-10-07: "Draft" was every invoice,
+	   so a tick left on it changed nothing; it is now only the invoices whose Draft box is
+	   ticked. The table remembers its filters per browser, so that leftover tick would hide
+	   all but a handful of invoices with nothing on screen to say why. Forgotten once per
+	   browser, before the table restores its saved setup. */
+	useLayoutEffect(() => {
+		try {
+			if (window.localStorage.getItem('ims.invoices.statusWords') === '2') return;
+			forgetSavedFilter('/invoices', 'invoiceStatus');
+			window.localStorage.setItem('ims.invoices.statusWords', '2');
+		} catch { /* storage blocked: nothing was saved, nothing to forget */ }
+	}, []);
+
 	const [alertArr, setAlertArr] = useState([]);
 	const [openAlert, setOpenAlert] = useState(true)
 	const [filteredData, setFilteredData] = useState([])
@@ -167,13 +184,8 @@ const Invoices = () => {
 		upsertSourceItems('invoices', items);
 	}, [invoicesData, settings]);
 
-	const setInvStatus = (z) => {
-		let q = z.row.original;
-
-		return !q.final && !q.final ? 'Draft' :
-			q.final && !q.canceled ? 'Final' :
-				q.final && q.canceled ? 'Canceled' : ''
-	}
+	// Issued / Draft / Canceled, from the invoice's own Draft box (finance.js invoiceStatus).
+	const setInvStatus = (z) => invoiceStatus(z.row.original)
 
 	const getprefixInv = (x) => {
 		let q = x.row.original;
@@ -188,9 +200,11 @@ const Invoices = () => {
 	}
 
 	const showAmount = useCallback((x) => {
-		const isoCurrency =
-			settings.Currency?.Currency?.find(c => c.id === x.row.original.cur)?.cur
-			|| 'USD'; // safe fallback
+		/* The table's rows have already been through getFormatted, which turns `cur` into
+		   its LABEL ('EUR'). Looking that up as a settings id found nothing, so every amount
+		   fell back to USD: invoice 1211 read "$144,131.40" beside its € chip (and GIS #0041).
+		   curCode reads the id, the label and the glyph alike (utils/currency.js). */
+		const isoCurrency = curCode(x.row.original.cur) || 'USD';
 
 		return new Intl.NumberFormat('en-US', {
 			style: 'currency',
@@ -247,15 +261,17 @@ const Invoices = () => {
 			size: 120
 		},
 		{
-			// accessorFn, not the stored `invoiceStatus` field: the badge derives
-			// Draft / Final / Canceled from `final` + `canceled`, and the stored field
-			// is blank on most rows — so the column's value was empty and the Status
-			// filter and sort had nothing to work with.
+			// accessorFn, not the stored `invoiceStatus` field: that field is blank on
+			// every row, so the column's value was empty and the Status filter and sort
+			// had nothing to work with. The word comes from the invoice's own Draft box
+			// (finance.js invoiceStatus). It used to come from `final`, which nothing
+			// sets any more: every row read "Draft", ticked or not, so the filter's
+			// "Draft" was the whole list and its "Final" was empty.
 			id: 'invoiceStatus',
-			accessorFn: (r) => !r.final ? 'Draft' : !r.canceled ? 'Final' : 'Canceled',
+			accessorFn: (r) => invoiceStatus(r),
 			header: getTtl('Status', ln),
 			cell: (props) => <StatusBadge label={setInvStatus(props)} />,
-			meta: { filterVariant: 'multi', options: ['Draft', 'Final', 'Canceled'].map(s => ({ value: s, label: s })) },
+			meta: { filterVariant: 'multi', options: ['Issued', 'Draft', 'Canceled'].map(s => ({ value: s, label: s })) },
 			filterFn: oneOf,
 			size: 100
 		},
@@ -775,9 +791,9 @@ const Invoices = () => {
 						{/* KPI strip */}
 						<KpiStrip items={[
 							{ label: getTtl('Invoices', ln) || 'Invoices', value: invoicesData.length, icon: Receipt, tone: 'blue' },
-							{ label: 'Final', value: invoicesData.filter(x => x.final && !x.canceled).length, icon: FileCheck2, tone: 'green' },
-							{ label: 'Draft', value: invoicesData.filter(x => !x.final).length, icon: FilePen, tone: 'amber' },
-							{ label: 'Canceled', value: invoicesData.filter(x => x.final && x.canceled).length, icon: FileX2, tone: 'red' },
+							{ label: 'Issued', value: invoicesData.filter(x => invoiceStatus(x) === 'Issued').length, icon: FileCheck2, tone: 'green' },
+							{ label: 'Draft', value: invoicesData.filter(x => invoiceStatus(x) === 'Draft').length, icon: FilePen, tone: 'amber' },
+							{ label: 'Canceled', value: invoicesData.filter(x => invoiceStatus(x) === 'Canceled').length, icon: FileX2, tone: 'red' },
 						]} />
 
 						{/* Main Card */}

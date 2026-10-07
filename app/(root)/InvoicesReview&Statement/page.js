@@ -9,10 +9,11 @@ import Toast from '../../../components/toast.js'
 import { ExpensesContext } from "../../../contexts/useExpensesContext";
 import { InvoiceContext } from "../../../contexts/useInvoiceContext";
 
-import { loadData, getD, loadDocsByIdBatched } from '../../../utils/utils'
+import { loadInvoicesBookedIn, getD, loadDocsByIdBatched } from '../../../utils/utils'
 import Spinner from '../../../components/spinner';
 import { UserAuth } from "../../../contexts/useAuthContext"
 import { getExpenses } from '../../../utils/utils'
+import { docsInForce } from '../../../utils/finance'
 import Spin from '../../../components/spinTable';
 import { Numcur, SumValuesSupplier } from '../ContractsReview&Statement/funcs'
 import { OutTurn, Finalizing, relStts } from '../../../components/const'
@@ -224,6 +225,12 @@ const Shipments = () => {
       return acc;
     }, {});
 
+    // A note still saved as a draft does not stand in for the invoice it would replace
+    // (finance.js docsInForce): the row is the invoice as issued, with what has been paid
+    // on it. IMS #1431 read $277,016.00 — its draft Final Note — and a $16,865.55 credit,
+    // for an invoice issued at $309,349.00 with $15,467.45 still owed.
+    Object.keys(groupedByInvoiceNum).forEach(k => { groupedByInvoiceNum[k] = docsInForce(groupedByInvoiceNum[k]) });
+
     return groupedByInvoiceNum;
 
   }
@@ -234,7 +241,12 @@ const Shipments = () => {
     const Load = async () => {
       setLoading(true)
 
-      let dt = await loadData(uidCollection, 'invoices', dateSelect);
+      // The invoices ISSUED in the period, each with all of its documents — the note that
+      // settled it after the period included, an invoice issued before it left out — the
+      // same rows Accounting reads (utils.js loadInvoicesBookedIn). Loading only what is
+      // dated in the period showed a note settling a 2025 invoice as a 2026 sale of $0.00
+      // with its payments as a credit (1327, 1354, 1362, 1365, 1367), and 2025 without them.
+      let dt = await loadInvoicesBookedIn(uidCollection, dateSelect);
 
       setInvoicesData(dt)
       setLoading(false)
@@ -607,12 +619,17 @@ const Shipments = () => {
   }
 
 
+  // A balance worked out to a fraction of a cent below zero printed "-$0.00" — fourteen
+  // rows of IMS's 2026 review. A figure that rounds to zero is zero (utils/currency.js
+  // makes the same call for moneyFull).
+  const cents = (v) => (Math.abs(Number(v)) < 0.005 ? 0 : v);
+
   let showAmountPO = (x, obj) => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: obj.row.original.poCur,
       minimumFractionDigits: 2
-    }).format(x)
+    }).format(cents(x))
   }
 
   let showAmountInv = (x) => {
@@ -621,7 +638,7 @@ const Shipments = () => {
       style: 'currency',
       currency: x.row?.original?.final ? x.row.original?.cur?.cur || 'USD' : x.row?.original?.cur,
       minimumFractionDigits: 2
-    }).format(x.getValue())
+    }).format(cents(x.getValue()))
   }
 
   let showAmountTtl = (x, cur) => {
@@ -630,7 +647,7 @@ const Shipments = () => {
       style: 'currency',
       currency: cur,
       minimumFractionDigits: 2
-    }).format(x)
+    }).format(cents(x))
   }
 
   let propDefaults = Object.keys(settings).length === 0 ? [] : [
@@ -759,7 +776,7 @@ const Shipments = () => {
       style: 'currency',
       currency: x.row.original.cur,
       minimumFractionDigits: 2
-    }).format(x.getValue())
+    }).format(cents(x.getValue()))
   }
 
   let showAmountInvStatement = (x) => {
@@ -767,7 +784,7 @@ const Shipments = () => {
       style: 'currency',
       currency: x.row.original?.curInvoice || 'USD',
       minimumFractionDigits: 2
-    }).format(x.getValue())
+    }).format(cents(x.getValue()))
   }
 
   let propDefaultsStatement = Object.keys(settings).length === 0 ? [] : [

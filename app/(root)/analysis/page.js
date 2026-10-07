@@ -12,6 +12,7 @@ import VideoLoader from '../../../components/videoLoader';
 import { TableSkeleton } from "../../../components/skeletons";
 import CBox from '../../../components/combobox.js'
 import { EXD } from './excel'
+import { invoiceBatches, createData } from './weightAnalysis'
 import { getTtl } from '../../../utils/languages';
 import DateRangePicker from '../../../components/dateRangePicker';
 
@@ -58,12 +59,18 @@ const Analyss = () => {
       let dt = [...conData];
       dt = await Promise.all(
         dt.map(async (x) => {
-          const Invoices = await getInvoices(uidCollection, 'invoices', x);
+          // getInvoices takes the contract's invoice numbers as [{ yr, arrInv }], a batch
+          // per year. It was handed the contract itself, found no batches and loaded
+          // nothing, so every PO came back with no invoices at all.
+          const Invoices = await getInvoices(uidCollection, 'invoices', invoiceBatches(x));
           return { ...x, invoicesData: Invoices };
         })
       );
-      // ...data transformation logic here...
-      setDataTable(dt);
+      // The report's rows — each invoice line against its Final Note line, the differences
+      // and an average per PO (weightAnalysis.js). A January 2026 edit left a placeholder
+      // comment here and put the bare contracts in the table: PO numbers, and thirteen
+      // blank columns beside each.
+      setDataTable(createData(dt, { groupByInvoice: groupedArrayInvoice, sortByDate: sortArr }));
       setLoading(false);
     };
     conData.length > 0 && loadInv();

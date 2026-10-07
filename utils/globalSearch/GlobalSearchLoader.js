@@ -4,6 +4,7 @@ import { useEffect, useContext, useRef } from 'react';
 import { useGlobalSearch } from '../../contexts/useGlobalSearchContext';
 import { UserAuth } from '../../contexts/useAuthContext';
 import { loadData } from '../../utils/utils';
+import { invoiceStatus } from '../../utils/finance';
 import { SettingsContext } from '../../contexts/useSettingsContext';
 
 export default function GlobalSearchLoader() {
@@ -96,7 +97,9 @@ export default function GlobalSearchLoader() {
                 invTypeLabel,
                 currencyLabel,
                 inv.completed ? 'completed' : 'pending',
-                inv.final ? 'final' : 'draft',
+                // issued / draft / canceled, as the Invoices page words it — `final` is
+                // never set, so every invoice used to be findable as "draft".
+                invoiceStatus(inv),
               ].filter(Boolean).join(' ').toLowerCase()
             };
           })
@@ -166,7 +169,7 @@ export default function GlobalSearchLoader() {
               inv.delTerm,
               inv.packing,
               inv.completed ? 'completed' : 'open',
-              inv.final ? 'final' : 'draft',
+              invoiceStatus(inv),
               inv.totalAmount,
               inv.balanceDue,
             ].filter(Boolean).join(' ').toLowerCase()

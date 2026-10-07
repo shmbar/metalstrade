@@ -6,7 +6,7 @@
 
 import { Contract, Invoice } from '@/data/types';
 import { resolveClientName, deriveInvoice, InvoiceView } from '@/features/invoices/useInvoices';
-import { resolveCur, num } from '@shared/finance';
+import { resolveCur, num, docsInForce } from '@shared/finance';
 
 export interface PartyStatement {
   name: string;
@@ -56,7 +56,9 @@ export function groupByInvoiceNumber(invoices: Invoice[]): Invoice[][] {
     g.push(inv);
     groups.set(inv.invoice, g);
   });
-  return [...groups.values()];
+  // A note still saved as a draft does not stand in for the invoice it would replace —
+  // web InvoicesReview makeGroup (shared docsInForce, 2026-10-07).
+  return [...groups.values()].map((g) => docsInForce(g) as Invoice[]);
 }
 
 /**

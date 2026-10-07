@@ -39,7 +39,8 @@ import { priorityOf } from './notificationPriority';
 // compatibility — every `import { resolveDueDate } from '../utils/utils'`
 // across the app keeps working unchanged.
 export { resolveDueDate, resolveInvoiceDate, groupInvoicesByNumber, computeStockNetSummary } from './pureHelpers';
-import { dedupeById } from './pureHelpers';
+import { dedupeById, docsInForce } from './pureHelpers';
+import { invoiceRank, invoiceBookedOn } from './finance';
 import { groupSalesByLine } from './salesUsage';
 import { onHandByLine } from './stockGuards';
 import { ACCOUNTS } from './activeAccount';
@@ -143,7 +144,12 @@ export const groupedArrayInvoice = (arrD) => {
     return result;
   }, []); // Initialize result as an empty array
 
-  return groupedArray1;
+  // A draft note does not stand in for the invoice it would replace: the invoice stays
+  // in its group as issued, with its own payments (pureHelpers.js docsInForce). Every
+  // page that reduces these groups — Cashflow's receivables, the two Reviews, the P&L
+  // tab, the Account Statement, the Dashboard — took the note's place for the invoice's;
+  // Cashflow then dropped the row for being a draft, and the unpaid balance with it.
+  return groupedArray1.map(docsInForce);
 };
 
 export const sortArr = (arr, name) => {
@@ -1539,6 +1545,33 @@ export const loadAdditionalCNFN = async (uidCollection, CNFN) => { //for account
 
   return dataCNFN;
 
+}
+
+/* The invoices of a period as an accountant books them: every invoice whose ORIGINAL was
+   issued in the period, with all of its documents — a Credit / Final note that settled it
+   after the period included — and nothing of an invoice issued before it (finance.js
+   invoiceBookedOn: the period a sale belongs to). Accounting has always loaded this way;
+   the Invoices Review reads the same rows now, so a note that settled a 2025 invoice in
+   2026 no longer shows in 2026 as a $0.00 sale whose payments read as a credit, and 2025
+   shows its invoices at their final value with every payment made on them. */
+export const loadInvoicesBookedIn = async (uidCollection, dateSelect) => {
+  const dt = ((await loadData(uidCollection, 'invoices', dateSelect)) || []).filter(Boolean);
+  const have = new Set(dt.map(d => d.id));
+  // Notes issued after the period on invoices issued in it: an original points at its note.
+  const later = dt.filter(d => invoiceRank(d) === 1 && d.cnORfl?.id && typeof d.cnORfl?.date === 'string' && !have.has(d.cnORfl.id))
+    .map(d => d.cnORfl);
+  const extra = later.length
+    ? (await loadAdditionalCNFN(uidCollection, later)).filter(d => d && d.id && !have.has(d.id))
+    : [];
+  const groups = {};
+  [...dt, ...extra].forEach(d => {
+    (groups[d.invoice !== undefined && d.invoice !== null && d.invoice !== '' ? `n:${d.invoice}` : `id:${d.id}`] ||= []).push(d);
+  });
+  const { start, end } = dateSelect || {};
+  return Object.values(groups).filter(g => {
+    const on = invoiceBookedOn(g);
+    return !on || ((!start || on >= start) && (!end || on <= end));
+  }).flat();
 }
 
 export const saveMargins = async (uidCollection, data, yr) => {

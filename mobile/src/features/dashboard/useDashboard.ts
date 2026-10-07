@@ -9,6 +9,7 @@ import {
   agingBuckets,
   invoiceRevenue,
   contractPurchaseValue,
+  salesBookedIn,
   ReceivablesSlot,
   AgingBucket,
 } from '@shared/finance';
@@ -304,37 +305,31 @@ export function useDashboard(filters: DashboardFilters = { supplier: '', client:
     {
       const start = dateSelect.start;
       const end = dateSelect.end;
-      const groups: Record<string, any[]> = {};
-      (allRecv || []).forEach((inv: any) => {
-        const d = !inv?.final ? inv?.dateRange?.startDate : inv?.date;
-        if (typeof d !== 'string' || d < start || d > end) return;
-        if (inv.invoice != null) (groups[String(inv.invoice)] ||= []).push(inv);
+      // Each invoice in its ORIGINAL's period at the value it stands at (shared finance.js
+      // salesBookedIn) — web page.js invoiceRevAgg. A note dated here on an invoice issued
+      // in an earlier year used to count in full while the invoice still counted in its own
+      // year: IMS's 2026 read $969,843.78 high, GIS's $220,930.05 (2026-10-06).
+      salesBookedIn(allRecv || [], { start, end }).forEach(({ doc: inv, bookedOn }: { doc: any; bookedOn: string }) => {
+        const clientName = resolveClientName(inv.client, settings) || 'Unassigned';
+        if (fClient && clientName !== fClient) return;
+        if (allowedPO && !allowedPO.has(inv.poSupplier?.id)) return;
+        const amt = parseFloat(inv.totalAmount);
+        if (isNaN(amt)) return;
+        const curId = !inv.final ? inv.cur : settings?.Currency?.Currency?.find((x: any) => x.cur === inv.cur?.cur)?.id;
+        const rate = parseFloat(inv.euroToUSD);
+        const mult = companyRate > 0 ? companyRate : rate > 0 ? rate : liveRate > 0 ? liveRate : 1;
+        const usd = curId === 'us' ? amt : amt * mult;
+        // Bucketed in the month the invoice was issued; the detail keeps the document's own date.
+        const d = !inv.final ? inv.dateRange?.startDate : inv.date;
+        const m = Number(String(bookedOn).substring(5, 7));
+        if (m >= 1 && m <= 12) {
+          revenueByMonth[m - 1] += usd;
+          revenueUsd += usd;
+          byClient[clientName] = (byClient[clientName] || 0) + usd;
+          (consigneeSeries[clientName] ||= Array(12).fill(0))[m - 1] += usd;
+          (consigneeDetails[clientName] ||= []).push({ invoice: inv.invoice ?? '', date: d || bookedOn, usd, amount: amt, cur: curId === 'us' ? 'us' : 'eu' });
+        }
       });
-      Object.values(groups).forEach((g) =>
-        g.forEach((inv: any) => {
-          if (inv.canceled || inv.draft === true) return;
-          const isOriginal = ['1111', 'Invoice'].includes(inv.invType);
-          if (!(g.length === 1 || !isOriginal)) return; // original superseded by its note
-          const clientName = resolveClientName(inv.client, settings) || 'Unassigned';
-          if (fClient && clientName !== fClient) return;
-          if (allowedPO && !allowedPO.has(inv.poSupplier?.id)) return;
-          const amt = parseFloat(inv.totalAmount);
-          if (isNaN(amt)) return;
-          const curId = !inv.final ? inv.cur : settings?.Currency?.Currency?.find((x: any) => x.cur === inv.cur?.cur)?.id;
-          const rate = parseFloat(inv.euroToUSD);
-          const mult = companyRate > 0 ? companyRate : rate > 0 ? rate : liveRate > 0 ? liveRate : 1;
-          const usd = curId === 'us' ? amt : amt * mult;
-          const d = !inv.final ? inv.dateRange.startDate : inv.date;
-          const m = Number(String(d).substring(5, 7));
-          if (m >= 1 && m <= 12) {
-            revenueByMonth[m - 1] += usd;
-            revenueUsd += usd;
-            byClient[clientName] = (byClient[clientName] || 0) + usd;
-            (consigneeSeries[clientName] ||= Array(12).fill(0))[m - 1] += usd;
-            (consigneeDetails[clientName] ||= []).push({ invoice: inv.invoice ?? '', date: d, usd, amount: amt, cur: curId === 'us' ? 'us' : 'eu' });
-          }
-        })
-      );
     }
 
     /* Invoices put on hold in Cashflow ("Pending", client 2026-09-24) are not active

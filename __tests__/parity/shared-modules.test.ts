@@ -296,7 +296,11 @@ describe('finance.groupInvoices — a credit/final note SUPERSEDES the original 
     // Tier 1 file identity already proves mobile === web character-for-character. This alarm is
     // the second axis: it fires when WEB changes the supersede rule, i.e. when the goldens below
     // stop describing the product even though both files still match each other.
-    expectWebUnchanged('utils/finance.js', 'groupInvoices', '9e2ee7aa676b');
+    // Re-recorded 2026-10-07 (was 9e2ee7aa676b): each group now passes through docsInForce
+    // first — a note still saved as a draft no longer stands in for an issued invoice. The
+    // goldens below are unchanged (none has a draft note); the new rule has its own cases,
+    // web AND mobile, in __tests__/invoiceStanding.test.js ("a draft is held back").
+    expectWebUnchanged('utils/finance.js', 'groupInvoices', '4d720bee0509');
   });
 
   it('a lone invoice passes through untouched', () => {
@@ -1892,14 +1896,27 @@ const SHARED_EXPORTS: Record<string, { covered: string[]; untestable?: Record<st
       'effectiveDueDate', 'fx', 'groupInvoices', 'invoiceBalance', 'invoicePaid', 'invoiceRevenue',
       'isFinalNote', 'isFinalized', 'isIssued', 'isOverdue', 'num', 'pnl', 'receivables',
       'resolveCur', 'settledInQty', 'settlementReduction', 'toMT', 'unitOf',
+      // 2026-10-06 — one invoice, one value; the period a sale belongs to; Accounting's
+      // totals. Covered web AND mobile in __tests__/invoiceStanding.test.js.
+      'invoiceBookedOn', 'invoiceRank', 'isLiveDoc', 'ledgerTotals', 'salesBookedIn', 'standingDocs',
+      // the Status word of the Invoices page — same test file, web AND mobile.
+      'invoiceStatus',
     ],
     untestable: {
       resolveDueDate: 're-export of pureHelpers.resolveDueDate (finance.js:9-11) — covered there',
       resolveInvoiceDate: 're-export of pureHelpers.resolveInvoiceDate — covered there',
       toIsoDate: 're-export of pureHelpers.toIsoDate — covered there',
+      docsInForce: 're-export of pureHelpers.docsInForce — covered there',
+      heldDraftIds: 're-export of pureHelpers.heldDraftIds — covered there',
     },
   },
-  pureHelpers: { covered: ['computeStockNetSummary', 'dedupeById', 'groupInvoicesByNumber', 'resolveDueDate', 'resolveInvoiceDate', 'savedAtMs', 'toIsoDate'] },
+  pureHelpers: {
+    covered: [
+      'computeStockNetSummary', 'dedupeById', 'groupInvoicesByNumber', 'resolveDueDate', 'resolveInvoiceDate', 'savedAtMs', 'toIsoDate',
+      // 2026-10-07 — a draft is held back. Covered web AND mobile in __tests__/invoiceStanding.test.js.
+      'docsInForce', 'heldDraftIds',
+    ],
+  },
   splitUtils: { covered: ['SPLIT_DEFAULT_RATIO', 'computeShares', 'curSymbol', 'splitNotifId', 'splitStatusOf'] },
   soldStatus: { covered: ['aggregateRollups', 'computeLineSold', 'lineStatus', 'lotIsSold', 'rollupTone', 'toShip', 'unsoldLeft'] },
   storageUtils: { covered: ['EUR_USD', 'STORAGE_LABELS', 'UNIT', 'arrivalStr', 'computeStorageMetric', 'isStorageType', 'mtInWh', 'toUsd', 'ym'] },
@@ -1935,7 +1952,8 @@ describe('meta — every shared export is accounted for', () => {
       }
     }
     // Guard the loop itself: if the register ever empties, the assertion above becomes vacuous.
-    expect(Object.values(SHARED_EXPORTS).flatMap((m) => Object.keys(m.untestable || {}))).toHaveLength(4);
+    // (6 since 2026-10-07: finance re-exports pureHelpers' docsInForce and heldDraftIds.)
+    expect(Object.values(SHARED_EXPORTS).flatMap((m) => Object.keys(m.untestable || {}))).toHaveLength(6);
   });
 });
 
@@ -1944,7 +1962,9 @@ describe('meta — Tier 3 drift alarms on the rules the goldens above encode', (
   // product, and the verbatim mobile copy is stale. Re-derive the expected values from the new web
   // source and re-copy the module. DO NOT paste the new hash in to go green.
   it.each([
-    ['utils/finance.js', 'groupInvoices', '9e2ee7aa676b'],
+    // groupInvoices / groupInvoicesByNumber re-recorded 2026-10-07: both pass each group
+    // through docsInForce first (a draft note does not stand in for an issued invoice).
+    ['utils/finance.js', 'groupInvoices', '4d720bee0509'],
     ['utils/finance.js', 'receivables', 'f9db50cce49f'],
     ['utils/finance.js', 'agingBuckets', 'a4d7615d2d26'],
     ['utils/finance.js', 'invoiceRevenue', '424923215839'],
@@ -1955,7 +1975,7 @@ describe('meta — Tier 3 drift alarms on the rules the goldens above encode', (
     ['utils/finance.js', 'toMT', '8b7f8afd3ba5'],
     ['utils/finance.js', 'fx', '6496df0764f1'],
     ['utils/pureHelpers.js', 'computeStockNetSummary', 'f440cad82286'],
-    ['utils/pureHelpers.js', 'groupInvoicesByNumber', '64cc691e2959'],
+    ['utils/pureHelpers.js', 'groupInvoicesByNumber', '4975e3abd355'],
     ['utils/pureHelpers.js', 'toIsoDate', 'a4c34e57e905'],
     ['utils/splitUtils.js', 'computeShares', '890c9e7a8b34'],
     ['app/(root)/contractsstatement/soldStatus.js', 'computeLineSold', '7f39e341a1b5'],

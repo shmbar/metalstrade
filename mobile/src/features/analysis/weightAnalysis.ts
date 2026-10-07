@@ -2,12 +2,15 @@
 // PO material line. Ported from the LAST WORKING web revision (git 065057f,
 // app/(root)/analysis/page.js:46-238).
 //
-// NOTE: web's /analysis is BROKEN at HEAD — commit 75eaf3f deleted this whole
-// transformation pipeline (replaced with `// ...data transformation logic here...`)
-// and now calls getInvoices with a contract object instead of the {yr, arrInv}[] it
-// expects, so every cell but PO# renders blank. This port is therefore against
-// 065057f, which is the last revision where the report actually produced numbers.
-// When web is fixed, re-diff this file against it.
+// History: commit 75eaf3f (2026-01-26) deleted web's whole transformation pipeline
+// (replaced with `// ...data transformation logic here...`) and called getInvoices with
+// a contract object instead of the {yr, arrInv}[] it expects, so every cell but PO#
+// rendered blank; this port was taken from 065057f, the last revision that produced
+// numbers. Web got the pipeline back on 2026-10-07 as app/(root)/analysis/
+// weightAnalysis.js — the same functions — and the parity suite now checks this file
+// against web's own module as well as against the old revision.
+
+import { docsInForce } from '@shared/pureHelpers';
 
 export interface WeightRow {
   order: string;
@@ -72,6 +75,9 @@ export function mergeObj(data: any[]): any[] {
 // Two deliberate hardenings vs web: the input is COPIED before sorting (web sorts
 // the caller's array in place) and a missing `invoice` coerces to 0 instead of
 // producing a NaN comparator result.
+// Like web's, each group is passed through docsInForce (2026-10-07): a document still
+// saved as a draft does not stand in for one that has been issued. The rows grouped here
+// carry no `draft` flag, so for this screen it changes nothing — it keeps the port whole.
 export function groupedArrayInvoice(arr: any[]): any[][] {
   return [...arr]
     .sort((a, b) => (a.invoice ?? 0) - (b.invoice ?? 0))
@@ -80,7 +86,8 @@ export function groupedArrayInvoice(arr: any[]): any[][] {
       if (group) group.push(obj);
       else result.push([obj]);
       return result;
-    }, []);
+    }, [])
+    .map((g) => docsInForce(g));
 }
 
 // Per-PO "Average" row: assay columns averaged, weights SUMMED. Only added when the

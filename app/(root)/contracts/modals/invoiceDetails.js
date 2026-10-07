@@ -33,6 +33,7 @@ import CommentThread from '@components/CommentThread';
 import { Save, Copy, ChevronDown, ChevronUp, ScrollText, History } from 'lucide-react';
 import LoadingButton from '../../../../components/LoadingButton'
 import { invoiceQtyBySalesContract, salesContractIdsOf, withSalesContractLabels } from '@utils/salesLink';
+import { invoiceStatus } from '@utils/finance';
 import SalesSplitSummary from '@components/invoices/SalesSplitSummary';
 import { BtnIcon } from '@components/buttonIcons';
 
@@ -542,7 +543,9 @@ const ContractModal = () => {
 							<div className='flex flex-col'>
 								<p className={labelCls}>{getTtl('Status', ln)}</p>
 								<p className='responsiveText font-medium'>
-									{!fnl ? 'Draft' : fnl && !valueInv.canceled ? 'Finalized' : (fnl && valueInv.canceled) && 'Canceled'}
+									{/* The word the Invoices list shows (finance.js invoiceStatus): it follows the
+									    Draft box below. It read "Draft" for every invoice — `final` is never set. */}
+									{valueInv.id === '' ? 'New' : invoiceStatus(valueInv)}
 								</p>
 							</div>
 						</div>

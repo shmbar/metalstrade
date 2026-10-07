@@ -8,6 +8,8 @@ declare module '@shared/pureHelpers' {
   export function resolveDueDate(inv: any): string | null;
   export function resolveInvoiceDate(inv: any): string | null;
   export function groupInvoicesByNumber(invoices: any[]): any[];
+  export function docsInForce<T = any>(group: T[] | null | undefined): T[];
+  export function heldDraftIds(docs: any[] | null | undefined): Set<string>;
   export interface StockNetRow {
     description: string;
     qnty: number;
@@ -26,6 +28,9 @@ declare module '@shared/finance' {
   export function invoicePaid(inv: any): number;
   export function invoiceBalance(inv: any): number;
   export function isIssued(inv: any): boolean;
+  export function invoiceStatus(inv: any): 'Issued' | 'Draft' | 'Canceled';
+  export function docsInForce<T = any>(group: T[] | null | undefined): T[];
+  export function heldDraftIds(docs: any[] | null | undefined): Set<string>;
   export function isFinalNote(inv: any): boolean;
   export function isFinalized(inv: any): boolean;
   export function effectiveDueDate(inv: any, termDays?: number): string | null;
@@ -36,6 +41,29 @@ declare module '@shared/finance' {
   export function settledInQty(lot: any): number;
   export function settlementReduction(lots: any[]): number;
   export function groupInvoices(list: any[]): any[];
+  /** 1 invoice, 2 credit note, 3 final note — a higher rank replaces a lower one. */
+  export function invoiceRank(inv: any): number;
+  export function isLiveDoc(inv: any): boolean;
+  /** The documents that state an invoice as it stands: its live documents of the highest rank. */
+  export function standingDocs<T = any>(group: T[], isLive?: (inv: T) => boolean): T[];
+  /** The day an invoice is booked on — its original's date. */
+  export function invoiceBookedOn(group: any[]): string;
+  /** Every invoice issued in the period, at the value it stands at: one entry per standing document. */
+  export function salesBookedIn<T = any>(
+    invoices: T[],
+    period?: { start?: string; end?: string },
+    isLive?: (inv: T) => boolean
+  ): { doc: T; bookedOn: string }[];
+  /** Accounting's totals: each invoice once, each cost once, per currency. */
+  export function ledgerTotals(args?: {
+    sales?: { invoice: any; invType?: string; amount: any; cur?: string; canceled?: boolean }[];
+    costs?: { key?: string; amount: any; cur?: string }[];
+  }): {
+    income: { us: number; eu: number };
+    expense: { us: number; eu: number };
+    balance: { us: number; eu: number };
+    invoices: number;
+  };
   export function invoiceRevenue(
     list: any[],
     opts?: { base?: string; rateOf?: (inv: any) => number }
@@ -159,6 +187,8 @@ declare module '@shared/salesLink' {
   export function invoiceQtyBySalesContract(inv?: any): Record<string, number>;
   export function invoiceQtyForSalesContract(inv?: any, salesContractId?: string): number;
   export function invoiceLinksSalesContract(inv?: any, salesContractId?: string): boolean;
+  /** Each invoice once, as it stands; a note without a link takes its invoice's. */
+  export function settledInvoices<T = any>(invoices?: T[]): T[];
   export function salesContractLabel(sc?: any, clients?: any[]): string;
   export function withSalesContractLabels<T = any>(list?: T[], clients?: any[]): (T & { scLabel: string })[];
 }

@@ -46,6 +46,45 @@ export const resolveInvoiceDate = (inv) => {
   return toIsoDate(inv.dateRange?.startDate || inv.dateRange?.endDate);
 };
 
+/* A draft is held back: ticking Draft on an invoice or on a note keeps it out of cashflow
+   and stock until the box is unticked. So a draft does NOT stand in for a document that
+   has been issued — an invoice whose Credit / Final Note is still a draft stands exactly
+   as it was issued, with what has been paid on it.
+
+   Every reducer of "an invoice and its notes" starts from here: finance.js groupInvoices
+   and standingDocs, utils.js groupedArrayInvoice, groupInvoicesByNumber below, the
+   Invoices Review's own grouping, and — by id, through heldDraftIds — the Shipments page,
+   the Contracts Statement and the contract window's Inventory tab.
+
+   It used to be the other way round — the draft note took its invoice's place and was
+   then dropped for being a draft — so the invoice's unpaid balance left Cashflow and the
+   Dashboard's receivables (GIS #40, $69,328.09 still owed; IMS #1431, $15,467.45), and
+   the review pages showed the draft's figure for the invoice's (2026-10-07).
+
+   `group` is the documents of ONE invoice number. A number with nothing issued under it —
+   a draft invoice on its own — comes back as it is: there is nothing for it to stand in for. */
+export const docsInForce = (group) => {
+  const g = (group || []).filter(Boolean);
+  return g.some(d => d.draft !== true && !d.canceled) ? g.filter(d => d.draft !== true) : g;
+};
+
+// The ids of the drafts docsInForce sets aside, across a flat list of invoice documents —
+// for the pages that pick one document per invoice number by id (Shipments, the Contracts
+// Statement) rather than reducing a group.
+export const heldDraftIds = (docs) => {
+  const groups = {};
+  (docs || []).forEach(d => {
+    if (!d || d.invoice == null) return;
+    (groups[String(d.invoice)] ||= []).push(d);
+  });
+  const held = new Set();
+  Object.values(groups).forEach(g => {
+    const keep = new Set(docsInForce(g));
+    g.forEach(d => { if (!keep.has(d)) held.add(d.id); });
+  });
+  return held;
+};
+
 /**
  * Groups raw invoice docs by their `invoice` number and merges related
  * docs (original + credit notes + final settlements) into a single
@@ -62,7 +101,8 @@ export const groupInvoicesByNumber = (invoices) => {
     if (!groups[key]) groups[key] = [];
     groups[key].push(inv);
   });
-  return Object.values(groups).flatMap(group => {
+  // A draft note does not stand in for the invoice it would replace (docsInForce above).
+  return Object.values(groups).map(docsInForce).flatMap(group => {
     if (group.length === 1) return group;
 
     const types = group.map(g => parseInt(g.invType, 10)).filter(t => !isNaN(t));

@@ -2,20 +2,17 @@ import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '@/store/auth';
 import { useSettings } from '@/store/settings';
 import {
-  loadData,
   loadDocByIdDate,
   loadExpensesForAccounting,
-  loadAdditionalCNFN,
+  loadInvoicesBookedIn,
 } from '@/data/firestore';
 import {
   AccountingGroup,
   buildExpenseLines,
   buildInvoiceRows,
   buildPurchaseLines,
-  dropOrphanNotes,
   groupAccounting,
   makeGQ,
-  selectCnFnRefs,
   sortBy,
 } from '@/features/accounting/accountingCore';
 import { useShallow } from 'zustand/react/shallow';
@@ -32,16 +29,10 @@ export function useAccounting() {
     queryKey: ['accounting', uidCollection, dateSelect.start, dateSelect.end],
     queryFn: async (): Promise<AccountingGroup[]> => {
       const uid = uidCollection as string;
-      let dt = await loadData<any>(uid, 'invoices', dateSelect);
-
-      // CN/FN whose original sits in this period but the note may be elsewhere.
-      const cnOrfn = selectCnFnRefs(dt);
-
-      // Drop standalone CN/FN with no original in the period.
-      dt = dropOrphanNotes(dt);
-
-      const cnfnData = await loadAdditionalCNFN(uid, cnOrfn);
-      dt = sortBy([...dt, ...cnfnData], 'invoice');
+      // Every invoice issued in the period with all of its documents — a note that settled
+      // it later included, one issued before the period left out. Web's Accounting and
+      // Invoices Review read the same rows (utils.js loadInvoicesBookedIn).
+      const dt = sortBy(await loadInvoicesBookedIn(uid, dateSelect), 'invoice');
 
       // Sales-invoice rows.
       const invArr = buildInvoiceRows(dt, gQ);

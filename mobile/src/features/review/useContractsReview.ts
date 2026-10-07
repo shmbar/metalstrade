@@ -4,16 +4,20 @@ import { useAuth } from '@/store/auth';
 import { useSettings } from '@/store/settings';
 import { loadData, buildInvoiceIndex, contractInvoicesFromIndex, loadStockDataByIds } from '@/data/firestore';
 import { Contract, Invoice } from '@/data/types';
-import { num } from '@shared/finance';
+import { num, heldDraftIds } from '@shared/finance';
 import { lotIsSold, computeLineSold, aggregateRollups, lineStatus, toShip, unsoldLeft } from '@shared/soldStatus';
 import { reviewFinancials, ReviewFinancials, ViewCur } from './reviewFinance';
 import { useShallow } from 'zustand/react/shallow';
 
 // Per-contract: keep, for each invoice number, only the highest-invType invoice id
 // (so an original isn't counted alongside its credit/final note). Port of getInvArray.
-function getInvArray(contract: Contract): string[] {
+// A note still saved as a draft does not stand in for the invoice it would replace —
+// what shipped is what was issued, which is also what left the stock (shared
+// heldDraftIds over the contract's invoice documents, 2026-10-07).
+function getInvArray(contract: Contract, docs: Invoice[] = []): string[] {
   const out: string[] = [];
-  const invoices = contract.invoices || [];
+  const held = heldDraftIds(docs);
+  const invoices = (contract.invoices || []).filter((x: any) => !held.has(x.id));
   invoices.forEach((ref: any) => {
     const same = invoices.filter((x: any) => x.invoice === ref.invoice);
     if (same.length === 1) out.push(same[0].id);
@@ -102,7 +106,7 @@ export function useContractsReview(viewCur: 'us' | 'eu' = 'us') {
     // so each row is shown in the currency it was traded in (no cross-currency sums).
     const statementLines: StatementLine[] = [];
     const rows: ReviewRow[] = query.data.map(({ contract, invoicesData, invoiceGroups, stock }) => {
-      const invIds = getInvArray(contract);
+      const invIds = getInvArray(contract, invoicesData);
       const products = contract.productsData || [];
       const materialIds = [...new Set(products.map((p) => p.id))];
 

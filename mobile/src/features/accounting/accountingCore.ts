@@ -4,7 +4,7 @@
 // every figure can be fed fixture data and compared against web's
 // app/(root)/accounting/page.js. Behaviour is unchanged.
 
-import { num } from '@shared/finance';
+import { num, standingDocs, ledgerTotals } from '@shared/finance';
 
 export const getprefixInv = (x: any) =>
   x.invType === '1111' || x.invType === 'Invoice'
@@ -47,6 +47,9 @@ export interface AccountingLine {
   /** write targets for inline editing — absent on Purchase rows, which web blocks */
   expenseId?: string;
   expenseDate?: string;
+  /** one per supplier invoice / expense document: a cost listed under several sales
+      invoices is counted once in the totals (shared finance.js ledgerTotals) */
+  costKey?: string;
 }
 
 export interface AccountingGroup {
@@ -67,7 +70,7 @@ export interface AccountingGroup {
    * transaction count, the avg-transaction denominator and the by-weekday credit
    * bars all have to see the documents rather than the netted group.
    */
-  invDocs: { saleInvoice: string; dateInv: string; amountInv: number }[];
+  invDocs: { saleInvoice: string; dateInv: string; amountInv: number; invType?: string; canceled?: boolean; draft?: boolean }[];
   lines: AccountingLine[];
 }
 
@@ -109,6 +112,13 @@ export function buildInvoiceRows(dt: any[], gQ: ReturnType<typeof makeGQ>) {
     curINV: l.final ? l.cur?.cur : gQ(l.cur, 'Currency', 'cur'),
     invoiceId: l.id,
     invoiceDate: l.final ? l.date : l.dateRange?.startDate,
+    // As web's row carries them for its totals (page.js): the document's own type and
+    // number, and whether it was cancelled.
+    invTypeRaw: l.invType,
+    invoiceNo: l.invoice,
+    canceled: !!l.canceled,
+    // …and whether it is still a draft: a draft note does not stand in for its invoice.
+    draft: l.draft === true,
   }));
 }
 
@@ -126,7 +136,7 @@ export function buildPurchaseLines(
   const consArr: any[] = [];
   contracts.forEach((contract: any) => {
     if (!contract || !Array.isArray(contract.poInvoices)) return;
-    contract.poInvoices.forEach((po: any) => {
+    contract.poInvoices.forEach((po: any, poIdx: number) => {
       if (!po || !Array.isArray(po.invRef)) return;
       po.invRef.forEach((ref: any) => {
         if (saleNumbers.has(ref)) {
@@ -138,6 +148,9 @@ export function buildPurchaseLines(
             expType: 'Purchase',
             invoice: ref,
             curEX: gQ(contract.cur, 'Currency', 'cur'),
+            // by its place in the contract, not its id — web page.js: one IMS contract
+            // holds two supplier invoices under the same id, and they are two costs
+            costKey: `po:${contract.id}:${poIdx}`,
           });
         }
       });
@@ -158,14 +171,17 @@ export function buildExpenseLines(expData: any[], gQ: ReturnType<typeof makeGQ>)
     curEX: gQ(l.cur, 'Currency', 'cur'),
     expenseId: l.id,
     expenseDate: l.dateRange?.startDate ?? l.date,
+    costKey: `exp:${l.id}`,
   }));
 }
 
 /**
- * Group sales invoices by number, attaching their purchase/expense lines.
- * Credit/Final notes share the original's invoice NUMBER — their amounts must
- * ACCUMULATE into the group (web sums every merged row), not be dropped, while
- * each document is also kept in `invDocs`.
+ * Group sales invoices by number, attaching their purchase/expense lines. Every
+ * document is kept in `invDocs` (web lists one row per document), but the group's
+ * amount is the invoice AS IT STANDS — its highest-ranked live document(s), shared
+ * finance.js standingDocs. A Credit/Final Note is the invoice issued again with its
+ * settled figures, not a correction to add: summing them showed every finalised
+ * invoice at twice its value (1374: $182,943.00 + $182,200.50) — 2026-10-06.
  */
 export function groupAccounting(invArr: any[], allLines: any[]): AccountingGroup[] {
   const byInvoice: Record<string, AccountingGroup> = {};
@@ -183,18 +199,25 @@ export function groupAccounting(invArr: any[], allLines: any[]): AccountingGroup
         invoiceId: s.invoiceId,
         invoiceDate: s.invoiceDate,
         invDocs: [
-          { saleInvoice: s.saleInvoice || String(s.invoice), dateInv: s.dateInv || '', amountInv: s.amountInv },
+          { saleInvoice: s.saleInvoice || String(s.invoice), dateInv: s.dateInv || '', amountInv: s.amountInv, invType: s.invType, canceled: !!s.canceled, draft: s.draft === true },
         ],
         lines: [],
       };
     } else {
-      byInvoice[key].amountInv += s.amountInv; // net CN/FN into the group
       byInvoice[key].invDocs.push({
         saleInvoice: s.saleInvoice || String(s.invoice),
         dateInv: s.dateInv || '',
         amountInv: s.amountInv,
+        invType: s.invType,
+        canceled: !!s.canceled,
+        draft: s.draft === true,
       });
     }
+  });
+  // The invoice as it stands: the note that replaced it, not the two added together.
+  Object.values(byInvoice).forEach((g) => {
+    const standing = standingDocs(g.invDocs);
+    g.amountInv = standing.reduce((t, d) => t + (Number(d.amountInv) || 0), 0);
   });
   allLines.forEach((e) => {
     const key = String(e.invoice);
@@ -217,6 +240,7 @@ export function groupAccounting(invArr: any[], allLines: any[]): AccountingGroup
       curEX: e.curEX || '',
       expenseId: e.expenseId,
       expenseDate: e.expenseDate,
+      costKey: e.costKey,
     });
   });
 
@@ -228,17 +252,24 @@ export function groupAccounting(invArr: any[], allLines: any[]): AccountingGroup
 // ── screen-level derivations ─────────────────────────────────────────────────
 
 export interface AccountingSummary {
+  /** dollars — web's cards (the euro part is reported apart, never added in) */
   income: number;
   expense: number;
   balance: number;
+  incomeEur: number;
+  expenseEur: number;
+  balanceEur: number;
   marginPct: number;
-  savings: number;
   txCount: number;
   avgTx: number;
 }
 
 /**
- * Web's tiles (page.js:414-419 `totals`, plus the Financial Summary block at :846).
+ * Web's cards (accounting/page.js `totals`), through the shared finance.js
+ * ledgerTotals: each invoice once at the value it stands at, each supplier invoice
+ * and expense once however many sales invoices list it, $ and € apart. The old
+ * cards added every row — notes on top of their invoices, a supplier invoice once
+ * per sales invoice it covers, € into $ — and "savings" was 20% of the balance.
  *
  * txCount is the MERGED ROW count. mergeArrays (page.js:48) pairs each invoice row
  * with at most one of that number's expense lines (`shift()`) and pushes whatever is
@@ -249,21 +280,26 @@ export interface AccountingSummary {
  */
 export function accountingSummary(groups: AccountingGroup[] | undefined): AccountingSummary {
   const gs = groups || [];
-  const income = gs.reduce((s, g) => s + (g.amountInv || 0), 0);
-  const expense = gs.reduce((s, g) => s + g.lines.reduce((t, l) => t + (l.amountExp || 0), 0), 0);
-  const balance = income - expense;
+  const t = ledgerTotals({
+    sales: gs.flatMap((g) =>
+      (g.invDocs || []).map((d) => ({ invoice: g.invoice, invType: d.invType, amount: d.amountInv, cur: g.curINV, canceled: d.canceled, draft: d.draft }))
+    ),
+    costs: gs.flatMap((g) => (g.lines || []).map((l) => ({ key: l.costKey, amount: l.amountExp, cur: l.curEX }))),
+  });
   const txCount = gs.reduce(
     (s, g) => s + Math.max(g.invDocs?.length || 0, g.lines?.length || 0),
     0
   );
   return {
-    income,
-    expense,
-    balance,
-    marginPct: income > 0 ? (balance / income) * 100 : 0,
-    savings: balance > 0 ? balance * 0.2 : 0, // web: 20% of a positive balance
+    income: t.income.us,
+    expense: t.expense.us,
+    balance: t.balance.us,
+    incomeEur: t.income.eu,
+    expenseEur: t.expense.eu,
+    balanceEur: t.balance.eu,
+    marginPct: t.income.us > 0 ? (t.balance.us / t.income.us) * 100 : 0,
     txCount,
-    avgTx: txCount > 0 ? (income + expense) / txCount : 0,
+    avgTx: txCount > 0 ? (t.income.us + t.expense.us) / txCount : 0,
   };
 }
 

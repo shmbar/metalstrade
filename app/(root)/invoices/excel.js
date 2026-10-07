@@ -6,6 +6,7 @@ import { BtnIcon } from '../../../components/buttonIcons';
 // import removed: SiMicrosoft not available
 import dateFormat from "dateformat";
 import { getTtl } from '../../../utils/languages';
+import { invoiceStatus } from '../../../utils/finance';
 import Tltip from '../../../components/tlTip';
 
 
@@ -89,8 +90,8 @@ export const EXD = (dataTable, settings, name, ln) => {
                 order: item.poSupplier.order,
                 invoice: item.invoice + getprefixInv(item),
                 date: item.final ? dateFormat(item.date, 'dd.mm.yy') : dateFormat(item.dateRange.startDate, 'dd.mm.yy'),
-                invoiceStatus: !item.final && !item.canceled ? 'Draft' : item.final && !item.canceled ? 'Final' :
-                    'Canceled',
+                // the page's Status word — the invoice's own Draft box (finance.js invoiceStatus)
+                invoiceStatus: invoiceStatus(item),
                 client: item.final ? item.client.nname : settings.Client.Client.find(q => q.id === item.client)?.nname,
                 shpType: item.final ? item.shpType : settings.Shipment.Shipment.find(q => q.id === item.shpType).shpType,
                 origin: item.final ? item.origin : settings.Origin.Origin.find(q => q.id === item.origin)?.origin || '',

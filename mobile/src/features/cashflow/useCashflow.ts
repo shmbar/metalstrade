@@ -7,7 +7,8 @@ import { useAllStockLots } from '@/features/stocks/useAllStockLots';
 import { computeInventory, cashflowStockLots } from '@/features/stocks/aggregate';
 import { Contract, Invoice } from '@/data/types';
 import { resolveClientName } from '@/features/invoices/useInvoices';
-import { num, settlementReduction } from '@shared/finance';
+import { monthRemaining } from '@/features/margins/derive';
+import { num, settlementReduction, docsInForce } from '@shared/finance';
 // @ts-ignore — plain JS module shared verbatim with the web
 import { lotIsSold } from '@shared/soldStatus';
 import { useShallow } from 'zustand/react/shallow';
@@ -196,7 +197,12 @@ function computeReceivablesWeb(invoices: Invoice[]): any[] {
       else groups.push([obj]);
     });
 
-  const rows = groups.map((z) => {
+  const rows = groups.map((z0) => {
+    // A draft note does not stand in for the invoice it would replace: the invoice stays
+    // as issued, with its own balance (web utils.js groupedArrayInvoice → shared
+    // docsInForce). Merged into the draft note it was dropped by the draft filter below,
+    // and the money still owed on it left the receivables — GIS #40, $69,328.09 (2026-10-07).
+    const z: any[] = docsInForce(z0);
     if (z.length === 1) return z[0];
     // Multi (invoice + credit/final notes): sum EVERY non-original note's total
     // (web does not re-zero canceled here — replicated exactly), all payments combined.
@@ -502,18 +508,20 @@ export function cashflowYearRanges(curYr: number) {
 }
 
 /**
- * 'Future' / incoming = Σ the margins MONTH docs' own `remaining`
- * (web cashflow page.js:215-219, guarded with !isNaN).
+ * 'Future' / incoming = Σ the margins months' Remaining, added up from each month's
+ * ROWS as the Margins screen adds them (derive.ts monthRemaining — a shared deal counts
+ * half) — web app/(root)/margins/marginsView.js `incomingOf`, which Cashflow calls.
  *
- * The month-level field is written ALREADY GIS-HALVED by the margins editor
- * (web margins/page.js:484 — `cur.gis ? cur.remaining / 2 : cur.remaining`).
- * Summing m.items[].remaining raw instead counts every GIS row at DOUBLE its
- * intended contribution, inflating incoming, Total (Left) and the Balance.
+ * It used to read each month document's stored `remaining`. A row deleted in a version
+ * of either app that did not re-total the month is still in that stored figure until
+ * the year is saved again, so Incoming, Total (Left) and the Balance kept counting a
+ * deal that was gone (2026-10-07). A month with no row list at all keeps what it stores.
  */
 export function sumMarginsRemaining(margins: any[]): number {
-  return (margins || [])
-    .filter((m: any) => !isNaN(m?.remaining))
-    .reduce((s: number, m: any) => s + (parseFloat(m.remaining) || 0), 0);
+  return (margins || []).reduce(
+    (s: number, m: any) => s + (Array.isArray(m?.items) ? monthRemaining(m.items) : Number(m?.remaining) || 0),
+    0
+  );
 }
 
 /** Σ of a manual cashflow entry list's `num` fields (web reduces `parseFloat(obj.num) || 0`). */

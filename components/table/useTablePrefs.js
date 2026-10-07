@@ -77,6 +77,19 @@ export const useTablePrefs = (name, initial, suffix = '') => {
   return [value, set]
 }
 
+/* Forget one column's saved filter on a route — for the rare day a filter's words change
+   meaning, when a tick left over from before would hide rows with nothing on screen to
+   say why. Call it before paint (useLayoutEffect), so it runs ahead of the effect in
+   useTablePrefs that restores the saved setup; guard it with a flag of your own so it
+   happens once per browser. */
+export const forgetSavedFilter = (pathname, columnId, suffix = '') => {
+  const key = keyFor(`${pathname || 'unknown'}${suffix ? `:${suffix}` : ''}`, 'filters')
+  const saved = read(key)
+  if (Array.isArray(saved) && saved.some(f => f?.id === columnId)) {
+    write(key, saved.filter(f => f?.id !== columnId))
+  }
+}
+
 /* Pagination, with only the page SIZE remembered. Landing on page 7 of a table you
    just opened is disorienting, so the index always starts at 0. */
 export const useTablePagination = (defaultSize = 50, suffix = '') => {

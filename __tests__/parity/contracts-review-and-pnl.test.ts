@@ -67,6 +67,8 @@ import { countDecimalDigits as webCountDecimalDigits } from '../../app/(root)/ma
 
 // ── helpers ──────────────────────────────────────────────────────────────────
 import { expectWebUnchanged, repoFileText, webFnSource } from './_helpers/webSource';
+// @ts-ignore — plain JS, no types: web's own rule for a draft document.
+import { docsInForce as webDocsInForce } from '../../utils/pureHelpers.js';
 import {
   FIXED_NOW,
   makeSettings,
@@ -179,7 +181,8 @@ const webTotal = (data: any[][], name: string, val: any, mult: any, settings: an
  * parameters instead of component state.
  */
 const webSetCurFilterRow = (x: any, valCur: any, settings: any) => {
-  const conValue = webContractsValue(x, 'pmnt', valCur, x.euroToUSD);
+  // 2026-10-06: purchase value is what the supplier INVOICED (invValue), not paid so far (pmnt).
+  const conValue = webContractsValue(x, 'invValue', valCur, x.euroToUSD);
   const totalInvoices = webTotal(x.invoicesData, 'totalAmount', valCur, x.euroToUSD, settings).accumuLastInv;
   const deviation = totalInvoices - webTotal(x.invoicesData, 'totalAmount', valCur, x.euroToUSD, settings).accumuDeviation;
   const totalPrepayment1 = webTotal(x.invoicesData, 'totalPrepayment', valCur, x.euroToUSD, settings).accumuLastInv;
@@ -200,7 +203,7 @@ const webSetCurFilterRow = (x: any, valCur: any, settings: any) => {
  * Note it is a SINGLE object with `cur: 'us'`; there is no per-currency bucketing.
  */
 const webSetTtl = (filteredData: any[], valCur: any, settings: any) => {
-  const totalContracts = filteredData.reduce((total, obj) => total + webContractsValue(obj, 'pmnt', valCur, obj.euroToUSD), 0);
+  const totalContracts = filteredData.reduce((total, obj) => total + webContractsValue(obj, 'invValue', valCur, obj.euroToUSD), 0);
   const totalInvoices1 = filteredData.reduce(
     (total, obj) => total + webTotal(obj.invoicesData, 'totalAmount', valCur, obj.euroToUSD, settings).accumuLastInv,
     0
@@ -410,8 +413,14 @@ describe('web drift alarms for every mirrored formula', () => {
     [REVIEW_PAGE, 'TotalInvoicePayments', '8019cd2e204a'],
     [REVIEW_PAGE, 'TotalArrsExp', 'da5d1073acf6'],
     [REVIEW_PAGE, 'Total', '69ae0d7d30da'],
-    [REVIEW_PAGE, 'setCurFilterData', '57b95d4f7cf5'],
-    [REVIEW_PAGE, 'setTtl', '083e57eddb48'],
+    /* Re-recorded 2026-10-06. Purchase Value moved from poInvoice.pmnt (paid so far) to
+       invValue (the supplier invoice) in both — the change calContracts made on 2026-09-14:
+       Profit read an unpaid supplier invoice as free material (PO 110926 Buss, $2.27M).
+       The mirrors above were moved with it. Mobile has no Contracts Review money columns
+       (deferred, see the parity README); its P&L screen (pnlModel.ts) moved to invValue
+       in the same change. */
+    [REVIEW_PAGE, 'setCurFilterData', 'cd9317aba69d'],
+    [REVIEW_PAGE, 'setTtl', 'a414084b00d3'],
     [PNL_TAB, 'Total', '1546deb9844d'],
     [PNL_TAB, 'TotalArrsExp', '1e5e583766cc'],
     [PNL_TAB, 'contractMT', 'fa56b921037b'],
@@ -845,17 +854,29 @@ describe('Contract P&L tab — sale, expenses, profit and freight/MT', () => {
       const c = pnlContract();
       const pnl = contractPnl(c, val.cur, SETTINGS)!;
       const mult = parseFloat(c.euroToUSD) || 1;
-      close(pnl.purchaseValue, webContractsValue(c, 'pmnt', val, c.euroToUSD));
+      close(pnl.purchaseValue, webContractsValue(c, 'invValue', val, c.euroToUSD));
       close(pnl.saleValue, webPnlTotal(c.invoicesData, 'totalAmount', val, c.euroToUSD, SETTINGS));
       close(pnl.expenses, webPnlArrsExp(c.invoicesData, val, mult));
       // pnl.js:218 — Profit = Sale − Purchase − Expenses
       close(
         pnl.profit,
         webPnlTotal(c.invoicesData, 'totalAmount', val, c.euroToUSD, SETTINGS) -
-          webContractsValue(c, 'pmnt', val, c.euroToUSD) -
+          webContractsValue(c, 'invValue', val, c.euroToUSD) -
           webPnlArrsExp(c.invoicesData, val, mult)
       );
     }
+  });
+
+  it('the purchase value is what the supplier INVOICED, not what has been paid so far (2026-10-06)', () => {
+    // Web's tab calls TotalArrsPmnt with 'invValue' — and so must mobile.
+    const tab = repoFileText(PNL_TAB).replace(/\s+/g, ' ');
+    expect(tab.match(/TotalArrsPmnt\(valueCon\.poInvoices, 'invValue'/g) || []).toHaveLength(3);
+    expect(tab).not.toContain("TotalArrsPmnt(valueCon.poInvoices, 'pmnt'");
+    // An invoice billed in full and paid a third: the purchase is the whole bill.
+    const c = { ...pnlContract(), poInvoices: [makePoInvoice({ invValue: '9000', pmnt: '3000' })] };
+    const pnl = contractPnl(c, 'us', SETTINGS)!;
+    close(pnl.purchaseValue, 9000);
+    close(pnl.profit, pnl.saleValue - 9000 - pnl.expenses);
   });
 
   it('freight/MT allocates FREIGHT-labelled expenses over the non-import tonnage (pnl.js:160-170)', () => {
@@ -1845,5 +1866,52 @@ describe('determinism', () => {
     expect(sumReviewFinancials(rows)).toEqual(
       sumReviewFinancials(reviewContracts().map((c) => reviewFinancials(c, c.invoicesData, USD, SETTINGS)))
     );
+  });
+});
+
+// ═════════════════════════════════════════════════════════════════════════════
+describe('a note still saved as a draft does not stand in for its invoice (2026-10-07)', () => {
+  // The rule itself (shared pureHelpers docsInForce / heldDraftIds) is tested web AND mobile in
+  // __tests__/invoiceStanding.test.js. What is pinned here is that every place which hands a
+  // contract its invoice groups applies it — the reducers above (Contracts Review, the P&L tab,
+  // the Dashboard's deal figures) are fed whatever these hand them.
+  const flat = (rel: string) => repoFileText(rel).replace(/\s+/g, ' ');
+
+  it('the groups a contract is handed are the documents in force — web and mobile', () => {
+    // web utils.js groupedArrayInvoice ← contractInvoicesFromIndex(…, grouped = true)
+    expect(flat('utils/utils.js')).toContain('return groupedArray1.map(docsInForce); };');
+    expect(flat('utils/utils.js')).toContain('return grouped ? groupedArrayInvoice(collected) : collected;');
+    // mobile data/firestore.ts — the same two steps
+    const mob = flat('mobile/src/data/firestore.ts');
+    expect(mob).toContain('.map((g) => docsInForce(g) as Invoice[]); }');
+    expect(mob).toContain('return grouped ? groupedArrayInvoice(collected) : collected;');
+  });
+
+  it('the Contracts Statement picks its one document per number among the documents in force', () => {
+    // Shipped weight: IMS PO 280426 read 8.936 MT off draft note 1431FN while invoice 1431
+    // had taken 9.979 MT out of the stock.
+    expect(flat('app/(root)/ContractsReview&Statement/page.js')).toContain(
+      'const held = heldDraftIds(obj.invoicesData) const invoices = obj.invoices.filter(x => !held.has(x.id))'
+    );
+    const mob = flat('mobile/src/features/review/useContractsReview.ts');
+    expect(mob).toContain('const held = heldDraftIds(docs); const invoices = (contract.invoices || []).filter((x: any) => !held.has(x.id));');
+    expect(mob).toContain('const invIds = getInvArray(contract, invoicesData);');
+    // …and so does the contract window's Inventory tab (web only), which lists one
+    // document per invoice number with what it shipped.
+    expect(flat('app/(root)/contracts/modals/tabs/inventory.js')).toContain(
+      'const held = heldDraftIds(docs) const dt = docs.filter(x => !held.has(x.id))'
+    );
+  });
+
+  it('fed the documents in force, a PO reads its invoice at the value it was issued for', () => {
+    // IMS #1431 — issued $309,349.00, its Final Note ($277,016.00) still a draft.
+    const inv = makeInvoice({ id: 'i', invoice: 1431, totalAmount: 309349 });
+    const note = makeFinalNote({ id: 'f', invoice: 1431, totalAmount: 277016, draft: true });
+    const c = makeContract({ id: 'c', cur: 'us' });
+    const inForce = webDocsInForce([inv, note]);
+    expect(inForce.map((d: any) => d.id)).toEqual(['i']);
+    expect(reviewFinancials(c, [inForce], USD, SETTINGS).totalInvoices).toBe(309349);
+    // the note in its place is what every one of these pages used to show
+    expect(reviewFinancials(c, [[inv, note]], USD, SETTINGS).totalInvoices).toBe(277016);
   });
 });

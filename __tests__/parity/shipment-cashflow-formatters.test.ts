@@ -33,6 +33,7 @@ import {
   makePoInvoice,
   makeExpense,
   makeMarginMonth,
+  makeMarginItem,
   makeProduct,
   makeStockLot,
 } from './_helpers/fixtures';
@@ -41,6 +42,15 @@ import {
 // Used to build the contract list web's shipment page actually holds in state.
 // @ts-ignore — plain JS, no types
 import { normalizeStatus as webNormalizeStatus } from '../../app/(root)/contractsstatement/shipmentStatus';
+// WEB's own Weight Analysis pipeline, restored 2026-10-07 (a plain JS module).
+// @ts-ignore — plain JS, no types
+import * as webAnalysis from '../../app/(root)/analysis/weightAnalysis.js';
+// WEB's own rule for a draft document (the shared pure module, web copy).
+// @ts-ignore — plain JS, no types
+import { docsInForce as webDocsInForce, heldDraftIds as webHeldDraftIds } from '../../utils/pureHelpers.js';
+// WEB's own Margins view rules — Cashflow's "Incoming" is one of them.
+// @ts-ignore — plain JS, no types
+import { incomingOf as webIncomingOf } from '../../app/(root)/margins/marginsView';
 
 // ── mobile under test ────────────────────────────────────────────────────────
 import {
@@ -1058,16 +1068,11 @@ describe('shipment — where a status change is written', () => {
 // CASHFLOW
 // ═════════════════════════════════════════════════════════════════════════════
 
-/** Mirror of app/(root)/cashflow/page.js:215-219 — the "Future / incoming" figure. */
+/** app/(root)/cashflow/page.js — the "Future / incoming" figure: each year's months through
+ *  web's OWN marginsView.incomingOf (the rows added up, a shared deal counting half). The
+ *  page's line is pinned in the incoming tests below. */
 const webIncoming = (marginsPerYear: any[][]) =>
-  marginsPerYear.reduce(
-    (total, dt) =>
-      total +
-      dt
-        .filter((item: any) => !isNaN(item.remaining))
-        .reduce((acc: number, item: any) => acc + (parseFloat(item.remaining) || 0), 0),
-    0
-  );
+  marginsPerYear.reduce((total, dt) => total + webIncomingOf(dt), 0);
 
 /** Mirror of app/(root)/cashflow/page.js:287-304 — Total (Left). */
 const webTotalLeft = (p: {
@@ -1175,6 +1180,32 @@ describe('shipment — contracted, shipped and remaining quantities (web 8845db1
     expect(qtyMap['c-x'].shipped).toBe(4);
   });
 
+  it('a note still saved as a DRAFT does not stand in for its invoice — the shipment is the one issued', () => {
+    // 2026-10-07, web page.js heldDraftIds: IMS invoice 1431 shipped 9.979 MT (and took that
+    // out of the stock); its Final Note, still a draft, says 8.936.
+    const c = makeContract({ id: 'c-d', productsData: [{ qnty: '30' }] });
+    const inv = makeInvoice({ id: 'd1', invoice: 1431, invType: '1111', poSupplier: { id: 'c-d' }, productsDataInvoice: [{ qnty: '3.996' }, { qnty: '5.983' }] });
+    const note = makeInvoice({ id: 'd2', invoice: 1431, invType: '3333', draft: true, poSupplier: { id: 'c-d' }, productsDataInvoice: [{ qnty: '3.971' }, { qnty: '4.965' }] });
+    const held = buildShipmentQtyMap([inv, note]);
+    expect(held['c-d'].shipments.map((x) => x.id)).toEqual(['d1']);
+    expect(held['c-d'].shipped).toBeCloseTo(9.979, 6);
+    // the same rule web applies to the same documents
+    expect([...webHeldDraftIds([inv, note])]).toEqual(['d2']);
+    // once the note is issued it supersedes the invoice, as before
+    const issued = buildShipmentQtyMap([inv, { ...note, draft: false }]);
+    expect(issued['c-d'].shipments.map((x) => x.id)).toEqual(['d2']);
+    expect(issued['c-d'].shipped).toBeCloseTo(8.936, 6);
+    // a draft invoice on its own is still listed: there is nothing issued for it to stand in for
+    const alone = buildShipmentQtyMap([makeInvoice({ id: 'd3', invoice: 1478, draft: true, poSupplier: { id: 'c-d' }, productsDataInvoice: [{ qnty: '2' }] })]);
+    expect(alone['c-d'].shipments.map((x) => x.id)).toEqual(['d3']);
+    expect(buildShipmentRows([c], {}, {}, settings, held)[0].shippedQty).toBeCloseTo(9.979, 6);
+  });
+
+  it('web Shipments sets the held drafts aside before it picks a document per number', () => {
+    const src = repoFileText('app/(root)/shipment/page.js').replace(/\s+/g, ' ');
+    expect(src).toContain('const held = heldDraftIds(docs); const groups = new Map(); docs.forEach(d => { if (held.has(d.id)) return;');
+  });
+
   it('over-shipping produces a NEGATIVE remaining rather than clamping at zero', () => {
     // The web cell colours that case red; the figure has to be able to go past 0.
     const c = makeContract({ id: 'c-over', productsData: [{ qnty: '5' }] });
@@ -1213,7 +1244,11 @@ describe('shipment — contracted, shipped and remaining quantities (web 8845db1
 describe('cashflow — web drift alarms', () => {
   const CF = 'app/(root)/cashflow/page.js';
 
-  it("web's incoming figure has not drifted", () => expectWebUnchanged(CF, 'tmp', 'e5830119f799'));
+  // Re-recorded 2026-10-07 (was e5830119f799): Incoming is now added up from the Margins
+  // ROWS through marginsView.incomingOf instead of read off each month's stored `remaining`.
+  // Mobile took the same change (useCashflow.sumMarginsRemaining) and the mirror above calls
+  // web's own function — see "the incoming (Future) figure" below.
+  it("web's incoming figure has not drifted", () => expectWebUnchanged(CF, 'tmp', 'c248e77b0f0e'));
   it("web's Total (Left) has not drifted", () => expectWebUnchanged(CF, 'total', 'ef1a8e305133'));
 
   it("web's Total (Right) has not drifted", () => {
@@ -1268,41 +1303,56 @@ describe('cashflow — the running-balance windows', () => {
 });
 
 describe('cashflow — the incoming (Future) figure', () => {
-  it('sums the margins MONTH documents\' own remaining, already GIS-halved', () => {
-    // web page.js:215-219 reduces over each YEAR's array of month docs and reads
-    // `item.remaining` — the month-level field, which margins/page.js:484 writes as
-    // `cur.gis ? cur.remaining / 2 : cur.remaining`. Summing items[].remaining raw
-    // instead double-counts every GIS row.
+  // 2026-10-07 (whole-app cross-check). Incoming used to be Σ each month document's STORED
+  // `remaining`. Neither app re-totalled a month when a row was deleted, so the stored figure
+  // kept a deal that was gone until the year was saved again — and the phone build in people's
+  // hands still writes months that way. Both apps now add the ROWS up, as the Margins page does.
+  const row = (remaining: any, over: Record<string, any> = {}) =>
+    makeMarginItem({ id: `r-${String(remaining)}-${over.gis ? 'g' : 'n'}`, remaining, ...over });
+
+  it('web Cashflow adds the figure up with marginsView.incomingOf — the line this mirrors', () => {
+    expect(repoFileText('app/(root)/cashflow/page.js')).toContain(
+      'const tmp = marginsPerYear.reduce((total, dt) => total + incomingOf(dt), 0);'
+    );
+  });
+
+  it('adds up each month\'s ROWS, a shared (GIS) deal counting half', () => {
     const months = [
-      makeMarginMonth({ month: '01', remaining: 6 }),
-      makeMarginMonth({ month: '02', remaining: 12.5 }),
+      makeMarginMonth({ month: '01', items: [row(6), row(5, { gis: true })] }),
+      makeMarginMonth({ month: '02', items: [row(10)] }),
     ];
-    expect(sumMarginsRemaining(months)).toBe(18.5);
+    expect(sumMarginsRemaining(months)).toBe(18.5); // 6 + 2.5 + 10
     expect(sumMarginsRemaining(months)).toBe(webIncoming([months]));
   });
 
-  it('a month whose remaining is not a number is skipped, not treated as zero-and-counted', () => {
-    // web page.js:217 — `.filter(item => !isNaN(item.remaining))`.
-    const months = [
-      makeMarginMonth({ month: '01', remaining: 10 }),
-      makeMarginMonth({ month: '02', remaining: 'n/a' }),
-      makeMarginMonth({ month: '03', remaining: undefined }),
-    ];
-    expect(sumMarginsRemaining(months)).toBe(10);
+  it('a stored month total that its rows no longer make is not what counts', () => {
+    // A row deleted without the month being re-totalled: the document still stores 120.
+    const months = [makeMarginMonth({ month: '01', remaining: 120, items: [row(100)] })];
+    expect(sumMarginsRemaining(months)).toBe(100);
     expect(sumMarginsRemaining(months)).toBe(webIncoming([months]));
   });
 
-  it('a numeric string remaining is parsed, and a blank one contributes zero', () => {
-    // isNaN('') is false, so '' survives the filter and parseFloat('') || 0 gives 0.
-    const months = [makeMarginMonth({ remaining: '7.25' }), makeMarginMonth({ remaining: '' })];
-    expect(sumMarginsRemaining(months)).toBe(7.25);
+  it('a row figure that is not a number counts as zero; a numeric string is read', () => {
+    const months = [
+      makeMarginMonth({ items: [row('7.25'), row(''), row('n/a'), { id: 'bare' }, row('4', { gis: true })] }),
+    ];
+    expect(sumMarginsRemaining(months)).toBe(9.25); // 7.25 + half of 4
     expect(sumMarginsRemaining(months)).toBe(webIncoming([months]));
+  });
+
+  it('a month with no row list at all keeps the figure it stores; an empty list is an empty month', () => {
+    const legacy = { month: '03', remaining: 40 };
+    expect(sumMarginsRemaining([legacy])).toBe(40);
+    expect(sumMarginsRemaining([legacy])).toBe(webIncoming([[legacy]]));
+    const emptied = [makeMarginMonth({ month: '04', remaining: 40, items: [] })];
+    expect(sumMarginsRemaining(emptied)).toBe(0);
+    expect(sumMarginsRemaining(emptied)).toBe(webIncoming([emptied]));
   });
 
   it('years are summed together, not the latest year only', () => {
     // web reduces over marginsPerYear (one array per year in `yr`).
-    const y1 = [makeMarginMonth({ remaining: 100 })];
-    const y2 = [makeMarginMonth({ remaining: 50 })];
+    const y1 = [makeMarginMonth({ items: [row(100)] })];
+    const y2 = [makeMarginMonth({ items: [row(50)] })];
     expect(sumMarginsRemaining([...y1, ...y2])).toBe(webIncoming([y1, y2]));
     expect(sumMarginsRemaining([...y1, ...y2])).toBe(150);
   });
@@ -1350,7 +1400,8 @@ describe('cashflow — the bottom line', () => {
       makeInvoice({ id: 'i1', invoice: 1001, totalAmount: 12000, payments: [{ pmnt: '5000' }] }),
       makeInvoice({ id: 'i2', invoice: 1002, totalAmount: 4000, payments: [], client: 'cli-2' }),
     ];
-    const margins = [makeMarginMonth({ remaining: 900 })];
+    // Incoming comes from the month's ROWS (one row still to bring in 900).
+    const margins = [makeMarginMonth({ items: [makeMarginItem({ remaining: 900 })] })];
     const cashflowDoc = { financed: { initial: [{ num: '2000' }], financedLeft: [{ num: '150' }] } };
     const d = world({ invoices, margins, cashflowDoc });
 
@@ -1646,7 +1697,7 @@ describe('cashflow — the bottom line', () => {
     const contracts4y = [
       makeContract({ id: 'c1', poInvoices: [makePoInvoice({ id: 'p1', blnc: '9000' })] }),
     ];
-    const d = world({ contracts4y, margins: [makeMarginMonth({ remaining: 1000 })] });
+    const d = world({ contracts4y, margins: [makeMarginMonth({ items: [makeMarginItem({ remaining: 1000 })] })] });
     expect(d.balance).toBeCloseTo(d.totalLeft - d.totalRight, 6);
     expect(d.balance).toBeCloseTo(1000 - 9000, 6);
     expect(d.balance).toBeLessThan(0);
@@ -1741,6 +1792,58 @@ describe('cashflow — Clients Payment / Balances split (page.js:1633, :1690)', 
     expect(d.clientsWithBalance).toHaveLength(1);
     expect(d.clientsWithBalance[0].usd).toBeCloseTo(-3000, 6);
     expect(d.clientsNoPayment).toHaveLength(0);
+  });
+});
+
+describe('cashflow — a note still saved as a draft does not hide its issued invoice (2026-10-07)', () => {
+  // Web reduces the groups utils.js groupedArrayInvoice hands it, and that now passes each
+  // group through docsInForce. Before, the draft note took the invoice's place and the row was
+  // then dropped for being a draft: money still owed was in no receivable.
+  const settings = makeSettings();
+  const world = (invoices: any[]) =>
+    computeCashflow({
+      invoices, contracts4y: [], contracts2y: [], expenses: [], companyExpenses: [], margins: [], cashflowDoc: {}, stocks: [], settings,
+    });
+  const note = (over: Record<string, any>) => makeInvoice({ invType: '3333', payments: [], ...over });
+
+  it('the invoice stays a receivable at what is still owed on it — GIS #40, $69,328.09', () => {
+    const d = world([
+      makeInvoice({ id: 'i40', invoice: 40, totalAmount: 1386561.8, payments: [{ pmnt: '1317233.71' }] }),
+      note({ id: 'f40', invoice: 40, totalAmount: 1386561.8, draft: true }),
+    ]);
+    expect(d.clientsWithBalance).toHaveLength(1);
+    expect(d.clientsWithBalance[0].usd).toBeCloseTo(69328.09, 2);
+    expect(d.kpi.clientsDue).toBeCloseTo(69328.09, 2);
+  });
+
+  it('at the invoice\'s own value, not the draft note\'s — IMS #1431 is owed $15,467.45, not in credit', () => {
+    const d = world([
+      makeInvoice({ id: 'i1431', invoice: 1431, totalAmount: 309349, payments: [{ pmnt: '293881.55' }] }),
+      note({ id: 'f1431', invoice: 1431, totalAmount: 277016, draft: true }),
+    ]);
+    expect(d.clientsWithBalance).toHaveLength(1);
+    expect(d.clientsWithBalance[0].usd).toBeCloseTo(15467.45, 2);
+  });
+
+  it('once the note is issued it replaces the invoice, as before', () => {
+    const d = world([
+      makeInvoice({ id: 'i1431', invoice: 1431, totalAmount: 309349, payments: [{ pmnt: '293881.55' }] }),
+      note({ id: 'f1431', invoice: 1431, totalAmount: 277016, draft: false }),
+    ]);
+    expect(d.clientsWithBalance[0].usd).toBeCloseTo(277016 - 293881.55, 2);
+  });
+
+  it('a draft invoice on its own is still not a receivable', () => {
+    const d = world([makeInvoice({ id: 'd1', invoice: 1478, totalAmount: 210216.56, payments: [], draft: true })]);
+    expect(d.clientsNoPayment).toHaveLength(0);
+    expect(d.clientsWithBalance).toHaveLength(0);
+    expect(d.kpi.clientsDue).toBe(0);
+  });
+
+  it('web takes the same step where the groups are made', () => {
+    expect(repoFileText('utils/utils.js')).toContain('return groupedArray1.map(docsInForce);');
+    // …and Cashflow still reduces exactly those groups
+    expect(repoFileText('app/(root)/cashflow/funcs.js')).toContain('dt = groupedArrayInvoice(dt)');
   });
 });
 
@@ -2073,7 +2176,9 @@ const webMergeObj = (data: any[]) => {
   return merged;
 };
 
-/** Mirror of utils/utils.js:123 groupedArrayInvoice — sorts the CALLER'S array in place. */
+/** Mirror of utils/utils.js:130 groupedArrayInvoice — sorts the CALLER'S array in place, then
+ *  passes each group through web's own docsInForce (a draft does not stand in for a document
+ *  that has been issued — 2026-10-07). */
 const webGroupedArrayInvoice = (arrD: any[]) =>
   arrD
     .sort((a, b) => a.invoice - b.invoice)
@@ -2082,7 +2187,8 @@ const webGroupedArrayInvoice = (arrD: any[]) =>
       if (group) group.push(obj);
       else result.push([obj]);
       return result;
-    }, []);
+    }, [])
+    .map(webDocsInForce);
 
 /** Mirror of utils/utils.js:143 sortArr. */
 const webSortArr = (arr: any[], name: string) => {
@@ -2171,19 +2277,25 @@ const webCreateData = (arr: any[]) => {
 };
 
 describe('weight analysis — drift alarms', () => {
-  it("web's /analysis is still the gutted HEAD version the mobile port routes around", () => {
-    // mobile/src/features/analysis/weightAnalysis.ts is ported from git 065057f
-    // because commit 75eaf3f deleted web's whole transformation pipeline. If web
-    // ever restores it, this fails — and the port must be re-diffed against the
-    // restored code rather than against a two-year-old revision.
-    const text = repoFileText('app/(root)/analysis/page.js');
-    expect(text).toContain('// ...data transformation logic here...');
-    expect(text).not.toContain('const extractData');
-    expect(text).not.toContain('const calcAverage');
+  it("web's /analysis has its pipeline back, and it is the one the mobile port was taken from", () => {
+    // Commit 75eaf3f (2026-01-26) deleted web's whole transformation pipeline and left
+    // "// ...data transformation logic here..." in its place, so the page listed PO numbers
+    // beside thirteen blank columns; mobile was ported from the last revision that had it
+    // (065057f). Restored 2026-10-07 as app/(root)/analysis/weightAnalysis.js — the same
+    // functions, now importable, so every mirror below is also checked against web's OWN
+    // code ("web's restored module" further down), not only against the old revision.
+    const page = repoFileText('app/(root)/analysis/page.js');
+    expect(page).not.toContain('// ...data transformation logic here...');
+    expect(page).toContain("getInvoices(uidCollection, 'invoices', invoiceBatches(x))");
+    expect(page).toContain('setDataTable(createData(dt, { groupByInvoice: groupedArrayInvoice, sortByDate: sortArr }));');
   });
 
+  // Re-recorded 2026-10-07 (was a2e5f7fadd86): each group now passes through docsInForce —
+  // a note still saved as a draft does not stand in for an issued invoice. The mirror above
+  // and mobile's ports (weightAnalysis.groupedArrayInvoice, firestore.ts groupedArrayInvoice,
+  // useCashflow's receivables) take the same step.
   it("web's groupedArrayInvoice has not drifted", () =>
-    expectWebUnchanged('utils/utils.js', 'groupedArrayInvoice', 'a2e5f7fadd86'));
+    expectWebUnchanged('utils/utils.js', 'groupedArrayInvoice', '2ce671f719d7'));
   it("web's sortArr has not drifted", () => expectWebUnchanged('utils/utils.js', 'sortArr', '9c686eb8a0e8'));
 });
 
@@ -2382,6 +2494,77 @@ describe('weight analysis — the whole report', () => {
       webCreateData(two.map((c) => ({ ...c }))).map((r: any) => r.date)
     );
     expect(createWeightRows(two).map((r: any) => r.date)).toEqual(['2026-01-01', '2026-05-01']);
+  });
+});
+
+// ═════════════════════════════════════════════════════════════════════════════
+describe("weight analysis — web's restored module (app/(root)/analysis/weightAnalysis.js)", () => {
+  // Restored 2026-10-07. Tier 2: web's OWN functions, imported — against the mirrors
+  // transcribed from the last revision that had them, and against mobile's port.
+  const contracts = () => [
+    {
+      order: 'PO-2026-001', date: '2026-03-15', supplier: 'sup-1',
+      invoices: [{ id: 'a', invoice: 1001, date: '2026-03-20' }, { id: 'b', invoice: 1001, date: '2026-06-01' }, { id: 'c', invoice: 1002, date: '2027-01-05' }],
+      productsData: [{ id: 'prd-1', description: '8.5Ni 18.2Cr scrap' }, { id: 'prd-2', description: '62.45Ni 13.03Cr 2.1Mo Ingots' }],
+      invoicesData: [
+        { invoice: 1001, invType: '1111', productsDataInvoice: [
+          { descriptionId: 'prd-1', descriptionText: '', qnty: '10', cert: 'C-1' },
+          { descriptionId: 'prd-2', descriptionText: '62.45Ni 13.03Cr 2.1Mo Ingots', qnty: '5.983', cert: 'C-2' },
+        ] },
+        { invoice: 1001, invType: '3333', productsDataInvoice: [
+          { descriptionId: 'prd-1', descriptionText: '8.7Ni 18.0Cr scrap', qnty: '9.8', cert: 'C-9' },
+          { descriptionId: 'prd-2', descriptionText: '62.10Ni 13.20Cr 2.0Mo Ingots', qnty: '4.965' },
+        ] },
+        // no Final Note yet: nothing to compare, no row
+        { invoice: 1002, invType: '1111', productsDataInvoice: [{ descriptionId: 'prd-1', descriptionText: '', qnty: '7' }] },
+      ],
+    },
+  ];
+  const deps = { groupByInvoice: webGroupedArrayInvoice, sortByDate: webSortArr };
+
+  it('each function is the one the mirrors were transcribed from', () => {
+    for (const [desc, type] of [['8.5Ni 18.2Cr 2.1Mo scrap', '1111'], ['8.7Ni 18.0Cr', '3333'], ['Mixed turnings', '1111'], [undefined, '1111']] as const) {
+      expect(webAnalysis.extractData(desc, type)).toEqual(webExtractData(desc, type));
+    }
+    for (const n of [1.234, -0.5, 12, 0, NaN, undefined, '5', Infinity]) expect(webAnalysis.calc(n)).toBe(webCalc(n));
+    const rows = [
+      { invType: '1111', qnty: '10', cert: 'A' }, { invType: '3333', qnty: '9.8', cert: 'B' },
+      { invType: '1111', qnty: '4', cert: 'C' }, { invType: '2222', qnty: '1', cert: 'D' },
+    ];
+    expect(webAnalysis.mergeObj(rows)).toEqual(webMergeObj(rows));
+    const group = () => [
+      { order: 'PO-1', date: '2026-01-01', ToNi: 8, BackNi: 8.4, Toqnty: 10, Backqnty: 9.8 },
+      { order: 'PO-1', date: '2026-01-01', ToNi: 9, BackNi: 8.6, Toqnty: 20, Backqnty: 20.2 },
+      { order: 'PO-2', date: '2026-02-01', ToNi: 7, BackNi: 7.1, Toqnty: 3, Backqnty: 3 },
+    ];
+    expect(webAnalysis.calcAverage(group())).toEqual(webCalcAverage(group()));
+  });
+
+  it('the whole report: web restored = the old revision = mobile', () => {
+    const web = webAnalysis.createData(contracts(), deps);
+    expect(web).toEqual(webCreateData(contracts()));
+    // Mobile marks its synthetic row (isAverage) for styling; the figures are the same.
+    const mobile = createWeightRows(contracts()).map(({ isAverage, ...r }: any) => r);
+    expect(mobile).toEqual(web);
+    // two compared lines and their PO's average — invoice 1002 has no Final Note yet
+    expect(web.map((r: any) => r.cert)).toEqual(['C-1', 'C-2', 'Average']);
+    expect(web.map((r: any) => [r.Toqnty, r.Backqnty, r.diffqnty])).toEqual([['10', '9.8', '-0.20'], ['5.983', '4.965', '-1.02'], ['15.98', '14.77', '']]);
+    expect(web[1]).toMatchObject({ ToNi: 62.45, BackNi: 62.1, diffNi: '-0.35', ToMo: 2.1, BackMo: 2, diffMo: '-0.10' });
+  });
+
+  it('getInvoices is handed the contract\'s invoice numbers, a batch per year — not the contract', () => {
+    // The bug that blanked the page: getInvoices(uid, "invoices", contract) found no batches.
+    expect(webAnalysis.invoiceBatches(contracts()[0])).toEqual([
+      { yr: '2026', arrInv: [1001] },
+      { yr: '2027', arrInv: [1002] },
+    ]);
+    expect(webAnalysis.invoiceBatches({})).toEqual([]);
+    expect(webAnalysis.invoiceBatches({ invoices: [null, { invoice: 5 }, { invoice: 6, date: '2026-01-01' }] })).toEqual([{ yr: '2026', arrInv: [6] }]);
+  });
+
+  it('a contract with no invoices, or none loaded, gives no rows rather than throwing', () => {
+    expect(webAnalysis.createData([{ order: 'PO-X', date: '2026-01-01' }], deps)).toEqual([]);
+    expect(webAnalysis.createData(undefined, deps)).toEqual([]);
   });
 });
 

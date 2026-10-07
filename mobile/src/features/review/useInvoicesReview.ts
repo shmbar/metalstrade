@@ -2,8 +2,8 @@ import { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '@/store/auth';
 import { useSettings } from '@/store/settings';
-import { loadData } from '@/data/firestore';
-import { Contract, Invoice } from '@/data/types';
+import { loadData, loadInvoicesBookedIn } from '@/data/firestore';
+import { Contract } from '@/data/types';
 import { InvoiceView } from '@/features/invoices/useInvoices';
 import { computeInvoicesReview, PartyStatement } from '@/features/review/reviewCore';
 import { useShallow } from 'zustand/react/shallow';
@@ -22,8 +22,10 @@ export function useInvoicesReview() {
     queryKey: ['invoices-review', uidCollection, dateSelect.start, dateSelect.end],
     queryFn: async () => {
       const uid = uidCollection as string;
+      // The invoices ISSUED in the period, each with all of its documents — web's
+      // InvoicesReview page reads the same rows (utils.js loadInvoicesBookedIn).
       const [invoices, contracts] = await Promise.all([
-        loadData<Invoice>(uid, 'invoices', dateSelect),
+        loadInvoicesBookedIn(uid, dateSelect),
         loadData<Contract>(uid, 'contracts', dateSelect),
       ]);
       return { invoices, contracts };

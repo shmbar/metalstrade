@@ -1,4 +1,5 @@
 import { db } from '../../../utils/firebase'
+import { docsInForce } from '../../../utils/pureHelpers'
 import {
     doc, getDoc, collection, getDocs, query, where, deleteDoc, writeBatch,
 } from "firebase/firestore";
@@ -27,7 +28,10 @@ export const groupedArrayInvoice = (arrD) => {
         return result;
     }, []); // Initialize result as an empty array
 
-    return groupedArray1;
+    // A note still saved as a draft does not stand in for the invoice it would replace —
+    // the same rule as utils.js groupedArrayInvoice (pureHelpers.js docsInForce). The job
+    // that writes the stored statements runs outside this app and has to take it too.
+    return groupedArray1.map(docsInForce);
 };
 
 export const runAccountStatement = async () => {

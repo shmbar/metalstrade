@@ -21,7 +21,7 @@ import { TableSkeleton } from "../../../components/skeletons";
 import Tltip from '../../../components/tlTip';
 import TruncatedCell from '@components/table/TruncatedCell';
 import { ExternalLink } from 'lucide-react';
-import { invoiceQtyBySalesContract } from '../../../utils/salesLink';
+import { invoiceQtyBySalesContract, settledInvoices } from '../../../utils/salesLink';
 import { BtnIcon } from '@components/buttonIcons';
 import CurrencyChip from '@components/CurrencyChip';
 
@@ -117,8 +117,9 @@ const SalesContracts = () => {
                 // the invoice total onto a single contract. utils/salesLink falls back to
                 // the invoice-level link for untagged rows, so an invoice that has not
                 // been split still lands entirely on the same contract as before.
-                invoices
-                    .filter(inv => inv && !inv.canceled)
+                // Each invoice once, as it stands: its Final Note replaces it rather than
+                // shipping the same material again (salesLink.js settledInvoices).
+                settledInvoices(invoices)
                     .forEach(inv => {
                         const byScTmp = invoiceQtyBySalesContract(inv);
                         for (const scId of Object.keys(byScTmp)) {

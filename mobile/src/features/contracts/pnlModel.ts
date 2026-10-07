@@ -98,7 +98,9 @@ export function contractPnl(contract: any, viewCur: 'us' | 'eu', settings: any):
   const val: ViewCur = { cur: viewCur };
   const mult = parseFloat(contract.euroToUSD) || 1;
 
-  const purchaseValue = contractsValue(contract, 'pmnt', val, mult);
+  // What the supplier INVOICED (invValue), not what has been paid so far (pmnt) — web
+  // contracts/modals/tabs/pnl.js, 2026-10-06: an unpaid supplier invoice read as free material.
+  const purchaseValue = contractsValue(contract, 'invValue', val, mult);
   const groups: any[][] = Array.isArray(contract.invoicesData) ? contract.invoicesData : [];
 
   const expenses = pnlExpenses(groups, val, mult);

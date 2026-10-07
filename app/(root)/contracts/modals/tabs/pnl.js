@@ -46,6 +46,9 @@ const Total = (data, name, val, mult, settings) => {
   return accumulatedTotalAmount;
 }
 
+/* Called with 'invValue': the purchase value is what the supplier INVOICED, not what has
+   been paid against it so far ('pmnt') — this tab's Profit read an unpaid supplier invoice
+   as free material (2026-10-06; the Dashboard and the Contracts Review read invValue too). */
 const TotalArrsPmnt = (data, name, valCon, val, mult) => {
   let accumulatedPmnt = 0;
 
@@ -183,7 +186,7 @@ const PNL = () => {
           <div className='flex gap-2 pt-2 flex-wrap'>
             <p className='responsiveText font-medium text-[var(--chathams-blue)] responsiveTextInput'>{getTtl('purchaseValue', ln)}</p>
             <p className='responsiveText items-center flex text-[var(--port-gore)] font-medium'>
-              {setNum(valCur, TotalArrsPmnt(valueCon.poInvoices, 'pmnt', valueCon, valCur, valueCon.euroToUSD), settings)}</p>
+              {setNum(valCur, TotalArrsPmnt(valueCon.poInvoices, 'invValue', valueCon, valCur, valueCon.euroToUSD), settings)}</p>
 
             {/*edit ? <input className="input w-20 shadow-lg h-5 responsiveTextInput" value={newContractValue} onChange={(e) => setNewContrctValue(e.target.value)} onKeyDown={handleKeyPress} /> :
               <div className='group flex gap-1'>
@@ -206,7 +209,7 @@ const PNL = () => {
           <div className='w-full text-right h-4 -mt-2'>-</div>
           <div className='flex justify-between whitespace-nowrap gap-2'>
             <p className='responsiveText font-medium text-[var(--chathams-blue)] responsiveTextInput'>{getTtl('purchaseValue', ln)}</p>
-            <p className='responsiveText'>{setNum(valCur, TotalArrsPmnt(valueCon.poInvoices, 'pmnt', valueCon, valCur, valueCon.euroToUSD), settings)}</p>
+            <p className='responsiveText'>{setNum(valCur, TotalArrsPmnt(valueCon.poInvoices, 'invValue', valueCon, valCur, valueCon.euroToUSD), settings)}</p>
           </div>
           <div className='w-full text-right h-4 -mt-2'>-</div>
           <div className='flex justify-between whitespace-nowrap gap-2'>
@@ -217,7 +220,7 @@ const PNL = () => {
           <div className='flex justify-between whitespace-nowrap gap-2 font-medium'>
             <p className='responsiveText w-28 font-medium text-[var(--chathams-blue)] responsiveTextInput'>{getTtl('Profit', ln)}</p>
             <p className='responsiveText'>{setNum(valCur, (Total(pnlData, 'totalAmount', valCur, valueCon.euroToUSD, settings) -
-              TotalArrsPmnt(valueCon.poInvoices, 'pmnt', valueCon, valCur, valueCon.euroToUSD) - TotalArrsExp(pnlData, valCur, valueCon.euroToUSD)), settings)}</p>
+              TotalArrsPmnt(valueCon.poInvoices, 'invValue', valueCon, valCur, valueCon.euroToUSD) - TotalArrsExp(pnlData, valCur, valueCon.euroToUSD)), settings)}</p>
           </div>
         </div>
         <div className='flex col-span-6 border border-[var(--line)] rounded-2xl overflow-hidden'>

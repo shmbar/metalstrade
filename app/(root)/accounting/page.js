@@ -11,15 +11,17 @@ import VideoLoader from '../../../components/videoLoader';
 import { TableSkeleton } from "../../../components/skeletons";
 import { UserAuth } from "../../../contexts/useAuthContext"
 import {
-  loadData, sortArr, loadExpensesForAccounting, loadAdditionalCNFN,
+  sortArr, loadExpensesForAccounting, loadInvoicesBookedIn,
   loadDocsByIdBatched
 } from '../../../utils/utils'
+import { ledgerTotals } from '../../../utils/finance'
+import { moneyFull } from '../../../utils/currency'
 import Spin from '../../../components/spinTable';
 import { EXD } from './excel'
 import dateFormat from "dateformat";
 import { getTtl } from '../../../utils/languages';
 import DateRangePicker from '../../../components/dateRangePicker';
-import { Wallet, TrendingUp, TrendingDown, PiggyBank } from 'lucide-react';
+import { Wallet, TrendingUp, TrendingDown, Percent } from 'lucide-react';
 import KpiStrip from '../../../components/KpiStrip';
 import EditableCell from '../../../components/table/inlineEditing/EditableCell';
 import EditableSelectCell from '../../../components/table/inlineEditing/EditableSelectCell';
@@ -155,23 +157,11 @@ const Accounting = () => {
     const Load = async () => {
       setLoading(true)
 
-      let dt = await loadData(uidCollection, 'invoices', dateSelect);
-
-      //load credit/final notes if any
-      const cnOrfn = dt.filter(({ invoice, invType, cnORfl }) =>
-        dt.filter(item => item.invoice === invoice).length === 1 &&
-        ['1111', 'invoice'].includes(invType) && cnORfl !== undefined && cnORfl !== null).
-        map(z => z.cnORfl);
-
-
-      //remove invoices that have only invtype:3333/2222 and dont have original in the same period
-      dt = dt.filter(z => dt.find(x => x.invoice === z.invoice && x.invType === '1111') ||
-        (z.invType === '1111' || z.invType === 'Invoice'))
-
-
-      // Load additional invoices that that their original in the selected period but they may be in other periods
-      let cnfnData = await loadAdditionalCNFN(uidCollection, cnOrfn)
-      dt = sortArr([...dt, ...cnfnData], 'invoice') //array of all invoices
+      // Every invoice issued in the period with all of its documents — a note that settled
+      // it later included, an invoice issued before the period left out. The loader is
+      // shared with the Invoices Review (utils.js loadInvoicesBookedIn), so the two read
+      // the same invoices; it does what this page used to do inline.
+      let dt = sortArr(await loadInvoicesBookedIn(uidCollection, dateSelect), 'invoice') //array of all invoices
 
       let invArr = [];
       for (let i = 0; i < dt.length; i++) {
@@ -187,7 +177,13 @@ const Accounting = () => {
           invoice: l.invoice,
           curINV: l.final ? l.cur.cur : gQ(l.cur, 'Currency', 'cur'),
           invoiceId: l.id,
-          invoiceDate: l.dateRange?.startDate ?? l.date
+          invoiceDate: l.dateRange?.startDate ?? l.date,
+          // The totals count the invoice as it stands (finance.js ledgerTotals): which
+          // document this is, and whether it was cancelled, decide whether it counts.
+          invTypeRaw: l.invType,
+          canceled: !!l.canceled,
+          draft: l.draft === true,
+          invoiceNo: l.invoice,
         }
         invArr = [...invArr, item]
       }
@@ -215,7 +211,7 @@ const Accounting = () => {
         // Without these guards the whole Load() throws → setLoading(false)
         // never runs → page stays on the loading spinner forever.
         if (!contract || !Array.isArray(contract.poInvoices)) return;
-        contract.poInvoices.forEach(poInvoice => {
+        contract.poInvoices.forEach((poInvoice, poIdx) => {
           if (!poInvoice || !Array.isArray(poInvoice.invRef)) return;
           poInvoice.invRef.forEach(ref => {
             if (invArr.map(z => z.saleInvoice).includes(ref)) {
@@ -227,7 +223,12 @@ const Accounting = () => {
                 amountExp: poInvoice.invValue,
                 expType: 'Purchase',
                 invoice: ref,
-                curEX: gQ(contract.cur, 'Currency', 'cur')
+                curEX: gQ(contract.cur, 'Currency', 'cur'),
+                // A supplier invoice that covers several shipments is listed under each of
+                // their sales invoices; the totals count it once (finance.js ledgerTotals).
+                // Keyed by its place in the contract, not its id: one IMS contract holds
+                // two supplier invoices under the same id, and they are two costs.
+                costKey: `po:${contract.id}:${poIdx}`,
               }
               consArr = [...consArr, item]
             }
@@ -254,7 +255,8 @@ const Accounting = () => {
           invoice: String(l.salesInv || '').replace(/\D/g, ''),
           curEX: gQ(l.cur, 'Currency', 'cur'),
           expenseId: l.id,
-          expenseDate: l.dateRange?.startDate ?? l.date
+          expenseDate: l.dateRange?.startDate ?? l.date,
+          costKey: `exp:${l.id}`,
         }
         expArr = [...expArr, item]
       }
@@ -414,13 +416,28 @@ const Accounting = () => {
 
   ];
 
-  // Calculate totals from data
+  /* The cards. Each invoice ONCE, at the value it stands at — its Final Note replaces it —
+     and each supplier invoice and expense once, however many sales invoices list it
+     (finance.js ledgerTotals). They used to add up every row: IMS's 2026 Income read
+     $92.80M for $69.03M of invoices (59 invoices counted with their notes) and Expense
+     added $13.70M of supplier invoices a second time; € amounts were added in as $.
+     Dollars on the card, euros under it — nothing is converted. "Savings" was 20% of the
+     balance, a figure of no account; the fourth card is the margin, balance ÷ income. */
   const totals = useMemo(() => {
-    const totalIncome = invoicesAccData.reduce((sum, item) => sum + (Number(item.amountInv) || 0), 0);
-    const totalExpense = invoicesAccData.reduce((sum, item) => sum + (Number(item.amountExp) || 0), 0);
-    const balance = totalIncome - totalExpense;
-    return { totalIncome, totalExpense, balance, savings: balance > 0 ? balance * 0.2 : 0 };
+    const t = ledgerTotals({
+      sales: invoicesAccData.filter(r => r.invoiceId).map(r => ({
+        invoice: r.invoiceNo ?? r.invoice, invType: r.invTypeRaw, amount: r.amountInv, cur: r.curINV, canceled: r.canceled, draft: r.draft,
+      })),
+      costs: invoicesAccData.filter(r => r.amountExp !== '' && r.amountExp != null).map(r => ({
+        key: r.costKey, amount: r.amountExp, cur: r.curEX,
+      })),
+    });
+    return {
+      ...t,
+      marginPct: t.income.us ? (t.balance.us / t.income.us) * 100 : 0,
+    };
   }, [invoicesAccData]);
+  const euroSub = (v) => (Math.abs(v) >= 0.005 ? `and ${moneyFull('eu', v)}` : undefined);
 
   const formatCurrency = (amount) => {
     if (amount == null || isNaN(amount)) return '$0';
@@ -561,10 +578,10 @@ const Accounting = () => {
 
             {/* KPI strip — same card language as contracts/invoices/stocks */}
             <KpiStrip items={[
-              { label: 'My Balance', value: totals.balance, format: formatCurrency, icon: Wallet, tone: 'blue' },
-              { label: 'Income', value: totals.totalIncome, format: formatCurrency, icon: TrendingUp, tone: 'green' },
-              { label: 'Expense', value: totals.totalExpense, format: formatCurrency, icon: TrendingDown, tone: 'red' },
-              { label: 'Savings', value: totals.savings, format: formatCurrency, icon: PiggyBank, tone: 'amber' },
+              { label: 'My Balance', value: totals.balance.us, format: formatCurrency, icon: Wallet, tone: 'blue', sub: euroSub(totals.balance.eu) },
+              { label: 'Income', value: totals.income.us, format: formatCurrency, icon: TrendingUp, tone: 'green', sub: euroSub(totals.income.eu) },
+              { label: 'Expense', value: totals.expense.us, format: formatCurrency, icon: TrendingDown, tone: 'red', sub: euroSub(totals.expense.eu) },
+              { label: 'Margin', value: totals.marginPct, format: (v) => `${(Number(v) || 0).toFixed(1)}%`, icon: Percent, tone: 'amber', sub: 'balance ÷ income, $' },
             ]} />
             {/* Full Table */}
             <div className="page-card rounded-2xl p-3 sm:p-5 mt-2 border border-[var(--line)] shadow-card w-full bg-[var(--bg-card)] relative">

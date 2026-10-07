@@ -6,9 +6,9 @@
 // Phase 0: this module is additive. Nothing imports it yet, so no displayed number can
 // change until a screen is deliberately migrated to it (with golden-value verification).
 
-import { resolveDueDate, resolveInvoiceDate, toIsoDate } from './pureHelpers.js';
+import { resolveDueDate, resolveInvoiceDate, toIsoDate, docsInForce, heldDraftIds } from './pureHelpers.js';
 
-export { resolveDueDate, resolveInvoiceDate, toIsoDate };
+export { resolveDueDate, resolveInvoiceDate, toIsoDate, docsInForce, heldDraftIds };
 
 // shipData.fnlzing === FINALIZED_FLAG means the final invoice has been issued.
 export const FINALIZED_FLAG = '4568';
@@ -55,6 +55,13 @@ export const invoiceBalance = (inv) => num(inv?.totalAmount) - invoicePaid(inv);
 
 // Issued = not a draft and not canceled. DECISION #2: confirm draft === true semantics.
 export const isIssued = (inv) => inv?.draft !== true && !inv?.canceled;
+
+// The one word for what an invoice document is — the Invoices page's Status column, its
+// filter and cards, the Excel and the search all ask here, and it is isIssued said aloud:
+// it follows the invoice's own Draft box. The page used to follow `final`, a flag nothing
+// sets any more, so every invoice read "Draft" whatever its Draft box said: IMS's 2026
+// cards showed "Final 0 · Draft 169" for 166 issued invoices and 3 drafts (2026-10-06).
+export const invoiceStatus = (inv) => (inv?.canceled ? 'Canceled' : inv?.draft === true ? 'Draft' : 'Issued');
 
 // A Final Note IS the final invoice — issuing one finalizes the shipment even when
 // the manual Finalizing flag was never switched (rows like "0018FN" showed Final: No).
@@ -163,7 +170,11 @@ export const groupInvoices = (list) => {
     if (!inv || inv.invoice == null) return;
     (groups[String(inv.invoice)] ||= []).push(inv);
   });
-  return Object.values(groups).flatMap(group => {
+  // A draft note does not stand in for the invoice it would replace — the invoice stays,
+  // with its own payments and balance (pureHelpers.js docsInForce). Merged into the draft
+  // note it was then dropped by every `.filter(isIssued)` below: an issued invoice with
+  // money still owed on it was in no receivable, no aging bucket and no revenue.
+  return Object.values(groups).map(docsInForce).flatMap(group => {
     if (group.length === 1) return group;
     const maxRank = Math.max(...group.map(invTypeRank));
     const ranks = group.map(invTypeRank);
@@ -173,6 +184,99 @@ export const groupInvoices = (list) => {
     const totalAmount = kept.reduce((s, g) => s + num(g.totalAmount), 0);
     return [{ ...kept[0], payments: allPayments, totalAmount, debtBlnc: totalAmount - allPayments.reduce((s, p) => s + num(p?.pmnt), 0) }];
   });
+};
+
+// ── which document states an invoice ─────────────────────────────────────────
+/* An invoice and its notes share one invoice NUMBER, and a Credit or Final Note in this
+   data is the invoice issued again with its settled figures — not a correction to add to
+   it: IMS's 305 Final Notes come to a median 0.995 of the invoice they settle, and none is
+   negative (2026-10-06). So the invoice AS IT STANDS is its highest-ranked live document,
+   and adding a note to its invoice counts the sale twice — Accounting read $92.80M of 2026
+   income for $69.03M of invoices, and Sales Contracts shipped PCI / 3014 twice over.
+   Several documents can share the top rank — invoice 1298 was settled by two Final Notes,
+   one per container group, that add up to the invoice — so all of them stand.
+   A note still saved as a DRAFT is not in force, so it does not outrank the invoice it
+   would replace (pureHelpers.js docsInForce): IMS #1431 stands at the $309,349.00 it was
+   issued for, not at its draft Final Note's $277,016.00, until that note is issued. */
+export const invoiceRank = invTypeRank;
+export const isLiveDoc = (inv) => !!inv && !inv.canceled;
+export const standingDocs = (group, isLive = isLiveDoc) => {
+  const live = docsInForce(group).filter(isLive);
+  if (!live.length) return [];
+  const top = Math.max(...live.map(invTypeRank));
+  return live.filter(inv => invTypeRank(inv) === top);
+};
+
+// A document's date: a draft keeps it in its picker range, a finalised one as a string.
+const docDate = (inv) => {
+  const d = !inv?.final ? inv?.dateRange?.startDate : inv?.date;
+  return typeof d === 'string' ? d : '';
+};
+
+/* The day an invoice is booked on: its ORIGINAL's date. Taken from the original when it is
+   among the documents, else from the pointer every note carries (originalInvoice.date), so
+   an invoice issued before the window that was loaded still keeps its own year; a note with
+   neither is booked on its own date. '' when no document carries a date. */
+export const invoiceBookedOn = (group) => {
+  const g = group || [];
+  const originals = g.filter(inv => invTypeRank(inv) === 1).map(docDate).filter(Boolean);
+  const pointers = g.map(inv => inv?.originalInvoice?.date).filter(d => typeof d === 'string' && d);
+  const dates = originals.length ? originals : pointers.length ? pointers : g.map(docDate).filter(Boolean);
+  return dates.length ? dates.slice().sort()[0] : '';
+};
+
+/* The sales of a period: every invoice issued in it, at the value it stands at now —
+   [{ doc, bookedOn }], one entry per standing document (standingDocs).
+   A Final Note dated after the period restates the invoice; it does not sell the material
+   a second time. Booked on its own date, a note counted a deal in two years: invoice 1327
+   was issued on 20 Aug 2025 ($121,208.41) and settled by a Final Note on 23 Jan 2026
+   ($118,072.80), and the Dashboard put the first in 2025 and the second in 2026 —
+   $969,843.78 of IMS's 2026 sales had been sold in 2025. Accounting has always booked an
+   invoice in its original's period; the Dashboard and the reviews now do the same.
+   Drafts and cancelled documents are not sales. */
+export const salesBookedIn = (invoices, { start, end } = {}, isLive = isIssued) => {
+  const groups = {};
+  (invoices || []).forEach(inv => {
+    if (inv && inv.invoice != null) (groups[String(inv.invoice)] ||= []).push(inv);
+  });
+  const out = [];
+  Object.values(groups).forEach(group => {
+    const bookedOn = invoiceBookedOn(group);
+    if (!bookedOn || (start && bookedOn < start) || (end && bookedOn > end)) return;
+    standingDocs(group, isLive).forEach(doc => out.push({ doc, bookedOn }));
+  });
+  return out;
+};
+
+/* Accounting's totals from its ledger lines. Income is each invoice once, at the value it
+   stands at (standingDocs); a cost is each supplier invoice and each expense once, however
+   many sales invoices list it — a supplier invoice that covers two shipments is listed
+   under both, and was added twice: PO 280426-1-TIM's $6,722,430 supplier invoice under
+   1441 and 1436 (IMS 2026: $13,699,412.05 of costs counted again). Per currency — nothing
+   here converts.
+     sales: [{ invoice, invType, amount, cur, canceled, draft }]  one per sales document
+     costs: [{ key, amount, cur }]                                one per listed cost line
+   `draft` is what lets a note still saved as a draft stay out of its invoice's place. */
+const curKey = (c) => (/^(eu|eur|€)$/i.test(String(c ?? '').trim()) ? 'eu' : 'us');
+export const ledgerTotals = ({ sales = [], costs = [] } = {}) => {
+  const zero = () => ({ us: 0, eu: 0 });
+  const income = zero(), expense = zero();
+  const groups = {};
+  (sales || []).forEach(s => {
+    if (s && s.invoice != null && s.invoice !== '') (groups[String(s.invoice)] ||= []).push(s);
+  });
+  Object.values(groups).forEach(group => standingDocs(group).forEach(s => { income[curKey(s.cur)] += num(s.amount); }));
+  const seen = new Set();
+  (costs || []).forEach(c => {
+    if (!c) return;
+    if (c.key) { if (seen.has(c.key)) return; seen.add(c.key); }
+    expense[curKey(c.cur)] += num(c.amount);
+  });
+  return {
+    income, expense,
+    balance: { us: income.us - expense.us, eu: income.eu - expense.eu },
+    invoices: Object.keys(groups).length,
+  };
 };
 
 // ── collections ──────────────────────────────────────────────────────────────

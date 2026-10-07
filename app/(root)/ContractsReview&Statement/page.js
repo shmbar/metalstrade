@@ -36,7 +36,9 @@ import React from "react";
 import VideoLoader from '../../../components/videoLoader';
 import { TableSkeleton } from "../../../components/skeletons";
 import { NameCell } from '../../../components/Avatar';
+import CurrencyChip from '../../../components/CurrencyChip';
 import { matchesAllWords } from '@utils/search';
+import { heldDraftIds } from '@utils/finance';
 
 // ── Statement roll-up indicators ───────────────────────────────────────────
 const fmtMT = (n) => new Intl.NumberFormat('en-US', { maximumFractionDigits: 2 }).format(Number(n) || 0);
@@ -185,9 +187,15 @@ const Total = (data, name, val, mult, settings) => {
 
 
 const getInvArray = (obj) => {
+    // A note still saved as a draft does not stand in for the invoice it would replace:
+    // what shipped is what was issued, which is also what left the stock (finance.js
+    // heldDraftIds). IMS PO 280426 read 8.936 MT shipped off draft note 1431FN while
+    // invoice 1431 had taken 9.979 MT out of the warehouse.
+    const held = heldDraftIds(obj.invoicesData)
+    const invoices = obj.invoices.filter(x => !held.has(x.id))
     let invArr = []
-    for (let i = 0; i < obj.invoices.length; i++) {
-        let tmpArr = obj.invoices.filter(x => x.invoice === obj.invoices[i]['invoice'])
+    for (let i = 0; i < invoices.length; i++) {
+        let tmpArr = invoices.filter(x => x.invoice === invoices[i]['invoice'])
         if (tmpArr.length === 1) {
             invArr.push(tmpArr[0]['id'])
         } else {
@@ -385,7 +393,12 @@ const ContractsMerged = () => {
 
         let dt = arr.map((x) => {
 
-            const conValue = ContractsValue(x, 'pmnt', valCur, x.euroToUSD);
+            /* Purchase Value is what the supplier INVOICED (poInvoice.invValue), not what has
+               been paid against it so far (pmnt): Profit = sales − purchase − expenses read an
+               unpaid supplier invoice as free material. PO 110926 (Buss) showed no purchase cost
+               for its $2,267,566.87 supplier invoice, and IMS's 2026 profit here ran $3,493,283
+               high. The Dashboard made the same change on 2026-09-14. */
+            const conValue = ContractsValue(x, 'invValue', valCur, x.euroToUSD);
             const totalInvoices = Total(x.invoicesData, 'totalAmount', valCur, x.euroToUSD, settings).accumuLastInv;
             const deviation = totalInvoices - Total(x.invoicesData, 'totalAmount', valCur, x.euroToUSD, settings).accumuDeviation;
             const totalPrepayment1 = Total(x.invoicesData, 'totalPrepayment', valCur, x.euroToUSD, settings).accumuLastInv;
@@ -521,7 +534,7 @@ const ContractsMerged = () => {
 
         // totals
         const totalContracts = filteredData.reduce((total, obj) => {
-            return total + ContractsValue(obj, 'pmnt', valCur, obj.euroToUSD);
+            return total + ContractsValue(obj, 'invValue', valCur, obj.euroToUSD);
         }, 0);
 
         const totalInvoices1 = filteredData.reduce((total, obj) => {
@@ -760,7 +773,19 @@ const ContractsMerged = () => {
     let colsTotals = Object.keys(settings).length === 0 ? [] : [
         {
             accessorKey: 'supplier', header: getTtl('Vendor', ln),
-            cell: (props) => <NameCell name={gQ(props.getValue(), 'Supplier', 'nname')} />
+            /* One line per supplier per contract currency — the detail behind each line lists
+               amounts in that currency. A supplier bought from in both ($ and €) therefore has
+               two lines, and with nothing to tell them apart they read as a duplicate: GIS
+               showed "IMS Metals 163.245" and "IMS Metals 20.500". Those two say which. */
+            cell: (props) => {
+                const both = totalsStatement.filter(t => t.supplier === props.getValue()).length > 1;
+                return (
+                    <span className='inline-flex items-center gap-1.5'>
+                        <NameCell name={gQ(props.getValue(), 'Supplier', 'nname')} />
+                        {both && <CurrencyChip cur={props.row.original.cur} />}
+                    </span>
+                );
+            }
         },
         { accessorKey: 'poWeight', header: getTtl('Quantity', ln), cell: (props) => <p>{showWeight(props.getValue())}</p> },
         { accessorKey: 'shiipedWeight', header: getTtl('Shipped Weight', ln) + ' MT', cell: (props) => <p>{showWeight(props.getValue())}</p> },

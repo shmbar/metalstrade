@@ -30,6 +30,7 @@ import { SHIPMENT_STATUSES, SHIPMENT_STATUS_STYLES, normalizeStatus } from '../c
 import SortIcon from "@components/table/SortIcon";
 import { useTablePrefs } from '@components/table/useTablePrefs';
 import { matchesAllWords, shownAs, searchHint } from '@utils/search';
+import { heldDraftIds } from '@utils/finance';
 import { useFitHeight } from '@components/table/useFitHeight';
 
 // Shipment lifecycle vocabulary/colors live in a shared module so the Contracts Statement
@@ -588,9 +589,13 @@ const ShipmentPage = () => {
                     (byContract[c.id] || []).forEach(take);
                     (c.invoices || []).forEach(ref => { if (ref?.id) take(byId[ref.id]); });
 
-                    // One document per invoice number (see supersedes above).
+                    // One document per invoice number (see supersedes above) — and a note
+                    // still saved as a draft does not stand in for the invoice it would
+                    // replace: the shipment is the one that was issued (heldDraftIds).
+                    const held = heldDraftIds(docs);
                     const groups = new Map();
                     docs.forEach(d => {
+                        if (held.has(d.id)) return;
                         const key = String(d.invoice ?? d.id);
                         const prev = groups.get(key);
                         if (!prev || supersedes(d, prev)) groups.set(key, d);

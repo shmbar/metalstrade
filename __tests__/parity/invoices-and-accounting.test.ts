@@ -70,11 +70,15 @@ import {
   stmtMoney,
 } from '@/features/accstatement/useAccStatement';
 import { MISC_CATS, deriveMiscRows, miscTotals } from '@/features/misc/useMiscInvoices';
+// Web's accounting cards call the shared module (the same file the mobile copy is identical to).
+import { ledgerTotals } from '../../utils/finance.js';
 
 // ── web (Tier 2 — imported, not transcribed) ─────────────────────────────────
 import { Numcur } from '../../app/(root)/ContractsReview&Statement/funcs.js';
 import { Numcur as NumcurInvStatement } from '../../app/(root)/invoicesstatement/funcs.js';
 import { groupedArrayInvoice } from '../../app/(root)/accstatement/func.js';
+// @ts-ignore — plain JS, no types: web's own rule for a draft document.
+import { docsInForce as webDocsInForce } from '../../utils/pureHelpers.js';
 
 const SETTINGS = makeSettings();
 const gQ = makeGQ(SETTINGS);
@@ -276,12 +280,23 @@ const webMergeArrays = (invArr: any[], expArr: any[]) => {
   return mergedArray;
 };
 
-/** Mirror of app/(root)/accounting/page.js:414 `totals`. Verbatim (useMemo body). */
+/** Mirror of app/(root)/accounting/page.js `totals`. Verbatim (useMemo body).
+    2026-10-06: each invoice once as it stands, each cost once, $ and € apart (finance.js
+    ledgerTotals); the old body added every row, notes on top of their invoices, and
+    "savings" was 20% of the balance. */
 const webAccountingTotals = (invoicesAccData: any[]) => {
-  const totalIncome = invoicesAccData.reduce((sum, item) => sum + (Number(item.amountInv) || 0), 0);
-  const totalExpense = invoicesAccData.reduce((sum, item) => sum + (Number(item.amountExp) || 0), 0);
-  const balance = totalIncome - totalExpense;
-  return { totalIncome, totalExpense, balance, savings: balance > 0 ? balance * 0.2 : 0 };
+  const t = ledgerTotals({
+    sales: invoicesAccData.filter(r => r.invoiceId).map(r => ({
+      invoice: r.invoiceNo ?? r.invoice, invType: r.invTypeRaw, amount: r.amountInv, cur: r.curINV, canceled: r.canceled, draft: r.draft,
+    })),
+    costs: invoicesAccData.filter(r => r.amountExp !== '' && r.amountExp != null).map(r => ({
+      key: r.costKey, amount: r.amountExp, cur: r.curEX,
+    })),
+  });
+  return {
+    ...t,
+    marginPct: t.income.us ? (t.balance.us / t.income.us) * 100 : 0,
+  };
 };
 
 /** Mirror of app/(root)/accounting/page.js:422 `chartData`. Verbatim (bucket arrays only). */
@@ -373,9 +388,9 @@ const webExpTypeLabel = (id: string, settings: any) =>
     (o: any) => o.value === id
   )?.label;
 
-/** Mirror of app/(root)/accounting/page.js:861 — the Profit Margin tile. Verbatim. */
-const webMarginPct = (t: { totalIncome: number; balance: number }) =>
-  t.totalIncome > 0 ? (t.balance / t.totalIncome) * 100 : 0;
+/** The Margin card (accounting/page.js `totals.marginPct`): dollar balance ÷ dollar income. */
+const webMarginPct = (t: { income: { us: number }; balance: { us: number } }) =>
+  t.income.us ? (t.balance.us / t.income.us) * 100 : 0;
 
 /** Mirror of app/(root)/specialinvoices/page.js:94 `groupedTotalsAll`. Verbatim. */
 const webGroupedTotalsAll = (filteredData: any[]) =>
@@ -439,7 +454,10 @@ describe('drift alarm — web sources these mirrors were transcribed from', () =
     expectWebUnchanged('app/(root)/InvoicesReview&Statement/page.js', 'setInvoicesDTStatement', '6071327bc314');
   });
   it('InvoicesReview&Statement makeGroup has not drifted', () => {
-    expectWebUnchanged('app/(root)/InvoicesReview&Statement/page.js', 'makeGroup', '139a15bd7a40');
+    // Re-recorded 2026-10-07 (was 139a15bd7a40): every group is passed through docsInForce —
+    // a note still saved as a draft no longer stands in for an issued invoice. Mobile's
+    // groupByInvoiceNumber takes the same step; see "a draft note" in the reduce tests.
+    expectWebUnchanged('app/(root)/InvoicesReview&Statement/page.js', 'makeGroup', 'abc03b780ff2');
   });
   it('InvoicesReview&Statement setCurFilterData has not drifted (row metadata source)', () => {
     expectWebUnchanged('app/(root)/InvoicesReview&Statement/page.js', 'setCurFilterData', 'b7616c033c78');
@@ -448,7 +466,13 @@ describe('drift alarm — web sources these mirrors were transcribed from', () =
     expectWebUnchanged('app/(root)/accounting/page.js', 'mergeArrays', 'e77b57c1c2e0');
   });
   it('accounting totals has not drifted', () => {
-    expectWebUnchanged('app/(root)/accounting/page.js', 'totals', 'd16395f7b56e');
+    // Re-recorded 2026-10-06: the cards count each invoice once as it stands and each cost
+    // once, $ and € apart (finance.js ledgerTotals) — IMS's 2026 Income read $92.80M for
+    // $69.03M of invoices. Mobile's accountingSummary moved with it (mirror above).
+    // Re-recorded 2026-10-07 (was eb94db78a65f): each sale row now carries `draft`, so a
+    // note still saved as a draft does not take its invoice's place in the income
+    // (docsInForce). The mirror and mobile's accountingSummary pass it the same way.
+    expectWebUnchanged('app/(root)/accounting/page.js', 'totals', '26f8bc8f6265');
   });
   it('web has REMOVED its accounting chart - mobile now carries it alone', () => {
     /* This was a drift alarm on web's `chartData`. Web has since stripped the
@@ -564,6 +588,33 @@ describe('invoices review — the amount shown for an invoice number (web Total)
     const expected = totalOf(docs) - webTotalInvoicePayments(docs);
     expect(reduceInvoiceGroups(docs as any)[0].bal).toBe(expected);
     expect(expected).toBe(-2000 - 5250);
+  });
+
+  it('a note still saved as a DRAFT does not stand in for its invoice — the row is the invoice as issued', () => {
+    // 2026-10-07, web makeGroup → docsInForce. IMS #1431: issued $309,349.00 with
+    // $293,881.55 paid; its Final Note ($277,016.00) is still a draft. The row read the
+    // note's figure and a $16,865.55 credit for a client who still owes $15,467.45.
+    const docs = [
+      makeInvoice({ id: 'i', invoice: 1431, totalAmount: 309349, payments: [makePayment({ pmnt: '293881.55' })] }),
+      makeFinalNote({ id: 'f', invoice: 1431, totalAmount: 277016, draft: true }),
+    ];
+    const [row] = reduceInvoiceGroups(docs as any);
+    expect(row.group.map((d: any) => d.id)).toEqual(['i']);
+    expect(row.totalAmount).toBe(309349);
+    expect(row.bal).toBeCloseTo(15467.45, 2);
+    // web: the same documents in force, through the same Total()
+    const inForce = webDocsInForce(docs);
+    expect(inForce.map((d: any) => d.id)).toEqual(['i']);
+    expect(row.totalAmount).toBe(totalOf(inForce));
+    expect(row.bal).toBe(totalOf(inForce) - webTotalInvoicePayments(inForce));
+    // Its Draft box unticked, the note replaces the invoice as every issued note does.
+    const issued = [docs[0], { ...docs[1], draft: false }];
+    expect(mobileTotalOf(issued)).toBe(totalOf(issued));
+    expect(mobileTotalOf(issued)).toBe(277016);
+    // A draft invoice on its own is still listed: nothing issued for it to stand in for.
+    expect(mobileTotalOf([makeInvoice({ draft: true })])).toBe(12000);
+    // …and the Account Statement's grouping takes the same step.
+    expect(groupedArrayInvoice([...docs]).map((g: any[]) => g.map((d: any) => d.id))).toEqual([['i']]);
   });
 
   it('documents are grouped by invoice NUMBER, matching web makeGroup and accstatement groupedArrayInvoice', () => {
@@ -885,31 +936,59 @@ describe('accounting — one merged row per invoice DOCUMENT (web mergeArrays)',
     expect(accountingSummary(groups).txCount).toBe(mergedRows(invArr, lines).length);
   });
 
-  it('income, costs and savings match web totals over the merged rows', () => {
+  it('income is each invoice ONCE, as it stands — its Final Note, not the two added together', () => {
+    // A note is the invoice issued again with its settled figures (IMS: 305 Final Notes,
+    // median 0.995 of their invoice, none negative). The old cards added both.
     const expenses = [makeExpense({ id: 'e1', salesInv: '1001', amount: '2500' })];
-    const { invArr, lines, groups } = world([makeInvoice(), makeCreditNote()], expenses);
+    const { invArr, lines, groups } = world([makeInvoice(), makeFinalNote()], expenses);
     const web = webAccountingTotals(mergedRows(invArr, lines));
     const mobile = accountingSummary(groups);
-    expect(mobile.income).toBe(web.totalIncome); // 12000 + (−2000)
-    expect(mobile.expense).toBe(web.totalExpense);
-    expect(mobile.balance).toBe(web.balance);
-    expect(mobile.savings).toBe(web.savings); // 20% of a positive balance
+    expect(web.income).toEqual({ us: 11500, eu: 0 }); // the note's 11500, not 12000 + 11500
+    expect(mobile.income).toBe(web.income.us);
+    expect(mobile.expense).toBe(web.expense.us);
+    expect(mobile.balance).toBe(web.balance.us);
+    expect(mobile.balance).toBe(11500 - 2500);
+    expect(groups[0].amountInv).toBe(11500); // the list's figure for invoice 1001 too
   });
 
-  it('savings are zero when the balance is negative', () => {
-    const expenses = [makeExpense({ id: 'e1', salesInv: '1001', amount: '99999' })];
-    const { invArr, lines, groups } = world([makeInvoice()], expenses);
-    expect(accountingSummary(groups).savings).toBe(webAccountingTotals(mergedRows(invArr, lines)).savings);
-    expect(accountingSummary(groups).savings).toBe(0);
+  it('a supplier invoice listed under two sales invoices is one cost', () => {
+    // consArr lists a supplier invoice once per sales invoice its invRef names — PO
+    // 280426-1-TIM's $6.72M bill under 1441 AND 1436 — and the old cards added it twice.
+    const contracts = [makeContract({ id: 'con-x', poInvoices: [makePoInvoice({ id: 'po-x', inv: 'SUP-1', invRef: ['1001', '1002'], invValue: '9000' })] })];
+    const { invArr, lines, groups } = world([makeInvoice(), makeInvoice({ id: 'inv-2', invoice: 1002 })], [], contracts);
+    expect(lines.filter((l: any) => l.expInvoice === 'SUP-1')).toHaveLength(2); // listed twice…
+    const web = webAccountingTotals(mergedRows(invArr, lines));
+    expect(web.expense.us).toBe(9000); // …counted once
+    expect(accountingSummary(groups).expense).toBe(9000);
+  });
+
+  it('two supplier invoices that share an id inside one contract are still two costs', () => {
+    // One IMS contract holds exactly that. The key is the invoice's place in the contract.
+    const contracts = [makeContract({ id: 'con-y', poInvoices: [
+      makePoInvoice({ id: 'same', inv: 'SUP-A', invRef: ['1001'], invValue: '4000' }),
+      makePoInvoice({ id: 'same', inv: 'SUP-B', invRef: ['1001'], invValue: '2500' }),
+    ] })];
+    const { invArr, lines, groups } = world([makeInvoice()], [], contracts);
+    expect(new Set(lines.map((l: any) => l.costKey)).size).toBe(2);
+    expect(webAccountingTotals(mergedRows(invArr, lines)).expense.us).toBe(6500);
+    expect(accountingSummary(groups).expense).toBe(6500);
+  });
+
+  it('euros are reported apart, never added into the dollar cards', () => {
+    const { invArr, lines, groups } = world([makeInvoice({ cur: 'eu' }), makeInvoice({ id: 'inv-2', invoice: 1002 })]);
+    const web = webAccountingTotals(mergedRows(invArr, lines));
+    expect(web.income).toEqual({ us: 12000, eu: 12000 });
+    expect(accountingSummary(groups).income).toBe(12000);
+    expect(accountingSummary(groups).incomeEur).toBe(12000);
   });
 
   it('the average transaction divides by the MERGED ROW count, not the group count', () => {
     // page.js:851 `(totalIncome + totalExpense) / invoicesAccData.length`.
     const expenses = [makeExpense({ id: 'e1', salesInv: '1001', amount: '2500' })];
-    const { invArr, lines, groups } = world([makeInvoice(), makeCreditNote()], expenses);
+    const { invArr, lines, groups } = world([makeInvoice(), makeFinalNote()], expenses);
     const merged = mergedRows(invArr, lines);
     const web = webAccountingTotals(merged);
-    expect(accountingSummary(groups).avgTx).toBe((web.totalIncome + web.totalExpense) / merged.length);
+    expect(accountingSummary(groups).avgTx).toBe((web.income.us + web.expense.us) / merged.length);
   });
 
   it('the profit margin is zero when there is no income (web guards totalIncome > 0)', () => {
@@ -955,12 +1034,36 @@ describe('accounting — document labelling, linking and write targets', () => {
     expect(getprefixInv1(makeFinalNote())).toBe('Final Note');
   });
 
-  it('a credit note nets into its number but stays a separate document', () => {
-    const invArr = buildInvoiceRows([makeInvoice(), makeCreditNote()], gQ);
+  it('a note REPLACES its invoice in the number\'s amount, and stays a separate document', () => {
+    // 2026-10-06: the amount is the invoice as it stands (shared finance.js standingDocs).
+    // It was the two added together — every finalised invoice showed twice its value.
+    const invArr = buildInvoiceRows([makeInvoice(), makeCreditNote({ totalAmount: 11800 })], gQ);
     const [g] = groupAccounting(invArr, []);
-    expect(g.amountInv).toBe(10000); // 12000 − 2000
+    expect(g.amountInv).toBe(11800);
     expect(g.invDocs.map((d) => d.saleInvoice)).toEqual(['1001', '1001CN']);
-    expect(g.invDocs.map((d) => d.amountInv)).toEqual([12000, -2000]);
+    expect(g.invDocs.map((d) => d.amountInv)).toEqual([12000, 11800]);
+    // A cancelled note gives the number back to its invoice.
+    const [h] = groupAccounting(buildInvoiceRows([makeInvoice(), makeFinalNote({ canceled: true })], gQ), []);
+    expect(h.amountInv).toBe(12000);
+  });
+
+  it('a note still saved as a DRAFT does not replace its invoice — in the amount or in the income', () => {
+    // 2026-10-07 (shared docsInForce): IMS #1431 was issued at $309,349.00; its Final Note,
+    // $277,016.00, is still a draft. Both documents stay listed; the invoice is what counts.
+    const docs = [makeInvoice({ totalAmount: 309349 }), makeFinalNote({ totalAmount: 277016, draft: true })];
+    const invArr = buildInvoiceRows(docs, gQ);
+    const groups = groupAccounting(invArr, []);
+    expect(groups[0].amountInv).toBe(309349);
+    expect(groups[0].invDocs.map((d) => [d.saleInvoice, d.draft])).toEqual([['1001', false], ['1001FN', true]]);
+    const rowsOf = (arr: any[]) => webMergeArrays(arr.map((x) => ({ ...x })), []);
+    const web = webAccountingTotals(rowsOf(invArr));
+    expect(web.income).toEqual({ us: 309349, eu: 0 });
+    expect(accountingSummary(groups).income).toBe(web.income.us);
+    // Its Draft box unticked, the note replaces the invoice like any other.
+    const issued = buildInvoiceRows([docs[0], { ...docs[1], draft: false }], gQ);
+    expect(groupAccounting(issued, [])[0].amountInv).toBe(277016);
+    expect(webAccountingTotals(rowsOf(issued)).income.us).toBe(277016);
+    expect(accountingSummary(groupAccounting(issued, [])).income).toBe(277016);
   });
 
   it('an expense links to its sales invoice by DIGITS ONLY, so "INV-1001" still matches 1001', () => {

@@ -13,6 +13,7 @@ import { loadData, loadDataSettings, loadInvoice, loadMargins, loadSharedStockLi
 import { resolveInvoiceDate } from "../../../utils/pureHelpers";
 import { UserAuth } from "../../../contexts/useAuthContext";
 import { accountName, isTradingAccount } from '@utils/activeAccount';
+import { incomingOf } from '../margins/marginsView';
 import { NumericFormat } from "react-number-format";
 import { addComma, ClientDetails, clientToolTip, entityName, ExpensesToolTip, FinalSummaryBadge, getTotals, getTotalsSupPayments, runExpenses, runInvoices, runStocks, runSupPayments, SharedStockDetails, stockHoldInvoices, StocksUnSold, StoclToolTip, sumUnpaidStocksByWarehouse, SupplierDetails, supplierToolTip } from "./funcs";
 import Tltip from "../../../components/tlTip";
@@ -431,10 +432,10 @@ const Cashflow = () => {
             const stocksPromise = contractsPromise.then(cd => runStocks(uidCollection, settings, yr, cd, stocksDataPromise));
 
             const marginsPerYear = await marginsPromise;
-            const tmp = marginsPerYear.reduce((total, dt) =>
-                total + dt.filter(item => !isNaN(item.remaining))
-                    .reduce((acc, item) => acc + (parseFloat(item.remaining) || 0), 0)
-            , 0);
+            // "Incoming" is added up from the Margins ROWS, as the Margins page adds them
+            // (marginsView.js incomingOf) — not read off each month's stored total, which
+            // keeps a row deleted in a version of either app that did not re-total it.
+            const tmp = marginsPerYear.reduce((total, dt) => total + incomingOf(dt), 0);
             setIncoming(tmp);
 
             let contractsData = await contractsPromise;

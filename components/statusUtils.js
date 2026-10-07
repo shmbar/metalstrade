@@ -34,7 +34,7 @@ export function statusTone(label = '') {
     if (s.includes('draft')) return 'blue';
     if (/(unpaid|not shipped|unsold|cancel|overdue|delayed|reject|fail|loss|denied|expired|stale)/.test(s)) return 'red';
     if (/(partial|partly|pending|\bopen\b|hold|await|processing|review|in transit|in progress|ongoing)/.test(s)) return 'amber';
-    if (/(paid|final|finish|closed|shipped|complete|active|approved|done|delivered|success)/.test(s)) return 'green';
+    if (/(paid|final|finish|closed|shipped|complete|active|approved|done|delivered|success|issued)/.test(s)) return 'green';
     return 'gray';
 }
 

@@ -49,6 +49,14 @@ export const withStoredTotals = (data) => (data || []).map((m) => {
     return { ...m, purchase: t.purchase, openShip: t.openShip, totalMargin: t.totalMargin, remaining: t.remaining };
 });
 
+/* What a year's months still have to come in — Cashflow's "Incoming". From the rows, like
+   every figure here. Cashflow used to read each month's stored `remaining`, and a row deleted
+   in a version of either app that did not re-total the month is still in that figure until
+   the year is saved again here (the phone app in people's hands today is one such version).
+   A month with no row list at all — none exists — keeps the figure it stores. */
+export const incomingOf = (months) => (months || []).reduce(
+    (t, m) => t + (Array.isArray(m?.items) ? totalsOf(m.items).remaining : n(m?.remaining)), 0);
+
 // A view's months added up: `key` 'totals' (the share) or 'whole' (the shared deals whole).
 export const sumMonths = (months, key = 'totals') => (months || []).reduce((t, m) => ({
     purchase: t.purchase + (m[key]?.purchase || 0),

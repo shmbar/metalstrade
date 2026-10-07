@@ -11,7 +11,7 @@ import { UserAuth } from "@contexts/useAuthContext"
 import { SettingsContext } from "@contexts/useSettingsContext";
 import Toast from '@components/toast.js'
 import { loadData, buildInvoiceIndex, contractInvoicesFromIndex, loadCompanyExpenses, loadMarginsRange } from '@utils/utils'
-import { receivables as financeReceivables, agingBuckets } from '@utils/finance'
+import { receivables as financeReceivables, agingBuckets, salesBookedIn } from '@utils/finance'
 import { setMonthsInvoices, calContracts } from './funcs'
 import { getTtl } from '@utils/languages';
 import DateRangePicker from '@components/dateRangePicker';
@@ -1648,12 +1648,17 @@ const Dash = () => {
      the deal-basis revenue the Capital Breakdown donut and the P&L decompose. */
 
   // ── Sales Revenue, invoice-dated ──────────────────────────────────────────
-  // Standard period revenue = every sales invoice DATED in the selected range,
-  // whatever year its PO was bought — the basis the Invoices Review uses. The
-  // contract-centric aggregation above (kept for the deal-basis P&L: Net Profit,
-  // COGS, hero chart) misses period sales of earlier-bought material, which was
-  // the reported dashboard-vs-Invoices-Review revenue gap. Reuses the already-
-  // loaded 4-year invoice window; same supersede rule as funcs.js Total().
+  // Standard period revenue = every sales invoice ISSUED in the selected range,
+  // whatever year its PO was bought — the basis the Invoices Review and Accounting
+  // use. The contract-centric aggregation above (kept for the deal-basis P&L: Net
+  // Profit, COGS, hero chart) misses period sales of earlier-bought material, which
+  // was the reported dashboard-vs-Invoices-Review revenue gap. Reuses the already-
+  // loaded 4-year invoice window.
+  // An invoice is booked in its ORIGINAL's period at the value it stands at now
+  // (finance.js salesBookedIn). A Final Note dated in this period on an invoice
+  // issued in an earlier one used to count here in full — while that invoice still
+  // counted in its own year — so a deal finalised across a year end was sold twice:
+  // IMS's 2026 read $969,843.78 high (five 2025 invoices), GIS's $220,930.05 (two).
   const invoiceRevAgg = useMemo(() => {
     const byMonth = Object.fromEntries(Array.from({ length: 12 }, (_, i) => [i + 1, 0]));
     /* Per-client split of THIS total, accumulated in the same pass. The Consignees card
@@ -1674,16 +1679,7 @@ const Dash = () => {
     // Supplier/Material filters only resolve through a loaded contract; Client matches
     // the invoice directly (same behaviour as the Receivables card).
     const allowedPO = (fSupplier || fMaterial || fCurrency || fOrigin || fDelTerm) ? new Set(filteredContracts.map(c => c.id)) : null;
-    const groups = {};
-    rawRecvInvoices.forEach(inv => {
-      const d = !inv?.final ? inv?.dateRange?.startDate : inv?.date;
-      if (typeof d !== 'string' || d < start || d > end) return;
-      if (inv.invoice != null) (groups[String(inv.invoice)] ||= []).push(inv);
-    });
-    Object.values(groups).forEach(g => g.forEach(inv => {
-      if (inv.canceled || inv.draft === true) return;
-      const isOriginal = ['1111', 'Invoice'].includes(inv.invType);
-      if (!(g.length === 1 || !isOriginal)) return; // original superseded by its Credit/Final note
+    salesBookedIn(rawRecvInvoices, { start, end }).forEach(({ doc: inv, bookedOn }) => {
       // fClient holds a client NAME (that's what the filter options store) — match by
       // resolved name for both draft (id) and finalized ({nname}) invoice shapes.
       const clientName = resolveClientName(inv.client) || 'Unassigned';
@@ -1696,18 +1692,20 @@ const Dash = () => {
       const mult = companyRate > 0 ? companyRate : (rate > 0 ? rate : (liveEurUsd > 0 ? liveEurUsd : 1));
       if (curId !== 'us' && !(companyRate > 0) && !(rate > 0)) missingInvRate++;
       const usd = curId === 'us' ? amt : amt * mult;
-      const d = !inv.final ? inv.dateRange.startDate : inv.date;
-      const m = Number(String(d).substring(5, 7));
+      // Bucketed in the month the invoice was ISSUED; the detail line keeps the document's
+      // own date, so a note that settled it later says when it did.
+      const d = !inv.final ? inv.dateRange?.startDate : inv.date;
+      const m = Number(String(bookedOn).substring(5, 7));
       if (m >= 1 && m <= 12) {
         byMonth[m] += usd;
         total += usd;
         byClient[clientName] = (byClient[clientName] || 0) + usd;
         (byClientMonth[clientName] ||= Array(12).fill(0))[m - 1] += usd;
         (byClientDetails[clientName] ||= []).push({
-          invoice: inv.invoice ?? '', date: d, usd, amount: amt, cur: curId === 'us' ? 'us' : 'eu',
+          invoice: inv.invoice ?? '', date: d || bookedOn, usd, amount: amt, cur: curId === 'us' ? 'us' : 'eu',
         });
       }
-    }));
+    });
     return { byMonth, total, missingInvRate, byClient, byClientMonth, byClientDetails };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [rawRecvInvoices, settings, companyRate, liveEurUsd, dateSelect, fClient, fSupplier, fMaterial, fCurrency, fOrigin, fDelTerm, filteredContracts]);

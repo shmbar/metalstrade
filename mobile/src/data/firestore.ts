@@ -17,6 +17,7 @@ import { db } from '@/lib/firebase';
 import { Contract, Invoice, Settings, CompanyData, DateSelect } from './types';
 import { peekRows, readDocument, readMatching, readRange, readRows } from './collectionReads';
 import { bucketYears, chunked, coversYear, inDateRange, matchingInChunks, mergeBuckets, Row } from './rangeReads';
+import { invoiceRank, invoiceBookedOn, docsInForce } from '@shared/finance';
 
 // ── settings / singletons ────────────────────────────────────────────────────
 export async function loadDataSettings<T = any>(uidCollection: string, doc1: string): Promise<T | {}> {
@@ -319,12 +320,16 @@ export async function loadFlatByDate<T = any>(
 // ── batched invoice index (the N+1 killer from utils.js) ─────────────────────
 function groupedArrayInvoice(arrD: Invoice[]): Invoice[][] {
   const sorted = [...arrD].sort((a, b) => (a.invoice ?? 0) - (b.invoice ?? 0));
-  return sorted.reduce<Invoice[][]>((result, obj) => {
-    const group = result.find((g) => g[0]?.invoice === obj.invoice);
-    if (group) group.push(obj);
-    else result.push([obj]);
-    return result;
-  }, []);
+  return sorted
+    .reduce<Invoice[][]>((result, obj) => {
+      const group = result.find((g) => g[0]?.invoice === obj.invoice);
+      if (group) group.push(obj);
+      else result.push([obj]);
+      return result;
+    }, [])
+    // A draft note does not stand in for the invoice it would replace — web utils.js
+    // groupedArrayInvoice (shared pureHelpers docsInForce, 2026-10-07).
+    .map((g) => docsInForce(g) as Invoice[]);
 }
 
 /**
@@ -491,6 +496,35 @@ export async function loadAdditionalCNFN(
     }
   }
   return out;
+}
+
+// The invoices of a period as an accountant books them — port of utils.js
+// loadInvoicesBookedIn: every invoice whose ORIGINAL was issued in the period, with all
+// of its documents (a note that settled it after the period included), and nothing of
+// an invoice issued before it (shared finance.js invoiceBookedOn). Loading only what is
+// dated in the period showed a note settling a 2025 invoice as a 2026 sale of $0.00
+// with its payments as a credit (2026-10-06).
+export async function loadInvoicesBookedIn(uidCollection: string, dateSelect: DateSelect): Promise<Invoice[]> {
+  const dt = ((await loadData<Invoice>(uidCollection, 'invoices', dateSelect)) || []).filter(Boolean) as any[];
+  const have = new Set(dt.map((d) => d.id));
+  const later = dt
+    .filter((d) => invoiceRank(d) === 1 && d.cnORfl?.id && typeof d.cnORfl?.date === 'string' && !have.has(d.cnORfl.id))
+    .map((d) => d.cnORfl);
+  const extra = later.length
+    ? (await loadAdditionalCNFN(uidCollection, later)).filter((d: any) => d && d.id && !have.has(d.id))
+    : [];
+  const groups: Record<string, any[]> = {};
+  [...dt, ...extra].forEach((d: any) => {
+    const key = d.invoice !== undefined && d.invoice !== null && d.invoice !== '' ? `n:${d.invoice}` : `id:${d.id}`;
+    (groups[key] ||= []).push(d);
+  });
+  const { start, end } = dateSelect || ({} as DateSelect);
+  return Object.values(groups)
+    .filter((g) => {
+      const on = invoiceBookedOn(g);
+      return !on || ((!start || on >= start) && (!end || on <= end));
+    })
+    .flat() as Invoice[];
 }
 
 // One contract by order number — mirrors utils.js loadContract (year extracted
