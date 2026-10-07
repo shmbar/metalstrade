@@ -3,6 +3,7 @@
 import { getCoreRowModel, getFilteredRowModel, getPaginationRowModel, getSortedRowModel, useReactTable } from "@tanstack/react-table"
 import { useMemo, useState } from "react"
 import { labelAwareGlobalFilter } from '@components/table/filters/labelAwareGlobalFilter';
+import { colFloor } from './constants';
 
 const Customtable = ({ data, columns }) => {
     const [globalFilter, setGlobalFilter] = useState('')
@@ -31,9 +32,13 @@ const Customtable = ({ data, columns }) => {
 
             <div className="w-full overflow-x-auto">
                 {/* Desktop */}
-                {/* custom-table: the app-wide table standard in globals.css. */}
+                {/* custom-table: the app-wide table standard in globals.css.
+                    NOT w-full. Stretched across the card, its columns spread out wider
+                    than the compact tables above it and no total sat under its column
+                    (client, 2026-10-07: "wasn't aligned and was too large"). It takes
+                    the same column widths as those tables (colFloor) and their width. */}
                 <table
-                    className="custom-table w-full hidden sm:table"
+                    className="custom-table hidden sm:table"
                     style={{
                         tableLayout: 'auto',
                         borderCollapse: 'separate',
@@ -47,7 +52,7 @@ const Customtable = ({ data, columns }) => {
                                 {hg.headers.map((header) => {
                                     const colId = header.column.id
                                     const isDel = colId === 'del'
-                                    const colMinWidth = colId === 'material' ? '150px' : colId === 'kgs' ? '68px' : isDel ? '26px' : '50px'
+                                    const colMinWidth = colFloor(colId)
                                     return (
                                         <th
                                             key={header.id}
@@ -80,7 +85,7 @@ const Customtable = ({ data, columns }) => {
                                 {row.getVisibleCells().map((cell) => {
                                     const colId = cell.column.id
                                     const isDel = colId === 'del'
-                                    const colMinWidth = colId === 'material' ? '150px' : colId === 'kgs' ? '68px' : isDel ? '26px' : '50px'
+                                    const colMinWidth = colFloor(colId)
                                     return (
                                         <td
                                             key={cell.id}

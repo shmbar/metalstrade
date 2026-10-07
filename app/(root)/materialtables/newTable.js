@@ -12,7 +12,7 @@ import { Filter } from "../../../components/table/filters/filterFunc"
 import { DndContext, closestCenter, PointerSensor, useSensor, useSensors } from '@dnd-kit/core'
 import { SortableContext, horizontalListSortingStrategy, useSortable, arrayMove } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
-import { UNIT_LABELS, UNIT_TO_MT } from './constants'
+import { UNIT_LABELS, UNIT_TO_MT, colFloor } from './constants'
 import SortIcon from "@components/table/SortIcon";
 import { useFitHeight } from '@components/table/useFitHeight';
 import { labelAwareGlobalFilter } from '@components/table/filters/labelAwareGlobalFilter';
@@ -511,23 +511,6 @@ const Customtable = ({
         return 'var(--bg-subtle)'
     }
 
-    /* One floor per column — the numbers totals.js gives the "All tables" columns. The
-       table is full-width and `table-layout: auto` shares the spare width out in
-       proportion to these floors, so equal floors are what put Ni over Ni in the Totals
-       table below. The header cell takes the floor as it is and the body cell takes it
-       2% up (see the <td>): the same proportions, so the same widths.
-       The body's floor used to sit on the pill inside the cell (150 / 62 / 44px, which
-       the cell's padding and border made 157 / 69 / 51px): near the header's
-       150 / 68 / 50, but not in proportion to it, so a table with rows would not have
-       lined up with Totals the way an empty one does. */
-    const colFloor = (colId) =>
-        colId === 'material' ? '150px'
-            : colId === 'del' ? '26px'
-                : colId === 'container' ? '88px'
-                    : colId === 'kgs' ? '68px'
-                        : colId === 'costPmt' || colId === 'costTotal' ? '70px'
-                            : '50px'
-
     const headers = table.getHeaderGroups()[0]?.headers ?? []
 
     // Segmented-control chip (unit toggle)
@@ -804,23 +787,16 @@ const Customtable = ({
                 <div className="h-2 bg-[var(--bg-card)]" aria-hidden="true" />
                 <div ref={fitRef} className="overflow-auto dashboard-scroll rounded-b-2xl bg-[var(--bg-card)]" style={{ maxHeight: fitPx ? `${Math.min(700, fitPx)}px` : '700px' }}>
                     <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-                    {/* w-full, as the Totals table under it is. Sized to its content it
-                        stopped at 720px of an 1110px card — 1650px on a large monitor —
-                        while Totals ran edge to edge beneath it, so the page read as one
-                        table that had not finished loading (client, 2026-10-05).
-                        It had been content-sized since 2026-08-26, when a full-width
-                        table with only a handful of columns came out with "all cells
-                        large and wide" (Zak). A table cannot be that narrow now: a new
-                        or imported one starts from the standard list, and the seven
-                        standard elements have no remove button, so with Material and
-                        the weight there are nine columns at the least and the slack is
-                        spread thin — the same share Totals gives its own columns.
-                        `table-layout: auto` hands that slack out in proportion to each
-                        column's floor, and the floors here are the ones totals.js uses,
-                        so with the default columns each total sits under its column.
-                        The floors still hold when the columns outgrow the card: the
-                        table is then wider than 100% and the box around it scrolls. */}
-                    <table className="responsiveTextTable w-full" style={{ tableLayout: 'auto', borderCollapse: 'separate', borderSpacing: 0, fontFamily: 'inherit' }}>
+                    {/* NOT w-full: compact, sized to its columns (client, 2026-10-07: "the
+                        idea of it is to be compact"). Stretched across the card, every
+                        cell came out large and wide (Zak, 2026-08-26), and a full-width
+                        version tried on 2026-10-06 was turned down for the same reason.
+                        The Totals table under it is the one that changed: it now takes
+                        these same column widths (colFloor in constants.js) instead of
+                        spreading across the card, so each total sits under its column.
+                        A table with more columns than the card can hold scrolls in the
+                        box around it. */}
+                    <table className="responsiveTextTable" style={{ tableLayout: 'auto', borderCollapse: 'separate', borderSpacing: 0, fontFamily: 'inherit' }}>
 
                         {/* THEAD — pinned, like every other table header in the app. Without
                             it a packing list of forty bundles scrolled its element names
@@ -879,17 +855,11 @@ const Customtable = ({
                                                 }
 
                                                 if (isElem) {
-                                                    /* Fe also carries its "auto" tag, and from 1920px up, where
-                                                       the type steps to 12px, that header needs 53px against
-                                                       the 50px floor every element shares. Three pixels are
-                                                       enough to give Fe a larger share than its neighbours and
-                                                       walk every column off its total. 3px of side padding
-                                                       instead of 5 brings it back inside the floor. */
                                                     return [<SortableHeaderCell
                                                         key={header.id}
                                                         id={colId}
                                                         label={header.column.columnDef.header}
-                                                        style={isFe ? { ...thStyle, padding: '5px 3px' } : thStyle}
+                                                        style={thStyle}
                                                         onRemove={() => removeElement(colId)}
                                                         isFe={isFe}
                                                         isStandard={STANDARD_KEYS.has(colId)}
@@ -938,13 +908,12 @@ const Customtable = ({
                                         const ck = `${row.id}-${colId}`
                                         const focused = focusedCell === ck
                                         return (
-                                            /* The header's floor, 2% up. The cell's own 1px border counts
-                                               inside its min-width, and the pill used to hold the floor
-                                               itself (a 44px pill in a 51px cell): 50px × 1.02 is that 51px
-                                               again, so a figure has the room it had when a table is wider
-                                               than its card. Every column is scaled alike, which leaves the
-                                               proportions — and so the widths — exactly the header's. */
-                                            <td key={cell.id} style={{ backgroundColor: "var(--bg-card)", padding: '3px 3px', borderBottom: '1px solid var(--line)', verticalAlign: 'middle', minWidth: `calc(${colFloor(colId)} * 1.02)` }}>
+                                            /* The same width as the header and the Totals column
+                                               (colFloor). It used to sit on the pill inside the cell
+                                               instead (150 / 62 / 44px), which the cell's padding and
+                                               border turned into 157 / 69 / 51px against the header's
+                                               150 / 68 / 50: close, but never the same as Totals. */
+                                            <td key={cell.id} style={{ backgroundColor: "var(--bg-card)", padding: '3px 3px', borderBottom: '1px solid var(--line)', verticalAlign: 'middle', minWidth: colFloor(colId) }}>
                                                 {isDel ? (
                                                     <div className="flex justify-center items-center">
                                                         <button
@@ -999,13 +968,11 @@ const Customtable = ({
                                                         {/* size={1}: the input fills its pill (w-full) and must
                                                             not also bid for width of its own. A text input's
                                                             natural width is about twenty characters, and the
-                                                            table counted that as what each column would LIKE:
-                                                            every figure column asked for ~147px and Material,
-                                                            whose floor is wider than that, asked for nothing —
-                                                            so the spare width all went to the numbers and the
-                                                            one free-text column stayed at its minimum. It is
-                                                            also why an empty table collapsed to 720px while
-                                                            one with rows filled the card. */}
+                                                            table took that as the width each column wanted: a
+                                                            compact empty table spread to the whole card (~93px
+                                                            per figure, 147px on a large monitor) the moment it
+                                                            had a row, and no longer lined up with Totals. The
+                                                            column widths (colFloor) already fit every figure. */}
                                                         <input
                                                             type="text"
                                                             size={1}
