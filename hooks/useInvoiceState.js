@@ -2,9 +2,10 @@
 import { useState, useContext, useMemo } from 'react';
 import dateFormat from "dateformat";
 import { v4 as uuidv4 } from 'uuid';
-import { getD, setNewInvoiceNum, loadDataSettings, updatePnl, updateDocument, delField, loadInvoice } from '@utils/utils.js';
+import { getD, setNewInvoiceNum, loadDataSettings, updatePnl, updateDocumentAnyYear, deletedField, loadInvoice } from '@utils/utils.js';
 import { validate, saveData, delDoc, saveDataFinalCancel, saveStockIn, delStock, loadStockRowsByLine } from '@utils/utils'
 import { duplicateLineTrap as trapGuard, wrongWarehouseTrap as warehouseGuard } from '@utils/stockGuards'
+import { relinkOriginal as relinkNote } from '@utils/invoiceNotes'
 import { SettingsContext } from '@contexts/useSettingsContext'
 import { getTtl } from '@utils/languages';
 
@@ -68,6 +69,19 @@ const duplicateLineTrap = async (uidCollection, invoice, contract, settings) => 
     return await trapGuard(invoice, contract, load)
         || await warehouseGuard(invoice, contract, load, whName);
 };
+
+// The original invoice's link to a Credit / Final Note, refreshed without ever stopping the
+// note's own save (utils/invoiceNotes.js says why). The original is looked for in the year
+// collections around its date; `pointer` is the note's { id, date }, or deletedField().
+const relinkOriginal = (uidCollection, note, contract, pointer) =>
+    relinkNote((ref, patch) => updateDocumentAnyYear(uidCollection, 'invoices', ref, patch), note, contract, pointer);
+
+// The client's short name for a stock movement's label. A client missing from this
+// workspace's list (one copied across from the other company) must not stop the movements
+// from being written: the label is display-only, the movements are the stock figures.
+const clientLabel = (settings, invoice, field) =>
+    invoice.final ? (invoice.client?.[field] ?? '')
+        : (settings?.Client?.Client?.find(z => z.id === invoice.client)?.[field] ?? '');
 
 const writeInvoiceStockMovements = async (uidCollection, invoice, rows) => {
     if (!rows.length) return;
@@ -149,9 +163,7 @@ const useInvoiceState = () => {
 
             //delete cn/fn field from the original if exist
             if (valueInv.invType !== '1111') {
-                let originalInv = valueCon.invoices.find(x => x.invoice === valueInv.invoice &&
-                    x.invType === "1111")
-                await delField(uidCollection, 'invoices', 'cnORfl', originalInv)
+                await relinkOriginal(uidCollection, valueInv, valueCon, deletedField())
             }
 
             setValueInv(newInvoice);
@@ -191,122 +203,124 @@ const useInvoiceState = () => {
                 return false;
             }
 
-            const trap = await duplicateLineTrap(uidCollection, valueInv, valueCon, settings);
-            if (trap) { setToast({ show: true, text: trap, clr: 'fail' }); return false; }
+            // Everything from here reads and writes. A throw anywhere in it used to escape to
+            // the Save button, which then stayed on "Saving" until the page was reloaded with
+            // nothing on screen to say why. Now the reason is shown and the button comes back,
+            // as saveData_InvoiceInInvoices already did.
+            try {
+                const trap = await duplicateLineTrap(uidCollection, valueInv, valueCon, settings);
+                if (trap) { setToast({ show: true, text: trap, clr: 'fail' }); return false; }
 
-            const NetWTKgsTmp = (valueInv.productsDataInvoice.filter(q => q.qnty !== 's').map(x => x.qnty)
-                .reduce((accumulator, currentValue) => accumulator + currentValue * 1, 0) * 1000) || 0;
-            const TotalTarre = (valueInv.ttlGross - NetWTKgsTmp);
+                const NetWTKgsTmp = (valueInv.productsDataInvoice.filter(q => q.qnty !== 's').map(x => x.qnty)
+                    .reduce((accumulator, currentValue) => accumulator + currentValue * 1, 0) * 1000) || 0;
+                const TotalTarre = (valueInv.ttlGross - NetWTKgsTmp);
 
-            if ((TotalTarre < 0 && valueInv.invType === '1111' &&
-                valueInv.packing !== 'P6' && valueInv.packing !== 'P7' && valueInv.packing !== 'P13')) {
-                setToast({ show: true, text: getTtl('Total Tarre WT Kgs can not be negative!', ln), clr: 'fail' })
+                if ((TotalTarre < 0 && valueInv.invType === '1111' &&
+                    valueInv.packing !== 'P6' && valueInv.packing !== 'P7' && valueInv.packing !== 'P13')) {
+                    setToast({ show: true, text: getTtl('Total Tarre WT Kgs can not be negative!', ln), clr: 'fail' })
+                    return false;
+                }
+
+
+                //////////////////////////////////////////
+                let indx = valueCon.invoices.findIndex((x) => x.id === valueInv.id); //new invoice or existing
+                let valueInvObj = valueInv;
+                let tmpObj = null;
+                let tmpArr = null;
+
+                if (indx !== -1) { //update
+                    let tmpArr = valueCon.invoices.map((k) => (k.id === valueInv.id ?
+                        {
+                            ...k, invoice: valueInv.invoice * 1, date: valueInv.dateRange.startDate,
+                            invType: valueInv.invType
+                        } : k));
+                    tmpObj = { ...valueCon, invoices: tmpArr }
+                    setValueCon(tmpObj)
+
+                    //in Case there is a change in a date of the final/credit invoice date - for accounting
+                    if (valueInv.invType !== '1111' && valueCon.invoices[indx].date !== valueInv.dateRange.startDate) {
+                        //update the original invoice's link to this note (never stops the save)
+                        await relinkOriginal(uidCollection, valueInv, valueCon,
+                            { id: valueInv.id, date: valueInv.dateRange.startDate })
+                    }
+
+                } else { //new Invoice
+                    valueInvObj = {
+                        ...valueInv, id: uuidv4(), invoice: isInvCreationCNFL ? valueInv.invoice : invNum,
+                        poSupplier: { id: valueCon.id, order: valueCon.order, date: valueCon.dateRange.startDate }
+                    }
+
+
+                    if (!isInvCreationCNFL) {
+                        await setNewInvoiceNum(uidCollection)
+                    }
+
+                    if (isInvCreationCNFL) {
+                        //update the original invoice's link to this note (never stops the save)
+                        await relinkOriginal(uidCollection, valueInvObj, valueCon,
+                            { id: valueInvObj.id, date: valueInvObj.dateRange.startDate })
+                    }
+
+                    setValueInv(valueInvObj);
+
+                    tmpArr = [...valueCon.invoices, {
+                        id: valueInvObj.id, invoice: valueInvObj.invoice * 1,
+                        date: valueInvObj.dateRange.startDate, invType: valueInvObj.invType,
+                    }]
+                    tmpObj = { ...valueCon, invoices: tmpArr }
+                    setValueCon(tmpObj)
+
+                }
+                //save to server valueCon
+                await saveData(uidCollection, 'contracts', tmpObj)
+
+                tmpArr = contractsData.map((k) => (k.id === tmpObj.id ? tmpObj : k));
+                setContractsData(tmpArr)
+
+
+                //save to the server
+                let tmpValue = {
+                    ...valueInvObj, invoice: valueInvObj.invoice * 1, 'lstSaved': dateFormat(new Date(), "dd-mmm-yyyy, HH:MM")
+                }
+
+                let success = await saveData(uidCollection, 'invoices', tmpValue)
+
+                //check if a date was changed
+                if (dateYr !== tmpValue.dateRange.startDate.substring(0, 4) && dateYr != null) {
+                    let valueInvTmp = ({ id: tmpValue.id, date: dateYr })
+                    await delDoc(uidCollection, 'invoices', valueInvTmp)
+                }
+
+
+
+                //    setValueInv(newInvoice); //new Empty valueInv
+                setIsInvCreationCNFL(false)
+
+                //save Stock
+                let tmpObj1 = tmpValue.productsDataInvoice.filter(z => z.qnty !== "s").map(x => ({
+                    ...x, invoice: tmpValue.invoice * 1, invType: tmpValue.invType,
+                    date: tmpValue.final ? tmpValue.date : tmpValue.dateRange.startDate,
+                    type: 'out', productsData: valueCon.productsData,
+                    client: clientLabel(settings, tmpValue, 'nname'),
+                    cur: valueCon.cur
+                }))
+
+                await writeInvoiceStockMovements(uidCollection, tmpValue, tmpObj1)
+                if (deleteProdcuts.length > 0) delStock(uidCollection, deleteProdcuts)
+
+
+                setDateYr(tmpValue.dateRange.startDate.substring(0, 4))
+
+                //     setLoading(false)
+                if (success) return true;
+            } catch (e) {
+                console.error('saveData_InvoiceInContracts failed:', e)
+                setToast({
+                    show: true, clr: 'fail',
+                    text: `${getTtl('Error saving. Please try again.', ln)} ${e?.message || e}`.trim(),
+                })
                 return false;
             }
-
-
-            //////////////////////////////////////////
-            let indx = valueCon.invoices.findIndex((x) => x.id === valueInv.id); //new invoice or existing
-            let valueInvObj = valueInv;
-            let tmpObj = null;
-            let tmpArr = null;
-
-            if (indx !== -1) { //update
-                let tmpArr = valueCon.invoices.map((k) => (k.id === valueInv.id ?
-                    {
-                        ...k, invoice: valueInv.invoice * 1, date: valueInv.dateRange.startDate,
-                        invType: valueInv.invType
-                    } : k));
-                tmpObj = { ...valueCon, invoices: tmpArr }
-                setValueCon(tmpObj)
-
-                //in Case there is a change in a date of the final/credit invoice date - for accounting
-                if (valueInv.invType !== '1111' && valueCon.invoices[indx].date !== valueInv.dateRange.startDate) {
-                    //update the original invoice
-
-                    let originalInv = valueCon.invoices.find(x => x.invoice * 1 === valueInv.invoice * 1 &&
-                        x.invType === "1111")
-
-                    let newFieldData = { id: valueInv.id, date: valueInv.dateRange.startDate }
-
-                    await updateDocument(uidCollection, 'invoices', 'cnORfl', originalInv, newFieldData)
-                }
-
-            } else { //new Invoice
-                valueInvObj = {
-                    ...valueInv, id: uuidv4(), invoice: isInvCreationCNFL ? valueInv.invoice : invNum,
-                    poSupplier: { id: valueCon.id, order: valueCon.order, date: valueCon.dateRange.startDate }
-                }
-
-              
-                if (!isInvCreationCNFL) {
-                    await setNewInvoiceNum(uidCollection)
-                }
-
-                if (isInvCreationCNFL) {
-                    //update the original invoice
-
-                    let originalInv = valueCon.invoices.find(x => x.invoice === valueInv.invoice &&
-                        x.invType === "1111")
-
-                    let newFieldData = { id: valueInvObj.id, date: valueInvObj.dateRange.startDate }
-
-                    await updateDocument(uidCollection, 'invoices', 'cnORfl', originalInv, newFieldData)
-                }
-
-                setValueInv(valueInvObj);
-
-                tmpArr = [...valueCon.invoices, {
-                    id: valueInvObj.id, invoice: valueInvObj.invoice * 1,
-                    date: valueInvObj.dateRange.startDate, invType: valueInvObj.invType,
-                }]
-                tmpObj = { ...valueCon, invoices: tmpArr }
-                setValueCon(tmpObj)
-
-            }
-            //save to server valueCon
-            await saveData(uidCollection, 'contracts', tmpObj)
-
-            tmpArr = contractsData.map((k) => (k.id === tmpObj.id ? tmpObj : k));
-            setContractsData(tmpArr)
-
-
-            //save to the server
-            let tmpValue = {
-                ...valueInvObj, invoice: valueInvObj.invoice * 1, 'lstSaved': dateFormat(new Date(), "dd-mmm-yyyy, HH:MM")
-            }
-         
-            let success = await saveData(uidCollection, 'invoices', tmpValue)
-
-            //check if a date was changed
-            if (dateYr !== tmpValue.dateRange.startDate.substring(0, 4) && dateYr != null) {
-                let valueInvTmp = ({ id: tmpValue.id, date: dateYr })
-                await delDoc(uidCollection, 'invoices', valueInvTmp)
-            }
-
-
-
-            //    setValueInv(newInvoice); //new Empty valueInv
-            setIsInvCreationCNFL(false)
-
-            //save Stock
-            let tmpObj1 = tmpValue.productsDataInvoice.filter(z => z.qnty !== "s").map(x => ({
-                ...x, invoice: tmpValue.invoice * 1, invType: tmpValue.invType,
-                date: tmpValue.final ? tmpValue.date : tmpValue.dateRange.startDate,
-                type: 'out', productsData: valueCon.productsData,
-                client: tmpValue.final ? tmpValue.client.nname :
-                    settings.Client.Client.find(z => z.id === tmpValue.client)['nname'],
-                cur: valueCon.cur
-            }))
-
-            await writeInvoiceStockMovements(uidCollection, tmpValue, tmpObj1)
-            if (deleteProdcuts.length > 0) delStock(uidCollection, deleteProdcuts)
-
-
-            setDateYr(tmpValue.dateRange.startDate.substring(0, 4))
-
-            //     setLoading(false)
-            if (success) return true;
 
         },
         saveData_InvoiceInInvoices: async (uidCollection, settings) => {
@@ -359,30 +373,13 @@ const useInvoiceState = () => {
                 const tmpArr = invoicesData.map((k) => (k.id === tmpValue.id ? tmpValue : k));
                 setInvoicesData(tmpArr)
 
-                //check if a date was changed
-                if (dateYr !== tmpValue.dateRange.startDate.substring(0, 4) && dateYr != null) {
-                    let valueInvTmp = ({ id: tmpValue.id, date: dateYr })
-                    await delDoc(uidCollection, 'invoices', valueInvTmp)
-                    setDateYr(tmpValue.dateRange.startDate.substring(0, 4))
-
-                    //update valueCon.invoices
-                    let valCon = await loadInvoice(uidCollection, 'contracts', tmpValue.poSupplier)
-                    let tmpArr = valCon.invoices.map((k) => (k.id === tmpValue.id ?
-                        {
-                            ...k, date: tmpValue.dateRange.startDate, invoice: tmpValue.invoice * 1
-                        } : k));
-                    let tmpObj = { ...valCon, invoices: tmpArr }
-                    await saveData(uidCollection, 'contracts', tmpObj)
-
-                    //in Case there is a change in a date of the final/credit invoice date - for accounting
-                    if (tmpValue.invType !== '1111') {
-                        //update the original invoice
-
-                        let newFieldData = { id: tmpValue.id, date: tmpValue.dateRange.startDate }
-                        await updateDocument(uidCollection, 'invoices', 'cnORfl', tmpValue.originalInvoice, newFieldData)
-
-                    }
-                }
+                /* Moved to another year: the invoice is written into the new year's collection
+                   at the end, and the copy in the old one is removed only once that has worked.
+                   The old copy used to be deleted FIRST, so anything that failed in between — a
+                   contract that could not be read, a Credit / Final Note whose original was not
+                   found — took the invoice out of both years. */
+                const newYear = tmpValue.dateRange.startDate.substring(0, 4)
+                const movedYear = dateYr !== newYear && dateYr != null
 
                 //save data again, to keep invoice integer and not string
                 let valCon1 = await loadInvoice(uidCollection, 'contracts', tmpValue.poSupplier)
@@ -390,9 +387,11 @@ const useInvoiceState = () => {
                 // That must not abort the invoice's own save further down.
                 if (valCon1?.id) {
                     const invsCon = Array.isArray(valCon1.invoices) ? valCon1.invoices : [];
+                    // The contract's entry follows the invoice to its new date when it moves year.
                     let tmpArr1 = invsCon.map((k) => (k.id === tmpValue.id ?
                         {
-                            ...k, invoice: k.invoice * 1
+                            ...k, invoice: k.invoice * 1,
+                            ...(movedYear ? { date: tmpValue.dateRange.startDate, invoice: tmpValue.invoice * 1 } : {}),
                         } : k));
                     // Upsert, not just update: the PO→invoice back-link is a second copy of
                     // the link that only invoice.poSupplier holds authoritatively. A plain
@@ -411,6 +410,13 @@ const useInvoiceState = () => {
                 }
                 ///////////////////
 
+                //in Case there is a change in a date of the final/credit invoice date - for accounting
+                if (movedYear && tmpValue.invType !== '1111') {
+                    //update the original invoice's link to this note (never stops the save)
+                    await relinkOriginal(uidCollection, tmpValue, valCon1,
+                        { id: tmpValue.id, date: tmpValue.dateRange.startDate })
+                }
+
                 //save Stock
                 let tmpObj1 = tmpValue.productsDataInvoice.filter(z => z.qnty !== "s").map(x => ({
                     ...x, invoice: tmpValue.invoice * 1, invType: tmpValue.invType,
@@ -422,8 +428,7 @@ const useInvoiceState = () => {
                     // was never saved at all (invoice 1472, IMS). Fall back to an empty
                     // list: no stock reader requires it, and an unsaved invoice is worse.
                     type: 'out', productsData: valCon1?.productsData ?? tmpValue.productsData ?? [],
-                    client: tmpValue.final ? tmpValue.client.client :
-                        settings.Client.Client.find(z => z.id === tmpValue.client)['client'],
+                    client: clientLabel(settings, tmpValue, 'client'),
                     cur: tmpValue.cur
                 }))
 
@@ -431,6 +436,12 @@ const useInvoiceState = () => {
                 if (deleteProdcuts.length > 0) delStock(uidCollection, deleteProdcuts)
 
                 let success = await saveData(uidCollection, 'invoices', tmpValue)
+
+                // Saved in its new year — only now remove the copy left in the old one.
+                if (success === true && movedYear) {
+                    await delDoc(uidCollection, 'invoices', { id: tmpValue.id, date: dateYr })
+                    setDateYr(newYear)
+                }
 
                 return success === true;
             } catch (e) {

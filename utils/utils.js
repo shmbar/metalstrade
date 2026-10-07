@@ -931,6 +931,33 @@ export const delField = async (uidCollection, path, field, obj) => {
   });
 }
 
+/* Patch fields on a year-bucketed record, wherever it actually is. `ref` = { id, date }.
+   The bucket its date names is tried first, then the years either side — the same search
+   loadInvoice makes, because a record re-dated across a year boundary lives in the new
+   year's collection while references to it can still carry the old date. A missing record
+   is never written to: that is what failed every save it was part of ("No document to
+   update"). Returns the year the record was found and patched in, or null when it is in
+   none of them.
+
+   updateDocument above addresses the one bucket it is given and throws when the record is
+   not there. Use this one where the record is someone else's to keep track of — the
+   original invoice behind a Credit / Final Note. */
+export const updateDocumentAnyYear = async (uidCollection, path, ref, patch) => {
+  const y = parseInt(String(ref?.date ?? '').substring(0, 4), 10);
+  if (!uidCollection || !ref?.id || !Number.isFinite(y)) return null;
+  for (const yr of [y, y - 1, y + 1, y - 2, y - 3]) {
+    const Ref = doc(db, uidCollection, 'data', path + '_' + yr, ref.id);
+    if ((await getDoc(Ref)).exists()) {
+      await updateDoc(Ref, patch);
+      return yr;
+    }
+  }
+  return null;
+}
+
+// deleteField() for a caller outside this module that clears a field with the helper above.
+export const deletedField = () => deleteField();
+
 export const setNewInvoiceNum = async (uidCollection) => {
   const Ref = doc(db, uidCollection, "invoiceNum");
 

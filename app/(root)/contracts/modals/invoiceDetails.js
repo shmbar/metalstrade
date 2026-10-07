@@ -248,8 +248,16 @@ const ContractModal = () => {
 	const btnClck = async () => {
 		if (!isButtonDisabled) {
 			setIsButtonDisabled(true);
-			let result = await saveData_InvoiceInContracts(valueCon, valueInv, setValueCon, contractsData,
-				setContractsData, uidCollection, settings)
+			// The save reports its own failures; this catches anything it did not, so the
+			// button can never be left on "Saving" with nothing said (GIS #40, 2026-10-07).
+			let result = false
+			try {
+				result = await saveData_InvoiceInContracts(valueCon, valueInv, setValueCon, contractsData,
+					setContractsData, uidCollection, settings)
+			} catch (e) {
+				console.error(e)
+				setToast({ show: true, clr: 'fail', text: `${getTtl('Error saving. Please try again.', ln)} ${e?.message || e}`.trim() })
+			}
 			setCertOpen(false)
 			if (!result) setIsButtonDisabled(false); //false
 

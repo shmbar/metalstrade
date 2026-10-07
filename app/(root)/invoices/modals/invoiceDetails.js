@@ -272,7 +272,15 @@ const InvoiceModal = () => {
 
 		if (!isButtonDisabled) {
 			setIsButtonDisabled(true);
-			let result = await saveData_InvoiceInInvoices(uidCollection, settings)
+			// The save reports its own failures; this catches anything it did not (its checks
+			// run before its own try), so the button can never be left on "Saving".
+			let result = false
+			try {
+				result = await saveData_InvoiceInInvoices(uidCollection, settings)
+			} catch (e) {
+				console.error(e)
+				setToast({ show: true, clr: 'fail', text: `${getTtl('Error saving. Please try again.', ln)} ${e?.message || e}`.trim() })
+			}
 			if (!result) setIsButtonDisabled(false); //false
 
 			setTimeout(() => {
