@@ -102,3 +102,17 @@ describe('Stocks By grade — the search picks lines, and a grade folds only tho
         expect(g.qnty).toBeCloseTo(1.318, 3);
     });
 });
+
+/* Lines view, 2026-10-08: every checklist in the filter row (Supplier, Warehouse…) said
+   "Nothing to filter". The header-group loop in newTable.js was named `group`, hiding the
+   By-grade switch of the same name, so the filter row always read the hidden line table —
+   which holds no rows in Lines view. The switch must stay visible inside the header loop. */
+describe('the filter row reads the table that is drawn', () => {
+    it('no header-group loop in stocks/newTable.js is named `group`', async () => {
+        const { readFileSync } = await import('node:fs');
+        const { fileURLToPath } = await import('node:url');
+        const src = readFileSync(fileURLToPath(new URL('../newTable.js', import.meta.url)), 'utf8');
+        expect(src).not.toMatch(/getHeaderGroups\(\)\.map\(\s*\(?\s*group\b/);
+        expect(src).toContain('table={group ? lineTable : table}');
+    });
+});

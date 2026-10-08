@@ -28,7 +28,7 @@ import Avatar from '@components/Avatar';
 import Modal from '@components/modal';
 import { BtnIcon, SearchAdornment } from '@components/buttonIcons';
 import { SortTh } from '@components/table/sorting';
-import { NO_SORT, nextSort, rowWords, sortByCol, visibleRows } from './detailRows';
+import { NO_SORT, cellText, nextSort, rowWords, sortByCol, visibleRows } from './detailRows';
 import { Gauge, Receipt, Percent, Truck, Warehouse, TrendingUp, FileWarning, Ship, Building2, Info, ArrowDownToLine } from 'lucide-react';
 
 import { HorizontalBar } from './charts';
@@ -383,15 +383,20 @@ function DetailModal({ title, subtitle, rows = [], cols = [], formula = null, is
                   )}
                   {shown.map((r, i) => (
                     <tr key={i}>
-                      {cols.map(c => (
-                        <td
-                          key={c.key}
-                          className={c.right ? 'numeric' : ''}
-                          style={{ textAlign: c.right ? 'right' : 'left' }}
-                        >
-                          {c.render ? c.render(r) : (r[c.key] ?? '—')}
-                        </td>
-                      ))}
+                      {cols.map(c => {
+                        const content = c.render ? c.render(r) : (r[c.key] ?? '—');
+                        if (c.right) return <td key={c.key} className="numeric" style={{ textAlign: 'right' }}>{content}</td>;
+                        /* A text cell takes no more than its share. One long note ("Air tickets
+                           and related travel expenses for …") stretched Company Expenses to
+                           2,566px and pushed As entered and USD off the right edge (Zak,
+                           2026-10-08). Cut with "…", the whole text on hover. */
+                        const text = cellText(c, r);
+                        return (
+                          <td key={c.key} style={{ textAlign: 'left' }}>
+                            <span className="block truncate max-w-72" title={text.length > 40 ? text : undefined}>{content}</span>
+                          </td>
+                        );
+                      })}
                     </tr>
                   ))}
                 </tbody>

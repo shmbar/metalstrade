@@ -253,10 +253,14 @@ const Customtable = ({
 <table className="w-full" style={{ tableLayout: 'auto' }}>
                 {/* THEAD - Multi-color gradient inspired by all cards */}
                 <thead className="sticky top-0 z-sticky">
-                  {table.getHeaderGroups().map(group => (
-                    <Fragment key={group.id}>
+                  {/* `hg`, not `group`: a header group named `group` hid the By-grade switch of
+                      the same name below, so every filter in the row read the hidden line
+                      table — which is empty in Lines view, and every checklist (Supplier,
+                      Warehouse…) said "Nothing to filter" (client, 2026-10-08). */}
+                  {table.getHeaderGroups().map(hg => (
+                    <Fragment key={hg.id}>
                       <tr style={{ borderBottom: '1px solid var(--line)' }}>
-                        {group.headers.map(header => (
+                        {hg.headers.map(header => (
                           <th
                             key={header.id}
                             className="group/th"
@@ -292,7 +296,7 @@ const Customtable = ({
                       {/* Filter Row */}
                       {filterOn && (
                         <tr style={{ backgroundColor: "var(--bg-card)" }}>
-                          {group.headers.map(header => (
+                          {hg.headers.map(header => (
                             <th
                               key={header.id}
                               className="px-2 py-1.5"

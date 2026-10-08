@@ -197,7 +197,11 @@ const HASH = {
   // the drawn table filters `data` as before, every row is top-level, and the two mirrored
   // lines asserted below are unchanged. The By grade rule is now mobile's own: its list
   // searches lines (display.ts filterInventoryRows) and has no fold.
-  customtable: '7353db663d71', // app/(root)/stocks/newTable.js:39 (contains the footer count)
+  // Re-recorded 2026-10-08 (was 7353db663d71): the header-group loop was named `group` and
+  // hid the By-grade switch, so in Lines view the filter row read the empty lineTable and
+  // every checklist (Supplier, Warehouse…) said "Nothing to filter". Renamed `hg`; web-only —
+  // mobile has no filter row, and no figure or footer count moved.
+  customtable: 'bddf288d78bf', // app/(root)/stocks/newTable.js:39 (contains the footer count)
   addComma: '9d2dc43091c5', // app/(root)/stocks/whModal.js:52
   sumShowAmount: '61cca0f1837f', // app/(root)/stocks/sumtables/sumTable.js:8
   // Re-recorded 2026-09-12 after PORTING the three web changes behind it, not to
