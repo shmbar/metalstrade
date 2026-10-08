@@ -293,7 +293,9 @@ const Stocks = () => {
 
           })
           totalObj['id'] = currentObj.id
-          totalObj['qTypeTable'] = currentObj.qTypeTable || ''
+          // The row's unit is its purchase's: a sale or a move books its out-lot with no
+          // unit, so the last lot's made a kg line read as tonnes once any of it had left.
+          if (!totalObj['qTypeTable'] || (currentObj.type === 'in' && currentObj.qTypeTable)) totalObj['qTypeTable'] = currentObj.qTypeTable || ''
         }
         // The settlement's own correction row carries no quantity, so the loop above
         // cannot see it: a settlement that weighed the delivery light is a line-level

@@ -146,6 +146,10 @@ export default function Dashboard() {
   const sumOf = <T,>(rows: T[], f: (r: T) => number) => rows.reduce((a, r) => a + (Number(f(r)) || 0), 0);
   const supName = (id: string) => settings?.Supplier?.Supplier?.find((x: any) => x.id === id)?.nname || 'GIS';
 
+  // A card's footer for the rows a search leaves (DetailSheet `totalOf`) — dollars, as the
+  // card's own total.
+  const usdTotal = (rs: DetailRow[]) => fmtAutoKM(sumOf(rs, (r) => r.amount || 0));
+
   const expenseRowsFor = (rows: ExpenseRow[], titleBy: 'type' | 'vendor'): DetailRow[] =>
     rows.map((r, i) => ({
       key: `${r.type}-${r.ref}-${r.date}-${i}`,
@@ -156,6 +160,8 @@ export default function Dashboard() {
       sub: [r.date, r.paid, r.comments].filter(Boolean).join(' · '),
       value: fmtAutoKM(r.usd),
       valueSub: `${money(r.cur, r.amount)} as entered`,
+      amount: r.usd,
+      date: r.date,
     }));
 
   const openDetail = (kind: string, arg = '') => {
@@ -175,8 +181,13 @@ export default function Dashboard() {
         meta: [r.company, r.description].filter(Boolean).join(' · '),
         sub: [r.order && r.order !== '-' ? `PO ${r.order}` : '', r.date, r.paid].filter(Boolean).join(' · '),
         value: money(r.cur, r.amount),
+        amount: r.amount,
+        cur: r.cur,
+        date: r.date,
       })),
       total: rows.length ? perCur(rows) : undefined,
+      // Per currency, as the card's own total — a misc list can hold $ and €.
+      totalOf: (rs) => perCur(rs.map((x) => ({ cur: x.cur || 'us', amount: x.amount || 0 }))),
     });
 
     const build = (): DashDetail | null => {
@@ -187,6 +198,7 @@ export default function Dashboard() {
             subtitle: `${d.expenseRows.length} expense records in the period · GIS commission excluded`,
             rows: expenseRowsFor(d.expenseRows, 'type'),
             total: fmtAutoKM(sumOf(d.expenseRows, (r) => r.usd)),
+            totalOf: usdTotal,
           };
         case 'companyExpenses':
           return {
@@ -199,8 +211,11 @@ export default function Dashboard() {
               sub: [r.date, r.paid].filter(Boolean).join(' · '),
               value: fmtAutoKM(r.usd),
               valueSub: `${money(r.cur, r.amount)} as entered`,
+              amount: r.usd,
+              date: r.date,
             })),
             total: fmtAutoKM(sumOf(d.companyExpenseRows, (r) => r.usd)),
+            totalOf: usdTotal,
           };
         case 'grossProfit':
           return {
@@ -279,8 +294,11 @@ export default function Dashboard() {
               meta: `${r.contracts} contract${r.contracts === 1 ? '' : 's'}${r.waiting ? ` · ${r.waiting} not invoiced yet` : ''}`,
               value: fmtAutoKM(r.value),
               valueSub: `Paid ${fmtAutoKM(r.paid)} · Balance ${fmtAutoKM(r.value - r.paid)}`,
+              amount: r.value,
+              figures: [r.paid, r.value - r.paid],
             })),
             total: fmtAutoKM(sumOf(rows, (r) => r.value)),
+            totalOf: usdTotal,
           };
         }
         case 'supplier': {
@@ -298,16 +316,23 @@ export default function Dashboard() {
               valueMuted: r.invoices === 0 || !r.value,
               valueSub: r.invoices === 0 ? undefined : `Paid ${fmtAutoKM(r.paid)} · Balance ${fmtAutoKM(r.value - r.paid)}`,
               valueTone: r.invoices > 0 && r.value - r.paid < -0.005 ? 'negative' : undefined,
+              // Not invoiced yet sorts after every figure, not as a $0.
+              amount: r.invoices === 0 ? undefined : r.value,
+              date: r.date,
+              // What the row shows compact, findable typed in full (web searches the same).
+              figures: [r.mt, ...(r.lineValue > 0 ? [r.lineValue] : []), ...(r.invoices ? [r.paid, r.value - r.paid] : [])],
             })),
             total: fmtAutoKM(sumOf(cs, (r) => r.value)),
+            totalOf: usdTotal,
           };
         }
         case 'consigneesTotal':
           return {
             title: 'Consignees — Total Value',
             subtitle: `Every client invoiced in the period · ${d.consignees.length} in total`,
-            rows: d.consignees.map((c) => ({ key: c.name, title: c.name, value: fmtAutoKM(c.value) })),
+            rows: d.consignees.map((c) => ({ key: c.name, title: c.name, value: fmtAutoKM(c.value), amount: c.value })),
             total: fmtAutoKM(d.revenueUsd),
+            totalOf: usdTotal,
           };
         case 'client': {
           const rows = d.consigneeDetails[arg] || [];
@@ -320,16 +345,20 @@ export default function Dashboard() {
               sub: r.date,
               value: fmtAutoKM(r.usd),
               valueSub: `${money(r.cur, r.amount)} as entered`,
+              amount: r.usd,
+              date: r.date,
             })),
             total: fmtAutoKM(sumOf(rows, (r) => r.usd)),
+            totalOf: usdTotal,
           };
         }
         case 'expensesTotal':
           return {
             title: 'Expenses by Type — Total',
             subtitle: 'Every expense type in the period · GIS commission excluded',
-            rows: d.expByType.map((e) => ({ key: e.name, title: e.name, value: fmtAutoKM(e.value) })),
+            rows: d.expByType.map((e) => ({ key: e.name, title: e.name, value: fmtAutoKM(e.value), amount: e.value })),
             total: fmtAutoKM(d.expensesTotal),
+            totalOf: usdTotal,
           };
         case 'expenseType': {
           const rows = d.expDetails[arg] || [];
@@ -340,6 +369,7 @@ export default function Dashboard() {
             subtitle: `${rows.length} expense${rows.length === 1 ? '' : 's'} across ${vendors} supplier${vendors === 1 ? '' : 's'} · ${fmtAutoKM(tot)}`,
             rows: expenseRowsFor(rows, 'vendor'),
             total: fmtAutoKM(tot),
+            totalOf: usdTotal,
           };
         }
         case 'gis':
@@ -353,8 +383,11 @@ export default function Dashboard() {
               sub: [r.date, r.comments].filter(Boolean).join(' · '),
               value: fmtAutoKM(r.usd),
               valueSub: `${money(r.cur, r.amount)} as entered`,
+              amount: r.usd,
+              date: r.date,
             })),
             total: fmtAutoKM(d.gisCommission.total),
+            totalOf: usdTotal,
           };
         case 'tonnage':
           return {

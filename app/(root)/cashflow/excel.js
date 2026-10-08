@@ -25,6 +25,9 @@ const MUTED = { argb: '6B7280' };
 // Sign before the symbol ("-$1,234.50"), as utils/currency moneyFull prints it.
 const moneyFmt = (cur) => (cur === 'eu' ? '"€"#,##0.00' : '"$"#,##0.00');
 const QTY_FMT = '#,##0.000';
+// A line's own quantity keeps every digit it has, as the page shows it: a line kept in kg
+// is 0.04996 MT at $400,000 per MT, which 0.050 would not multiply back to.
+const LINE_QTY_FMT = '#,##0.000####';
 const PCT_FMT = '0.0%';
 const DATE_FMT = 'dd.mm.yy';
 const curCode = (cur) => (cur === 'us' ? 'USD' : cur === 'eu' ? 'EUR' : (cur || ''));
@@ -93,7 +96,7 @@ const writeSection = (wb, used, sec) => {
     dressHeader(header, n);
     header.height = 20;
 
-    const put = (row, values, cur, { party = false } = {}) => {
+    const put = (row, values, cur, { party = false, line = false } = {}) => {
         cols.forEach((c, i) => {
             const v = values[c.key];
             if (v === undefined || v === null || v === '') return;
@@ -102,7 +105,7 @@ const writeSection = (wb, used, sec) => {
             switch (c.kind) {
                 case 'money': cell.value = v; cell.numFmt = moneyFmt(cur); break;
                 case 'usd': cell.value = v; cell.numFmt = moneyFmt('us'); break;
-                case 'qty': cell.value = v; cell.numFmt = QTY_FMT; break;
+                case 'qty': cell.value = v; cell.numFmt = line ? LINE_QTY_FMT : QTY_FMT; break;
                 case 'pct': cell.value = v / 100; cell.numFmt = PCT_FMT; break;
                 case 'date': cell.value = toDate(v); cell.numFmt = DATE_FMT; break;
                 default: cell.value = v;
@@ -123,7 +126,7 @@ const writeSection = (wb, used, sec) => {
         put(pr, p.summary, p.summary._fmtCur, { party: true });
         p.rows.forEach((r) => {
             const dr = ws.addRow({});
-            put(dr, r, r._cur);
+            put(dr, r, r._cur, { line: true });
             dr.outlineLevel = 1;
             dr.hidden = true;
             // The party name is repeated so a filtered or copied line still says whose

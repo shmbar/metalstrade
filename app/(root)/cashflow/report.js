@@ -160,6 +160,14 @@ const supplierSection = ({ key, title, aggregates, rows, names, rate }) => {
 };
 
 // ── Stock ───────────────────────────────────────────────────────────────────────
+// A stock line in tonnes at its price per MT — the pair the page's tables show (finance.js
+// perMT, handed in as names.perMT because only the page knows the workspace's units). Qty ×
+// price is the line's value either way: 660 kg at $3,950 is 0.660 MT at $3,950,000.
+const inMT = (z, names) => {
+    const m = names.perMT ? names.perMT(z) : z;
+    return { qty: num(m.qnty), unitPrc: num(m.unitPrc) };
+};
+
 const stockSection = ({ key, title, warehouses, rows, holdable, names, rate }) => {
     const columns = [
         NAME('Warehouse'), COUNT('Lines'),
@@ -167,7 +175,7 @@ const stockSection = ({ key, title, warehouses, rows, holdable, names, rate }) =
         { key: 'supplier', header: 'Supplier', width: 18 },
         { key: 'description', header: 'Description', width: 28 },
         { key: 'qty', header: 'Qty (MT)', width: 11, kind: 'qty', sum: true },
-        { key: 'unitPrc', header: 'Unit price', width: 13, kind: 'money' },
+        { key: 'unitPrc', header: 'Price / MT', width: 16, kind: 'money' },
         { key: 'cur', header: 'Cur.', width: 6 },
         { key: 'value', header: 'Value', width: 16, kind: 'money', sum: true },
         { key: 'valueUsd', header: 'Value USD', width: 16, kind: 'usd', sum: true },
@@ -186,8 +194,8 @@ const stockSection = ({ key, title, warehouses, rows, holdable, names, rate }) =
             supplier: [...new Set((z.supplierIds?.length ? z.supplierIds : [z.supplier])
                 .filter(id => id && id !== '-').map(names.supplier))].join(' + '),
             description: z.descriptionName || '',
-            qty: names.mt ? names.mt(z) : num(z.qnty), // in MT — a kg line is not 660 tonnes
-            unitPrc: num(z.unitPrc),
+            // In MT at a price per MT, as the page shows it — a kg line is not 660 tonnes.
+            ...inMT(z, names),
             cur: resolveCur(z),
             value: z.total === '-' ? 0 : num(z.total),
             valueUsd: z.total === '-' ? 0 : fx(z.total, z.cur, rate),
@@ -242,7 +250,7 @@ const unsoldSection = ({ aggregates, rows, names, rate }) => {
         { key: 'description', header: 'Description', width: 28 },
         { key: 'warehouse', header: 'Warehouse', width: 18 },
         { key: 'qty', header: 'Qty (MT)', width: 11, kind: 'qty', sum: true },
-        { key: 'unitPrc', header: 'Unit price', width: 13, kind: 'money' },
+        { key: 'unitPrc', header: 'Price / MT', width: 16, kind: 'money' },
         { key: 'cur', header: 'Cur.', width: 6 },
         { key: 'value', header: 'Value', width: 16, kind: 'money', sum: true },
         { key: 'valueUsd', header: 'Value USD', width: 16, kind: 'usd', sum: true },
@@ -259,8 +267,7 @@ const unsoldSection = ({ aggregates, rows, names, rate }) => {
             po: z.order || '',
             description: z.description || '',
             warehouse: z.stockName || '',
-            qty: names.mt ? names.mt(z) : num(z.qnty), // in MT, from the PO's unit
-            unitPrc: num(z.unitPrc),
+            ...inMT(z, names), // in MT at a price per MT, from the PO's unit
             cur: resolveCur(z),
             value: num(z.total),
             valueUsd: fx(z.total, z.cur, rate),

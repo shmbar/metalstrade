@@ -110,6 +110,21 @@ export const unitOf = (contract, settings) =>
 
 export const toMT = (qty, contract, settings) => num(qty) * (UNIT_TO_MT[unitOf(contract, settings)] ?? 1);
 
+/* A line as a page in tonnes shows it: the quantity in MT and the unit price per MT, so
+   quantity × price is still the line's total. Cashflow lists every stock line this way —
+   a lot kept in kg reads 0.660 at $3,950,000.00 per MT, not 660.000 at $3,950.00 per kg
+   (client, 2026-10-08: "660 kgs should show 0.66 MT"). `places` keeps every digit a
+   converted figure has (49.96 kg is 0.04996 MT, not 0.050; a pound needs seven places)
+   so the line still reconciles; an MT line is returned exactly as it is, at three places. */
+export const perMT = (row, settings) => {
+  const unit = unitOf(row, settings);
+  const factor = UNIT_TO_MT[unit] ?? 1;
+  if (factor === 1) return { qnty: row?.qnty, unitPrc: row?.unitPrc, unit, factor, places: 3 };
+  const qnty = Math.round(num(row?.qnty) * factor * 1e7) / 1e7;
+  const places = Math.min(7, Math.max(3, (String(qnty).split('.')[1] || '').length));
+  return { qnty, unitPrc: num(row?.unitPrc) * (1 / factor), unit, factor, places };
+};
+
 /* How much an `in` lot actually put into the warehouse.
 
    `qnty` is what the PO said; `finalqnty` is what it weighed at settlement, so a

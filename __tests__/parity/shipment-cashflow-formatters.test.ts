@@ -1654,6 +1654,42 @@ describe('cashflow — the bottom line', () => {
     expect(d.totalLeft).toBeCloseTo(10_000 + 1_125, 6);
   });
 
+  it('a lot kept in kg shows in MT at its price per MT, its total unchanged (2026-10-08)', () => {
+    // Client: "660 kgs should show 0.66 MT". The line keeps what was booked (qnty, unitPrc,
+    // total); qntyMT / unitPrcMT are what the sheet draws, as web's Cashflow tables do.
+    const { stocks, contracts2y } = stockWorld();
+    const hf = [makeProduct({ id: 'prd-1', unitPrc: '3950' })];
+    const kg = stocks.map((l: any) => (l.id === 'lot-paid'
+      ? { ...l, qnty: '660', unitPrc: '3950', qTypeTable: 'q-kgs', productsData: hf } : l));
+    const d = world({ stocks: kg, contracts2y });
+    expect(d.stocksPaid[0].items[0]).toMatchObject({
+      qnty: 660, unitPrc: 3950, total: 2_607_000,
+      qntyMT: 0.66, unitPrcMT: 3_950_000, mtPlaces: 3, unit: 'KGS',
+    });
+    expect(d.stocksPaidTotal).toBeCloseTo(2_607_000, 6);
+    // An MT lot reads exactly as before.
+    expect(d.stocksUnpaid[0].items[0]).toMatchObject({ qnty: 5, unitPrc: 200, qntyMT: 5, unitPrcMT: 200, unit: 'MT' });
+  });
+
+  it('an unsold line on a kg PO carries its unit and shows in MT (2026-10-08)', () => {
+    // web funcs.js runStocks: unsold rows carry the PO's qTypeTable; the phone dropped it, so
+    // every unsold line read as MT whatever its PO said.
+    const contracts2y = [
+      makeContract({
+        id: 'con-kg',
+        order: 'PO-KG',
+        supplier: 'sup-1',
+        qTypeTable: 'q-kgs',
+        productsData: [makeProduct({ id: 'prd-kg', description: 'Hf Ni VAR', qnty: '660', unitPrc: '3950' })],
+        stock: [],
+        poInvoices: [],
+      }),
+    ];
+    const d = world({ contracts2y });
+    const line = d.unsoldBySupplier.flatMap((s: any) => s.items).find((l: any) => l.order === 'PO-KG');
+    expect(line).toMatchObject({ qnty: 660, unitPrc: 3950, total: 2_607_000, qntyMT: 0.66, unitPrcMT: 3_950_000, unit: 'KGS' });
+  });
+
   it('Total (Right) adds supplier payables, unpaid expenses and right-hand financing', () => {
     // Mirror: web page.js:314-324.
     const contracts4y = [

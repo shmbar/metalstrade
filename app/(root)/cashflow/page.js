@@ -18,7 +18,7 @@ import { NumericFormat } from "react-number-format";
 import { addComma, ClientDetails, clientToolTip, entityName, ExpensesToolTip, FinalSummaryBadge, runExpenses, runInvoices, runStocks, runSupPayments, SharedStockDetails, stockHoldInvoices, StocksUnSold, StoclToolTip, SupplierDetails, supplierToolTip } from "./funcs";
 import { getTotals, getTotalsSupPayments, sumUnpaidStocksByWarehouse } from "./totals";
 import { fetchEurUsd } from "../../../hooks/useExchangeRates";
-import { EUR_USD_FALLBACK, toMT } from "../../../utils/finance";
+import { EUR_USD_FALLBACK, perMT } from "../../../utils/finance";
 import Tltip from "../../../components/tlTip";
 import { FaSortAmountDown } from "react-icons/fa";
 import { FaSortAmountUpAlt } from "react-icons/fa";
@@ -131,7 +131,7 @@ const SectionTotals = ({ rows = [], field, label }) => {
     const count = rows.reduce((t, o) => t + (o._pendingCount || 0), 0);
     const figure = (value, cls) => (
         <NumericFormat value={value} displayType="text" thousandSeparator allowNegative={true}
-            prefix='$' decimalScale='2' fixedDecimalScale className={cls} />
+            prefix='$' decimalScale={2} fixedDecimalScale className={cls} />
     );
     return (
         <>
@@ -1447,8 +1447,8 @@ const Cashflow = () => {
         names: {
             client: cliName, supplier: supName, warehouse: whName,
             expType: (id) => settings?.Expenses?.Expenses?.find(q => q.id === id)?.expType || '',
-            // A stock line's quantity in MT — lots keep their PO's unit (kg, lb).
-            mt: (row) => toMT(parseFloat(row?.qnty) || 0, row, settings),
+            // A stock line in MT at its price per MT — lots keep their PO's unit (kg, lb).
+            perMT: (row) => perMT(row, settings),
         },
         isAdmin,
         account: accountName(uidCollection),
@@ -1644,7 +1644,7 @@ const Cashflow = () => {
                                                                     thousandSeparator
                                                                     allowNegative={true}
                                                                     prefix={x.cur === 'us' ? '$' : '€'}
-                                                                    decimalScale='2'
+                                                                    decimalScale={2}
                                                                     fixedDecimalScale
                                                                     className='responsiveText text-[var(--ink)] tabular-nums'
                                                                 />
@@ -1664,7 +1664,7 @@ const Cashflow = () => {
                                                     thousandSeparator
                                                     allowNegative={true}
                                                     prefix={'$'}
-                                                    decimalScale='2'
+                                                    decimalScale={2}
                                                     fixedDecimalScale
                                                     className='responsiveTextTotal text-[var(--ink)] font-medium border-t border-[var(--line-strong)] pt-0.5'
                                                 />
@@ -1693,7 +1693,7 @@ const Cashflow = () => {
                                                         thousandSeparator
                                                         allowNegative={true}
                                                         prefix={'$'}
-                                                        decimalScale='2'
+                                                        decimalScale={2}
                                                         fixedDecimalScale
                                                         className='responsiveText tnum text-[var(--ink)]'
                                                     />
@@ -1758,7 +1758,7 @@ const Cashflow = () => {
                                                                                 thousandSeparator
                                                                                 allowNegative={true}
                                                                                 prefix={x.cur === 'us' ? '$' : '€'}
-                                                                                decimalScale='2'
+                                                                                decimalScale={2}
                                                                                 fixedDecimalScale
                                                                                 className='responsiveText text-[var(--ink)] tabular-nums'
                                                                             />
@@ -1786,7 +1786,7 @@ const Cashflow = () => {
                                                             thousandSeparator
                                                             allowNegative={true}
                                                             prefix='$'
-                                                            decimalScale='2'
+                                                            decimalScale={2}
                                                             fixedDecimalScale
                                                             className='responsiveTextTotal text-[var(--ink)] font-medium border-t border-[var(--line-strong)] pt-0.5'
                                                         />
@@ -1847,7 +1847,7 @@ const Cashflow = () => {
                                                                         thousandSeparator
                                                                         allowNegative={true}
                                                                         prefix='$'
-                                                                        decimalScale='2'
+                                                                        decimalScale={2}
                                                                         fixedDecimalScale
                                                                         className='responsiveText text-[var(--port-gore)]'
                                                                     />
@@ -1992,7 +1992,7 @@ const Cashflow = () => {
                                                                     thousandSeparator
                                                                     allowNegative={true}
                                                                     prefix='$'
-                                                                    decimalScale='2'
+                                                                    decimalScale={2}
                                                                     fixedDecimalScale
                                                                     className='responsiveTextTotal text-[var(--ink)] font-medium border-t border-[var(--line-strong)] pt-0.5'
                                                                 />
@@ -2103,7 +2103,7 @@ const Cashflow = () => {
                                                                                 thousandSeparator
                                                                                 allowNegative={true}
                                                                                 prefix={'$'}
-                                                                                decimalScale='2'
+                                                                                decimalScale={2}
                                                                                 fixedDecimalScale
                                                                                 className='responsiveText text-[var(--ink)] tabular-nums'
                                                                             />
@@ -2128,7 +2128,7 @@ const Cashflow = () => {
                                                             thousandSeparator
                                                             allowNegative={true}
                                                             prefix='$'
-                                                            decimalScale='2'
+                                                            decimalScale={2}
                                                             fixedDecimalScale
                                                             className='responsiveTextTotal text-[var(--ink)] font-medium border-t border-[var(--line-strong)] pt-0.5'
                                                         />
@@ -2189,7 +2189,7 @@ const Cashflow = () => {
                                                                     thousandSeparator
                                                                     allowNegative={true}
                                                                     prefix='$'
-                                                                    decimalScale='2'
+                                                                    decimalScale={2}
                                                                     fixedDecimalScale
                                                                     className='responsiveTextTotal text-[var(--ink)] font-medium border-t border-[var(--line-strong)] pt-0.5'
                                                                 />

@@ -37,6 +37,7 @@ import { useSharedStock } from '@/features/stocks/useSharedStock';
 import { curSymbol, fmtMoney, dateLabel, eurRateNote, moneyFull, moneyLines } from '@/lib/format';
 import { radius, spacing, layout } from '@/theme/tokens';
 import { matchesAllWords, searchWords } from '@shared/search';
+import { perMT } from '@shared/finance';
 import { entityName } from '@/lib/entityName';
 import { useShallow } from 'zustand/react/shallow';
 
@@ -82,6 +83,16 @@ const curLine = (byCur: Record<string, number>) => {
 const qty = (n: number) => fmtMoney(n, 3);
 // A credit (negative balance) reads -$500.00, not $-500.00 — the shared money format.
 const full = (cur: string, n: number) => moneyFull(cur, n);
+
+/* A stock line is in tonnes, as on web: "0.660 MT × $3,950,000.00" for Hf Ni VAR's 660 kg
+   (client, 2026-10-08). A line its PO keeps in kg or lb also reads in that unit, on a line of
+   its own — the line's own figure (what is left, at its price), as web shows it on hover. */
+type MTLine = { qnty: number; unitPrc: number; qntyMT: number; unitPrcMT: number; mtPlaces: number; unit: string; cur: string };
+const unitWord = (u: string) => (u === 'KGS' ? 'kg' : String(u || '').toLowerCase());
+const mtLines = (l: MTLine) => [
+  `${fmtMoney(l.qntyMT, l.mtPlaces)} MT × ${full(l.cur, l.unitPrcMT)}`,
+  l.unit && l.unit !== 'MT' && l.qntyMT !== l.qnty ? `${qty(l.qnty)} ${unitWord(l.unit)} × ${full(l.cur, l.unitPrc)} per ${unitWord(l.unit)}` : '',
+];
 
 /** Per-currency sum of one field over a sheet's items — a sheet can hold $ and € rows, and
     one sum across both would print euros as dollars. */
@@ -904,8 +915,8 @@ export default function Cashflow() {
               <DetailLine
                 first={i === 0}
                 title={`PO ${l.order || '—'}`}
-                lines={[l.description, l.supplierName, `${qty(l.qnty)} × ${full(l.cur, l.unitPrc)}`, held ? 'Pending — invoice on hold' : ''].filter(Boolean)}
-                draft={draftChipFor(data?.draftMaterials, l.draftKeys)}
+                lines={[l.description, l.supplierName, ...mtLines(l), held ? 'Pending — invoice on hold' : ''].filter(Boolean)}
+                draft={draftChipFor(data?.draftMaterials, l.draftKeys, l, settings)}
                 value={money(full(l.cur, l.total))}
               />
               {/* Web a074b342: hold a stock line from Stocks - UnPaid itself. */}
@@ -940,8 +951,8 @@ export default function Cashflow() {
             key={`${l.order}-${i}`}
             first={i === 0}
             title={`PO ${l.order || '—'}`}
-            lines={[l.description, l.stockName, `${qty(l.qnty)} × ${full(l.cur, l.unitPrc)}`]}
-            draft={draftChipFor(data?.draftMaterials, l.draftKeys)}
+            lines={[l.description, l.stockName, ...mtLines(l)].filter(Boolean)}
+            draft={draftChipFor(data?.draftMaterials, l.draftKeys, l, settings)}
             value={money(full(l.cur, l.total))}
           />
         ))}
@@ -1102,11 +1113,19 @@ function SheetTotal({ label, v, strong }: { label: string; v: string; strong?: b
 
 /** A read-only row inside a drill-down sheet: bold title, stacked detail lines, figure on the right. */
 /** web DraftUseBadge: "Draft 5.202" — the weight already on draft invoices. */
-function draftChipFor(map: Record<string, { invoices: (string | number)[]; qnty: number }> | undefined, keys: string[]) {
+function draftChipFor(
+  map: Record<string, { invoices: (string | number)[]; qnty: number }> | undefined,
+  keys: string[],
+  line?: { qTypeTable?: string },
+  settings?: any
+) {
   const use = keys.map((k) => map?.[k]).find((u) => u && u.invoices.length);
   if (!use) return undefined;
-  const q = Number(use.qnty) || 0;
-  const label = q > 0 ? `Draft ${q.toFixed(3)}` : 'Draft';
+  // In the line's terms, as web's DraftUseBadge: a sale is typed in its PO's unit and the
+  // line now reads in MT — so the draft does too.
+  const m = perMT({ qnty: Number(use.qnty) || 0, qTypeTable: line?.qTypeTable }, settings);
+  const q = Number(m.qnty) || 0;
+  const label = q > 0 ? `Draft ${q.toFixed(m.places)}` : 'Draft';
   return { label, note: `on draft invoice${use.invoices.length > 1 ? 's' : ''} ${use.invoices.join(', ')}` };
 }
 

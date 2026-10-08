@@ -510,7 +510,7 @@ const ProductsTable = ({ value, setValue, currency, quantityTable, setShowPoInvM
                                                                         thousandSeparator
                                                                         allowNegative={false}
                                                                         prefix={viewSymbol}
-                                                                        decimalScale='2'
+                                                                        decimalScale={2}
                                                                         fixedDecimalScale
                                                                     />
                                                             : key === 'qnty' ? (

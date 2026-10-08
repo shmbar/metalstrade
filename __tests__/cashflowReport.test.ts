@@ -7,6 +7,8 @@ import { describe, expect, it } from 'vitest';
 // @ts-ignore — plain JS module
 import { buildCashflowReport } from '../app/(root)/cashflow/report.js';
 // @ts-ignore — plain JS module
+import { perMT } from '../utils/finance.js';
+// @ts-ignore — plain JS module
 import { eurRateNote } from '../utils/currency.js';
 // @ts-ignore — plain JS module, the phone's byte-identical copy
 import { eurRateNote as phoneEurRateNote } from '../mobile/src/shared/currency.js';
@@ -192,9 +194,9 @@ describe('cashflow report', () => {
   });
 
   it('a line kept in kg counts in tonnes — Hf Ni VAR\'s 660 kg is 0.660 MT, not 660', () => {
-    const KG = { kg: 0.001 } as any;
+    const units = { Quantity: { Quantity: [{ id: 'kg', qTypeTable: 'KGS' }, { id: 'mt', qTypeTable: 'MT' }] } };
     const r = buildCashflowReport(world({
-      names: { ...names, mt: (row: any) => (parseFloat(row.qnty) || 0) * (KG[row.qTypeTable] ?? 1) },
+      names: { ...names, perMT: (row: any) => perMT(row, units) },
       stockPaidRows: [
         { stock: 'w1', cur: 'us', total: 700, qnty: '7', unitPrc: 100, order: 'PO-9', supplier: 's1' },
         { stock: 'w1', cur: 'us', total: 2321794.2, qnty: '660', qTypeTable: 'kg', unitPrc: 3517.87, order: '190626-2-TIM', supplier: 's2' },
@@ -203,6 +205,9 @@ describe('cashflow report', () => {
     const s = r.sections.find((x: any) => x.key === 'stocksPaid');
     expect(s.parties[0].rows.map((x: any) => x.qty)).toEqual([7, 0.66]);
     expect(r.stock.paidQty).toBeCloseTo(7.66, 6);
+    // …at its price per MT, so the sheet's qty × price is the line's value (client, 2026-10-08).
+    expect(s.parties[0].rows.map((x: any) => x.unitPrc)).toEqual([100, 3517870]);
+    s.parties[0].rows.forEach((x: any) => expect(x.qty * x.unitPrc).toBeCloseTo(x.value, 2));
   });
 
   it('stock tonnage counts active lines only', () => {

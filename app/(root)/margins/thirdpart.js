@@ -163,7 +163,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                                         displayType="text"
                                                         thousandSeparator
                                                         allowNegative={true}
-                                                        decimalScale={!Number.isInteger(z.purchase) && '3'}
+                                                        decimalScale={!Number.isInteger(z.purchase) && 3}
                                                         fixedDecimalScale
                                                         className="responsiveTextTable"
                                                     />
@@ -189,7 +189,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                                         thousandSeparator
                                                         allowNegative={true}
                                                         prefix={'$'}
-                                                        decimalScale="2"
+                                                        decimalScale={2}
                                                         fixedDecimalScale
                                                         className="responsiveTextTable"
                                                     />
@@ -203,7 +203,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                                         thousandSeparator
                                                         allowNegative={true}
                                                         prefix={'$'}
-                                                        decimalScale="2"
+                                                        decimalScale={2}
                                                         fixedDecimalScale
                                                         className="responsiveTextTable"
                                                     />
@@ -228,7 +228,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                                         displayType="text"
                                                         thousandSeparator
                                                         allowNegative={true}
-                                                        decimalScale={!Number.isInteger(z.openShip) && '3'}
+                                                        decimalScale={!Number.isInteger(z.openShip) && 3}
                                                         fixedDecimalScale
                                                         className="responsiveTextTable"
                                                         style={{ color: Number(z.openShip) > 0 ? 'var(--bad-text)' : undefined }}
@@ -256,7 +256,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                                         thousandSeparator
                                                         allowNegative={true}
                                                         prefix={'$'}
-                                                        decimalScale="2"
+                                                        decimalScale={2}
                                                         fixedDecimalScale
                                                         className="responsiveTextTable"
                                                         style={{ color: Number(z.remaining) > 0 ? 'var(--bad-text)' : undefined }}
@@ -271,7 +271,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                                         thousandSeparator
                                                         allowNegative={true}
                                                         prefix={'$'}
-                                                        decimalScale="2"
+                                                        decimalScale={2}
                                                         fixedDecimalScale
                                                         className="responsiveTextTable"
                                                         style={{ color: Number(z.remaining) > 0 ? 'var(--bad-text)' : undefined }}
@@ -319,7 +319,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                                     displayType="text"
                                                     thousandSeparator
                                                     allowNegative={true}
-                                                    decimalScale={!Number.isInteger(purchase) && '3'}
+                                                    decimalScale={!Number.isInteger(purchase) && 3}
                                                     fixedDecimalScale
                                                 />
                                             </div>
@@ -345,7 +345,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                                     thousandSeparator
                                                     allowNegative={true}
                                                     prefix={'$'}
-                                                    decimalScale="2"
+                                                    decimalScale={2}
                                                     fixedDecimalScale
                                                 />
                                             </div>
@@ -358,7 +358,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                                     thousandSeparator
                                                     allowNegative={true}
                                                     prefix={'$'}
-                                                    decimalScale="2"
+                                                    decimalScale={2}
                                                     fixedDecimalScale
                                                 />
                                             </div>
@@ -383,7 +383,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                                     displayType="text"
                                                     thousandSeparator
                                                     allowNegative={true}
-                                                    decimalScale="3"
+                                                    decimalScale={3}
                                                     fixedDecimalScale
                                                     style={{ color: Number(outStandingShip) > 0 ? 'var(--bad-text)' : undefined }}
                                                 />
@@ -411,7 +411,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                                     thousandSeparator
                                                     allowNegative={true}
                                                     prefix={'$'}
-                                                    decimalScale="2"
+                                                    decimalScale={2}
                                                     fixedDecimalScale
                                                     style={{ color: Number(remaining) > 0 ? 'var(--bad-text)' : undefined }}
                                                 />
@@ -425,7 +425,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                                     thousandSeparator
                                                     allowNegative={true}
                                                     prefix={'$'}
-                                                    decimalScale="2"
+                                                    decimalScale={2}
                                                     fixedDecimalScale
                                                     style={{ color: Number(remaining) > 0 ? 'var(--bad-text)' : undefined }}
                                                 />
@@ -524,7 +524,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                                     displayType="text"
                                                     thousandSeparator
                                                     allowNegative={true}
-                                                    decimalScale={!Number.isInteger(z.purchase) && '3'}
+                                                    decimalScale={!Number.isInteger(z.purchase) && 3}
                                                     fixedDecimalScale
                                                 />
                                             </div>
@@ -558,7 +558,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                                     thousandSeparator
                                                     allowNegative={true}
                                                     prefix={'$'}
-                                                    decimalScale="2"
+                                                    decimalScale={2}
                                                     fixedDecimalScale
                                                 />
                                             </div>
@@ -623,7 +623,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                                 displayType="text"
                                                 thousandSeparator
                                                 allowNegative={true}
-                                                decimalScale={!Number.isInteger(purchase) && '3'}
+                                                decimalScale={!Number.isInteger(purchase) && 3}
                                                 fixedDecimalScale
                                             />
                                         </div>
@@ -657,7 +657,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                                 thousandSeparator
                                                 allowNegative={true}
                                                 prefix={'$'}
-                                                decimalScale="2"
+                                                decimalScale={2}
                                                 fixedDecimalScale
                                             />
                                         </div>
@@ -690,7 +690,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                                 displayType="text"
                                                 thousandSeparator
                                                 allowNegative={true}
-                                                decimalScale="3"
+                                                decimalScale={3}
                                                 fixedDecimalScale
                                             />
                                         </div>
@@ -723,7 +723,7 @@ const ThirdPart = ({ data, remaining, outStandingShip, purchase, totalMargin, yr
                                                 thousandSeparator
                                                 allowNegative={true}
                                                 prefix={'$'}
-                                                decimalScale="2"
+                                                decimalScale={2}
                                                 fixedDecimalScale
                                                 style={{ color: Number(remaining) > 0 ? 'var(--bad-text)' : undefined }}
                                             />

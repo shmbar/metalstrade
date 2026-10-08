@@ -657,7 +657,7 @@ const ProductsTable = ({ value, setValue, currency, settings, uidCollection, set
                                                                     thousandSeparator
                                                                     allowNegative={true}
                                                                     prefix={currentCur}
-                                                                    decimalScale='2'
+                                                                    decimalScale={2}
                                                                     fixedDecimalScale
                                                                 />
                                                                 {(obj.eqUnitPrc || obj.eq) && (
@@ -673,7 +673,7 @@ const ProductsTable = ({ value, setValue, currency, settings, uidCollection, set
                                                                 thousandSeparator
                                                                 allowNegative={true}
                                                                 prefix={currentCur}
-                                                                decimalScale='2'
+                                                                decimalScale={2}
                                                                 fixedDecimalScale
                                                             />
                                                         ) : key === 'qnty' ? (
@@ -683,7 +683,7 @@ const ProductsTable = ({ value, setValue, currency, settings, uidCollection, set
                                                                     displayType="text"
                                                                     thousandSeparator
                                                                     allowNegative={false}
-                                                                    decimalScale='3'
+                                                                    decimalScale={3}
                                                                     fixedDecimalScale
                                                                 />
                                                                     :
@@ -741,7 +741,7 @@ const ProductsTable = ({ value, setValue, currency, settings, uidCollection, set
                                             thousandSeparator
                                             allowNegative={false}
                                             prefix={currentCur}
-                                            decimalScale='2'
+                                            decimalScale={2}
                                             fixedDecimalScale
                                         />
                                     </td>
@@ -788,7 +788,7 @@ const ProductsTable = ({ value, setValue, currency, settings, uidCollection, set
                                             thousandSeparator
                                             allowNegative={false}
                                             prefix={currentCur}
-                                            decimalScale='2'
+                                            decimalScale={2}
                                             fixedDecimalScale
                                         />
                                     </td>
@@ -827,7 +827,7 @@ const ProductsTable = ({ value, setValue, currency, settings, uidCollection, set
                                                     thousandSeparator
                                                     allowNegative={true}
                                                     prefix={currentCur}
-                                                    decimalScale='2'
+                                                    decimalScale={2}
                                                     fixedDecimalScale
                                                 />
                                             }
@@ -854,7 +854,7 @@ const ProductsTable = ({ value, setValue, currency, settings, uidCollection, set
                                                 thousandSeparator
                                                 allowNegative={true}
                                                 prefix={currentCur}
-                                                decimalScale='2'
+                                                decimalScale={2}
                                                 fixedDecimalScale
                                                 style={{ color: Number(value.balanceDue) > 0 ? 'var(--bad-text)' : undefined }}
                                             />

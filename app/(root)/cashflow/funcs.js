@@ -1,8 +1,9 @@
 import { useState, useContext, Children, cloneElement, isValidElement } from 'react';
 import { SettingsContext } from "../../../contexts/useSettingsContext";
-import { settledInQty, settlementReduction, resolveCur, EUR_USD_FALLBACK, toMT, unitOf } from "../../../utils/finance";
+import { settledInQty, settlementReduction, resolveCur, EUR_USD_FALLBACK, toMT, unitOf, perMT } from "../../../utils/finance";
 import { isEuro, isFN, isFNNumber, unsoldBySupplier, vendorTotals, warehouseTotals } from "./totals";
-import { priceShare, contentPct } from "../../../utils/lotPrice";
+import { priceShare, contentPct, effectiveUnitPrice } from "../../../utils/lotPrice";
+import { moneyFull } from "../../../utils/currency";
 
 import CheckBox from "../../../components/checkbox";
 import Avatar from "../../../components/Avatar";
@@ -29,21 +30,51 @@ import { BtnIcon } from "../../../components/buttonIcons";
 // lots converts first — Seagull's total read 1,085.940 "MT" because Hf Ni VAR's 660 kg were
 // added as 660 tonnes (client, 2026-10-07). finance.js toMT reads the unit off qTypeTable.
 const qtyMT = (row, settings) => toMT(parseFloat(row?.qnty) || 0, row, settings);
-// The unit a row's own quantity is in, shown beside it when it is not MT ("660.000 kg").
+// The unit a row's own quantity is in, as its PO has it ("kg", "lb"); '' for MT.
 const unitTag = (row, settings) => {
     const u = unitOf(row, settings);
     return u === 'MT' ? '' : u === 'KGS' ? 'kg' : String(u).toLowerCase();
 };
-const QtyUnit = ({ row, settings }) => {
+/* Every stock table on this page is in tonnes: a row's quantity in MT and its unit price per
+   MT (finance.js perMT), so Hf Ni VAR's 660 kg read 0.660 at $3,950,000.00 — the row's total
+   and every footer are what they were (client, 2026-10-08: "660 kgs should show 0.66 MT").
+   `_mt` carries the converted pair, `_qMT` / `_pMT` are what the Quantity and Price columns
+   sort on. */
+const withMT = (row, settings) => {
+    const m = perMT(row, settings);
+    return { _mt: m, _qMT: m.qnty, _pMT: m.unitPrc };
+};
+const QTY3 = new Intl.NumberFormat('en-US', { minimumFractionDigits: 3, maximumFractionDigits: 3 });
+// The quantity cell. A converted row keeps its figure in its own unit a hover away — the
+// row's own (what is left, at the price the row is valued at), not necessarily the PO's.
+const QtyMT = ({ row, settings }) => {
+    const m = row._mt || perMT(row, settings);
+    const fig = <NumericFormat value={m.qnty} displayType="text" thousandSeparator allowNegative={true}
+        decimalScale={m.places} fixedDecimalScale />;
+    if (m.factor === 1) return fig;
     const u = unitTag(row, settings);
-    return u ? <span className="text-[var(--ink-muted)]"> {u}</span> : null;
+    return (
+        <Tltip direction='top' tltpText={`${QTY3.format(parseFloat(row.qnty) || 0)} ${u} at ${moneyFull(row.cur, row.unitPrc)} per ${u} — its PO is in ${u}`}>
+            <span className="cursor-help border-b border-dotted border-[var(--line-strong)]">{fig}</span>
+        </Tltip>
+    );
 };
 // A row whose lots are priced per element content (lotPrice.js): what its unit price means.
-const contentNote = (row) => {
+const contentNote = (row, settings) => {
     const lot = (row?.data || []).find(l => l?.type === 'in' && l.priceOn);
     if (!lot) return '';
-    const pct = contentPct(lot, lot.priceOn);
-    return pct ? `Priced per unit of ${lot.priceOn} content: ${lot.unitPrc} × ${pct}% ${lot.priceOn}` : `Priced per unit of ${lot.priceOn} content — the ${lot.priceOn} % is missing from the lot's assay`;
+    const el = lot.priceOn;
+    const u = unitTag(row, settings) || 'MT';
+    const pct = contentPct(lot, el);
+    // …and what that comes to per MT of material — said only when it IS the figure in the
+    // cell: a row of several lots is valued at their weighted price, not this one lot's.
+    const m = row._mt || perMT(row, settings);
+    const pmt = effectiveUnitPrice(lot) / (m.factor || 1);
+    const cell = parseFloat(m.unitPrc);
+    const isCell = Number.isFinite(cell) && Math.abs(pmt - cell) < 0.01;
+    return pct
+        ? `Priced per ${u} of ${el} content: ${moneyFull(row.cur, lot.unitPrc)} × ${pct}% ${el}${isCell ? ` = ${moneyFull(row.cur, pmt)} per MT` : ''}`
+        : `Priced per ${u} of ${el} content — the ${el} % is missing from the lot's assay`;
 };
 
 // Composite key for the running-sum basket (ids are uuids but kind-prefixed to be safe)
@@ -146,17 +177,20 @@ export const entityName = (list, id, kind = 'record') => {
 //
 // Amber, because that is what this palette already means by "provisional": the same
 // tone the Final badge uses for a shipment before its final invoice is issued.
-export const DraftUseBadge = ({ use }) => {
+export const DraftUseBadge = ({ use, row = null, settings = null }) => {
     const list = use?.invoices || [];
     if (!list.length) return null;
     // The weight, not just the fact: a draft normally takes PART of a material, and
-    // a bare tag makes the untouched remainder look committed as well.
-    const qty = Number(use.qnty) || 0;
-    const label = qty > 0 ? `Draft ${qty.toFixed(3)}` : 'Draft';
+    // a bare tag makes the untouched remainder look committed as well. In the row's terms:
+    // a sale is typed in its PO's unit (PO 150125's three sales add up to its 95.185 lb),
+    // and the row now reads in MT — so the draft does too (2026-10-08).
+    const m = row ? perMT({ ...row, qnty: Number(use.qnty) || 0 }, settings) : { qnty: use.qnty, places: 3 };
+    const qty = Number(m.qnty) || 0;
+    const label = qty > 0 ? `Draft ${qty.toFixed(m.places)}` : 'Draft';
     const inv = `invoice${list.length > 1 ? 's' : ''} ${list.join(', ')}`;
     return (
         <Tltip direction='top' tltpText={
-            `${qty.toFixed(3)} MT of this material is on draft ${inv} — not shipped, so it still counts as stock`
+            `${qty.toFixed(m.places)} MT of this material is on draft ${inv} — not shipped, so it still counts as stock`
         }>
             <span className='inline-flex items-center rounded-full px-1.5 shrink-0 cursor-default responsiveTextTable numeric'
                 style={{ ...toneChipStyle(TONES.amber), lineHeight: 1.5 }}>
@@ -432,7 +466,9 @@ export const runStocks = async (uidCollection, settings, yr, contractsData = [],
 
                 })
                 totalObj['id'] = currentObj.id
-                totalObj['qTypeTable'] = currentObj.qTypeTable || ''
+                // The row's unit is its purchase's: a sale or a move books its out-lot with no
+                // unit, so the last lot's made a kg line read as tonnes once any of it had left.
+                if (!totalObj['qTypeTable'] || (currentObj.type === 'in' && currentObj.qTypeTable)) totalObj['qTypeTable'] = currentObj.qTypeTable || ''
             }
             // A settlement that weighed the delivery light belongs to the LINE, not to any
             // one lot: it is booked as a zero-weight row, so the per-lot sum above skips it.
@@ -765,7 +801,7 @@ export const StoclToolTip = ({ stock, stockDataAll, settings, uidCollection, set
     // The map has to come FIRST: _supplierName is what we sort on.
     const base = stockDataAll
         .filter(z => z.stock === stock)
-        .map(z => ({ ...z, _supplierName: supplierLabel(z, settings), _groupDesc: groupDescOf(z) }))
+        .map(z => ({ ...z, ...withMT(z, settings), _supplierName: supplierLabel(z, settings), _groupDesc: groupDescOf(z) }))
         .sort((a, b) =>
             (a._supplierName || '').localeCompare(b._supplierName || '', undefined, { sensitivity: 'base' })
             || byNewestThenPO(a, b));
@@ -787,8 +823,8 @@ export const StoclToolTip = ({ stock, stockDataAll, settings, uidCollection, set
                         <SortTh colKey="order" label="PO#" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left po-col" />
                         <SortTh colKey="_supplierName" label="Supplier" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left w-16" />
                         <SortTh colKey="descriptionName" label="Description" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left w-44 max-w-44" />
-                        <SortTh colKey="qnty" label="Quantity" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-center w-14" />
-                        <SortTh colKey="unitPrc" label="Unit Price" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-right w-16" />
+                        <SortTh colKey="_qMT" label="Quantity (MT)" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-center w-14" />
+                        <SortTh colKey="_pMT" label="Price / MT" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-right w-16" />
                         <SortTh colKey="total" label="Total" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-right w-20" />
                         {onPending && <PendingTh sortKey={sortKey} sortDir={sortDir} onSort={handleSort} />}
                     </tr>
@@ -816,33 +852,25 @@ export const StoclToolTip = ({ stock, stockDataAll, settings, uidCollection, set
                                 <td className="text-left w-44 max-w-44">
                                     <span className={`flex items-center gap-1.5 min-w-0 ${indent ? 'pl-4' : ''}`}>
                                         <Tltip direction='top' tltpText={z.descriptionName || ''}><span className='block truncate cursor-default'>{z.descriptionName}</span></Tltip>
-                                        <DraftUseBadge use={draftMaterials[z.descriptionId] || draftMaterials[z.description]} />
+                                        <DraftUseBadge use={draftMaterials[z.descriptionId] || draftMaterials[z.description]} row={z} settings={settings} />
                                         <UnpaidShareBadge row={z} />
                                     </span>
                                 </td>
                                 <td className="text-center whitespace-nowrap">
-                                    <NumericFormat
-                                        value={z.qnty}
-                                        displayType="text"
-                                        thousandSeparator
-                                        allowNegative={true}
-                                        decimalScale='3'
-                                        fixedDecimalScale
-                                    />
-                                    <QtyUnit row={z} settings={settings} />
+                                    <QtyMT row={z} settings={settings} />
                                 </td>
                                 <td className="text-right">{(() => {
                                     const price = <NumericFormat
-                                        value={z.unitPrc}
+                                        value={z._pMT}
                                         displayType="text"
                                         thousandSeparator
                                         allowNegative={true}
                                         prefix={z.cur === 'us' ? '$' : '€'}
-                                        decimalScale='2'
+                                        decimalScale={2}
                                         fixedDecimalScale
                                     />;
-                                    // Per unit of material; a lot priced per element content says how.
-                                    const note = contentNote(z);
+                                    // Per MT of material; a lot priced per element content says how.
+                                    const note = contentNote(z, settings);
                                     return note
                                         ? <Tltip direction='top' tltpText={note}><span className="cursor-help border-b border-dotted border-[var(--line-strong)]">{price}</span></Tltip>
                                         : price;
@@ -854,7 +882,7 @@ export const StoclToolTip = ({ stock, stockDataAll, settings, uidCollection, set
                                         thousandSeparator
                                         allowNegative={true}
                                         prefix={z.cur === 'us' ? '$' : '€'}
-                                        decimalScale='2'
+                                        decimalScale={2}
                                         fixedDecimalScale
                                     />
                                 }</td>
@@ -872,7 +900,8 @@ export const StoclToolTip = ({ stock, stockDataAll, settings, uidCollection, set
                                 if (emitted.has(z.order)) return;
                                 emitted.add(z.order);
                                 const isOpen = !!openPOs[z.order];
-                                const qSum = grp.reduce((s, r) => s + (parseFloat(r.qnty) || 0), 0);
+                                const qSum = grp.reduce((s, r) => s + (parseFloat(r._qMT) || 0), 0);
+                                const qPlaces = Math.max(...grp.map(r => r._mt?.places || 3));
                                 const tSum = grp.reduce((s, r) => s + (r.total === '-' ? 0 : parseFloat(r.total) || 0), 0);
                                 out.push(
                                     <tr key={`grp-${z.order}`} className={`cursor-pointer hover:bg-[var(--surface-pill)]${onPending && grp.every(q => q.pending) ? ' cf-pending-row' : ''}`}
@@ -907,12 +936,12 @@ export const StoclToolTip = ({ stock, stockDataAll, settings, uidCollection, set
                                             </span>
                                         </td>
                                         <td className="text-center font-medium">{
-                                            <><NumericFormat value={qSum} displayType="text" thousandSeparator decimalScale='3' fixedDecimalScale /><QtyUnit row={grp[0]} settings={settings} /></>
+                                            <NumericFormat value={qSum} displayType="text" thousandSeparator decimalScale={qPlaces} fixedDecimalScale />
                                         }</td>
                                         <td className="text-right"></td>
                                         <td className="text-right font-medium">{
                                             <NumericFormat value={tSum} displayType="text" thousandSeparator
-                                                prefix={z.cur === 'us' ? '$' : '€'} decimalScale='2' fixedDecimalScale />
+                                                prefix={z.cur === 'us' ? '$' : '€'} decimalScale={2} fixedDecimalScale />
                                         }</td>
                                         {statusCell(grp)}
                                     </tr>
@@ -941,7 +970,7 @@ export const StoclToolTip = ({ stock, stockDataAll, settings, uidCollection, set
                                 <th></th>
                                 <th className="text-center whitespace-nowrap">
                                     <NumericFormat value={q} displayType="text" thousandSeparator allowNegative={true}
-                                        decimalScale='3' fixedDecimalScale suffix=' MT' />
+                                        decimalScale={3} fixedDecimalScale suffix=' MT' />
                                 </th>
                                 {/* Unit prices are per-MT rates for DIFFERENT materials, so adding them
                                     up produces a number that is neither money nor a price — $2,075/MT of
@@ -974,6 +1003,7 @@ export const StocksUnSold = ({ supplier, stockDataAllArray, settings, uidCollect
     const [showMatTotals, setShowMatTotals] = useState(false);
 
     const base = stockDataAllArray.filter(z => z.supplier === supplier)
+        .map(z => ({ ...z, ...withMT(z, settings) }))
         // Newest lot first (falls back to PO# for ties) so both stock tables read consistently.
         .sort(byNewestThenPO);
     const filteredArr = sortKey ? sortRows(base, sortKey, sortDir) : base;
@@ -996,8 +1026,8 @@ export const StocksUnSold = ({ supplier, stockDataAllArray, settings, uidCollect
                         <SortTh colKey="order" label="PO#" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left po-col" />
                         <SortTh colKey="description" label="Description" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left w-44 max-w-44" />
                         <SortTh colKey="stockName" label="Stock" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left w-20" />
-                        <SortTh colKey="qnty" label="Quantity" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-center w-14" />
-                        <SortTh colKey="unitPrc" label="Unit Price" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-right w-16" />
+                        <SortTh colKey="_qMT" label="Quantity (MT)" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-center w-14" />
+                        <SortTh colKey="_pMT" label="Price / MT" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-right w-16" />
                         <SortTh colKey="total" label="Total" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-right w-20" />
                     </tr>
                 </thead>
@@ -1016,31 +1046,23 @@ export const StocksUnSold = ({ supplier, stockDataAllArray, settings, uidCollect
                                     <span className={`flex items-center gap-1.5 min-w-0 ${indent ? 'pl-4' : ''}`}>
                                         <Tltip direction='top' tltpText={z.description || ''}><span className='block truncate cursor-default'>{z.description}</span></Tltip>
                                         {/* Rows here spread the contract material row, so its id IS the material id. */}
-                                        <DraftUseBadge use={draftMaterials[z.id]} />
+                                        <DraftUseBadge use={draftMaterials[z.id]} row={z} settings={settings} />
                                     </span>
                                 </td>
                                 <td className="text-left w-20">
                                     <Tltip direction='top' tltpText={z.stockName || ''}><span className="flex items-center gap-1.5 min-w-0 cursor-default"><Avatar name={z.stockName} size={18} /><span className="block truncate">{z.stockName}</span></span></Tltip>
                                 </td>
                                 <td className="text-center whitespace-nowrap">
-                                    <NumericFormat
-                                        value={z.qnty}
-                                        displayType="text"
-                                        thousandSeparator
-                                        allowNegative={true}
-                                        decimalScale='3'
-                                        fixedDecimalScale
-                                    />
-                                    <QtyUnit row={z} settings={settings} />
+                                    <QtyMT row={z} settings={settings} />
                                 </td>
                                 <td className="text-right">{
                                     <NumericFormat
-                                        value={z.unitPrc}
+                                        value={z._pMT}
                                         displayType="text"
                                         thousandSeparator
                                         allowNegative={true}
                                         prefix={z.cur === 'us' ? '$' : '€'}
-                                        decimalScale='2'
+                                        decimalScale={2}
                                         fixedDecimalScale
                                     />
                                 }</td>
@@ -1051,7 +1073,7 @@ export const StocksUnSold = ({ supplier, stockDataAllArray, settings, uidCollect
                                         thousandSeparator
                                         allowNegative={true}
                                         prefix={z.cur === 'us' ? '$' : '€'}
-                                        decimalScale='2'
+                                        decimalScale={2}
                                         fixedDecimalScale
                                     />
                                 }</td>
@@ -1068,7 +1090,8 @@ export const StocksUnSold = ({ supplier, stockDataAllArray, settings, uidCollect
                                 if (emitted.has(z.order)) return;
                                 emitted.add(z.order);
                                 const isOpen = !!openPOs[z.order];
-                                const qSum = grp.reduce((s, r) => s + (parseFloat(r.qnty) || 0), 0);
+                                const qSum = grp.reduce((s, r) => s + (parseFloat(r._qMT) || 0), 0);
+                                const qPlaces = Math.max(...grp.map(r => r._mt?.places || 3));
                                 const tSum = grp.reduce((s, r) => s + (parseFloat(r.total) || 0), 0);
                                 out.push(
                                     <tr key={`grp-${z.order}`} className="cursor-pointer hover:bg-[var(--surface-pill)]"
@@ -1117,12 +1140,12 @@ export const StocksUnSold = ({ supplier, stockDataAllArray, settings, uidCollect
                                             );
                                         })()}</td>
                                         <td className="text-center font-medium">{
-                                            <><NumericFormat value={qSum} displayType="text" thousandSeparator decimalScale='3' fixedDecimalScale /><QtyUnit row={grp[0]} settings={settings} /></>
+                                            <NumericFormat value={qSum} displayType="text" thousandSeparator decimalScale={qPlaces} fixedDecimalScale />
                                         }</td>
                                         <td className="text-right"></td>
                                         <td className="text-right font-medium">{
                                             <NumericFormat value={tSum} displayType="text" thousandSeparator
-                                                prefix={z.cur === 'us' ? '$' : '€'} decimalScale='2' fixedDecimalScale />
+                                                prefix={z.cur === 'us' ? '$' : '€'} decimalScale={2} fixedDecimalScale />
                                         }</td>
                                     </tr>
                                 );
@@ -1151,7 +1174,7 @@ export const StocksUnSold = ({ supplier, stockDataAllArray, settings, uidCollect
                                     displayType="text"
                                     thousandSeparator
                                     allowNegative={true}
-                                    decimalScale='3'
+                                    decimalScale={3}
                                     fixedDecimalScale
                                     suffix=' MT'
                                 />
@@ -1204,15 +1227,15 @@ export const StocksUnSold = ({ supplier, stockDataAllArray, settings, uidCollect
                                         </Tltip>
                                     </td>
                                     <td className="text-center">
-                                        <NumericFormat value={g.qnty} displayType="text" thousandSeparator decimalScale='3' fixedDecimalScale />
+                                        <NumericFormat value={g.qnty} displayType="text" thousandSeparator decimalScale={3} fixedDecimalScale />
                                     </td>
                                     <td className="text-right">
                                         <NumericFormat value={g.qnty > 0 ? g.total / g.qnty : 0} displayType="text" thousandSeparator
-                                            prefix={g.cur === 'us' ? '$' : '€'} decimalScale='2' fixedDecimalScale />
+                                            prefix={g.cur === 'us' ? '$' : '€'} decimalScale={2} fixedDecimalScale />
                                     </td>
                                     <td className="text-right">
                                         <NumericFormat value={g.total} displayType="text" thousandSeparator
-                                            prefix={g.cur === 'us' ? '$' : '€'} decimalScale='2' fixedDecimalScale />
+                                            prefix={g.cur === 'us' ? '$' : '€'} decimalScale={2} fixedDecimalScale />
                                     </td>
                                 </tr>
                             ))}
@@ -1247,6 +1270,7 @@ export const SharedStockDetails = ({ rows, settings }) => {
     // cashflow detail tables (useSortState + SortTh + sortRows).
     const base = (rows || []).map(r => ({
         ...r,
+        ...withMT(r, settings),
         _po: r.sourcePo || '',
         _mat: r.descriptionText || r.description || '',
         // Named from the lot's own workspace by the loader (an IMS warehouse is an id GIS
@@ -1276,8 +1300,8 @@ export const SharedStockDetails = ({ rows, settings }) => {
                             <SortTh colKey="_po" label="PO#" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left po-col" />
                             <SortTh colKey="_mat" label="Material" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left" />
                             <SortTh colKey="_wh" label="Warehouse" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left" />
-                            <SortTh colKey="qnty" label="Quantity" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-center w-14" />
-                            <SortTh colKey="unitPrc" label="Unit Price" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-right w-16" />
+                            <SortTh colKey="_qMT" label="Quantity (MT)" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-center w-14" />
+                            <SortTh colKey="_pMT" label="Price / MT" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-right w-16" />
                             <SortTh colKey="_fin" label="Financed" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-left w-16" />
                             <SortTh colKey="_total" label="Total" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="text-right w-20" />
                         </tr>
@@ -1304,16 +1328,16 @@ export const SharedStockDetails = ({ rows, settings }) => {
                                     </Tltip>
                                 </td>
                                 <td className="text-center">
-                                    <NumericFormat value={r.qnty} displayType="text" thousandSeparator decimalScale='3' fixedDecimalScale /><QtyUnit row={r} settings={settings} />
+                                    <QtyMT row={r} settings={settings} />
                                 </td>
                                 <td className="text-right">
-                                    <NumericFormat value={r.unitPrc} displayType="text" thousandSeparator
-                                        prefix={r.cur === 'eu' ? '€' : '$'} decimalScale='2' fixedDecimalScale />
+                                    <NumericFormat value={r._pMT} displayType="text" thousandSeparator
+                                        prefix={r.cur === 'eu' ? '€' : '$'} decimalScale={2} fixedDecimalScale />
                                 </td>
                                 <td className="text-left">{r._fin}</td>
                                 <td className="text-right">
                                     <NumericFormat value={r._total} displayType="text" thousandSeparator
-                                        prefix={r.cur === 'eu' ? '€' : '$'} decimalScale='2' fixedDecimalScale />
+                                        prefix={r.cur === 'eu' ? '€' : '$'} decimalScale={2} fixedDecimalScale />
                                 </td>
                             </tr>
                         ))}
@@ -1325,7 +1349,7 @@ export const SharedStockDetails = ({ rows, settings }) => {
                             <th></th>
                             <th className="text-center">
                                 <NumericFormat value={(rows || []).reduce((s, r) => s + qtyMT(r, settings), 0)} suffix=' MT'
-                                    displayType="text" thousandSeparator decimalScale='3' fixedDecimalScale />
+                                    displayType="text" thousandSeparator decimalScale={3} fixedDecimalScale />
                             </th>
                             {/* Two figures stacked in one cell. leading-4 pushed them
                                 almost touching, and neither carried tabular figures, so
@@ -1566,7 +1590,7 @@ export const ClientDetails = ({ client, data, type, uidCollection, setDateSelect
                                                 thousandSeparator
                                                 allowNegative={true}
                                                 prefix={z.cur === 'us' ? '$' : '€'}
-                                                decimalScale='2'
+                                                decimalScale={2}
                                                 fixedDecimalScale
                                             />
                                         }</td>
@@ -1579,7 +1603,7 @@ export const ClientDetails = ({ client, data, type, uidCollection, setDateSelect
                                                 thousandSeparator
                                                 allowNegative={true}
                                                 prefix={z.cur === 'us' ? '$' : '€'}
-                                                decimalScale='2'
+                                                decimalScale={2}
                                                 fixedDecimalScale
                                             />
                                         }</td>
@@ -1590,7 +1614,7 @@ export const ClientDetails = ({ client, data, type, uidCollection, setDateSelect
                                                 thousandSeparator
                                                 allowNegative={true}
                                                 prefix={z.cur === 'us' ? '$' : '€'}
-                                                decimalScale='2'
+                                                decimalScale={2}
                                                 fixedDecimalScale
                                             />
                                         }</td>
@@ -1706,7 +1730,7 @@ export const ClientDetails = ({ client, data, type, uidCollection, setDateSelect
                                                 thousandSeparator
                                                 allowNegative={true}
                                                 prefix={z.cur === 'us' ? '$' : '€'}
-                                                decimalScale='2'
+                                                decimalScale={2}
                                                 fixedDecimalScale
                                             />
                                         }</td>
@@ -1720,7 +1744,7 @@ export const ClientDetails = ({ client, data, type, uidCollection, setDateSelect
                                                 thousandSeparator
                                                 allowNegative={true}
                                                 prefix={z.cur === 'us' ? '$' : '€'}
-                                                decimalScale='2'
+                                                decimalScale={2}
                                                 fixedDecimalScale
                                             />
                                         }</td>
@@ -2112,7 +2136,7 @@ export const SupplierDetails = ({ supplier, data, uidCollection, setDateSelect,
                                         thousandSeparator
                                         allowNegative={true}
                                         prefix={z.cur === 'us' ? '$' : '€'}
-                                        decimalScale='2'
+                                        decimalScale={2}
                                         fixedDecimalScale
                                     />
                                 }</td>
@@ -2123,7 +2147,7 @@ export const SupplierDetails = ({ supplier, data, uidCollection, setDateSelect,
                                         thousandSeparator
                                         allowNegative={true}
                                         prefix={z.cur === 'us' ? '$' : '€'}
-                                        decimalScale='2'
+                                        decimalScale={2}
                                         fixedDecimalScale
                                     />
                                 }</td>
@@ -2135,7 +2159,7 @@ export const SupplierDetails = ({ supplier, data, uidCollection, setDateSelect,
                                             thousandSeparator
                                             allowNegative={true}
                                             prefix={z.cur === 'us' ? '$' : '€'}
-                                            decimalScale='2'
+                                            decimalScale={2}
                                             fixedDecimalScale
                                         />
                                         {z.blnc * 1 < -0.011 && supplierCloseBalance && (
@@ -2338,7 +2362,7 @@ export const ExpensesToolTip = ({ supplier, expensesAll, settings, uidCollection
                                         thousandSeparator
                                         allowNegative={true}
                                         prefix={z.cur === 'us' ? '$' : '€'}
-                                        decimalScale='2'
+                                        decimalScale={2}
                                         fixedDecimalScale
                                     />
                                 }</td>

@@ -40,6 +40,8 @@ declare module '@shared/finance' {
   export const EUR_USD_FALLBACK: number;
   export function unitOf(contract: any, settings: any): string;
   export function toMT(qty: number, contract: any, settings: any): number;
+  /** A line in tonnes: qnty in MT, unitPrc per MT; an MT line comes back untouched. */
+  export function perMT(row: any, settings: any): { qnty: any; unitPrc: any; unit: string; factor: number; places: number };
   export function settledInQty(lot: any): number;
   export function settlementReduction(lots: any[]): number;
   export function groupInvoices(list: any[]): any[];

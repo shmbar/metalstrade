@@ -26,12 +26,14 @@ import { TONES, amountToneClass } from '@components/statusUtils';
 import ProgressBar from '@components/ProgressBar';
 import Avatar from '@components/Avatar';
 import Modal from '@components/modal';
-import { BtnIcon } from '@components/buttonIcons';
+import { BtnIcon, SearchAdornment } from '@components/buttonIcons';
+import { SortTh } from '@components/table/sorting';
+import { NO_SORT, nextSort, rowWords, sortByCol, visibleRows } from './detailRows';
 import { Gauge, Receipt, Percent, Truck, Warehouse, TrendingUp, FileWarning, Ship, Building2, Info, ArrowDownToLine } from 'lucide-react';
 
 import { HorizontalBar } from './charts';
 import useExchangeRates from '@hooks/useExchangeRates';
-import { matchesAllWords } from '@utils/search';
+import { matchesAllWords, searchHint } from '@utils/search';
 import { moneyCompact, moneyFull } from '@utils/currency';
 
 // chart.js + react-chartjs-2 are loaded on demand (not in the first-load bundle).
@@ -280,6 +282,27 @@ const fmtPct = (p) => {
   return `${p.toFixed(p < 10 ? 1 : 0)}%`;
 };
 
+/* Search and sort for the records behind a card (client, 2026-10-08: "when opening cards,
+   should be able to filter, and sort") — detailRows.js; the totals follow the rows shown. */
+
+// The search box over a card's records, with "12 of 40" (and their total, where the table
+// has no footer to show it) once it narrows them.
+function DetailSearch({ value, onChange, shown, total, sum = '' }) {
+  return (
+    <div className="flex items-center gap-2 mb-2">
+      <div className="search-field w-56">
+        <input placeholder="Search" value={value} onChange={(e) => onChange(e.target.value)}
+          aria-label="Search these records" type="text" />
+        <SearchAdornment value={value} onClear={() => onChange('')} />
+      </div>
+      {value ? <span className="responsiveTextTableTitle text-[var(--ink-muted)]">{shown} of {total}{sum ? ` · ${sum}` : ''}</span> : null}
+    </div>
+  );
+}
+
+// What the table says when the search leaves nothing.
+const noMatch = (query) => searchHint(query) || `Nothing here matches “${query}”`;
+
 /* The records behind one ranking tile — the contracts under a supplier, the invoices under
    a client. Same idea as the Expenses drill-down, which is the interaction Zak asked for
    on every ranking card (2026-09-02): a tile states a figure, and clicking it should show
@@ -287,9 +310,16 @@ const fmtPct = (p) => {
    `cols` keeps one component serving both cards, since a contract row and an invoice row
    carry different columns but the same shape of question. */
 function DetailModal({ title, subtitle, rows = [], cols = [], formula = null, isOpen, setIsOpen }) {
+  const [query, setQuery] = useState('');
+  const [sort, setSort] = useState(NO_SORT);
+  // Every card opens fresh — no search or order carried over from the last one opened.
+  useEffect(() => { if (isOpen) { setQuery(''); setSort(NO_SORT); } }, [isOpen, title]);
+  const shown = visibleRows(rows, cols, query, sort);
+  const count = `${query ? `${shown.length} of ${rows.length}` : rows.length} record${rows.length === 1 ? '' : 's'}`;
   /* usd -> value -> amount. The misc-invoice rows carry only `amount`, so the footer was
-     summing undefined and printing $0.00 under 32 real records. */
-  const total = rows.reduce((a, r) => a + (Number(r.usd ?? r.value ?? r.amount) || 0), 0);
+     summing undefined and printing $0.00 under 32 real records. Over the rows SHOWN, so a
+     search totals what it found. */
+  const total = shown.reduce((a, r) => a + (Number(r.usd ?? r.value ?? r.amount) || 0), 0);
   return (
     <Modal isOpen={isOpen} setIsOpen={setIsOpen} size="xl" title={title || ''} subtitle={subtitle}>
       <div className="p-4">
@@ -318,14 +348,15 @@ function DetailModal({ title, subtitle, rows = [], cols = [], formula = null, is
           ? null
           : rows.length === 0
           ? <div className="responsiveText text-[var(--regent-gray)] py-6 text-center">Nothing recorded for this row in the period</div>
-          : (
-            /* The scroll box is THIS div, and it deliberately carries no rounding or
+          : (<>
+            {rows.length > 1 && <DetailSearch value={query} onChange={setQuery} shown={shown.length} total={rows.length} />}
+            {/* The scroll box is THIS div, and it deliberately carries no rounding or
                overflow-hidden. It used to: a rounded card with overflow-hidden wrapped the
                table, and an overflow-hidden ancestor becomes the sticky container — the
                header would have pinned to a box that never scrolls, which looks exactly
                like sticky "not working". Border lives here, radius is dropped rather than
                clipped, and max-h makes this the nearest scrolling ancestor so the pinned
-               header and totals resolve against it (Zak, 2026-09-07). */
+               header and totals resolve against it (Zak, 2026-09-07). */}
             <div className="border border-[var(--line)] rounded-2xl max-h-[52vh] overflow-y-auto custom-scroll">
               {/* .detail-popup-table is the app-wide popup standard — tinted header band,
                   zebra rows, and the same type rung as the summary table that opened it, so
@@ -338,12 +369,18 @@ function DetailModal({ title, subtitle, rows = [], cols = [], formula = null, is
                 <thead>
                   <tr>
                     {cols.map(c => (
-                      <th key={c.key} style={{ textAlign: c.right ? 'right' : 'left' }}>{c.label}</th>
+                      <SortTh key={c.key} colKey={c.key} label={c.label} sortKey={sort.key} sortDir={sort.dir}
+                        onSort={(k) => setSort((s) => nextSort(s, k))} style={{ textAlign: c.right ? 'right' : 'left' }} arrowFirst={!!c.right} />
                     ))}
                   </tr>
                 </thead>
                 <tbody>
-                  {rows.map((r, i) => (
+                  {shown.length === 0 && (
+                    <tr>
+                      <td colSpan={cols.length} className="text-[var(--ink-muted)]" style={{ textAlign: 'center' }}>{noMatch(query)}</td>
+                    </tr>
+                  )}
+                  {shown.map((r, i) => (
                     <tr key={i}>
                       {cols.map(c => (
                         <td
@@ -365,22 +402,20 @@ function DetailModal({ title, subtitle, rows = [], cols = [], formula = null, is
                     <tr>
                       {cols.map((c, i) => (
                         <td key={c.key} className={c.footer ? 'numeric' : ''} style={{ textAlign: i === 0 ? 'left' : (c.right ? 'right' : 'left') }}>
-                          {i === 0 ? `${rows.length} record${rows.length === 1 ? '' : 's'}` : (c.footer ? c.footer(rows) : '')}
+                          {i === 0 ? count : (c.footer ? c.footer(shown) : '')}
                         </td>
                       ))}
                     </tr>
                   ) : (
                     <tr>
-                      <td colSpan={cols.length - 1} style={{ textAlign: 'left' }}>
-                        {rows.length} record{rows.length === 1 ? '' : 's'}
-                      </td>
+                      <td colSpan={cols.length - 1} style={{ textAlign: 'left' }}>{count}</td>
                       <td className="numeric" style={{ textAlign: 'right' }}>{fmtAutoKM(total)}</td>
                     </tr>
                   )}
                 </tfoot>
               </table>
             </div>
-          )}
+          </>)}
       </div>
     </Modal>
   );
@@ -437,6 +472,20 @@ function DataIssuesModal({ issues = [], settings, isOpen, setIsOpen }) {
   );
 }
 
+const curSymOf = (c) => (c === 'us' ? '$' : c === 'eu' ? '€' : c === 'gb' ? '£' : '');
+// The line columns of an "Expenses by Type" drill — what each shows, searches and sorts on.
+// "As entered" sits beside the USD figure so a EUR expense is visibly a EUR expense — the
+// page converts everything to USD and that conversion is exactly where FX bites.
+const EXPENSE_LINE_COLS = [
+  { key: 'ref', label: 'Invoice', render: (r) => r.ref || '—' },
+  { key: 'order', label: 'PO', render: (r) => r.order || '—' },
+  { key: 'date', label: 'Date', render: (r) => r.date || '—' },
+  { key: 'paid', label: 'Status', render: (r) => r.paid || '—' },
+  { key: 'amount', label: 'As entered', right: true, tone: 'var(--ink-secondary)',
+    render: (r) => `${curSymOf(r.cur)}${new Intl.NumberFormat('en-US', { maximumFractionDigits: 2 }).format(r.amount || 0)}` },
+  { key: 'usd', label: 'USD', right: true, render: (r) => fmtAutoKM(r.usd) },
+];
+
 /* The rows behind one "Expenses by Type" tile — which suppliers the spend went to, on
    which PO, for how much. The tile used to be a dead end: it told you Commission was
    $315.67K and gave you nowhere to go with that.
@@ -445,29 +494,47 @@ function DataIssuesModal({ issues = [], settings, isOpen, setIsOpen }) {
    that built the tile's total, so the figures cannot disagree. */
 function ExpenseDrillModal({ label, rows = [], settings, isOpen, setIsOpen }) {
   const supplierName = (id) => settings?.Supplier?.Supplier?.find(s => s.id === id)?.nname || 'Unknown supplier';
+  const [query, setQuery] = useState('');
+  const [sort, setSort] = useState(NO_SORT);
+  useEffect(() => { if (isOpen) { setQuery(''); setSort(NO_SORT); } }, [isOpen, label]);
+  // The search reads the supplier too; a column sort orders the lines inside each supplier,
+  // and the suppliers stay largest first.
   const groups = useMemo(() => {
+    const hit = query
+      ? rows.filter(r => matchesAllWords([supplierName(r.supplier), ...rowWords(EXPENSE_LINE_COLS, r)], query))
+      : rows;
+    const sortCol = EXPENSE_LINE_COLS.find(c => c.key === sort.key);
     const by = {};
-    rows.forEach(r => {
+    hit.forEach(r => {
       const name = supplierName(r.supplier);
       (by[name] ||= { name, total: 0, lines: [] });
       by[name].total += Number(r.usd) || 0;
       by[name].lines.push(r);
     });
     return Object.values(by)
-      .map(g => ({ ...g, lines: g.lines.sort((a, b) => (b.usd || 0) - (a.usd || 0)) }))
+      .map(g => ({ ...g, lines: sortCol ? sortByCol(g.lines, sortCol, sort.dir) : g.lines.sort((a, b) => (b.usd || 0) - (a.usd || 0)) }))
       .sort((a, b) => b.total - a.total);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [rows, settings]);
-  const total = groups.reduce((a, g) => a + g.total, 0);
-  const curSym = (c) => (c === 'us' ? '$' : c === 'eu' ? '€' : c === 'gb' ? '£' : '');
+  }, [rows, settings, query, sort]);
+  // The tile's own figure, whatever the search shows.
+  const total = rows.reduce((a, r) => a + (Number(r.usd) || 0), 0);
+  const suppliers = new Set(rows.map(r => supplierName(r.supplier))).size;
+  const shownLines = groups.reduce((a, g) => a + g.lines.length, 0);
+  const shownTotal = groups.reduce((a, g) => a + g.total, 0);
 
   return (
     <Modal isOpen={isOpen} setIsOpen={setIsOpen} size="xl"
       title={label || 'Expenses'}
-      subtitle={`${rows.length} expense${rows.length === 1 ? '' : 's'} across ${groups.length} supplier${groups.length === 1 ? '' : 's'} · ${fmtAutoKM(total)}`}>
+      subtitle={`${rows.length} expense${rows.length === 1 ? '' : 's'} across ${suppliers} supplier${suppliers === 1 ? '' : 's'} · ${fmtAutoKM(total)}`}>
       <div className="p-4 flex flex-col gap-3">
-        {groups.length === 0
+        {rows.length > 1 && (
+          <DetailSearch value={query} onChange={setQuery} shown={shownLines} total={rows.length}
+            sum={query ? fmtAutoKM(shownTotal) : ''} />
+        )}
+        {rows.length === 0
           ? <div className="responsiveText text-[var(--regent-gray)] py-6 text-center">No expenses of this type in the period</div>
+          : groups.length === 0
+          ? <div className="responsiveText text-[var(--regent-gray)] py-6 text-center">{noMatch(query)}</div>
           : groups.map(g => (
             <div key={g.name} className="rounded-2xl border border-[var(--line)] overflow-hidden">
               <div className="flex items-center justify-between gap-2 px-3 py-2 bg-[var(--bg-subtle)]">
@@ -487,28 +554,21 @@ function ExpenseDrillModal({ label, rows = [], settings, isOpen, setIsOpen }) {
               <table className="detail-popup-table">
                 <thead>
                   <tr>
-                    <th style={{ textAlign: 'left' }}>Invoice</th>
-                    <th style={{ textAlign: 'left' }}>PO</th>
-                    <th style={{ textAlign: 'left' }}>Date</th>
-                    <th style={{ textAlign: 'left' }}>Status</th>
-                    <th style={{ textAlign: 'right' }}>As entered</th>
-                    <th style={{ textAlign: 'right' }}>USD</th>
+                    {/* One order for every supplier's table: sorting any of them sorts all. */}
+                    {EXPENSE_LINE_COLS.map(c => (
+                      <SortTh key={c.key} colKey={c.key} label={c.label} sortKey={sort.key} sortDir={sort.dir}
+                        onSort={(k) => setSort((s) => nextSort(s, k))} style={{ textAlign: c.right ? 'right' : 'left' }} arrowFirst={!!c.right} />
+                    ))}
                   </tr>
                 </thead>
                 <tbody>
                   {g.lines.map((r, i) => (
                     <tr key={i}>
-                      <td style={{ textAlign: 'left' }}>{r.ref || '—'}</td>
-                      <td style={{ textAlign: 'left' }}>{r.order || '—'}</td>
-                      <td style={{ textAlign: 'left' }}>{r.date || '—'}</td>
-                      <td style={{ textAlign: 'left' }}>{r.paid || '—'}</td>
-                      {/* "As entered" is shown beside the USD figure so a EUR expense is
-                          visibly a EUR expense — the page converts everything to USD and
-                          that conversion is exactly where the FX warning above bites. */}
-                      <td className="numeric" style={{ textAlign: 'right', color: 'var(--ink-secondary)' }}>
-                        {curSym(r.cur)}{new Intl.NumberFormat('en-US', { maximumFractionDigits: 2 }).format(r.amount || 0)}
-                      </td>
-                      <td className="numeric" style={{ textAlign: 'right' }}>{fmtAutoKM(r.usd)}</td>
+                      {EXPENSE_LINE_COLS.map(c => (
+                        <td key={c.key} className={c.right ? 'numeric' : ''} style={{ textAlign: c.right ? 'right' : 'left', color: c.tone }}>
+                          {c.render(r)}
+                        </td>
+                      ))}
                     </tr>
                   ))}
                 </tbody>
@@ -2008,13 +2068,14 @@ const Dash = () => {
       footer: (rs) => `${new Intl.NumberFormat('en-US', { maximumFractionDigits: 1 }).format(sumBy(rs, r => r.mt))} MT` },
     { key: 'lineValue', label: 'Contract value', right: true,
       render: (r) => r.lineValue > 0 ? fmtAutoKM(r.lineValue) : muted('No price entered') },
-    { key: 'value', label: 'Invoiced', right: true,
+    // A contract with no supplier invoice yet sorts after every figure, not as a $0.
+    { key: 'value', label: 'Invoiced', right: true, sort: (r) => (r.invoices === 0 ? null : r.value),
       render: (r) => r.invoices === 0 ? muted('Not invoiced yet') : (r.value ? fmtAutoKM(r.value) : muted('No amount entered')),
       footer: (rs) => fmtAutoKM(sumBy(rs, r => r.value)) },
-    { key: 'paid', label: 'Paid', right: true,
+    { key: 'paid', label: 'Paid', right: true, sort: (r) => (r.invoices === 0 ? null : r.paid),
       render: (r) => r.invoices === 0 ? muted('—') : fmtAutoKM(r.paid),
       footer: (rs) => fmtAutoKM(sumBy(rs, r => r.paid)) },
-    { key: 'balance', label: 'Balance', right: true,
+    { key: 'balance', label: 'Balance', right: true, sort: (r) => (r.invoices === 0 ? null : r.value - r.paid),
       render: (r) => r.invoices === 0 ? muted('—') : <span className={amountToneClass(r.value - r.paid)}>{fmtAutoKM(r.value - r.paid)}</span>,
       footer: (rs) => fmtAutoKM(sumBy(rs, r => r.value - r.paid)) },
   ];
@@ -2040,7 +2101,11 @@ const Dash = () => {
     { key: 'order', label: 'PO', render: (r) => (r.order && r.order !== '-') ? r.order : '—' },
     { key: 'date', label: 'Date' },
     { key: 'paid', label: 'Status', render: (r) => r.paid || '—' },
-    { key: 'amount', label: 'Amount', right: true, render: (r) => money(r.cur, r.amount) },
+    // Totalled per currency — a € invoice is not that many dollars; the card's footer used to
+    // add the two as one $ figure (and a search total would have repeated it).
+    { key: 'amount', label: 'Amount', right: true, render: (r) => money(r.cur, r.amount),
+      footer: (rs) => Object.entries(rs.reduce((m, r) => ((m[r.cur] = (m[r.cur] || 0) + (Number(r.amount) || 0)), m), {}))
+        .map(([c, v]) => money(c, v)).join(' · ') || money('us', 0) },
   ];
 
   const TILE_DETAILS = {
@@ -2137,7 +2202,7 @@ const Dash = () => {
           render: (r) => r.waiting ? String(r.waiting) : muted('—'), footer: (rs) => String(sumBy(rs, r => r.waiting)) },
         { key: 'value', label: 'Invoiced', right: true, render: (r) => fmtAutoKM(r.value), footer: (rs) => fmtAutoKM(sumBy(rs, r => r.value)) },
         { key: 'paid', label: 'Paid', right: true, render: (r) => fmtAutoKM(r.paid), footer: (rs) => fmtAutoKM(sumBy(rs, r => r.paid)) },
-        { key: 'balance', label: 'Balance', right: true,
+        { key: 'balance', label: 'Balance', right: true, sort: (r) => r.value - r.paid,
           render: (r) => <span className={amountToneClass(r.value - r.paid)}>{fmtAutoKM(r.value - r.paid)}</span>,
           footer: (rs) => fmtAutoKM(sumBy(rs, r => r.value - r.paid)) },
       ],

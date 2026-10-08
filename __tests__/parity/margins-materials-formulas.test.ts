@@ -582,10 +582,14 @@ describe('GIS totals decimal rules', () => {
     const src = collapsed('app/(root)/margins/thirdpart.js');
     // :340 — Purchased quantity total. `false` DISABLES NumericFormat's decimal
     // limit, so a whole number renders with no decimal part at all.
-    expect(src).toContain("decimalScale={!Number.isInteger(purchase) && '3'}");
+    // 2026-10-08: the 3 is a number now (was '3'). react-number-format CUTS a figure off when
+    // decimalScale is text and ROUNDS only when it is a number — 19.9765 read 19.976 — so the
+    // rule is unchanged (three places), the last digit is now rounded as the phone's is.
+    // __tests__/numericFormatRounding.test.ts keeps every screen on the number form.
+    expect(src).toContain('decimalScale={!Number.isInteger(purchase) && 3}');
     // :399-406 — Outstanding shipment total is unconditionally three decimals (tonnage).
     expect(src).toContain(
-      'value={outStandingShip} displayType="text" thousandSeparator allowNegative={true} decimalScale="3"'
+      'value={outStandingShip} displayType="text" thousandSeparator allowNegative={true} decimalScale={3}'
     );
   });
 

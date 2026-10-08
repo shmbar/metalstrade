@@ -140,7 +140,11 @@ const HASH = {
   // shared lotPrice.js — Hf Ni VAR, $3,950 per kg of Hf at 89.06%) takes its content's share
   // of the price; every other lot is unchanged. Mobile's computeInventory applies the same
   // rule at the same point (aggregate.ts, both branches) — covered in lotPrice.test.ts.
-  loadtStocks: 'aeb81cfbd0af', // app/(root)/stocks/page.js:240  (aggregation core)
+  // Re-recorded 2026-10-08 (was aeb81cfbd0af): a row's unit is its purchase lot's — a sale
+  // or move-out books no qTypeTable, and the last lot's unit made a kg line read as MT once
+  // any of it had left. No quantity or price moved. Mobile's computeInventory takes the same
+  // rule (aggregate.ts); the mirror above and 'a kg line keeps its unit…' cover it.
+  loadtStocks: '64aafb21329e', // app/(root)/stocks/page.js:240  (aggregation core)
   setTotals: '0878395a5db7', // app/(root)/stocks/page.js:263
   getFormatted: 'ce2b9a9845ad', // app/(root)/stocks/page.js:312
   showWeight: 'eff225f4c25c', // app/(root)/stocks/page.js:288
@@ -265,7 +269,11 @@ const HASH = {
   // lot's share (shared lotPrice.js), an unsold line takes its lots' quantity-weighted share,
   // and unsold rows carry the PO's unit (qTypeTable) so totals convert to MT. Mobile's
   // computeInventory lotPrice and useCashflow computeUnsoldWeb take the same rule.
-  runStocks: 'e253194d6ab0', // app/(root)/cashflow/funcs.js:278
+  // Re-recorded 2026-10-08 (was e253194d6ab0): the row's unit comes from its purchase lot,
+  // not the last lot (a sale or move-out carries none) — Cashflow now shows every line in
+  // MT, so a kg line that lost its unit would show 660 kg as 660 MT. Mobile's
+  // computeInventory (cashflow branch too) takes the same rule; 'cashflow keeps a kg line…'.
+  runStocks: '2a75df183727', // app/(root)/cashflow/funcs.js:278
   staleDays: 'a2e0c4822268', // app/(root)/stocks/storageAging.js:11
   // Re-recorded 2026-09-09: DEMURRAGE_DAYS renamed to LONG_STAY_DAYS — the value
   // (90) is unchanged, but "demurrage" implied a specific shipping-contract charge
@@ -379,7 +387,7 @@ const webLoadStocks = (rawStockData: any[], settings: any): any[] => {
         }
       });
       totalObj['id'] = currentObj.id;
-      totalObj['qTypeTable'] = currentObj.qTypeTable || '';
+      if (!totalObj['qTypeTable'] || (currentObj.type === 'in' && currentObj.qTypeTable)) totalObj['qTypeTable'] = currentObj.qTypeTable || '';
     }
     totalObj['qnty'] = (parseFloat(totalObj['qnty']) || 0) + settlementReduction(filteredstockData);
 
@@ -501,7 +509,7 @@ const webRunStocksRows = (rawStockData: any[], settings: any): any[] => {
           }
         });
         totalObj['id'] = currentObj.id;
-        totalObj['qTypeTable'] = currentObj.qTypeTable || '';
+        if (!totalObj['qTypeTable'] || (currentObj.type === 'in' && currentObj.qTypeTable)) totalObj['qTypeTable'] = currentObj.qTypeTable || '';
       }
       totalObj['qnty'] = (parseFloat(totalObj['qnty']) || 0) + settlementReduction(filteredData);
 
@@ -940,6 +948,17 @@ const ledger = () => [
   }),
 ];
 
+/** A line bought in kg, then a sale and a move-out booked as the live app books them — with
+ *  no qTypeTable at all. filteredArray puts the move (invoice '') last. */
+const unlabelledOuts = () => {
+  const noUnit = (lot: any) => { delete lot.qTypeTable; return lot; };
+  return [
+    makeStockLot({ id: 'hf-in', qnty: '660', unitPrc: '3950', qTypeTable: 'q-kgs', descriptionText: 'Hf Ni VAR' }),
+    noUnit(makeStockOutLot({ id: 'hf-sold', qnty: '60', invoice: 1300, moveType: '' })),
+    noUnit(makeStockOutLot({ id: 'hf-moved', qnty: '100', invoice: '', moveType: 'out', newStock: 'wh-2' })),
+  ];
+};
+
 /** The fields both implementations produce for a row, normalised for comparison. */
 const rowShape = (r: any) => ({
   id: r.id,
@@ -1116,6 +1135,19 @@ describe('Tier 3 — inventory aggregation (stocks page loadtStocks)', () => {
     const r = rows.find((x) => x.id === 'lot-1out')!; // last row of the group supplies the id
     expect(r.qnty).toBe(6); // 10 in − 4 out
     expect(r.total).toBe(6000); // 6 × 1000
+  });
+
+  it('a kg line keeps its unit when a sale or a move leaves an unlabelled out-lot last (2026-10-08)', () => {
+    // Every sale and move-out in the live ledgers carries no qTypeTable (IMS 2,073 + 8, GIS
+    // 233). Taking the LAST lot's unit made a kg line read as tonnes once any of it had left —
+    // Hf Ni VAR's 660 kg would have shown as 660 MT after its first sale.
+    const lots = unlabelledOuts();
+    const web = webLoadStocks(structuredClone(lots), SETTINGS);
+    const { rows } = computeInventory(structuredClone(lots), SETTINGS);
+    expect(rows.map(rowShape)).toEqual(web.map(rowShape));
+    expect(rows).toHaveLength(1);
+    expect(rows[0].qTypeTable).toBe('q-kgs');
+    expect(Number(rows[0].qnty)).toBe(500); // 660 − 60 sold − 100 moved
   });
 
   it('a settlement that weighed the delivery light closes the line, web and mobile alike', () => {
@@ -1520,6 +1552,15 @@ describe('Tier 3 — cashflow mode (cashflow/funcs.js runStocks)', () => {
     expect(cf).toHaveLength(1);
     expect(cf.map(rowShape)).toEqual(web.map(rowShape));
     expect(cf[0].total).toBe(700);
+  });
+
+  it('cashflow keeps a kg line in kg after a sale or a move — its MT figure depends on it', () => {
+    const lots = unlabelledOuts();
+    const web = webRunStocksRows(structuredClone(lots), SETTINGS);
+    const mobile = computeInventory(structuredClone(lots), SETTINGS, { minQnty: 0, cashflow: true }).rows;
+    expect(mobile.map(rowShape)).toEqual(web.map(rowShape));
+    expect(mobile[0].qTypeTable).toBe('q-kgs');
+    expect(Number(mobile[0].qnty)).toBe(500);
   });
 
   it('cashflow values a mixed-price row at weighted-average cost, not at the last lot seen', () => {

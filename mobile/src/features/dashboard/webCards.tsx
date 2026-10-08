@@ -1,8 +1,10 @@
-import React, { useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { View, StyleProp, ViewStyle } from 'react-native';
 import Svg, { Path, Circle } from 'react-native-svg';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
-import { Text, Sheet, Avatar } from '@/components/ui';
+import { Text, Sheet, Avatar, SearchField, Chip, ChipRow } from '@/components/ui';
+import { searchHint } from '@shared/search';
+import { NO_SHEET_SORT, nextSheetSort, sortsFor, visibleSheetRows, type SheetSort } from './detailRows';
 import { Pressable } from '@/components/ui/Pressable';
 import { useTheme } from '@/theme/ThemeProvider';
 import { getShadow, palette, layout, radius } from '@/theme/tokens';
@@ -602,6 +604,14 @@ export interface DetailRow {
   /** a figure that is a state rather than an amount ("Not invoiced yet") */
   valueMuted?: boolean;
   valueTone?: 'negative';
+  /** The figure as a number — what Amount sorts on and a search totals. None for a state. */
+  amount?: number;
+  /** Its currency, when the rows are not all dollars (misc invoices). */
+  cur?: string;
+  /** The record's date as stored — what Date sorts on. */
+  date?: string;
+  /** Other figures the row shows only compact (Paid, Balance…) — found typed in full. */
+  figures?: number[];
 }
 
 export interface DashDetail {
@@ -612,10 +622,24 @@ export interface DashDetail {
   rows?: DetailRow[];
   /** footer total, when the rows add up to one */
   total?: string;
+  /** the same total over the rows a search leaves */
+  totalOf?: (rows: DetailRow[]) => string;
 }
 
 export function DetailSheet({ detail, onClose }: { detail: DashDetail | null; onClose: () => void }) {
   const { colors, brandStrong, brandSoft } = useDash();
+  // Search and sort (detailRows.ts) — every card opens fresh, nothing carried over.
+  const [query, setQuery] = useState('');
+  const [sort, setSort] = useState<SheetSort>(NO_SHEET_SORT);
+  useEffect(() => {
+    setQuery('');
+    setSort(NO_SHEET_SORT);
+  }, [detail]);
+  const rows = useMemo(() => detail?.rows || [], [detail]);
+  const shown = useMemo(() => visibleSheetRows(rows, query, sort), [rows, query, sort]);
+  const sorts = sortsFor(rows);
+  const searching = !!query && rows.length > 0;
+  const footerTotal = searching ? detail?.totalOf?.(shown) : detail?.total;
   return (
     <Sheet
       visible={!!detail}
@@ -623,10 +647,10 @@ export function DetailSheet({ detail, onClose }: { detail: DashDetail | null; on
       title={detail?.title}
       subtitle={detail?.subtitle}
       footer={
-        detail?.total ? (
+        footerTotal ? (
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-            <Text variant="bodyStrong">Total</Text>
-            <Text variant="bodyStrong" style={{ fontVariant: ['tabular-nums'] }}>{detail.total}</Text>
+            <Text variant="bodyStrong">{searching ? `Total · ${shown.length} of ${rows.length}` : 'Total'}</Text>
+            <Text variant="bodyStrong" style={{ fontVariant: ['tabular-nums'] }}>{footerTotal}</Text>
           </View>
         ) : undefined
       }
@@ -666,13 +690,37 @@ export function DetailSheet({ detail, onClose }: { detail: DashDetail | null; on
         </View>
       ) : null}
 
+      {rows.length > 1 ? (
+        <View style={{ marginBottom: 6 }}>
+          <SearchField value={query} onChangeText={setQuery} placeholder="Search these records…" />
+          <ChipRow style={{ marginTop: 8 }}>
+            {sorts.map((s) => {
+              const on = sort.key === s.key;
+              return (
+                <Chip
+                  key={s.key}
+                  label={s.label}
+                  active={on}
+                  trailingIcon={on ? (sort.dir === 'desc' ? 'arrow-down' : 'arrow-up') : undefined}
+                  onPress={() => setSort((p) => nextSheetSort(p, s.key))}
+                />
+              );
+            })}
+          </ChipRow>
+        </View>
+      ) : null}
+
       {detail?.rows ? (
         detail.rows.length === 0 ? (
           <Text variant="body" tone="faint" style={{ textAlign: 'center', paddingVertical: 16 }}>
             No records for this period
           </Text>
+        ) : shown.length === 0 ? (
+          <Text variant="body" tone="faint" style={{ textAlign: 'center', paddingVertical: 16 }}>
+            {searchHint(query) || `Nothing here matches “${query}”`}
+          </Text>
         ) : (
-          detail.rows.map((r, i) => (
+          shown.map((r, i) => (
             <View
               key={r.key}
               style={{ flexDirection: 'row', gap: 12, paddingVertical: 10, borderTopWidth: i ? 1 : 0, borderTopColor: colors.border }}

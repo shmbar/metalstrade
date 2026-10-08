@@ -570,6 +570,39 @@ describe('finance.toMT — quantity is converted through the contract\'s own uni
   });
 });
 
+describe('finance.perMT — a line in tonnes at its price per MT (Cashflow, 2026-10-08)', () => {
+  // Client: "660 kgs should show 0.66 MT". Qty × price must still be the line's total.
+  const s = makeSettings();
+  const line = (o: any) => ({ qTypeTable: 'q-kgs', ...o });
+
+  it('660 kg at $3,950 per kg is 0.660 MT at $3,950,000 per MT', () => {
+    const m = both(webFinance.perMT, mobFinance.perMT, line({ qnty: '660.000', unitPrc: 3950 }), s);
+    expect(m).toEqual({ qnty: 0.66, unitPrc: 3950000, unit: 'KGS', factor: 0.001, places: 3 });
+    expect(m.qnty * m.unitPrc).toBeCloseTo(660 * 3950, 6);
+  });
+
+  it('keeps every digit a converted figure has, so the line multiplies back to its total', () => {
+    const kg = both(webFinance.perMT, mobFinance.perMT, line({ qnty: '49.960', unitPrc: 400 }), s);
+    expect([kg.qnty, kg.places, kg.unitPrc]).toEqual([0.04996, 5, 400000]);
+    expect(kg.qnty * kg.unitPrc).toBeCloseTo(19984, 6);
+    const lb = both(webFinance.perMT, mobFinance.perMT, { qTypeTable: 'q-lb', qnty: 95.185, unitPrc: 3430 }, s);
+    expect([lb.qnty, lb.places, lb.unitPrc]).toEqual([0.0475925, 7, 6860000]); // the app's LB = 1/2000
+    expect(lb.qnty * lb.unitPrc).toBeCloseTo(95.185 * 3430, 6);
+  });
+
+  it('an MT line — or one with no or an unknown unit — comes back exactly as it is', () => {
+    const row = { qTypeTable: 'q-mt', qnty: '19.976', unitPrc: 3371.132 };
+    expect(both(webFinance.perMT, mobFinance.perMT, row, s)).toEqual({ qnty: '19.976', unitPrc: 3371.132, unit: 'MT', factor: 1, places: 3 });
+    expect(both(webFinance.perMT, mobFinance.perMT, { qnty: '7' }, s)).toEqual({ qnty: '7', unitPrc: undefined, unit: 'MT', factor: 1, places: 3 });
+    expect(both(webFinance.perMT, mobFinance.perMT, { qTypeTable: 'q-bogus', qnty: 5, unitPrc: 10 }, s).factor).toBe(1);
+  });
+
+  it('junk on a converted line is 0, never NaN', () => {
+    const m = both(webFinance.perMT, mobFinance.perMT, line({ qnty: 'n/a', unitPrc: undefined }), s);
+    expect([m.qnty, m.unitPrc]).toEqual([0, 0]);
+  });
+});
+
 // ─────────────────────────────────────────────────────────────────────────────
 // finance.js — the date-driven and collection-level exports.
 //
@@ -1910,6 +1943,9 @@ const SHARED_EXPORTS: Record<string, { covered: string[]; untestable?: Record<st
       // 2026-10-07 — Cashflow's EUR→USD when no live rate answered. Covered web AND mobile
       // in __tests__/eurUsdRate.test.ts.
       'EUR_USD_FALLBACK',
+      // 2026-10-08 — a line in tonnes at its price per MT (Cashflow). Covered above, web AND
+      // mobile, in 'finance.perMT'.
+      'perMT',
     ],
     untestable: {
       resolveDueDate: 're-export of pureHelpers.resolveDueDate (finance.js:9-11) — covered there',

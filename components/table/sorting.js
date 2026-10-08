@@ -33,16 +33,23 @@ export const sortRows = (arr, key, dir) => {
 
    Takes EITHER the whole useSortState object as `sort` — the short form, for a
    table with several sortable headers — or the three pieces separately, which is
-   how cashflow's tables already call it. */
+   how cashflow's tables already call it.
+
+   `arrowFirst` puts the arrow BEFORE the label, in the flow, for a right-aligned
+   figures column: the usual arrow takes no width and paints to the right of the
+   label, which in a right-aligned header is past the cell's edge — under the next
+   sticky header cell, or clipped with a scrollbar on the last column (Dashboard
+   card pop-ups, 2026-10-08). */
 export const SortTh = ({
     colKey, label, sort,
     sortKey = sort?.sortKey, sortDir = sort?.sortDir, onSort = sort?.handleSort,
-    className = '', idle = false, style,
+    className = '', idle = false, style, arrowFirst = false,
 }) => (
     <th className={`group/th cursor-pointer select-none ${className}`} style={style} onClick={() => onSort(colKey)}>
         <span className="inline-flex items-center gap-1">
+            {arrowFirst && <SortIcon direction={sortKey === colKey ? sortDir : null} idle={idle} inline />}
             {label}
-            <SortIcon direction={sortKey === colKey ? sortDir : null} idle={idle} />
+            {!arrowFirst && <SortIcon direction={sortKey === colKey ? sortDir : null} idle={idle} />}
         </span>
     </th>
 );

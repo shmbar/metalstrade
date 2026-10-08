@@ -8,7 +8,7 @@ import { computeInventory, cashflowStockLots } from '@/features/stocks/aggregate
 import { Contract, Invoice } from '@/data/types';
 import { resolveClientName } from '@/features/invoices/useInvoices';
 import { monthRemaining } from '@/features/margins/derive';
-import { num, settlementReduction, docsInForce, fx } from '@shared/finance';
+import { num, settlementReduction, docsInForce, fx, perMT } from '@shared/finance';
 import { priceShare } from '@shared/lotPrice';
 // @ts-ignore — plain JS module shared verbatim with the web
 import { lotIsSold } from '@shared/soldStatus';
@@ -43,8 +43,18 @@ export interface StockLotRow {
   order: string;
   supplierName: string;
   description: string;
+  /** As booked, in the PO's unit (`unit`). */
   qnty: number;
   unitPrc: number;
+  /** What the line shows — in MT at its price per MT, as web's tables (shared finance perMT). */
+  qntyMT: number;
+  unitPrcMT: number;
+  /** Decimals that keep the MT figure exact (49.96 kg → 0.04996). */
+  mtPlaces: number;
+  /** 'MT' | 'KGS' | 'LB' … */
+  unit: string;
+  /** The unit's settings id (perMT reads it — the draft chip converts with it). */
+  qTypeTable?: string;
   total: number;
   cur: string;
   /** Keys into CashflowData.draftMaterials, in web's lookup order. */
@@ -77,6 +87,12 @@ export interface UnsoldLineRow {
   stockName: string;
   qnty: number;
   unitPrc: number;
+  /** In MT at a price per MT, as StockLotRow. */
+  qntyMT: number;
+  unitPrcMT: number;
+  mtPlaces: number;
+  unit: string;
+  qTypeTable?: string;
   total: number;
   cur: string;
   draftKeys: string[];
@@ -255,6 +271,14 @@ function computeReceivablesWeb(invoices: Invoice[]): any[] {
 // uses (web funcs.js stockHoldInvoices). Web reads those invoices off its supplier
 // rows, so they are resolved the same way here: the 4-year contract load, drafts and
 // ≤1¢ balances left out, nothing paid. A held row stays listed but leaves the totals.
+// A Cashflow line as it shows: in MT at its price per MT (web funcs.js withMT), so a lot kept
+// in kg reads 0.660 MT × $3,950,000.00 (client, 2026-10-08). The booked qnty / unitPrc stay
+// beside it, and the total is never recomputed from the MT pair.
+function linePerMT(row: any, settings: any) {
+  const m = perMT(row, settings);
+  return { qntyMT: Number(m.qnty) || 0, unitPrcMT: Number(m.unitPrc) || 0, mtPlaces: m.places, unit: m.unit, qTypeTable: row?.qTypeTable || '' };
+}
+
 function splitStocksPaidUnpaid(inventoryRows: any[], contractsData: any[], settings: any, holdContracts: any[] = [], rate = 0) {
   const supName = (id: string) => settings?.Supplier?.Supplier?.find((x: any) => x.id === id)?.nname || '';
   const paid: any[] = [];
@@ -347,6 +371,7 @@ function splitStocksPaidUnpaid(inventoryRows: any[], contractsData: any[], setti
         description: r.descriptionName || '',
         qnty: Number(r.qnty) || 0,
         unitPrc: Number(r.unitPrc) || 0,
+        ...linePerMT(r, settings),
         total,
         cur: r.cur === 'eu' ? 'eu' : 'us',
         draftKeys: [r.descriptionId, r.description].filter(Boolean).map(String),
@@ -494,6 +519,7 @@ function computeUnsoldWeb(contractsData: any[], stockData: any[], settings: any,
         unitPrc,
         total: qnty * unitPrc,
         cur: con.cur,
+        qTypeTable: con.qTypeTable || '', // the PO's unit, as web funcs.js — the line shows in MT
       });
     }
     return rows;
@@ -519,6 +545,7 @@ function computeUnsoldWeb(contractsData: any[], stockData: any[], settings: any,
       stockName: item.stockName,
       qnty: item.qnty,
       unitPrc: item.unitPrc,
+      ...linePerMT(item, settings),
       total: item.total,
       cur: item.cur === 'eu' ? 'eu' : 'us',
       draftKeys: item.descriptionId ? [String(item.descriptionId)] : [],

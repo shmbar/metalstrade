@@ -51,13 +51,13 @@ const StockDetails = ({ row, settings, dataTable }) => {
                     style={{ width: `${DESC_W}px`, paddingLeft: indent ? '18px' : 0 }}>{z.descriptionName}</span>
             </td>
             <td>
-                <NumericFormat value={z.qnty} displayType="text" thousandSeparator allowNegative decimalScale='3' fixedDecimalScale />
+                <NumericFormat value={z.qnty} displayType="text" thousandSeparator allowNegative decimalScale={3} fixedDecimalScale />
             </td>
             <td>
-                <NumericFormat value={z.unitPrc} displayType="text" thousandSeparator allowNegative prefix={z.cur === 'us' ? '$' : '€'} decimalScale='2' fixedDecimalScale />
+                <NumericFormat value={z.unitPrc} displayType="text" thousandSeparator allowNegative prefix={z.cur === 'us' ? '$' : '€'} decimalScale={2} fixedDecimalScale />
             </td>
             <td>
-                <NumericFormat value={z.total} displayType="text" thousandSeparator allowNegative prefix={z.cur === 'us' ? '$' : '€'} decimalScale='2' fixedDecimalScale />
+                <NumericFormat value={z.total} displayType="text" thousandSeparator allowNegative prefix={z.cur === 'us' ? '$' : '€'} decimalScale={2} fixedDecimalScale />
             </td>
         </tr>
     )
@@ -86,11 +86,11 @@ const StockDetails = ({ row, settings, dataTable }) => {
                         </span>
                     </td>
                     <td className="font-medium">
-                        <NumericFormat value={qSum} displayType="text" thousandSeparator decimalScale='3' fixedDecimalScale />
+                        <NumericFormat value={qSum} displayType="text" thousandSeparator decimalScale={3} fixedDecimalScale />
                     </td>
                     <td></td>
                     <td className="font-medium">
-                        <NumericFormat value={tSum} displayType="text" thousandSeparator prefix={z.cur === 'us' ? '$' : '€'} decimalScale='2' fixedDecimalScale />
+                        <NumericFormat value={tSum} displayType="text" thousandSeparator prefix={z.cur === 'us' ? '$' : '€'} decimalScale={2} fixedDecimalScale />
                     </td>
                 </tr>
             )
