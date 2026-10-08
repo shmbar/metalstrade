@@ -19,7 +19,9 @@ const KEEP_VISIBLE = 120;
 const TITLE_BAR = 48;
 const clamp = (v, lo, hi) => Math.min(Math.max(v, lo), hi);
 
-const Modal = ({ isOpen, setIsOpen, title, subtitle, children, size = 'md', w, draggable = false }) => {
+/* `headerRight`: a control that belongs to the whole dialog — the Dashboard card pop-ups' search
+   (2026-10-08) — drawn in the title bar beside ×, so it costs the list no row of its own. */
+const Modal = ({ isOpen, setIsOpen, title, subtitle, children, size = 'md', w, draggable = false, headerRight = null }) => {
 
     /* `w` is the old escape hatch — a raw max-w-* class — and still wins where a call site
        passes one, so nothing breaks mid-migration. `size` is the scale to move onto. */
@@ -123,14 +125,21 @@ const Modal = ({ isOpen, setIsOpen, title, subtitle, children, size = 'md', w, d
                                                 <p className="responsiveText text-[var(--ink-muted)] leading-tight mt-0.5 truncate">{subtitle}</p>
                                             )}
                                         </div>
-                                        <button
-                                            type="button"
-                                            aria-label="Close"
-                                            className='shrink-0 w-7 h-7 flex items-center justify-center rounded-lg text-[var(--ink-muted)] hover:bg-[var(--bg-subtle)] hover:text-[var(--ink)] cursor-pointer transition-colors'
-                                            onClick={() => setIsOpen(false)}
-                                        >
-                                            <X size={16} />
-                                        </button>
+                                        {(() => {
+                                            const close = (
+                                                <button
+                                                    type="button"
+                                                    aria-label="Close"
+                                                    className='shrink-0 w-7 h-7 flex items-center justify-center rounded-lg text-[var(--ink-muted)] hover:bg-[var(--bg-subtle)] hover:text-[var(--ink)] cursor-pointer transition-colors'
+                                                    onClick={() => setIsOpen(false)}
+                                                >
+                                                    <X size={16} />
+                                                </button>
+                                            );
+                                            return headerRight
+                                                ? <div className="shrink-0 self-center flex items-center gap-2">{headerRight}{close}</div>
+                                                : close;
+                                        })()}
                                     </DialogTitle >
 
                                     {/* Forms pin their own action row with sticky bottom-0 against this

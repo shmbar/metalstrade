@@ -285,17 +285,18 @@ const fmtPct = (p) => {
 /* Search and sort for the records behind a card (client, 2026-10-08: "when opening cards,
    should be able to filter, and sort") — detailRows.js; the totals follow the rows shown. */
 
-// The search box over a card's records, with "12 of 40" (and their total, where the table
-// has no footer to show it) once it narrows them.
+// The search box over a card's records — in the pop-up's title bar, beside × (Zak,
+// 2026-10-08) — with "12 of 40" (and their total, where the table has no footer to show it)
+// to its left once it narrows them.
 function DetailSearch({ value, onChange, shown, total, sum = '' }) {
   return (
-    <div className="flex items-center gap-2 mb-2">
-      <div className="search-field w-56">
+    <div className="flex items-center gap-2">
+      {value ? <span className="hidden sm:inline responsiveTextTableTitle text-[var(--ink-muted)] whitespace-nowrap">{shown} of {total}{sum ? ` · ${sum}` : ''}</span> : null}
+      <div className="search-field w-36 sm:w-56">
         <input placeholder="Search" value={value} onChange={(e) => onChange(e.target.value)}
           aria-label="Search these records" type="text" />
         <SearchAdornment value={value} onClear={() => onChange('')} />
       </div>
-      {value ? <span className="responsiveTextTableTitle text-[var(--ink-muted)]">{shown} of {total}{sum ? ` · ${sum}` : ''}</span> : null}
     </div>
   );
 }
@@ -321,7 +322,8 @@ function DetailModal({ title, subtitle, rows = [], cols = [], formula = null, is
      search totals what it found. */
   const total = shown.reduce((a, r) => a + (Number(r.usd ?? r.value ?? r.amount) || 0), 0);
   return (
-    <Modal isOpen={isOpen} setIsOpen={setIsOpen} size="xl" title={title || ''} subtitle={subtitle}>
+    <Modal isOpen={isOpen} setIsOpen={setIsOpen} size="xl" title={title || ''} subtitle={subtitle}
+      headerRight={rows.length > 1 ? <DetailSearch value={query} onChange={setQuery} shown={shown.length} total={rows.length} /> : null}>
       <div className="p-4">
         {/* Derived figures — the per-MT ones, the profits — have no list of records behind
             them; their "detail" IS the arithmetic. Showing the inputs and the operator is
@@ -349,7 +351,6 @@ function DetailModal({ title, subtitle, rows = [], cols = [], formula = null, is
           : rows.length === 0
           ? <div className="responsiveText text-[var(--regent-gray)] py-6 text-center">Nothing recorded for this row in the period</div>
           : (<>
-            {rows.length > 1 && <DetailSearch value={query} onChange={setQuery} shown={shown.length} total={rows.length} />}
             {/* The scroll box is THIS div, and it deliberately carries no rounding or
                overflow-hidden. It used to: a rounded card with overflow-hidden wrapped the
                table, and an overflow-hidden ancestor becomes the sticky container — the
@@ -525,12 +526,12 @@ function ExpenseDrillModal({ label, rows = [], settings, isOpen, setIsOpen }) {
   return (
     <Modal isOpen={isOpen} setIsOpen={setIsOpen} size="xl"
       title={label || 'Expenses'}
-      subtitle={`${rows.length} expense${rows.length === 1 ? '' : 's'} across ${suppliers} supplier${suppliers === 1 ? '' : 's'} · ${fmtAutoKM(total)}`}>
+      subtitle={`${rows.length} expense${rows.length === 1 ? '' : 's'} across ${suppliers} supplier${suppliers === 1 ? '' : 's'} · ${fmtAutoKM(total)}`}
+      headerRight={rows.length > 1 ? (
+        <DetailSearch value={query} onChange={setQuery} shown={shownLines} total={rows.length}
+          sum={query ? fmtAutoKM(shownTotal) : ''} />
+      ) : null}>
       <div className="p-4 flex flex-col gap-3">
-        {rows.length > 1 && (
-          <DetailSearch value={query} onChange={setQuery} shown={shownLines} total={rows.length}
-            sum={query ? fmtAutoKM(shownTotal) : ''} />
-        )}
         {rows.length === 0
           ? <div className="responsiveText text-[var(--regent-gray)] py-6 text-center">No expenses of this type in the period</div>
           : groups.length === 0
