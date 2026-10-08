@@ -273,7 +273,13 @@ const HASH = {
   // not the last lot (a sale or move-out carries none) — Cashflow now shows every line in
   // MT, so a kg line that lost its unit would show 660 kg as 660 MT. Mobile's
   // computeInventory (cashflow branch too) takes the same rule; 'cashflow keeps a kg line…'.
-  runStocks: '2a75df183727', // app/(root)/cashflow/funcs.js:278
+  // Re-recorded again 2026-10-08 (was 2a75df183727): an UNSOLD line is priced from its lots
+  // (the Materials Breakdown), weighted by quantity, like the paid/unpaid rows — not from the
+  // PO line, which holds only the base price (Hf Ni VAR: PO $3,950/kg, breakdown $3,517.87). A
+  // lot with no price, or a line not yet received, still takes the PO's. Mobile's
+  // computeUnsoldWeb takes the same rule — shipment-cashflow-formatters 'priced from its
+  // Materials Breakdown lots'.
+  runStocks: 'dd37c04979a5', // app/(root)/cashflow/funcs.js:278
   staleDays: 'a2e0c4822268', // app/(root)/stocks/storageAging.js:11
   // Re-recorded 2026-09-09: DEMURRAGE_DAYS renamed to LONG_STAY_DAYS — the value
   // (90) is unchanged, but "demurrage" implied a specific shipping-contract charge

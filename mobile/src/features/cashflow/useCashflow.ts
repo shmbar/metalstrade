@@ -489,14 +489,21 @@ function computeUnsoldWeb(contractsData: any[], stockData: any[], settings: any,
             : Number(prod.qnty) || 0;
       if (qnty <= 0.0005) continue; // nothing left (or represented by the per-alloy lines)
 
-      // A line priced per element content (shared lotPrice.js) is worth its lots' content
-      // share of the price, weighted by quantity — web funcs.js runStocks, verbatim rule.
+      // The price is the LOTS' — the Materials Breakdown, filled from the supplier's invoice —
+      // weighted by quantity; the PO line holds only the base price (Hf Ni VAR: PO $3,950 per kg,
+      // breakdown $3,517.87 by formula — client, 2026-10-08). A lot with no price of its own
+      // takes the PO's, a line with nothing received yet has only the PO's, and a lot priced per
+      // element content (shared lotPrice.js) counts its share — web funcs.js runStocks, verbatim.
+      const poPrice = Number(prod.unitPrc) || 0;
+      const lotUnitPrice = (l: any) => {
+        const own = parseFloat(l.unitPrc);
+        return (Number.isFinite(own) && own !== 0 ? own : poPrice) * priceShare(l);
+      };
       const lotsQty = unsoldLots.reduce((s, l) => s + (Number(l.qnty) || 0), 0);
-      const share =
-        lotsQty > 0 && unsoldLots.some((l: any) => l.priceOn)
-          ? unsoldLots.reduce((s, l) => s + (Number(l.qnty) || 0) * priceShare(l), 0) / lotsQty
-          : 1;
-      const unitPrc = (Number(prod.unitPrc) || 0) * share;
+      const unitPrc =
+        lotsQty > 0
+          ? unsoldLots.reduce((s, l) => s + (Number(l.qnty) || 0) * lotUnitPrice(l), 0) / lotsQty
+          : poPrice;
       // Warehouse(s) the unsold material physically sits in, from its lots — web
       // funcs.js runStocks stockName, verbatim.
       const stockName = [

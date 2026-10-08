@@ -1690,6 +1690,40 @@ describe('cashflow — the bottom line', () => {
     expect(line).toMatchObject({ qnty: 660, unitPrc: 3950, total: 2_607_000, qntyMT: 0.66, unitPrcMT: 3_950_000, unit: 'KGS' });
   });
 
+  it('an unsold line is priced from its Materials Breakdown lots, not the PO\'s base price (2026-10-08)', () => {
+    // Client: Hf Ni VAR's PO line says $3,950 per kg — only the base price; the breakdown has
+    // $3,517.87, worked out by formula (× 89.06% Hf) and invoiced by Shalex. Unsold Stocks took
+    // the PO's, so it read $2,607,000 where Stocks - Paid read $2,321,794.20.
+    const hfLine = makeProduct({ id: 'prd-hf', description: 'Hf Ni VAR', qnty: '1000', unitPrc: '3950' });
+    const lot = (over: any) => makeStockLot({
+      description: 'prd-hf', descriptionId: 'prd-hf', qTypeTable: 'q-kgs', productsData: [hfLine], ...over,
+    });
+    const contract = (stock: string[]) => [makeContract({
+      id: 'con-hf', order: 'PO-HF', supplier: 'sup-1', qTypeTable: 'q-kgs', productsData: [hfLine], stock, poInvoices: [],
+    })];
+    const lineOf = (d: any) => d.unsoldBySupplier.flatMap((s: any) => s.items).find((l: any) => l.order === 'PO-HF');
+
+    // The breakdown's price.
+    const priced = world({ contracts2y: contract(['hf-1']), stocks: [lot({ id: 'hf-1', qnty: '660', unitPrc: '3517.87' })] });
+    expect(lineOf(priced)).toMatchObject({ qnty: 660, qntyMT: 0.66 });
+    expect(lineOf(priced).unitPrc).toBeCloseTo(3517.87, 6); // a weighted average carries float noise;
+    expect(lineOf(priced).unitPrcMT).toBeCloseTo(3_517_870, 4); // the screens round it away
+    expect(lineOf(priced).total).toBeCloseTo(2_321_794.2, 6);
+
+    // Two lots at different prices: weighted by quantity, not either one's.
+    const two = world({
+      contracts2y: contract(['hf-1', 'hf-2']),
+      stocks: [lot({ id: 'hf-1', qnty: '600', unitPrc: '3500' }), lot({ id: 'hf-2', invoice: 1002, qnty: '60', unitPrc: '3700' })],
+    });
+    expect(lineOf(two).total).toBeCloseTo(600 * 3500 + 60 * 3700, 6);
+
+    // A lot with no price of its own takes the PO's; nothing received yet has only the PO's.
+    const unpriced = world({ contracts2y: contract(['hf-1']), stocks: [lot({ id: 'hf-1', qnty: '660', unitPrc: '' })] });
+    expect(lineOf(unpriced)).toMatchObject({ unitPrc: 3950, total: 2_607_000 });
+    const notYet = world({ contracts2y: contract([]), stocks: [] });
+    expect(lineOf(notYet)).toMatchObject({ qnty: 1000, unitPrc: 3950 });
+  });
+
   it('Total (Right) adds supplier payables, unpaid expenses and right-hand financing', () => {
     // Mirror: web page.js:314-324.
     const contracts4y = [

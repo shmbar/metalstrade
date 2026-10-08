@@ -399,13 +399,22 @@ export const runStocks = async (uidCollection, settings, yr, contractsData = [],
             // Value mirrors the inventory tables: quantity × the line's unit price. Summing
             // raw lot totals would fold in zero-quantity settlement/adjustment lots, which
             // distorts both the value and the displayed unit price.
-            // A line priced per element content (lotPrice.js) is worth its lots' content
-            // share of the price — weighted by quantity, as lots of one line can assay
-            // differently. Hf Ni VAR: $3,950 per kg of Hf × 89.06% Hf.
+            // The price is the LOTS' — the Materials Breakdown, filled from the supplier's
+            // invoice — as Stocks - Paid / UnPaid price a line (lotPrice above). The PO line
+            // holds only the base price: Hf Ni VAR's PO says $3,950 per kg, its breakdown
+            // $3,517.87 by formula (× 89.06% Hf) — client, 2026-10-08. Weighted by quantity, as
+            // lots of one line can differ; a lot with no price of its own takes the PO's, and a
+            // line with nothing received yet has only the PO's. A lot priced per element content
+            // (lotPrice.js) counts its content share.
+            const poPrice = Number(prod.unitPrc) || 0;
+            const lotUnitPrice = (l) => {
+                const own = parseFloat(l.unitPrc);
+                return (Number.isFinite(own) && own !== 0 ? own : poPrice) * priceShare(l);
+            };
             const lotsQty = unsoldLots.reduce((s, l) => s + (Number(l.qnty) || 0), 0);
-            const share = lotsQty > 0 && unsoldLots.some(l => l.priceOn)
-                ? unsoldLots.reduce((s, l) => s + (Number(l.qnty) || 0) * priceShare(l), 0) / lotsQty : 1;
-            const unitPrc = (Number(prod.unitPrc) || 0) * share;
+            const unitPrc = lotsQty > 0
+                ? unsoldLots.reduce((s, l) => s + (Number(l.qnty) || 0) * lotUnitPrice(l), 0) / lotsQty
+                : poPrice;
             const total = qnty * unitPrc;
             // Warehouse(s) the unsold material physically sits in (from its lots).
             const stockName = [...new Set(unsoldLots
